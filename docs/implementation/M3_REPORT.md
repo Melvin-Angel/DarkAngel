@@ -1,4 +1,4 @@
-# M3 LocalLoopback starter
+# M3 session foundation
 
 Started 8 October 2026. **M3 is In progress.** The M1/M2 supported-profile gates are verified, so the shared transport boundary is now useful for the session milestone. This starter adds no SDK dependency and initializes no EOS/online service.
 
@@ -7,3 +7,9 @@ Started 8 October 2026. **M3 is In progress.** The M1/M2 supported-profile gates
 One focused native case covers bidirectional packets, sequence/source identity, admission mismatch, capacity, bounded polling, foreign/stale handles, reconnect and endpoint ownership cleanup. It passed in the full Debug/RelWithDebInfo suites; the destructor cleanup follow-up passed separately in the optimized profile. Receipts: [m3-loopback.json](evidence/m3-loopback.json), [build](evidence/m3-loopback-build.log), [test](evidence/m3-loopback-test.log).
 
 This is an in-process transport adapter, not a completed gameplay WorldSession or a network qualification. Peer membership/authentication, authoritative create/move/despawn and baseline/late join, protocol codecs/readiness, GNS LAN and EOS Connect/Lobbies/P2P adapters remain. The native scoped Windows command endpoint and separate official TypeScript MCP bridge remain pending; no agent endpoint is exposed. The existing M0 selected SDK pins remain authoritative. Test these adapters before gameplay systems depend on them, following DAE-009/014.
+
+## Authority checkpoint (8 October)
+
+`WorldSession` now owns server-generated monotonic NetworkIds separately from persistent object IDs and gameplay epochs. Clients cannot create/move/destroy authority. All providers use the same explicit little-endian wire format, content/schema/protocol validation and Handshake/ContentReady/Bootstrap/CatchUp/Ready state machine. Full typed transform/health snapshots use <=1000-byte packets, bounded chunk counts and peer/object/work limits. A candidate client world is validated before atomic publication; application ACK follows complete retained decoding. Changes made during bootstrap cause a fresh current baseline before Ready. Backpressure preserves the captured revision; timeout and malformed messages disconnect the peer. IDs are never recycled within a session.
+
+Focused Debug tests cover 23 objects across multiple chunks with a two-packet queue, late join, current move/despawn state, invalid mutations, stale epochs, duplicate identity protection and forged client traffic. [Receipt](evidence/m3-authority.json). This first bounded full-snapshot slice deliberately rejects scripts, durable target references and optional authoring payloads rather than losing them. Delta encoding, interest management, gameplay input/prediction and large-world resource bindings remain later extensions. GNS/EOS and the endpoint/bridge still gate M3 completion.

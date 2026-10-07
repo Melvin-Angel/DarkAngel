@@ -170,6 +170,11 @@ void World::apply_edits(std::span<const NumberEdit> edits,Authority a) {
     for(const auto& [h,d] : staged)validate(d);
     for(const auto& [h,d] : staged) {auto e=impl_->ecs.entity(h.runtime);e.set<Transform>(d.transform);e.set<Health>(d.health);}
 }
+void World::set_transform(EntityHandle h,const Transform& value,Authority a){
+    impl_->check(h);impl_->authority(a);require(impl_->phase==Phase::Idle,"Transform update requires idle safe point");
+    require(impl_->domain==WorldDomain::Server,"Transform update requires server world");
+    auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);
+}
 std::string World::serialize() const {
     impl_->thread(); require(impl_->phase==Phase::Idle,"Capture requires safe point");
     Json root={{"version",1},{"objects",Json::array()}};

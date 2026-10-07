@@ -80,6 +80,7 @@ public:
     void commit();
     void publish();
     void edit_number(EntityHandle, TypeId, PropertyId, double, Authority);
+    void set_transform(EntityHandle,const Transform&,Authority);
     void apply_edits(std::span<const NumberEdit>, Authority);
     std::string serialize() const;
     // Validate the complete scene before creating entities. Destination must be empty.

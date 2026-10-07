@@ -17,6 +17,7 @@ public:
     virtual ~Transport()=default;
     virtual ConnectionHandle open(const SessionHandshake&)=0;
     virtual bool connected() const=0;
+    virtual TransportLimits limits() const=0;
     virtual bool send(ConnectionHandle,Delivery,std::span<const std::byte>)=0;
     virtual std::vector<TransportMessage> poll(std::size_t max_packets)=0;
     virtual void disconnect(ConnectionHandle)=0;
