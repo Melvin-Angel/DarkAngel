@@ -1,0 +1,563 @@
+{
+  "schema": 1,
+  "resolution": "metadata closure; native vcpkg plan pending MSVC",
+  "ports": [
+    {
+      "name": "abseil",
+      "version": "20260107.1",
+      "port_version": 3,
+      "license": "Apache-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/abseil",
+      "patches": {
+        "003-force-cxx-17.patch": "6481fcaa774212d1453396c26c5240bdbd3cbb25784a94ffa077651b718cf367",
+        "fix-gcc13-constexpr-function-pointer.patch": "4ea325ea617d3b6ed9dc29e09f4d22b9836c99c114d8c4b09e181e8cbae51e6c",
+        "fix-heterogeneous_lookup_testing-target.patch": "fc84e3f929674dd0f0dfd84e267f7ed431b95417bf69a61149b69c5e40c4ab6c",
+        "fix-mingw-dll.patch": "da10bf980900c2b8c2bde9028419999a8cfa1ec3c3d77707239459a078231a5c"
+      },
+      "assets": [
+        "abseil:abseil-abseil-cpp-20260107.1.tar.gz"
+      ]
+    },
+    {
+      "name": "behaviortree-cpp",
+      "version": "4.9.1",
+      "port_version": 0,
+      "license": null,
+      "features_available": [
+        "groot",
+        "sqlite"
+      ],
+      "recipe": ".tools/vcpkg/ports/behaviortree-cpp",
+      "patches": {
+        "fix-dependencies.patch": "7db1a95cc147d3963bbe2e580ff9a5820c8a0bcce24f8930bb098722bd4b9bd0",
+        "remove-source-charset.diff": "2b4d8ce12e4ee46b1b30e3bd298ef8bddbea4e2ec8dcf7504dab8b1faee8e591"
+      },
+      "assets": [
+        "behaviortree-cpp:BehaviorTree-BehaviorTree.CPP-4.9.1.tar.gz"
+      ]
+    },
+    {
+      "name": "cgltf",
+      "version": "1.15",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/cgltf",
+      "patches": {},
+      "assets": [
+        "cgltf:jkuhlmann-cgltf-v1.15.tar.gz"
+      ]
+    },
+    {
+      "name": "directxmath",
+      "version": "2026-06-12",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "dx11",
+        "dx12",
+        "xdsp"
+      ],
+      "recipe": ".tools/vcpkg/ports/directxmath",
+      "patches": {},
+      "assets": [
+        "directxmath:Microsoft-DirectXMath-jun2026.tar.gz"
+      ]
+    },
+    {
+      "name": "directxtex",
+      "version": "2026-05-07",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "dx11",
+        "dx12",
+        "jpeg",
+        "openexr",
+        "png",
+        "spectre",
+        "tools",
+        "xbox"
+      ],
+      "recipe": ".tools/vcpkg/ports/directxtex",
+      "patches": {},
+      "assets": [
+        "directxtex:Microsoft-DirectXTex-may2026.tar.gz"
+      ]
+    },
+    {
+      "name": "dylib",
+      "version": "3.0.1",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/dylib",
+      "patches": {},
+      "assets": [
+        "dylib:martin-olivier-dylib-v3.0.1.tar.gz"
+      ]
+    },
+    {
+      "name": "eigen3",
+      "version": "5.0.1",
+      "port_version": 0,
+      "license": "MPL-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/eigen3",
+      "patches": {},
+      "assets": [
+        "eigen3:libeigen-eigen-5.0.1.tar.gz"
+      ]
+    },
+    {
+      "name": "flatbuffers",
+      "version": "25.12.19",
+      "port_version": 0,
+      "license": "Apache-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/flatbuffers",
+      "patches": {
+        "fix-runtime-flags-msvc.patch": "3b17721bf3a395855acf1d0055b1c5d553d89730cb349573a604a1bec9b89e5c",
+        "fix-uwp-build.patch": "f5602c3c58911f3e56295bf801a00691119a6b7ed785f80ec3dfee97c5eac71f"
+      },
+      "assets": [
+        "flatbuffers:google-flatbuffers-v25.12.19.tar.gz"
+      ]
+    },
+    {
+      "name": "flecs",
+      "version": "4.1.6",
+      "port_version": 0,
+      "license": null,
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/flecs",
+      "patches": {},
+      "assets": [
+        "flecs:SanderMertens-flecs-v4.1.6.tar.gz"
+      ]
+    },
+    {
+      "name": "freetype",
+      "version": "2.14.3",
+      "port_version": 0,
+      "license": "FTL OR GPL-2.0-or-later",
+      "features_available": [
+        "brotli",
+        "bzip2",
+        "error-strings",
+        "png",
+        "subpixel-rendering",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/freetype",
+      "patches": {
+        "0003-Fix-UWP.patch": "e0e04364e1d674ce1f04a23be7d260a25a7c335c037ca0a5296bcd0a80c1054b",
+        "brotli-static.patch": "170a70c878924a780affe0b365efad68777cdef1cffbdd6954af6fbdba3e0862",
+        "bzip2.patch": "f5d451ce5819f75591d8cc4afe6f735c07bc54d90ed788219fb632915809d8a9",
+        "fix-exports.patch": "0f5db916a0b0c5607ba5e85e47bd81a8955e09fbd3e3d9ea77e283dab7e90c41",
+        "subpixel-rendering.patch": "c406a21a3e10baee68ad353b658f3abb4d70f92d0195ce579e97d9ce64a92b17"
+      },
+      "assets": [
+        "freetype:freetype-freetype-VER-2-14-3.tar.gz"
+      ]
+    },
+    {
+      "name": "gamenetworkingsockets",
+      "version": "1.6.0",
+      "port_version": 0,
+      "license": "BSD-3-Clause",
+      "features_available": [
+        "ice"
+      ],
+      "recipe": ".tools/vcpkg/ports/gamenetworkingsockets",
+      "patches": {},
+      "assets": [
+        "gamenetworkingsockets:ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz"
+      ]
+    },
+    {
+      "name": "itlib",
+      "version": "1.12.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/itlib",
+      "patches": {},
+      "assets": [
+        "itlib:iboB-itlib-v1.12.2.tar.gz"
+      ]
+    },
+    {
+      "name": "joltphysics",
+      "version": "5.6.0",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "debugrenderer",
+        "profiler",
+        "rtti"
+      ],
+      "recipe": ".tools/vcpkg/ports/joltphysics",
+      "patches": {},
+      "assets": [
+        "joltphysics:jrouwe-JoltPhysics-v5.6.0.tar.gz"
+      ]
+    },
+    {
+      "name": "luau",
+      "version": "0.729",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "tool"
+      ],
+      "recipe": ".tools/vcpkg/ports/luau",
+      "patches": {
+        "cmake-config-export.patch": "cd678babebf3db61215841c218bff14203ba53ba5dacce275c71833c5916e800",
+        "fix-unittest.patch": "a4951e934a1f9fc606ba3b03aa66739a88c3f99109e59c343ee73b4d8e5a463c"
+      },
+      "assets": [
+        "luau:luau-lang-luau-0.729.tar.gz"
+      ]
+    },
+    {
+      "name": "lz4",
+      "version": "1.10.0",
+      "port_version": 0,
+      "license": "BSD-2-Clause",
+      "features_available": [
+        "tools"
+      ],
+      "recipe": ".tools/vcpkg/ports/lz4",
+      "patches": {
+        "target-lz4-lz4.diff": "82e8dcd050d3249f6ce0598a18136ee5939667a28e41ff5dd220d71b42a156f0"
+      },
+      "assets": [
+        "lz4:lz4-lz4-v1.10.0.tar.gz"
+      ]
+    },
+    {
+      "name": "meshoptimizer",
+      "version": "1.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "gltfpack"
+      ],
+      "recipe": ".tools/vcpkg/ports/meshoptimizer",
+      "patches": {
+        "dependencies.diff": "718ac494635c3fa3158ddd2ef50331a25b6f20677b7d421c739bcc6b6377b4ce"
+      },
+      "assets": [
+        "meshoptimizer:zeux-meshoptimizer-v1.2.tar.gz"
+      ]
+    },
+    {
+      "name": "miniaudio",
+      "version": "0.11.25",
+      "port_version": 0,
+      "license": "Unlicense OR MIT-0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/miniaudio",
+      "patches": {},
+      "assets": [
+        "miniaudio:mackron-miniaudio-0.11.25.tar.gz"
+      ]
+    },
+    {
+      "name": "minitrace",
+      "version": "2023-04-23",
+      "port_version": 0,
+      "license": null,
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/minitrace",
+      "patches": {},
+      "assets": [
+        "minitrace:hrydgard-minitrace-a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz"
+      ]
+    },
+    {
+      "name": "openssl",
+      "version": "3.6.3",
+      "port_version": 0,
+      "license": "Apache-2.0",
+      "features_available": [
+        "fips",
+        "ssl3",
+        "tools",
+        "weak-ssl-ciphers"
+      ],
+      "recipe": ".tools/vcpkg/ports/openssl",
+      "patches": {
+        "cmake-config.patch": "9b4cd414b2f7ea82e9bc46507312ad6046ba62403834869b1cc7badc13597a27",
+        "command-line-length.patch": "f901c068c91456b0405c726d2808ff53fb7b60775fc8a5cb22f2bd8feecf44eb",
+        "script-prefix.patch": "caa28374650ac6510fa5190a7645a91c86a7fd3570eb357e7fa0927b97e8f13e",
+        "android-cc.patch": "a3cde12ca3c7c7894e73d300e0ccf728de28b87afde13776e7d7267979c3ead2",
+        "move-openssldir.patch": "9e62ad861f8421e5b732bf488b7199131ac17a57f295f50c697d2591f5845e0e",
+        "no-empty-dirs.patch": "a03d46642c903c9eb09184eabc553ce1467e000c28a9e7d7e92d995970004a62",
+        "no-static-libs-for-shared.patch": "dc51d597ad7477fc56c2a394c84493c87a4de2b84898497dda2754dd0fd8cb53",
+        "install-layout.patch": "2e99d1714ecfe7224889c0df8c6b572d3ffca3927b640014c3f5cc4c144e72f6",
+        "install-pdbs.patch": "e913fdc775b5e7be3eb71bfc223d51c3d8fd7e933410493efdbc53c5a1e1f3b7",
+        "install-programs.diff": "09b91267b364fb10e101b432d86e761247bafbfd42cb7688b5d7748ea6175e2a"
+      },
+      "assets": [
+        "openssl:openssl-openssl-openssl-3.6.3.tar.gz"
+      ]
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.4",
+      "port_version": 2,
+      "license": "BSD-3-Clause",
+      "features_available": [
+        "libprotoc",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/protobuf",
+      "patches": {
+        "fix-constinit-with-clang-cl.patch": "44d38cd5e71ac40876c4362333f3acf39c149963955fd9f27fd015b2d3297192",
+        "fix-default-proto-file-path.patch": "b3d0a1c6f0b82a864c6507dd072d4e0d8e2d8d100a09456c8716074cc00e109a",
+        "fix-install-dirs.patch": "95c5ca6b16abf70b9d01437e26e1ff7e3c35606a968a97ce42a58faddb4725a3",
+        "fix-static-build.patch": "a4a59977f9c229a13aa6a2f75005f9fc8216fa9a77d499d23e19637dba79cab5",
+        "fix-upb.patch": "06128eeba4fd6271c423cbb2167c0442c1cd46e6fbff59a9a87c325979af86d2",
+        "fix-utf8-range.patch": "28b3cd5a56819250371551c3c066f19466dd3defe045d408a0b1beb7a44b5344"
+      },
+      "assets": [
+        "protobuf:protocolbuffers-protobuf-v33.4.tar.gz"
+      ]
+    },
+    {
+      "name": "recastnavigation",
+      "version": "1.6.0",
+      "port_version": 1,
+      "license": "Zlib",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/recastnavigation",
+      "patches": {
+        "fix-detail-mesh-edge-detection.patch": "bf707889576f58c9da2ab119c177939f3657c6943c417e91fd16e7d009e52b86"
+      },
+      "assets": [
+        "recastnavigation:recastnavigation-recastnavigation-v1.6.0.tar.gz"
+      ]
+    },
+    {
+      "name": "rmlui",
+      "version": "6.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "freetype",
+        "lottie",
+        "lua",
+        "svg"
+      ],
+      "recipe": ".tools/vcpkg/ports/rmlui",
+      "patches": {
+        "add-itlib-and-robin-hood.patch": "e6e3d4ba05e3030318402fdbea5a20c900a9ea9bb7ea095b869414ff743d99b2",
+        "skip-custom-find-modules.patch": "0e5792243b2d5aa4420b8869356847e5d59a263fe3e8ef1e917418d086daea79"
+      },
+      "assets": [
+        "rmlui:mikke89-RmlUi-6.2.tar.gz"
+      ]
+    },
+    {
+      "name": "robin-hood-hashing",
+      "version": "3.11.5",
+      "port_version": 2,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/robin-hood-hashing",
+      "patches": {
+        "fix-missing-stdint.patch": "9866094c3129a16b58d9ad895b157f06d81550aaed2d62c4441f1bd88cc6e4f0"
+      },
+      "assets": [
+        "robin-hood-hashing:martinus-robin-hood-hashing-3.11.5.tar.gz"
+      ]
+    },
+    {
+      "name": "sqlite3",
+      "version": "3.53.4",
+      "port_version": 0,
+      "license": "blessing",
+      "features_available": [
+        "dbpage-vtab",
+        "dbstat",
+        "fts3",
+        "fts4",
+        "fts5",
+        "geopoly",
+        "json1",
+        "limit",
+        "math",
+        "memsys3",
+        "memsys5",
+        "omit-load-extension",
+        "percentile",
+        "rtree",
+        "session",
+        "snapshot",
+        "soundex",
+        "tool",
+        "unicode",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/sqlite3",
+      "patches": {
+        "add-config-include.patch": "282d8b4716abc154e121bf89ef2db565220e705ce68abf6f626aceb92c10040b",
+        "fix-arm-uwp.patch": "f4397f84d931cccb44a038194c895e28c749f1825ab45db4b5dccd6e3b6b5967"
+      },
+      "assets": [
+        "sqlite3:sqlite-autoconf-3530400.tar.gz"
+      ]
+    },
+    {
+      "name": "tinyxml2",
+      "version": "11.0.0",
+      "port_version": 0,
+      "license": "Zlib",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/tinyxml2",
+      "patches": {
+        "0001-fix-do-not-force-export-the-symbols-when-building-st.patch": "08c2b7d4ba4ee1dd45f26847c022a4db1496edb6a3bdabc519ac4a330573aa8e",
+        "0002-fix-check-for-TINYXML2_EXPORT-on-non-windows.patch": "aae8bfad827d265c3cfffebd583da39e299068b68b8795233bf2b5ed9d7b2273"
+      },
+      "assets": [
+        "tinyxml2:leethomason-tinyxml2-11.0.0.tar.gz"
+      ]
+    },
+    {
+      "name": "utf8-range",
+      "version": "6.33.4",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/utf8-range",
+      "patches": {
+        "fix-cmake.patch": "4616671728b9bb0726da0818652339c06a271823a83a6188b5f775bb6f61ce03"
+      },
+      "assets": [
+        "protobuf:protocolbuffers-protobuf-v33.4.tar.gz"
+      ]
+    },
+    {
+      "name": "vcpkg-cmake",
+      "version": "2024-04-23",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/vcpkg-cmake",
+      "patches": {},
+      "assets": []
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "version": "2026-07-21",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/vcpkg-cmake-config",
+      "patches": {},
+      "assets": []
+    },
+    {
+      "name": "vcpkg-cmake-get-vars",
+      "version": "2025-05-29",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/vcpkg-cmake-get-vars",
+      "patches": {},
+      "assets": []
+    },
+    {
+      "name": "xsimd",
+      "version": "13.2.0",
+      "port_version": 0,
+      "license": "BSD-3-Clause",
+      "features_available": [
+        "xcomplex"
+      ],
+      "recipe": ".cache/recipes/xsimd",
+      "patches": {},
+      "assets": [
+        "xsimd:xtensor-stack-xsimd-13.2.0.tar.gz"
+      ]
+    },
+    {
+      "name": "libflac",
+      "version": "1.5.0",
+      "port_version": 0,
+      "license": "BSD-3-Clause",
+      "active": false,
+      "assets": [
+        "libflac:xiph-flac-1.5.0.tar.gz"
+      ],
+      "patches": {
+        "android-cmake.diff": "034d2f3d69e31f3aaadf79544b9dcd32fed20a44d8916c19b5aa863da6da92fb",
+        "fix-compile-options.patch": "02e10f5f2ac9f3ed601c8ca74454b33cccabdc833e4f72ec2a73887e3d066873",
+        "fix-find-threads.patch": "326971747da526e18fa47e86cd127f2f3a80b9f85ac8f214a238c2456849be83"
+      }
+    },
+    {
+      "name": "libogg",
+      "version": "1.3.6",
+      "port_version": 1,
+      "license": "BSD-3-Clause",
+      "active": false,
+      "assets": [
+        "libogg:xiph-ogg-v1.3.6.tar.gz"
+      ],
+      "patches": {}
+    },
+    {
+      "name": "brotli",
+      "version": "1.2.0",
+      "port_version": 0,
+      "license": "MIT",
+      "assets": [
+        "brotli:google-brotli-v1.2.0.tar.gz"
+      ],
+      "patches": {
+        "install.patch": "186701b1f2032cbd5a243eaafc51960bac057a2f561a7a9715637fd2fd38ea51",
+        "pkgconfig.patch": "ec57a7be5dffd5ec9c444a71fcbc2332cf17fa9a6a147762244001587bea4f25"
+      }
+    },
+    {
+      "name": "bzip2",
+      "version": "1.0.8",
+      "port_version": 6,
+      "license": "bzip2-1.0.6",
+      "assets": [
+        "bzip2:bzip2-1.0.8.tar.gz"
+      ],
+      "patches": {
+        "fix-import-export-macros.patch": "38918c1257c884cc5cde39d9f4235d0e71574f20c7e5ec686a506612f647495e"
+      }
+    },
+    {
+      "name": "libpng",
+      "version": "1.6.58",
+      "port_version": 0,
+      "license": "libpng-2.0",
+      "assets": [
+        "libpng:pnggroup-libpng-v1.6.58.tar.gz"
+      ],
+      "patches": {
+        "cmake.patch": "e1c91b1739580791b8bfe770981cdb07bf65261caf6b2a99da988a8bb21d4094"
+      }
+    },
+    {
+      "name": "zlib",
+      "version": "1.3.2",
+      "port_version": 1,
+      "license": "Zlib",
+      "assets": [
+        "zlib:madler-zlib-v1.3.2.tar.gz"
+      ],
+      "patches": {
+        "0001-no-version-script-on-ohos.patch": "f8c54d2dfd0a37d2f6e7473b1dba86b9e5ac423f522de9021b62c6c8c226ff76"
+      }
+    }
+  ]
+}

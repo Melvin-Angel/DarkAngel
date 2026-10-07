@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "diligent_umbrella_commit": "efe5da2270c6edfc8b0d2e39e946b35acbeaa874",
+  "vcpkg_commit": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
+  "sources": [
+    {
+      "name": "diligent-core",
+      "url": "https://github.com/DiligentGraphics/DiligentCore.git",
+      "commit": "074060cfd1db73064d7a18cf40df86af6531520c",
+      "destination": "third_party/diligent-core",
+      "active": true,
+      "submodule_pins": {
+        "ThirdParty/SPIRV-Cross": "f11ba9f0b21ba8fc15153d50a2a1ae31ab1cf8f7",
+        "ThirdParty/SPIRV-Headers": "496543121ce6419f23d6fa5d7194ba66c36212d2",
+        "ThirdParty/SPIRV-Tools": "ef96ed763b43b59b33b31b362f09a02b729fa1c9",
+        "ThirdParty/Vulkan-Headers": "6802bb4733b63ed5efd3adb308a6c885ef180ea1",
+        "ThirdParty/glslang": "e1b562a8bed273a02f30b59b66a5d499793cede5",
+        "ThirdParty/googletest": "988ea2c1798de7779f656df2281dd36d6039a17a",
+        "ThirdParty/volk": "54fc0d7a72887cbfc5b030d26897b2b40ac53fb8",
+        "ThirdParty/xxHash": "680bf463fa1ca0461b9a7c2dab7556e1f54cf4cf"
+      }
+    },
+    {
+      "name": "diligent-tools",
+      "url": "https://github.com/DiligentGraphics/DiligentTools.git",
+      "commit": "4508c9ea7457209e204dc84b18ef67272fb415d0",
+      "destination": "third_party/diligent-tools",
+      "active": true,
+      "submodule_pins": {
+        "ThirdParty/args": "6c223d46dbb1db72320a93404552117b12d0e7ab",
+        "ThirdParty/imgui": "2744a710ba671a91b0d80a0e075cd9fcb8b1322d",
+        "ThirdParty/json": "55f93686c01528224f448c19128836e7df245f72",
+        "ThirdParty/libpng": "65bc84e803c0ccbf7aa1023e91b5808586ea1b66",
+        "ThirdParty/stb": "46fcb30365c5f35425751d275eecd8e5f8efc786",
+        "ThirdParty/zlib": "0d8cda5065ba1bcea871f0b5ac1410186ea9405e"
+      }
+    },
+    {
+      "name": "amplitude",
+      "url": "https://github.com/AmplitudeAudio/sdk.git",
+      "commit": "ff5f2f8be59e0b74445c10f73eb11a7134eb6fd5",
+      "destination": "third_party/amplitude",
+      "active": true,
+      "submodule_pins": {}
+    },
+    {
+      "name": "ozz",
+      "url": "https://github.com/guillaumeblanc/ozz-animation.git",
+      "commit": "744eb9d99f606eda849acb0b1204f7a3dc20bca1",
+      "destination": "third_party/ozz",
+      "active": true,
+      "submodule_pins": {}
+    },
+    {
+      "name": "imguizmo",
+      "url": "https://github.com/CedricGuillemet/ImGuizmo.git",
+      "commit": "b796ac3b861afc6e91ca74e4611effd9c9527367",
+      "destination": "third_party/imguizmo",
+      "active": true,
+      "submodule_pins": {}
+    },
+    {
+      "name": "manifold",
+      "url": "https://github.com/elalish/manifold.git",
+      "commit": "b92f06be117765cc16b47451fcfa3e8145cea984",
+      "destination": "third_party/manifold",
+      "active": false,
+      "submodule_pins": {}
+    },
+    {
+      "name": "effekseer-ai",
+      "url": "https://github.com/laodeng000/effekseer-ai.git",
+      "commit": "208922ef192220322c2a79e1243ed51ff7d2b7af",
+      "destination": "third_party/effekseer-ai",
+      "active": false,
+      "submodule_pins": {}
+    },
+    {
+      "name": "amplitude-flac",
+      "url": "https://github.com/AmplitudeAudio/plugin-flac.git",
+      "commit": "7bf4533dc077dc35b8285e187cd05ed372d700b0",
+      "destination": "third_party/amplitude-flac",
+      "active": false,
+      "submodule_pins": {}
+    },
+    {
+      "name": "imgui-docking",
+      "url": "https://github.com/ocornut/imgui.git",
+      "commit": "44aa9a4b3a6f27d09a4eb5770d095cbd376dfc4b",
+      "destination": "third_party/imgui-docking",
+      "active": true,
+      "submodule_pins": {}
+    }
+  ]
+}

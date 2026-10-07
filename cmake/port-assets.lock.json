@@ -1,0 +1,288 @@
+{
+  "schema": 1,
+  "baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
+  "archives": [
+    {
+      "name": "abseil:abseil-abseil-cpp-20260107.1.tar.gz",
+      "url": "https://github.com/abseil/abseil-cpp/archive/20260107.1.tar.gz",
+      "archive": "abseil-abseil-cpp-20260107.1.tar.gz",
+      "sha512": "f5012885d6b6844a9cf5ed92ad5468b8757db33dfe1364bfb232fff928e06c550c7eb4557f45186a8ac4d18b178df9be267681abab4a6de40823b574afbe9960",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/abseil-abseil-cpp-20260107.1.tar.gz"
+    },
+    {
+      "name": "behaviortree-cpp:BehaviorTree-BehaviorTree.CPP-4.9.1.tar.gz",
+      "url": "https://github.com/BehaviorTree/BehaviorTree.CPP/archive/4.9.1.tar.gz",
+      "archive": "BehaviorTree-BehaviorTree.CPP-4.9.1.tar.gz",
+      "sha512": "23ac30d7824282f641372f709b6b7a800a2947113bbb09d599f68547a3a67f509992cd0ca251e86b101062fe0d6697373b6851d21e7648578aadf1aa924e7ccf",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/BehaviorTree-BehaviorTree.CPP-4.9.1.tar.gz"
+    },
+    {
+      "name": "cgltf:jkuhlmann-cgltf-v1.15.tar.gz",
+      "url": "https://github.com/jkuhlmann/cgltf/archive/v1.15.tar.gz",
+      "archive": "jkuhlmann-cgltf-v1.15.tar.gz",
+      "sha512": "9474b2ae79ac34015b21e4a20813bfc14ad037636304a28ce91011989202a11568b7f7201bca745701163e2c1077425065782a2aa265d53fe6edeb2e7d0e0b0a",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/jkuhlmann-cgltf-v1.15.tar.gz"
+    },
+    {
+      "name": "directxmath:Microsoft-DirectXMath-jun2026.tar.gz",
+      "url": "https://github.com/Microsoft/DirectXMath/archive/jun2026.tar.gz",
+      "archive": "Microsoft-DirectXMath-jun2026.tar.gz",
+      "sha512": "47003d3c223e0b99f99346f0f6f971df1cab319dc975479b12a8b353022de603293761e1da78e811b824e649ec935de07b54c0abff308d4b0fcea05b7732e494",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/Microsoft-DirectXMath-jun2026.tar.gz"
+    },
+    {
+      "name": "directxtex:Microsoft-DirectXTex-may2026.tar.gz",
+      "url": "https://github.com/Microsoft/DirectXTex/archive/may2026.tar.gz",
+      "archive": "Microsoft-DirectXTex-may2026.tar.gz",
+      "sha512": "0ff5c18418662f89d9b6efa07df118731404ca538ef456542ccfc287fd1fe1866e7fddc912a74c7e04861c6ec71ef8a47db75f3f8377aff14d0f49894492dec1",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/Microsoft-DirectXTex-may2026.tar.gz"
+    },
+    {
+      "name": "dylib:martin-olivier-dylib-v3.0.1.tar.gz",
+      "url": "https://github.com/martin-olivier/dylib/archive/v3.0.1.tar.gz",
+      "archive": "martin-olivier-dylib-v3.0.1.tar.gz",
+      "sha512": "9975c202aacc698b0b30cec1d839e31eb4fc60d7ee54fc56a114d5e8905a2ac4757aa97fc580b3b1a3c98bdba1420a49707339a09a646e4e8663ef17fe3cded3",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/martin-olivier-dylib-v3.0.1.tar.gz"
+    },
+    {
+      "name": "eigen3:libeigen-eigen-5.0.1.tar.gz",
+      "url": "https://gitlab.com/libeigen/eigen/-/archive/5.0.1/eigen-5.0.1.tar.gz",
+      "archive": "libeigen-eigen-5.0.1.tar.gz",
+      "sha512": "b337d3bc38440db190a8f1fbc4eabc0098e69fcc95bfba195fe039ffb942cae2a7f0153f3094f35fa26325750d1c62e20cccaf916a41f5c7f248ec5e5d30a942",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/libeigen-eigen-5.0.1.tar.gz"
+    },
+    {
+      "name": "flatbuffers:google-flatbuffers-v25.12.19.tar.gz",
+      "url": "https://github.com/google/flatbuffers/archive/v25.12.19.tar.gz",
+      "archive": "google-flatbuffers-v25.12.19.tar.gz",
+      "sha512": "808c77536fbfb1c8a1145506873a2b4e5cb508e48bf35f8502a2d1349b64e7581bfe7ff2f587b3edb2642cc885c60c0170a8875fad245240a1288057f4c07a42",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/google-flatbuffers-v25.12.19.tar.gz"
+    },
+    {
+      "name": "flecs:SanderMertens-flecs-v4.1.6.tar.gz",
+      "url": "https://github.com/SanderMertens/flecs/archive/v4.1.6.tar.gz",
+      "archive": "SanderMertens-flecs-v4.1.6.tar.gz",
+      "sha512": "a2843d72a4a7f7577e047eac60d492c8a6677dae404d9ec6a23a498f5d37f745897a0892a3a5ef7b66de5c5f862e55cf9ae6b50dc33d0bd7a674707ca93f2b30",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/SanderMertens-flecs-v4.1.6.tar.gz"
+    },
+    {
+      "name": "freetype:freetype-freetype-VER-2-14-3.tar.gz",
+      "url": "https://gitlab.freedesktop.org/freetype/freetype/-/archive/VER-2-14-3/freetype-VER-2-14-3.tar.gz",
+      "archive": "freetype-freetype-VER-2-14-3.tar.gz",
+      "sha512": "c3b6b0cc4b428c9c647ab2148386901dfd315273b68051940e8fea6010d46fdd2913467c3ef58be0d499b8e2ef5a0f1a4cc5e739756155587f4f7dff08ef9695",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/freetype-freetype-VER-2-14-3.tar.gz"
+    },
+    {
+      "name": "gamenetworkingsockets:ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz",
+      "url": "https://github.com/ValveSoftware/GameNetworkingSockets/archive/2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz",
+      "archive": "ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz",
+      "sha512": "c2deaa3aab42cd840dd13560ca4da40faa375ab846ea15af38d55eb7acc48cfe8cbdbe0c76b9c3484d26f9e1163e36ac1eb73a317e5c19cefe60d0b861d19e06",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz"
+    },
+    {
+      "name": "itlib:iboB-itlib-v1.12.2.tar.gz",
+      "url": "https://github.com/iboB/itlib/archive/v1.12.2.tar.gz",
+      "archive": "iboB-itlib-v1.12.2.tar.gz",
+      "sha512": "d4a687bbadb599c425036377b5d3c0a0187a0cda128addc282c06278e3acbca89c16607ff9c7c35b669a8ddacad9788bb392724dd98f76459e7cd72163748c5c",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/iboB-itlib-v1.12.2.tar.gz"
+    },
+    {
+      "name": "joltphysics:jrouwe-JoltPhysics-v5.6.0.tar.gz",
+      "url": "https://github.com/jrouwe/JoltPhysics/archive/v5.6.0.tar.gz",
+      "archive": "jrouwe-JoltPhysics-v5.6.0.tar.gz",
+      "sha512": "bc6f2436bef91a6ffd09eee98186be645f6e9a9b3f65a7a645abf00432ac40ada03320c1fe946661817a94eda372cf8d88e4889991cdd25f1c16ecf9a4486677",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/jrouwe-JoltPhysics-v5.6.0.tar.gz"
+    },
+    {
+      "name": "luau:luau-lang-luau-0.729.tar.gz",
+      "url": "https://github.com/luau-lang/luau/archive/0.729.tar.gz",
+      "archive": "luau-lang-luau-0.729.tar.gz",
+      "sha512": "a7386a9fdce0b4d27d39cd6c6bb64e899945146b17163b02fa477a269ba971ac96e2cc1d7482346b80cde50e2d0230cf5a9a29bd1b4da7e13114ab23717ee48b",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/luau-lang-luau-0.729.tar.gz"
+    },
+    {
+      "name": "lz4:lz4-lz4-v1.10.0.tar.gz",
+      "url": "https://github.com/lz4/lz4/archive/v1.10.0.tar.gz",
+      "archive": "lz4-lz4-v1.10.0.tar.gz",
+      "sha512": "8c4ceb217e6dc8e7e0beba99adc736aca8963867bcf9f970d621978ba11ce92855912f8b66138037a1d2ae171e8e17beb7be99281fea840106aa60373c455b28",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/lz4-lz4-v1.10.0.tar.gz"
+    },
+    {
+      "name": "meshoptimizer:zeux-meshoptimizer-v1.2.tar.gz",
+      "url": "https://github.com/zeux/meshoptimizer/archive/v1.2.tar.gz",
+      "archive": "zeux-meshoptimizer-v1.2.tar.gz",
+      "sha512": "23197a9dcd4cbbce625b9d142f2eaafc67c9cf92859f9a5ce94c4570fca8db07c97590d2737d97726dbf48e968f53c8d7dd26771678c2cade957c62a3600d88c",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/zeux-meshoptimizer-v1.2.tar.gz"
+    },
+    {
+      "name": "miniaudio:mackron-miniaudio-0.11.25.tar.gz",
+      "url": "https://github.com/mackron/miniaudio/archive/0.11.25.tar.gz",
+      "archive": "mackron-miniaudio-0.11.25.tar.gz",
+      "sha512": "8cdfe5cd66dd84628430a24026b307c21158b4776492eec234c2ce3cf0da3ae26fe8162f3ed285502f6002fdf252ccb660f7c216e044e3c306b75b0997700b45",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/mackron-miniaudio-0.11.25.tar.gz"
+    },
+    {
+      "name": "minitrace:hrydgard-minitrace-a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz",
+      "url": "https://github.com/hrydgard/minitrace/archive/a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz",
+      "archive": "hrydgard-minitrace-a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz",
+      "sha512": "5ea6fb58a1f2397444e58e449fd32b4b45f5a15afe8f8694115a0025f5444cf493ba8228a58f0772ca1dc149fd1633fc897b0a264b8927cfd6cc15eefa40c336",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/hrydgard-minitrace-a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz"
+    },
+    {
+      "name": "openssl:openssl-openssl-openssl-3.6.3.tar.gz",
+      "url": "https://github.com/openssl/openssl/archive/openssl-3.6.3.tar.gz",
+      "archive": "openssl-openssl-openssl-3.6.3.tar.gz",
+      "sha512": "a89c08101fa1d7e3c09b14f4a90d450bcf336a4f6a3e6e4ea990e4deddcd9ce250472f9114438fd134ff4b47fe93dd47232308567088b2b1c0b2eb50e3b56bdf",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/openssl-openssl-openssl-3.6.3.tar.gz"
+    },
+    {
+      "name": "protobuf:protocolbuffers-protobuf-v33.4.tar.gz",
+      "url": "https://github.com/protocolbuffers/protobuf/archive/v33.4.tar.gz",
+      "archive": "protocolbuffers-protobuf-v33.4.tar.gz",
+      "sha512": "540059a93721447cf4723bcca06e91c43a4399cb366c05bf84e9d8e2c439f3107ba17803f9d912549b54c471f2dcc4c9fc834145ec441dff31ca24f9a3543aa9",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/protocolbuffers-protobuf-v33.4.tar.gz"
+    },
+    {
+      "name": "recastnavigation:recastnavigation-recastnavigation-v1.6.0.tar.gz",
+      "url": "https://github.com/recastnavigation/recastnavigation/archive/v1.6.0.tar.gz",
+      "archive": "recastnavigation-recastnavigation-v1.6.0.tar.gz",
+      "sha512": "7567aaa78219cc490a6f76210fba1f130f0c17aeaa06432ab1207e0fd03404abe31042e8b03971aa0d04ad65d39469f13575fe0072fb920c38581d39568b70fb",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/recastnavigation-recastnavigation-v1.6.0.tar.gz"
+    },
+    {
+      "name": "rmlui:mikke89-RmlUi-6.2.tar.gz",
+      "url": "https://github.com/mikke89/RmlUi/archive/6.2.tar.gz",
+      "archive": "mikke89-RmlUi-6.2.tar.gz",
+      "sha512": "f08c126d3727850724072fb88b1c95cb6c5dcc160082bffcba42d2236950b651e39d71f7c0eecf5a5a047f68ad5cc7f1968d2334c5b72c019d2aefb3fb55e246",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/mikke89-RmlUi-6.2.tar.gz"
+    },
+    {
+      "name": "robin-hood-hashing:martinus-robin-hood-hashing-3.11.5.tar.gz",
+      "url": "https://github.com/martinus/robin-hood-hashing/archive/3.11.5.tar.gz",
+      "archive": "martinus-robin-hood-hashing-3.11.5.tar.gz",
+      "sha512": "5f73e089b1e8ec41a9bedded22bc64a789d3a3d04873a2ad9f8cc2970797a473b0f4d3436c2324b3ced85a0d983998a75b1dfaf2b7f3b77235b29806ff2fd489",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/martinus-robin-hood-hashing-3.11.5.tar.gz"
+    },
+    {
+      "name": "sqlite3:sqlite-autoconf-3530400.tar.gz",
+      "url": "https://sqlite.org/2026/sqlite-autoconf-3530400.tar.gz",
+      "archive": "sqlite-autoconf-3530400.tar.gz",
+      "sha512": "c24374e9393a943157f533f96e89e6c5743e5f5aad169d8393cff3088ca5ccbe5cc0561681ace49c349d0fe402298ee2624d319f422967247ce0792e3b3aa01e",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/sqlite-autoconf-3530400.tar.gz"
+    },
+    {
+      "name": "tinyxml2:leethomason-tinyxml2-11.0.0.tar.gz",
+      "url": "https://github.com/leethomason/tinyxml2/archive/11.0.0.tar.gz",
+      "archive": "leethomason-tinyxml2-11.0.0.tar.gz",
+      "sha512": "8a6ddd48c96bc4287437d5b5ca62c131c4416c57310b664c9088ca9c1ac9f4d43d16c1bad03f82dc5588d9486752f510d631609a3930f1d4243f12184ad1c5f9",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/leethomason-tinyxml2-11.0.0.tar.gz"
+    },
+    {
+      "name": "xsimd:xtensor-stack-xsimd-13.2.0.tar.gz",
+      "url": "https://github.com/xtensor-stack/xsimd/archive/13.2.0.tar.gz",
+      "archive": "xtensor-stack-xsimd-13.2.0.tar.gz",
+      "sha512": "3825626547b0dd9b58f306bc89e9b3bc6dd778ad3811b7828e50fc16ae102574255b53f2b0714995de2bd6f9eb7b2c5d266a1a24fbfdf5420dc5e94d7dcbb522",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/xtensor-stack-xsimd-13.2.0.tar.gz"
+    },
+    {
+      "name": "directxtex:texassemble-may2026.exe",
+      "url": "https://github.com/Microsoft/DirectXTex/releases/download/may2026/texassemble.exe",
+      "archive": "texassemble-may2026.exe",
+      "sha512": "88f875b535f4477ecc37f26874692bf3608a49bc7b0af73febc65f67937c97c0dfb26b7fb729f172ded2b2c9ebf9285c9d2b1a1dbf3b88210ebe7d198c005d58",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/texassemble-may2026.exe"
+    },
+    {
+      "name": "directxtex:texconv-may2026.exe",
+      "url": "https://github.com/Microsoft/DirectXTex/releases/download/may2026/texconv.exe",
+      "archive": "texconv-may2026.exe",
+      "sha512": "aeaf50e4e531182ff44c3879fa68b6fbf43eda69a9c3e632e9a6d5ae74a8239301c406391ac0a9d4b9a1579f8a0571360ac1e20f01559997f644e19fd33ac4d9",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/texconv-may2026.exe"
+    },
+    {
+      "name": "directxtex:texdiag-may2026.exe",
+      "url": "https://github.com/Microsoft/DirectXTex/releases/download/may2026/texdiag.exe",
+      "archive": "texdiag-may2026.exe",
+      "sha512": "da95189860c2d362cc17a2fdb20adb96952b3db40b6122c39b2aaa08fcf36024006e215328ba3e2c3d9b64cd2cf0ffc599b487554730732cf592a2aa2ac2105a",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/texdiag-may2026.exe"
+    },
+    {
+      "name": "libflac:xiph-flac-1.5.0.tar.gz",
+      "url": "https://github.com/xiph/flac/archive/1.5.0.tar.gz",
+      "archive": "xiph-flac-1.5.0.tar.gz",
+      "sha512": "c8e119462205cfd8bbe22b0aff112625d3e51ca11de97e4de06a46fb43a0768d7ec9c245b299b09b7aa4d811c6fc7b57856eaa1c217e82cca9b3ad1c0e545cbe",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/xiph-flac-1.5.0.tar.gz",
+      "active": false
+    },
+    {
+      "name": "libogg:xiph-ogg-v1.3.6.tar.gz",
+      "url": "https://github.com/xiph/ogg/archive/v1.3.6.tar.gz",
+      "archive": "xiph-ogg-v1.3.6.tar.gz",
+      "sha512": "c247e1da8b12f8b33272fafb6d7c171a1a2687c3632977439fa60b96ccc2ad751d88a2931bb3e18e1ddf2eea2e82cdd0aab087b2ec5393a9228c703476fa0167",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/xiph-ogg-v1.3.6.tar.gz",
+      "active": false
+    },
+    {
+      "name": "brotli:google-brotli-v1.2.0.tar.gz",
+      "url": "https://github.com/google/brotli/archive/v1.2.0.tar.gz",
+      "archive": "google-brotli-v1.2.0.tar.gz",
+      "sha512": "f94542afd2ecd96cc41fd21a805a3da314281ae558c10650f3e6d9ca732b8425bba8fde312823f0a564c7de3993bdaab5b43378edab65ebb798cefb6fd702256",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/google-brotli-v1.2.0.tar.gz"
+    },
+    {
+      "name": "bzip2:bzip2-1.0.8.tar.gz",
+      "url": "https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz",
+      "archive": "bzip2-1.0.8.tar.gz",
+      "sha512": "083f5e675d73f3233c7930ebe20425a533feedeaaa9d8cc86831312a6581cefbe6ed0d08d2fa89be81082f2a5abdabca8b3c080bf97218a1bd59dc118a30b9f3",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/bzip2-1.0.8.tar.gz"
+    },
+    {
+      "name": "libpng:pnggroup-libpng-v1.6.58.tar.gz",
+      "url": "https://github.com/pnggroup/libpng/archive/v1.6.58.tar.gz",
+      "archive": "pnggroup-libpng-v1.6.58.tar.gz",
+      "sha512": "65f54d805e1f7c46a5fc335b984e4cbd4f934e0f02fbf6673c13800b49a4c11fbeb4098eebfb33079527a56c3d933e97631f91ab68dbb31442982784f9241ace",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/pnggroup-libpng-v1.6.58.tar.gz"
+    },
+    {
+      "name": "zlib:madler-zlib-v1.3.2.tar.gz",
+      "url": "https://github.com/madler/zlib/archive/v1.3.2.tar.gz",
+      "archive": "madler-zlib-v1.3.2.tar.gz",
+      "sha512": "16fea4df307a68cf0035858abe2fd550250618a97590e202037acd18a666f57afc10f8836cbbd472d54a0e76539d0e558cb26f059d53de52ff90634bbf4f47d4",
+      "checksum_source": "pinned vcpkg recipe SHA512",
+      "vcpkg_cache": ".tools/vcpkg/downloads/madler-zlib-v1.3.2.tar.gz"
+    }
+  ]
+}

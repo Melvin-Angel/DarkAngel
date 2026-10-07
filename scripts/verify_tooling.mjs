@@ -1,0 +1,11 @@
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
+const bridgeRequire = createRequire(resolve('tools/agent-bridge/package.json'));
+const { Server } = await import(pathToFileURL(bridgeRequire.resolve('@modelcontextprotocol/sdk/server/index.js')));
+if (typeof Server !== 'function') throw new Error('Official MCP Server export missing');
+const assetRequire = createRequire(resolve('tools/asset-validation/package.json'));
+const validator = assetRequire('gltf-validator');
+const report = await validator.validateString(JSON.stringify({asset:{version:'2.0'},scene:0,scenes:[{nodes:[0]}],nodes:[{name:'M0 fixture'}]}), {maxIssues:100});
+if (report.issues.numErrors) throw new Error(JSON.stringify(report.issues));
+console.log('Official MCP SDK import and Khronos glTF Validator fixture passed; no endpoint opened');

@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "component": "HeadlessShell",
+  "files": ["bin/DarkAngelHeadless.exe", "share/DarkAngel/runtime-inventory.json", "share/DarkAngel/PACKAGING.md"],
+  "explicitly_loaded_runtime_files": [],
+  "prerequisite": "Microsoft Visual C++ x64 Redistributable matching the tested MSVC toolset; exact version pending native validation",
+  "debug_is_distributable": false
+}

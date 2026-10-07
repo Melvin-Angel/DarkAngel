@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "resolved_on": "2026-10-07",
+  "archives": [
+    {
+      "name": "cmake",
+      "version": "v4.4.4",
+      "url": "https://github.com/Kitware/CMake/releases/download/v4.4.4/cmake-4.4.4-windows-x86_64.zip",
+      "sha256": "bace36e94b31c68ab6fa295f26dfa11219e0701cf7c94b0284a7d1cb13dac536",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "archive": "cmake-4.4.4-windows-x86_64.zip",
+      "destination": ".tools/cmake"
+    },
+    {
+      "name": "ninja",
+      "version": "v1.13.2",
+      "url": "https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-win.zip",
+      "sha256": "07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "archive": "ninja-win.zip",
+      "destination": ".tools/ninja"
+    },
+    {
+      "name": "dxc",
+      "version": "v1.9.2609",
+      "url": "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2609/dxc_2026_09_29.zip",
+      "sha256": "ad31b1fc8443175d204f77a611fdb3ef2ec42759bdc2f1167368de24a4a7e7f1",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "archive": "dxc_2026_09_29.zip",
+      "destination": ".tools/dxc"
+    },
+    {
+      "name": "xmake",
+      "version": "v3.1.1",
+      "url": "https://github.com/xmake-io/xmake/releases/download/v3.1.1/xmake-v3.1.1.win64.zip",
+      "sha256": "33fdf2f34a0e45fa731c000d59590d27b13dec7011f69cbf575004ed9279b4a2",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "archive": "xmake-v3.1.1.win64.zip",
+      "destination": ".tools/xmake"
+    },
+    {
+      "name": "effekseer-editor",
+      "version": "1807",
+      "url": "https://github.com/effekseer/Effekseer/releases/download/1807/Effekseer1.80.7Win.zip",
+      "sha256": "6f059b9cce3a79c5bfe3df9c970cfe62fd72acf130083c7b81832d90f8d1335f",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "archive": "Effekseer1.80.7Win.zip",
+      "destination": ".tools/effekseer-editor"
+    },
+    {
+      "name": "effekseer-runtime",
+      "version": "1807",
+      "url": "https://github.com/effekseer/Effekseer/releases/download/1807/EffekseerForCpp1.80.7.zip",
+      "sha256": "92ba44ba838706f9f0cf0b0bc507e0a8a0427ef57793cecf29c5ca621a34c3b5",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "archive": "EffekseerForCpp1.80.7.zip",
+      "destination": ".tools/effekseer-runtime"
+    },
+    {
+      "name": "node",
+      "version": "v24.21.0",
+      "npm": "11.19.0",
+      "url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-win-x64.zip",
+      "sha256": "158f7685b44de51f6c0df1d153526cbcd3e1bc739a8dfc607721cef75de9e541",
+      "checksum_source": "official SHASUMS256.txt (signature not verified)",
+      "archive": "node-v24.21.0-win-x64.zip",
+      "destination": ".tools/node"
+    },
+    {
+      "name": "flatc",
+      "version": "25.12.19",
+      "url": "https://github.com/google/flatbuffers/releases/download/v25.12.19/Windows.flatc.binary.zip",
+      "archive": "flatc-25.12.19-windows.zip",
+      "sha256": "fff9445c9db907227bc64b54cc98743084c4949282aa4e576cff6a955724ddc8",
+      "checksum_source": "official GitHub release asset digest (not a signature)",
+      "destination": ".tools/flatc"
+    },
+    {
+      "name": "perl",
+      "version": "5.42.2.1",
+      "url": "https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54221_64bit/strawberry-perl-5.42.2.1-64bit-portable.zip",
+      "archive": "strawberry-perl-5.42.2.1-64bit-portable.zip",
+      "sha512": "e37c541bb6c4f1c0187bf8ba22b19ce9ead87f6bd1e68c05e7fc4eb2c10a4183c3ee732bf1b26071939f525861fae62b6bef04100b31504ab50fffe7526f84e3",
+      "checksum_source": "pinned vcpkg acquisition recipe SHA512",
+      "destination": ".tools/perl"
+    },
+    {
+      "name": "nasm",
+      "version": "3.01",
+      "url": "https://www.nasm.us/pub/nasm/releasebuilds/3.01/win64/nasm-3.01-win64.zip",
+      "archive": "nasm-3.01-win64.zip",
+      "sha512": "771c238ddb17c98d5736ccaba4ade1d1601d896f09e588489cb43a4f6381bc0ae14d1869f5316fe94f847f54867e65cf12665529b1e7ad88e5e7d3e162719a4f",
+      "checksum_source": "pinned vcpkg acquisition recipe SHA512",
+      "destination": ".tools/nasm"
+    },
+    {
+      "name": "vs-buildtools-installer",
+      "version": "18.10.12224.181",
+      "url": "https://download.visualstudio.microsoft.com/download/pr/e5f740e0-92f9-49d7-ab3b-5d17b84108fd/9203cc1fa53bc4c6254723cdd4bc35e6a658253b98c90c863b0b4a962808254e/vs_BuildTools.exe",
+      "archive": "vs_BuildTools.exe",
+      "sha256": "9203cc1fa53bc4c6254723cdd4bc35e6a658253b98c90c863b0b4a962808254e",
+      "checksum_source": "locally computed SHA256; Authenticode checked separately; terms not accepted"
+    }
+  ],
+  "reuse": [
+    {
+      "name": "git",
+      "version": "2.49.0.windows.1"
+    },
+    {
+      "name": "git-lfs",
+      "version": "3.6.1"
+    },
+    {
+      "name": "python",
+      "version": "3.13.5"
+    },
+    {
+      "name": "powershell",
+      "version": "7.6.5"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+#pragma once
+#define DAE_VERSION "@PROJECT_VERSION@"
+#define DAE_REVISION "@DAE_REVISION@"

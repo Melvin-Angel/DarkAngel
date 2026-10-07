@@ -1,0 +1,127 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 30,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "m0-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/.tools/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/.tools/ninja/ninja.exe",
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-darkangel",
+        "VCPKG_HOST_TRIPLET": "x64-windows-darkangel",
+        "VCPKG_MANIFEST_FEATURES": "m0",
+        "VCPKG_MANIFEST_NO_DEFAULT_FEATURES": true,
+        "BUILD_TESTING": true,
+        "DAE_AUTHORING": false,
+        "DAE_AGENT_ENDPOINTS": false,
+        "DAE_SHIPPING": false
+      }
+    },
+    {
+      "name": "m0-debug",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m0-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m0-debug"
+      }
+    },
+    {
+      "name": "m0-relwithdebinfo",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m0-relwithdebinfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m0-relwithdebinfo"
+      }
+    },
+    {
+      "name": "m0-release",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m0-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m0-release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "m0-debug",
+      "configurePreset": "m0-debug",
+      "jobs": 2
+    },
+    {
+      "name": "m0-relwithdebinfo",
+      "configurePreset": "m0-relwithdebinfo",
+      "jobs": 2
+    },
+    {
+      "name": "m0-release",
+      "configurePreset": "m0-release",
+      "jobs": 2
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "m0-debug",
+      "configurePreset": "m0-debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 10,
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "m0-relwithdebinfo",
+      "configurePreset": "m0-relwithdebinfo",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 10,
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "m0-release",
+      "configurePreset": "m0-release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 10,
+        "noTestsAction": "error"
+      }
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "m0-relwithdebinfo",
+      "configurePreset": "m0-relwithdebinfo",
+      "generators": [
+        "ZIP"
+      ]
+    },
+    {
+      "name": "m0-release",
+      "configurePreset": "m0-release",
+      "generators": [
+        "ZIP"
+      ]
+    }
+  ]
+}

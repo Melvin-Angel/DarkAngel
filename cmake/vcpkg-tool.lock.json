@@ -1,0 +1,6 @@
+{
+  "version": "2026-07-27-98d7cb0cf1f4686a3e43aa5672b6230c1d56bce8",
+  "url": "https://github.com/microsoft/vcpkg-tool/releases/download/2026-07-27/vcpkg.exe",
+  "sha256_local": "13b8175e99a884c5ad34249218754b45541a1a63f216e92603aee57a285ac741",
+  "verification": "locally computed SHA256; Microsoft Authenticode signature checked Valid"
+}

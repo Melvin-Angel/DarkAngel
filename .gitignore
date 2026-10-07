@@ -1,0 +1,16 @@
+.tools/
+.cache/
+build/
+stage/
+vcpkg_installed/
+CMakeUserPresets.json
+local.config.json
+EOS-SDK-*/
+third_party/*/
+!third_party/notices/
+tools/agent-bridge/node_modules/
+tools/asset-validation/node_modules/
+*.user
+__pycache__/
+/DarkAngel_Implementation_Handoff.md
+/DarkAngel_Engine_Architecture_Decision_Log_v0.1.docx
