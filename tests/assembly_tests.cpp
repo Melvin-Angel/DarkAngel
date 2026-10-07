@@ -5,7 +5,7 @@
 using namespace darkangel;
 void check(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 template<class F>void rejects(F&& action){bool failed=false;try{action();}catch(const std::exception&){failed=true;}check(failed,"Expected assembly rejection");}
-int main(){try{
+int main(int argc,char** argv){try{
     const auto assembly=AssetId::parse("11111111-1111-4111-8111-111111111111"),scene=AssetId::parse("22222222-2222-4222-8222-222222222222");
     const auto script=StableId::parse("33333333333343338333333333333333");
     const std::string definition=R"({"schema":1,"asset":"11111111-1111-4111-8111-111111111111","entities":{
@@ -25,5 +25,6 @@ return {update=function(ctx:Context,state:BehaviorState,config:BehaviorConfig,dt
     rejects([&]{session.prepare(plan,{});});check(session.active()==old && old->world->valid(first),"Failed preparation retired active scene");
     auto decoded=SpawnPlan::deserialize(plan.serialize());check(decoded.serialize()==plan.serialize(),"Cooked spawn plan round trip mismatch");session.activate(session.prepare(decoded,scripts));check(!session.active()->world->valid(first),"Structural restart retained stale handles");session.retire();check(!session.active(),"Scene retirement failed");
     auto cyclic=placements;cyclic.replace(cyclic.find(assembly.text()),36,scene.text());sources[scene]=cyclic;rejects([&]{resolve_assembly(scene,{1,1},sources);});
+    if(argc==2){std::ofstream out(argv[1],std::ios::binary);out<<CookedScene{plan,scripts}.serialize();check(out.good(),"Cooked scene fixture output failed");}
     std::cout<<"Assembly identity/patch/migration/prepare/activate/rollback checks passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

@@ -1,22 +1,26 @@
-[1/40] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[2/35] Scanning C:\DarkAngel\engine\runtime\script_runtime.cpp for CXX dependencies
-[3/35] Scanning C:\DarkAngel\engine\runtime\script_package.cpp for CXX dependencies
-[4/35] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
-[5/33] Scanning C:\DarkAngel\engine\runtime\script_state.cpp for CXX dependencies
-[6/33] Scanning C:\DarkAngel\tests\script_package_tests.cpp for CXX dependencies
-[7/33] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[8/32] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
-[9/31] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_runtime.cpp.obj
-[10/31] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_package.cpp.obj
-[11/31] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
-[12/29] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
-[13/27] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
-[14/25] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
-[15/23] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
-[16/22] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
-[17/22] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_state.cpp.obj
-[18/22] Building CXX object CMakeFiles\ScriptPackageTests.dir\tests\script_package_tests.cpp.obj
-[19/22] Linking CXX static library DarkAngelRuntime.lib
-[20/22] Linking CXX executable DarkAngelHeadless.exe
-[21/22] Linking CXX executable FoundationTests.exe
-[22/22] Linking CXX executable ScriptPackageTests.exe
+[1/49] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[2/49] Scanning C:\DarkAngel\engine\runtime\transport.cpp for CXX dependencies
+[3/49] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[4/45] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[5/40] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[6/40] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\transport.cpp.obj
+[7/40] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[8/37] Linking CXX static library DarkAngelFoundation.lib
+[9/37] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[10/37] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[11/36] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[12/35] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[13/33] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[14/31] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[15/29] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[16/28] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[17/27] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[18/26] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[19/26] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[20/26] Linking CXX static library DarkAngelRuntime.lib
+[21/26] Linking CXX executable DarkAngelHeadless.exe
+[22/26] Linking CXX executable EditorTests.exe
+[23/26] Linking CXX executable FoundationTests.exe
+[24/26] Linking CXX executable ScriptPackageTests.exe
+[25/26] Linking CXX executable SessionTests.exe
+[26/26] Linking CXX executable AssemblyTests.exe

@@ -22,5 +22,5 @@ private:
     Json schema_;
 };
 std::string default_script_config_schema();
-ScriptStateSchema::Json parse_script_data(std::string_view);
+ScriptStateSchema::Json parse_script_data(std::string_view,std::size_t byte_limit=128*1024);
 }

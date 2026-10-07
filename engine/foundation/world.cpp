@@ -1,4 +1,5 @@
 #include <darkangel/world.hpp>
+#include <darkangel/asset_id.hpp>
 #include "metadata.hpp"
 #include <flecs.h>
 #include <nlohmann/json.hpp>
@@ -183,7 +184,7 @@ std::string World::serialize() const {
             if (!fields.empty()) types[std::to_string(t.id)]={{"version",t.version},{"fields",fields}};
         }
         root["objects"].push_back({{"id",id.text()},{"target",d.target ? Json(d.target.text()):Json(nullptr)},{"types",types}});
-        if(!d.scripts.records.empty()){Json records=Json::object();for(const auto& b:d.scripts.records)records[b.id.text()]={{"asset",b.asset.text()},{"enabled",b.enabled},{"config",b.config_json.empty()?Json::object():parse(b.config_json)}};root["objects"].back()["types"]["4"]={{"version",1},{"bindings",records}};}
+        if(!d.scripts.records.empty()){Json records=Json::object();for(const auto& b:d.scripts.records)records[b.id.text()]={{"asset",asset_id(b.asset).text()},{"enabled",b.enabled},{"config",b.config_json.empty()?Json::object():parse(b.config_json)}};root["objects"].back()["types"]["4"]={{"version",1},{"bindings",records}};}
         if(!d.optional_json.empty())root["objects"].back()["optional"]=parse(d.optional_json);
     }
     auto source=root.dump(); require(source.size()<=1024*1024,"Serialized scene exceeds limit"); return source;
@@ -199,7 +200,7 @@ std::vector<EntityHandle> World::load(std::string_view source) {
         d.id=StableId::parse(object.at("id").get<std::string>()); require(ids.insert(d.id).second,"Duplicate scene ID");
         if (!object["target"].is_null()) d.target=StableId::parse(object["target"].get<std::string>());
         if(object["types"].contains("4"))keys(object["types"],{"1","2","4"});else keys(object["types"],{"1","2"});
-        if(object["types"].contains("4")){auto& record=object["types"]["4"];keys(record,{"version","bindings"});require(record["version"]==1 && record["bindings"].is_object(),"Unsupported ScriptBindings schema");for(const auto& [binding,value]:record["bindings"].items()){keys(value,{"asset","enabled","config"});require(value["enabled"].is_boolean() && value["config"].is_object(),"Invalid script binding data");d.scripts.records.push_back({StableId::parse(binding),StableId::parse(value["asset"].get<std::string>()),value["config"].dump(),value["enabled"].get<bool>()});}d.scripts.count=d.scripts.records.size();}
+        if(object["types"].contains("4")){auto& record=object["types"]["4"];keys(record,{"version","bindings"});require(record["version"]==1 && record["bindings"].is_object(),"Unsupported ScriptBindings schema");for(const auto& [binding,value]:record["bindings"].items()){keys(value,{"asset","enabled","config"});require(value["enabled"].is_boolean() && value["config"].is_object(),"Invalid script binding data");d.scripts.records.push_back({StableId::parse(binding),asset_key(AssetId::parse(value["asset"].get<std::string>())),value["config"].dump(),value["enabled"].get<bool>()});}d.scripts.count=d.scripts.records.size();}
         for (const auto& t : metadata()) {
             if (t.id==3 || t.id==4) continue; const auto& record=object["types"].at(std::to_string(t.id));
             keys(record,{"version","fields"});

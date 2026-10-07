@@ -1,21 +1,5 @@
 [
   {
-    "gate": "conversion",
-    "command": [
-      "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
-      "--background",
-      "--factory-startup",
-      "--python",
-      "C:\\DarkAngel\\scripts\\convert_fbx_fixture.py",
-      "--",
-      "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\MelvinMasks\\HornedMask.fbx",
-      "C:\\DarkAngel\\.cache\\fixtures\\horned-mask.glb"
-    ],
-    "exit_code": 0,
-    "seconds": 1.668,
-    "log": "docs/implementation/evidence/m2-conversion.log"
-  },
-  {
     "gate": "configure",
     "command": [
       "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
@@ -23,7 +7,7 @@
       "m2-relwithdebinfo"
     ],
     "exit_code": 0,
-    "seconds": 13.971,
+    "seconds": 12.765,
     "log": "docs/implementation/evidence/m2-configure.log"
   },
   {
@@ -35,7 +19,7 @@
       "m2-relwithdebinfo"
     ],
     "exit_code": 0,
-    "seconds": 204.484,
+    "seconds": 167.692,
     "log": "docs/implementation/evidence/m2-build.log"
   },
   {
@@ -46,7 +30,7 @@
       "m2-relwithdebinfo"
     ],
     "exit_code": 0,
-    "seconds": 2.766,
+    "seconds": 2.414,
     "log": "docs/implementation/evidence/m2-ctest.log"
   },
   {
@@ -57,7 +41,7 @@
       "C:\\DarkAngel\\.cache\\fixtures\\horned-mask.glb"
     ],
     "exit_code": 0,
-    "seconds": 0.993,
+    "seconds": 0.157,
     "log": "docs/implementation/evidence/m2-gltf-validator.log"
   },
   {
@@ -70,7 +54,7 @@
       "horned-mask.glb"
     ],
     "exit_code": 0,
-    "seconds": 0.098,
+    "seconds": 0.124,
     "log": "docs/implementation/evidence/m2-cook.log"
   },
   {
@@ -84,7 +68,7 @@
       "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json"
     ],
     "exit_code": 0,
-    "seconds": 0.053,
+    "seconds": 0.058,
     "log": "docs/implementation/evidence/m2-package.log"
   },
   {
@@ -97,7 +81,7 @@
       "d10003ce-2f74-41ea-928c-7cf71c8476b3"
     ],
     "exit_code": 0,
-    "seconds": 0.019,
+    "seconds": 0.022,
     "log": "docs/implementation/evidence/m2-inspect.log"
   },
   {
@@ -116,10 +100,11 @@
       "8",
       "--hidden",
       "--capture",
-      "C:\\DarkAngel\\docs\\implementation\\evidence\\m2-d3d12-mask.png"
+      "C:\\DarkAngel\\docs\\implementation\\evidence\\m2-d3d12-mask.png",
+      "--exercise"
     ],
     "exit_code": 0,
-    "seconds": 0.331,
+    "seconds": 0.474,
     "log": "docs/implementation/evidence/m2-d3d12-viewport.log"
   },
   {
@@ -141,7 +126,68 @@
       "C:\\DarkAngel\\docs\\implementation\\evidence\\m2-vulkan-mask.png"
     ],
     "exit_code": 0,
-    "seconds": 0.352,
+    "seconds": 0.368,
     "log": "docs/implementation/evidence/m2-vulkan-viewport.log"
+  },
+  {
+    "gate": "cli-validate",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\EditorCli.exe",
+      "validate",
+      "C:\\DarkAngel\\.cache\\editor\\AcceptanceScene.dascene"
+    ],
+    "exit_code": 0,
+    "seconds": 0.103,
+    "log": "docs/implementation/evidence/m2-cli-validate.log"
+  },
+  {
+    "gate": "cli-resolve-before",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\EditorCli.exe",
+      "resolve",
+      "C:\\DarkAngel\\.cache\\editor\\AcceptanceScene.dascene",
+      "C:\\DarkAngel\\.cache\\editor\\before.dacooked"
+    ],
+    "exit_code": 0,
+    "seconds": 0.039,
+    "log": "docs/implementation/evidence/m2-cli-resolve-before.log"
+  },
+  {
+    "gate": "cli-same-edit",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\EditorCli.exe",
+      "set",
+      "C:\\DarkAngel\\.cache\\editor\\AcceptanceScene.dascene",
+      "26bbed66ecd973685540dcc905785de0",
+      "1",
+      "1",
+      ".2"
+    ],
+    "exit_code": 0,
+    "seconds": 0.035,
+    "log": "docs/implementation/evidence/m2-cli-same-edit.log"
+  },
+  {
+    "gate": "cli-resolve-after",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\EditorCli.exe",
+      "resolve",
+      "C:\\DarkAngel\\.cache\\editor\\AcceptanceScene.dascene",
+      "C:\\DarkAngel\\.cache\\editor\\after.dacooked"
+    ],
+    "exit_code": 0,
+    "seconds": 0.039,
+    "log": "docs/implementation/evidence/m2-cli-resolve-after.log"
+  },
+  {
+    "gate": "scene-headless",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelHeadless.exe",
+      "--scene",
+      "C:\\DarkAngel\\.cache\\editor\\after.dacooked"
+    ],
+    "exit_code": 0,
+    "seconds": 0.027,
+    "log": "docs/implementation/evidence/m2-scene-headless.log"
   }
 ]

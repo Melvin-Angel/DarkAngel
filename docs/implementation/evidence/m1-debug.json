@@ -7,7 +7,7 @@
       "m1-debug"
     ],
     "exit_code": 0,
-    "seconds": 4.807,
+    "seconds": 7.827,
     "log": "docs/implementation/evidence/m1-debug-configure.log"
   },
   {
@@ -19,7 +19,7 @@
       "m1-debug"
     ],
     "exit_code": 0,
-    "seconds": 14.662,
+    "seconds": 11.264,
     "log": "docs/implementation/evidence/m1-debug-build.log"
   },
   {
@@ -30,7 +30,7 @@
       "m1-debug"
     ],
     "exit_code": 0,
-    "seconds": 3.131,
+    "seconds": 8.74,
     "log": "docs/implementation/evidence/m1-debug-ctest.log"
   }
 ]

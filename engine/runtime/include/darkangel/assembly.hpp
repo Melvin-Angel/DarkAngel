@@ -18,6 +18,12 @@ using AssemblySources=std::map<AssetId,std::string>;
 // Stable-keyed source graph -> native scene and explicit script/resource prerequisites.
 SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources&);
 struct ScriptDefinition {ScriptDescriptor descriptor;std::string cooked;};
+struct CookedScene {
+    SpawnPlan plan;std::map<StableId,ScriptDefinition> scripts;
+    std::string serialize() const;
+    static CookedScene deserialize(std::string_view);
+};
+std::map<StableId,ScriptDefinition> cook_script_definitions(const AssemblySources&);
 class SceneSession {
 public:
     struct Prepared {

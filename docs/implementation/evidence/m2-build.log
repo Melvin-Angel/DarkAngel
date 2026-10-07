@@ -1,57 +1,71 @@
-[1/68] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[2/63] Scanning C:\DarkAngel\engine\runtime\bootstrap.cpp for CXX dependencies
-[3/63] Scanning C:\DarkAngel\engine\runtime\script_runtime.cpp for CXX dependencies
-[4/63] Scanning C:\DarkAngel\engine\runtime\script_package.cpp for CXX dependencies
-[5/63] Scanning C:\DarkAngel\engine\runtime\script_state.cpp for CXX dependencies
-[6/63] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
-[7/63] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
-[8/63] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[9/63] Scanning C:\DarkAngel\apps\headless\main.cpp for CXX dependencies
-[10/63] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
-[11/61] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
-[12/61] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[13/61] Scanning C:\DarkAngel\tests\editor_tests.cpp for CXX dependencies
-[14/61] Scanning C:\DarkAngel\tests\flecs_probe.cpp for CXX dependencies
-[15/61] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
-[16/61] Scanning C:\DarkAngel\tests\luau_probe.cpp for CXX dependencies
-[17/61] Scanning C:\DarkAngel\tests\foundation_tests.cpp for CXX dependencies
-[18/61] Scanning C:\DarkAngel\tests\sqlite_probe.cpp for CXX dependencies
-[19/61] Scanning C:\DarkAngel\tests\script_package_tests.cpp for CXX dependencies
-[20/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\bootstrap.cpp.obj
-[21/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_runtime.cpp.obj
-[22/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_package.cpp.obj
-[23/61] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
-[24/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_state.cpp.obj
-[25/61] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
-[26/61] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
-[27/61] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[28/60] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
-[29/59] Generating CXX dyndep file CMakeFiles\RendererProbe.dir\CXX.dd
-[30/57] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
-[31/57] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
-[32/57] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
-[33/57] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
-[34/57] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
-[35/57] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
-[36/57] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
-[37/57] Linking CXX static library DarkAngelRuntime.lib
-[38/57] Building CXX object CMakeFiles\DarkAngelHeadless.dir\apps\headless\main.cpp.obj
-[39/57] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
-[40/57] Linking CXX static library DarkAngelAssets.lib
-[41/57] Building CXX object CMakeFiles\EditorTests.dir\tests\editor_tests.cpp.obj
-[42/57] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
-[43/57] Building CXX object CMakeFiles\FlecsProbe.dir\tests\flecs_probe.cpp.obj
-[44/57] Building CXX object CMakeFiles\LuauProbe.dir\tests\luau_probe.cpp.obj
-[45/57] Building CXX object CMakeFiles\SQLiteProbe.dir\tests\sqlite_probe.cpp.obj
-[46/57] Building CXX object CMakeFiles\FoundationTests.dir\tests\foundation_tests.cpp.obj
-[47/57] Building CXX object CMakeFiles\ScriptPackageTests.dir\tests\script_package_tests.cpp.obj
-[48/57] Linking CXX executable DarkAngelHeadless.exe
-[49/57] Linking CXX executable AssetTool.exe
-[50/57] Linking CXX executable AssetTests.exe
-[51/57] Linking CXX executable EditorTests.exe
-[52/57] Linking CXX executable FlecsProbe.exe
-[53/57] Linking CXX executable LuauProbe.exe
-[54/57] Linking CXX executable SQLiteProbe.exe
-[55/57] Linking CXX executable FoundationTests.exe
-[56/57] Linking CXX executable ScriptPackageTests.exe
-[57/57] Linking CXX executable DarkAngelEditor.exe
+[1/80] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[2/80] Scanning C:\DarkAngel\engine\runtime\transport.cpp for CXX dependencies
+[3/80] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[4/76] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[5/71] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[6/71] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[7/71] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[8/71] Linking CXX static library DarkAngelFoundation.lib
+[9/71] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[10/71] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[11/68] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[12/68] Scanning C:\DarkAngel\tools\cooker\main.cpp for CXX dependencies
+[13/68] Scanning C:\DarkAngel\tests\asset_tests.cpp for CXX dependencies
+[14/68] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\transport.cpp.obj
+[15/68] Scanning C:\DarkAngel\apps\editor\editor_controller.cpp for CXX dependencies
+[16/68] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[17/68] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[18/68] Scanning C:\DarkAngel\apps\editor\editor_ui.cpp for CXX dependencies
+[19/68] Linking CXX static library DarkAngelRuntime.lib
+[20/68] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[21/67] Generating CXX dyndep file CMakeFiles\EditorCli.dir\CXX.dd
+[22/66] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[23/66] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[24/66] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[25/66] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[26/66] Generating CXX dyndep file CMakeFiles\RendererProbe.dir\CXX.dd
+[27/64] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[28/63] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[29/62] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[30/60] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[31/58] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[32/56] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[33/55] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[34/54] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[35/53] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[36/53] Building CXX object CMakeFiles\AssetTool.dir\tools\cooker\main.cpp.obj
+[37/53] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[38/53] Linking CXX static library DarkAngelAssets.lib
+[39/53] Building CXX object CMakeFiles\AssetTests.dir\tests\asset_tests.cpp.obj
+[40/53] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(136): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[41/53] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+[42/53] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[43/53] Linking CXX executable DarkAngelHeadless.exe
+[44/53] Linking CXX executable EditorCli.exe
+[45/53] Linking CXX executable AssetTool.exe
+[46/53] Linking CXX executable AssetTests.exe
+[47/53] Linking CXX executable EditorTests.exe
+[48/53] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(35): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[49/53] Linking CXX executable FoundationTests.exe
+[50/53] Linking CXX executable ScriptPackageTests.exe
+[51/53] Linking CXX executable AssemblyTests.exe
+[52/53] Linking CXX executable SessionTests.exe
+[53/53] Linking CXX executable DarkAngelEditor.exe

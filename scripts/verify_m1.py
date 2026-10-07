@@ -24,7 +24,7 @@ def main():
             code=1; output=str(e)
         log=evidence/f'{args.profile}-{name}.log'; log.write_text(output,encoding='utf-8')
         rows.append(dict(gate=name,command=cmd,exit_code=code,seconds=round(time.monotonic()-start,3),log=log.relative_to(ROOT).as_posix()))
-        print(name,code,output[-3500:],flush=True)
+        print(name,code,output[-2200:] if code else "passed",flush=True)
         if code:break
     (evidence/f'{args.profile}.json').write_text(json.dumps(rows,indent=2)+'\n',encoding='utf-8')
     return int(rows[-1]['exit_code']!=0)

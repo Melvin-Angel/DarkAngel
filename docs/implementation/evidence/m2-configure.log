@@ -702,7 +702,7 @@ meshoptimizer provides CMake targets:
   find_package(meshoptimizer CONFIG REQUIRED)
   target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
 
-All requested installations completed successfully in: 496 us
+All requested installations completed successfully in: 401 us
 -- Running vcpkg install - done
 -- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
 -- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
@@ -715,8 +715,8 @@ All requested installations completed successfully in: 496 us
 -- Architecture: AMD64
 -- DiligentCore commit hash: 074060cf
 -- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
--- Configuring done (12.5s)
--- Generating done (1.3s)
+-- Configuring done (11.7s)
+-- Generating done (1.0s)
 -- Build files have been written to: C:/DarkAngel/build/m2-relwithdebinfo
 Target processor: x86_64
 CMake generator: Ninja

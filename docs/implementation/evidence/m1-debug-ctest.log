@@ -1,45 +1,56 @@
 Test project C:/DarkAngel/build/m1-debug
       Start  1: M2.editor_transactions
- 1/17 Test  #1: M2.editor_transactions ...........   Passed    0.12 sec
+ 1/22 Test  #1: M2.editor_transactions ...........   Passed    0.89 sec
       Start  2: FlecsProbe
- 2/17 Test  #2: FlecsProbe .......................   Passed    0.04 sec
+ 2/22 Test  #2: FlecsProbe .......................   Passed    0.08 sec
       Start  3: LuauProbe
- 3/17 Test  #3: LuauProbe ........................   Passed    0.02 sec
+ 3/22 Test  #3: LuauProbe ........................   Passed    0.04 sec
       Start  4: SQLiteProbe
- 4/17 Test  #4: SQLiteProbe ......................   Passed    0.03 sec
+ 4/22 Test  #4: SQLiteProbe ......................   Passed    0.09 sec
       Start  5: HeadlessSmoke
- 5/17 Test  #5: HeadlessSmoke ....................   Passed    0.08 sec
+ 5/22 Test  #5: HeadlessSmoke ....................   Passed    0.11 sec
       Start  6: M1.identity
- 6/17 Test  #6: M1.identity ......................   Passed    0.12 sec
+ 6/22 Test  #6: M1.identity ......................   Passed    0.20 sec
       Start  7: M1.scene
- 7/17 Test  #7: M1.scene .........................   Passed    0.08 sec
+ 7/22 Test  #7: M1.scene .........................   Passed    0.13 sec
       Start  8: M1.phases
- 8/17 Test  #8: M1.phases ........................   Passed    0.06 sec
+ 8/22 Test  #8: M1.phases ........................   Passed    0.10 sec
       Start  9: M1.scripts
- 9/17 Test  #9: M1.scripts .......................   Passed    0.22 sec
+ 9/22 Test  #9: M1.scripts .......................   Passed    0.47 sec
       Start 10: M1.reload
-10/17 Test #10: M1.reload ........................   Passed    0.45 sec
+10/22 Test #10: M1.reload ........................   Passed    1.13 sec
       Start 11: M1.limits
-11/17 Test #11: M1.limits ........................   Passed    0.26 sec
-      Start 12: M1.imports
-12/17 Test #12: M1.imports .......................   Passed    0.46 sec
-      Start 13: M1.tasks
-13/17 Test #13: M1.tasks .........................   Passed    0.17 sec
-      Start 14: M1.cooked
-14/17 Test #14: M1.cooked ........................   Passed    0.18 sec
-      Start 15: M1.state
-15/17 Test #15: M1.state .........................   Passed    0.53 sec
-      Start 16: M1.cook_fixture
-16/17 Test #16: M1.cook_fixture ..................   Passed    0.21 sec
-      Start 17: M1.cooked_headless
-17/17 Test #17: M1.cooked_headless ...............   Passed    0.04 sec
+11/22 Test #11: M1.limits ........................   Passed    0.56 sec
+      Start 12: M2.assemblies
+12/22 Test #12: M2.assemblies ....................   Passed    0.59 sec
+      Start 13: M2.cook_scene_fixture
+13/22 Test #13: M2.cook_scene_fixture ............   Passed    0.51 sec
+      Start 14: M2.cooked_scene_headless
+14/22 Test #14: M2.cooked_scene_headless .........   Passed    0.11 sec
+      Start 15: M3.loopback
+15/22 Test #15: M3.loopback ......................   Passed    0.06 sec
+      Start 16: M1.imports
+16/22 Test #16: M1.imports .......................   Passed    0.76 sec
+      Start 17: M1.tasks
+17/22 Test #17: M1.tasks .........................   Passed    0.27 sec
+      Start 18: M1.cooked
+18/22 Test #18: M1.cooked ........................   Passed    0.28 sec
+      Start 19: M1.state
+19/22 Test #19: M1.state .........................   Passed    1.04 sec
+      Start 20: M1.bindings
+20/22 Test #20: M1.bindings ......................   Passed    0.65 sec
+      Start 21: M1.cook_fixture
+21/22 Test #21: M1.cook_fixture ..................   Passed    0.39 sec
+      Start 22: M1.cooked_headless
+22/22 Test #22: M1.cooked_headless ...............   Passed    0.09 sec
 
-100% tests passed out of 17
+100% tests passed out of 22
 
 Label Time Summary:
-M0            =   0.09 sec*proc (3 tests)
-M1            =   2.77 sec*proc (12 tests)
-M2            =   0.12 sec*proc (1 test)
-dependency    =   0.09 sec*proc (3 tests)
+M0            =   0.21 sec*proc (3 tests)
+M1            =   6.08 sec*proc (13 tests)
+M2            =   2.10 sec*proc (4 tests)
+M3            =   0.06 sec*proc (1 test)
+dependency    =   0.21 sec*proc (3 tests)
 
-Total Test time (real) =   3.09 sec
+Total Test time (real) =   8.64 sec

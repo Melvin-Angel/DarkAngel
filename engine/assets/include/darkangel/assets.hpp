@@ -43,6 +43,7 @@ public:
     CookResult cook(std::string_view relative_source);
     void package(AssetId root,const std::filesystem::path& registry) const;
     std::filesystem::path cas_path() const;
+    std::uint64_t conversion_count() const;
 private:
     struct Impl;std::unique_ptr<Impl> impl_;
 };

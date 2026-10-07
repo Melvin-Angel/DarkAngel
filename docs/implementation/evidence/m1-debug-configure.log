@@ -39,8 +39,8 @@ sqlite3 provides CMake targets:
     find_package(unofficial-sqlite3 CONFIG REQUIRED)
     target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
 
-All requested installations completed successfully in: 624 us
+All requested installations completed successfully in: 640 us
 -- Running vcpkg install - done
--- Configuring done (4.6s)
+-- Configuring done (7.6s)
 -- Generating done (0.1s)
 -- Build files have been written to: C:/DarkAngel/build/m1-debug

@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 namespace darkangel {
+struct StableId;
 struct AssetId {
     std::array<std::uint8_t,16> bytes{};
     auto operator<=>(const AssetId&) const = default;
@@ -12,4 +13,6 @@ struct AssetId {
     static AssetId parse(std::string_view);
     std::string text() const;
 };
+StableId asset_key(AssetId); // private runtime lookup key; source keeps canonical UUID text
+AssetId asset_id(StableId);
 }

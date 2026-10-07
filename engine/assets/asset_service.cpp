@@ -44,7 +44,7 @@ std::string lowercase(std::string value){std::transform(value.begin(),value.end(
 void digest_check(std::string_view digest){require(digest.size()==64 && digest.find_first_not_of("0123456789abcdef")==digest.npos,"Invalid artifact digest");}
 }
 struct AssetService::Impl {
-    std::filesystem::path sources,cache,cas;sqlite3* db{};std::thread::id owner{std::this_thread::get_id()};bool com{};
+    std::filesystem::path sources,cache,cas;sqlite3* db{};std::thread::id owner{std::this_thread::get_id()};bool com{};std::uint64_t conversions{};
     Impl(std::filesystem::path source,std::filesystem::path output):sources(std::filesystem::weakly_canonical(source)),cache(std::filesystem::weakly_canonical(output)),cas(cache/"cas"){
         require(std::filesystem::is_directory(sources),"Asset source mount missing");std::filesystem::create_directories(cas);
         require(!active_coordinator.test_and_set(),"Only one asset coordinator may own the WIC cooker at a time");
@@ -81,12 +81,14 @@ void AssetService::scan(){auto& p=*impl_;p.thread();std::vector<std::pair<AssetI
 }
 std::vector<AssetInfo> AssetService::assets() const{auto& p=*impl_;p.thread();Statement query(p.db,"SELECT a.id,a.path,COALESCE(g.revision,0) FROM assets a LEFT JOIN generations g ON a.id=g.root ORDER BY a.id");std::vector<AssetInfo> result;while(query.row()){auto revision=sqlite3_column_int64(query.p,2);require(revision>=0,"Invalid catalog revision");result.push_back({query.id(0),query.text(1),static_cast<std::uint64_t>(revision)});}return result;}
 CookResult AssetService::cook(std::string_view relative){auto& p=*impl_;p.thread();scan();auto source=p.source(relative);auto metadata=read(metadata_path(source),1024*1024);auto sidecar=json(metadata);auto ids=metadata_ids(sidecar);auto root=ids.at("$source");
-    auto imported=import_gltf(p.sources,source,ids);Json recipe={{"schema",1},{"importer","static-gltf-v1"},{"cgltf","1.15"},{"meshoptimizer","1.2"},{"DirectXTex","2026-05-07"},{"profile","Windows-x64-RGBA8-sRGB-CPU-mips"},{"build",DAE_COOKER_BUILD_HASH},{"inputs",imported.inputs},{"mapping",sidecar.at("subassets")},{"id",root.text()}};
+    auto inspected=import_gltf(p.sources,source,ids,true);Json recipe={{"schema",1},{"importer","static-gltf-v1"},{"cgltf","1.15"},{"meshoptimizer","1.2"},{"DirectXTex","2026-05-07"},{"profile","Windows-x64-RGBA8-sRGB-CPU-mips"},{"build",DAE_COOKER_BUILD_HASH},{"inputs",inspected.inputs},{"mapping",sidecar.at("subassets")},{"id",root.text()}};
     auto fingerprint=sha256(recipe.dump());std::uint64_t revision{};std::string previous;
     {Statement query(p.db,"SELECT revision,recipe FROM generations WHERE root=?1");query.id(1,root);if(query.row()){revision=static_cast<std::uint64_t>(sqlite3_column_int64(query.p,0));previous=query.text(1);}}
     require(revision<0x7fffffffffffffffULL,"Asset generation limit");
-    for(const auto& [path,hash]:imported.inputs)require(file_sha256(within(p.sources,path))==hash,"Input changed during cook; result superseded");require(read(metadata_path(source),1024*1024)==metadata,"Import settings changed during cook");
-    if(previous==fingerprint){bool valid=true;Statement products(p.db,"SELECT hash,extension FROM products WHERE root=?1");products.id(1,root);std::size_t count{};while(products.row()){++count;auto path=p.cas/(products.text(0)+"."+products.text(1));if(!std::filesystem::exists(path) || file_sha256(path)!=products.text(0))valid=false;}if(valid && count==imported.products.size())return {root,revision,false};}
+    for(const auto& [path,hash]:inspected.inputs)require(file_sha256(within(p.sources,path))==hash,"Input changed during inspection; result superseded");require(read(metadata_path(source),1024*1024)==metadata,"Import settings changed during inspection");
+    if(previous==fingerprint){bool valid=true;Statement products(p.db,"SELECT hash,extension FROM products WHERE root=?1");products.id(1,root);std::size_t count{};while(products.row()){++count;auto hash=products.text(0),extension=products.text(1);digest_check(hash);require(extension=="mesh" || extension=="dds" || extension=="model.json" || extension=="material.json","Invalid cached extension");auto path=p.cas/(hash+"."+extension);if(!std::filesystem::exists(path) || file_sha256(path)!=hash)valid=false;}if(valid && count==inspected.keys.size()+1)return {root,revision,false};}
+    ++p.conversions;auto imported=import_gltf(p.sources,source,ids);require(imported.inputs==inspected.inputs,"Input closure changed during conversion; result superseded");
+    for(const auto& [path,hash]:imported.inputs)require(file_sha256(within(p.sources,path))==hash,"Input changed during conversion; result superseded");require(read(metadata_path(source),1024*1024)==metadata,"Import settings changed during conversion");
     std::vector<std::string> hashes;for(const auto& product:imported.products){require(product.bytes.size()<=64*1024*1024,"Cooked product limit");auto hash=sha256(product.bytes);hashes.push_back(hash);auto path=p.cas/(hash+"."+product.extension);if(!std::filesystem::exists(path) || file_sha256(path)!=hash)atomic_write(path,product.bytes);require(file_sha256(path)==hash,"CAS publication digest mismatch");}
     // Files are immutable before the catalog head advances. Failures leave orphan cache blobs, never a partial head.
     exec(p.db,"BEGIN IMMEDIATE");try{
@@ -104,6 +106,7 @@ void AssetService::package(AssetId root,const std::filesystem::path& output) con
     for(auto id:visited)manifest["assets"].push_back(products.at(id));atomic_write(output,manifest.dump(2)+"\n");
 }
 std::filesystem::path AssetService::cas_path() const{impl_->thread();return impl_->cas;}
+std::uint64_t AssetService::conversion_count() const{impl_->thread();return impl_->conversions;}
 RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId root){auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1 && manifest.at("root")==root.text() && manifest.at("assets").size()<=512,"Runtime registry mismatch/limit");std::map<AssetId,Json> records;
     for(const auto& record:manifest.at("assets")){auto id=AssetId::parse(record.at("id").get<std::string>());require(records.emplace(id,record).second,"Duplicate cooked registry UUID");}
     auto load=[&](AssetId id,const char* kind){require(records.contains(id),"Missing required cooked AssetID");const auto& record=records.at(id);require(record.at("kind")==kind,"Cooked AssetRef type mismatch");auto hash=record.at("sha256").get<std::string>();digest_check(hash);auto ext=record.at("extension").get<std::string>();require(ext=="model.json" || ext=="material.json" || ext=="mesh" || ext=="dds","Invalid cooked extension");auto bytes=read(cas/(hash+"."+ext));require(sha256(bytes)==hash,"Cooked artifact digest mismatch");return bytes;};
