@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.docx -text
+docs/architecture/DarkAngel_Implementation_Handoff.md -text
+docs/architecture/Decision_Log.txt -text
+third_party/notices/** -text

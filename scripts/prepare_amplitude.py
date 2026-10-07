@@ -18,22 +18,27 @@ def main():
     shutil.copytree(source,dest,ignore=shutil.ignore_patterns('.git','.xmake','build'))
     recipe=(source/'xmake.lua').read_text(encoding='utf-8')
     recipe=recipe.replace('add_repositories("repo xmake/repo", { rootdir = os.scriptdir() })','')
-    # Local packages import installed headers/libraries; they never build a second copy.
-    packages={'flatbuffers':('flatbuffers','flatbuffers'),'xsimd':('xsimd',None),'miniaudio':('miniaudio',None),'eigen':('eigen3',None),'lz4':('lz4','lz4'),'dylib':('dylib',None)}
+    # Import already installed vcpkg artifacts directly. No XMake package registry
+    # is consulted, and no second library implementation is compiled.
     prefix=(ROOT/'vcpkg_installed/x64-windows-darkangel').as_posix()
-    definitions=['set_runtimes(is_mode("debug") and "MDd" or "MD")']
-    for alias,(port,link) in packages.items():
-        lines=[f'package("darkangel-{alias}")', '  set_kind("library", {headeronly = '+('false' if link else 'true')+'})', '  on_load(function(package)',f'    package:add("includedirs", "{prefix}/include")']
-        if alias=='eigen':lines.append(f'    package:add("includedirs", "{prefix}/include/eigen3")')
-        if link:
-            lines += [f'    package:add("linkdirs", is_mode("debug") and "{prefix}/debug/lib" or "{prefix}/lib")',f'    package:add("links", "{link}")']
-        lines+=['  end)','package_end()']
-        definitions.extend(lines)
-        import re
-        pattern=r'add_requires\("'+alias+r' [^"]+"\)'
-        recipe,count=re.subn(pattern,f'add_requires("darkangel-{alias}", {{alias = "{alias}", system = false}})',recipe)
-        if count!=1:raise RuntimeError('Upstream dependency declaration changed: '+alias)
-    recipe=recipe.replace('-- Dependencies','\n'.join(definitions)+'\n\n-- Dependencies',1)
+    dependencies=['flatbuffers','xsimd','miniaudio','eigen','lz4','dylib']
+    import re
+    for name in dependencies:
+        recipe,count=re.subn(r'add_requires\("'+name+r' [^"]+"\)', '', recipe)
+        if count!=1:raise RuntimeError('Upstream dependency declaration changed: '+name)
+    recipe=recipe.replace('add_requireconfs("*", { debug = is_mode("debug") })','')
+    recipe=recipe.replace('add_packages("dylib")','')
+    recipe=recipe.replace('add_packages("flatbuffers", "xsimd", "eigen", "miniaudio", "lz4")','')
+    imports=[
+        'set_runtimes(is_mode("debug") and "MDd" or "MD")',
+        f'add_includedirs("{prefix}/include", "{prefix}/include/eigen3")',
+        f'add_linkdirs(is_mode("debug") and "{prefix}/debug/lib" or "{prefix}/lib")',
+        'add_links("flatbuffers", "lz4")'
+    ]
+    recipe=recipe.replace('-- Dependencies','\n'.join(imports)+'\n\n-- Dependencies',1)
+    for file in ['include/flatbuffers/flatbuffers.h','include/xsimd/xsimd.hpp','include/miniaudio.h','include/eigen3/Eigen/Core','include/dylib.hpp','lib/lz4.lib','lib/flatbuffers.lib']:
+        if not (ROOT/'vcpkg_installed/x64-windows-darkangel'/file).is_file():
+            raise RuntimeError('Install the pinned amplitude-deps feature first: '+file)
     # Optional CLI/sample/test branches remain off. Prevent accidental acquisition through them.
     recipe=recipe.replace('add_requires("libsdl2", { configs = { sdlmain = true } })','raise("M0 recipe disables samples")')
     recipe=recipe.replace('add_requires("cli11")','raise("M0 recipe disables CLI tools")').replace('add_requires("libmysofa 1.3.2")','')

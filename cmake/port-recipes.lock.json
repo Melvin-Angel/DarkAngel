@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "resolution": "metadata closure; native vcpkg plan pending MSVC",
+  "resolution": "Native full-feature vcpkg dry-run and successful --only-downloads; immutable versioned port trees and actual patch files captured",
   "ports": [
     {
       "name": "abseil",
@@ -17,7 +17,9 @@
       },
       "assets": [
         "abseil:abseil-abseil-cpp-20260107.1.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "8e20a1d1a1c5d5cf4c8cda806b52131a94b04831",
+      "portfile_sha256": "eaff26e978506f46faf87082698ed9db1e5612cc5ba1c7e7d3ee977048cf305c"
     },
     {
       "name": "behaviortree-cpp",
@@ -35,7 +37,9 @@
       },
       "assets": [
         "behaviortree-cpp:BehaviorTree-BehaviorTree.CPP-4.9.1.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "7937cd10b44475db72ed206e2c8a09e3cf7d96d9",
+      "portfile_sha256": "5c8b93f214baa15619803ddba2eb310b70625ae1cd63d804c9e9662a7ccd3123"
     },
     {
       "name": "cgltf",
@@ -47,7 +51,9 @@
       "patches": {},
       "assets": [
         "cgltf:jkuhlmann-cgltf-v1.15.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "ca743d6f86c5b711e9ae0440df5804ab9a2cf1b3",
+      "portfile_sha256": "abed7438d14fff55edd2aa26570ed735b65bc536fefe0080f261e45dc28f7db2"
     },
     {
       "name": "directxmath",
@@ -63,7 +69,9 @@
       "patches": {},
       "assets": [
         "directxmath:Microsoft-DirectXMath-jun2026.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "46a960c8f364162407b24f188a2aeea4608f4cf7",
+      "portfile_sha256": "10a493d3244fab0fe1f684975b65f8a5587ecb0d6d198da42a41a6c39d6e0ceb"
     },
     {
       "name": "directxtex",
@@ -84,7 +92,9 @@
       "patches": {},
       "assets": [
         "directxtex:Microsoft-DirectXTex-may2026.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "e9f89c9f75ab81ba10bf86dca60c5f202f881690",
+      "portfile_sha256": "926bb802378cec9097b0a12984070a1d9150c94266e4ef789698d8e50f73e0fa"
     },
     {
       "name": "dylib",
@@ -96,7 +106,9 @@
       "patches": {},
       "assets": [
         "dylib:martin-olivier-dylib-v3.0.1.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "c3eb9f98bcb56f71389d23941acfb7f893745680",
+      "portfile_sha256": "4bdff480f68a5d606abde3f4b38b778a03853b7b0b02083a8db6bdf0c9440f5b"
     },
     {
       "name": "eigen3",
@@ -108,7 +120,9 @@
       "patches": {},
       "assets": [
         "eigen3:libeigen-eigen-5.0.1.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "d76be65aad61fe24ae3d70c10fca0bd2c592308e",
+      "portfile_sha256": "8920547b16a2cb89b2915118d0276b9966229efdd05caa8596d19f70abee27d2"
     },
     {
       "name": "flatbuffers",
@@ -123,7 +137,9 @@
       },
       "assets": [
         "flatbuffers:google-flatbuffers-v25.12.19.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "a3bdc699c0f7c5a58787697e74e345610d454ccf",
+      "portfile_sha256": "e876f066c887850d3db219c86730779f3eac9c08e27027861050d1fa8ca31453"
     },
     {
       "name": "flecs",
@@ -135,7 +151,9 @@
       "patches": {},
       "assets": [
         "flecs:SanderMertens-flecs-v4.1.6.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "6e13da0e6d446c34fef059953b4a947f04af748d",
+      "portfile_sha256": "5b7341111ed6ff897e0911ff7e22461359720c5c9b122a1969cb2fd3e4493e16"
     },
     {
       "name": "freetype",
@@ -160,7 +178,9 @@
       },
       "assets": [
         "freetype:freetype-freetype-VER-2-14-3.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "37a2b08e48b987c9b2a45a075fed1bc382e8de03",
+      "portfile_sha256": "c139c72f8246c293ef68b4a3cc81ce2bee26afc81ab19d466f0403655c8a9918"
     },
     {
       "name": "gamenetworkingsockets",
@@ -174,7 +194,9 @@
       "patches": {},
       "assets": [
         "gamenetworkingsockets:ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "191b0554b5826ec511edea3624228c9731b1c09e",
+      "portfile_sha256": "8b22470e79afa84dbbef33790927b34c98db2f4dcbea0f03b9cc69b01ec2be25"
     },
     {
       "name": "itlib",
@@ -186,7 +208,9 @@
       "patches": {},
       "assets": [
         "itlib:iboB-itlib-v1.12.2.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "8a453b8f5e7fdbda2367527993839428ec50343f",
+      "portfile_sha256": "0b1b35eef8570fc837e8f56a1f8eeb5c49072caffef661d025880fd6a0e75ed6"
     },
     {
       "name": "joltphysics",
@@ -202,7 +226,9 @@
       "patches": {},
       "assets": [
         "joltphysics:jrouwe-JoltPhysics-v5.6.0.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "2eab0b6e73bfbe491fa0ffb297fd3ffdb6bf4ecf",
+      "portfile_sha256": "3302e2cb1211ba060dd5eb0c579fbfebbfe8b90ff97b54995a803e8ccbf14974"
     },
     {
       "name": "luau",
@@ -219,7 +245,9 @@
       },
       "assets": [
         "luau:luau-lang-luau-0.729.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "1d92bdc4384054e753c2f38febbe6f5c675110bb",
+      "portfile_sha256": "2231264f4e57b3eb2e2e78a1fe504a91cdc5d8a8f6bf15103dec71da09f0779a"
     },
     {
       "name": "lz4",
@@ -235,7 +263,9 @@
       },
       "assets": [
         "lz4:lz4-lz4-v1.10.0.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "4f01eec10f515a428e914107c5188366380f8dd9",
+      "portfile_sha256": "b70fd07b84540a452f252350e5877063cb6ff924de4a817bd824aab6ff2216cb"
     },
     {
       "name": "meshoptimizer",
@@ -251,7 +281,9 @@
       },
       "assets": [
         "meshoptimizer:zeux-meshoptimizer-v1.2.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "749c4154509bde6b404ac9e5f212cc5dbb15940f",
+      "portfile_sha256": "41892065ef80db223b8a3a227eba7ba75222b78d8025e66be73e7da98b1a4475"
     },
     {
       "name": "miniaudio",
@@ -263,7 +295,9 @@
       "patches": {},
       "assets": [
         "miniaudio:mackron-miniaudio-0.11.25.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "f019711e3ca3673819cc9b8436af74b095dcb580",
+      "portfile_sha256": "288f430c1c20ed463a9f62115f1abef26ad58a08a437f1f770a243b09abbaff4"
     },
     {
       "name": "minitrace",
@@ -275,7 +309,9 @@
       "patches": {},
       "assets": [
         "minitrace:hrydgard-minitrace-a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "e6bb405d13f5270e92c492306f317cb01dc4ab30",
+      "portfile_sha256": "df15708163100d3be7b817cea36c625b822f6c2aeb5e472383fd16148586ccb7"
     },
     {
       "name": "openssl",
@@ -293,17 +329,19 @@
         "cmake-config.patch": "9b4cd414b2f7ea82e9bc46507312ad6046ba62403834869b1cc7badc13597a27",
         "command-line-length.patch": "f901c068c91456b0405c726d2808ff53fb7b60775fc8a5cb22f2bd8feecf44eb",
         "script-prefix.patch": "caa28374650ac6510fa5190a7645a91c86a7fd3570eb357e7fa0927b97e8f13e",
-        "android-cc.patch": "a3cde12ca3c7c7894e73d300e0ccf728de28b87afde13776e7d7267979c3ead2",
-        "move-openssldir.patch": "9e62ad861f8421e5b732bf488b7199131ac17a57f295f50c697d2591f5845e0e",
-        "no-empty-dirs.patch": "a03d46642c903c9eb09184eabc553ce1467e000c28a9e7d7e92d995970004a62",
-        "no-static-libs-for-shared.patch": "dc51d597ad7477fc56c2a394c84493c87a4de2b84898497dda2754dd0fd8cb53",
-        "install-layout.patch": "2e99d1714ecfe7224889c0df8c6b572d3ffca3927b640014c3f5cc4c144e72f6",
-        "install-pdbs.patch": "e913fdc775b5e7be3eb71bfc223d51c3d8fd7e933410493efdbc53c5a1e1f3b7",
-        "install-programs.diff": "09b91267b364fb10e101b432d86e761247bafbfd42cb7688b5d7748ea6175e2a"
+        "unix/android-cc.patch": "a3cde12ca3c7c7894e73d300e0ccf728de28b87afde13776e7d7267979c3ead2",
+        "unix/move-openssldir.patch": "9e62ad861f8421e5b732bf488b7199131ac17a57f295f50c697d2591f5845e0e",
+        "unix/no-empty-dirs.patch": "a03d46642c903c9eb09184eabc553ce1467e000c28a9e7d7e92d995970004a62",
+        "unix/no-static-libs-for-shared.patch": "dc51d597ad7477fc56c2a394c84493c87a4de2b84898497dda2754dd0fd8cb53",
+        "windows/install-layout.patch": "2e99d1714ecfe7224889c0df8c6b572d3ffca3927b640014c3f5cc4c144e72f6",
+        "windows/install-pdbs.patch": "e913fdc775b5e7be3eb71bfc223d51c3d8fd7e933410493efdbc53c5a1e1f3b7",
+        "windows/install-programs.diff": "09b91267b364fb10e101b432d86e761247bafbfd42cb7688b5d7748ea6175e2a"
       },
       "assets": [
         "openssl:openssl-openssl-openssl-3.6.3.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "b4a2360e8425d8d5e2a24436804b592bef26980b",
+      "portfile_sha256": "7b088628f6644239d24955c51c5b85ed5285df5c701c945509eccc47bc353af6"
     },
     {
       "name": "protobuf",
@@ -325,7 +363,9 @@
       },
       "assets": [
         "protobuf:protocolbuffers-protobuf-v33.4.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "ed5f5c06952c67498f580082ff1209d051222947",
+      "portfile_sha256": "7282d9bd03ba2517e394e08666d03ab58477f9459c8a676d322523fa0a6c2b77"
     },
     {
       "name": "recastnavigation",
@@ -339,7 +379,9 @@
       },
       "assets": [
         "recastnavigation:recastnavigation-recastnavigation-v1.6.0.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "806d9850ce88d7190649eb90863455084516d519",
+      "portfile_sha256": "1bda45bbb9654342596a52b33a0d626a8b57707cf0f1eba0d1453e0eacb50661"
     },
     {
       "name": "rmlui",
@@ -359,7 +401,9 @@
       },
       "assets": [
         "rmlui:mikke89-RmlUi-6.2.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "29b67cb822e000a5369d477689145c7df434f842",
+      "portfile_sha256": "a7d743ace74ebacdb9bca89dcb9647dfbe8a309cdaa325a40a9ca9766529f1b0"
     },
     {
       "name": "robin-hood-hashing",
@@ -373,7 +417,9 @@
       },
       "assets": [
         "robin-hood-hashing:martinus-robin-hood-hashing-3.11.5.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "1a989171742275cc32060ed37157eeb0efcdc739",
+      "portfile_sha256": "b7450bd3b3a56961066f9b78ec3dfa930533f36c0d39b272f3a27788004a1e65"
     },
     {
       "name": "sqlite3",
@@ -409,7 +455,9 @@
       },
       "assets": [
         "sqlite3:sqlite-autoconf-3530400.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "0cc3b4ec0f841b02a3bf3c82387b1d3c2f9adb6a",
+      "portfile_sha256": "686c1b363c358d3f16203c88201787de6021ad513da389002f8b4818bbc5573f"
     },
     {
       "name": "tinyxml2",
@@ -424,7 +472,9 @@
       },
       "assets": [
         "tinyxml2:leethomason-tinyxml2-11.0.0.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "642c5abe1171318729a73bdf95ce6c2ca58e079c",
+      "portfile_sha256": "4dd32ecd8af2acbdb2bbcba485f1afd62e18cc6d3b2eeb0e043b58e3208bf4e5"
     },
     {
       "name": "utf8-range",
@@ -438,7 +488,9 @@
       },
       "assets": [
         "protobuf:protocolbuffers-protobuf-v33.4.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "9f24dda3a883d4026bb1122c50077c07c9a32f47",
+      "portfile_sha256": "f15e3484a38c8c6d2cffa29dcb2f59c01837d6e293ad154f37acd6df3e87852e"
     },
     {
       "name": "vcpkg-cmake",
@@ -448,7 +500,9 @@
       "features_available": [],
       "recipe": ".tools/vcpkg/ports/vcpkg-cmake",
       "patches": {},
-      "assets": []
+      "assets": [],
+      "registry_git_tree": "e74aa1e8f93278a8e71372f1fa08c3df420eb840",
+      "portfile_sha256": "a711531b7f13b7da16fa1f25d7c5737a423d4a126465dc9e6689a0f043fcc1aa"
     },
     {
       "name": "vcpkg-cmake-config",
@@ -458,7 +512,9 @@
       "features_available": [],
       "recipe": ".tools/vcpkg/ports/vcpkg-cmake-config",
       "patches": {},
-      "assets": []
+      "assets": [],
+      "registry_git_tree": "51befcb03097f8d19c1c59f9ec3625e69d85322a",
+      "portfile_sha256": "832b34e63f5af41ad1b2e4aa79c5bfa507a005b120b51548e674accc706837d7"
     },
     {
       "name": "vcpkg-cmake-get-vars",
@@ -468,7 +524,9 @@
       "features_available": [],
       "recipe": ".tools/vcpkg/ports/vcpkg-cmake-get-vars",
       "patches": {},
-      "assets": []
+      "assets": [],
+      "registry_git_tree": "d6510f888dd526c7828f6b973349e7f30be51254",
+      "portfile_sha256": "0a6c61926f6d1af5ed6e02b8df4dd8df81d3988a263c2849a38cef364e290e81"
     },
     {
       "name": "xsimd",
@@ -482,7 +540,9 @@
       "patches": {},
       "assets": [
         "xsimd:xtensor-stack-xsimd-13.2.0.tar.gz"
-      ]
+      ],
+      "registry_git_tree": "4a2b1da7795e5dc452044da506646fbbb49a1b27",
+      "portfile_sha256": "c1d62b9404ff874907afcb72b558dab14cf598d3dbd84573ae8c35953299506b"
     },
     {
       "name": "libflac",
@@ -497,7 +557,9 @@
         "android-cmake.diff": "034d2f3d69e31f3aaadf79544b9dcd32fed20a44d8916c19b5aa863da6da92fb",
         "fix-compile-options.patch": "02e10f5f2ac9f3ed601c8ca74454b33cccabdc833e4f72ec2a73887e3d066873",
         "fix-find-threads.patch": "326971747da526e18fa47e86cd127f2f3a80b9f85ac8f214a238c2456849be83"
-      }
+      },
+      "registry_git_tree": "1b83f01536820e062681fe33109e44bb3f597aca",
+      "portfile_sha256": "f245fa3658158140f6cb514d9f382876ee31392b2d2604be6c0c9f69730741bc"
     },
     {
       "name": "libogg",
@@ -508,7 +570,9 @@
       "assets": [
         "libogg:xiph-ogg-v1.3.6.tar.gz"
       ],
-      "patches": {}
+      "patches": {},
+      "registry_git_tree": "0631c72b35b0e169220b9c0fa9a6af4b229268cb",
+      "portfile_sha256": "8d990e3d15a7933a4c13cb5dfd6da12d5fdb8615b0803002246585ab51674b61"
     },
     {
       "name": "brotli",
@@ -521,7 +585,9 @@
       "patches": {
         "install.patch": "186701b1f2032cbd5a243eaafc51960bac057a2f561a7a9715637fd2fd38ea51",
         "pkgconfig.patch": "ec57a7be5dffd5ec9c444a71fcbc2332cf17fa9a6a147762244001587bea4f25"
-      }
+      },
+      "registry_git_tree": "0fb79bb13588702a9e06057745b4aed95ce5c861",
+      "portfile_sha256": "142eff2e161dcbd5abe54f9acc0ad1954494f2a657780a32e83e558ee7fec4f1"
     },
     {
       "name": "bzip2",
@@ -533,7 +599,9 @@
       ],
       "patches": {
         "fix-import-export-macros.patch": "38918c1257c884cc5cde39d9f4235d0e71574f20c7e5ec686a506612f647495e"
-      }
+      },
+      "registry_git_tree": "2d029da682847c5ebdc54e4dbea001331a02207e",
+      "portfile_sha256": "f9214fef97e792ca76f2cf97343edb1b83d6457e7320ae36b06306d0f038b439"
     },
     {
       "name": "libpng",
@@ -545,7 +613,9 @@
       ],
       "patches": {
         "cmake.patch": "e1c91b1739580791b8bfe770981cdb07bf65261caf6b2a99da988a8bb21d4094"
-      }
+      },
+      "registry_git_tree": "909d98e06046a0901fd11300b3d725d6a80d27bf",
+      "portfile_sha256": "5677ed31f47aa657854332f181f5497f22a7ce431c48e9036e0ce04639953af4"
     },
     {
       "name": "zlib",
@@ -557,7 +627,9 @@
       ],
       "patches": {
         "0001-no-version-script-on-ohos.patch": "f8c54d2dfd0a37d2f6e7473b1dba86b9e5ac423f522de9021b62c6c8c226ff76"
-      }
+      },
+      "registry_git_tree": "f49b05c666425471a7f6dc8b6156e9b3675a3c90",
+      "portfile_sha256": "ea47bb5089d792f31127ad26e780e78bb940ad4372aa2d66649a4f446a1a2b72"
     }
   ]
 }

@@ -30,6 +30,21 @@ def main():
         if run(['git','-C',str(ROOT/'.tools/vcpkg'),'rev-parse','HEAD'])!=pins['vcpkg_commit']:raise RuntimeError('vcpkg baseline checkout mismatch')
         return f'{count} sources and vcpkg match pins; required submodules present'
     check('archive-checksums',archives);check('source-pins',sources)
+    def compiler_pin():
+        from msvc_environment import activate
+        env=activate();pins=json.loads((ROOT/'cmake/native-toolchain.lock.json').read_text())
+        folder=pathlib.Path(env['VCTOOLSINSTALLDIR'])/'bin/Hostx64/x64'
+        for name,sha in pins.get('compiler_files',{}).items():
+            if digest(folder/name)!=sha:raise RuntimeError('Serviced MSVC binary differs from tested pin: '+name)
+        return 'MSVC toolset, serviced compiler/linker binaries and Windows SDK match frozen inputs'
+    check('native-toolchain-pins',compiler_pin)
+    def reused_tools():
+        lock=json.loads((ROOT/'cmake/tools.lock.json').read_text())
+        commands={'git':['git','--version'],'git-lfs':['git','lfs','version'],'python':[__import__('sys').executable,'--version'],'powershell':['pwsh','-NoProfile','-Command','$PSVersionTable.PSVersion.ToString()']}
+        for tool in lock['reuse']:
+            if tool['version'] not in run(commands[tool['name']]):raise RuntimeError('Reused tool differs from pin: '+tool['name'])
+        return 'Pinned Git, Git LFS, Python and PowerShell versions matched'
+    check('reused-tool-versions',reused_tools)
     def eos():
         config=json.loads((ROOT/'local.config.json').read_text());sdk=pathlib.Path(config['eos_sdk_root']);pins=json.loads((ROOT/'cmake/eos.lock.json').read_text())
         for name,sha in pins['files'].items():

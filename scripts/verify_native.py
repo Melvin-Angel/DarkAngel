@@ -4,7 +4,7 @@ from acquire import ROOT
 from msvc_environment import activate
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--profile',choices=['m0-debug','m0-relwithdebinfo','m0-release'],default='m0-relwithdebinfo');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--profile',choices=['m0-debug','m0-relwithdebinfo','m0-release'],default='m0-relwithdebinfo');parser.add_argument('--fresh',action='store_true',help='Preserve existing cache as evidence and reset only CMake configuration after a failed compiler detection');args=parser.parse_args()
     profile=args.profile; rows=[]; env=os.environ.copy()
     cmake=str(ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin/cmake.exe')
     ctest=str(pathlib.Path(cmake).with_name('ctest.exe'));cpack=str(pathlib.Path(cmake).with_name('cpack.exe'))
@@ -23,10 +23,17 @@ def main():
     try:
         env=activate()
         fixture=ROOT/'.cache/compiler-identity.c';fixture.write_text('int darkangel_compiler_identity(void) { return 0; }\n')
-        step('compiler-version',['cl','/nologo','/Bv','/MD','/c',str(fixture),'/Fo'+str(ROOT/'.cache/compiler-identity.obj')])
+        compiler=pathlib.Path(env['VCTOOLSINSTALLDIR'])/'bin/Hostx64/x64/cl.exe'
+        step('compiler-version',[str(compiler),'/nologo','/Bv','/MD','/c',str(fixture),'/Fo'+str(ROOT/'.cache/compiler-identity.obj')])
     except Exception as error:
         rows.append({'gate':'compiler-environment','status':'blocked','exit_code':1,'reason':str(error)})
-    success=step('configure',[cmake,'--preset',profile])
+    if args.fresh:
+        cache=ROOT/'build'/profile/'CMakeCache.txt'
+        if cache.exists():
+            preserved=ROOT/'.cache/evidence'/f'{profile}-before-fresh-CMakeCache.txt'
+            preserved.parent.mkdir(parents=True,exist_ok=True)
+            __import__('shutil').copyfile(cache,preserved)
+    success=step('configure',[cmake,*(['--fresh'] if args.fresh else []),'--preset',profile])
     if not success:
         for gate in ['build','ctest','no-change-build','incremental-build','restored-build','stage','package','relocated-launch']:
             rows.append({'gate':gate,'status':'blocked','exit_code':None,'reason':'Native configure failed; no build or package is claimed'})
@@ -45,7 +52,8 @@ def main():
             success=step('stage',[cmake,'--install',str(ROOT/'build'/profile),'--component','HeadlessShell'])
             if success:success=step('package',[cpack,'--preset',profile])
             if success:
-                archives=list((ROOT/'stage/packages').glob('*HeadlessShell*.zip'))
+                configuration={'m0-relwithdebinfo':'RelWithDebInfo','m0-release':'Release'}[profile]
+                archives=list((ROOT/'stage/packages'/configuration).glob('*HeadlessShell*.zip'))
                 if len(archives)!=1:raise RuntimeError('Expected exactly one current HeadlessShell ZIP')
                 dest=ROOT/'stage'/('relocation-'+profile+'-'+str(time.time_ns()))
                 with zipfile.ZipFile(archives[0]) as z:z.extractall(dest)

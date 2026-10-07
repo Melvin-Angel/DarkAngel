@@ -44,6 +44,7 @@ try {
             Invoke-Step ($folder.Split('/')[-1] + '-npm-ci') $node @($npm,'ci','--prefix',$folder,'--ignore-scripts','--no-audit','--no-fund')
         }
         Invoke-Step 'candidate-python-wheels' $python @('scripts/acquire_candidate_wheels.py')
+        Invoke-Step 'full-vcpkg-prefetch' $python @('scripts/prefetch.py')
     }
     Invoke-Step 'detection' $python @('scripts/detect.py')
     if ($Mode -in @('Verify','All')) {

@@ -4,5 +4,14 @@
   "msvc_toolset": "14.51.36231",
   "windows_sdk": "10.0.26100.0",
   "crt": "MD/MDd",
-  "redistributable_version": "pending native compiler evidence"
+  "redistributable_version": "14.51.36247.0 (serviced x64 runtime DLLs on validation machine)",
+  "compiler_banner_version": "19.51.36260.0",
+  "linker_version": "14.51.36260.0",
+  "compiler_files": {
+    "cl.exe": "b0a1818ebae6da7f18230a84e76ce839212584ac4c2ab55b97a0d5268085da57",
+    "c1.dll": "49bd8b0b1c3d814b6b39cf0d649ac8a7ffc8fea021b0c5fd363f787b158d39a5",
+    "c1xx.dll": "de129befb4cfeca19ea62c4d72162f19f2b7952545cc64b7b3f1fcfd4981c5f1",
+    "c2.dll": "1477c03a2a267effe4a40d8debb846f3e4ab42547c5b966d7d5187bb2823e2f5",
+    "link.exe": "a8c42e25c91ca2453e1110540ac08f0fc12d7539454a11b9af8baeecb469837d"
+  }
 }

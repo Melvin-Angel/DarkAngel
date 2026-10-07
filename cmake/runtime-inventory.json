@@ -1,8 +1,25 @@
 {
   "schema": 1,
   "component": "HeadlessShell",
-  "files": ["bin/DarkAngelHeadless.exe", "share/DarkAngel/runtime-inventory.json", "share/DarkAngel/PACKAGING.md"],
+  "files": [
+    "bin/DarkAngelHeadless.exe",
+    "share/DarkAngel/runtime-inventory.json",
+    "share/DarkAngel/PACKAGING.md"
+  ],
   "explicitly_loaded_runtime_files": [],
-  "prerequisite": "Microsoft Visual C++ x64 Redistributable matching the tested MSVC toolset; exact version pending native validation",
-  "debug_is_distributable": false
+  "prerequisite": "Microsoft Visual C++ x64 Redistributable compatible with MSVC 14.51.36231; tested runtime DLL version 14.51.36247.0",
+  "debug_is_distributable": false,
+  "linked_system_imports": [
+    "MSVCP140.dll",
+    "VCRUNTIME140.dll",
+    "VCRUNTIME140_1.dll",
+    "api-ms-win-crt-string-l1-1-0.dll",
+    "api-ms-win-crt-runtime-l1-1-0.dll",
+    "api-ms-win-crt-math-l1-1-0.dll",
+    "api-ms-win-crt-stdio-l1-1-0.dll",
+    "api-ms-win-crt-locale-l1-1-0.dll",
+    "api-ms-win-crt-heap-l1-1-0.dll",
+    "KERNEL32.dll"
+  ],
+  "inventory_verification": "Actual Release PE imports inspected with pinned MSVC dumpbin; CRT is an external prerequisite and Windows API-set DLLs are OS-provided"
 }
