@@ -1,0 +1,58 @@
+# M2 asset pipeline and observable editor slice
+
+Implemented and tested on native Windows x64 on 7–8 October 2026. **M2 remains In progress.** The asset/cooked-runtime/editor viewport path now works; scene assembly compilation/lifecycle and broader editor/resource acceptance remain open.
+
+## Delivered
+
+- Explicit UUIDv4 AssetIDs and versioned JSON `.daimport` sidecars. Adoption is a deliberate command; ordinary scans never allocate or replace identities. Imported subassets use explicit immutable `darkangel_key` extras rather than names or array positions. Moving source plus sidecar preserves identity. Duplicate UUIDs, case collisions, missing/orphan metadata and unsafe external paths fail before catalog publication.
+- A rebuildable SQLite catalog, one owner-thread coordinator/writer, WAL and bound fixed statements with 16-byte UUID keys. Source metadata is authoritative. Cold-cache reconstruction preserves identities and cooked manifests. The current coordinator also owns DirectXTex's process-global WIC factory; concurrent coordinators are rejected.
+- A bounded `static-gltf-v1` importer using cgltf, meshoptimizer and DirectXTex. Source/external inputs are hashed and checked again before publication. Geometry is normalized to metres, right-handed Y-up; vertices/normals/UVs and indexed triangles are validated. Mesh cache/fetch optimization respects material partitions. Embedded/external color images become RGBA8 sRGB DDS with a complete CPU-generated mip chain.
+- Recipes hash input closure, sidecar mappings, profile/settings, selected dependency versions and a fingerprint of the native cooker implementation/build configuration. Immutable SHA-256 CAS products publish before the catalog generation head advances. A failed import/cook retains the last valid generation. Warm cooks reuse verified products; corrupted cache products are repaired. Unreferenced products are retained for now.
+- Deterministic cooked registries include the required typed model→mesh→material→texture closure. Runtime loading verifies hashes and bounded product schemas using only the registry/CAS; it does not query SQLite or parse glTF. Source paths are absent from runtime products.
+- `AssetTool scan/adopt/cook/package/inspect` exposes the same native pipeline. `AssetTests` tests synthetic geometry and a converted real prop through adoption, warm/cold reconstruction, failure preservation, identity-preserving source moves and corrupt-cache repair.
+- `DarkAngelEditor` is a Win32 Dear ImGui docking shell with a reflection Inspector, native EditorService prepare/commit and Undo/Redo, and one static model viewport. Diligent D3D12 and Vulkan use HLSL 6.0 through the pinned DXC DLL. A small owned three-band lighting shader makes geometry/material/texture integration observable. GPU staging readback checks viewport foreground pixels independently of UI pixels and saves PNG evidence.
+
+## Supported static profile
+
+Indexed static triangle meshes, explicit material partitions, normals, optional UV0, opaque simple PBR factors and optional base-color images with linear/trilinear wrap sampling. Uniform positive node scale and rigid transforms are supported. Nonuniform/reflected/sheared transforms, ambiguous mesh instancing, morphs, skins/animation, required extensions, unsupported vertex/material maps, unlit/emissive/transparent materials and texture transforms are rejected. Rejections are explicit rather than silently approximating source content. Extra unused UV sets may be present.
+
+Initial development limits include 128 MiB input closure, 128 meshes/materials, 4,096 nodes, depth 128, one million vertices and three million indices per mesh, 4,096×4,096 color images and bounded JSON parsing. These are safety bounds, not target-hardware performance results. Import/cook is synchronous; no worker or streaming-performance claim is made.
+
+## Real asset provenance
+
+Read-only source: `C:\Unity Projects\AshenRootsMP\Assets\thirdparty\3D\MelvinMasks\HornedMask.fbx`.
+
+Blender **4.5.1 LTS**, build hash `b0a72b245dcf`, converted it with [the checked-in bpy script](../../scripts/convert_fbx_fixture.py). A generated 16×16 checker material deliberately tests the texture path; this is not a reconstruction of the original Unity material. The source FBX stayed SHA-256 `bb4198992eacc647b4171ed43d938a926585302d9d33d9f1d7e1e6c9a756868e`. Generated GLB, sidecar, registry and catalog live under ignored `.cache`, not the Unity asset folder.
+
+The initial fixture key `mesh/0` was explicitly renamed to `mesh/prop`, preserving the root/subasset UUIDs; [the remap receipt](evidence/m2-fixture-key-remap.json) records both mappings. Subsequent conversions use that immutable key. See [conversion log](evidence/m2-conversion.log) for the final GLB fingerprint. FBX import/export repeatability is checked at the cooked product level; byte-identical FBX-to-GLB exports are not claimed.
+
+## Reproduction and evidence
+
+```powershell
+python scripts/verify_m2.py --fbx 'C:\Unity Projects\AshenRootsMP\Assets\thirdparty\3D\MelvinMasks\HornedMask.fbx'
+```
+
+The script uses pinned MSVC/CMake/Ninja, configures/builds `m2-relwithdebinfo`, runs CTest, validates the GLB, cooks/packages/inspects it, then renders eight hidden frames on each backend and captures the viewport. Without `--fbx`, a previously generated local fixture is reused; without a fixture, only synthetic asset/device checks run. Supply `--blender PATH` when the local executable differs. A fresh adoption allocates fresh UUIDs, while subsequent runs preserve metadata.
+
+Final command, exit-code and duration receipts are [m2.json](evidence/m2.json). Native CTest evidence is [m2-ctest.log](evidence/m2-ctest.log), and the cooked geometry summary is [m2-inspect.log](evidence/m2-inspect.log). Captures: [D3D12](evidence/m2-d3d12-mask.png), [Vulkan](evidence/m2-vulkan-mask.png). Vulkan renders on this machine, but `VK_LAYER_KHRONOS_validation` is unavailable; a validation-layer qualification remains open. D3D12 PIX support is disabled. No vendor debug-layer or hardware-performance qualification is inferred from successful rendering.
+
+The final M2 profile passed **21/21 CTest checks**: four retained bootstrap checks, twelve M1 checks and five M2 asset/transaction/device checks. The additional viewport invocations passed on both backends, each with **43,691** foreground pixels after eight frames. The final GLB validator reported **zero errors, zero warnings** and one informational unused UV1 stream. Cooked runtime inspection reports **one mesh, 405 vertices, 222 triangles, one material and one texture**. The prop is loaded from the registry/CAS; no source lookup occurs in the editor. Shader matrix layout and COM/WIC recreation faults found during implementation were repaired and the affected full paths rerun.
+
+## Dependency/provider changes
+
+The frozen baseline and selected M0 source revisions are reused. M2 builds cgltf 1.15, meshoptimizer 1.2, DirectXTex 2026-05-07, DirectXMath 2026-06-12, abseil 20260107.1#3, libpng 1.6.58 and zlib 1.3.2#1. DiligentCore/Tools and the docking ImGui provider remain their acquired compatible pins. Abseil/libpng/zlib come from the sole manifest providers.
+
+[Recorded Diligent patches](../../cmake/diligent-patches.json) validate exact upstream/patched hashes. They route abseil to vcpkg, disable unused NVAPI acquisition and RenderStateNotation, and normalize sibling header paths to the single source checkout. [prepare_diligent.py](../../scripts/prepare_diligent.py) reapplies them idempotently; no duplicate Diligent/ImGui provider is compiled. The temporary junction used during diagnosis was removed after header paths were corrected.
+
+An initial upstream RenderStateNotation configure installed three Python packages into the existing Miniconda environment before that unused feature was disabled. The installation log showed no prior versions displaced; the exact new packages were removed after checking their versions/locations. [Cleanup receipt](evidence/m2-rsn-python-cleanup.log) and [initial configure failure](evidence/m2-initial-configure-failed.log) are retained. No new Python package is required by the final M2 build.
+
+Owned shaders select `.tools/dxc/bin/x64/dxcompiler.dll` explicitly. Diligent's internal bundled utility shaders also use its upstream SDK compiler path. This editor is a developer target; Shipping rejects authoring/device/cooker-spike options. Headless/Foundation retain no renderer linkage. Installation/CPack still describes the historical headless shell, not a qualified M2 game/editor distribution.
+
+## Remaining gates
+
+1. One versioned scene/assembly authoring graph, stable placement/local identity and keyed overrides/provenance, resolver/spawn-plan tool, isolated prepare/populate/wire/activate rollback, reflected per-object ScriptBindings and structural preview restart.
+2. Hierarchy selection and ImGuizmo, assembly-linked editing/promotion, document save/dirty tracking, semantic command parity across UI/CLI, deletion/restore and broader multi-asset history checks.
+3. Runtime generation pinning, reload/rebind and deferred GPU retirement, measured upload/device loss/resize and shader-error preservation, dependency policies beyond the first required static closure, garbage collection and incremental reverse invalidation.
+4. Broader glTF material/texture profiles and animation/rig cooking in their later milestones, package relocatability and licensing/notices closure, Vulkan validation layers and clean-machine/device qualification.
+
+There is no gameplay scene, network session, audio/VFX integration or agent endpoint in this slice. The original M0 evidence remains historical and is not upgraded by the new viewport tests.

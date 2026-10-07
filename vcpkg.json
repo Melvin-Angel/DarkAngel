@@ -118,6 +118,56 @@
           "default-features": false
         }
       ]
+    },
+    "m1": {
+      "description": "Foundation JSON schemas and script world",
+      "dependencies": [
+        "nlohmann-json",
+        {
+          "name": "flecs",
+          "default-features": false
+        },
+        {
+          "name": "luau",
+          "default-features": false
+        },
+        {
+          "name": "sqlite3",
+          "default-features": false,
+          "features": [
+            "omit-load-extension"
+          ]
+        }
+      ]
+    },
+    "m2": {
+      "description": "Static glTF cooker and renderer spike",
+      "dependencies": [
+        {
+          "name": "cgltf",
+          "default-features": false
+        },
+        {
+          "name": "meshoptimizer",
+          "default-features": false
+        },
+        {
+          "name": "directxtex",
+          "default-features": false
+        },
+        {
+          "name": "zlib",
+          "default-features": false
+        },
+        {
+          "name": "libpng",
+          "default-features": false
+        },
+        {
+          "name": "abseil",
+          "default-features": false
+        }
+      ]
     }
   },
   "overrides": [
@@ -271,6 +321,11 @@
       "name": "zlib",
       "version": "1.3.2",
       "port-version": 1
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "3.12.0",
+      "port-version": 2
     }
   ]
 }

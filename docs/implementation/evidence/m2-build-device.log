@@ -1,0 +1,480 @@
+[1/454] Generate grammar tables
+[2/454] Building CXX object diligent-core\Primitives\CMakeFiles\Diligent-Primitives.dir\src\DebugOutput.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[3/454] Building CXX object diligent-core\Primitives\CMakeFiles\Diligent-Primitives.dir\src\AlignedMalloc.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[4/454] Generate language specific header for DebugInfo.
+[5/454] Generate language specific header for OpenCLDebugInfo100.
+[6/454] Generate tables based on the SPIR-V XML registry.
+[7/454] Building CXX object diligent-core\Primitives\CMakeFiles\Diligent-Primitives.dir\src\test.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[8/454] Linking CXX static library diligent-core\Primitives\Diligent-Primitives.lib
+[9/454] Building CXX object diligent-core\Platforms\Basic\CMakeFiles\Diligent-BasicPlatform.dir\src\BasicFileSystem.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[10/454] Building CXX object diligent-core\Platforms\Basic\CMakeFiles\Diligent-BasicPlatform.dir\src\BasicPlatformDebug.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[11/454] Building CXX object diligent-core\Platforms\Basic\CMakeFiles\Diligent-BasicPlatform.dir\src\BasicPlatformMisc.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[12/454] Building CXX object diligent-core\Platforms\Basic\CMakeFiles\Diligent-BasicPlatform.dir\src\StandardFile.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[13/454] Update build-version.inc in the SPIRV-Tools build directory (if necessary).
+[14/454] Linking CXX static library diligent-core\Platforms\Basic\Diligent-BasicPlatform.lib
+[15/454] Building CXX object diligent-core\Platforms\Win32\CMakeFiles\Diligent-Win32Platform.dir\src\Win32Debug.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[16/454] Building CXX object diligent-core\Platforms\Win32\CMakeFiles\Diligent-Win32Platform.dir\src\Win32FileSystem.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[17/454] Building CXX object diligent-core\Platforms\Win32\CMakeFiles\Diligent-Win32Platform.dir\src\Win32PlatformMisc.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[18/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\util\bit_vector.cpp.obj
+[19/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\util\parse_number.cpp.obj
+[20/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\util\string_utils.cpp.obj
+[21/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\assembly_grammar.cpp.obj
+[22/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\binary.cpp.obj
+[23/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\diagnostic.cpp.obj
+[24/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\ext_inst.cpp.obj
+[25/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\disassemble.cpp.obj
+[26/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\extensions.cpp.obj
+[27/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\libspirv.cpp.obj
+[28/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\name_mapper.cpp.obj
+[29/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\opcode.cpp.obj
+[30/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\operand.cpp.obj
+[31/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\parsed_operand.cpp.obj
+[32/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\software_version.cpp.obj
+[33/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\spirv_endian.cpp.obj
+[34/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\spirv_fuzzer_options.cpp.obj
+[35/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\spirv_optimizer_options.cpp.obj
+[36/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\print.cpp.obj
+[37/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\spirv_reducer_options.cpp.obj
+[38/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\spirv_validator_options.cpp.obj
+[39/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\spirv_target_env.cpp.obj
+[40/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\table.cpp.obj
+[41/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\table2.cpp.obj
+[42/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\text.cpp.obj
+[43/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\to_string.cpp.obj
+[44/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\text_handler.cpp.obj
+[45/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate.cpp.obj
+[46/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_adjacency.cpp.obj
+[47/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_annotation.cpp.obj
+[48/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_arithmetics.cpp.obj
+[49/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_atomics.cpp.obj
+[50/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_barriers.cpp.obj
+[51/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_bitwise.cpp.obj
+[52/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_capability.cpp.obj
+[53/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_builtins.cpp.obj
+[54/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_composites.cpp.obj
+[55/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_cfg.cpp.obj
+[56/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_constants.cpp.obj
+[57/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_conversion.cpp.obj
+[58/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_debug.cpp.obj
+[59/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_decorations.cpp.obj
+[60/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_derivatives.cpp.obj
+[61/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_dot_product.cpp.obj
+[62/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_extensions.cpp.obj
+[63/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_execution_limitations.cpp.obj
+[64/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_explicit_layout.cpp.obj
+[65/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_function.cpp.obj
+[66/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_graph.cpp.obj
+[67/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_group.cpp.obj
+[68/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_id.cpp.obj
+[69/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_image.cpp.obj
+[70/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_interfaces.cpp.obj
+[71/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_instruction.cpp.obj
+[72/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_literals.cpp.obj
+[73/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_layout.cpp.obj
+[74/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_logicals.cpp.obj
+[75/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_logical_pointers.cpp.obj
+[76/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_memory_semantics.cpp.obj
+[77/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_memory.cpp.obj
+[78/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_mesh_shading.cpp.obj
+[79/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_misc.cpp.obj
+[80/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_non_uniform.cpp.obj
+[81/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_mode_setting.cpp.obj
+[82/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_pipe.cpp.obj
+[83/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_primitives.cpp.obj
+[84/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_ray_query.cpp.obj
+[85/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_ray_tracing.cpp.obj
+[86/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_ray_tracing_reorder.cpp.obj
+[87/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_scopes.cpp.obj
+[88/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_small_type_uses.cpp.obj
+[89/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_tensor_layout.cpp.obj
+[90/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_tensor.cpp.obj
+[91/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_type.cpp.obj
+[92/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\basic_block.cpp.obj
+[93/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validate_invalid_type.cpp.obj
+[94/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\construct.cpp.obj
+[95/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\function.cpp.obj
+[96/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\instruction.cpp.obj
+[97/454] Linking CXX static library diligent-core\Platforms\Win32\Diligent-Win32Platform.lib
+[98/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\Array2DTools.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[99/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\BasicFileStream.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[100/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\CMakeFiles\SPIRV-Tools-static.dir\val\validation_state.cpp.obj
+[101/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\DefaultRawMemoryAllocator.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[102/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\DataBlobImpl.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[103/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\EngineMemory.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[104/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\FileWrapper.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[105/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\FixedBlockMemoryAllocator.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[106/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\GeometryPrimitives.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[107/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\ImageTools.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[108/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\MemoryFileStream.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[109/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\Serializer.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[110/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\SpinLock.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[111/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\Timer.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[112/454] Building CXX object diligent-core\Common\CMakeFiles\Diligent-Common.dir\src\ThreadPool.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[113/454] Linking CXX static library diligent-core\ThirdParty\SPIRV-Tools\source\SPIRV-Tools.lib
+[114/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\fix_func_call_arguments.cpp.obj
+[115/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\amd_ext_to_khr.cpp.obj
+[116/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\aggressive_dead_code_elim_pass.cpp.obj
+[117/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\analyze_live_input_pass.cpp.obj
+[118/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\basic_block.cpp.obj
+[119/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\block_merge_pass.cpp.obj
+[120/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\block_merge_util.cpp.obj
+[121/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\build_module.cpp.obj
+[122/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\ccp_pass.cpp.obj
+[123/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\cfg_cleanup_pass.cpp.obj
+[124/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\cfg.cpp.obj
+[125/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\code_sink.cpp.obj
+[126/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\combine_access_chains.cpp.obj
+[127/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\compact_ids_pass.cpp.obj
+[128/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\composite.cpp.obj
+[129/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\const_folding_rules.cpp.obj
+[130/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\constants.cpp.obj
+[131/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\control_dependence.cpp.obj
+[132/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\convert_to_sampled_image_pass.cpp.obj
+[133/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\convert_to_untyped.cpp.obj
+[134/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\convert_to_half_pass.cpp.obj
+[135/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\copy_prop_arrays.cpp.obj
+[136/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\dataflow.cpp.obj
+[137/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\dead_branch_elim_pass.cpp.obj
+[138/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\dead_insert_elim_pass.cpp.obj
+[139/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\dead_variable_elimination.cpp.obj
+[140/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\decoration_manager.cpp.obj
+[141/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\debug_info_manager.cpp.obj
+[142/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\def_use_manager.cpp.obj
+[143/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\desc_sroa.cpp.obj
+[144/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\desc_sroa_util.cpp.obj
+[145/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\dominator_analysis.cpp.obj
+[146/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\dominator_tree.cpp.obj
+[147/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\eliminate_dead_constant_pass.cpp.obj
+[148/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\eliminate_dead_functions_pass.cpp.obj
+[149/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\eliminate_dead_functions_util.cpp.obj
+[150/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\eliminate_dead_io_components_pass.cpp.obj
+[151/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\eliminate_dead_members_pass.cpp.obj
+[152/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\eliminate_dead_output_stores_pass.cpp.obj
+[153/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\feature_manager.cpp.obj
+[154/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\fix_storage_class.cpp.obj
+[155/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\flatten_decoration_pass.cpp.obj
+[156/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\fold.cpp.obj
+[157/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\folding_rules.cpp.obj
+[158/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\fold_spec_constant_op_and_composite_pass.cpp.obj
+[159/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\freeze_spec_constant_value_pass.cpp.obj
+[160/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\graph.cpp.obj
+[161/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\function.cpp.obj
+[162/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\graphics_robust_access_pass.cpp.obj
+[163/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\if_conversion.cpp.obj
+[164/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\inline_exhaustive_pass.cpp.obj
+[165/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\inline_opaque_pass.cpp.obj
+[166/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\inline_pass.cpp.obj
+[167/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\instruction.cpp.obj
+[168/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\instruction_list.cpp.obj
+[169/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\interface_var_sroa.cpp.obj
+[170/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\invocation_interlock_placement_pass.cpp.obj
+[171/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\interp_fixup_pass.cpp.obj
+[172/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\opextinst_forward_ref_fixup_pass.cpp.obj
+[173/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\ir_loader.cpp.obj
+[174/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\ir_context.cpp.obj
+[175/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\licm_pass.cpp.obj
+[176/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\legalize_multidim_array_pass.cpp.obj
+[177/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\liveness.cpp.obj
+[178/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\local_access_chain_convert_pass.cpp.obj
+[179/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\local_redundancy_elimination.cpp.obj
+[180/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\local_single_block_elim_pass.cpp.obj
+[181/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\local_single_store_elim_pass.cpp.obj
+[182/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_dependence.cpp.obj
+[183/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_dependence_helpers.cpp.obj
+[184/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_descriptor.cpp.obj
+[185/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_fission.cpp.obj
+[186/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_fusion.cpp.obj
+[187/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_fusion_pass.cpp.obj
+[188/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_peeling.cpp.obj
+[189/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_utils.cpp.obj
+[190/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_unroller.cpp.obj
+[191/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\loop_unswitch_pass.cpp.obj
+[192/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\mem_pass.cpp.obj
+[193/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\merge_return_pass.cpp.obj
+[194/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\modify_maximal_reconvergence.cpp.obj
+[195/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\module.cpp.obj
+[196/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\optimizer.cpp.obj
+[197/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\pass.cpp.obj
+[198/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\pass_manager.cpp.obj
+[199/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\private_to_local_pass.cpp.obj
+[200/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\propagator.cpp.obj
+[201/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\reduce_load_size.cpp.obj
+[202/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\redundancy_elimination.cpp.obj
+[203/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\register_pressure.cpp.obj
+[204/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\relax_float_ops_pass.cpp.obj
+[205/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\canonicalize_ids_pass.cpp.obj
+[206/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\remove_dontinline_pass.cpp.obj
+[207/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\remove_duplicates_pass.cpp.obj
+[208/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\remove_unused_interface_variables_pass.cpp.obj
+[209/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\replace_desc_array_access_using_var_index.cpp.obj
+[210/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\replace_invalid_opc.cpp.obj
+[211/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\resolve_binding_conflicts_pass.cpp.obj
+[212/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\scalar_analysis_simplification.cpp.obj
+[213/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\scalar_analysis.cpp.obj
+[214/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\scalar_replacement_pass.cpp.obj
+[215/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\set_spec_constant_default_value_pass.cpp.obj
+[216/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\simplification_pass.cpp.obj
+[217/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\split_combined_image_sampler_pass.cpp.obj
+[218/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\spread_volatile_semantics.cpp.obj
+[219/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\ssa_rewrite_pass.cpp.obj
+[220/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\strength_reduction_pass.cpp.obj
+[221/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\strip_debug_info_pass.cpp.obj
+[222/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\strip_nonsemantic_info_pass.cpp.obj
+[223/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\struct_cfg_analysis.cpp.obj
+[224/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\struct_packing_pass.cpp.obj
+[225/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\switch_descriptorset_pass.cpp.obj
+[226/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\trim_capabilities_pass.cpp.obj
+[227/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\types.cpp.obj
+[228/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\type_manager.cpp.obj
+[229/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\unify_const_pass.cpp.obj
+[230/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\upgrade_memory_model.cpp.obj
+[231/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\value_number_table.cpp.obj
+[232/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\vector_dce.cpp.obj
+[233/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\workaround1209.cpp.obj
+[234/454] Building CXX object diligent-core\ThirdParty\SPIRV-Tools\source\opt\CMakeFiles\SPIRV-Tools-opt.dir\wrap_opkill.cpp.obj
+[235/454] Linking CXX static library diligent-core\Common\Diligent-Common.lib
+[236/454] Building CXX object diligent-core\Graphics\GraphicsAccessories\CMakeFiles\Diligent-GraphicsAccessories.dir\src\ColorConversion.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[237/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\cmake_pch.cxx.obj
+[238/454] Building CXX object diligent-core\Graphics\GraphicsAccessories\CMakeFiles\Diligent-GraphicsAccessories.dir\src\DynamicAtlasManager.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[239/454] Building CXX object diligent-core\Graphics\GraphicsAccessories\CMakeFiles\Diligent-GraphicsAccessories.dir\src\SRBMemoryAllocator.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[240/454] Building CXX object diligent-core\Graphics\GraphicsAccessories\CMakeFiles\Diligent-GraphicsAccessories.dir\src\GraphicsAccessories.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[241/454] Building CXX object diligent-core\ThirdParty\glslang\SPIRV\CMakeFiles\SPIRV.dir\__\glslang\stub.cpp.obj
+[242/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\CInterface\glslang_c_interface.cpp.obj
+[243/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\GenericCodeGen\CodeGen.cpp.obj
+[244/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\GenericCodeGen\Link.cpp.obj
+[245/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\OSDependent\Windows\ossource.cpp.obj
+[246/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\glslang_tab.cpp.obj
+[247/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\attribute.cpp.obj
+[248/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\Constant.cpp.obj
+[249/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\iomapper.cpp.obj
+[250/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\InfoSink.cpp.obj
+[251/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\Initialize.cpp.obj
+[252/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\IntermTraverse.cpp.obj
+[253/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\Intermediate.cpp.obj
+[254/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\ParseContextBase.cpp.obj
+[255/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\ParseHelper.cpp.obj
+[256/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\PoolAlloc.cpp.obj
+[257/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\RemoveTree.cpp.obj
+[258/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\Scan.cpp.obj
+[259/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\ShaderLang.cpp.obj
+[260/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\SpirvIntrinsics.cpp.obj
+[261/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\SymbolTable.cpp.obj
+[262/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\Versions.cpp.obj
+[263/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\intermOut.cpp.obj
+[264/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\limits.cpp.obj
+[265/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\linkValidate.cpp.obj
+[266/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\parseConst.cpp.obj
+[267/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\reflection.cpp.obj
+[268/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\preprocessor\Pp.cpp.obj
+[269/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\preprocessor\PpAtom.cpp.obj
+[270/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\preprocessor\PpContext.cpp.obj
+[271/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\preprocessor\PpScanner.cpp.obj
+[272/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\preprocessor\PpTokens.cpp.obj
+[273/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\MachineIndependent\propagateNoContraction.cpp.obj
+[274/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslAttributes.cpp.obj
+[275/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslParseHelper.cpp.obj
+[276/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslScanContext.cpp.obj
+[277/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslOpMap.cpp.obj
+[278/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslTokenStream.cpp.obj
+[279/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslGrammar.cpp.obj
+[280/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\HLSL\hlslParseables.cpp.obj
+[281/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\GlslangToSpv.cpp.obj
+[282/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\InReadableOrder.cpp.obj
+[283/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\Logger.cpp.obj
+[284/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\SpvBuilder.cpp.obj
+[285/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\SpvPostProcess.cpp.obj
+[286/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\doc.cpp.obj
+[287/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\SpvTools.cpp.obj
+[288/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\disassemble.cpp.obj
+[289/454] Building CXX object diligent-core\ThirdParty\glslang\glslang\CMakeFiles\glslang.dir\__\SPIRV\CInterface\spirv_c_interface.cpp.obj
+[290/454] Building CXX object diligent-core\ThirdParty\SPIRV-Cross\CMakeFiles\spirv-cross-core.dir\spirv_cross.cpp.obj
+[291/454] Building CXX object diligent-core\ThirdParty\SPIRV-Cross\CMakeFiles\spirv-cross-core.dir\spirv_parser.cpp.obj
+[292/454] Building CXX object diligent-core\ThirdParty\SPIRV-Cross\CMakeFiles\spirv-cross-core.dir\spirv_cross_parsed_ir.cpp.obj
+[293/454] Building CXX object diligent-core\ThirdParty\SPIRV-Cross\CMakeFiles\spirv-cross-core.dir\spirv_cfg.cpp.obj
+[294/454] Linking CXX static library diligent-core\ThirdParty\SPIRV-Tools\source\opt\SPIRV-Tools-opt.lib
+[295/454] Linking CXX static library diligent-core\Graphics\GraphicsAccessories\Diligent-GraphicsAccessories.lib
+[296/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\APIInfo.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[297/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\BottomLevelASBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[298/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\BufferBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[299/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\DefaultShaderSourceStreamFactory.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[300/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\DearchiverBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[301/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\DeviceContextBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[302/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\DeviceMemoryBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[303/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\DeviceObjectArchive.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[304/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\EngineFactoryBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[305/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\FramebufferBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[306/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\GraphicsTypesX.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[307/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\PipelineResourceSignatureBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[308/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\PipelineStateCacheBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[309/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\PipelineStateBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[310/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\PSOSerializer.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[311/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\RenderDeviceBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[312/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\ResourceMappingBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[313/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\RenderPassBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[314/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\ShaderBindingTableBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[315/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\SamplerBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[316/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\ShaderBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[317/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\TextureBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[318/454] Linking CXX static library diligent-core\ThirdParty\glslang\SPIRV\SPIRV.lib
+[319/454] Building CXX object diligent-core\Graphics\GraphicsEngine\CMakeFiles\Diligent-GraphicsEngine.dir\src\TopLevelASBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[320/454] Linking CXX static library diligent-core\ThirdParty\glslang\glslang\glslang.lib
+[321/454] Linking CXX static library diligent-core\ThirdParty\SPIRV-Cross\spirv-cross-core.lib
+[322/454] Building CXX object diligent-core\Graphics\GraphicsEngineNextGenBase\CMakeFiles\Diligent-GraphicsEngineNextGenBase.dir\src\dummy.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[323/454] Linking CXX static library diligent-core\Graphics\GraphicsEngine\Diligent-GraphicsEngine.lib
+[324/454] Processing HLSLDefinitions.fxh
+File2String: successfully converted include/HLSLDefinitions.fxh to C:/DarkAngel/build/m2-relwithdebinfo/diligent-core/Graphics/ShaderTools/GeneratedShaders/HLSLDefinitions_inc.fxh
+[325/454] Building C object diligent-core\ThirdParty\volk\CMakeFiles\volk.dir\volk.c.obj
+[326/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\GLSLParsingTools.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[327/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\ShaderToolsCommon.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[328/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\HLSLParsingTools.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[329/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\HLSLTokenizer.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[330/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\HLSLUtils.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[331/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\GLSLUtils.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[332/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\DXBCUtils.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[333/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\DXCompiler.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[334/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\DXCompilerLibrary.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[335/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\DXCompilerLibraryWin32.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[336/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\SPIRVUtils.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[337/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\SPIRVShaderResources.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[338/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\SPIRVTools.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[339/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\GLSLangUtils.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[340/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\__\__\ThirdParty\GPUOpenShaderUtils\DXBCChecksum.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[341/454] Linking CXX static library diligent-core\Graphics\GraphicsEngineNextGenBase\Diligent-GraphicsEngineNextGenBase.lib
+[342/454] Linking C static library diligent-core\ThirdParty\volk\volk.lib
+[343/454] Building CXX object diligent-core\Graphics\ShaderTools\CMakeFiles\Diligent-ShaderTools.dir\src\ConvertUBOToPushConstant.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[344/454] Linking CXX static library diligent-core\Graphics\ShaderTools\Diligent-ShaderTools.lib
+[345/454] Processing GLSLDefinitions.h
+File2String: successfully converted include/GLSLDefinitions.h to C:/DarkAngel/build/m2-relwithdebinfo/diligent-core/Graphics/HLSL2GLSLConverterLib/GeneratedShaders/GLSLDefinitions_inc.h
+[346/454] Building CXX object diligent-core\Graphics\HLSL2GLSLConverterLib\CMakeFiles\Diligent-HLSL2GLSLConverterLib.dir\src\HLSL2GLSLConverterObject.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[347/454] Building CXX object diligent-core\Graphics\HLSL2GLSLConverterLib\CMakeFiles\Diligent-HLSL2GLSLConverterLib.dir\src\HLSL2GLSLConverterImpl.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[348/454] Linking CXX static library diligent-core\Graphics\HLSL2GLSLConverterLib\Diligent-HLSL2GLSLConverterLib.lib
+[349/454] Building CXX object diligent-core\Graphics\GraphicsEngineD3DBase\CMakeFiles\Diligent-GraphicsEngineD3DBase.dir\src\D3DCommonTypeConversions.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[350/454] Building CXX object diligent-core\Graphics\GraphicsEngineD3DBase\CMakeFiles\Diligent-GraphicsEngineD3DBase.dir\src\D3DShaderResourceValidation.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[351/454] Building CXX object diligent-core\Graphics\GraphicsEngineD3DBase\CMakeFiles\Diligent-GraphicsEngineD3DBase.dir\src\DXGITypeConversions.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[352/454] Building CXX object diligent-core\Graphics\GraphicsEngineD3DBase\CMakeFiles\Diligent-GraphicsEngineD3DBase.dir\src\ShaderD3DBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[353/454] Building CXX object diligent-core\Graphics\GraphicsEngineD3DBase\CMakeFiles\Diligent-GraphicsEngineD3DBase.dir\src\ShaderResources.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[354/454] Building CXX object diligent-core\Graphics\GraphicsEngineD3DBase\CMakeFiles\Diligent-GraphicsEngineD3DBase.dir\src\SwapChainD3DBase.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+[355/454] Linking CXX static library diligent-core\Graphics\GraphicsEngineD3DBase\Diligent-GraphicsEngineD3DBase.lib
+[356/454] Compiling shaders/GenerateMips/GenerateMipsGammaCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsGammaCS.h
+[357/454] Compiling shaders/GenerateMips/GenerateMipsGammaOddCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsGammaOddCS.h
+[358/454] Compiling shaders/GenerateMips/GenerateMipsGammaOddXCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsGammaOddXCS.h
+[359/454] Compiling shaders/GenerateMips/GenerateMipsGammaOddYCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsGammaOddYCS.h
+[360/454] Compiling shaders/GenerateMips/GenerateMipsLinearCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsLinearCS.h
+[361/454] Compiling shaders/GenerateMips/GenerateMipsLinearOddCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsLinearOddCS.h
+[362/454] Compiling shaders/GenerateMips/GenerateMipsLinearOddXCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsLinearOddXCS.h
+[363/454] Compiling shaders/GenerateMips/GenerateMipsLinearOddYCS.hlsl
+Microsoft (R) Direct3D Shader Compiler 10.1
+Copyright (C) 2013 Microsoft. All rights reserved.
+
+compilation header save succeeded; see C:\DarkAngel\build\m2-relwithdebinfo\diligent-core\Graphics\GraphicsEngineD3D12\CompiledShaders\GenerateMips\GenerateMipsLinearOddYCS.h
+[364/454] Scanning C:\DarkAngel\apps\editor\device_probe.cpp for CXX dependencies
+FAILED: [code=2] CMakeFiles/RendererProbe.dir/apps/editor/device_probe.cpp.obj.ddi 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe" -DD3D11_SUPPORTED=0 -DD3D12_SUPPORTED=1 -DGLES_SUPPORTED=0 -DGL_SUPPORTED=0 -DMETAL_SUPPORTED=0 -DPLATFORM_WIN32=1 -DVULKAN_SUPPORTED=1 -DWEBGPU_SUPPORTED=0 -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineD3D12\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineD3DBase\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngine\interface -IC:\DarkAngel\third_party\diligent-core\Primitives\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineVulkan\interface /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc C:\DarkAngel\apps\editor\device_probe.cpp -nologo -TP -showIncludes -scanDependencies CMakeFiles\RendererProbe.dir\apps\editor\device_probe.cpp.obj.ddi -FoCMakeFiles\RendererProbe.dir\apps\editor\device_probe.cpp.obj
+C:\DarkAngel\apps\editor\device_probe.cpp(6): fatal error C1083: Cannot open include file: 'RefCntAutoPtr.hpp': No such file or directory
+[365/454] Building CXX object diligent-core\Graphics\GraphicsEngineVulkan\CMakeFiles\Diligent-GraphicsEngineVk-static.dir\src\BufferVkImpl.cpp.obj
+cl : Command line warning D9025 : overriding '/Ob1' with '/Ob2'
+ninja: build stopped: subcommand failed.

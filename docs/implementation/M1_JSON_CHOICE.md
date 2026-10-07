@@ -1,0 +1,11 @@
+# M1 native JSON choice
+
+Selected nlohmann/json 3.12.0, vcpkg port revision 2, from the existing frozen baseline `9e593bb18ea69cc5095e012465dcd675a822ed0d`. This is a deliberate new M1 dependency, not an architecture replacement. Exact source archive and recipe/patch hashes are in `cmake/m1-dependencies.lock.json`; the MIT notice is retained in `third_party/notices/nlohmann-json/copyright.txt`.
+
+The library supplies parsing and JSON values behind the private Foundation adapter. DarkAngel metadata and the scene serializer own TypeIds, PropertyIds, versions, field selection and reference semantics. No Flecs JSON format or second reflection registration model is used. The parser's documented callback mechanism supports duplicate-key and depth rejection: [upstream parser callback documentation](https://json.nlohmann.me/features/parsing/parser_callbacks/).
+
+M1 version 1 scene records use canonical lowercase 32-hex-digit stable entity IDs, decimal textual type/property keys, sorted object/property order and explicit component versions. Stable references are strings; runtime handles and session NetworkIdentity are omitted. Finite numeric properties must satisfy their declared ranges and cross-field invariants. Zero IDs, unknown fields, unresolved required references, duplicate object IDs/JSON keys and future scene/component versions fail preparation. There is no implicit migration or silent default substitution.
+
+Initial safety bounds are 1 MiB of scene source, depth 32, 65,536 parser events, and the destination world's object capacity (default 1,024). These are candidate development bounds, not measured performance budgets. The parser rejects invalid numeric grammar/overflow; native schema validation rejects non-finite or out-of-range values. Loading validates a complete plan before population and returns generation-qualified handles in the destination world. Failed population cleans up the destination.
+
+This first serializer handles Transform yaw, Health maximum/current, and stable object references. General typed records/arrays, optional-field preservation and registered version migrations remain follow-up work. New native fields must extend the same schema. Durable counters wider than JSON's interoperable numeric precision must use declared exact string encodings, as the current stable IDs do.

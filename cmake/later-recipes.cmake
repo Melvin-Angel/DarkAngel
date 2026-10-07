@@ -1,6 +1,14 @@
 # Acquired later packages are deliberately not included by the M0 project.
 # Include this in the focused M2 renderer spike, after find_package(ZLIB/PNG).
 function(darkangel_add_diligent)
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  execute_process(COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/prepare_diligent.py" RESULT_VARIABLE patch_result)
+  if(NOT patch_result EQUAL 0)
+    message(FATAL_ERROR "Pinned Diligent adapter patches failed validation")
+  endif()
+  set(DAE_ENABLE_NVAPI OFF CACHE BOOL "No optional vendor-specific extensions in M2" FORCE)
+  set(DILIGENT_NVAPI_PATH "" CACHE PATH "Disabled in the M2 profile" FORCE)
+  set(DAE_ENABLE_RENDER_STATE_NOTATION OFF CACHE BOOL "Use owned metadata, no RSN code generation" FORCE)
   set(DILIGENT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
   set(DILIGENT_NO_DIRECT3D11 ON CACHE BOOL "" FORCE)
   set(DILIGENT_NO_DIRECT3D12 OFF CACHE BOOL "" FORCE)

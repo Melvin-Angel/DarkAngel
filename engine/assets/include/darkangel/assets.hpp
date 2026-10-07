@@ -1,0 +1,49 @@
+#pragma once
+#include <darkangel/asset_id.hpp>
+#include <array>
+#include <cstdint>
+#include <compare>
+#include <string_view>
+#include <filesystem>
+#include <memory>
+#include <string>
+#include <vector>
+namespace darkangel {
+struct Vertex {std::array<float,3> position,normal;std::array<float,2> uv;};
+struct MeshPart {AssetId material;std::uint32_t first,count;};
+struct CookedMesh {std::vector<Vertex> vertices;std::vector<std::uint32_t> indices;std::vector<MeshPart> parts;std::array<float,3> minimum,maximum;};
+struct TextureMip {std::uint32_t width,height;std::vector<std::uint8_t> rgba;};
+struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};};
+struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};};
+struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<CookedMaterial> materials;std::vector<std::pair<AssetId,CookedTexture>> textures;};
+// Load solely from the verified cooked registry/CAS; no SQLite, source assets or editor state.
+RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
+struct ModelGeneration {std::uint64_t number;std::shared_ptr<const RuntimeModel> model;};
+class ModelStore {
+public:
+    ModelGeneration prepare(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId) const;
+    void publish(ModelGeneration); // after dependent GPU upload/validation succeeds
+    ModelGeneration acquire() const{return current_;}
+    std::size_t collect(); // leases keep retired CPU generations alive
+    std::size_t retired() const{return retired_.size();}
+private:
+    ModelGeneration current_{};std::vector<std::shared_ptr<const RuntimeModel>> retired_;
+};
+struct AssetInfo {AssetId id;std::string path;std::uint64_t generation{};};
+struct CookResult {AssetId root;std::uint64_t generation;bool changed;};
+class AssetService {
+public:
+    AssetService(std::filesystem::path source_root,std::filesystem::path cache_root);
+    ~AssetService();
+    AssetService(const AssetService&)=delete;
+    AssetService& operator=(const AssetService&)=delete;
+    AssetId adopt(std::string_view relative_source); // explicit creation; existing IDs are never regenerated
+    void scan(); // validate complete source identity inventory before updating the index
+    std::vector<AssetInfo> assets() const;
+    CookResult cook(std::string_view relative_source);
+    void package(AssetId root,const std::filesystem::path& registry) const;
+    std::filesystem::path cas_path() const;
+private:
+    struct Impl;std::unique_ptr<Impl> impl_;
+};
+}

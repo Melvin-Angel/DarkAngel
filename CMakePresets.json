@@ -17,7 +17,7 @@
         "CMAKE_CXX_COMPILER": "cl",
         "VCPKG_TARGET_TRIPLET": "x64-windows-darkangel",
         "VCPKG_HOST_TRIPLET": "x64-windows-darkangel",
-        "VCPKG_MANIFEST_FEATURES": "m0",
+        "VCPKG_MANIFEST_FEATURES": "m0;m1",
         "VCPKG_MANIFEST_NO_DEFAULT_FEATURES": true,
         "BUILD_TESTING": true,
         "DAE_AUTHORING": false,
@@ -51,6 +51,50 @@
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m0-release"
       }
+    },
+    {
+      "name": "m1-debug",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m1-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m1-debug",
+        "VCPKG_MANIFEST_FEATURES": "m1"
+      }
+    },
+    {
+      "name": "m1-relwithdebinfo",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m1-relwithdebinfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m1-relwithdebinfo",
+        "VCPKG_MANIFEST_FEATURES": "m1"
+      }
+    },
+    {
+      "name": "m1-release",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m1-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m1-release",
+        "VCPKG_MANIFEST_FEATURES": "m1"
+      }
+    },
+    {
+      "name": "m2-relwithdebinfo",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m2-relwithdebinfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m2-relwithdebinfo",
+        "VCPKG_MANIFEST_FEATURES": "m1;m2",
+        "DAE_ASSETS": true,
+        "DAE_AUTHORING": true,
+        "DAE_RENDERER_SPIKE": true,
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.10"
+      }
     }
   ],
   "buildPresets": [
@@ -67,6 +111,26 @@
     {
       "name": "m0-release",
       "configurePreset": "m0-release",
+      "jobs": 2
+    },
+    {
+      "name": "m1-debug",
+      "configurePreset": "m1-debug",
+      "jobs": 2
+    },
+    {
+      "name": "m1-relwithdebinfo",
+      "configurePreset": "m1-relwithdebinfo",
+      "jobs": 2
+    },
+    {
+      "name": "m1-release",
+      "configurePreset": "m1-release",
+      "jobs": 2
+    },
+    {
+      "name": "m2-relwithdebinfo",
+      "configurePreset": "m2-relwithdebinfo",
       "jobs": 2
     }
   ],
@@ -104,6 +168,54 @@
       "execution": {
         "jobs": 1,
         "timeout": 10,
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "m1-debug",
+      "configurePreset": "m1-debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 10,
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "m1-relwithdebinfo",
+      "configurePreset": "m1-relwithdebinfo",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 10,
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "m1-release",
+      "configurePreset": "m1-release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 10,
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "m2-relwithdebinfo",
+      "configurePreset": "m2-relwithdebinfo",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "jobs": 1,
+        "timeout": 60,
         "noTestsAction": "error"
       }
     }

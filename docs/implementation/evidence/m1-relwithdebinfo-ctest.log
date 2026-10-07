@@ -1,0 +1,45 @@
+Test project C:/DarkAngel/build/m1-relwithdebinfo
+      Start  1: M2.editor_transactions
+ 1/17 Test  #1: M2.editor_transactions ...........   Passed    1.86 sec
+      Start  2: FlecsProbe
+ 2/17 Test  #2: FlecsProbe .......................   Passed    0.12 sec
+      Start  3: LuauProbe
+ 3/17 Test  #3: LuauProbe ........................   Passed    0.12 sec
+      Start  4: SQLiteProbe
+ 4/17 Test  #4: SQLiteProbe ......................   Passed    0.14 sec
+      Start  5: HeadlessSmoke
+ 5/17 Test  #5: HeadlessSmoke ....................   Passed    0.11 sec
+      Start  6: M1.identity
+ 6/17 Test  #6: M1.identity ......................   Passed    0.18 sec
+      Start  7: M1.scene
+ 7/17 Test  #7: M1.scene .........................   Passed    0.09 sec
+      Start  8: M1.phases
+ 8/17 Test  #8: M1.phases ........................   Passed    0.05 sec
+      Start  9: M1.scripts
+ 9/17 Test  #9: M1.scripts .......................   Passed    0.07 sec
+      Start 10: M1.reload
+10/17 Test #10: M1.reload ........................   Passed    0.11 sec
+      Start 11: M1.limits
+11/17 Test #11: M1.limits ........................   Passed    0.09 sec
+      Start 12: M1.imports
+12/17 Test #12: M1.imports .......................   Passed    0.17 sec
+      Start 13: M1.tasks
+13/17 Test #13: M1.tasks .........................   Passed    0.07 sec
+      Start 14: M1.cooked
+14/17 Test #14: M1.cooked ........................   Passed    0.06 sec
+      Start 15: M1.state
+15/17 Test #15: M1.state .........................   Passed    0.12 sec
+      Start 16: M1.cook_fixture
+16/17 Test #16: M1.cook_fixture ..................   Passed    0.06 sec
+      Start 17: M1.cooked_headless
+17/17 Test #17: M1.cooked_headless ...............   Passed    0.09 sec
+
+100% tests passed out of 17
+
+Label Time Summary:
+M0            =   0.38 sec*proc (3 tests)
+M1            =   1.17 sec*proc (12 tests)
+M2            =   1.86 sec*proc (1 test)
+dependency    =   0.38 sec*proc (3 tests)
+
+Total Test time (real) =   3.65 sec

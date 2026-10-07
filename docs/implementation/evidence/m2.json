@@ -1,0 +1,147 @@
+[
+  {
+    "gate": "conversion",
+    "command": [
+      "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+      "--background",
+      "--factory-startup",
+      "--python",
+      "C:\\DarkAngel\\scripts\\convert_fbx_fixture.py",
+      "--",
+      "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\MelvinMasks\\HornedMask.fbx",
+      "C:\\DarkAngel\\.cache\\fixtures\\horned-mask.glb"
+    ],
+    "exit_code": 0,
+    "seconds": 1.668,
+    "log": "docs/implementation/evidence/m2-conversion.log"
+  },
+  {
+    "gate": "configure",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--preset",
+      "m2-relwithdebinfo"
+    ],
+    "exit_code": 0,
+    "seconds": 13.971,
+    "log": "docs/implementation/evidence/m2-configure.log"
+  },
+  {
+    "gate": "build",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--build",
+      "--preset",
+      "m2-relwithdebinfo"
+    ],
+    "exit_code": 0,
+    "seconds": 204.484,
+    "log": "docs/implementation/evidence/m2-build.log"
+  },
+  {
+    "gate": "ctest",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+      "--preset",
+      "m2-relwithdebinfo"
+    ],
+    "exit_code": 0,
+    "seconds": 2.766,
+    "log": "docs/implementation/evidence/m2-ctest.log"
+  },
+  {
+    "gate": "gltf-validator",
+    "command": [
+      "C:\\DarkAngel\\.tools\\node\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\DarkAngel\\tools\\asset-validation\\validate.mjs",
+      "C:\\DarkAngel\\.cache\\fixtures\\horned-mask.glb"
+    ],
+    "exit_code": 0,
+    "seconds": 0.993,
+    "log": "docs/implementation/evidence/m2-gltf-validator.log"
+  },
+  {
+    "gate": "cook",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\AssetTool.exe",
+      "cook",
+      "C:\\DarkAngel\\.cache\\fixtures",
+      "C:\\DarkAngel\\.cache\\assets-real",
+      "horned-mask.glb"
+    ],
+    "exit_code": 0,
+    "seconds": 0.098,
+    "log": "docs/implementation/evidence/m2-cook.log"
+  },
+  {
+    "gate": "package",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\AssetTool.exe",
+      "package",
+      "C:\\DarkAngel\\.cache\\fixtures",
+      "C:\\DarkAngel\\.cache\\assets-real",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.053,
+    "log": "docs/implementation/evidence/m2-package.log"
+  },
+  {
+    "gate": "inspect",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\AssetTool.exe",
+      "inspect",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json",
+      "C:\\DarkAngel\\.cache\\assets-real\\cas",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3"
+    ],
+    "exit_code": 0,
+    "seconds": 0.019,
+    "log": "docs/implementation/evidence/m2-inspect.log"
+  },
+  {
+    "gate": "d3d12-viewport",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelEditor.exe",
+      "--registry",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json",
+      "--cas",
+      "C:\\DarkAngel\\.cache\\assets-real\\cas",
+      "--model",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+      "--backend",
+      "d3d12",
+      "--frames",
+      "8",
+      "--hidden",
+      "--capture",
+      "C:\\DarkAngel\\docs\\implementation\\evidence\\m2-d3d12-mask.png"
+    ],
+    "exit_code": 0,
+    "seconds": 0.331,
+    "log": "docs/implementation/evidence/m2-d3d12-viewport.log"
+  },
+  {
+    "gate": "vulkan-viewport",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelEditor.exe",
+      "--registry",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json",
+      "--cas",
+      "C:\\DarkAngel\\.cache\\assets-real\\cas",
+      "--model",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+      "--backend",
+      "vulkan",
+      "--frames",
+      "8",
+      "--hidden",
+      "--capture",
+      "C:\\DarkAngel\\docs\\implementation\\evidence\\m2-vulkan-mask.png"
+    ],
+    "exit_code": 0,
+    "seconds": 0.352,
+    "log": "docs/implementation/evidence/m2-vulkan-viewport.log"
+  }
+]

@@ -1,0 +1,211 @@
+{
+  "schema": 1,
+  "baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
+  "pins": [
+    {
+      "name": "abseil",
+      "version": "20260107.1",
+      "port_version": 3,
+      "license": "Apache-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/abseil",
+      "patches": {
+        "003-force-cxx-17.patch": "6481fcaa774212d1453396c26c5240bdbd3cbb25784a94ffa077651b718cf367",
+        "fix-gcc13-constexpr-function-pointer.patch": "4ea325ea617d3b6ed9dc29e09f4d22b9836c99c114d8c4b09e181e8cbae51e6c",
+        "fix-heterogeneous_lookup_testing-target.patch": "fc84e3f929674dd0f0dfd84e267f7ed431b95417bf69a61149b69c5e40c4ab6c",
+        "fix-mingw-dll.patch": "da10bf980900c2b8c2bde9028419999a8cfa1ec3c3d77707239459a078231a5c"
+      },
+      "assets": [
+        "abseil:abseil-abseil-cpp-20260107.1.tar.gz"
+      ],
+      "registry_git_tree": "8e20a1d1a1c5d5cf4c8cda806b52131a94b04831",
+      "portfile_sha256": "eaff26e978506f46faf87082698ed9db1e5612cc5ba1c7e7d3ee977048cf305c",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "cgltf",
+      "version": "1.15",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/cgltf",
+      "patches": {},
+      "assets": [
+        "cgltf:jkuhlmann-cgltf-v1.15.tar.gz"
+      ],
+      "registry_git_tree": "ca743d6f86c5b711e9ae0440df5804ab9a2cf1b3",
+      "portfile_sha256": "abed7438d14fff55edd2aa26570ed735b65bc536fefe0080f261e45dc28f7db2",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "directxmath",
+      "version": "2026-06-12",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "dx11",
+        "dx12",
+        "xdsp"
+      ],
+      "recipe": ".tools/vcpkg/ports/directxmath",
+      "patches": {},
+      "assets": [
+        "directxmath:Microsoft-DirectXMath-jun2026.tar.gz"
+      ],
+      "registry_git_tree": "46a960c8f364162407b24f188a2aeea4608f4cf7",
+      "portfile_sha256": "10a493d3244fab0fe1f684975b65f8a5587ecb0d6d198da42a41a6c39d6e0ceb",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "directxtex",
+      "version": "2026-05-07",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "dx11",
+        "dx12",
+        "jpeg",
+        "openexr",
+        "png",
+        "spectre",
+        "tools",
+        "xbox"
+      ],
+      "recipe": ".tools/vcpkg/ports/directxtex",
+      "patches": {},
+      "assets": [
+        "directxtex:Microsoft-DirectXTex-may2026.tar.gz"
+      ],
+      "registry_git_tree": "e9f89c9f75ab81ba10bf86dca60c5f202f881690",
+      "portfile_sha256": "926bb802378cec9097b0a12984070a1d9150c94266e4ef789698d8e50f73e0fa",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "flecs",
+      "version": "4.1.6",
+      "port_version": 0,
+      "license": null,
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/flecs",
+      "patches": {},
+      "assets": [
+        "flecs:SanderMertens-flecs-v4.1.6.tar.gz"
+      ],
+      "registry_git_tree": "6e13da0e6d446c34fef059953b4a947f04af748d",
+      "portfile_sha256": "5b7341111ed6ff897e0911ff7e22461359720c5c9b122a1969cb2fd3e4493e16",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "luau",
+      "version": "0.729",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "tool"
+      ],
+      "recipe": ".tools/vcpkg/ports/luau",
+      "patches": {
+        "cmake-config-export.patch": "cd678babebf3db61215841c218bff14203ba53ba5dacce275c71833c5916e800",
+        "fix-unittest.patch": "a4951e934a1f9fc606ba3b03aa66739a88c3f99109e59c343ee73b4d8e5a463c"
+      },
+      "assets": [
+        "luau:luau-lang-luau-0.729.tar.gz"
+      ],
+      "registry_git_tree": "1d92bdc4384054e753c2f38febbe6f5c675110bb",
+      "portfile_sha256": "2231264f4e57b3eb2e2e78a1fe504a91cdc5d8a8f6bf15103dec71da09f0779a",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "meshoptimizer",
+      "version": "1.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "gltfpack"
+      ],
+      "recipe": ".tools/vcpkg/ports/meshoptimizer",
+      "patches": {
+        "dependencies.diff": "718ac494635c3fa3158ddd2ef50331a25b6f20677b7d421c739bcc6b6377b4ce"
+      },
+      "assets": [
+        "meshoptimizer:zeux-meshoptimizer-v1.2.tar.gz"
+      ],
+      "registry_git_tree": "749c4154509bde6b404ac9e5f212cc5dbb15940f",
+      "portfile_sha256": "41892065ef80db223b8a3a227eba7ba75222b78d8025e66be73e7da98b1a4475",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "sqlite3",
+      "version": "3.53.4",
+      "port_version": 0,
+      "license": "blessing",
+      "features_available": [
+        "dbpage-vtab",
+        "dbstat",
+        "fts3",
+        "fts4",
+        "fts5",
+        "geopoly",
+        "json1",
+        "limit",
+        "math",
+        "memsys3",
+        "memsys5",
+        "omit-load-extension",
+        "percentile",
+        "rtree",
+        "session",
+        "snapshot",
+        "soundex",
+        "tool",
+        "unicode",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/sqlite3",
+      "patches": {
+        "add-config-include.patch": "282d8b4716abc154e121bf89ef2db565220e705ce68abf6f626aceb92c10040b",
+        "fix-arm-uwp.patch": "f4397f84d931cccb44a038194c895e28c749f1825ab45db4b5dccd6e3b6b5967"
+      },
+      "assets": [
+        "sqlite3:sqlite-autoconf-3530400.tar.gz"
+      ],
+      "registry_git_tree": "0cc3b4ec0f841b02a3bf3c82387b1d3c2f9adb6a",
+      "portfile_sha256": "686c1b363c358d3f16203c88201787de6021ad513da389002f8b4818bbc5573f",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "libpng",
+      "version": "1.6.58",
+      "port_version": 0,
+      "license": "libpng-2.0",
+      "assets": [
+        "libpng:pnggroup-libpng-v1.6.58.tar.gz"
+      ],
+      "patches": {
+        "cmake.patch": "e1c91b1739580791b8bfe770981cdb07bf65261caf6b2a99da988a8bb21d4094"
+      },
+      "registry_git_tree": "909d98e06046a0901fd11300b3d725d6a80d27bf",
+      "portfile_sha256": "5677ed31f47aa657854332f181f5497f22a7ce431c48e9036e0ce04639953af4",
+      "acquisition": "acquired"
+    },
+    {
+      "name": "zlib",
+      "version": "1.3.2",
+      "port_version": 1,
+      "license": "Zlib",
+      "assets": [
+        "zlib:madler-zlib-v1.3.2.tar.gz"
+      ],
+      "patches": {
+        "0001-no-version-script-on-ohos.patch": "f8c54d2dfd0a37d2f6e7473b1dba86b9e5ac423f522de9021b62c6c8c226ff76"
+      },
+      "registry_git_tree": "f49b05c666425471a7f6dc8b6156e9b3675a3c90",
+      "portfile_sha256": "ea47bb5089d792f31127ad26e780e78bb940ad4372aa2d66649a4f446a1a2b72",
+      "acquisition": "acquired"
+    }
+  ],
+  "native_build": "m2-relwithdebinfo verified",
+  "integration": "bounded asset/editor slice; see M2_REPORT.md",
+  "installed_status_sha256": "6ae1671c781b9ba0f2c6a42442c1c252747da23befc9224481c8aaaa00c2c5de",
+  "adapter_patches_sha256": "9d11c7531b86ae272971734bf1ce2bc55d4e56b6b9d891dfef34a1db50287c03"
+}

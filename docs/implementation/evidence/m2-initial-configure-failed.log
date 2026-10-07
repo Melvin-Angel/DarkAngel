@@ -1,0 +1,372 @@
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows-darkangel...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages will be built and installed:
+    cgltf:x64-windows-darkangel@1.15
+  * directxmath:x64-windows-darkangel@2026-06-12
+    directxtex:x64-windows-darkangel@2026-05-07
+    flecs:x64-windows-darkangel@4.1.6
+    libpng:x64-windows-darkangel@1.6.58
+    luau:x64-windows-darkangel@0.729
+    meshoptimizer:x64-windows-darkangel@1.2
+    nlohmann-json:x64-windows-darkangel@3.12.0#2
+    sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4
+  * vcpkg-cmake:x64-windows-darkangel@2024-04-23
+  * vcpkg-cmake-config:x64-windows-darkangel@2026-07-21
+    zlib:x64-windows-darkangel@1.3.2#1
+Additional packages (*) will be modified to complete this operation.
+Restored 6 package(s) from C:\Users\bengt\AppData\Local\vcpkg\archives in 5 s. Use --debug to see more details.
+Installing 1/12 vcpkg-cmake-config:x64-windows-darkangel@2026-07-21...
+vcpkg-cmake-config:x64-windows-darkangel@2026-07-21 package ABI: 81f89e659d69989b9f4a3e357988ccb5d06a8ec42ec45d19d3735b73f2289f3b
+Elapsed time to handle vcpkg-cmake-config:x64-windows-darkangel: 75.6 ms
+Installing 2/12 vcpkg-cmake:x64-windows-darkangel@2024-04-23...
+vcpkg-cmake:x64-windows-darkangel@2024-04-23 package ABI: 30834624125ba6d0ae31555300e5787a1057491ea620c19643784b288f7b96dd
+Elapsed time to handle vcpkg-cmake:x64-windows-darkangel: 76.8 ms
+Installing 3/12 flecs:x64-windows-darkangel@4.1.6...
+flecs:x64-windows-darkangel@4.1.6 package ABI: 210b0e0fe21594e94c10aaa7e3b42c13691b47fae3e9e0c9399aff77c80d06f7
+Elapsed time to handle flecs:x64-windows-darkangel: 626 ms
+Installing 4/12 luau:x64-windows-darkangel@0.729...
+luau:x64-windows-darkangel@0.729 package ABI: ff77cf90d169bbefef66ccc42b579ea8c18ec063898d826a6cbfb85e2ad7e81f
+Elapsed time to handle luau:x64-windows-darkangel: 172 ms
+Installing 5/12 nlohmann-json:x64-windows-darkangel@3.12.0#2...
+nlohmann-json:x64-windows-darkangel@3.12.0#2 package ABI: 286b2395d2a328336fe1f83a72299b0ae6779e45aa651048bfa2c022f37e4b75
+Elapsed time to handle nlohmann-json:x64-windows-darkangel: 82 ms
+Installing 6/12 sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4...
+sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4 package ABI: f3f00e7e2a4b6a9740c353f6d48ebd92478215cecdcf504bcc08c2b5141fd921
+Elapsed time to handle sqlite3:x64-windows-darkangel: 20.3 ms
+Installing 7/12 cgltf:x64-windows-darkangel@1.15...
+cgltf:x64-windows-darkangel@1.15 package ABI: df1f2d309ad704d1d95e2a7d9ff366865cb6af79e9288cd89fc069e450209134
+Building cgltf:x64-windows-darkangel@1.15...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached jkuhlmann-cgltf-v1.15.tar.gz
+-- Cleaning sources at C:/DarkAngel/.tools/vcpkg/buildtrees/cgltf/src/v1.15-841da1ba58.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/jkuhlmann-cgltf-v1.15.tar.gz
+-- Using source at C:/DarkAngel/.tools/vcpkg/buildtrees/cgltf/src/v1.15-841da1ba58.clean
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/cgltf_x64-windows-darkangel/share/cgltf/copyright
+-- Performing post-build validation
+Starting submission of cgltf:x64-windows-darkangel@1.15 to 1 binary cache(s) in the background
+Elapsed time to handle cgltf:x64-windows-darkangel: 483 ms
+Installing 8/12 directxmath:x64-windows-darkangel@2026-06-12...
+directxmath:x64-windows-darkangel@2026-06-12 package ABI: 67a0a269d84067011849f859db81f13c2159e6b3467c2e1f931e09e71b499021
+Building directxmath:x64-windows-darkangel@2026-06-12...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached Microsoft-DirectXMath-jun2026.tar.gz
+-- Cleaning sources at C:/DarkAngel/.tools/vcpkg/buildtrees/directxmath/src/jun2026-d9b23f80e1.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/Microsoft-DirectXMath-jun2026.tar.gz
+-- Using source at C:/DarkAngel/.tools/vcpkg/buildtrees/directxmath/src/jun2026-d9b23f80e1.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/directxmath_x64-windows-darkangel/share/pkgconfig/DirectXMath.pc
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/directxmath_x64-windows-darkangel/lib/pkgconfig/DirectXMath.pc
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/directxmath_x64-windows-darkangel/share/pkgconfig/DirectXMath.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/DarkAngel/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/directxmath_x64-windows-darkangel/debug/lib/pkgconfig/DirectXMath.pc
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/directxmath_x64-windows-darkangel/share/directxmath/usage
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/directxmath_x64-windows-darkangel/share/directxmath/copyright
+-- Performing post-build validation
+Starting submission of directxmath:x64-windows-darkangel@2026-06-12 to 1 binary cache(s) in the background
+Elapsed time to handle directxmath:x64-windows-darkangel: 3.7 s
+Completed submission of cgltf:x64-windows-darkangel@1.15 to 1 binary cache(s) in 125 ms
+Installing 9/12 directxtex:x64-windows-darkangel@2026-05-07...
+directxtex:x64-windows-darkangel@2026-05-07 package ABI: fce530d6faf1d7179046e46b9a2a7da1058db48b3a92b075f5772117a68557f4
+Building directxtex:x64-windows-darkangel@2026-05-07...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached Microsoft-DirectXTex-may2026.tar.gz
+-- Cleaning sources at C:/DarkAngel/.tools/vcpkg/buildtrees/directxtex/src/may2026-38a8263c46.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/Microsoft-DirectXTex-may2026.tar.gz
+-- Using source at C:/DarkAngel/.tools/vcpkg/buildtrees/directxtex/src/may2026-38a8263c46.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/directxtex_x64-windows-darkangel/lib/pkgconfig/DirectXTex.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/DarkAngel/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/directxtex_x64-windows-darkangel/debug/lib/pkgconfig/DirectXTex.pc
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/directxtex_x64-windows-darkangel/share/directxtex/usage
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/directxtex_x64-windows-darkangel/share/directxtex/copyright
+-- Performing post-build validation
+Starting submission of directxtex:x64-windows-darkangel@2026-05-07 to 1 binary cache(s) in the background
+Elapsed time to handle directxtex:x64-windows-darkangel: 17 s
+Completed submission of directxmath:x64-windows-darkangel@2026-06-12 to 1 binary cache(s) in 245 ms
+Installing 10/12 zlib:x64-windows-darkangel@1.3.2#1...
+zlib:x64-windows-darkangel@1.3.2#1 package ABI: 807a5578ec749ae0be6c49707d5fffe8a6516aec010057745511e88e6b745320
+Building zlib:x64-windows-darkangel@1.3.2#1...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached madler-zlib-v1.3.2.tar.gz
+-- Cleaning sources at C:/DarkAngel/.tools/vcpkg/buildtrees/zlib/src/v1.3.2-c19a0bfd23.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/madler-zlib-v1.3.2.tar.gz
+-- Applying patch 0001-no-version-script-on-ohos.patch
+-- Using source at C:/DarkAngel/.tools/vcpkg/buildtrees/zlib/src/v1.3.2-c19a0bfd23.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/zlib_x64-windows-darkangel/lib/pkgconfig/zlib.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/DarkAngel/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/zlib_x64-windows-darkangel/debug/lib/pkgconfig/zlib.pc
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/zlib_x64-windows-darkangel/share/zlib/vcpkg-cmake-wrapper.cmake
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/zlib_x64-windows-darkangel/share/zlib/copyright
+-- Performing post-build validation
+Starting submission of zlib:x64-windows-darkangel@1.3.2#1 to 1 binary cache(s) in the background
+Elapsed time to handle zlib:x64-windows-darkangel: 11 s
+Completed submission of directxtex:x64-windows-darkangel@2026-05-07 to 1 binary cache(s) in 979 ms
+Installing 11/12 libpng:x64-windows-darkangel@1.6.58...
+libpng:x64-windows-darkangel@1.6.58 package ABI: 46f600e61b1af4c21ae3b04f73130f8fd6f543b115058fa53cd109ce64e0eeb4
+Building libpng:x64-windows-darkangel@1.6.58...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached pnggroup-libpng-v1.6.58.tar.gz
+-- Cleaning sources at C:/DarkAngel/.tools/vcpkg/buildtrees/libpng/src/v1.6.58-b91136795d.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/pnggroup-libpng-v1.6.58.tar.gz
+-- Applying patch cmake.patch
+-- Using source at C:/DarkAngel/.tools/vcpkg/buildtrees/libpng/src/v1.6.58-b91136795d.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/share/png/vcpkg-cmake-wrapper.cmake
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/share/libpng/libpng-config.cmake
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/lib/pkgconfig/libpng16.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/DarkAngel/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/debug/lib/pkgconfig/libpng16.pc
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/debug/lib/pkgconfig/libpng.pc
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/lib/pkgconfig/libpng.pc
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/share/libpng/usage
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/libpng_x64-windows-darkangel/share/libpng/copyright
+-- Performing post-build validation
+Starting submission of libpng:x64-windows-darkangel@1.6.58 to 1 binary cache(s) in the background
+Elapsed time to handle libpng:x64-windows-darkangel: 19 s
+Completed submission of zlib:x64-windows-darkangel@1.3.2#1 to 1 binary cache(s) in 115 ms
+Installing 12/12 meshoptimizer:x64-windows-darkangel@1.2...
+meshoptimizer:x64-windows-darkangel@1.2 package ABI: 7ce88beae03dd543f76e4f2c6d17bc7f1780949f976d35d90077c223a21c6d68
+Building meshoptimizer:x64-windows-darkangel@1.2...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached zeux-meshoptimizer-v1.2.tar.gz
+-- Cleaning sources at C:/DarkAngel/.tools/vcpkg/buildtrees/meshoptimizer/src/v1.2-ce6f2c5220.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/zeux-meshoptimizer-v1.2.tar.gz
+-- Applying patch dependencies.diff
+-- Using source at C:/DarkAngel/.tools/vcpkg/buildtrees/meshoptimizer/src/v1.2-ce6f2c5220.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Performing post-build validation
+Starting submission of meshoptimizer:x64-windows-darkangel@1.2 to 1 binary cache(s) in the background
+Elapsed time to handle meshoptimizer:x64-windows-darkangel: 7.7 s
+Installed contents are licensed to you by owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Some packages did not declare an SPDX license. Check the `copyright` file for each package for more information about their licensing.
+Packages installed in this vcpkg installation declare the following licenses:
+MIT
+Zlib
+blessing
+libpng-2.0
+The package flecs provides CMake targets:
+
+    find_package(flecs CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:flecs::flecs>,flecs::flecs,flecs::flecs_static>)
+
+luau provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(unofficial-luau CONFIG REQUIRED)
+  # note: 6 additional targets are not displayed.
+  target_link_libraries(main PRIVATE unofficial::luau::Luau.VM unofficial::luau::Luau.Ast unofficial::luau::Luau.Common unofficial::luau::Luau.Config)
+
+The package nlohmann-json provides CMake targets:
+
+    find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
+
+The package nlohmann-json can be configured to not provide implicit conversions via a custom triplet file:
+
+    set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
+
+For more information, see the docs here:
+    
+    https://json.nlohmann.me/api/macros/json_use_implicit_conversions/
+
+sqlite3 provides pkgconfig bindings.
+sqlite3 provides CMake targets:
+
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
+
+cgltf is header-only and can be used from CMake via:
+
+  find_path(CGLTF_INCLUDE_DIRS "cgltf.h")
+  target_include_directories(main PRIVATE ${CGLTF_INCLUDE_DIRS})
+
+The DirectXTex package provides CMake targets:
+
+    find_package(directxtex CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE Microsoft::DirectXTex)
+
+zlib is compatible with built-in CMake targets:
+
+  find_package(ZLIB REQUIRED)
+  target_link_libraries(main PRIVATE ZLIB::ZLIB)
+
+libpng provides CMake targets:
+
+  find_package(PNG REQUIRED)
+  target_link_libraries(main PRIVATE PNG::PNG)
+
+meshoptimizer provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(meshoptimizer CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
+
+Completed submission of libpng:x64-windows-darkangel@1.6.58 to 1 binary cache(s) in 779 ms
+Waiting for 1 remaining binary cache submissions...
+Completed submission of meshoptimizer:x64-windows-darkangel@1.2 to 1 binary cache(s) in 227 ms (1/1)
+All requested installations completed successfully in: 1 min
+-- Running vcpkg install - done
+-- The C compiler identification is MSVC 19.51.36260.0
+-- The CXX compiler identification is MSVC 19.51.36260.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Git: C:/Program Files/Git/cmd/git.exe (found version "2.49.0.windows.1")
+-- Found nlohmann_json: C:/DarkAngel/build/m2-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/share/nlohmann_json/nlohmann_jsonConfig.cmake (found suitable version "3.12.0", minimum required is "3.12.0")
+-- Found ZLIB: optimized;C:/DarkAngel/build/m2-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/lib/zs.lib;debug;C:/DarkAngel/build/m2-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/debug/lib/zsd.lib (found version "1.3.2")
+-- Found PNG: optimized;C:/DarkAngel/build/m2-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/lib/libpng16.lib;debug;C:/DarkAngel/build/m2-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/debug/lib/libpng16d.lib (found version "1.6.58")
+-- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
+-- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
+-- Found dxcompiler.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxcompiler.dll
+-- Found dxil.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxil.dll
+-- Found Python3: C:/Users/bengt/miniconda3/python.exe (found version "3.13.5") found components: Interpreter
+-- optimizer enabled
+-- SPIRV-Cross: Finding Git version for SPIRV-Cross.
+-- SPIRV-Cross: Git hash: vulkan-sdk-1.4.363.0
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX17
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX17 - Success
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX20
+-- Performing Test ABSL_INTERNAL_AT_LEAST_CXX20 - Failed
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Found Threads: TRUE
+-- xxHash build type: RelWithDebInfo
+-- Architecture: AMD64
+-- DiligentCore commit hash: 074060cf
+-- Downloading NVAPI repository...
+-- Using NVApi from C:/DarkAngel/build/m2-relwithdebinfo/_deps/nvapi-src
+-- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
+Collecting libclang==16.0.6
+  Downloading libclang-16.0.6-py2.py3-none-win_amd64.whl.metadata (5.3 kB)
+Downloading libclang-16.0.6-py2.py3-none-win_amd64.whl (24.4 MB)
+   ---------------------------------------- 24.4/24.4 MB 6.2 MB/s eta 0:00:00
+Installing collected packages: libclang
+Successfully installed libclang-16.0.6
+Collecting jinja2
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting MarkupSafe>=2.0 (from jinja2)
+  Downloading markupsafe-3.0.4-cp313-cp313-win_amd64.whl.metadata (2.8 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.4-cp313-cp313-win_amd64.whl (14 kB)
+Installing collected packages: MarkupSafe, jinja2
+
+Successfully installed MarkupSafe-3.0.4 jinja2-3.1.6
+-- Configuring done (105.5s)
+-- Generating done (2.2s)
+Target processor: x86_64
+CMake generator: Ninja
+
+Windows SDK version: 10.0.26100.0
+
+Target platform: Win32 64
+
+Checking for Direct3D11 and Direct3D12 support:
+  d3d11.h found:   TRUE
+  d3d12.h found:   TRUE
+  atlbase.h found: TRUE
+
+D3D11_SUPPORTED:  FALSE
+D3D12_SUPPORTED:  TRUE
+GL_SUPPORTED:     FALSE
+GLES_SUPPORTED:   FALSE
+VULKAN_SUPPORTED: TRUE
+METAL_SUPPORTED:  FALSE
+WEBGPU_SUPPORTED: FALSE
+
+Additional MSVC compile options for release configurations: /GL/arch:AVX2
+Available .NET SDK versions: 9.0.203
+  Maximum .NET SDK version: 9.0.203
+CMake Warning (deprecated) at third_party/diligent-core/ThirdParty/glslang/CMakeLists.txt:111 (message):
+  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
+  major release of glslang.  See
+  https://github.com/KhronosGroup/glslang/issues/4210 for details.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Error at .tools/vcpkg/scripts/buildsystems/vcpkg.cmake:666 (_add_library):
+  Target "absl_strings" links to itself.
+Call Stack (most recent call first):
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/CMake/AbseilHelpers.cmake:259 (add_library)
+  build/m2-relwithdebinfo/_deps/abseil-cpp-src/absl/strings/CMakeLists.txt:31 (absl_cc_library)
+
+
+CMake Warning (unused-cli):
+  Manually-specified variables were not used by the project:
+
+    DAE_ASSETS
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.

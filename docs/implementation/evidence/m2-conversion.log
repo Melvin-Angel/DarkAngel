@@ -1,0 +1,11 @@
+FBX version: 7400
+INFO Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.5\4.5\scripts\addons_core\io_scene_gltf2\extern_draco.dll
+00:10:44 | INFO: Starting glTF 2.0 export
+00:10:44 | INFO: Extracting primitive: Mesh.014
+00:10:44 | INFO: Primitives created: 1
+00:10:44 | INFO: Finished glTF 2.0 export in 0.00799703598022461 s
+
+DARKANGEL_CONVERSION {"blender": "4.5.1 LTS", "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\MelvinMasks\\HornedMask.fbx", "source_sha256": "bb4198992eacc647b4171ed43d938a926585302d9d33d9f1d7e1e6c9a756868e", "output_sha256": "64f76af26f3648b8a105f929e0ac08eb003a5f7cfdef0e92decf530b095f7858", "objects": 1, "triangles_before_export": 111, "material": "Generated checker test material, original source untouched", "axes": "glTF exporter Y-up/right-handed, FBX units handled by importer"}
+Blender 4.5.1 LTS (hash b0a72b245dcf built 2025-07-29 06:36:07)
+
+Blender quit

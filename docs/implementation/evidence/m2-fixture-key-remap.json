@@ -1,0 +1,25 @@
+{
+  "reason": "Explicit fixture author-key rename; same root and mesh UUID, no user source writes",
+  "before": {
+    "id": "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+    "importer": "static-gltf-v1",
+    "schema": 1,
+    "subassets": {
+      "material/checker": "f7606ee3-0404-4897-8792-7515935c37bc",
+      "mesh/0": "b2736663-29cc-4d52-963b-5210d771a09f",
+      "texture/base-color/material/checker": "2904b5b4-a600-4fea-9fca-0c328a204b2c"
+    },
+    "tags": []
+  },
+  "after": {
+    "id": "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+    "importer": "static-gltf-v1",
+    "schema": 1,
+    "subassets": {
+      "material/checker": "f7606ee3-0404-4897-8792-7515935c37bc",
+      "texture/base-color/material/checker": "2904b5b4-a600-4fea-9fca-0c328a204b2c",
+      "mesh/prop": "b2736663-29cc-4d52-963b-5210d771a09f"
+    },
+    "tags": []
+  }
+}

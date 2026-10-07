@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
+  "package": "nlohmann-json",
+  "version": "3.12.0",
+  "port_version": 2,
+  "license": "MIT",
+  "archive_sha512": "6cc1e86261f8fac21cc17a33da3b6b3c3cd5c116755651642af3c9e99bb3538fd42c1bd50397a77c8fb6821bc62d90e6b91bcdde77a78f58f2416c62fc53b97d",
+  "recipe_sha256": {
+    "fix-4736_char8_t.patch": "4c0177c5b4c4fb0978b54e2e113d2c76865059a85aa1b060b87f441056813fde",
+    "fix-4742_std_optional.patch": "218c2182366f1e9b997fc81f1b27b951a1438a3578f8e0cb22a1957cc326ccbd",
+    "portfile.cmake": "9bae6425097eb8d78e6f9a213de5258a3dfac57056e4c42e76a3a8d805fbdc1b",
+    "usage": "ec6460d4688d7908d8adc698700f77639013641f1ab27066e9324c9ca11276c3",
+    "vcpkg.json": "b576fa660ad7fcd9aa0324cc775b596d48aa7f14c993f63b23865a8673835310"
+  }
+}

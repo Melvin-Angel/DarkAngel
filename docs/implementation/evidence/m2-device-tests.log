@@ -1,0 +1,13 @@
+Test project C:/DarkAngel/build/m2-relwithdebinfo
+    Start 3: M2.device_d3d12
+1/2 Test #3: M2.device_d3d12 ..................   Passed    0.57 sec
+    Start 4: M2.device_vulkan
+2/2 Test #4: M2.device_vulkan .................   Passed    0.25 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+M2        =   0.82 sec*proc (2 tests)
+device    =   0.82 sec*proc (2 tests)
+
+Total Test time (real) =   0.98 sec

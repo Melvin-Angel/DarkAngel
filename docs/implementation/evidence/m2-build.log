@@ -1,0 +1,57 @@
+[1/68] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/63] Scanning C:\DarkAngel\engine\runtime\bootstrap.cpp for CXX dependencies
+[3/63] Scanning C:\DarkAngel\engine\runtime\script_runtime.cpp for CXX dependencies
+[4/63] Scanning C:\DarkAngel\engine\runtime\script_package.cpp for CXX dependencies
+[5/63] Scanning C:\DarkAngel\engine\runtime\script_state.cpp for CXX dependencies
+[6/63] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[7/63] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[8/63] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[9/63] Scanning C:\DarkAngel\apps\headless\main.cpp for CXX dependencies
+[10/63] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[11/61] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[12/61] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[13/61] Scanning C:\DarkAngel\tests\editor_tests.cpp for CXX dependencies
+[14/61] Scanning C:\DarkAngel\tests\flecs_probe.cpp for CXX dependencies
+[15/61] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[16/61] Scanning C:\DarkAngel\tests\luau_probe.cpp for CXX dependencies
+[17/61] Scanning C:\DarkAngel\tests\foundation_tests.cpp for CXX dependencies
+[18/61] Scanning C:\DarkAngel\tests\sqlite_probe.cpp for CXX dependencies
+[19/61] Scanning C:\DarkAngel\tests\script_package_tests.cpp for CXX dependencies
+[20/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\bootstrap.cpp.obj
+[21/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_runtime.cpp.obj
+[22/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_package.cpp.obj
+[23/61] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[24/61] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_state.cpp.obj
+[25/61] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[26/61] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[27/61] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[28/60] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[29/59] Generating CXX dyndep file CMakeFiles\RendererProbe.dir\CXX.dd
+[30/57] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[31/57] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[32/57] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[33/57] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[34/57] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[35/57] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[36/57] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[37/57] Linking CXX static library DarkAngelRuntime.lib
+[38/57] Building CXX object CMakeFiles\DarkAngelHeadless.dir\apps\headless\main.cpp.obj
+[39/57] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[40/57] Linking CXX static library DarkAngelAssets.lib
+[41/57] Building CXX object CMakeFiles\EditorTests.dir\tests\editor_tests.cpp.obj
+[42/57] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+[43/57] Building CXX object CMakeFiles\FlecsProbe.dir\tests\flecs_probe.cpp.obj
+[44/57] Building CXX object CMakeFiles\LuauProbe.dir\tests\luau_probe.cpp.obj
+[45/57] Building CXX object CMakeFiles\SQLiteProbe.dir\tests\sqlite_probe.cpp.obj
+[46/57] Building CXX object CMakeFiles\FoundationTests.dir\tests\foundation_tests.cpp.obj
+[47/57] Building CXX object CMakeFiles\ScriptPackageTests.dir\tests\script_package_tests.cpp.obj
+[48/57] Linking CXX executable DarkAngelHeadless.exe
+[49/57] Linking CXX executable AssetTool.exe
+[50/57] Linking CXX executable AssetTests.exe
+[51/57] Linking CXX executable EditorTests.exe
+[52/57] Linking CXX executable FlecsProbe.exe
+[53/57] Linking CXX executable LuauProbe.exe
+[54/57] Linking CXX executable SQLiteProbe.exe
+[55/57] Linking CXX executable FoundationTests.exe
+[56/57] Linking CXX executable ScriptPackageTests.exe
+[57/57] Linking CXX executable DarkAngelEditor.exe

@@ -1,0 +1,36 @@
+[
+  {
+    "gate": "configure",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--preset",
+      "m1-release"
+    ],
+    "exit_code": 0,
+    "seconds": 31.555,
+    "log": "docs/implementation/evidence/m1-release-configure.log"
+  },
+  {
+    "gate": "build",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--build",
+      "--preset",
+      "m1-release"
+    ],
+    "exit_code": 0,
+    "seconds": 50.78,
+    "log": "docs/implementation/evidence/m1-release-build.log"
+  },
+  {
+    "gate": "ctest",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+      "--preset",
+      "m1-release"
+    ],
+    "exit_code": 0,
+    "seconds": 4.216,
+    "log": "docs/implementation/evidence/m1-release-ctest.log"
+  }
+]

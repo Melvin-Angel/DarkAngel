@@ -1,0 +1,148 @@
+[
+  {
+    "path": "third_party/diligent-core/ThirdParty/abseil-cpp/CMakeLists.txt",
+    "original_sha256": "362b91dbbc5e38f2372dbefe521ff53d49c5c8e6209b9be1c91ca583e386643b",
+    "replacement": "cmake_minimum_required(VERSION 3.11)\n# DarkAngel selected provider: one pinned vcpkg Abseil implementation.\nfind_package(absl CONFIG REQUIRED)\n",
+    "patched_sha256": "d861cc1b81aabe30f939e9a83a536e5e6b9a3706f77db2316435486bc47f1ece"
+  },
+  {
+    "path": "third_party/diligent-core/Graphics/GraphicsEngineD3DBase/CMakeLists.txt",
+    "original_sha256": "04ac2ff0a039b014bfc69b7cd9f27f26783142f70f750347f1f589abbaf00006",
+    "replacement": "cmake_minimum_required (VERSION 3.10)\n\nproject(Diligent-GraphicsEngineD3DBase CXX)\n\nif (PLATFORM_WIN32 AND DAE_ENABLE_NVAPI)\n    if (DILIGENT_NVAPI_PATH)\n        if (NOT EXISTS \"${DILIGENT_NVAPI_PATH}/nvapi.h\")\n            message(WARNING\n                \"DILIGENT_NVAPI_PATH does not look like NVAPI (missing nvapi.h): ${DILIGENT_NVAPI_PATH}\\n\"\n                \"Will ignore it and download NVAPI instead.\"\n            )\n            unset(DILIGENT_NVAPI_PATH CACHE)\n        endif()\n    endif()\n\n    if (NOT DILIGENT_NVAPI_PATH AND (TARGET_CPU STREQUAL \"x86_64\" OR TARGET_CPU STREQUAL \"x86\"))\n        message(STATUS \"Downloading NVAPI repository...\")\n\n        include(FetchContent)\n        FetchContent_Declare(\n            nvapi\n            GIT_REPOSITORY https://github.com/NVIDIA/nvapi\n            GIT_TAG        9296d67 # R590\n        )\n        FetchContent_MakeAvailable(nvapi)\n\n        set(DILIGENT_NVAPI_PATH\n            \"${nvapi_SOURCE_DIR}\"\n            CACHE PATH \"Path to NVAPI to enable D3D11/D3D12 extensions\"\n            FORCE\n        )\n    endif()\nendif()\n\nset(INCLUDE\n    include/D3DCommonTypeConversions.hpp\n    include/D3DErrors.hpp\n    include/D3DTileMappingHelper.hpp\n    include/D3DShaderResourceLoader.hpp\n    include/D3DShaderResourceValidation.hpp\n    include/D3DTypeConversionImpl.hpp\n    include/D3DViewDescConversionImpl.hpp\n    include/DXGITypeConversions.hpp\n    include/EngineFactoryD3DBase.hpp\n    include/PipelineStateD3DBase.hpp\n    include/RenderDeviceD3DBase.hpp\n    include/ShaderD3DBase.hpp\n    include/ShaderResources.hpp\n    include/ShaderVariableD3D.hpp\n    include/SwapChainD3DBase.hpp\n    include/NVApiLoader.hpp\n)\n\nset(INTERFACE\n    interface/ShaderD3D.h\n)\n\nset(SOURCE\n    src/D3DCommonTypeConversions.cpp\n    src/D3DShaderResourceValidation.cpp\n    src/DXGITypeConversions.cpp\n    src/ShaderD3DBase.cpp\n    src/ShaderResources.cpp\n    src/SwapChainD3DBase.cpp\n)\n\nadd_library(Diligent-GraphicsEngineD3DBase STATIC\n    ${SOURCE} ${INCLUDE} ${INTERFACE}\n)\n\nadd_library(Diligent-GraphicsEngineD3DBaseInterface INTERFACE)\ntarget_link_libraries     (Diligent-GraphicsEngineD3DBaseInterface INTERFACE Diligent-GraphicsEngineInterface)\ntarget_include_directories(Diligent-GraphicsEngineD3DBaseInterface INTERFACE interface)\n\ntarget_include_directories(Diligent-GraphicsEngineD3DBase\nPUBLIC\n    include\n)\n\ntarget_link_libraries(Diligent-GraphicsEngineD3DBase\nPRIVATE\n    Diligent-BuildSettings\n    Diligent-ShaderTools\nPUBLIC\n    Diligent-GraphicsEngine\n    Diligent-GraphicsEngineD3DBaseInterface\n)\n\nset_common_target_properties(Diligent-GraphicsEngineD3DBase)\n\nsource_group(\"src\" FILES ${SOURCE})\nsource_group(\"include\" FILES ${INCLUDE})\nsource_group(\"interface\" FILES ${INTERFACE})\n\nset_target_properties(Diligent-GraphicsEngineD3DBase PROPERTIES\n    FOLDER DiligentCore/Graphics\n)\n\nif(DILIGENT_INSTALL_CORE)\n    install_core_lib(Diligent-GraphicsEngineD3DBase)\nendif()\n\nif(EXISTS \"${DILIGENT_NVAPI_PATH}/nvapi.h\")\n    message(STATUS \"Using NVApi from ${DILIGENT_NVAPI_PATH}\")\n    if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)\n        set(DILIGENT_NVAPI_LIB_PATH \"${DILIGENT_NVAPI_PATH}/amd64/nvapi64.lib\" CACHE INTERNAL \"NVAPI lib path\")\n    else()\n        set(DILIGENT_NVAPI_LIB_PATH \"${DILIGENT_NVAPI_PATH}/x86/nvapi.lib\" CACHE INTERNAL \"NVAPI lib path\")\n    endif()\n    target_include_directories(Diligent-GraphicsEngineD3DBase PUBLIC ${DILIGENT_NVAPI_PATH})\n    target_link_libraries(Diligent-GraphicsEngineD3DBase PRIVATE ${DILIGENT_NVAPI_LIB_PATH})\n    target_compile_definitions(Diligent-GraphicsEngineD3DBase PUBLIC DILIGENT_ENABLE_D3D_NVAPI)\nendif()\n",
+    "patched_sha256": "8e4e3be0451c16e2e9f241c61343189f8da1f22071a576e2b53aa38cd4d92730"
+  },
+  {
+    "path": "third_party/diligent-tools/CMakeLists.txt",
+    "original_sha256": "c8ad740a2613f7b8baa6e12d9daa5a9d017955eeb465a95ec3ef13f98f31a25e",
+    "replacement": "cmake_minimum_required (VERSION 3.10)\n\nif(NOT DILIGENT_CORE_FOUND)\n\tmessage(FATAL_ERROR \"DiligentCore module is not found. Please add DiligentCore module to the project before DiligentTools module.\")\nendif()\n\nset(DILIGENT_TOOLS_FOUND TRUE CACHE INTERNAL \"DiligentTools module is found\")\n\nfile(RELATIVE_PATH DILIGENT_TOOLS_DIR \"${CMAKE_SOURCE_DIR}\" \"${CMAKE_CURRENT_SOURCE_DIR}\")\n\nif(PLATFORM_WIN32 OR PLATFORM_UNIVERSAL_WINDOWS OR PLATFORM_LINUX OR PLATFORM_APPLE OR PLATFORM_WEB)\n    option(DILIGENT_INSTALL_TOOLS \"Install DiligentTool module headers and libraries\" ON)\nelse()\n    set(DILIGENT_INSTALL_TOOLS OFF)\nendif()\n\noption(DILIGENT_NO_RENDER_STATE_PACKAGER \"Do not build Render State Packager\" OFF)\noption(DILIGENT_ENABLE_DRACO \"Enable Draco compression support in GLTF loader\" OFF)\noption(DILIGENT_USE_RAPIDJSON \"Use rapidjson parser in GLTF loader\" OFF)\noption(DILIGENT_BUILD_WIN32_GUI_AS_CONSOLE \"Build Windows GUI applications using the console subsystem\" OFF)\n\n# Clear the list\nset(DILIGENT_TOOLS_INSTALL_LIBS_LIST \"\" CACHE INTERNAL \"Diligent tools libraries installation list\")\nfunction(install_tools_lib _TARGET)\n    get_target_relative_dir(${_TARGET} TARGET_RELATIVE_PATH)\n\n    get_target_property(TARGET_TYPE ${_TARGET} TYPE)\n    if(TARGET_TYPE STREQUAL STATIC_LIBRARY)\n        list(APPEND DILIGENT_TOOLS_INSTALL_LIBS_LIST ${_TARGET})\n        set(DILIGENT_TOOLS_INSTALL_LIBS_LIST ${DILIGENT_TOOLS_INSTALL_LIBS_LIST} CACHE INTERNAL \"Diligent tools libraries installation list\")\n    elseif(TARGET_TYPE STREQUAL SHARED_LIBRARY)\n        install(TARGETS\t\t\t\t ${_TARGET}\n                ARCHIVE DESTINATION \"${CMAKE_INSTALL_LIBDIR}/${DILIGENT_TOOLS_DIR}/$<CONFIG>\"\n                LIBRARY DESTINATION \"${CMAKE_INSTALL_LIBDIR}/${DILIGENT_TOOLS_DIR}/$<CONFIG>\"\n                RUNTIME DESTINATION \"${CMAKE_INSTALL_BINDIR}/${DILIGENT_TOOLS_DIR}/$<CONFIG>\"\n        )\n        if (DILIGENT_INSTALL_PDB)\n            install(FILES $<TARGET_PDB_FILE:${_TARGET}> DESTINATION \"${CMAKE_INSTALL_BINDIR}/${DILIGENT_TOOLS_DIR}/$<CONFIG>\" OPTIONAL)\n        endif()\n    endif()\n\n    if(EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/interface\")\n        install(DIRECTORY    interface\n                DESTINATION  \"${CMAKE_INSTALL_INCLUDEDIR}/${TARGET_RELATIVE_PATH}/\"\n        )\n    endif()\nendfunction()\n\nadd_subdirectory(ThirdParty)\nadd_subdirectory(TextureLoader)\nadd_subdirectory(AssetLoader)\nadd_subdirectory(Imgui)\nadd_subdirectory(NativeApp)\n\nif((PLATFORM_WIN32 OR PLATFORM_LINUX OR PLATFORM_MACOS) AND GL_SUPPORTED)\n    add_subdirectory(HLSL2GLSLConverter)\nendif()\n\nif(DAE_ENABLE_RENDER_STATE_NOTATION)\n    add_subdirectory(RenderStateNotation)\nendif()\n\nif((PLATFORM_WIN32 OR PLATFORM_LINUX OR PLATFORM_MACOS) AND ARCHIVER_SUPPORTED AND NOT DILIGENT_NO_RENDER_STATE_PACKAGER)\n    add_subdirectory(RenderStatePackager)\nendif()\n\nadd_subdirectory(Tests)\n\n# Installation instructions\nif(DILIGENT_INSTALL_TOOLS)\n\n    install_combined_static_lib(\n        \"${CMAKE_STATIC_LIBRARY_PREFIX}DiligentTools${CMAKE_STATIC_LIBRARY_SUFFIX}\"\n        \"${DILIGENT_TOOLS_INSTALL_LIBS_LIST}\"\n        DiligentTools-static                     # Custom target name\n        DiligentTools                            # Folder\n        \"${CMAKE_INSTALL_LIBDIR}/${DILIGENT_TOOLS_DIR}/$<CONFIG>\"    # Install destination\n    )\n\nendif()\n\n# Create a custom target to run source code formatting validation command\nadd_format_validation_target(DiligentTools \"${CMAKE_CURRENT_SOURCE_DIR}\" DiligentTools)\n",
+    "patched_sha256": "9cacb682a9f9787ba6fd019046918d6873899298b97c2af84b459a4999b3d31b"
+  },
+  {
+    "path": "third_party/diligent-tools/TextureLoader/interface/BCTools.h",
+    "original_sha256": "97d806a7f89797878fe452855230d37fddcef9c53710018146185efe840aac60",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "b5a8077028b92f92ae9b00542bc06844466ad6b95f53b0ca24b4f2d8528a70ba"
+  },
+  {
+    "path": "third_party/diligent-tools/TextureLoader/interface/Image.h",
+    "original_sha256": "2e282bb2943608172f54a263237e723b12975aaead298a10e20217de5c32ae10",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "ce2a72d5e7467888e7a5daf33d02a93b231a24116ac507aec0b6fd8025192ab5"
+  },
+  {
+    "path": "third_party/diligent-tools/TextureLoader/interface/TextureLoader.h",
+    "original_sha256": "1fa9f2f870ecbfd00ffa51ce14eed42ecd1cb32c5563031985fe1b21c26243a5",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "92deb9e663968d3c4c68687b1da5d7a483a6c7b30f4d67acceec2a83b87ca752"
+  },
+  {
+    "path": "third_party/diligent-tools/TextureLoader/interface/TextureUtilities.h",
+    "original_sha256": "4854bf3dbefcafcac058197f9d76838f345ece378b85135906e3115ef46d7703",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "2b4515fdfa8403844ff3cd717f6ad7ca5d37d71856578ac9a5718ecb55b0224e"
+  },
+  {
+    "path": "third_party/diligent-tools/Tests/IncludeTest/BaseStructAlignmentTest.cpp",
+    "original_sha256": "2689661d329101761207134a8c86f1c44cbd24ca49a4b2143dd7f408c9d28fdd",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "6dd91b06a2a553e5b1a127d62bc80e1caab6094851fc5b5410a0f9e01137fff4"
+  },
+  {
+    "path": "third_party/diligent-tools/RenderStateNotation/interface/RenderStateNotationLoader.h",
+    "original_sha256": "7c690b1571837eee2800f11c8ad25d8d2884e91a6bf2355b8e28c67946acf6f0",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "fb17eda16d11c355a7666b8987aa962570ceb6310d8efd830f046b22ff0e75f8"
+  },
+  {
+    "path": "third_party/diligent-tools/RenderStateNotation/interface/RenderStateNotationParser.h",
+    "original_sha256": "a84a3d7730b6aee975778cbca27dc08da5ca39101f09722a1c344bf2f156cedd",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "5e068ae76bdb66e64462e7fcca284d341b8e073cb03d0ed1894dda0a38ad16f4"
+  },
+  {
+    "path": "third_party/diligent-tools/Imgui/interface/ImGuiDiligentRenderer.hpp",
+    "original_sha256": "b7a3e87658a7e3fea5a72d3f7edfa256e97a9ff369c49bed460958bd6656e05f",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "9b9aa68f590f0d56c1b30be109ca5c57b10b9264c59984c303f22657a9872f4a"
+  },
+  {
+    "path": "third_party/diligent-tools/Imgui/interface/ImGuiImplDiligent.hpp",
+    "original_sha256": "df33441075243746b93243081dae757bae4dc755a540c02aa3c129858eacacad",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "835a03b88dc3dbf0b9c74e1baa8c7ef4d123092a223d0168261893108d1a06cf"
+  },
+  {
+    "path": "third_party/diligent-tools/Imgui/interface/ImGuiUtils.hpp",
+    "original_sha256": "2cdd13790c88fdd975a78adabe8165ac226cb3904fa78c9b52c4a96cd911599b",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "2cc28f7d2683d64c1f1e0c658de4aa2611adb095dc807b4b41d91a2899948a8f"
+  },
+  {
+    "path": "third_party/diligent-tools/AssetLoader/interface/DXSDKMeshLoader.hpp",
+    "original_sha256": "bba0782b2f95a6ce3653c1b580f1b021536e2e56696ebb49c48ca83bcbec0f56",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "15c9ad158f46775baa9639719e9b6a8fc0bc33a74ae9a723f1f997fc4f1d1a69"
+  },
+  {
+    "path": "third_party/diligent-tools/AssetLoader/interface/GLTFDocument.hpp",
+    "original_sha256": "3d5cd517d94c694c20f2c09418e5e8277afc3fd97af8239704391f9f71159452",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "0de2a57a9ce0ee568608770f3676d9e26ef8554344e1b6f17bca68998b9dca23"
+  },
+  {
+    "path": "third_party/diligent-tools/AssetLoader/interface/GLTFLoader.hpp",
+    "original_sha256": "5f793ace8af7124efccb69002049d782a310ac3cf53e5222ad7196d25a5aca12",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "c538e04e1cf5a1b2c4448f4f4073c848143c580f3f6c822babbbddd649611f62"
+  },
+  {
+    "path": "third_party/diligent-tools/AssetLoader/interface/GLTFResourceManager.hpp",
+    "original_sha256": "cac36f31e3f517ce7f1d55a9c9e70203e108e319a0ae59786b1db831aeb4af34",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "cdeb7b683ae054b31045be192e0a714ecf19f6f0e54638ff4d5a8e09aa239fa4"
+  },
+  {
+    "path": "third_party/diligent-tools/AssetLoader/interface/GLTFUtilities.hpp",
+    "original_sha256": "9e1de8605e62d766152861cba33689ce0850ab8aa3faf979dbab9d4c5912b126",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "ea8cb9ff978c14c923950065ff84351c33fba7eb3fb5d45f86413333e1ed3577"
+  },
+  {
+    "path": "third_party/diligent-tools/AssetLoader/interface/OBJLoader.hpp",
+    "original_sha256": "ab8230e6a35bcb95490b07da6f1b9b23572830776cd60f5bd6fd3513506009f2",
+    "replacements": {
+      "DiligentCore/": "diligent-core/"
+    },
+    "patched_sha256": "5a61499af7f7f0e5212d2ccf84cbdf13dc015ff8c94dfd9f67df1435f026d6fa"
+  }
+]

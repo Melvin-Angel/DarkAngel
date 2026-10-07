@@ -1,0 +1,14 @@
+Test project C:/DarkAngel/build/m2-relwithdebinfo
+    Start 1: M2.asset_pipeline
+1/2 Test #1: M2.asset_pipeline ................   Passed    0.88 sec
+    Start 2: M2.real_prop
+2/2 Test #2: M2.real_prop .....................   Passed    0.33 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+M2               =   1.22 sec*proc (2 tests)
+asset            =   1.22 sec*proc (2 tests)
+local-fixture    =   0.33 sec*proc (1 test)
+
+Total Test time (real) =   1.32 sec
