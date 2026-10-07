@@ -1,0 +1,40 @@
+Detecting compiler hash for triplet x64-windows-darkangel...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages will be built and installed:
+  * abseil:x64-windows-darkangel@20260107.1#3
+    behaviortree-cpp:x64-windows-darkangel@4.9.1
+  * brotli:x64-windows-darkangel@1.2.0
+  * bzip2[core,tool]:x64-windows-darkangel@1.0.8#6
+    cgltf:x64-windows-darkangel@1.15
+  * directxmath:x64-windows-darkangel@2026-06-12
+    directxtex[core,tools]:x64-windows-darkangel@2026-05-07
+    dylib:x64-windows-darkangel@3.0.1
+    eigen3:x64-windows-darkangel@5.0.1
+    flatbuffers:x64-windows-darkangel@25.12.19
+    flecs:x64-windows-darkangel@4.1.6
+  * freetype[brotli,bzip2,core,png,zlib]:x64-windows-darkangel@2.14.3
+    gamenetworkingsockets:x64-windows-darkangel@1.6.0
+  * itlib:x64-windows-darkangel@1.12.2
+    joltphysics:x64-windows-darkangel@5.6.0
+    libflac:x64-windows-darkangel@1.5.0
+  * libogg:x64-windows-darkangel@1.3.6#1
+  * libpng:x64-windows-darkangel@1.6.58
+    luau[core,tool]:x64-windows-darkangel@0.729
+    lz4:x64-windows-darkangel@1.10.0
+    meshoptimizer:x64-windows-darkangel@1.2
+    miniaudio:x64-windows-darkangel@0.11.25
+  * minitrace:x64-windows-darkangel@2023-04-23
+  * openssl:x64-windows-darkangel@3.6.3
+  * protobuf:x64-windows-darkangel@6.33.4#2
+    recastnavigation:x64-windows-darkangel@1.6.0#1
+    rmlui[core,freetype]:x64-windows-darkangel@6.2
+  * robin-hood-hashing:x64-windows-darkangel@3.11.5#2
+    sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4
+  * tinyxml2:x64-windows-darkangel@11.0.0
+  * utf8-range:x64-windows-darkangel@6.33.4
+  * vcpkg-cmake:x64-windows-darkangel@2024-04-23
+  * vcpkg-cmake-config:x64-windows-darkangel@2026-07-21
+  * vcpkg-cmake-get-vars:x64-windows-darkangel@2025-05-29
+    xsimd:x64-windows-darkangel@13.2.0
+  * zlib:x64-windows-darkangel@1.3.2#1
+Additional packages (*) will be modified to complete this operation.

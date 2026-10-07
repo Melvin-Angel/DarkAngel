@@ -1,0 +1,6 @@
+CPack: Create package using ZIP
+CPack: Install projects
+CPack: - Install project: DarkAngel []
+CPack: -   Install component: HeadlessShell
+CPack: Create package
+CPack: - package: ${PROJECT_ROOT}/.cache/clean-checkout-768806bd57f5/stage/packages/Release/DarkAngel-M0-0.0.1-win64-HeadlessShell.zip generated.

@@ -3,3 +3,5 @@
 docs/architecture/DarkAngel_Implementation_Handoff.md -text
 docs/architecture/Decision_Log.txt -text
 third_party/notices/** -text
+docs/implementation/evidence/*.log -whitespace
+docs/implementation/evidence/*.patch -whitespace

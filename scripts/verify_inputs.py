@@ -76,7 +76,7 @@ def main():
             run([str(ROOT/'.tools/flatc/flatc.exe'),'-b','--schema','-I',str(schemas),'-o',str(output),str(schema)])
             count+=1
         if not count:raise RuntimeError('No actual Amplitude schemas found')
-        return f'{count} actual pinned Amplitude schemas compiled with flatc 25.12.19; SDK library compilation remains pending'
+        return f'{count} actual pinned Amplitude schemas compiled with flatc 25.12.19; static SDK build/import is a separate recorded check'
     check('amplitude-schema-compiler',schemas)
     def docking():
         text=(ROOT/'third_party/imgui-docking/imgui.h').read_text()

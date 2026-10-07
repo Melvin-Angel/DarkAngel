@@ -1,0 +1,17 @@
+Test project ${PROJECT_ROOT}/build/m0-relwithdebinfo
+    Start 1: FlecsProbe
+1/4 Test #1: FlecsProbe .......................   Passed    0.39 sec
+    Start 2: LuauProbe
+2/4 Test #2: LuauProbe ........................   Passed    0.04 sec
+    Start 3: SQLiteProbe
+3/4 Test #3: SQLiteProbe ......................   Passed    0.09 sec
+    Start 4: HeadlessSmoke
+4/4 Test #4: HeadlessSmoke ....................   Passed    0.04 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+M0            =   0.53 sec*proc (3 tests)
+dependency    =   0.53 sec*proc (3 tests)
+
+Total Test time (real) =   0.58 sec

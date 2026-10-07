@@ -1,0 +1,1263 @@
+{
+  "schema": 1,
+  "resolved_on": "2026-10-07",
+  "vcpkg_checkout_and_baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
+  "ports": [
+    {
+      "name": "abseil",
+      "version": "20260107.1",
+      "port_version": 3,
+      "license": "Apache-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/abseil",
+      "patches": {
+        "003-force-cxx-17.patch": "6481fcaa774212d1453396c26c5240bdbd3cbb25784a94ffa077651b718cf367",
+        "fix-gcc13-constexpr-function-pointer.patch": "4ea325ea617d3b6ed9dc29e09f4d22b9836c99c114d8c4b09e181e8cbae51e6c",
+        "fix-heterogeneous_lookup_testing-target.patch": "fc84e3f929674dd0f0dfd84e267f7ed431b95417bf69a61149b69c5e40c4ab6c",
+        "fix-mingw-dll.patch": "da10bf980900c2b8c2bde9028419999a8cfa1ec3c3d77707239459a078231a5c"
+      },
+      "assets": [
+        "abseil:abseil-abseil-cpp-20260107.1.tar.gz"
+      ],
+      "registry_git_tree": "8e20a1d1a1c5d5cf4c8cda806b52131a94b04831",
+      "portfile_sha256": "eaff26e978506f46faf87082698ed9db1e5612cc5ba1c7e7d3ee977048cf305c",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "behaviortree-cpp",
+      "version": "4.9.1",
+      "port_version": 0,
+      "license": null,
+      "features_available": [
+        "groot",
+        "sqlite"
+      ],
+      "recipe": ".tools/vcpkg/ports/behaviortree-cpp",
+      "patches": {
+        "fix-dependencies.patch": "7db1a95cc147d3963bbe2e580ff9a5820c8a0bcce24f8930bb098722bd4b9bd0",
+        "remove-source-charset.diff": "2b4d8ce12e4ee46b1b30e3bd298ef8bddbea4e2ec8dcf7504dab8b1faee8e591"
+      },
+      "assets": [
+        "behaviortree-cpp:BehaviorTree-BehaviorTree.CPP-4.9.1.tar.gz"
+      ],
+      "registry_git_tree": "7937cd10b44475db72ed206e2c8a09e3cf7d96d9",
+      "portfile_sha256": "5c8b93f214baa15619803ddba2eb310b70625ae1cd63d804c9e9662a7ccd3123",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "cgltf",
+      "version": "1.15",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/cgltf",
+      "patches": {},
+      "assets": [
+        "cgltf:jkuhlmann-cgltf-v1.15.tar.gz"
+      ],
+      "registry_git_tree": "ca743d6f86c5b711e9ae0440df5804ab9a2cf1b3",
+      "portfile_sha256": "abed7438d14fff55edd2aa26570ed735b65bc536fefe0080f261e45dc28f7db2",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "directxmath",
+      "version": "2026-06-12",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "dx11",
+        "dx12",
+        "xdsp"
+      ],
+      "recipe": ".tools/vcpkg/ports/directxmath",
+      "patches": {},
+      "assets": [
+        "directxmath:Microsoft-DirectXMath-jun2026.tar.gz"
+      ],
+      "registry_git_tree": "46a960c8f364162407b24f188a2aeea4608f4cf7",
+      "portfile_sha256": "10a493d3244fab0fe1f684975b65f8a5587ecb0d6d198da42a41a6c39d6e0ceb",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "directxtex",
+      "version": "2026-05-07",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "dx11",
+        "dx12",
+        "jpeg",
+        "openexr",
+        "png",
+        "spectre",
+        "tools",
+        "xbox"
+      ],
+      "recipe": ".tools/vcpkg/ports/directxtex",
+      "patches": {},
+      "assets": [
+        "directxtex:Microsoft-DirectXTex-may2026.tar.gz"
+      ],
+      "registry_git_tree": "e9f89c9f75ab81ba10bf86dca60c5f202f881690",
+      "portfile_sha256": "926bb802378cec9097b0a12984070a1d9150c94266e4ef789698d8e50f73e0fa",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "dylib",
+      "version": "3.0.1",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/dylib",
+      "patches": {},
+      "assets": [
+        "dylib:martin-olivier-dylib-v3.0.1.tar.gz"
+      ],
+      "registry_git_tree": "c3eb9f98bcb56f71389d23941acfb7f893745680",
+      "portfile_sha256": "4bdff480f68a5d606abde3f4b38b778a03853b7b0b02083a8db6bdf0c9440f5b",
+      "acquisition": "acquired",
+      "status": "build-verified",
+      "native_build": "build-verified",
+      "integration": "Amplitude private build/import dependency",
+      "active": true
+    },
+    {
+      "name": "eigen3",
+      "version": "5.0.1",
+      "port_version": 0,
+      "license": "MPL-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/eigen3",
+      "patches": {},
+      "assets": [
+        "eigen3:libeigen-eigen-5.0.1.tar.gz"
+      ],
+      "registry_git_tree": "d76be65aad61fe24ae3d70c10fca0bd2c592308e",
+      "portfile_sha256": "8920547b16a2cb89b2915118d0276b9966229efdd05caa8596d19f70abee27d2",
+      "acquisition": "acquired",
+      "status": "build-verified",
+      "native_build": "build-verified",
+      "integration": "Amplitude private build/import dependency",
+      "active": true
+    },
+    {
+      "name": "flatbuffers",
+      "version": "25.12.19",
+      "port_version": 0,
+      "license": "Apache-2.0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/flatbuffers",
+      "patches": {
+        "fix-runtime-flags-msvc.patch": "3b17721bf3a395855acf1d0055b1c5d553d89730cb349573a604a1bec9b89e5c",
+        "fix-uwp-build.patch": "f5602c3c58911f3e56295bf801a00691119a6b7ed785f80ec3dfee97c5eac71f"
+      },
+      "assets": [
+        "flatbuffers:google-flatbuffers-v25.12.19.tar.gz"
+      ],
+      "registry_git_tree": "a3bdc699c0f7c5a58787697e74e345610d454ccf",
+      "portfile_sha256": "e876f066c887850d3db219c86730779f3eac9c08e27027861050d1fa8ca31453",
+      "acquisition": "acquired",
+      "status": "build-verified",
+      "native_build": "build-verified",
+      "integration": "Amplitude private build/import dependency",
+      "active": true
+    },
+    {
+      "name": "flecs",
+      "version": "4.1.6",
+      "port_version": 0,
+      "license": null,
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/flecs",
+      "patches": {},
+      "assets": [
+        "flecs:SanderMertens-flecs-v4.1.6.tar.gz"
+      ],
+      "registry_git_tree": "6e13da0e6d446c34fef059953b4a947f04af748d",
+      "portfile_sha256": "5b7341111ed6ff897e0911ff7e22461359720c5c9b122a1969cb2fd3e4493e16",
+      "acquisition": "acquired",
+      "status": "integrated",
+      "native_build": "build-verified",
+      "integration": "M0 isolated probe",
+      "active": true
+    },
+    {
+      "name": "freetype",
+      "version": "2.14.3",
+      "port_version": 0,
+      "license": "FTL OR GPL-2.0-or-later",
+      "features_available": [
+        "brotli",
+        "bzip2",
+        "error-strings",
+        "png",
+        "subpixel-rendering",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/freetype",
+      "patches": {
+        "0003-Fix-UWP.patch": "e0e04364e1d674ce1f04a23be7d260a25a7c335c037ca0a5296bcd0a80c1054b",
+        "brotli-static.patch": "170a70c878924a780affe0b365efad68777cdef1cffbdd6954af6fbdba3e0862",
+        "bzip2.patch": "f5d451ce5819f75591d8cc4afe6f735c07bc54d90ed788219fb632915809d8a9",
+        "fix-exports.patch": "0f5db916a0b0c5607ba5e85e47bd81a8955e09fbd3e3d9ea77e283dab7e90c41",
+        "subpixel-rendering.patch": "c406a21a3e10baee68ad353b658f3abb4d70f92d0195ce579e97d9ce64a92b17"
+      },
+      "assets": [
+        "freetype:freetype-freetype-VER-2-14-3.tar.gz"
+      ],
+      "registry_git_tree": "37a2b08e48b987c9b2a45a075fed1bc382e8de03",
+      "portfile_sha256": "c139c72f8246c293ef68b4a3cc81ce2bee26afc81ab19d466f0403655c8a9918",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "gamenetworkingsockets",
+      "version": "1.6.0",
+      "port_version": 0,
+      "license": "BSD-3-Clause",
+      "features_available": [
+        "ice"
+      ],
+      "recipe": ".tools/vcpkg/ports/gamenetworkingsockets",
+      "patches": {},
+      "assets": [
+        "gamenetworkingsockets:ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz"
+      ],
+      "registry_git_tree": "191b0554b5826ec511edea3624228c9731b1c09e",
+      "portfile_sha256": "8b22470e79afa84dbbef33790927b34c98db2f4dcbea0f03b9cc69b01ec2be25",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "itlib",
+      "version": "1.12.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/itlib",
+      "patches": {},
+      "assets": [
+        "itlib:iboB-itlib-v1.12.2.tar.gz"
+      ],
+      "registry_git_tree": "8a453b8f5e7fdbda2367527993839428ec50343f",
+      "portfile_sha256": "0b1b35eef8570fc837e8f56a1f8eeb5c49072caffef661d025880fd6a0e75ed6",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "joltphysics",
+      "version": "5.6.0",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "debugrenderer",
+        "profiler",
+        "rtti"
+      ],
+      "recipe": ".tools/vcpkg/ports/joltphysics",
+      "patches": {},
+      "assets": [
+        "joltphysics:jrouwe-JoltPhysics-v5.6.0.tar.gz"
+      ],
+      "registry_git_tree": "2eab0b6e73bfbe491fa0ffb297fd3ffdb6bf4ecf",
+      "portfile_sha256": "3302e2cb1211ba060dd5eb0c579fbfebbfe8b90ff97b54995a803e8ccbf14974",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "luau",
+      "version": "0.729",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "tool"
+      ],
+      "recipe": ".tools/vcpkg/ports/luau",
+      "patches": {
+        "cmake-config-export.patch": "cd678babebf3db61215841c218bff14203ba53ba5dacce275c71833c5916e800",
+        "fix-unittest.patch": "a4951e934a1f9fc606ba3b03aa66739a88c3f99109e59c343ee73b4d8e5a463c"
+      },
+      "assets": [
+        "luau:luau-lang-luau-0.729.tar.gz"
+      ],
+      "registry_git_tree": "1d92bdc4384054e753c2f38febbe6f5c675110bb",
+      "portfile_sha256": "2231264f4e57b3eb2e2e78a1fe504a91cdc5d8a8f6bf15103dec71da09f0779a",
+      "acquisition": "acquired",
+      "status": "integrated",
+      "native_build": "build-verified",
+      "integration": "M0 isolated probe",
+      "active": true
+    },
+    {
+      "name": "lz4",
+      "version": "1.10.0",
+      "port_version": 0,
+      "license": "BSD-2-Clause",
+      "features_available": [
+        "tools"
+      ],
+      "recipe": ".tools/vcpkg/ports/lz4",
+      "patches": {
+        "target-lz4-lz4.diff": "82e8dcd050d3249f6ce0598a18136ee5939667a28e41ff5dd220d71b42a156f0"
+      },
+      "assets": [
+        "lz4:lz4-lz4-v1.10.0.tar.gz"
+      ],
+      "registry_git_tree": "4f01eec10f515a428e914107c5188366380f8dd9",
+      "portfile_sha256": "b70fd07b84540a452f252350e5877063cb6ff924de4a817bd824aab6ff2216cb",
+      "acquisition": "acquired",
+      "status": "build-verified",
+      "native_build": "build-verified",
+      "integration": "Amplitude private build/import dependency",
+      "active": true
+    },
+    {
+      "name": "meshoptimizer",
+      "version": "1.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "gltfpack"
+      ],
+      "recipe": ".tools/vcpkg/ports/meshoptimizer",
+      "patches": {
+        "dependencies.diff": "718ac494635c3fa3158ddd2ef50331a25b6f20677b7d421c739bcc6b6377b4ce"
+      },
+      "assets": [
+        "meshoptimizer:zeux-meshoptimizer-v1.2.tar.gz"
+      ],
+      "registry_git_tree": "749c4154509bde6b404ac9e5f212cc5dbb15940f",
+      "portfile_sha256": "41892065ef80db223b8a3a227eba7ba75222b78d8025e66be73e7da98b1a4475",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "miniaudio",
+      "version": "0.11.25",
+      "port_version": 0,
+      "license": "Unlicense OR MIT-0",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/miniaudio",
+      "patches": {},
+      "assets": [
+        "miniaudio:mackron-miniaudio-0.11.25.tar.gz"
+      ],
+      "registry_git_tree": "f019711e3ca3673819cc9b8436af74b095dcb580",
+      "portfile_sha256": "288f430c1c20ed463a9f62115f1abef26ad58a08a437f1f770a243b09abbaff4",
+      "acquisition": "acquired",
+      "status": "build-verified",
+      "native_build": "build-verified",
+      "integration": "Amplitude private build/import dependency",
+      "active": true
+    },
+    {
+      "name": "minitrace",
+      "version": "2023-04-23",
+      "port_version": 0,
+      "license": null,
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/minitrace",
+      "patches": {},
+      "assets": [
+        "minitrace:hrydgard-minitrace-a45ca4f58c8af2fc4d4d6042e68aa68bfea422c9.tar.gz"
+      ],
+      "registry_git_tree": "e6bb405d13f5270e92c492306f317cb01dc4ab30",
+      "portfile_sha256": "df15708163100d3be7b817cea36c625b822f6c2aeb5e472383fd16148586ccb7",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "openssl",
+      "version": "3.6.3",
+      "port_version": 0,
+      "license": "Apache-2.0",
+      "features_available": [
+        "fips",
+        "ssl3",
+        "tools",
+        "weak-ssl-ciphers"
+      ],
+      "recipe": ".tools/vcpkg/ports/openssl",
+      "patches": {
+        "cmake-config.patch": "9b4cd414b2f7ea82e9bc46507312ad6046ba62403834869b1cc7badc13597a27",
+        "command-line-length.patch": "f901c068c91456b0405c726d2808ff53fb7b60775fc8a5cb22f2bd8feecf44eb",
+        "script-prefix.patch": "caa28374650ac6510fa5190a7645a91c86a7fd3570eb357e7fa0927b97e8f13e",
+        "unix/android-cc.patch": "a3cde12ca3c7c7894e73d300e0ccf728de28b87afde13776e7d7267979c3ead2",
+        "unix/move-openssldir.patch": "9e62ad861f8421e5b732bf488b7199131ac17a57f295f50c697d2591f5845e0e",
+        "unix/no-empty-dirs.patch": "a03d46642c903c9eb09184eabc553ce1467e000c28a9e7d7e92d995970004a62",
+        "unix/no-static-libs-for-shared.patch": "dc51d597ad7477fc56c2a394c84493c87a4de2b84898497dda2754dd0fd8cb53",
+        "windows/install-layout.patch": "2e99d1714ecfe7224889c0df8c6b572d3ffca3927b640014c3f5cc4c144e72f6",
+        "windows/install-pdbs.patch": "e913fdc775b5e7be3eb71bfc223d51c3d8fd7e933410493efdbc53c5a1e1f3b7",
+        "windows/install-programs.diff": "09b91267b364fb10e101b432d86e761247bafbfd42cb7688b5d7748ea6175e2a"
+      },
+      "assets": [
+        "openssl:openssl-openssl-openssl-3.6.3.tar.gz"
+      ],
+      "registry_git_tree": "b4a2360e8425d8d5e2a24436804b592bef26980b",
+      "portfile_sha256": "7b088628f6644239d24955c51c5b85ed5285df5c701c945509eccc47bc353af6",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "protobuf",
+      "version": "6.33.4",
+      "port_version": 2,
+      "license": "BSD-3-Clause",
+      "features_available": [
+        "libprotoc",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/protobuf",
+      "patches": {
+        "fix-constinit-with-clang-cl.patch": "44d38cd5e71ac40876c4362333f3acf39c149963955fd9f27fd015b2d3297192",
+        "fix-default-proto-file-path.patch": "b3d0a1c6f0b82a864c6507dd072d4e0d8e2d8d100a09456c8716074cc00e109a",
+        "fix-install-dirs.patch": "95c5ca6b16abf70b9d01437e26e1ff7e3c35606a968a97ce42a58faddb4725a3",
+        "fix-static-build.patch": "a4a59977f9c229a13aa6a2f75005f9fc8216fa9a77d499d23e19637dba79cab5",
+        "fix-upb.patch": "06128eeba4fd6271c423cbb2167c0442c1cd46e6fbff59a9a87c325979af86d2",
+        "fix-utf8-range.patch": "28b3cd5a56819250371551c3c066f19466dd3defe045d408a0b1beb7a44b5344"
+      },
+      "assets": [
+        "protobuf:protocolbuffers-protobuf-v33.4.tar.gz"
+      ],
+      "registry_git_tree": "ed5f5c06952c67498f580082ff1209d051222947",
+      "portfile_sha256": "7282d9bd03ba2517e394e08666d03ab58477f9459c8a676d322523fa0a6c2b77",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "recastnavigation",
+      "version": "1.6.0",
+      "port_version": 1,
+      "license": "Zlib",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/recastnavigation",
+      "patches": {
+        "fix-detail-mesh-edge-detection.patch": "bf707889576f58c9da2ab119c177939f3657c6943c417e91fd16e7d009e52b86"
+      },
+      "assets": [
+        "recastnavigation:recastnavigation-recastnavigation-v1.6.0.tar.gz"
+      ],
+      "registry_git_tree": "806d9850ce88d7190649eb90863455084516d519",
+      "portfile_sha256": "1bda45bbb9654342596a52b33a0d626a8b57707cf0f1eba0d1453e0eacb50661",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "rmlui",
+      "version": "6.2",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [
+        "freetype",
+        "lottie",
+        "lua",
+        "svg"
+      ],
+      "recipe": ".tools/vcpkg/ports/rmlui",
+      "patches": {
+        "add-itlib-and-robin-hood.patch": "e6e3d4ba05e3030318402fdbea5a20c900a9ea9bb7ea095b869414ff743d99b2",
+        "skip-custom-find-modules.patch": "0e5792243b2d5aa4420b8869356847e5d59a263fe3e8ef1e917418d086daea79"
+      },
+      "assets": [
+        "rmlui:mikke89-RmlUi-6.2.tar.gz"
+      ],
+      "registry_git_tree": "29b67cb822e000a5369d477689145c7df434f842",
+      "portfile_sha256": "a7d743ace74ebacdb9bca89dcb9647dfbe8a309cdaa325a40a9ca9766529f1b0",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "robin-hood-hashing",
+      "version": "3.11.5",
+      "port_version": 2,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/robin-hood-hashing",
+      "patches": {
+        "fix-missing-stdint.patch": "9866094c3129a16b58d9ad895b157f06d81550aaed2d62c4441f1bd88cc6e4f0"
+      },
+      "assets": [
+        "robin-hood-hashing:martinus-robin-hood-hashing-3.11.5.tar.gz"
+      ],
+      "registry_git_tree": "1a989171742275cc32060ed37157eeb0efcdc739",
+      "portfile_sha256": "b7450bd3b3a56961066f9b78ec3dfa930533f36c0d39b272f3a27788004a1e65",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "sqlite3",
+      "version": "3.53.4",
+      "port_version": 0,
+      "license": "blessing",
+      "features_available": [
+        "dbpage-vtab",
+        "dbstat",
+        "fts3",
+        "fts4",
+        "fts5",
+        "geopoly",
+        "json1",
+        "limit",
+        "math",
+        "memsys3",
+        "memsys5",
+        "omit-load-extension",
+        "percentile",
+        "rtree",
+        "session",
+        "snapshot",
+        "soundex",
+        "tool",
+        "unicode",
+        "zlib"
+      ],
+      "recipe": ".tools/vcpkg/ports/sqlite3",
+      "patches": {
+        "add-config-include.patch": "282d8b4716abc154e121bf89ef2db565220e705ce68abf6f626aceb92c10040b",
+        "fix-arm-uwp.patch": "f4397f84d931cccb44a038194c895e28c749f1825ab45db4b5dccd6e3b6b5967"
+      },
+      "assets": [
+        "sqlite3:sqlite-autoconf-3530400.tar.gz"
+      ],
+      "registry_git_tree": "0cc3b4ec0f841b02a3bf3c82387b1d3c2f9adb6a",
+      "portfile_sha256": "686c1b363c358d3f16203c88201787de6021ad513da389002f8b4818bbc5573f",
+      "acquisition": "acquired",
+      "status": "integrated",
+      "native_build": "build-verified",
+      "integration": "M0 isolated probe",
+      "active": true
+    },
+    {
+      "name": "tinyxml2",
+      "version": "11.0.0",
+      "port_version": 0,
+      "license": "Zlib",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/tinyxml2",
+      "patches": {
+        "0001-fix-do-not-force-export-the-symbols-when-building-st.patch": "08c2b7d4ba4ee1dd45f26847c022a4db1496edb6a3bdabc519ac4a330573aa8e",
+        "0002-fix-check-for-TINYXML2_EXPORT-on-non-windows.patch": "aae8bfad827d265c3cfffebd583da39e299068b68b8795233bf2b5ed9d7b2273"
+      },
+      "assets": [
+        "tinyxml2:leethomason-tinyxml2-11.0.0.tar.gz"
+      ],
+      "registry_git_tree": "642c5abe1171318729a73bdf95ce6c2ca58e079c",
+      "portfile_sha256": "4dd32ecd8af2acbdb2bbcba485f1afd62e18cc6d3b2eeb0e043b58e3208bf4e5",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "utf8-range",
+      "version": "6.33.4",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/utf8-range",
+      "patches": {
+        "fix-cmake.patch": "4616671728b9bb0726da0818652339c06a271823a83a6188b5f775bb6f61ce03"
+      },
+      "assets": [
+        "protobuf:protocolbuffers-protobuf-v33.4.tar.gz"
+      ],
+      "registry_git_tree": "9f24dda3a883d4026bb1122c50077c07c9a32f47",
+      "portfile_sha256": "f15e3484a38c8c6d2cffa29dcb2f59c01837d6e293ad154f37acd6df3e87852e",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "vcpkg-cmake",
+      "version": "2024-04-23",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/vcpkg-cmake",
+      "patches": {},
+      "assets": [],
+      "registry_git_tree": "e74aa1e8f93278a8e71372f1fa08c3df420eb840",
+      "portfile_sha256": "a711531b7f13b7da16fa1f25d7c5737a423d4a126465dc9e6689a0f043fcc1aa",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "version": "2026-07-21",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/vcpkg-cmake-config",
+      "patches": {},
+      "assets": [],
+      "registry_git_tree": "51befcb03097f8d19c1c59f9ec3625e69d85322a",
+      "portfile_sha256": "832b34e63f5af41ad1b2e4aa79c5bfa507a005b120b51548e674accc706837d7",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "vcpkg-cmake-get-vars",
+      "version": "2025-05-29",
+      "port_version": 0,
+      "license": "MIT",
+      "features_available": [],
+      "recipe": ".tools/vcpkg/ports/vcpkg-cmake-get-vars",
+      "patches": {},
+      "assets": [],
+      "registry_git_tree": "d6510f888dd526c7828f6b973349e7f30be51254",
+      "portfile_sha256": "0a6c61926f6d1af5ed6e02b8df4dd8df81d3988a263c2849a38cef364e290e81",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "xsimd",
+      "version": "13.2.0",
+      "port_version": 0,
+      "license": "BSD-3-Clause",
+      "features_available": [
+        "xcomplex"
+      ],
+      "recipe": ".cache/recipes/xsimd",
+      "patches": {},
+      "assets": [
+        "xsimd:xtensor-stack-xsimd-13.2.0.tar.gz"
+      ],
+      "registry_git_tree": "4a2b1da7795e5dc452044da506646fbbb49a1b27",
+      "portfile_sha256": "c1d62b9404ff874907afcb72b558dab14cf598d3dbd84573ae8c35953299506b",
+      "acquisition": "acquired",
+      "status": "build-verified",
+      "native_build": "build-verified",
+      "integration": "Amplitude private build/import dependency",
+      "active": true
+    },
+    {
+      "name": "libflac",
+      "version": "1.5.0",
+      "port_version": 0,
+      "license": "BSD-3-Clause",
+      "active": false,
+      "assets": [
+        "libflac:xiph-flac-1.5.0.tar.gz"
+      ],
+      "patches": {
+        "android-cmake.diff": "034d2f3d69e31f3aaadf79544b9dcd32fed20a44d8916c19b5aa863da6da92fb",
+        "fix-compile-options.patch": "02e10f5f2ac9f3ed601c8ca74454b33cccabdc833e4f72ec2a73887e3d066873",
+        "fix-find-threads.patch": "326971747da526e18fa47e86cd127f2f3a80b9f85ac8f214a238c2456849be83"
+      },
+      "registry_git_tree": "1b83f01536820e062681fe33109e44bb3f597aca",
+      "portfile_sha256": "f245fa3658158140f6cb514d9f382876ee31392b2d2604be6c0c9f69730741bc",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated"
+    },
+    {
+      "name": "libogg",
+      "version": "1.3.6",
+      "port_version": 1,
+      "license": "BSD-3-Clause",
+      "active": false,
+      "assets": [
+        "libogg:xiph-ogg-v1.3.6.tar.gz"
+      ],
+      "patches": {},
+      "registry_git_tree": "0631c72b35b0e169220b9c0fa9a6af4b229268cb",
+      "portfile_sha256": "8d990e3d15a7933a4c13cb5dfd6da12d5fdb8615b0803002246585ab51674b61",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated"
+    },
+    {
+      "name": "brotli",
+      "version": "1.2.0",
+      "port_version": 0,
+      "license": "MIT",
+      "assets": [
+        "brotli:google-brotli-v1.2.0.tar.gz"
+      ],
+      "patches": {
+        "install.patch": "186701b1f2032cbd5a243eaafc51960bac057a2f561a7a9715637fd2fd38ea51",
+        "pkgconfig.patch": "ec57a7be5dffd5ec9c444a71fcbc2332cf17fa9a6a147762244001587bea4f25"
+      },
+      "registry_git_tree": "0fb79bb13588702a9e06057745b4aed95ce5c861",
+      "portfile_sha256": "142eff2e161dcbd5abe54f9acc0ad1954494f2a657780a32e83e558ee7fec4f1",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "bzip2",
+      "version": "1.0.8",
+      "port_version": 6,
+      "license": "bzip2-1.0.6",
+      "assets": [
+        "bzip2:bzip2-1.0.8.tar.gz"
+      ],
+      "patches": {
+        "fix-import-export-macros.patch": "38918c1257c884cc5cde39d9f4235d0e71574f20c7e5ec686a506612f647495e"
+      },
+      "registry_git_tree": "2d029da682847c5ebdc54e4dbea001331a02207e",
+      "portfile_sha256": "f9214fef97e792ca76f2cf97343edb1b83d6457e7320ae36b06306d0f038b439",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "libpng",
+      "version": "1.6.58",
+      "port_version": 0,
+      "license": "libpng-2.0",
+      "assets": [
+        "libpng:pnggroup-libpng-v1.6.58.tar.gz"
+      ],
+      "patches": {
+        "cmake.patch": "e1c91b1739580791b8bfe770981cdb07bf65261caf6b2a99da988a8bb21d4094"
+      },
+      "registry_git_tree": "909d98e06046a0901fd11300b3d725d6a80d27bf",
+      "portfile_sha256": "5677ed31f47aa657854332f181f5497f22a7ce431c48e9036e0ce04639953af4",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    },
+    {
+      "name": "zlib",
+      "version": "1.3.2",
+      "port_version": 1,
+      "license": "Zlib",
+      "assets": [
+        "zlib:madler-zlib-v1.3.2.tar.gz"
+      ],
+      "patches": {
+        "0001-no-version-script-on-ohos.patch": "f8c54d2dfd0a37d2f6e7473b1dba86b9e5ac423f522de9021b62c6c8c226ff76"
+      },
+      "registry_git_tree": "f49b05c666425471a7f6dc8b6156e9b3675a3c90",
+      "portfile_sha256": "ea47bb5089d792f31127ad26e780e78bb940ad4372aa2d66649a4f446a1a2b72",
+      "acquisition": "acquired",
+      "status": "acquired",
+      "native_build": "not built for later integration",
+      "integration": "not integrated",
+      "active": true
+    }
+  ],
+  "source_exceptions": [
+    {
+      "name": "diligent-core",
+      "url": "https://github.com/DiligentGraphics/DiligentCore.git",
+      "commit": "074060cfd1db73064d7a18cf40df86af6531520c",
+      "destination": "third_party/diligent-core",
+      "active": true,
+      "submodule_pins": {
+        "ThirdParty/SPIRV-Cross": "f11ba9f0b21ba8fc15153d50a2a1ae31ab1cf8f7",
+        "ThirdParty/SPIRV-Headers": "496543121ce6419f23d6fa5d7194ba66c36212d2",
+        "ThirdParty/SPIRV-Tools": "ef96ed763b43b59b33b31b362f09a02b729fa1c9",
+        "ThirdParty/Vulkan-Headers": "6802bb4733b63ed5efd3adb308a6c885ef180ea1",
+        "ThirdParty/glslang": "e1b562a8bed273a02f30b59b66a5d499793cede5",
+        "ThirdParty/googletest": "988ea2c1798de7779f656df2281dd36d6039a17a",
+        "ThirdParty/volk": "54fc0d7a72887cbfc5b030d26897b2b40ac53fb8",
+        "ThirdParty/xxHash": "680bf463fa1ca0461b9a7c2dab7556e1f54cf4cf"
+      },
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "later subsystem integration"
+    },
+    {
+      "name": "diligent-tools",
+      "url": "https://github.com/DiligentGraphics/DiligentTools.git",
+      "commit": "4508c9ea7457209e204dc84b18ef67272fb415d0",
+      "destination": "third_party/diligent-tools",
+      "active": true,
+      "submodule_pins": {
+        "ThirdParty/args": "6c223d46dbb1db72320a93404552117b12d0e7ab",
+        "ThirdParty/imgui": "2744a710ba671a91b0d80a0e075cd9fcb8b1322d",
+        "ThirdParty/json": "55f93686c01528224f448c19128836e7df245f72",
+        "ThirdParty/libpng": "65bc84e803c0ccbf7aa1023e91b5808586ea1b66",
+        "ThirdParty/stb": "46fcb30365c5f35425751d275eecd8e5f8efc786",
+        "ThirdParty/zlib": "0d8cda5065ba1bcea871f0b5ac1410186ea9405e"
+      },
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "later subsystem integration"
+    },
+    {
+      "name": "amplitude",
+      "url": "https://github.com/AmplitudeAudio/sdk.git",
+      "commit": "ff5f2f8be59e0b74445c10f73eb11a7134eb6fd5",
+      "destination": "third_party/amplitude",
+      "active": true,
+      "submodule_pins": {},
+      "status": "build-verified",
+      "acquisition": "acquired",
+      "native_build": "static Release /MD build/install and imported-target link/run passed",
+      "integration": "no device/service acceptance",
+      "acceptance_gate": "later subsystem integration"
+    },
+    {
+      "name": "ozz",
+      "url": "https://github.com/guillaumeblanc/ozz-animation.git",
+      "commit": "744eb9d99f606eda849acb0b1204f7a3dc20bca1",
+      "destination": "third_party/ozz",
+      "active": true,
+      "submodule_pins": {},
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "later subsystem integration"
+    },
+    {
+      "name": "imguizmo",
+      "url": "https://github.com/CedricGuillemet/ImGuizmo.git",
+      "commit": "b796ac3b861afc6e91ca74e4611effd9c9527367",
+      "destination": "third_party/imguizmo",
+      "active": true,
+      "submodule_pins": {},
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "later subsystem integration"
+    },
+    {
+      "name": "manifold",
+      "url": "https://github.com/elalish/manifold.git",
+      "commit": "b92f06be117765cc16b47451fcfa3e8145cea984",
+      "destination": "third_party/manifold",
+      "active": false,
+      "submodule_pins": {},
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "pending architecture gate"
+    },
+    {
+      "name": "effekseer-ai",
+      "url": "https://github.com/laodeng000/effekseer-ai.git",
+      "commit": "208922ef192220322c2a79e1243ed51ff7d2b7af",
+      "destination": "third_party/effekseer-ai",
+      "active": false,
+      "submodule_pins": {},
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "pending architecture gate"
+    },
+    {
+      "name": "amplitude-flac",
+      "url": "https://github.com/AmplitudeAudio/plugin-flac.git",
+      "commit": "7bf4533dc077dc35b8285e187cd05ed372d700b0",
+      "destination": "third_party/amplitude-flac",
+      "active": false,
+      "submodule_pins": {},
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "pending architecture gate"
+    },
+    {
+      "name": "imgui-docking",
+      "url": "https://github.com/ocornut/imgui.git",
+      "commit": "44aa9a4b3a6f27d09a4eb5770d095cbd376dfc4b",
+      "destination": "third_party/imgui-docking",
+      "active": true,
+      "submodule_pins": {},
+      "status": "acquired",
+      "acquisition": "acquired",
+      "native_build": "not built",
+      "integration": "not integrated",
+      "acceptance_gate": "later subsystem integration"
+    }
+  ],
+  "effekseer": {
+    "version": "1.80.7",
+    "status": "acquired",
+    "runtime": "official EffekseerForCpp1.80.7.zip",
+    "authoring": "official Effekseer1.80.7Win.zip",
+    "integration": "not built/validated as a renderer adapter"
+  },
+  "eos": {
+    "version": "1.19.2.1",
+    "status": "acquired",
+    "origin": "authorized user download",
+    "integration": "not build-tested/online-tested"
+  },
+  "npm": {
+    "mcp": "1.32.1",
+    "gltf_validator": "2.0.0-dev.3.10",
+    "status": "acquired",
+    "verification": "exact npm ci lockfiles plus imports/validator fixture; no bridge endpoint"
+  },
+  "inactive_python_wheels": {
+    "schema": 1,
+    "scope": "Inactive effekseer-ai evaluation only; isolated wheels, never another active engine MCP provider",
+    "python": "3.13.5",
+    "archives": [
+      {
+        "name": "mcp",
+        "version": "2.3.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/20/d7/4a2878f128df729db3ca04e71bfce26405cc2e0c9ebe19c592feeb4c61b9/mcp-2.3.0-py3-none-any.whl",
+        "archive": "mcp-2.3.0-py3-none-any.whl",
+        "sha256": "dd0c44c089d16453e8ae31a3877a0054d7a2314caaa81f5e0541b9b1734b2377",
+        "active": false
+      },
+      {
+        "name": "mcp-types",
+        "version": "2.3.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/ce/48/32583066b155bb5d4507e7887dc88ee23118cc4de8e2a12870c49719e2a8/mcp_types-2.3.0-py3-none-any.whl",
+        "archive": "mcp_types-2.3.0-py3-none-any.whl",
+        "sha256": "968efdbdaedfab06adae40d378a34395f1090c5921d4be3c9cde283aaf76d91d",
+        "active": false
+      },
+      {
+        "name": "pythonnet",
+        "version": "3.2.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/e3/42/75f9429ae418f92e0366a334fd07d8313a13c8e8c0ce6ba650f6ebfb0cf6/pythonnet-3.2.0-cp311.cp312.cp313.cp314.cp315-none-any.whl",
+        "archive": "pythonnet-3.2.0-cp311.cp312.cp313.cp314.cp315-none-any.whl",
+        "sha256": "c8c7946d291156ffc1d5f22c001a63c6776947ce3c64da800ccea8181ddb1abe",
+        "active": false
+      },
+      {
+        "name": "clr_loader",
+        "version": "0.3.1",
+        "license": "unreported",
+        "url": "https://files.pythonhosted.org/packages/5e/da/ec1a6e36624000b6df0dd61183c42342ee5814c073315e802cadaad04d2f/clr_loader-0.3.1-py3-none-any.whl",
+        "archive": "clr_loader-0.3.1-py3-none-any.whl",
+        "sha256": "cbad189de20d202a7d621956b0fc38049e13c9bf7ca2923441eff725cd121aa1",
+        "active": false
+      },
+      {
+        "name": "setuptools",
+        "version": "84.0.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl",
+        "archive": "setuptools-84.0.0-py3-none-any.whl",
+        "sha256": "51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670",
+        "active": false
+      },
+      {
+        "name": "anyio",
+        "version": "4.15.1",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/12/b8/4bd346e22b28902df4d651910f5242c28d84e4a5c2435ca5c3f797ed7e2e/anyio-4.15.1-py3-none-any.whl",
+        "archive": "anyio-4.15.1-py3-none-any.whl",
+        "sha256": "6152fdbbf9a77fdec97731721bebf7c4c44f7c29b424b0065826173efc7ed101",
+        "active": false
+      },
+      {
+        "name": "cffi",
+        "version": "2.1.1",
+        "license": "MIT-0",
+        "url": "https://files.pythonhosted.org/packages/60/a6/8b149b2c3f2e11aaa1618ef64500b45f50f22c57a977a4dff1aff1f91042/cffi-2.1.1-cp313-cp313-win_amd64.whl",
+        "archive": "cffi-2.1.1-cp313-cp313-win_amd64.whl",
+        "sha256": "1aa5645c30469b09530c4ebca77ebf8f17618293c58f8549cb1a543a50236e7d",
+        "active": false
+      },
+      {
+        "name": "httpx2",
+        "version": "2.13.1",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/d8/9c/6fe8931fd9f381042a9e4c7d5a7b4cbf7016b252bec0c99a49fce42c3326/httpx2-2.13.1-py3-none-any.whl",
+        "archive": "httpx2-2.13.1-py3-none-any.whl",
+        "sha256": "6dff50fabc270ee5fd25d845d0b078ed20564579744d6d962850975996d2f9a4",
+        "active": false
+      },
+      {
+        "name": "httpcore2",
+        "version": "2.13.1",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/09/ba/a4568248771ce81957bfb7cc600264a40fbcda092391ee1c415c50be4bea/httpcore2-2.13.1-py3-none-any.whl",
+        "archive": "httpcore2-2.13.1-py3-none-any.whl",
+        "sha256": "e1e05d4f25f7d7d496bfb96748f6f4b67657b03da069b3a68c36069f3db73d0a",
+        "active": false
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl",
+        "archive": "h11-0.16.0-py3-none-any.whl",
+        "sha256": "63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86",
+        "active": false
+      },
+      {
+        "name": "idna",
+        "version": "3.20",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+        "archive": "idna-3.20-py3-none-any.whl",
+        "sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c",
+        "active": false
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.26.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/69/90/f63fb5873511e014207a475e2bb4e8b2e570d655b00ac19a9a0ca0a385ee/jsonschema-4.26.0-py3-none-any.whl",
+        "archive": "jsonschema-4.26.0-py3-none-any.whl",
+        "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce",
+        "active": false
+      },
+      {
+        "name": "attrs",
+        "version": "26.1.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/64/b4/17d4b0b2a2dc85a6df63d1157e028ed19f90d4cd97c36717afef2bc2f395/attrs-26.1.0-py3-none-any.whl",
+        "archive": "attrs-26.1.0-py3-none-any.whl",
+        "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+        "active": false
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/41/45/1a4ed80516f02155c51f51e8cedb3c1902296743db0bbc66608a0db2814f/jsonschema_specifications-2025.9.1-py3-none-any.whl",
+        "archive": "jsonschema_specifications-2025.9.1-py3-none-any.whl",
+        "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+        "active": false
+      },
+      {
+        "name": "opentelemetry-api",
+        "version": "1.45.1",
+        "license": "Apache-2.0",
+        "url": "https://files.pythonhosted.org/packages/1e/41/f7dcf80b81ee8e71c1a2b59f14208bc723edbd89ed027a73b175abf6348e/opentelemetry_api-1.45.1-py3-none-any.whl",
+        "archive": "opentelemetry_api-1.45.1-py3-none-any.whl",
+        "sha256": "b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb",
+        "active": false
+      },
+      {
+        "name": "pydantic",
+        "version": "2.13.5",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/eb/47/c95ffc2009878c7aac0c5e08528022dcb885933252a88b5f170058014464/pydantic-2.13.5-py3-none-any.whl",
+        "archive": "pydantic-2.13.5-py3-none-any.whl",
+        "sha256": "346a034f080da3755d8e9cb5e00e8b07de1d39e4f6e2c87d8ab7cafa0b269a73",
+        "active": false
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.46.5",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/2c/1e/1d5371213f4cc9a7ed70c0bfcc7911de22311ee99a662a56077d7292d2ac/pydantic_core-2.46.5-cp313-cp313-win_amd64.whl",
+        "archive": "pydantic_core-2.46.5-cp313-cp313-win_amd64.whl",
+        "sha256": "15f4a94963c95accac15b7b657bb177d3ad82bb90b0d0526d9a9b85079925db5",
+        "active": false
+      },
+      {
+        "name": "annotated-types",
+        "version": "0.8.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/99/91/8acff4f5e50511b911bbccb72b8628a49c68ce14148cd9f6431094859a90/annotated_types-0.8.0-py3-none-any.whl",
+        "archive": "annotated_types-0.8.0-py3-none-any.whl",
+        "sha256": "f072f4d804ea359e4eaf198b1af7a8b0943881a87f31bb764f8bf219bb9419e0",
+        "active": false
+      },
+      {
+        "name": "PyJWT",
+        "version": "2.15.1",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/50/ca/44de4e75f8aadc457f0634be3b542815078ded46dca30efb960edeecad6e/pyjwt-2.15.1-py3-none-any.whl",
+        "archive": "pyjwt-2.15.1-py3-none-any.whl",
+        "sha256": "42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193",
+        "active": false
+      },
+      {
+        "name": "cryptography",
+        "version": "50.0.2",
+        "license": "Apache-2.0 OR BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/9a/4f/adfc442765721292fff86d314ce385d3249d22db42295c0dd057727b60f3/cryptography-50.0.2-cp311-abi3-win_amd64.whl",
+        "archive": "cryptography-50.0.2-cp311-abi3-win_amd64.whl",
+        "sha256": "7afa5a6602a9f29af1f3a2965f831bae7c9d5d597b7cbb716d41ab3b7d89879c",
+        "active": false
+      },
+      {
+        "name": "python-multipart",
+        "version": "0.0.32",
+        "license": "Apache-2.0",
+        "url": "https://files.pythonhosted.org/packages/e1/04/e8135ebd1ad02c56ec633277529b2602ff99ff634be76cdba5744cf554fd/python_multipart-0.0.32-py3-none-any.whl",
+        "archive": "python_multipart-0.0.32-py3-none-any.whl",
+        "sha256": "ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23",
+        "active": false
+      },
+      {
+        "name": "pywin32",
+        "version": "312",
+        "license": "PSF",
+        "url": "https://files.pythonhosted.org/packages/ba/db/36a78e3403099d31d9746d13fdcde5accc43c1155f375a34d15983a479a7/pywin32-312-cp313-cp313-win_amd64.whl",
+        "archive": "pywin32-312-cp313-cp313-win_amd64.whl",
+        "sha256": "c53e878d15a1c44788082bfe712a905433473aa38f86375b7cf8b45e3acbaaf9",
+        "active": false
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/2c/58/ca301544e1fa93ed4f80d724bf5b194f6e4b945841c5bfd555878eea9fcb/referencing-0.37.0-py3-none-any.whl",
+        "archive": "referencing-0.37.0-py3-none-any.whl",
+        "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+        "active": false
+      },
+      {
+        "name": "rpds-py",
+        "version": "2026.9.1",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/31/9c/ba5a9569d719bfdd6ce863df4133ac6a1658cf1b07cc3534c31db729fbbc/rpds_py-2026.9.1-cp313-cp313-win_amd64.whl",
+        "archive": "rpds_py-2026.9.1-cp313-cp313-win_amd64.whl",
+        "sha256": "3e93b2cd69a9830be33e03945cd7cda940a0a8bfcfbff41d6144f0cb0d3d8bd9",
+        "active": false
+      },
+      {
+        "name": "sse-starlette",
+        "version": "3.5.0",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/be/e4/cdda14023c316d71493bc54fdffc3dd006631b88866145c9d3cc33e0f1df/sse_starlette-3.5.0-py3-none-any.whl",
+        "archive": "sse_starlette-3.5.0-py3-none-any.whl",
+        "sha256": "3e6e1070df3f0f5d9cea81496de92dbb72f6721871d99748ece67441dd8b7997",
+        "active": false
+      },
+      {
+        "name": "starlette",
+        "version": "1.7.0",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/4e/d6/1ec1b290f9e0fb067899b61e1d37a30c923068bad260b216dbe37a7d2967/starlette-1.7.0-py3-none-any.whl",
+        "archive": "starlette-1.7.0-py3-none-any.whl",
+        "sha256": "67f8e99895493dd2911a03f11314af6ceebeae4e704bb9f43dfc6a9db151c93e",
+        "active": false
+      },
+      {
+        "name": "truststore",
+        "version": "0.10.4",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/19/97/56608b2249fe206a67cd573bc93cd9896e1efb9e98bce9c163bcdc704b88/truststore-0.10.4-py3-none-any.whl",
+        "archive": "truststore-0.10.4-py3-none-any.whl",
+        "sha256": "adaeaecf1cbb5f4de3b1959b42d41f6fab57b2b1666adb59e89cb0b53361d981",
+        "active": false
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0",
+        "license": "PSF-2.0",
+        "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+        "archive": "typing_extensions-4.16.0-py3-none-any.whl",
+        "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+        "active": false
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.4",
+        "license": "MIT",
+        "url": "https://files.pythonhosted.org/packages/67/81/4add07e5172b7ac40d8ed5ff580409a7801a4fe26d529bdd915401dabfbe/typing_inspection-0.4.4-py3-none-any.whl",
+        "archive": "typing_inspection-0.4.4-py3-none-any.whl",
+        "sha256": "65b8397ba37ccbce054456aaccddfc91e6e3083c92824df348d96ca832f3f147",
+        "active": false
+      },
+      {
+        "name": "uvicorn",
+        "version": "0.54.0",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/38/0c/b54a4fdd7f90a3af8b02ebc9ce6712c2c208b7926a2f7bad95c33ebbe943/uvicorn-0.54.0-py3-none-any.whl",
+        "archive": "uvicorn-0.54.0-py3-none-any.whl",
+        "sha256": "505bdb0f318731d45f1f712071fc781a8981f6847a31c902c9f5e652d4f67faf",
+        "active": false
+      },
+      {
+        "name": "click",
+        "version": "8.5.0",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
+        "archive": "click-8.5.0-py3-none-any.whl",
+        "sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360",
+        "active": false
+      },
+      {
+        "name": "pycparser",
+        "version": "3.0",
+        "license": "BSD-3-Clause",
+        "url": "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl",
+        "archive": "pycparser-3.0-py3-none-any.whl",
+        "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992",
+        "active": false
+      }
+    ]
+  }
+}

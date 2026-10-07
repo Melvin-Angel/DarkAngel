@@ -18,7 +18,7 @@ def main():
         if p.returncode:raise RuntimeError('Amplitude '+name+' failed; evidence preserved')
     if not args.import_only:
         # Install only the exact SDK dependencies, not the whole later graph.
-        step('dependencies',[str(ROOT/'.tools/vcpkg/vcpkg.exe'),'install','--triplet','x64-windows-darkangel','--host-triplet','x64-windows-darkangel','--x-no-default-features','--x-feature=amplitude-deps'])
+        step('dependencies',[str(ROOT/'.tools/vcpkg/vcpkg.exe'),'install','--x-wait-for-lock','--triplet','x64-windows-darkangel','--host-triplet','x64-windows-darkangel','--x-no-default-features','--x-feature=amplitude-deps'])
         prepare();source=ROOT/json.loads((ROOT/'.cache/amplitude-recipe-location.json').read_text())['source_directory']
         xmake=str(ROOT/'.tools/xmake/xmake/xmake.exe')
         step('configure',[xmake,'f','-p','windows','-a','x64','-m','release','-k','static','--as_package=n','--build_samples=n','--build_tools=n','--unit_tests=n','--build_assets=n','-y'],source)

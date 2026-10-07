@@ -1,0 +1,1010 @@
+{
+  "schema": 1,
+  "source_revision_verified_clean": "768806bd57f59522e054215100660b1451756258",
+  "environment": "Windows-11-10.0.26300-SP0",
+  "native": {
+    "m0-debug": [
+      {
+        "gate": "compiler-version",
+        "command": [
+          "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "/nologo",
+          "/Bv",
+          "/MD",
+          "/c",
+          "${PROJECT_ROOT}\\.cache\\compiler-identity.c",
+          "/Fo${PROJECT_ROOT}\\.cache\\compiler-identity.obj"
+        ],
+        "exit_code": 0,
+        "seconds": 0.066,
+        "log": ".cache/evidence/m0-debug-compiler-version.log",
+        "status": "passed"
+      },
+      {
+        "gate": "configure",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--preset",
+          "m0-debug"
+        ],
+        "exit_code": 0,
+        "seconds": 16.905,
+        "log": ".cache/evidence/m0-debug-configure.log",
+        "status": "passed"
+      },
+      {
+        "gate": "build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-debug",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 11.723,
+        "log": ".cache/evidence/m0-debug-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "ctest",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+          "--preset",
+          "m0-debug"
+        ],
+        "exit_code": 0,
+        "seconds": 0.833,
+        "log": ".cache/evidence/m0-debug-ctest.log",
+        "status": "passed"
+      },
+      {
+        "gate": "no-change-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-debug",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 0.098,
+        "log": ".cache/evidence/m0-debug-no-change-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "incremental-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-debug",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.818,
+        "log": ".cache/evidence/m0-debug-incremental-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "restored-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-debug",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.673,
+        "log": ".cache/evidence/m0-debug-restored-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "package",
+        "status": "excluded",
+        "reason": "Debug CRT is not distributable"
+      }
+    ],
+    "m0-relwithdebinfo": [
+      {
+        "gate": "compiler-version",
+        "command": [
+          "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "/nologo",
+          "/Bv",
+          "/MD",
+          "/c",
+          "${PROJECT_ROOT}\\.cache\\compiler-identity.c",
+          "/Fo${PROJECT_ROOT}\\.cache\\compiler-identity.obj"
+        ],
+        "exit_code": 0,
+        "seconds": 0.057,
+        "log": ".cache/evidence/m0-relwithdebinfo-compiler-version.log",
+        "status": "passed"
+      },
+      {
+        "gate": "configure",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--fresh",
+          "--preset",
+          "m0-relwithdebinfo"
+        ],
+        "exit_code": 0,
+        "seconds": 5.854,
+        "log": ".cache/evidence/m0-relwithdebinfo-configure.log",
+        "status": "passed"
+      },
+      {
+        "gate": "build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-relwithdebinfo",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 6.931,
+        "log": ".cache/evidence/m0-relwithdebinfo-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "ctest",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+          "--preset",
+          "m0-relwithdebinfo"
+        ],
+        "exit_code": 0,
+        "seconds": 0.622,
+        "log": ".cache/evidence/m0-relwithdebinfo-ctest.log",
+        "status": "passed"
+      },
+      {
+        "gate": "no-change-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-relwithdebinfo",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 0.069,
+        "log": ".cache/evidence/m0-relwithdebinfo-no-change-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "incremental-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-relwithdebinfo",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.244,
+        "log": ".cache/evidence/m0-relwithdebinfo-incremental-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "restored-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-relwithdebinfo",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.219,
+        "log": ".cache/evidence/m0-relwithdebinfo-restored-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "stage",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--install",
+          "${PROJECT_ROOT}\\build\\m0-relwithdebinfo",
+          "--component",
+          "HeadlessShell"
+        ],
+        "exit_code": 0,
+        "seconds": 0.081,
+        "log": ".cache/evidence/m0-relwithdebinfo-stage.log",
+        "status": "passed"
+      },
+      {
+        "gate": "package",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cpack.exe",
+          "--preset",
+          "m0-relwithdebinfo"
+        ],
+        "exit_code": 0,
+        "seconds": 0.077,
+        "log": ".cache/evidence/m0-relwithdebinfo-package.log",
+        "status": "passed"
+      },
+      {
+        "gate": "relocated-launch",
+        "command": [
+          "${PROJECT_ROOT}\\stage\\relocation-m0-relwithdebinfo-1791402572857590100\\bin\\DarkAngelHeadless.exe"
+        ],
+        "exit_code": 0,
+        "seconds": 0.033,
+        "log": ".cache/evidence/m0-relwithdebinfo-relocated-launch.log",
+        "status": "passed"
+      }
+    ],
+    "m0-release": [
+      {
+        "gate": "compiler-version",
+        "command": [
+          "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "/nologo",
+          "/Bv",
+          "/MD",
+          "/c",
+          "${PROJECT_ROOT}\\.cache\\compiler-identity.c",
+          "/Fo${PROJECT_ROOT}\\.cache\\compiler-identity.obj"
+        ],
+        "exit_code": 0,
+        "seconds": 0.071,
+        "log": ".cache/evidence/m0-release-compiler-version.log",
+        "status": "passed"
+      },
+      {
+        "gate": "configure",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--preset",
+          "m0-release"
+        ],
+        "exit_code": 0,
+        "seconds": 12.314,
+        "log": ".cache/evidence/m0-release-configure.log",
+        "status": "passed"
+      },
+      {
+        "gate": "build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 7.485,
+        "log": ".cache/evidence/m0-release-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "ctest",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+          "--preset",
+          "m0-release"
+        ],
+        "exit_code": 0,
+        "seconds": 0.941,
+        "log": ".cache/evidence/m0-release-ctest.log",
+        "status": "passed"
+      },
+      {
+        "gate": "no-change-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 0.065,
+        "log": ".cache/evidence/m0-release-no-change-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "incremental-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.239,
+        "log": ".cache/evidence/m0-release-incremental-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "restored-build",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.226,
+        "log": ".cache/evidence/m0-release-restored-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "stage",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--install",
+          "${PROJECT_ROOT}\\build\\m0-release",
+          "--component",
+          "HeadlessShell"
+        ],
+        "exit_code": 0,
+        "seconds": 0.051,
+        "log": ".cache/evidence/m0-release-stage.log",
+        "status": "passed"
+      },
+      {
+        "gate": "package",
+        "command": [
+          "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cpack.exe",
+          "--preset",
+          "m0-release"
+        ],
+        "exit_code": 0,
+        "seconds": 0.088,
+        "log": ".cache/evidence/m0-release-package.log",
+        "status": "passed"
+      },
+      {
+        "gate": "relocated-launch",
+        "command": [
+          "${PROJECT_ROOT}\\stage\\relocation-m0-release-1791402635145848800\\bin\\DarkAngelHeadless.exe"
+        ],
+        "exit_code": 0,
+        "seconds": 0.036,
+        "log": ".cache/evidence/m0-release-relocated-launch.log",
+        "status": "passed"
+      }
+    ],
+    "clean-release": [
+      {
+        "gate": "compiler-version",
+        "command": [
+          "C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\bin\\Hostx64\\x64\\cl.exe",
+          "/nologo",
+          "/Bv",
+          "/MD",
+          "/c",
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.cache\\compiler-identity.c",
+          "/Fo${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.cache\\compiler-identity.obj"
+        ],
+        "exit_code": 0,
+        "seconds": 0.076,
+        "log": ".cache/evidence/m0-release-compiler-version.log",
+        "status": "passed"
+      },
+      {
+        "gate": "configure",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--preset",
+          "m0-release"
+        ],
+        "exit_code": 0,
+        "seconds": 366.829,
+        "log": ".cache/evidence/m0-release-configure.log",
+        "status": "passed"
+      },
+      {
+        "gate": "build",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 6.288,
+        "log": ".cache/evidence/m0-release-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "ctest",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+          "--preset",
+          "m0-release"
+        ],
+        "exit_code": 0,
+        "seconds": 0.712,
+        "log": ".cache/evidence/m0-release-ctest.log",
+        "status": "passed"
+      },
+      {
+        "gate": "no-change-build",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 0.081,
+        "log": ".cache/evidence/m0-release-no-change-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "incremental-build",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.238,
+        "log": ".cache/evidence/m0-release-incremental-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "restored-build",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--build",
+          "--preset",
+          "m0-release",
+          "--verbose"
+        ],
+        "exit_code": 0,
+        "seconds": 1.216,
+        "log": ".cache/evidence/m0-release-restored-build.log",
+        "status": "passed"
+      },
+      {
+        "gate": "stage",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+          "--install",
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\build\\m0-release",
+          "--component",
+          "HeadlessShell"
+        ],
+        "exit_code": 0,
+        "seconds": 0.086,
+        "log": ".cache/evidence/m0-release-stage.log",
+        "status": "passed"
+      },
+      {
+        "gate": "package",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cpack.exe",
+          "--preset",
+          "m0-release"
+        ],
+        "exit_code": 0,
+        "seconds": 0.101,
+        "log": ".cache/evidence/m0-release-package.log",
+        "status": "passed"
+      },
+      {
+        "gate": "relocated-launch",
+        "command": [
+          "${PROJECT_ROOT}\\.cache\\clean-checkout-768806bd57f5\\stage\\relocation-m0-release-1791404889447107200\\bin\\DarkAngelHeadless.exe"
+        ],
+        "exit_code": 0,
+        "seconds": 0.035,
+        "log": ".cache/evidence/m0-release-relocated-launch.log",
+        "status": "passed"
+      }
+    ]
+  },
+  "bootstrap_first": [
+    {
+      "step": "tools",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "tools"
+      ],
+      "exit_code": 0,
+      "seconds": 19.9919158,
+      "log": ".cache/evidence/tools.log"
+    },
+    {
+      "step": "vcpkg-checkout",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "vcpkg"
+      ],
+      "exit_code": 0,
+      "seconds": 1.7512734,
+      "log": ".cache/evidence/vcpkg-checkout.log"
+    },
+    {
+      "step": "vcpkg-tool-pin",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/check_vcpkg.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1505094,
+      "log": ".cache/evidence/vcpkg-tool-pin.log"
+    },
+    {
+      "step": "sources",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "sources"
+      ],
+      "exit_code": 0,
+      "seconds": 4.7873961,
+      "log": ".cache/evidence/sources.log"
+    },
+    {
+      "step": "port-assets",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "port-assets"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7032807,
+      "log": ".cache/evidence/port-assets.log"
+    },
+    {
+      "step": "agent-bridge-npm-ci",
+      "command": [
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node.exe",
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node_modules/npm/bin/npm-cli.js",
+        "ci",
+        "--prefix",
+        "tools/agent-bridge",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "seconds": 4.082436,
+      "log": ".cache/evidence/agent-bridge-npm-ci.log"
+    },
+    {
+      "step": "asset-validation-npm-ci",
+      "command": [
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node.exe",
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node_modules/npm/bin/npm-cli.js",
+        "ci",
+        "--prefix",
+        "tools/asset-validation",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0471741,
+      "log": ".cache/evidence/asset-validation-npm-ci.log"
+    },
+    {
+      "step": "candidate-python-wheels",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire_candidate_wheels.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2346688,
+      "log": ".cache/evidence/candidate-python-wheels.log"
+    },
+    {
+      "step": "full-vcpkg-prefetch",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/prefetch.py"
+      ],
+      "exit_code": 0,
+      "seconds": 47.8666162,
+      "log": ".cache/evidence/full-vcpkg-prefetch.log"
+    },
+    {
+      "step": "detection",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/detect.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.869594,
+      "log": ".cache/evidence/detection.log"
+    }
+  ],
+  "bootstrap_second": [
+    {
+      "step": "tools",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "tools"
+      ],
+      "exit_code": 0,
+      "seconds": 23.8929684,
+      "log": ".cache/evidence/tools.log"
+    },
+    {
+      "step": "vcpkg-checkout",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "vcpkg"
+      ],
+      "exit_code": 0,
+      "seconds": 2.6307191,
+      "log": ".cache/evidence/vcpkg-checkout.log"
+    },
+    {
+      "step": "vcpkg-tool-pin",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/check_vcpkg.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1948062,
+      "log": ".cache/evidence/vcpkg-tool-pin.log"
+    },
+    {
+      "step": "sources",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "sources"
+      ],
+      "exit_code": 0,
+      "seconds": 15.3510943,
+      "log": ".cache/evidence/sources.log"
+    },
+    {
+      "step": "port-assets",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire.py",
+        "port-assets"
+      ],
+      "exit_code": 0,
+      "seconds": 4.4671596,
+      "log": ".cache/evidence/port-assets.log"
+    },
+    {
+      "step": "agent-bridge-npm-ci",
+      "command": [
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node.exe",
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node_modules/npm/bin/npm-cli.js",
+        "ci",
+        "--prefix",
+        "tools/agent-bridge",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "seconds": 37.9750128,
+      "log": ".cache/evidence/agent-bridge-npm-ci.log"
+    },
+    {
+      "step": "asset-validation-npm-ci",
+      "command": [
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node.exe",
+        "${PROJECT_ROOT}/.tools/node/node-v24.21.0-win-x64/node_modules/npm/bin/npm-cli.js",
+        "ci",
+        "--prefix",
+        "tools/asset-validation",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "seconds": 0.595859,
+      "log": ".cache/evidence/asset-validation-npm-ci.log"
+    },
+    {
+      "step": "candidate-python-wheels",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/acquire_candidate_wheels.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2090178,
+      "log": ".cache/evidence/candidate-python-wheels.log"
+    },
+    {
+      "step": "full-vcpkg-prefetch",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/prefetch.py"
+      ],
+      "exit_code": 0,
+      "seconds": 52.7465288,
+      "log": ".cache/evidence/full-vcpkg-prefetch.log"
+    },
+    {
+      "step": "detection",
+      "command": [
+        "${USERPROFILE}\\miniconda3\\python.exe",
+        "scripts/detect.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.9347368,
+      "log": ".cache/evidence/detection.log"
+    }
+  ],
+  "prefetch": [
+    {
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 47.705,
+      "command": [
+        "${PROJECT_ROOT}\\.tools\\vcpkg\\vcpkg.exe",
+        "install",
+        "--x-wait-for-lock",
+        "--triplet",
+        "x64-windows-darkangel",
+        "--host-triplet",
+        "x64-windows-darkangel",
+        "--x-feature=m0",
+        "--x-feature=m1-tools",
+        "--x-feature=later",
+        "--x-feature=amplitude-deps",
+        "--x-feature=evaluation-flac",
+        "--only-downloads"
+      ],
+      "downloaded_recipes": [
+        "libogg:x64-windows-darkangel@1.3.6#1",
+        "libflac:x64-windows-darkangel@1.5.0",
+        "tinyxml2:x64-windows-darkangel@11.0.0",
+        "minitrace:x64-windows-darkangel@2023-04-23",
+        "behaviortree-cpp:x64-windows-darkangel@4.9.1",
+        "directxmath:x64-windows-darkangel@2026-06-12",
+        "directxtex[core,tools]:x64-windows-darkangel@2026-05-07",
+        "abseil:x64-windows-darkangel@20260107.1#3",
+        "utf8-range:x64-windows-darkangel@6.33.4",
+        "protobuf:x64-windows-darkangel@6.33.4#2",
+        "openssl:x64-windows-darkangel@3.6.3",
+        "gamenetworkingsockets:x64-windows-darkangel@1.6.0",
+        "joltphysics:x64-windows-darkangel@5.6.0",
+        "meshoptimizer:x64-windows-darkangel@1.2",
+        "recastnavigation:x64-windows-darkangel@1.6.0#1",
+        "zlib:x64-windows-darkangel@1.3.2#1",
+        "libpng:x64-windows-darkangel@1.6.58",
+        "bzip2[core,tool]:x64-windows-darkangel@1.0.8#6",
+        "brotli:x64-windows-darkangel@1.2.0",
+        "freetype[brotli,bzip2,core,png,zlib]:x64-windows-darkangel@2.14.3",
+        "robin-hood-hashing:x64-windows-darkangel@3.11.5#2",
+        "rmlui[core,freetype]:x64-windows-darkangel@6.2",
+        "flecs:x64-windows-darkangel@4.1.6",
+        "luau[core,tool]:x64-windows-darkangel@0.729",
+        "sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4"
+      ],
+      "failures": [],
+      "log": ".cache/vcpkg-prefetch.log"
+    },
+    {
+      "status": "passed",
+      "exit_code": 0,
+      "seconds": 52.607,
+      "command": [
+        "${PROJECT_ROOT}\\.tools\\vcpkg\\vcpkg.exe",
+        "install",
+        "--x-wait-for-lock",
+        "--triplet",
+        "x64-windows-darkangel",
+        "--host-triplet",
+        "x64-windows-darkangel",
+        "--x-feature=m0",
+        "--x-feature=m1-tools",
+        "--x-feature=later",
+        "--x-feature=amplitude-deps",
+        "--x-feature=evaluation-flac",
+        "--only-downloads"
+      ],
+      "downloaded_recipes": [
+        "libogg:x64-windows-darkangel@1.3.6#1",
+        "libflac:x64-windows-darkangel@1.5.0",
+        "tinyxml2:x64-windows-darkangel@11.0.0",
+        "minitrace:x64-windows-darkangel@2023-04-23",
+        "behaviortree-cpp:x64-windows-darkangel@4.9.1",
+        "directxmath:x64-windows-darkangel@2026-06-12",
+        "directxtex[core,tools]:x64-windows-darkangel@2026-05-07",
+        "abseil:x64-windows-darkangel@20260107.1#3",
+        "utf8-range:x64-windows-darkangel@6.33.4",
+        "protobuf:x64-windows-darkangel@6.33.4#2",
+        "openssl:x64-windows-darkangel@3.6.3",
+        "gamenetworkingsockets:x64-windows-darkangel@1.6.0",
+        "joltphysics:x64-windows-darkangel@5.6.0",
+        "meshoptimizer:x64-windows-darkangel@1.2",
+        "recastnavigation:x64-windows-darkangel@1.6.0#1",
+        "zlib:x64-windows-darkangel@1.3.2#1",
+        "libpng:x64-windows-darkangel@1.6.58",
+        "bzip2[core,tool]:x64-windows-darkangel@1.0.8#6",
+        "brotli:x64-windows-darkangel@1.2.0",
+        "freetype[brotli,bzip2,core,png,zlib]:x64-windows-darkangel@2.14.3",
+        "robin-hood-hashing:x64-windows-darkangel@3.11.5#2",
+        "rmlui[core,freetype]:x64-windows-darkangel@6.2",
+        "flecs:x64-windows-darkangel@4.1.6",
+        "luau[core,tool]:x64-windows-darkangel@0.729",
+        "sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4"
+      ],
+      "failures": [],
+      "log": ".cache/vcpkg-prefetch.log"
+    }
+  ],
+  "independent": [
+    {
+      "check": "archive-checksums",
+      "status": "passed",
+      "seconds": 2.555,
+      "detail": "46 source/tool archives matched immutable checksums"
+    },
+    {
+      "check": "source-pins",
+      "status": "passed",
+      "seconds": 17.959,
+      "detail": "9 sources and vcpkg match pins; required submodules present"
+    },
+    {
+      "check": "native-toolchain-pins",
+      "status": "passed",
+      "seconds": 5.549,
+      "detail": "MSVC toolset, serviced compiler/linker binaries and Windows SDK match frozen inputs"
+    },
+    {
+      "check": "reused-tool-versions",
+      "status": "passed",
+      "seconds": 1.84,
+      "detail": "Pinned Git, Git LFS, Python and PowerShell versions matched"
+    },
+    {
+      "check": "eos-sdk-inventory",
+      "status": "passed",
+      "seconds": 0.164,
+      "detail": "Authorized EOS Windows C SDK 1.19.2.1 inputs match local SHA256 pins; no online integration tested"
+    },
+    {
+      "check": "preset-schema",
+      "status": "passed",
+      "seconds": 0.09,
+      "detail": "Available configure presets:\n\n  \"m0-debug\"\n  \"m0-relwithdebinfo\"\n  \"m0-release\"\n\nAvailable build presets:\n\n  \"m0-debug\"\n  \"m0-relwithdebinfo\"\n  \"m0-release\"\n\nAvailable test presets:\n\n  \"m0-debug\"\n  \"m0-relwithdebinfo\"\n  \"m0-release\"\n\nAvailable package presets:\n\n  \"m0-relwithdebinfo\"\n  \"m0-release\""
+    },
+    {
+      "check": "npm-tooling",
+      "status": "passed",
+      "seconds": 6.681,
+      "detail": "Official MCP SDK import and Khronos glTF Validator fixture passed; no endpoint opened"
+    },
+    {
+      "check": "flatc-version",
+      "status": "passed",
+      "seconds": 0.012,
+      "detail": "flatc version 25.12.19"
+    },
+    {
+      "check": "ninja-version",
+      "status": "passed",
+      "seconds": 0.012,
+      "detail": "1.13.2"
+    },
+    {
+      "check": "node-version",
+      "status": "passed",
+      "seconds": 0.054,
+      "detail": "v24.21.0"
+    },
+    {
+      "check": "dxc-dxil-spirv",
+      "status": "passed",
+      "seconds": 0.07,
+      "detail": {
+        "DXIL": "9eba4670133e25aff0728b34e15ad0960fbae95316cae052f694ad1bf41bceb4",
+        "SPIR-V": "55c060b96a12b0f1136153164bec2b94207ec35b71e1b41230cc74e143082695",
+        "scope": "Offline shader compiler smoke only; no renderer/device/Vulkan runtime validation"
+      }
+    },
+    {
+      "check": "amplitude-schema-compiler",
+      "status": "passed",
+      "seconds": 0.189,
+      "detail": "13 actual pinned Amplitude schemas compiled with flatc 25.12.19; static SDK build/import is a separate recorded check"
+    },
+    {
+      "check": "imgui-docking",
+      "status": "passed",
+      "seconds": 0.003,
+      "detail": "Official ImGui 1.92.1 docking; DiligentTools provider substitution prepared, adapter compile pending"
+    }
+  ],
+  "amplitude_build_install": [
+    {
+      "gate": "build",
+      "command": [
+        "${PROJECT_ROOT}\\.tools\\xmake\\xmake\\xmake.exe",
+        "build",
+        "-v",
+        "-j",
+        "2",
+        "Amplitude::Static"
+      ],
+      "exit_code": 0,
+      "seconds": 298.68297130000064
+    },
+    {
+      "gate": "install",
+      "command": [
+        "${PROJECT_ROOT}\\.tools\\xmake\\xmake\\xmake.exe",
+        "install",
+        "-o",
+        "${PROJECT_ROOT}\\.cache\\amplitude-sdk",
+        "Amplitude::Static"
+      ],
+      "exit_code": 0,
+      "seconds": 2.2065394000019296
+    }
+  ],
+  "amplitude_import": [
+    {
+      "gate": "import-configure",
+      "command": [
+        "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "-S",
+        "${PROJECT_ROOT}\\scripts\\amplitude_probe",
+        "-B",
+        "${PROJECT_ROOT}\\.cache\\amplitude-import-build",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DDAE_ROOT=${PROJECT_ROOT}",
+        "-DAM_SDK_PATH=${PROJECT_ROOT}\\.cache\\amplitude-sdk",
+        "-DCMAKE_MAKE_PROGRAM=${PROJECT_ROOT}\\.tools\\ninja\\ninja.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.973,
+      "log": ".cache/evidence/amplitude-import-configure.log"
+    },
+    {
+      "gate": "import-build",
+      "command": [
+        "${PROJECT_ROOT}\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "${PROJECT_ROOT}\\.cache\\amplitude-import-build",
+        "--parallel",
+        "2",
+        "--verbose"
+      ],
+      "exit_code": 0,
+      "seconds": 1.83,
+      "log": ".cache/evidence/amplitude-import-build.log"
+    },
+    {
+      "gate": "import-run",
+      "command": [
+        "${PROJECT_ROOT}\\.cache\\amplitude-import-build\\AmplitudeImportProbe.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.046,
+      "log": ".cache/evidence/amplitude-import-run.log"
+    }
+  ],
+  "package": {
+    "file": "stage/packages/Release/DarkAngel-M0-0.0.1-win64-HeadlessShell.zip",
+    "source_commit": "768806bd57f59522e054215100660b1451756258",
+    "sha256": "7488b9d7ab9320620089d4403225fc136a58656e1e2fe9d21b9464f52e3d337d",
+    "source_checkout_git_status_after": ""
+  }
+}

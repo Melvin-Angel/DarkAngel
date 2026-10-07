@@ -1,0 +1,5 @@
+Change Dir: '${PROJECT_ROOT}/.cache/clean-checkout-768806bd57f5/build/m0-release'
+
+Run Build Command(s): ${PROJECT_ROOT}/.cache/clean-checkout-768806bd57f5/.tools/ninja/ninja.exe -v -j 2
+ninja: no work to do.
+

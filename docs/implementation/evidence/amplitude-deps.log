@@ -1,0 +1,191 @@
+Detecting compiler hash for triplet x64-windows-darkangel...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages are already installed:
+    miniaudio:x64-windows-darkangel@0.11.25
+  * vcpkg-cmake:x64-windows-darkangel@2024-04-23
+  * vcpkg-cmake-config:x64-windows-darkangel@2026-07-21
+The following packages will be removed:
+    cgltf:x64-windows-darkangel
+    itlib:x64-windows-darkangel
+    vcpkg-cmake-get-vars:x64-windows-darkangel
+The following packages will be built and installed:
+    dylib:x64-windows-darkangel@3.0.1
+    eigen3:x64-windows-darkangel@5.0.1
+    flatbuffers:x64-windows-darkangel@25.12.19
+    lz4:x64-windows-darkangel@1.10.0
+    xsimd:x64-windows-darkangel@13.2.0
+Restored 0 package(s) from ${USERPROFILE}\AppData\Local\vcpkg\archives in 390 us. Use --debug to see more details.
+Removing 1/8 itlib:x64-windows-darkangel
+Elapsed time to handle itlib:x64-windows-darkangel: 9.67 ms
+Removing 2/8 vcpkg-cmake-get-vars:x64-windows-darkangel
+Elapsed time to handle vcpkg-cmake-get-vars:x64-windows-darkangel: 4.77 ms
+Removing 3/8 cgltf:x64-windows-darkangel
+Elapsed time to handle cgltf:x64-windows-darkangel: 3.84 ms
+Installing 4/8 dylib:x64-windows-darkangel@3.0.1...
+dylib:x64-windows-darkangel@3.0.1 package ABI: 3367017bce217ed4954ee3118b2f32a62761d773ac2715475137d9bbe4b6780e
+Building dylib:x64-windows-darkangel@3.0.1...
+${PROJECT_ROOT}\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached martin-olivier-dylib-v3.0.1.tar.gz
+-- Cleaning sources at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/dylib/src/v3.0.1-eed39e6795.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source ${PROJECT_ROOT}/.tools/vcpkg/downloads/martin-olivier-dylib-v3.0.1.tar.gz
+-- Using source at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/dylib/src/v3.0.1-eed39e6795.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Installing: ${PROJECT_ROOT}/.tools/vcpkg/packages/dylib_x64-windows-darkangel/share/dylib/copyright
+-- Performing post-build validation
+Starting submission of dylib:x64-windows-darkangel@3.0.1 to 1 binary cache(s) in the background
+Elapsed time to handle dylib:x64-windows-darkangel: 4.7 s
+Installing 5/8 eigen3:x64-windows-darkangel@5.0.1...
+eigen3:x64-windows-darkangel@5.0.1 package ABI: 012e1d2bf396c6d98957ed21d5209cdba36949f693134f28c800da58cf695000
+Building eigen3:x64-windows-darkangel@5.0.1...
+${PROJECT_ROOT}\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+CMake Warning at scripts/cmake/vcpkg_buildpath_length_warning.cmake:4 (message):
+  eigen3's buildsystem uses very long paths and may fail on your system.
+
+  We recommend moving vcpkg to a short path such as 'C:\src\vcpkg' or using
+  the subst command.
+Call Stack (most recent call first):
+  buildtrees/versioning_/versions/eigen3/d76be65aad61fe24ae3d70c10fca0bd2c592308e/portfile.cmake:1 (vcpkg_buildpath_length_warning)
+  scripts/ports.cmake:209 (include)
+
+
+-- Using cached libeigen-eigen-5.0.1.tar.gz
+-- Cleaning sources at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/eigen3/src/5.0.1-d487a628b0.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source ${PROJECT_ROOT}/.tools/vcpkg/downloads/libeigen-eigen-5.0.1.tar.gz
+-- Using source at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/eigen3/src/5.0.1-d487a628b0.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/eigen3_x64-windows-darkangel/lib/pkgconfig/eigen3.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at ${PROJECT_ROOT}/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/eigen3_x64-windows-darkangel/debug/lib/pkgconfig/eigen3.pc
+-- Performing post-build validation
+Starting submission of eigen3:x64-windows-darkangel@5.0.1 to 1 binary cache(s) in the background
+Elapsed time to handle eigen3:x64-windows-darkangel: 12 s
+Completed submission of dylib:x64-windows-darkangel@3.0.1 to 1 binary cache(s) in 246 ms
+Installing 6/8 flatbuffers:x64-windows-darkangel@25.12.19...
+flatbuffers:x64-windows-darkangel@25.12.19 package ABI: 19cba772855178247efddb8b9e5f67c884868fedba49c820420886657709f6f0
+Building flatbuffers:x64-windows-darkangel@25.12.19...
+${PROJECT_ROOT}\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached google-flatbuffers-v25.12.19.tar.gz
+-- Cleaning sources at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/flatbuffers/src/v25.12.19-11c3cd22c1.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source ${PROJECT_ROOT}/.tools/vcpkg/downloads/google-flatbuffers-v25.12.19.tar.gz
+-- Applying patch fix-uwp-build.patch
+-- Applying patch fix-runtime-flags-msvc.patch
+-- Using source at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/flatbuffers/src/v25.12.19-11c3cd22c1.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/flatbuffers_x64-windows-darkangel/lib/pkgconfig/flatbuffers.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at ${PROJECT_ROOT}/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/flatbuffers_x64-windows-darkangel/debug/lib/pkgconfig/flatbuffers.pc
+-- Installing: ${PROJECT_ROOT}/.tools/vcpkg/packages/flatbuffers_x64-windows-darkangel/share/flatbuffers/copyright
+-- Performing post-build validation
+Starting submission of flatbuffers:x64-windows-darkangel@25.12.19 to 1 binary cache(s) in the background
+Elapsed time to handle flatbuffers:x64-windows-darkangel: 1.3 min
+Completed submission of eigen3:x64-windows-darkangel@5.0.1 to 1 binary cache(s) in 248 ms
+Installing 7/8 lz4:x64-windows-darkangel@1.10.0...
+lz4:x64-windows-darkangel@1.10.0 package ABI: ba32510550f7d59cee5fa0e1b42db794a25dc810727732554bd8949cfe02ccff
+Building lz4:x64-windows-darkangel@1.10.0...
+${PROJECT_ROOT}\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached lz4-lz4-v1.10.0.tar.gz
+-- Cleaning sources at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/lz4/src/v1.10.0-61bd08d80e.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source ${PROJECT_ROOT}/.tools/vcpkg/downloads/lz4-lz4-v1.10.0.tar.gz
+-- Applying patch target-lz4-lz4.diff
+-- Using source at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/lz4/src/v1.10.0-61bd08d80e.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/lz4_x64-windows-darkangel/lib/pkgconfig/liblz4.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at ${PROJECT_ROOT}/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/lz4_x64-windows-darkangel/debug/lib/pkgconfig/liblz4.pc
+-- Installing: ${PROJECT_ROOT}/.tools/vcpkg/packages/lz4_x64-windows-darkangel/share/lz4/usage
+-- Installing: ${PROJECT_ROOT}/.tools/vcpkg/packages/lz4_x64-windows-darkangel/share/lz4/copyright
+-- Performing post-build validation
+Starting submission of lz4:x64-windows-darkangel@1.10.0 to 1 binary cache(s) in the background
+Elapsed time to handle lz4:x64-windows-darkangel: 6.8 s
+Completed submission of flatbuffers:x64-windows-darkangel@25.12.19 to 1 binary cache(s) in 2.8 s
+Installing 8/8 xsimd:x64-windows-darkangel@13.2.0...
+xsimd:x64-windows-darkangel@13.2.0 package ABI: 2e5125ac21d13c8bb02ad257e0ea339c8f0bff6b5aa8101eca77224481424eb5
+Building xsimd:x64-windows-darkangel@13.2.0...
+${PROJECT_ROOT}\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+-- Using cached xtensor-stack-xsimd-13.2.0.tar.gz
+-- Cleaning sources at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/xsimd/src/13.2.0-a6ab7070f8.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source ${PROJECT_ROOT}/.tools/vcpkg/downloads/xtensor-stack-xsimd-13.2.0.tar.gz
+-- Using source at ${PROJECT_ROOT}/.tools/vcpkg/buildtrees/xsimd/src/13.2.0-a6ab7070f8.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-rel
+-- Fixing pkgconfig file: ${PROJECT_ROOT}/.tools/vcpkg/packages/xsimd_x64-windows-darkangel/share/pkgconfig/xsimd.pc
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at ${PROJECT_ROOT}/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Installing: ${PROJECT_ROOT}/.tools/vcpkg/packages/xsimd_x64-windows-darkangel/share/xsimd/copyright
+-- Installing: ${PROJECT_ROOT}/.tools/vcpkg/packages/xsimd_x64-windows-darkangel/share/xsimd/usage
+-- Performing post-build validation
+Starting submission of xsimd:x64-windows-darkangel@13.2.0 to 1 binary cache(s) in the background
+Elapsed time to handle xsimd:x64-windows-darkangel: 3.6 s
+Installed contents are licensed to you by owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Packages installed in this vcpkg installation declare the following licenses:
+Apache-2.0
+BSD-2-Clause
+BSD-3-Clause
+MIT
+MPL-2.0
+dylib provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(dylib CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE dylib::dylib)
+
+eigen3 provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(Eigen3 CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE Eigen3::Eigen)
+
+eigen3 provides pkg-config modules:
+
+  # A C++ template library for linear algebra: vectors, matrices, and related algorithms
+  eigen3
+
+flatbuffers provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(flatbuffers CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE flatbuffers::flatbuffers)
+
+flatbuffers provides pkg-config modules:
+
+  # Memory Efficient Serialization Library
+  flatbuffers
+
+lz4 provides CMake targets:
+
+  find_package(lz4 CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE lz4::lz4)
+
+lz4 provides pkg-config modules:
+
+  liblz4
+
+miniaudio is header-only and can be used from CMake via:
+
+  find_path(MINIAUDIO_INCLUDE_DIRS "miniaudio.h")
+  target_include_directories(main PRIVATE ${MINIAUDIO_INCLUDE_DIRS})
+
+xsimd provides CMake targets:
+
+    find_package(xsimd CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE xsimd)
+
+Completed submission of lz4:x64-windows-darkangel@1.10.0 to 1 binary cache(s) in 156 ms
+Waiting for 1 remaining binary cache submissions...
+Completed submission of xsimd:x64-windows-darkangel@13.2.0 to 1 binary cache(s) in 68 ms (1/1)
+All requested installations completed successfully in: 1.8 min

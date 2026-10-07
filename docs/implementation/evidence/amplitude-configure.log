@@ -1,0 +1,3 @@
+checking for Microsoft C/C++ Compiler (x64) ... ok
+checking for Microsoft Visual Studio (x64) version ... 2026
+generating xmake\config\include\SparkyStudios\Audio\Amplitude\Core\Version.h.in ... ok

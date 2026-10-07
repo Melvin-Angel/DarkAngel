@@ -1,0 +1,5 @@
+Change Dir: '${PROJECT_ROOT}/build/m0-relwithdebinfo'
+
+Run Build Command(s): ${PROJECT_ROOT}/.tools/ninja/ninja.exe -v -j 2
+ninja: no work to do.
+

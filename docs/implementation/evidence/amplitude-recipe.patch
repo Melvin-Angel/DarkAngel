@@ -1,0 +1,66 @@
+--- a/xmake.lua
++++ b/xmake.lua
+@@ -20,7 +20,7 @@
+ set_description("A powerful and cross-platform audio engine, optimized for games.")
+ set_xmakever("3.0.0")
+ 
+-add_repositories("repo xmake/repo", { rootdir = os.scriptdir() })
++
+ 
+ add_rules("mode.debug", "mode.release")
+ add_rules("plugin.compile_commands.autoupdate")
+@@ -150,22 +150,27 @@
+   platform.am_apply_detected_platform_defines(target)
+ end)
+ 
++set_runtimes(is_mode("debug") and "MDd" or "MD")
++add_includedirs("${PROJECT_ROOT}/vcpkg_installed/x64-windows-darkangel/include", "${PROJECT_ROOT}/vcpkg_installed/x64-windows-darkangel/include/eigen3")
++add_linkdirs(is_mode("debug") and "${PROJECT_ROOT}/vcpkg_installed/x64-windows-darkangel/debug/lib" or "${PROJECT_ROOT}/vcpkg_installed/x64-windows-darkangel/lib")
++add_links("flatbuffers", "lz4")
++
+ -- Dependencies
+-add_requireconfs("*", { debug = is_mode("debug") })
+-add_requires("flatbuffers ^25.2.10")
+-add_requires("xsimd ^13.2.0")
+-add_requires("miniaudio ^0.11.22")
+-add_requires("eigen ^5.0.0")
+-add_requires("lz4 ^1.9.4")
++
++
++
++
++
++
+ 
+ -- Feature-specific dependencies
+ if has_config("build_samples") then
+-  add_requires("libsdl2", { configs = { sdlmain = true } })
++  raise("M0 recipe disables samples")
+ end
+ 
+ if has_config("build_tools") and not is_plat("android") and not is_plat("iphoneos") then
+-  add_requires("cli11")
+-  add_requires("libmysofa 1.3.2")
++  raise("M0 recipe disables CLI tools")
++  
+ end
+ 
+ -- Apply debug/release specific defines
+@@ -198,14 +203,14 @@
+ -- 1. App Store dynamic code loading restrictions
+ -- 2. Platform limitations on dlopen/dlsym
+ if not is_plat("iphoneos") and not is_plat("android") then
+-  add_requires("dylib ^3.0.1")
+-  add_packages("dylib")
++  
++  
+ else
+   add_defines("AM_PLUGINS_UNSUPPORTED")
+ end
+ 
+ -- Add packages
+-add_packages("flatbuffers", "xsimd", "eigen", "miniaudio", "lz4")
++
+ 
+ -- Generate FlatBuffers schema files
+ target("generate_includes")

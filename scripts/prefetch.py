@@ -5,7 +5,7 @@ from msvc_environment import activate
 
 def main():
     started=time.monotonic()
-    args=[str(ROOT/'.tools/vcpkg/vcpkg.exe'),'install','--triplet','x64-windows-darkangel','--host-triplet','x64-windows-darkangel','--x-feature=m0','--x-feature=m1-tools','--x-feature=later','--x-feature=amplitude-deps','--x-feature=evaluation-flac','--only-downloads']
+    args=[str(ROOT/'.tools/vcpkg/vcpkg.exe'),'install','--x-wait-for-lock','--triplet','x64-windows-darkangel','--host-triplet','x64-windows-darkangel','--x-feature=m0','--x-feature=m1-tools','--x-feature=later','--x-feature=amplitude-deps','--x-feature=evaluation-flac','--only-downloads']
     try:env=activate()
     except Exception as error:
         (ROOT/'.cache/prefetch-result.json').write_text(json.dumps({'status':'blocked','exit_code':None,'reason':str(error),'command':args},indent=2)+'\n')

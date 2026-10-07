@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "tools": [
+    {
+      "name": "cmake",
+      "os": "windows",
+      "arch": "amd64",
+      "version": "4.4.0",
+      "executable": "cmake-4.4.0-windows-x86_64/bin/cmake.exe",
+      "url": "https://github.com/Kitware/CMake/releases/download/v4.4.0/cmake-4.4.0-windows-x86_64.zip",
+      "sha512": "35479675dc414747b6eb176034fb707490a758a7fa24007018bfb9eddb71e0422aa5e97b1efdbfe94eaca19923ac2e0dc8a2f807f549ce31ffb0ca23f59e04d0",
+      "archive": "cmake-4.4.0-windows-x86_64.zip",
+      "cached_archive": ".tools/vcpkg/downloads/cmake-4.4.0-windows-x86_64.zip",
+      "sha256_local": "156d70eb7625a7b469444df7d0861d2af8d5d0a437fce32c350372b08f5620e8",
+      "verification": "Pinned vcpkg tool metadata SHA512 plus local artifact SHA256",
+      "license_scope": "vcpkg-managed host tooling"
+    },
+    {
+      "name": "7zip",
+      "os": "windows",
+      "arch": "amd64",
+      "version": "26.02",
+      "executable": "7z.exe",
+      "url": "https://github.com/ip7z/7zip/releases/download/26.02/7z2602-x64.exe",
+      "sha512": "85389eaef377aa9fef3155d2e3375c1fff77fc10e39d9312cab229f202f3aff78f6e807460cf6b04bc2a32f72f7853afbf475cf0dce6232a40c0a6f8ddcbe4da",
+      "archive": "7z2602-x64.7z.exe",
+      "cached_archive": ".tools/vcpkg/downloads/7z2602-x64.7z.exe",
+      "sha256_local": "6745fa76dc2ea031596d8678f6f6b99c3c1b435b4164a63485adbbc7b8d82ef0",
+      "verification": "Pinned vcpkg tool metadata SHA512 plus local artifact SHA256",
+      "license_scope": "vcpkg-managed host tooling"
+    },
+    {
+      "name": "7zr",
+      "os": "windows",
+      "version": "26.02",
+      "executable": "7zr.exe",
+      "url": "https://github.com/ip7z/7zip/releases/download/26.02/7zr.exe",
+      "sha512": "dfdcf16edb65baddd43181c9481a2c9453b0c678a6825108c2ab4cb30de34497c5fda5639721b3ced9cb4b98744fb6dab7314bd49685385c365425b721b19279",
+      "installed_file": ".tools/vcpkg/downloads/tools/7zr-26.02-windows/7zr.exe",
+      "sha256_local": "56b8cc9f4971cef253644fafe54063ed7fdca551d4dee0f8c6baa81b855acd72",
+      "verification": "Pinned vcpkg metadata SHA512 and local executable SHA256",
+      "license_scope": "vcpkg-managed host tooling"
+    }
+  ]
+}
