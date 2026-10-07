@@ -1,0 +1,10 @@
+Test project C:/DarkAngel/build/m2-relwithdebinfo
+    Start 19: M3.loopback
+1/1 Test #19: M3.loopback ......................   Passed    0.05 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+M3    =   0.05 sec*proc (1 test)
+
+Total Test time (real) =   0.08 sec

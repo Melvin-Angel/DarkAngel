@@ -12,4 +12,15 @@ build/m2-relwithdebinfo/DarkAngelEditor.exe --registry .cache/fixtures/mask.regi
 
 That UUID is this machine's adopted local fixture. Read a newly adopted fixture's UUID from its `.daimport` metadata. `python scripts/verify_m2.py --fbx PATH` performs conversion, cooking, tests and bounded captures using the actual metadata. `--frames 8 --hidden --capture PATH.png` runs a bounded viewport check.
 
-This shell supports one loaded model and yaw. Scene assemblies, hierarchy selection, ImGuizmo, asset-browser/save UI, resource-generation reload/retirement and the agent endpoint remain pending. The Inspector uses the native World representation; the full document/provenance service is not yet implemented. See [M2 report](../../docs/implementation/M2_REPORT.md).
+The shell reuses one loaded model across linked scene placements. A source-authoritative EditorDocument provides stable assembly/placement patches, native preparation/activation, revisioned commands, undo/redo, partitioned scene manifests and dirty tracking. Outliner/Inspector, offscreen docked viewport, ImGuizmo gestures, source/console panels and Play/Pause/Step/Stop are implemented. UI and EditorCli share the same commands. Model/shader reload prepares candidates before publication and retires GPU resources at an explicit idle boundary. The scoped agent endpoint remains M3 work. See [M2 report](../../docs/implementation/M2_REPORT.md).
+
+
+Native commands:
+
+```powershell
+build/m2-relwithdebinfo/EditorCli.exe validate .cache/editor/AcceptanceScene.dascene
+build/m2-relwithdebinfo/EditorCli.exe resolve .cache/editor/AcceptanceScene.dascene .cache/editor/scene.dacooked
+build/m2-relwithdebinfo/DarkAngelHeadless.exe --scene .cache/editor/scene.dacooked
+```
+
+`--exercise` adds bounded native command/reload failure checks to the editor capture run. Source FBXs are untouched. Production designer panels, deeper composition/merge/recovery UI and device/release qualification remain explicit extensions in the report.

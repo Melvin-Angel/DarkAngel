@@ -1,0 +1,8 @@
+[1/13] Scanning C:\DarkAngel\engine\runtime\transport.cpp for CXX dependencies
+[2/13] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[3/13] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[4/8] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[5/8] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\transport.cpp.obj
+[6/8] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[7/8] Linking CXX static library DarkAngelRuntime.lib
+[8/8] Linking CXX executable SessionTests.exe

@@ -20,6 +20,7 @@ class Loopback final:public Transport {
     void check(ConnectionHandle handle) const{thread();require(handle==peer() && connected(),"Stale, disconnected or foreign transport handle");}
 public:
     Loopback(std::shared_ptr<Shared> shared,unsigned role):state(std::move(shared)),side(role){}
+    ~Loopback() override {if(state->open[side]){for(unsigned i=0;i<2;++i){state->incoming[i].clear();state->open[i]=false;state->queued[i]=0;}if(state->epoch<std::numeric_limits<std::uint64_t>::max())++state->epoch;}}
     ConnectionHandle open(const SessionHandshake& hello) override {thread();const auto& expected=state->expected;require(hello.protocol==expected.protocol && hello.schema_hash==expected.schema_hash && hello.content_hash==expected.content_hash && hello.session_epoch==expected.session_epoch,"Incompatible protocol/schema/content/session epoch");state->open[side]=true;return peer();}
     bool connected() const override {thread();return state->open[0] && state->open[1];}
     bool send(ConnectionHandle target,Delivery delivery,std::span<const std::byte> bytes) override {check(target);require(delivery==Delivery::ReliableOrdered || delivery==Delivery::UnreliableState,"Invalid transport channel");require(bytes.size()<=state->limits.payload_bytes,"Transport payload limit");auto destination=1-side;

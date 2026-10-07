@@ -1,0 +1,9 @@
+# M3 LocalLoopback starter
+
+Started 8 October 2026. **M3 is In progress.** The M1/M2 supported-profile gates are verified, so the shared transport boundary is now useful for the session milestone. This starter adds no SDK dependency and initializes no EOS/online service.
+
+`Transport` exposes admission, connected state, bounded send/poll and disconnect with owned packet values. Connection handles include a unique transport token, connection epoch and peer identity; foreign/disconnected/recycled handles fail. Admission compares protocol, schema/content fingerprints and the separate gameplay session epoch. The owner-thread LocalLoopback pair exchanges ReliableOrdered and UnreliableState packets in bounded queues. Backpressure returns false, oversized payload/work requests fail, and disconnect/reconnect/destruction clears old queues and invalidates peer handles. Unreliable delivery is a channel contract here; simulated loss/reorder is not implemented.
+
+One focused native case covers bidirectional packets, sequence/source identity, admission mismatch, capacity, bounded polling, foreign/stale handles, reconnect and endpoint ownership cleanup. It passed in the full Debug/RelWithDebInfo suites; the destructor cleanup follow-up passed separately in the optimized profile. Receipts: [m3-loopback.json](evidence/m3-loopback.json), [build](evidence/m3-loopback-build.log), [test](evidence/m3-loopback-test.log).
+
+This is an in-process transport adapter, not a completed gameplay WorldSession or a network qualification. Peer membership/authentication, authoritative create/move/despawn and baseline/late join, protocol codecs/readiness, GNS LAN and EOS Connect/Lobbies/P2P adapters remain. The native scoped Windows command endpoint and separate official TypeScript MCP bridge remain pending; no agent endpoint is exposed. The existing M0 selected SDK pins remain authoritative. Test these adapters before gameplay systems depend on them, following DAE-009/014.

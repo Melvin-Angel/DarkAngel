@@ -1,0 +1,27 @@
+[
+  {
+    "gate": "build",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--build",
+      "--preset",
+      "m2-relwithdebinfo",
+      "--target",
+      "SessionTests"
+    ],
+    "exit_code": 0,
+    "log": "docs\\implementation\\evidence\\m3-loopback-build.log"
+  },
+  {
+    "gate": "test",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+      "--preset",
+      "m2-relwithdebinfo",
+      "-R",
+      "M3.loopback"
+    ],
+    "exit_code": 0,
+    "log": "docs\\implementation\\evidence\\m3-loopback-test.log"
+  }
+]

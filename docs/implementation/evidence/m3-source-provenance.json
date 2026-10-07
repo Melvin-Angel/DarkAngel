@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "base_revision": "ca6bde2e7684f3ed4bd097e861190bedd912848d",
+  "working_tree": "uncommitted implementation",
+  "profile": "m2-relwithdebinfo",
+  "case": "M3.loopback passed including endpoint cleanup",
+  "source_sha256": {
+    "engine/runtime/include/darkangel/transport.hpp": "b6993e7b23d61ba64208d38f4131911e775698107ffa525fdfe7238ab117fa22",
+    "engine/runtime/transport.cpp": "c8586c9050394016dd53ef20085028e285ff4b1bb25d3f59336fb00c911f0e9a",
+    "tests/session_tests.cpp": "6e8302b96218dcd56c03bd9570101260d0ceab104f85866f9096326db1da65a8"
+  }
+}

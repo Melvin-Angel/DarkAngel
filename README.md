@@ -1,6 +1,6 @@
 # DarkAngel Engine
 
-Native C++20 engine for Ashen Roots. M0 is verified. M1 implements metadata, Flecs-backed worlds, versioned scenes, strict Luau module packages, declared state, staged reloads and bounded tasks. M2 now includes a SQLite asset catalog, static glTF cooker, immutable cooked registry/CAS and a Diligent D3D12/Vulkan editor viewport with native property transactions. Both milestones remain in progress for the broader acceptance gates in [status](docs/implementation/STATUS.md).
+Native C++20 engine for Ashen Roots. M0 is verified. M1 implements metadata, Flecs-backed worlds, versioned scenes, strict Luau module packages, declared state, staged reloads and bounded tasks. M2 now includes a SQLite asset catalog, static glTF cooker, immutable cooked registry/CAS and a Diligent D3D12/Vulkan editor viewport with native property transactions. M1/M2 handoff gates are verified for the supported profile. M3 has started with the shared transport interface and bounded LocalLoopback adapter. Broader production features and remaining M3 work are tracked in [status](docs/implementation/STATUS.md).
 
 Start with [bootstrap instructions](docs/implementation/BOOTSTRAP.md), [current status](docs/implementation/STATUS.md) and the [M0 report](docs/implementation/M0_REPORT.md). All dependencies and tools are frozen in checked-in manifests/locks; bootstrap never resolves a moving branch or updates to a newer release.
 
