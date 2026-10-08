@@ -1,6 +1,8 @@
 # Current Royal scene handoff - 8 October 2026
 
-Implementation HEAD: 116c10f (native viewport locomotion). This handoff is the latest continuation summary; earlier CONTINUE entries retain historical evidence.
+Latest implementation increment: typed external import and Scene/Assets workflows after planning checkpoint9c8fd2b; see [EDITOR_IMPORT_REPORT.md](EDITOR_IMPORT_REPORT.md) for profiles, focused verification and remaining scope. Native viewport locomotion checkpoint116c10f remains available. Obtain the exact current HEAD/status from git; earlier CONTINUE entries retain historical evidence.
+
+Editor product constraint: one editor contains all implemented editor features. `build/m5-editor-relwithdebinfo/DarkAngelEditor.exe` is the current full iteration binary. Other milestone directories are temporary checkpoints, not separate supported editor versions. No-animation acceptance targets test shared-library compatibility only. Keep new features in this one editor and consolidate temporary naming/launch paths as iteration progresses.
 
 Completed local commits this run:
 - a4cada4: all54 Royal District static conversions/native cooks.
@@ -22,7 +24,7 @@ Current result:
 - Attack is only a verified cooked/deformed pose diagnostic (launcher -AttackPose). There is NO playable ability/damage implementation yet. Do not say the requested one attack is complete.
 - Omni Idle audit:30Hz, frames1..1183, exceeding the300-frame conversion cap; use the validated104-tick Blink idle. No timing cap or compression budget was widened.
 
-Editor planning update (8 October 2026): read [EDITOR_WORKFLOW_PLAN.md](EDITOR_WORKFLOW_PLAN.md) alongside this handoff. The user requested a native Ashen Roots editor organized into workflow tabs, shared typed import with automatic category routing, and a visual tagged/searchable asset picker. Character/Ability/Composer/Projectile-AOE authoring belongs to M5; world/NPC tools to M6; VFX/audio to M7; save inspection to M8; full authoring qualification to M9. Item and broader Texture/Material painting workflows are proposals with design still open. The update captures scope only; these new workflows are not implemented. Continue M4/M5 with their authority and acceptance gates intact; exact editor layouts need a reviewable blueprint.
+Editor planning update (8 October 2026): read [EDITOR_WORKFLOW_PLAN.md](EDITOR_WORKFLOW_PLAN.md) alongside this handoff. The user requested a native Ashen Roots editor organized into workflow tabs, shared typed import with automatic category routing, and a visual tagged/searchable asset picker. Character/Ability/Composer/Projectile-AOE authoring belongs to M5; world/NPC tools to M6; VFX/audio to M7; save inspection to M8; full authoring qualification to M9. Item and broader Texture/Material painting workflows are proposals with design still open. The broader roadmap remains planned; the initial Scene/Assets, typed import and searchable inventory slice is now implemented and qualified separately in EDITOR_IMPORT_REPORT.md. Continue M4/M5 with their authority and acceptance gates intact; exact editor layouts need a reviewable blueprint.
 
 Next required work:
 1. Read full DAE-007/008/009/010/011 contracts before extending gameplay. Implement native abilities/attributes/effects/tags, atomic prepare/cost/cooldown and per-source ownership behind the World facade. Extend existing WorldSession/shared protocol for action intents, snapshots, acceptance/rejection and late join. No local-host bypass or parallel network runtime.

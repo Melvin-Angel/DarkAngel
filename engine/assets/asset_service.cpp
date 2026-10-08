@@ -34,7 +34,7 @@ void atomic_write(const std::filesystem::path& path,std::string_view bytes,bool 
     catch(...){std::error_code ignored;std::filesystem::remove(tmp,ignored);throw;}
 }
 std::map<std::string,AssetId> metadata_ids(const Json& sidecar){
-    require(sidecar.at("schema")==1 && (sidecar.at("importer")=="static-gltf-v1"||sidecar.at("importer")=="native-collision-v1"||sidecar.at("importer")=="native-action-v1"||sidecar.at("importer")=="native-joint-mask-v1"||sidecar.at("importer")=="native-skeleton-v1"||sidecar.at("importer")=="human-gltf-v1"||sidecar.at("importer")=="human-gltf-v2"||sidecar.at("importer")=="clip-gltf-v1"),"Unsupported import schema/profile");require(sidecar.at("tags").is_array() && sidecar.at("tags").size()<=64,"Import tag limit");
+    require(sidecar.at("schema")==1 && (sidecar.at("importer")=="static-gltf-v1"||sidecar.at("importer")=="texture-color-v1"||sidecar.at("importer")=="native-collision-v1"||sidecar.at("importer")=="native-action-v1"||sidecar.at("importer")=="native-joint-mask-v1"||sidecar.at("importer")=="native-skeleton-v1"||sidecar.at("importer")=="human-gltf-v1"||sidecar.at("importer")=="human-gltf-v2"||sidecar.at("importer")=="clip-gltf-v1"),"Unsupported import schema/profile");require(sidecar.at("tags").is_array() && sidecar.at("tags").size()<=64,"Import tag limit");
     for(const auto& tag:sidecar.at("tags"))require(tag.is_string() && tag.get<std::string>().size()<=128,"Import tag invalid");
     require(sidecar.at("subassets").is_object() && sidecar.at("subassets").size()<=512,"Subasset mapping limit");std::map<std::string,AssetId> ids{{"$source",AssetId::parse(sidecar.at("id").get<std::string>())}};std::set<AssetId> unique{ids.at("$source")};
     for(const auto& [key,value]:sidecar.at("subassets").items()){auto id=AssetId::parse(value.get<std::string>());require(!key.empty() && key.size()<=128 && key!="$source" && unique.insert(id).second,"Duplicate/invalid source subasset ID");ids.emplace(key,id);}return ids;
@@ -52,12 +52,14 @@ Import import_source(const std::filesystem::path& root,const std::filesystem::pa
     if(!ids.empty()&&source_metadata(source).at("importer")=="clip-gltf-v1"){auto metadata=source_metadata(source);return import_clip(root,source,ids,within(root,metadata.at("canonical_source").get<std::string>()),metadata.at("loop").get<bool>(),inspect);}
 #endif
     if(source.extension()==".damask")throw std::runtime_error("Joint-mask cook requires explicit animation tools build");
+    if(source.extension()==".png"||source.extension()==".jpg"||source.extension()==".jpeg")return import_texture(root,source,ids,inspect);
     return import_gltf(root,source,ids,inspect);
 }
 std::string lowercase(std::string value){std::transform(value.begin(),value.end(),value.begin(),[](unsigned char c){return static_cast<char>(std::tolower(c));});return value;}
 void digest_check(std::string_view digest){require(digest.size()==64 && digest.find_first_not_of("0123456789abcdef")==digest.npos,"Invalid artifact digest");}
 }
 struct AssetService::Impl {
+    AssetId import_owner{AssetId::random()};
     std::filesystem::path sources,cache,cas;sqlite3* db{};std::thread::id owner{std::this_thread::get_id()};bool com{};std::uint64_t conversions{};
     Impl(std::filesystem::path source,std::filesystem::path output):sources(std::filesystem::weakly_canonical(source)),cache(std::filesystem::weakly_canonical(output)),cas(cache/"cas"){
         require(std::filesystem::is_directory(sources),"Asset source mount missing");std::filesystem::create_directories(cas);
@@ -74,13 +76,13 @@ struct AssetService::Impl {
     }
     ~Impl(){sqlite3_close(db);DirectX::SetWICFactory(nullptr);if(com)CoUninitialize();active_coordinator.clear();}
     void thread() const{require(owner==std::this_thread::get_id(),"AssetService writer accessed from wrong thread");}
-    std::filesystem::path source(std::string_view relative) const{auto p=within(sources,std::filesystem::path(relative));require(p.extension()==".glb" || p.extension()==".gltf" || p.extension()==".dacollision" || p.extension()==".daskeleton" || p.extension()==".daaction" || p.extension()==".damask","Unsupported asset source extension");return p;}
+    std::filesystem::path source(std::string_view relative) const{auto p=within(sources,std::filesystem::path(relative));require(p.extension()==".glb" || p.extension()==".gltf" || p.extension()==".png" || p.extension()==".jpg" || p.extension()==".jpeg" || p.extension()==".dacollision" || p.extension()==".daskeleton" || p.extension()==".daaction" || p.extension()==".damask","Unsupported asset source extension");return p;}
 };
 AssetService::AssetService(std::filesystem::path source,std::filesystem::path cache):impl_(std::make_unique<Impl>(std::move(source),std::move(cache))){}
 AssetService::~AssetService()=default;
 AssetId AssetService::adopt(std::string_view relative){auto& p=*impl_;p.thread();auto source=p.source(relative),sidecar_path=metadata_path(source);
     if(source.extension()==".dacollision"||source.extension()==".daskeleton"||source.extension()==".daaction"||source.extension()==".damask"){import_source(p.sources,source,{},true);auto id=AssetId::parse(source_metadata(source).at("id").get<std::string>());return id;}
-    require(!std::filesystem::exists(sidecar_path),"Asset already has metadata; preserve its identity");auto imported=import_source(p.sources,source,{},true);auto id=AssetId::random();Json sidecar={{"schema",1},{"id",id.text()},{"importer",source.extension()==".dacollision"?"native-collision-v1":"static-gltf-v1"},{"tags",Json::array()},{"subassets",Json::object()}};
+    require(!std::filesystem::exists(sidecar_path),"Asset already has metadata; preserve its identity");auto imported=import_source(p.sources,source,{},true);auto id=AssetId::random();Json sidecar={{"schema",1},{"id",id.text()},{"importer",source.extension()==".png"||source.extension()==".jpg"||source.extension()==".jpeg"?"texture-color-v1":"static-gltf-v1"},{"tags",Json::array()},{"subassets",Json::object()}};
     for(const auto& key:imported.keys)sidecar["subassets"][key]=AssetId::random().text();for(const auto& [path,hash]:imported.inputs)require(file_sha256(within(p.sources,path))==hash,"Source changed during adoption");atomic_write(sidecar_path,sidecar.dump(2)+"\n",false);return id;
 }
 AssetId AssetService::adopt_human(std::string_view relative,std::string_view canonical,bool renderable){
@@ -108,7 +110,8 @@ void AssetService::scan(){auto& p=*impl_;p.thread();std::vector<std::pair<AssetI
         auto extension=entry.path().extension();auto relative=entry.path().lexically_relative(p.sources).generic_string();
         require(paths.insert(lowercase(relative)).second,"Case-colliding asset source paths");
         if(extension==".daimport"){auto original=entry.path();original.replace_extension();require(std::filesystem::is_regular_file(original),"Orphan import metadata");}
-        if(extension!=".glb" && extension!=".gltf" && extension!=".dacollision" && extension!=".daskeleton" && extension!=".daaction" && extension!=".damask")continue;
+        const bool image=(extension==".png"||extension==".jpg"||extension==".jpeg")&&std::filesystem::exists(metadata_path(entry.path()));
+        if(!image && extension!=".glb" && extension!=".gltf" && extension!=".dacollision" && extension!=".daskeleton" && extension!=".daaction" && extension!=".damask")continue;
         auto canonical=within(p.sources,relative);auto sidecar=metadata_path(canonical);require(std::filesystem::is_regular_file(sidecar),"Source has no sidecar; explicit adoption required");
         auto mapping=metadata_ids(source_metadata(canonical));for(const auto& [name,id]:mapping)require(ids.insert(id).second,"Duplicate UUID in asset source inventory");sources.push_back({mapping.at("$source"),relative});
     }
@@ -143,6 +146,8 @@ void AssetService::package(AssetId root,const std::filesystem::path& output,std:
     for(auto id:visited)manifest["assets"].push_back(products.at(id));atomic_write(output,manifest.dump(2)+"\n");
 }
 std::filesystem::path AssetService::cas_path() const{impl_->thread();return impl_->cas;}
+std::filesystem::path AssetService::source_root() const{impl_->thread();return impl_->sources;}
+AssetId AssetService::import_identity() const{impl_->thread();return impl_->import_owner;}
 std::uint64_t AssetService::conversion_count() const{impl_->thread();return impl_->conversions;}
 std::string load_cooked_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("root")==id.text()&&manifest.at("assets").size()==1,"Collision registry mismatch");auto record=manifest.at("assets").at(0);require(record.at("id")==id.text()&&record.at("kind")=="collision"&&record.at("extension")=="collision.json","Collision product type mismatch");auto digest=record.at("sha256").get<std::string>();digest_check(digest);auto bytes=read(cas/(digest+".collision.json"),1024*1024);require(sha256(bytes)==digest,"Collision product hash mismatch");return bytes;}
 RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId root){auto manifest=json(read(registry,1024*1024));bool selected=manifest.at("root")==root.text();if(manifest.contains("roots")){const auto& roots=manifest.at("roots");require(roots.is_array()&&!roots.empty()&&roots.size()<=64,"Runtime registry root limit");std::set<AssetId> unique;selected=false;for(const auto& entry:roots){auto id=AssetId::parse(entry.get<std::string>());require(unique.insert(id).second,"Duplicate runtime registry root");selected|=id==root;}require(unique.contains(AssetId::parse(manifest.at("root").get<std::string>())),"Runtime registry primary root missing");}require(manifest.at("schema")==1 && selected && manifest.at("assets").size()<=512,"Runtime registry mismatch/limit");std::map<AssetId,Json> records;

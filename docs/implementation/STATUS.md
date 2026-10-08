@@ -1,6 +1,8 @@
 # Implementation status
 
-Editor product direction captured 8 October 2026: [Ashen Roots editor workflow plan](EDITOR_WORKFLOW_PLAN.md) adds workflow tabs, typed import with automatic project-folder routing, a shared visual asset picker and subsystem authoring across M4/M5-M9. This workstream is Planned; the current native editor foundation and Royal movement are implemented, but the new import/picker/workspace workflows are not delivered. Existing milestone statuses and receipts below are unchanged.
+Editor delivery targets one full editor with all implemented features. Milestone-named build directories are temporary iteration checkpoints; feature-disabled library checks do not constitute separate editor editions.
+
+Editor workstream is In progress: [Ashen Roots editor workflow plan](EDITOR_WORKFLOW_PLAN.md) adds authoring across M4/M5-M9. The initial Scene/Assets layouts, supported typed external import/category routing and searchable inventory now pass focused native/editor/no-animation checks; see [Editor import report](EDITOR_IMPORT_REPORT.md). Thumbnail/tag/reference picking, batch/background import and subsystem workspace authoring remain planned. Existing milestone statuses remain unchanged; these focused receipts do not replace the prior 46/46 integrated baseline or close M4/M5.
 
 M0 is **Verified** on native Windows x64. No M0 blocker remains. Full evidence, exact pins and limitations are in [M0 report](M0_REPORT.md), [dependency inventory](dependencies.json) and [verification receipts](evidence/verification.json).
 

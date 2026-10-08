@@ -2,9 +2,13 @@
 
 Captured 8 October 2026 from the user's editor direction. This is planned work, not implementation evidence. M4/M5 remain In progress; M6-M9 remain Not started. M2's verified initial editor foundation does not imply these workflows are delivered.
 
+Initial implementation update: Scene / Level Design and Assets layouts, a single-file typed import modal with supported model/canonical skin/normalized clip/color texture routing, and a searchable asset inventory are now implemented. See [Editor import report](EDITOR_IMPORT_REPORT.md) for exact profiles, limitations and focused receipts. The visual picker, tags, batch/background import and subsystem workspace designs below remain planned.
+
 ## Product direction
 
 DarkAngel is tailored to making third-person co-op action games, with Ashen Roots as its concrete use case. Its main systems should have native authoring workflows integrated into the engine.
+
+There is one editor product/build containing all currently implemented editor features. Milestone-named build directories and presets are temporary iteration checkpoints, not separate editor versions or feature editions. Shared-library compatibility checks may disable subsystems, but they do not define a lighter editor product. Integrate every delivered workflow into the same editor; converge temporary build naming and launch paths as the iteration checkpoints are consolidated.
 
 Use top-level workflow tabs that change the main editor layout, following the workspace idea in Blender and the distinct working views in Ableton. Scene / Level Design is the default. Each workflow gets a focused arrangement of its browser, preview, properties and tools. Prefer embedded panels and tabs; routine authoring should not require managing a collection of floating windows. Import and selection dialogs can be focused popups.
 

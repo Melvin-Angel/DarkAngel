@@ -1,0 +1,23 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+    Start 10: M5.clips
+1/5 Test #10: M5.clips .........................   Passed    1.32 sec
+    Start 13: M5.character_scene
+2/5 Test #13: M5.character_scene ...............   Passed    1.10 sec
+    Start 15: M5.renderable_human
+3/5 Test #15: M5.renderable_human ..............   Passed    0.53 sec
+    Start 21: M2.asset_pipeline
+4/5 Test #21: M2.asset_pipeline ................   Passed    0.28 sec
+    Start 24: M2.editor_transactions
+5/5 Test #24: M2.editor_transactions ...........   Passed    0.14 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+M2           =   0.42 sec*proc (2 tests)
+M5           =   1.63 sec*proc (2 tests)
+animation    =   1.63 sec*proc (2 tests)
+asset        =   0.81 sec*proc (2 tests)
+network      =   1.10 sec*proc (1 test)
+physics      =   1.10 sec*proc (1 test)
+
+Total Test time (real) =   3.39 sec

@@ -57,6 +57,8 @@ These milestones order implementation rather than delaying all validation until 
 
 ## Ashen Roots editor workflow workstream
 
+One editor product contains all currently implemented editor features. Milestone build directories/presets are temporary development checkpoints, not separate editor versions or feature editions; isolated library compatibility checks do not change that delivery target.
+
 Added 8 October 2026 from the user's product direction. The editor is tailored to third-person co-op action authoring. Top-level workflow tabs change the main layout, with Scene / Level Design as the default and embedded panels preferred over floating windows. A shared typed import dialog routes owned sources into category folders; a shared visual asset picker provides thumbnails, rotating 3D previews, search, asset tags, type tabs and compatible single/multi-selection.
 
 The detailed roadmap, proposed folder policy, workflow scope, acceptance gates and implementation sequence are in [Editor workflow plan](../implementation/EDITOR_WORKFLOW_PLAN.md). This adds planned authoring work alongside the existing runtime gates; it does not change their evidence/status or replace the locked decisions.

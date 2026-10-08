@@ -24,13 +24,13 @@ deliberate shader syntax failure
                  ;
 
 [39m[91mDiligent Engine: ERROR in Diligent::RenderDeviceBase<struct Diligent::EngineD3D12ImplTraits>::CreateDeviceObject() (RenderDeviceBase.hpp, 467): Failed to create Shader 'DarkAngel stylized prop PS'
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205070000
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205040000
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205140000
 [39mDarkAngel editor rendered 8 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 2/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 260.50 KB / 260.75 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.9%. Peak utilization (used/allocated): 25.4%
+                       Peak used/aligned/allocated size: 256.50 KB / 256.75 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.9%. Peak utilization (used/allocated): 25.0%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 3.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

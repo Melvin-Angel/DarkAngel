@@ -1,4 +1,4 @@
-Latest handoff: read ROYAL_CONTINUE.md first. Implementation checkpoint116c10f; native Royal viewport locomotion is available, real ability/attack remains incomplete.
+Latest handoff: read ROYAL_CONTINUE.md and EDITOR_IMPORT_REPORT.md first. Royal locomotion checkpoint116c10f remains available; the initial typed import and Scene/Assets workflow increment follows planning checkpoint9c8fd2b. Real ability/attack remains incomplete. Obtain the exact latest checkpoint with git log -3 --oneline and git status --short.
 
 Editor roadmap update 8 October 2026: read [EDITOR_WORKFLOW_PLAN.md](EDITOR_WORKFLOW_PLAN.md) for the user's workflow-tab layout direction, typed import/category routing, shared visual asset picker and Character/Ability/Composer/Projectile-AOE/Item/Scene/VFX authoring plan across M4/M5-M9. Broader texture painting remains a later proposal. This is documentation of planned work, not delivery evidence or a change to existing milestone gates.
 

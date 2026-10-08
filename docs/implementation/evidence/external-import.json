@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "base_head": "9c8fd2b88fad98094a94a4b4a573b549585840f8",
+  "scope": "Single-file typed external imports with dependency closure, static glTF key normalization, canonical skin/normalized clip and sRGB texture profiles. Native Scene/Assets layout and modal validate/commit callbacks render on D3D12/Vulkan; Royal movement and affected source/no-animation regressions. Scripted callbacks do not qualify OS file-dialog interaction or a thumbnail picker.",
+  "gates": [
+    {
+      "name": "external-import-build",
+      "exit": 0,
+      "seconds": 85.835
+    },
+    {
+      "name": "external-import-native-build",
+      "exit": 0,
+      "seconds": 54.757
+    },
+    {
+      "name": "external-import-no-animation-build",
+      "exit": 0,
+      "seconds": 38.017
+    },
+    {
+      "name": "external-import-native",
+      "exit": 0,
+      "seconds": 2.752
+    },
+    {
+      "name": "external-import-affected",
+      "exit": 0,
+      "seconds": 3.424
+    },
+    {
+      "name": "external-import-no-animation",
+      "exit": 0,
+      "seconds": 1.82
+    },
+    {
+      "name": "external-import-royal-regression",
+      "exit": 0,
+      "seconds": 4.277
+    },
+    {
+      "name": "external-import-editor-d3d12",
+      "exit": 0,
+      "seconds": 0.727
+    },
+    {
+      "name": "external-import-editor-d3d12-browse",
+      "exit": 0,
+      "seconds": 0.371
+    },
+    {
+      "name": "external-import-editor-vulkan",
+      "exit": 0,
+      "seconds": 0.733
+    },
+    {
+      "name": "external-import-editor-vulkan-browse",
+      "exit": 0,
+      "seconds": 0.406
+    },
+    {
+      "name": "external-import-editor-choice",
+      "exit": 0,
+      "seconds": 0.392
+    },
+    {
+      "name": "external-import-royal-mounted-d3d12",
+      "exit": 0,
+      "seconds": 0.747
+    },
+    {
+      "name": "external-import-royal-mounted-vulkan",
+      "exit": 0,
+      "seconds": 0.661
+    }
+  ],
+  "workspace": "C:\\DarkAngel\\.cache\\import-editor-2d077ad0-e33f-43dc-905f-96abd5c88a52",
+  "binary_sha256": "8b330fe960455b6ec732b29f4f16868d4c7ba8c399f4c18451ce9a8463cea813",
+  "source_sha256": "e611de6a306e6ded9ed75dea93fff6db61b6a7ece983dadd0fa781b2f0f754b0",
+  "limitations": [
+    "Synchronous bounded single-file import; asynchronous/batch jobs remain planned.",
+    "VFX/audio/UI/standalone materials and arbitrary FBX/rig conversion unavailable.",
+    "Asset table search/folder filters; thumbnails, tags and field picker remain planned.",
+    "M4/M5 full gates and live EOS remain open; no new independent GNS claim."
+  ],
+  "implementation_sha256": {
+    "CMakeLists.txt": "8891a3fe37a0ae6bdd87a222302e8f99d69cb4cdb973f64e2ff80f9ed4e3c9d7",
+    "engine/assets/external_import.cpp": "3b48a657b4bce135107f606418bfb4b48010e9766453a16d0c180ef75c6abe06",
+    "engine/assets/asset_service.cpp": "eb03559e15eddb5b7c4bf341afa48d1941555ac6c0a132d80fab9ee87b5f4e65",
+    "engine/assets/include/darkangel/assets.hpp": "37f3c7e296cc00f0e65e11e043aeaa6c0c50414de8bf56e11409f5f77ee30080",
+    "apps/editor/main.cpp": "0770d2898a25439d7d26cf62d0d458ef2539551bb4904790d4ab659b2a625f98",
+    "apps/editor/editor_assets.cpp": "9467cab581f201099a0c1561c9c82454b69b489957242be855b60e7c973b3a81",
+    "apps/editor/editor_ui.cpp": "0cf886e547072ec2116dbcd0e827d2ec402a14f3657bc3fbcee1719ee8803df2",
+    "apps/editor/editor_controller.cpp": "0e0076a21017b65395dac54d642fa6bcb568f1f47bde6e377582ae28481b86f3",
+    "tests/external_import_tests.cpp": "1c5ce27c8bf1b76085e966224c4a9ba0759bbcc0796fc0daa70f0883374f9d3c"
+  }
+}
