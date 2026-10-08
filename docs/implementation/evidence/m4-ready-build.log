@@ -1,0 +1,4 @@
+[1/4] Scanning C:\DarkAngel\tests\collision_stream_tests.cpp for CXX dependencies
+[2/4] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\CollisionStreamTests.dir\tests\collision_stream_tests.cpp.obj
+[4/4] Linking CXX executable CollisionStreamTests.exe

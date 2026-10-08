@@ -1,0 +1,1 @@
+WorldSession atomic collision frames, network-fed isolated replay, loss/reorder/duplicate bounds and late join passed; max_packet_bytes=776 dropped=3

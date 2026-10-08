@@ -52,7 +52,9 @@ int main(int argc,char** argv){
                 session.tick();
                 if(session.readiness(peer)==SessionReadiness::Ready){
                     ready=true;
-                    if(!host&&session.motors().contains(id)){
+                    if(!host&&session.motors().contains(id)&&!session.collisions().empty()){
+                        prepare_collision_frame(session.collisions().back(),{});session.acknowledge_collision(session.collisions().back().tick);session.tick();
+                        require(session.collision_control_ready(),"GNS prepared collision control readiness");
                         const auto& state=session.motors().at(id);
                         while(sent<state.tick+4&&sent<90){
                             MotorInput input{
@@ -60,7 +62,8 @@ int main(int argc,char** argv){
                             };
                             require(session.submit_motor(id,input),"GNS input backpressure");
                             sent++;
-                        }if(state.tick>=90){
+                        }if(state.tick>=90&&session.collisions().back().tick>=90){
+                            require(session.collisions().back().actors.size()==1&&session.collisions().back().actors[0].foot==state.position&&session.collisions().back().boxes.size()==2&&session.collisions().back().boxes[1].dynamic,"GNS character and dynamic-crate collision state");
                             require(state.sequence==90&&state.position.x>6&&state.position.x<8,"GNS authoritative motor outcome");
                             prepare_collision_frame(session.collisions().back(),{});session.acknowledge_collision(state.tick);
                             require(session.submit_motor(id,{

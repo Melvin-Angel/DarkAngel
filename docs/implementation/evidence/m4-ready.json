@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "base_head": "0169f74b15037f05d399d1478cc64a7ee1d0fde3",
+  "scope": "Wire envelope v2 collision-required handshake and client/server current-topology prepared ACK control fence; broader clock/cell barriers and M5 remain open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "settings": {
+    "wire_envelope": 2,
+    "packet_bytes": 1000,
+    "fragment_timeout_session_pumps": 30,
+    "ack_retention": 31
+  },
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 2.386,
+      "log": "docs/implementation/evidence/m4-ready-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionStreamTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.068,
+      "log": "docs/implementation/evidence/m4-ready-focused.log"
+    },
+    {
+      "gate": "native-cook",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionAssetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.117,
+      "log": "docs/implementation/evidence/m4-ready-native-cook.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 3.675,
+      "log": "docs/implementation/evidence/m4-ready-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 4.001,
+      "log": "docs/implementation/evidence/m4-ready-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "CollisionStreamTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 2.453,
+      "log": "docs/implementation/evidence/m4-ready-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets|M4.collision_stream",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.47,
+      "log": "docs/implementation/evidence/m4-ready-no-animation-regression.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "cc4905b609d4a7446d52b24fc04c9e4223680619856ba785aa4ee2ffe7ae30ed",
+    "scripts/verify_collision_ready.py": "2b0c373aa51d15f5b6377c2a7c997fe229f5bc526b8367ae7518d0bd688b50b7",
+    "tests/collision_stream_tests.cpp": "f8f7ebbc7e10f1dc2b2a692eb6d112ee1577508103d6a9b7a0701e20e3ef158c",
+    "tests/motor_session_tests.cpp": "24b27ea0f3e756edd4b2c52c263063e8550515a31bca3856579ee93ad8c8f40d",
+    "engine/runtime/world_session.cpp": "1087586fd0753ef467856e9904bc75f0e0eac3b5769ec54b65ab592182d3a4da",
+    "engine/runtime/include/darkangel/world_session.hpp": "5bfb8c0f265cc81225ea1389a9a48997de9258501094bbc56402fe13a747c41b",
+    "content/physics/m4_cave.dacollision": "fd988ea3d2f371a6cdb79adaa5efc657ed7f5cbc3416d7b00ee53ed47a2d3049",
+    "tests/collision_asset_tests.cpp": "59f92c0be3b34ee7f522fff094361d46d5293dd5b535a5fce6bb4f36c6b95c07",
+    "engine/runtime/character_motor.cpp": "e73121606192d27c9ccf0776708ab0231f67a22ecceeb8e8f5b830c1be0ae5fc",
+    "engine/runtime/collision_source.cpp": "0bcbe7e0e3bef198211a1a961fe735b3a67e3d12ac3129261e10e81351a2b0e1",
+    "engine/runtime/include/darkangel/character_motor.hpp": "b2088700c86ff518d62681913b716e17524e9e3a10b8cef618fe3ec757f3c0b1",
+    "engine/assets/collision_cooker.cpp": "d624dba576346a382f7ba492401dfa73004d6d5e64c3126fb4f249de22284353",
+    "engine/runtime/include/darkangel/collision_asset.hpp": "55b40402b441b5850afe86bcc09be287fe8c345833dd54ac31c77c3a90da0ec7"
+  },
+  "binary_sha256": {
+    "CollisionStreamTests.exe": "7765b872e65ffaeb2304cfee2e3503682d2bf74b8deaeb7301a8f5d36b9d2160",
+    "CollisionAssetTests.exe": "482a23ebe1bc32ad9f8b072b146e353f52409c1a61641513a791287ade7e4a99",
+    "MotorSessionTests.exe": "2a09b07b0c1f254ee33c36074d0aa2b1c090aa682d729e266cfefc5f923f9aa9"
+  }
+}
