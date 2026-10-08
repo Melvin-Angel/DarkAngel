@@ -1,0 +1,20 @@
+#include <darkangel/animation_assets.hpp>
+#include <nlohmann/json.hpp>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <cmath>
+using namespace darkangel;
+namespace {
+void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
+std::string read(const std::filesystem::path& path){std::ifstream in(path,std::ios::binary);require(bool(in),"Renderable fixture missing");return {std::istreambuf_iterator<char>(in),{}};}
+std::array<float,16> multiply(const std::array<float,16>& first,const std::array<float,16>& second){std::array<float,16> result{};for(unsigned col=0;col<4;++col)for(unsigned row=0;row<4;++row)for(unsigned k=0;k<4;++k)result[col*4+row]+=first[k*4+row]*second[col*4+k];return result;}
+}
+int main(){try{
+    auto project=std::filesystem::path(DAE_SOURCE_DIR),root=std::filesystem::path(DAE_BINARY_DIR)/("renderable-human-"+AssetId::random().text());auto source=root/"sources";std::filesystem::create_directories(source);std::filesystem::copy_file(project/"content/royal_district/character/canonical-human.glb",source/"human.glb");std::filesystem::copy_file(project/"content/animation/canonical_human.daskeleton",source/"human.daskeleton");AssetService assets(source,root/"cache");auto id=assets.adopt_human("human.glb","human.daskeleton",true);assets.scan();require(assets.cook("human.glb").changed&&!assets.cook("human.glb").changed,"Renderable human cold/warm cook");assets.package(id,root/"human.json");auto human=load_cooked_skinned_model(root/"human.json",assets.cas_path(),id);require(human.meshes.size()==14&&human.rig.definition.joints.size()==81&&human.textured&&!human.texture.mips.empty(),"Complete modular human, canonical rig and supplied atlas");require(nlohmann::json::parse(read(root/"human.json")).at("assets").size()==19,"Frozen modular human closure includes all 14 primitives and atlas");RigPose pose(human.rig.definition,human.rig.archive);auto rest=pose.rest_pose();std::vector<std::array<float,16>> palette;for(unsigned joint=0;joint<rest.size();++joint)palette.push_back(multiply(rest[joint].values,human.inverse_bind[joint]));unsigned vertices{};double max_error{};
+    for(const auto& mesh:human.meshes)for(const auto& vertex:mesh.vertices){++vertices;std::array<double,3> skinned{};for(unsigned influence=0;influence<4;++influence){const auto& matrix=palette[vertex.joints[influence]];for(unsigned axis=0;axis<3;++axis){double value=matrix[12+axis];for(unsigned component=0;component<3;++component)value+=matrix[component*4+axis]*vertex.geometry.position[component];skinned[axis]+=value*vertex.weights[influence];}}double squared{};for(unsigned axis=0;axis<3;++axis)squared+=(skinned[axis]-vertex.geometry.position[axis])*(skinned[axis]-vertex.geometry.position[axis]);max_error=std::max(max_error,std::sqrt(squared));}
+    require(vertices>3000&&max_error<.0005,"Complete modular inverse-bind skinning reference");
+    const auto frozen=read(root/"human.json");auto bytes=read(source/"human.glb");bytes[0]='X';{std::ofstream out(source/"human.glb",std::ios::binary);out<<bytes;}bool rejected=false;try{assets.cook("human.glb");}catch(...){rejected=true;}require(rejected,"Malformed renderable reimport rejected");assets.package(id,root/"retained.json");require(read(root/"retained.json")==frozen,"Failed renderable reimport preserves all frozen products");
+    auto manifest=nlohmann::json::parse(frozen);auto malformed=manifest;malformed["assets"].push_back(malformed["assets"][0]);{std::ofstream out(root/"duplicate.json");out<<malformed.dump();}rejected=false;try{load_cooked_skinned_model(root/"duplicate.json",assets.cas_path(),id);}catch(...){rejected=true;}require(rejected,"Duplicate runtime product rejects");
+    std::cout<<"Renderable canonical human parts="<<human.meshes.size()<<" vertices="<<vertices<<" atlas="<<human.texture.mips[0].width<<'x'<<human.texture.mips[0].height<<" rest_error_m="<<max_error<<"; frozen binary skin/load/reimport passed\n";return 0;
+}catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

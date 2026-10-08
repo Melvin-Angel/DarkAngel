@@ -1,0 +1,118 @@
+FBX version: 7700
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+WARNING: User property type 'Short' is not supported
+INFO Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.5\4.5\scripts\addons_core\io_scene_gltf2\extern_draco.dll
+17:38:30 | INFO: Starting glTF 2.0 export
+17:38:30 | INFO: Extracting primitive: Mesh.009
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.003
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.002
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.006
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.004
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.005
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.001
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.012
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.011
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.010
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.007
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.008
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Extracting primitive: Mesh.013
+17:38:30 | INFO: Primitives created: 1
+17:38:30 | INFO: Finished glTF 2.0 export in 0.08210992813110352 s
+
+MODULAR_HUMAN_EXPORTED 14 parts
+Blender 4.5.1 LTS (hash b0a72b245dcf built 2025-07-29 06:36:07)
+
+Blender quit

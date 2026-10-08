@@ -1,0 +1,26 @@
+{
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Characters\\LowPoly\\FREE_HumanLowPoly\\Meshes_Humans\\HumanMale_Character.fbx",
+  "source_sha256": "0c99d39d08d123a1114c6cf2e19d3e089f14501bea887250fea6748374d2122f",
+  "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Characters\\LowPoly\\FREE_HumanLowPoly\\Textures_Humans\\LowPolyCharacterTexture.png",
+  "texture_sha256": "a7aef494f10be46f5997edf4a85ae82601e959485de2c01f1ce9b3fcfd0472b5",
+  "glb_sha256": "53947113b16739e5e50c2d12cd34860a773556279855f8c86d26aa78b14d818e",
+  "blender": "4.5.1 LTS",
+  "bones": 81,
+  "parts": [
+    "Beard6",
+    "Body_Arms",
+    "Body_Chest",
+    "Body_Feet",
+    "Body_Hands",
+    "Body_Head",
+    "Body_Legs",
+    "Body_Neck",
+    "Eyebrows",
+    "Eyelashes",
+    "Eyes",
+    "Hair7",
+    "Moustache4",
+    "Underwear"
+  ],
+  "scope": "Complete original modular assembly and supplied atlas; no runtime retargeting; visual/GPU acceptance remains required"
+}

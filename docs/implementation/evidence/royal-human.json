@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "base_head": "a4cada4e38936d1ae7b3a6bf629538cb03b9696d",
+  "scope": "Opt-in human-gltf-v2 renderable frozen binary skin, original 14-part assembly/atlas, canonical bind validation, runtime loading and failed generation retention; GPU/visual/player/combat integration remains open",
+  "online": "EOS blocked; existing independent GNS receipt unchanged",
+  "gates": [
+    {
+      "name": "build",
+      "exit": 0,
+      "seconds": 60.697,
+      "log": "docs/implementation/evidence/royal-human-build.log"
+    },
+    {
+      "name": "focused",
+      "exit": 0,
+      "seconds": 1.363,
+      "log": "docs/implementation/evidence/royal-human-focused.log"
+    },
+    {
+      "name": "ctest",
+      "exit": 0,
+      "seconds": 9.167,
+      "log": "docs/implementation/evidence/royal-human-ctest.log"
+    },
+    {
+      "name": "no-animation-build",
+      "exit": 0,
+      "seconds": 27.829,
+      "log": "docs/implementation/evidence/royal-human-no-animation-build.log"
+    },
+    {
+      "name": "no-animation-checks",
+      "exit": 0,
+      "seconds": 0.56,
+      "log": "docs/implementation/evidence/royal-human-no-animation-checks.log"
+    }
+  ],
+  "fixture": {
+    "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Characters\\LowPoly\\FREE_HumanLowPoly\\Meshes_Humans\\HumanMale_Character.fbx",
+    "source_sha256": "0c99d39d08d123a1114c6cf2e19d3e089f14501bea887250fea6748374d2122f",
+    "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Characters\\LowPoly\\FREE_HumanLowPoly\\Textures_Humans\\LowPolyCharacterTexture.png",
+    "texture_sha256": "a7aef494f10be46f5997edf4a85ae82601e959485de2c01f1ce9b3fcfd0472b5",
+    "glb_sha256": "53947113b16739e5e50c2d12cd34860a773556279855f8c86d26aa78b14d818e",
+    "blender": "4.5.1 LTS",
+    "bones": 81,
+    "parts": [
+      "Beard6",
+      "Body_Arms",
+      "Body_Chest",
+      "Body_Feet",
+      "Body_Hands",
+      "Body_Head",
+      "Body_Legs",
+      "Body_Neck",
+      "Eyebrows",
+      "Eyelashes",
+      "Eyes",
+      "Hair7",
+      "Moustache4",
+      "Underwear"
+    ],
+    "scope": "Complete original modular assembly and supplied atlas; no runtime retargeting; visual/GPU acceptance remains required"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "e1081721e14242bf60edeed10de1f75f6086abb5a3db598539564440bf04549d",
+    "scripts/convert_modular_human.py": "ca652e260bac248e01abedf8998cd5429c3f0a832f1acb952178219f6a2c6962",
+    "scripts/verify_renderable_human.py": "0ba8b91f27907218d7b31163e32a454f495b69a0bc3a8030a118c8c48c175e33",
+    "engine/assets/animation_cooker.cpp": "d33d73620a313f9ed3791e9607a08a327995d1c2a075220f71e604b5aa87479c",
+    "engine/assets/asset_service.cpp": "ff8e6d04bcd10c214b3aa82a11c45bec787f8f0498c9dc9c04256ecfc203ac23",
+    "engine/assets/assets_internal.hpp": "17fe545c270d7c58d6ef5393466c86f7e53b4ed2c9cb64dd525dcd3766593377",
+    "engine/assets/gltf_cooker.cpp": "f7263660a8415b33c3a3b4c890a2283445bd93777c0131ed29d9e139b9c4bd02",
+    "engine/assets/include/darkangel/assets.hpp": "ac2882a9f04c05354215f23339e75aaa9f0fabbeec6ad9a59b318c3d53cea7e0",
+    "engine/assets/include/darkangel/animation_assets.hpp": "e348bc0f175a549face743bf125afc1f16fa9ca4c5af452063572d03e4c2ac3c",
+    "tests/renderable_human_tests.cpp": "4224d8de651ffe8d7d79eb92ee15670f5c884bddebdc03c2d672db5f28ab3f25",
+    "tools/cooker/main.cpp": "0353637576254b3f607169a2a6f9ef9e96813064e85830626a07296a6ea26a38"
+  },
+  "binary_sha256": "c2b7455c1badfcb7340a974ec1c58f96b088d46423fceac00f39665328e41af7"
+}

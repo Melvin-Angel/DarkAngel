@@ -18,7 +18,8 @@ struct Import {
 };
 Import import_skeleton(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_clip(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path&,bool loop,bool inspect=false);
-Import import_human(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path& canonical,bool inspect=false);
+Import import_human(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path& canonical,bool inspect=false,bool renderable=false);
+std::string cook_color_texture(std::string_view);
 Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_joint_mask(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_collision(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);

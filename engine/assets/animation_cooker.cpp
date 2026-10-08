@@ -16,6 +16,7 @@
 #include <cmath>
 #include <set>
 #include <cstring>
+#include <bit>
 namespace darkangel::assets_detail {
     namespace {
         constexpr auto ozz_pin="744eb9d99f606eda849acb0b1204f7a3dc20bca1";
@@ -197,7 +198,7 @@ namespace darkangel::assets_detail {
         });
         return out;
     }
-    Import import_human(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,const std::filesystem::path& canonical,bool inspect){
+    Import import_human(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,const std::filesystem::path& canonical,bool inspect,bool renderable){
         require(canonical.extension()==".daskeleton","Human canonical source must be native skeleton");
         auto rig_bytes=read(canonical,1024*1024);
         auto rig=decode_rig_source(rig_bytes);
@@ -281,6 +282,7 @@ namespace darkangel::assets_detail {
             bind.push_back(load_matrix(inverse));
         }
         Json meshes=Json::array();
+        std::vector<std::string> mesh_keys;std::set<std::string> unique_mesh_keys;
         unsigned vertices_total{
         };
         for(std::size_t node_index=0;node_index<data->nodes_count;++node_index){
@@ -293,13 +295,12 @@ namespace darkangel::assets_detail {
             for(std::size_t primitive_index=0;primitive_index<node->mesh->primitives_count;++primitive_index){
                 auto& primitive=node->mesh->primitives[primitive_index];
                 require(primitive.type==cgltf_primitive_type_triangles&&primitive.targets_count==0&&primitive.indices&&!primitive.indices->is_sparse,"Human triangles/morph profile");
-                const cgltf_accessor *positions{
-                },*weights{
-                },*joints{
-                };
+                const cgltf_accessor *positions{},*weights{},*joints{},*normals{},*uvs{};
                 for(std::size_t a=0;a<primitive.attributes_count;++a){
                     auto& attribute=primitive.attributes[a];
                     if(attribute.type==cgltf_attribute_type_position)positions=attribute.data;
+                    else if(attribute.type==cgltf_attribute_type_normal)normals=attribute.data;
+                    else if(attribute.type==cgltf_attribute_type_texcoord&&attribute.index==0)uvs=attribute.data;
                     else if(attribute.type==cgltf_attribute_type_weights){
                         require(attribute.index==0,"More than four influences unsupported");
                         weights=attribute.data;
@@ -309,6 +310,7 @@ namespace darkangel::assets_detail {
                     }
                 }
                 require(positions&&weights&&joints&&positions->count==weights->count&&positions->count==joints->count&&!positions->is_sparse&&!weights->is_sparse&&!joints->is_sparse&&joints->type==cgltf_type_vec4&&weights->type==cgltf_type_vec4,"Human skin accessor contract");
+                if(renderable){require(normals&&uvs&&!normals->is_sparse&&!uvs->is_sparse&&normals->count==positions->count&&uvs->count==positions->count&&normals->type==cgltf_type_vec3&&uvs->type==cgltf_type_vec2,"Renderable skin requires normals and UV0");auto extras=node->mesh->extras;require(extras.end_offset>extras.start_offset&&extras.end_offset<=data->json_size,"Renderable skin requires stable mesh extras");auto key=json(std::string_view(data->json+extras.start_offset,extras.end_offset-extras.start_offset)).at("darkangel_key").get<std::string>()+"/primitive/"+std::to_string(primitive_index);require(!key.empty()&&key.size()<=128&&unique_mesh_keys.insert(key).second,"Duplicate/invalid skin primitive key");mesh_keys.push_back(key);}
                 vertices_total+=static_cast<unsigned>(positions->count);
                 require(vertices_total<=100000&&primitive.indices->count<=300000&&primitive.indices->count%3==0,"Human mesh bounds");
                 Json vertices=Json::array();
@@ -342,6 +344,7 @@ namespace darkangel::assets_detail {
                             "weights",values
                         }
                     });
+                    if(renderable){std::array<float,3> normal;std::array<float,2> uv;require(cgltf_accessor_read_float(normals,vertex,normal.data(),3)&&cgltf_accessor_read_float(uvs,vertex,uv.data(),2),"Skin normal/UV read");double length{};for(float value:normal){require(std::isfinite(value),"Skin normal finite");length+=value*value;}require(std::abs(length-1)<.01,"Skin normals must be unit vectors");for(float value:uv)require(std::isfinite(value)&&std::abs(value)<=100,"Skin UV bounds");vertices.back()["normal"]=normal;vertices.back()["uv"]=uv;}
                 }
                 Json indices=Json::array();
                 for(std::size_t i=0;i<primitive.indices->count;++i){
@@ -355,9 +358,19 @@ namespace darkangel::assets_detail {
                         "indices",indices
                     }
                 });
+                if(renderable){std::array<float,4> color{1,1,1,1};if(primitive.material&&primitive.material->has_pbr_metallic_roughness){const auto& pbr=primitive.material->pbr_metallic_roughness;std::copy_n(pbr.base_color_factor,4,color.begin());if(pbr.base_color_texture.texture)require(pbr.base_color_texture.texcoord==0&&!pbr.base_color_texture.has_transform&&data->images_count==1&&pbr.base_color_texture.texture->image==data->images,"Renderable skin shared atlas/UV0 contract");}for(float value:color)require(std::isfinite(value)&&value>=0&&value<=1,"Skin material color");meshes.back()["color"]=color;}
             }
         }require(!meshes.empty()&&meshes.size()<=32,"Human skin mesh bounds");
+        if(renderable){require(source.extension()==".glb"&&data->images_count<=1,"Renderable human initial profile requires GLB and at most one shared albedo atlas");if(data->images_count)require(!data->images[0].uri,"Renderable human initial atlas must be embedded");out.keys.insert(out.keys.end(),mesh_keys.begin(),mesh_keys.end());if(data->images_count)out.keys.push_back("texture");out.product_count=4+meshes.size()+data->images_count;}
         if(inspect)return out;
+        if(renderable){
+            require(ids.size()==out.keys.size()+1,"Renderable human source product mappings");auto id=ids.at("$source"),skin_id=ids.at("skin");Json inverse_bind=Json::array();for(auto world:canonical_world){auto inverse=ozz::math::Invert(world);std::array<float,16> matrix;for(int column=0;column<4;++column)ozz::math::StorePtrU(inverse.cols[column],matrix.data()+column*4);inverse_bind.push_back(matrix);}
+            Json parts=Json::array();std::vector<AssetId> dependencies;
+            for(unsigned part=0;part<meshes.size();++part){auto mesh_id=ids.at(mesh_keys[part]);const auto& mesh=meshes[part];std::string binary="DASKIN02";auto u32=[&](unsigned value){for(unsigned byte=0;byte<4;++byte)binary+=char(value>>(byte*8));};auto f32=[&](float value){require(std::isfinite(value),"Skinned binary finite value");u32(std::bit_cast<unsigned>(value));};u32(unsigned(mesh.at("vertices").size()));u32(unsigned(mesh.at("indices").size()));for(const auto& vertex:mesh.at("vertices")){for(auto name:{"position","normal","uv"})for(const auto& value:vertex.at(name))f32(value.get<float>());for(const auto& value:vertex.at("joints"))u32(value.get<unsigned>());for(const auto& value:vertex.at("weights"))f32(value.get<float>());}for(const auto& value:mesh.at("indices"))u32(value.get<unsigned>());out.products.push_back({mesh_id,"skin-mesh","skinmesh",std::move(binary),{}});dependencies.push_back(mesh_id);parts.push_back({{"mesh",mesh_id.text()},{"color",mesh.at("color")}});}
+            Json texture=nullptr;std::vector<AssetId> required{rig.id,skin_id};
+            if(data->images_count){auto& image=data->images[0];std::string image_bytes;if(image.uri){auto uri=std::string(image.uri);require(!uri.empty()&&uri.find_first_of("%:\\")==uri.npos&&uri.front()!='/',"Unsafe skin texture URI");auto path=within(root,source.parent_path().lexically_relative(root)/uri);image_bytes=read(path,32*1024*1024);out.inputs[path.lexically_relative(root).generic_string()]=sha256(image_bytes);}else{require(image.buffer_view&&image.buffer_view->buffer->data&&image.buffer_view->offset+image.buffer_view->size<=image.buffer_view->buffer->size,"Skin image buffer bounds");image_bytes.assign(static_cast<const char*>(image.buffer_view->buffer->data)+image.buffer_view->offset,image.buffer_view->size);}auto texture_id=ids.at("texture");texture=texture_id.text();out.products.push_back({texture_id,"texture","dds",cook_color_texture(image_bytes),{}});required.push_back(texture_id);}
+            Json skin_product={{"schema",2},{"kind","skin-binding"},{"id",skin_id.text()},{"signature",rig.signature},{"inverse_bind",inverse_bind},{"meshes",parts}};out.products.push_back({skin_id,"skin-binding","skin.json",skin_product.dump(),dependencies});Json manifest={{"schema",2},{"kind","human-binding"},{"id",id.text()},{"skeleton",rig.id.text()},{"skin",skin_id.text()},{"signature",rig.signature},{"axes","right-handed-y-up-metres"},{"texture",texture}};out.products.push_back({id,"human-binding","human.json",manifest.dump(),required});auto rig_import=import_skeleton(root,canonical,{{"$source",rig.id},{"runtime",rig.runtime}},false);for(auto& product:rig_import.products)out.products.push_back(std::move(product));return out;
+        }
         require(ids.size()==2&&ids.contains("skin"),"Human source product mapping");
         auto id=ids.at("$source"),skin_id=ids.at("skin");
         Json inverse_bind=Json::array();
@@ -461,6 +474,13 @@ namespace darkangel {
         require(definition.id==id,"Cooked clip identity");auto rig=load_cooked_rig(registry,cas,definition.skeleton);
         require(definition.signature==rig.definition.signature&&definition.joints==rig.definition.joints.size(),"Cooked clip skeleton compatibility");
         return {definition,files.load(definition.runtime,"ozz-animation","ozzanim")};
+    }
+    RuntimeSkinnedModel load_cooked_skinned_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
+        using namespace assets_detail;Registry files(registry,cas);auto manifest=json(files.load(id,"human-binding","human.json"));require(manifest.is_object()&&manifest.size()==8&&manifest.at("schema")==2&&manifest.at("kind")=="human-binding"&&manifest.at("id")==id.text()&&manifest.at("axes")=="right-handed-y-up-metres","Renderable human manifest profile");RuntimeSkinnedModel result;result.id=id;result.rig=load_cooked_rig(registry,cas,AssetId::parse(manifest.at("skeleton").get<std::string>()));require(manifest.at("signature")==result.rig.definition.signature,"Renderable human rig signature");auto skin_id=AssetId::parse(manifest.at("skin").get<std::string>());auto skin=json(files.load(skin_id,"skin-binding","skin.json"));require(skin.is_object()&&skin.size()==6&&skin.at("schema")==2&&skin.at("kind")=="skin-binding"&&skin.at("id")==skin_id.text()&&skin.at("signature")==result.rig.definition.signature&&skin.at("inverse_bind").is_array()&&skin.at("inverse_bind").size()==result.rig.definition.joints.size()&&skin.at("meshes").is_array()&&!skin.at("meshes").empty()&&skin.at("meshes").size()<=32,"Renderable skin manifest profile");result.inverse_bind=skin.at("inverse_bind").get<std::vector<std::array<float,16>>>();for(const auto& matrix:result.inverse_bind)for(float value:matrix)require(std::isfinite(value)&&std::abs(value)<=100,"Renderable inverse-bind bounds");unsigned total_vertices{};std::set<AssetId> mesh_ids;
+        for(const auto& part:skin.at("meshes")){require(part.is_object()&&part.size()==2,"Renderable skin part schema");auto mesh_id=AssetId::parse(part.at("mesh").get<std::string>());require(mesh_ids.insert(mesh_id).second,"Duplicate skin primitive product");auto bytes=files.load(mesh_id,"skin-mesh","skinmesh");require(bytes.size()>=16&&bytes.substr(0,8)=="DASKIN02","Skinned binary type");std::size_t offset=8;auto u32=[&](){require(offset+4<=bytes.size(),"Truncated skinned binary");unsigned value{};for(unsigned byte=0;byte<4;++byte)value|=unsigned(static_cast<unsigned char>(bytes[offset++]))<<(byte*8);return value;};auto f32=[&](){float value=std::bit_cast<float>(u32());require(std::isfinite(value),"Skinned binary nonfinite value");return value;};auto vertices=u32(),indices=u32();require(vertices>0&&vertices<=100000&&total_vertices+vertices<=100000&&indices>0&&indices<=300000&&indices%3==0&&bytes.size()==16+std::size_t(vertices)*64+std::size_t(indices)*4,"Skinned binary dimensions/work bounds");total_vertices+=vertices;SkinnedMesh mesh;mesh.color=part.at("color").get<std::array<float,4>>();for(float value:mesh.color)require(std::isfinite(value)&&value>=0&&value<=1,"Skinned material color bounds");mesh.vertices.resize(vertices);mesh.indices.resize(indices);
+            for(auto& vertex:mesh.vertices){for(auto& value:vertex.geometry.position){value=f32();require(std::abs(value)<=100,"Skinned vertex bounds");}double normal_length{};for(auto& value:vertex.geometry.normal){value=f32();normal_length+=value*value;}require(std::abs(normal_length-1)<.01,"Skinned normal length");for(auto& value:vertex.geometry.uv){value=f32();require(std::abs(value)<=100,"Skinned UV bounds");}for(auto& joint:vertex.joints){joint=u32();require(joint<result.rig.definition.joints.size(),"Skinned joint index");}double sum{};for(auto& value:vertex.weights){value=f32();require(value>=0&&value<=1,"Skinned weight bounds");sum+=value;}require(std::abs(sum-1)<.002,"Skinned weights sum");}for(auto& index:mesh.indices){index=u32();require(index<vertices,"Skinned triangle index");}result.meshes.push_back(std::move(mesh));
+        }
+        if(!manifest.at("texture").is_null()){result.texture=decode_texture(files.load(AssetId::parse(manifest.at("texture").get<std::string>()),"texture","dds"));result.textured=true;}return result;
     }
     std::string load_cooked_human_binding(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
         using namespace assets_detail;
