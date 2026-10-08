@@ -19,6 +19,7 @@ struct Import {
 Import import_skeleton(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_clip(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path&,bool loop,bool inspect=false);
 Import import_human(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path& canonical,bool inspect=false);
+Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_collision(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false);
 CookedMesh decode_mesh(std::string_view);

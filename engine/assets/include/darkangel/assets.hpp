@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 namespace darkangel {
+struct ActionDefinition;
+ActionDefinition load_cooked_action(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 struct CollisionDefinition;
 struct Vertex {std::array<float,3> position,normal;std::array<float,2> uv;};
 struct MeshPart {AssetId material;std::uint32_t first,count;};

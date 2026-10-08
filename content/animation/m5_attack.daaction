@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "asset": "1393c67d-63b9-4ad5-9ab2-394a11919ced",
+  "kind": "action",
+  "duration": 4096,
+  "loops": 2,
+  "priority": 10,
+  "slot": "full-body",
+  "blocks": [
+    {
+      "id": 1,
+      "track": 0,
+      "begin": 0,
+      "end": 0,
+      "kind": "cue",
+      "key": "Attack.Start"
+    },
+    {
+      "id": 2,
+      "track": 1,
+      "begin": 512,
+      "end": 768,
+      "kind": "hit",
+      "key": "Weapon.Right"
+    },
+    {
+      "id": 3,
+      "track": 2,
+      "begin": 0,
+      "end": 3072,
+      "kind": "movement-lock",
+      "key": "Motor.Root"
+    },
+    {
+      "id": 4,
+      "track": 3,
+      "begin": 1024,
+      "end": 2048,
+      "kind": "invulnerability",
+      "key": "Damage.Dodge"
+    },
+    {
+      "id": 5,
+      "track": 4,
+      "begin": 2048,
+      "end": 3072,
+      "kind": "combo",
+      "key": "Attack.Next"
+    }
+  ]
+}

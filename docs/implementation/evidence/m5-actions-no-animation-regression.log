@@ -1,0 +1,18 @@
+Test project C:/DarkAngel/build/m4-relwithdebinfo
+    Start  7: M4.collision_assets
+1/4 Test  #7: M4.collision_assets ..............   Passed    0.19 sec
+    Start  8: M5.action_timeline
+2/4 Test  #8: M5.action_timeline ...............   Passed    0.21 sec
+    Start 10: M2.asset_pipeline
+3/4 Test #10: M2.asset_pipeline ................   Passed    0.25 sec
+    Start 12: M2.editor_transactions
+4/4 Test #12: M2.editor_transactions ...........   Passed    0.12 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+M2       =   0.38 sec*proc (2 tests)
+M4       =   0.19 sec*proc (1 test)
+asset    =   0.44 sec*proc (2 tests)
+
+Total Test time (real) =   0.80 sec

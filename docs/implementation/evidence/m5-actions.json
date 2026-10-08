@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "base_head": "dea3c8dd207739a0f06faf5fac0549bca8ee8fc0",
+  "scope": "Native action timeline foundation, integer rate/hitstop/loops/cancel, crossed intervals, cue identities and native CAS/EditorDocument; graph, root/socket/ability/authority integration remain open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "settings": {
+    "units_per_tick": 1024,
+    "rate_max": 4096,
+    "blocks": 32,
+    "loops": 8,
+    "duration_ticks": 600,
+    "event_budget": 512,
+    "interval_budget": 256,
+    "cue_ledger_budget": 256
+  },
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 22.936,
+      "log": "docs/implementation/evidence/m5-actions-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\ActionTimelineTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.151,
+      "log": "docs/implementation/evidence/m5-actions-focused.log"
+    },
+    {
+      "gate": "native-cook",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionAssetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.17,
+      "log": "docs/implementation/evidence/m5-actions-native-cook.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 5.515,
+      "log": "docs/implementation/evidence/m5-actions-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 4.003,
+      "log": "docs/implementation/evidence/m5-actions-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "ActionTimelineTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 44.179,
+      "log": "docs/implementation/evidence/m5-actions-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets|M5.action_timeline",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.831,
+      "log": "docs/implementation/evidence/m5-actions-no-animation-regression.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "b356c8318fe58ef192a277b5fb0c13c6929d049f142e788794b373308e07f1d5",
+    "scripts/verify_actions.py": "e31012fc5907795705009e9cc646a30dab8d0417d5dfa7072be851e9dc843ae9",
+    "tests/action_timeline_tests.cpp": "b597113247400093a9abc0b481ad73ac056cef557142ab5dd7a7596c3a4b6a72",
+    "content/animation/m5_attack.daaction": "e4bc213e9ccced7f6a3d5e78b85f113280d516041810ba63d2ff1b12e3724dae",
+    "engine/runtime/action.cpp": "f256002c8529843cbb4aead663b80d2156da64ced1a02d09b7439e77d0e78b99",
+    "engine/runtime/include/darkangel/action.hpp": "d630f7ad2a877bc70531cb7e18f281119c75b9b4246bc60b4e42979a9645b6bd",
+    "engine/assets/action_cooker.cpp": "83a0aa098d852293bf326ef3ed1f907aaace7b7beb8d90c80808808446300288",
+    "tools/editor/editor_document.cpp": "74eafd9e9156c5306862f7dd0eefe93274677995465cdf3c1191491f0278b3a9",
+    "tests/collision_asset_tests.cpp": "59f92c0be3b34ee7f522fff094361d46d5293dd5b535a5fce6bb4f36c6b95c07",
+    "engine/runtime/character_motor.cpp": "bc17b41bee5b69866d8834d3f15f9831520a58125b0e7d61afa46bb22a67e991",
+    "engine/runtime/collision_source.cpp": "f2e6c49587af77c9b4c364979eca1eb3780ee19645551e52675d421d682b70e3",
+    "engine/runtime/include/darkangel/character_motor.hpp": "482394e785da0b5203fae9b2dac4391a1db8dd84f7b42e46fdb0a7a1d056df8b",
+    "engine/assets/collision_cooker.cpp": "d624dba576346a382f7ba492401dfa73004d6d5e64c3126fb4f249de22284353",
+    "engine/assets/asset_service.cpp": "cacce6c7d6a8b80f08eb779ba6732ee5a6e4cd86eaad20a1d81883d0192197f8",
+    "engine/assets/assets_internal.hpp": "474e5b61ae9fc14a1c717dad3180577a4e06026be55b7fe3b0a678b7eeedd7a7",
+    "engine/assets/include/darkangel/assets.hpp": "36e1909ab2db4847682bca2598f60b4b6b9208951ec03cb1bda347561b94bf76"
+  },
+  "binary_sha256": {
+    "ActionTimelineTests.exe": "797896a9b6d0184c4ba67076c230d68cbb52b9993cd994c6ba3fffaacf4f93bf",
+    "CollisionAssetTests.exe": "14f79c461cf18ed06656783cebae2c787db029817bd7bf3f5c1e362a3ca53e89",
+    "MotorSessionTests.exe": "ab8e6905237980e69dc367878334f9370ca1c0424b8c6672697308c180b8308b"
+  }
+}
