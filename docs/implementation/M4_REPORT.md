@@ -67,3 +67,6 @@ Omni offline M5 content checkpoint raises the integrated optimized native suite 
 
 
 Native initial Animation Graph checkpoint raises integrated optimized tests to 43/43. Graph tick traces match at 30/60/144/headless; this adds no coupled motor/action/ability or new M4 network qualification. M4 streaming/fault/performance gates and EOS limitations remain open.
+
+
+Native joint-mask asset/authoring integration raises the optimized native suite to 44/44; affected no-animation asset/editor/collision checks pass3/3. It adds no M4 fault-matrix, clock, streaming or coupled combat gate. Prior GNS and performance receipts retain their documented scopes.
