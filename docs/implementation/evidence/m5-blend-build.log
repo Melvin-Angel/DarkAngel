@@ -1,0 +1,6 @@
+[1/6] Scanning C:\DarkAngel\engine\runtime\animation_pose.cpp for CXX dependencies
+[2/6] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[3/6] Building CXX object CMakeFiles\DarkAngelAnimation.dir\engine\runtime\animation_pose.cpp.obj
+[4/6] Linking CXX static library DarkAngelAnimation.lib
+[5/6] Linking CXX executable AnimationClipTests.exe
+[6/6] Linking CXX executable AnimationTests.exe

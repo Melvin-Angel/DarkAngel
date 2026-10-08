@@ -1,0 +1,18 @@
+idle archive_bytes=80130
+idle masked_blend_tip_error_m=0.000132171
+idle optimized_bytes=80130 max_tip_error_m=0.00045009
+idle ticks=104 archive_bytes=80130 max_tip_error_m=0.00045009 root_extent_m=0.00132787
+run archive_bytes=33719
+run masked_blend_tip_error_m=0.00017148
+run optimized_bytes=33719 max_tip_error_m=0.000326009
+run ticks=40 archive_bytes=33719 max_tip_error_m=0.000326009 root_extent_m=0.111847
+attack archive_bytes=42031
+attack masked_blend_tip_error_m=0.000180003
+attack optimized_bytes=42031 max_tip_error_m=0.000469651
+attack ticks=52 archive_bytes=42031 max_tip_error_m=0.000469651 root_extent_m=0.11999
+dodge archive_bytes=72277
+dodge masked_blend_tip_error_m=0.000224007
+dodge optimized_bytes=72277 max_tip_error_m=0.000455193
+dodge ticks=92 archive_bytes=72277 max_tip_error_m=0.000455193 root_extent_m=0.965453
+Real idle/run composition, archive/context switching and independent instances passed
+Real canonical FBX clip cook, compression, stripped poses, independent contexts, loop root and generation preservation passed
