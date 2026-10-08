@@ -32,6 +32,7 @@ int main(int argc,char** argv){
                     50,.5,50
                 }
             });
+            physics.add({3,{20,1.5,0},{.5,.5,.5},{},{},0,0,false,true,50});
             CharacterMotor motor(physics,{
                 0,0,0
             });
@@ -43,7 +44,7 @@ int main(int argc,char** argv){
                 };
                 id=session.create(object);
                 session.own_motor(id,peer);
-                session.publish_motor(id,motor.state());
+                session.publish_motor(id,motor.state());session.publish_collision(collision_stream(physics.capture()));
             }unsigned sent=0,executed=0;
             bool ready=false;
             deadline=std::chrono::steady_clock::now()+std::chrono::seconds(15);
@@ -74,10 +75,11 @@ int main(int argc,char** argv){
                         // one command/step;
                         // Wait for the queued command in this explicitly stepped acceptance fixture.
                         auto input=session.consume_motor(id,physics.tick()+1,1);
+                        if(executed==0)physics.apply_impulse(3,{50,0,0});
                         motor.step(input);
                         physics.step();
                         motor.post_physics();
-                        executed++;
+                        executed++;session.publish_collision(collision_stream(physics.capture()));
                         if(executed%2==0)session.publish_motor(id,motor.state());
                         if(executed==90){
                             require(motor.state().sequence>=1,"GNS consumed owner input");

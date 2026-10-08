@@ -59,6 +59,7 @@ public:
     unsigned advance(double seconds);double debt() const{return debt_;}std::uint64_t tick() const{return tick_;}
 private:double debt_{};std::uint64_t tick_{};
 };
+class CharacterMotor;
 class PhysicsWorld {
 public:
     enum class Mode {Authoritative,Prediction,Replay};
@@ -69,6 +70,7 @@ public:
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});
     void add_mesh(CollisionMesh);void load_scene(const CollisionDefinition&);
     void load_cooked(std::string_view);
+    bool update_prediction(const CollisionFrame&,CharacterMotor&);
     void step();CollisionFrame capture() const;void load(const CollisionFrame&,std::uint64_t replay_owner=0);
     std::uint64_t tick() const;std::uint64_t topology() const;
     CollisionQuery overlap(MotorVec center,double radius,unsigned limit=16,QueryFilter={}) const;
@@ -88,7 +90,7 @@ public:
     MotorState step(const MotorInput&,const MotionRequest& = {});
     std::uint64_t identity() const;
     void post_physics();bool needs_resync() const;const MotorState& state() const;void restore(const MotorState&);bool teleport(MotorVec foot);
-private:struct Impl;std::unique_ptr<Impl> impl_;
+private:struct Impl;std::unique_ptr<Impl> impl_;friend class PhysicsWorld;
 };
 enum class ReplayResult {Applied,MissingHistory,TopologyMismatch,WorkLimit,Discontinuity,Invalid};
 class CollisionHistory {
@@ -106,7 +108,8 @@ public:
     OwnerPrediction(PhysicsWorld&,CharacterMotor&);
     MotorState predict(const MotorInput&,const MotionRequest& = {});
     ReplayResult reconcile(const MotorState&);
-    bool needs_resync()const{return resync_;}std::size_t pending()const{return commands_.size();}
+    ReplayResult reconcile(const MotorState&,const CollisionHistory& authoritative_history);
+    bool needs_resync()const{return resync_||world_.needs_resync()||motor_.needs_resync();}std::size_t pending()const{return commands_.size();}
     MotorVec visual_offset()const{return visual_offset_;}
 private:PhysicsWorld& world_;CharacterMotor& motor_;CollisionHistory history_;std::deque<MotorCommand> commands_;bool resync_{};MotorVec visual_offset_{};
 };

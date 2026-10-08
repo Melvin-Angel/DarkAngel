@@ -163,6 +163,7 @@ namespace darkangel {
         std::map<std::uint64_t,Actor> actors;
         std::vector<JPH::Ref<JPH::CharacterVirtual>> historical_actors;
         std::map<std::uint64_t,std::pair<std::uint64_t,std::uint64_t>> historical_generations;
+        std::map<std::uint64_t,CollisionActor> historical_states;
         using SensorPair=std::tuple<std::uint64_t,std::uint64_t,std::uint64_t,std::uint64_t,std::uint64_t>;
         std::map<SensorPair,std::uint64_t> sensor_pairs;
         std::vector<SensorEvent> sensor_events;
@@ -192,7 +193,7 @@ namespace darkangel {
         void clear(){
             for(auto& actor:historical_actors)characters.Remove(actor);
             historical_actors.clear();
-            historical_generations.clear();
+            historical_generations.clear();historical_states.clear();
             for(auto& [id,mesh]:meshes){system.GetBodyInterface().RemoveBody(mesh.body);system.GetBodyInterface().DestroyBody(mesh.body);}meshes.clear();
             for(auto& [id,b]:boxes){
                 system.GetBodyInterface().RemoveBody(b.body);
@@ -212,7 +213,7 @@ namespace darkangel {
             character->SetLinearVelocity(v(actor.velocity));
             characters.Add(character);
             historical_actors.push_back(character);
-            historical_generations.emplace(actor.id,std::pair{++next_generation,actor.epoch});
+            historical_generations.emplace(actor.id,std::pair{++next_generation,actor.epoch});historical_states.emplace(actor.id,actor);
         }
         void insert(CollisionBox b){
             check(b.id&&b.id<(1ULL<<63)&&boxes.size()+meshes.size()<64&&!boxes.contains(b.id)&&!meshes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&(b.dynamic||(b.angular.x==0&&b.angular.z==0))&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
@@ -280,6 +281,14 @@ namespace darkangel {
         ++s.topology;
     }
     void PhysicsWorld::add_mesh(CollisionMesh mesh){auto& s=*impl_;s.thread();s.insert_mesh(std::move(mesh));++s.topology;}
+    CollisionStreamFrame collision_stream(const CollisionFrame& frame){
+        CollisionStreamFrame stream{frame.tick,frame.topology,frame.boxes,frame.actors,{}};
+        for(const auto& mesh:frame.meshes){check(bool(mesh.geometry),"Missing streamed geometry");const auto& data=mesh.geometry->definition();stream.meshes.push_back({mesh.id,data.runtime,data.signature});}validate_collision_stream(stream);return stream;
+    }
+    CollisionFrame prepare_collision_frame(const CollisionStreamFrame& stream,std::span<const CollisionMesh> prepared){
+        validate_collision_stream(stream);check(prepared.size()<=16,"Prepared geometry inventory bound");CollisionFrame frame{stream.tick,stream.topology,stream.boxes,stream.actors,{}};
+        for(const auto& reference:stream.meshes){auto found=std::find_if(prepared.begin(),prepared.end(),[&](const auto& mesh){return mesh.id==reference.id;});check(found!=prepared.end()&&found->geometry,"Collision geometry not prepared");const auto& data=found->geometry->definition();check(data.runtime==reference.runtime&&data.signature==reference.signature,"Collision geometry generation mismatch");frame.meshes.push_back(*found);}return frame;
+    }
     void PhysicsWorld::load_scene(const CollisionDefinition& scene){
         CollisionFrame frame;frame.topology=1;frame.boxes=scene.boxes;
         for(const auto& mesh:scene.meshes){check(bool(mesh.data),"Missing collision geometry");frame.meshes.push_back({mesh.id,std::make_shared<const CollisionGeometry>(*mesh.data)});}
@@ -333,10 +342,12 @@ namespace darkangel {
             d.roll=angles.GetZ();
             f.boxes.push_back(d);
         }
-        check(s.historical_actors.empty(),"Cannot publish a replay context as live history");
+        check(s.historical_actors.empty()||s.mode==PhysicsWorld::Mode::Prediction,"Cannot publish a replay context as live history");
         for(const auto& [id,actor]:s.actors){
             f.actors.push_back({id,actor.state->epoch,m(actor.character->GetPosition()),m(actor.character->GetLinearVelocity()),actor.state->yaw,actor.state->crouched});
         }
+        for(const auto& [id,actor]:s.historical_states)f.actors.push_back(actor);
+        std::sort(f.actors.begin(),f.actors.end(),[](const auto& a,const auto& b){return a.id<b.id;});
         for(const auto& [id,mesh]:s.meshes)f.meshes.push_back(mesh.data);
         return f;
     }
@@ -750,6 +761,15 @@ namespace darkangel {
         s.refresh();
         return true;
     }
+    bool PhysicsWorld::update_prediction(const CollisionFrame& frame,CharacterMotor& motor){
+        auto& s=*impl_;s.thread();check(s.mode==Mode::Prediction && &motor.impl_->world==&s,"Prediction proxy owner/world mismatch");
+        if(frame.tick!=s.tick||frame.topology!=s.topology){s.failed=true;return false;}
+        try{
+            collision_stream(frame);auto owner=std::find_if(frame.actors.begin(),frame.actors.end(),[&](const auto& actor){return actor.id==motor.identity();});check(owner!=frame.actors.end()&&owner->epoch==motor.state().epoch,"Prediction proxy owner epoch missing");
+            check(frame.meshes.size()==s.meshes.size(),"Prediction mesh topology mismatch");for(const auto& mesh:frame.meshes){auto found=s.meshes.find(mesh.id);check(found!=s.meshes.end()&&found->second.data.geometry->definition().signature==mesh.geometry->definition().signature,"Prediction mesh generation mismatch");}
+            load(frame,motor.identity());motor.impl_->refresh();return true;
+        }catch(...){s.failed=true;return false;}
+    }
     void CollisionHistory::retain(CollisionFrame f){
         check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=4&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
         frames_.push_back(std::move(f));
@@ -858,6 +878,12 @@ namespace darkangel {
         return state;
     }
     ReplayResult OwnerPrediction::reconcile(const MotorState& baseline){
+        const auto& current=motor_.state();
+        if(baseline.epoch!=current.epoch||baseline.tick>current.tick||baseline.sequence>current.sequence)return reconcile(baseline,history_);
+        try{if(!history_.find(world_.tick()))history_.retain(world_.capture());}catch(...){resync_=true;return ReplayResult::Invalid;}
+        return reconcile(baseline,history_);
+    }
+    ReplayResult OwnerPrediction::reconcile(const MotorState& baseline,const CollisionHistory& authoritative_history){
         auto before=motor_.state();
         if(baseline.epoch!=before.epoch){
             resync_=true;
@@ -866,11 +892,10 @@ namespace darkangel {
             resync_=true;
             return ReplayResult::Invalid;
         }
-        if(!history_.find(world_.tick()))history_.retain(world_.capture());
         std::vector<MotorCommand> pending;
         for(auto command:commands_)if(command.input.tick>baseline.tick)pending.push_back(command);
         MotorState output;
-        auto result=replay_motor(baseline,pending,history_,output,motor_.identity());
+        auto result=replay_motor(baseline,pending,authoritative_history,output,motor_.identity());
         if(result!=ReplayResult::Applied){
             resync_=true;
             return result;
