@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "base_head": "36b9529a0eecd692a80addd0a609fa097dfbeaf5",
+  "scope": "Primitive layer/owner/sensor queries and completed-tick sensor tokens; mesh material/backface and broader M4/M5 gates remain open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "settings": {
+    "ray_raw_hit_budget": 32,
+    "shape_raw_hit_budget": 32,
+    "sensor_lifetime_budget": 128,
+    "sensor_event_budget": 128
+  },
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 36.628,
+      "log": "docs/implementation/evidence/m4-queries-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\PhysicsQuerySensorTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.252,
+      "log": "docs/implementation/evidence/m4-queries-focused.log"
+    },
+    {
+      "gate": "native-cook",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionAssetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.177,
+      "log": "docs/implementation/evidence/m4-queries-native-cook.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 4.508,
+      "log": "docs/implementation/evidence/m4-queries-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 3.964,
+      "log": "docs/implementation/evidence/m4-queries-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 33.973,
+      "log": "docs/implementation/evidence/m4-queries-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.499,
+      "log": "docs/implementation/evidence/m4-queries-no-animation-regression.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "532cdb0fe36277694320e97e1ef9d0322a9091aad19b450f9868a1d9319e9f20",
+    "scripts/verify_queries.py": "7558c5b3cea4432169b1f15d3340e29a9e02286efe98ae66aa3bcea2e94f6d7d",
+    "tests/physics_query_sensor_tests.cpp": "b8c4096468b994795de439076244909446388d2aeec1f1101d0006fe27381427",
+    "tests/collision_asset_tests.cpp": "59f92c0be3b34ee7f522fff094361d46d5293dd5b535a5fce6bb4f36c6b95c07",
+    "engine/runtime/character_motor.cpp": "c7fdea2e0ca9203dc35e559d60d332c9d4124539b398737089425dd0ad130fba",
+    "engine/runtime/collision_source.cpp": "89d279302dacbb5a79b89e887cea2f137c2b7feb9ca02b5d3efb3e8a27882934",
+    "engine/runtime/include/darkangel/character_motor.hpp": "6bdbe7e7eaca110f7bec3f6c89168e3f953967be17d347c1a88cdd3330eff446",
+    "engine/assets/collision_cooker.cpp": "41d10e355ab0de4dac4d2d958fd553b72948212cba86ef0793b0642b53a9679a"
+  },
+  "binary_sha256": {
+    "PhysicsQuerySensorTests.exe": "41fc3efdc62e345ac0a95705e0736fd76269c5438de68b46c95bc2ce8bb92d42",
+    "CollisionAssetTests.exe": "ccad618e4fe05569a6c74b3d4ff4eb8ef78eef0262751f648c8124fd1528277a",
+    "MotorSessionTests.exe": "2ec5120ef671cb5215e4dca0d2a734d303142ff6e61931119a2cd03eb43ad800"
+  }
+}

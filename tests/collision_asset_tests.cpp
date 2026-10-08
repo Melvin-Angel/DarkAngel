@@ -48,10 +48,12 @@ int main(){
         require(load_cooked_collision(root/"registry.json",assets.cas_path(),id)==cooked,"Failed collision generation retains prior product");
         auto crate_path=std::filesystem::path(DAE_SOURCE_DIR)/"content/physics/m4_crate.dacollision";
         std::filesystem::copy_file(crate_path,root/"sources/crate.dacollision");
+        {std::ifstream fixture(root/"sources/crate.dacollision");nlohmann::json fields;fixture>>fields;fields["boxes"].push_back({{"id","3"},{"center",{0,1,0}},{"half",{3,1,3}},{"yaw",0},{"roll",0},{"motion","sensor"}});std::ofstream(root/"sources/crate.dacollision")<<fields.dump();}
         auto crate_id=assets.adopt("crate.dacollision");auto crate_cook=assets.cook("crate.dacollision");
         require(crate_cook.changed&&!assets.cook("crate.dacollision").changed,"Dynamic collision native UUID and warm cook");
         assets.package(crate_id,root/"crate.registry.json");auto crate_bytes=load_cooked_collision(root/"crate.registry.json",assets.cas_path(),crate_id);
         PhysicsWorld server;server.load_cooked(crate_bytes);CharacterMotor pusher(server,{0,0,0});
+        require(server.capture().boxes[2].sensor,"Native source sensor cooks into a nonblocking query shape");
         for(unsigned n=1;n<=50;++n){pusher.step({n,n,1,1});server.step();pusher.post_physics();}
         require(server.capture().boxes[1].center.x>1.6,"Cooked dynamic crate can be pushed by server motor");
         PhysicsWorld client(PhysicsWorld::Mode::Prediction);client.load_cooked(crate_bytes);bool no_impulse=false;try{client.apply_impulse(2,{1,0,0});}catch(...){no_impulse=true;}

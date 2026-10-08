@@ -22,7 +22,7 @@ CollisionDefinition decode_collision_source(std::string_view bytes){
         require(std::isfinite(value.yaw)&&std::abs(value.yaw)<=3.141593&&std::isfinite(value.roll)&&std::abs(value.roll)<=3.141593,"Collision orientation bounds");
         if(definition.schema==1){require(box.size()==6&&box.at("moving").is_boolean(),"Collision legacy box schema");value.moving=box.at("moving").get<bool>();}
         else{
-            const auto motion=box.at("motion").get<std::string>();require(motion=="static"||motion=="kinematic"||motion=="dynamic","Collision motion profile");value.moving=motion=="kinematic";value.dynamic=motion=="dynamic";
+            const auto motion=box.at("motion").get<std::string>();require(motion=="static"||motion=="kinematic"||motion=="dynamic"||motion=="sensor","Collision motion profile");value.moving=motion=="kinematic";value.dynamic=motion=="dynamic";value.sensor=motion=="sensor";
             require(box.size()==(value.dynamic?7:6),"Collision extended box schema");if(value.dynamic)value.mass=box.at("mass").get<double>();require(std::isfinite(value.mass)&&value.mass>=1&&value.mass<=1000,"Collision mass bounds");
         }
         definition.boxes.push_back(value);

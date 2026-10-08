@@ -14,6 +14,8 @@ struct MotionRequest {MotorVec root{},impulse{};std::uint64_t action{};bool lock
 struct MotorCommand {MotorInput input;MotionRequest motion;};
 struct MotorState {
     std::uint64_t tick{},sequence{},epoch{1},topology{1},support{},action{};
+    // Movement memory excludes root requests: X/Z support-relative on ground,
+    // world-space in air; Y is native world velocity (gravity/impulses/support).
     MotorVec position{},velocity{},momentum{},desired{},achieved{},support_local{},support_velocity{};
     double yaw{};std::uint32_t coyote{},jump_buffer{};bool grounded{},crouched{};
 };
@@ -24,9 +26,19 @@ struct CollisionBox {
     bool dynamic{};double mass{50};
     // All zero selects authored yaw/roll. Captures retain full normalized rotation.
     std::array<double,4> rotation{};
+    bool sensor{};
 };
-struct CollisionHit {std::uint64_t identity{};double fraction{};bool character{};};
+enum CollisionLayer : unsigned {StaticCollision=1,KinematicCollision=2,DynamicCollision=4,CharacterCollision=8,SensorCollision=16,AllCollision=31};
+struct QueryFilter {unsigned layers{StaticCollision|KinematicCollision|DynamicCollision|CharacterCollision};std::uint64_t owner{};bool sensors{},backfaces{};};
+struct CollisionHit {
+    std::uint64_t identity{};double fraction{};bool character{};
+    std::uint64_t world{},tick{},topology{},generation{},epoch{};
+    // Authored keys within the collision product, never Jolt identifiers.
+    std::uint32_t subshape{},material{};MotorVec point{},normal{};bool sensor{};
+};
 struct CollisionQuery {std::vector<CollisionHit> hits;bool overflow{};};
+enum class SensorPhase {Begin,End};
+struct SensorEvent {std::uint64_t world{},tick{},token{},sensor{},other{},other_generation{},epoch{};bool character{};SensorPhase phase{};};
 // Tick snapshots of authoritative characters, never independently simulated in replay.
 struct CollisionActor {std::uint64_t id{},epoch{};MotorVec foot{},velocity{};double yaw{};bool crouched{};};
 struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;std::vector<CollisionActor> actors;};
@@ -41,19 +53,25 @@ public:
     enum class Mode {Authoritative,Prediction,Replay};
     explicit PhysicsWorld(Mode=Mode::Authoritative);~PhysicsWorld();PhysicsWorld(const PhysicsWorld&)=delete;
     Mode mode()const;
+    bool needs_resync()const;bool sleeping(std::uint64_t)const;
     void apply_impulse(std::uint64_t,MotorVec);
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});
     void load_cooked(std::string_view);
     void step();CollisionFrame capture() const;void load(const CollisionFrame&,std::uint64_t replay_owner=0);
     std::uint64_t tick() const;std::uint64_t topology() const;
-    CollisionQuery overlap(MotorVec center,double radius,unsigned limit=16) const;
-    CollisionQuery sweep(MotorVec from,MotorVec delta,double radius,unsigned limit=16) const;
+    CollisionQuery overlap(MotorVec center,double radius,unsigned limit=16,QueryFilter={}) const;
+    CollisionQuery sweep(MotorVec from,MotorVec delta,double radius,unsigned limit=16,QueryFilter={}) const;
+    CollisionQuery query_ray(MotorVec from,MotorVec delta,QueryFilter={})const;
+    bool valid_hit(const CollisionHit&)const;
+    // After all motor post_physics calls. One bounded, atomic sensor event batch
+    // per authoritative tick. Sleep does not imply exit; cancellation uses token.
+    void finish_tick();std::vector<SensorEvent> take_sensor_events();
     bool ray(MotorVec from,MotorVec delta,std::uint64_t& identity) const;
 private:struct Impl;std::unique_ptr<Impl> impl_;friend class CharacterMotor;
 };
 class CharacterMotor {
 public:
-    CharacterMotor(PhysicsWorld&,MotorVec foot,std::uint64_t identity=0);~CharacterMotor();CharacterMotor(const CharacterMotor&)=delete;
+    CharacterMotor(PhysicsWorld&,MotorVec foot,std::uint64_t identity=0,bool crouched=false);~CharacterMotor();CharacterMotor(const CharacterMotor&)=delete;
     MotorState step(const MotorInput&,const MotionRequest& = {});
     std::uint64_t identity() const;
     void post_physics();bool needs_resync() const;const MotorState& state() const;void restore(const MotorState&);bool teleport(MotorVec foot);
