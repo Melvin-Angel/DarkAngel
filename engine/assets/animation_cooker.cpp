@@ -6,6 +6,7 @@
 #include <ozz/animation/offline/skeleton_builder.h>
 #include <ozz/animation/offline/raw_animation.h>
 #include <ozz/animation/offline/animation_builder.h>
+#include <ozz/animation/offline/animation_optimizer.h>
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/io/archive.h>
@@ -19,6 +20,39 @@ namespace darkangel::assets_detail {
     namespace {
         constexpr auto ozz_pin="744eb9d99f606eda849acb0b1204f7a3dc20bca1";
         using Matrix=ozz::math::Float4x4;
+        auto build_skeleton(const RigDefinition& rig){
+        ozz::animation::offline::RawSkeleton raw;
+        std::vector<std::vector<int>> children(rig.joints.size());
+        int root_index=-1;
+        for(int i=0;i<rig.joints.size();++i){
+            auto parent=rig.joints[i].parent;
+            if(parent<0)root_index=i;
+            else children[parent].push_back(i);
+        }
+        std::function<ozz::animation::offline::RawSkeleton::Joint(int,unsigned)> build=[&](int i,unsigned depth){
+            require(depth<=64,"Rig hierarchy depth limit");
+            const auto& source=rig.joints[i];
+            ozz::animation::offline::RawSkeleton::Joint joint;
+            joint.name=source.key.c_str();
+            joint.transform.translation={
+                source.translation[0],source.translation[1],source.translation[2]
+            };
+            joint.transform.rotation={
+                source.rotation[0],source.rotation[1],source.rotation[2],source.rotation[3]
+            };
+            joint.transform.scale={
+                1,1,1
+            };
+            for(auto child:children[i])joint.children.push_back(build(child,depth+1));
+            return joint;
+        };
+        raw.roots.push_back(build(root_index,0));
+        ozz::animation::offline::SkeletonBuilder builder;
+        auto skeleton=builder(raw);
+        require(skeleton&&skeleton->num_joints()==rig.joints.size(),"Ozz skeleton cook failure");
+        for(int i=0;i<skeleton->num_joints();++i)require(skeleton->joint_names()[i]==rig.joints[i].key&&skeleton->joint_parents()[i]==rig.joints[i].parent,"Source joints must use canonical depth-first order");
+            return skeleton;
+        }
         Matrix transform(const RigJoint& joint){
             return Matrix::FromAffine(ozz::math::Float3(joint.translation[0],joint.translation[1],joint.translation[2]),ozz::math::Quaternion(joint.rotation[0],joint.rotation[1],joint.rotation[2],joint.rotation[3]),ozz::math::Float3(1,1,1));
         }
@@ -100,7 +134,15 @@ namespace darkangel::assets_detail {
         require(ids.size()==2,"Clip owned UUID count");const auto id=ids.at("$source"),runtime=ids.at("runtime");
         Json manifest={{"schema",1},{"kind","clip"},{"id",id.text()},{"runtime",runtime.text()},{"skeleton",rig.id.text()},{"signature",rig.signature},{"ticks",ticks},{"joints",static_cast<unsigned>(rig.joints.size())},{"loop",loop},{"root",roots},{"root_policy","stripped-translation-yaw-60hz"},{"ozz",ozz_pin}};
         auto manifest_bytes=manifest.dump();decode_clip_manifest(manifest_bytes);
-        ozz::animation::offline::AnimationBuilder builder;auto cooked=builder(raw);require(bool(cooked),"Ozz animation build failure");
+        // Hierarchical decimation reserves 0.001 mm of the 0.5 mm tested probe
+        // budget for optimization; compressed archive error is checked separately.
+        auto skeleton=build_skeleton(rig);ozz::animation::offline::AnimationOptimizer optimizer;
+        optimizer.setting={.000001f,.5f};ozz::animation::offline::RawAnimation optimized;
+        require(optimizer(raw,*skeleton,&optimized),"Ozz hierarchical optimization failure");
+        // Rotation decimation changes compressed interpolation error beyond the
+        // fixture tip budget. Keep authored rotation keys until that path qualifies.
+        for(std::size_t i=0;i<raw.tracks.size();++i)optimized.tracks[i].rotations=raw.tracks[i].rotations;
+        ozz::animation::offline::AnimationBuilder builder;auto cooked=builder(optimized);require(bool(cooked),"Ozz animation build failure");
         ozz::io::MemoryStream stream;{ozz::io::OArchive archive(&stream);archive<<*cooked;}
         std::string archive(stream.Size(),'\0');stream.Seek(0,ozz::io::Stream::kSet);require(stream.Read(archive.data(),archive.size())==archive.size(),"Ozz clip archive read");
         out.products.push_back({id,"clip","clip.json",std::move(manifest_bytes),{runtime,rig.id}});
@@ -119,36 +161,7 @@ namespace darkangel::assets_detail {
         };
         if(inspect)return out;
         require(ids.size()==2&&ids.at("$source")==rig.id&&ids.at("runtime")==rig.runtime,"Native skeleton source/product identity");
-        ozz::animation::offline::RawSkeleton raw;
-        std::vector<std::vector<int>> children(rig.joints.size());
-        int root_index=-1;
-        for(int i=0;i<rig.joints.size();++i){
-            auto parent=rig.joints[i].parent;
-            if(parent<0)root_index=i;
-            else children[parent].push_back(i);
-        }
-        std::function<ozz::animation::offline::RawSkeleton::Joint(int,unsigned)> build=[&](int i,unsigned depth){
-            require(depth<=64,"Rig hierarchy depth limit");
-            const auto& source=rig.joints[i];
-            ozz::animation::offline::RawSkeleton::Joint joint;
-            joint.name=source.key.c_str();
-            joint.transform.translation={
-                source.translation[0],source.translation[1],source.translation[2]
-            };
-            joint.transform.rotation={
-                source.rotation[0],source.rotation[1],source.rotation[2],source.rotation[3]
-            };
-            joint.transform.scale={
-                1,1,1
-            };
-            for(auto child:children[i])joint.children.push_back(build(child,depth+1));
-            return joint;
-        };
-        raw.roots.push_back(build(root_index,0));
-        ozz::animation::offline::SkeletonBuilder builder;
-        auto skeleton=builder(raw);
-        require(skeleton&&skeleton->num_joints()==rig.joints.size(),"Ozz skeleton cook failure");
-        for(int i=0;i<skeleton->num_joints();++i)require(skeleton->joint_names()[i]==rig.joints[i].key&&skeleton->joint_parents()[i]==rig.joints[i].parent,"Source joints must use canonical depth-first order");
+        auto skeleton=build_skeleton(rig);
         ozz::io::MemoryStream stream;
         {
             ozz::io::OArchive archive(&stream);

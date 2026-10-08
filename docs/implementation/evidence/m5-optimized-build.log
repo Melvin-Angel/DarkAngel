@@ -1,0 +1,41 @@
+[1/70] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[2/68] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[3/65] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[4/64] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[5/63] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[6/62] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[7/61] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[8/60] Generating CXX dyndep file CMakeFiles\PhysicsQuerySensorTests.dir\CXX.dd
+[9/59] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[10/58] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[11/57] Generating CXX dyndep file CMakeFiles\AnimationTests.dir\CXX.dd
+[12/56] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[13/55] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
+[14/54] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[15/53] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[16/52] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[17/50] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[18/48] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[19/46] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[20/45] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[21/44] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[22/43] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[23/42] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[24/41] Linking CXX executable MotorTests.exe
+[25/41] Linking CXX executable MotorFaultTests.exe
+[26/41] Linking CXX executable MotorSessionTests.exe
+[27/41] Linking CXX executable MotorActorHistoryTests.exe
+[28/41] Linking CXX executable MotorDynamicTests.exe
+[29/41] Linking CXX executable PhysicsQuerySensorTests.exe
+[30/41] Linking CXX executable DarkAngelHeadless.exe
+[31/41] Linking CXX executable AssetTool.exe
+[32/41] Linking CXX executable AnimationTests.exe
+[33/41] Linking CXX executable CollisionAssetTests.exe
+[34/41] Linking CXX executable CollisionMeshTests.exe
+[35/41] Linking CXX executable AssetTests.exe
+[36/41] Linking CXX executable EditorTests.exe
+[37/41] Linking CXX executable FoundationTests.exe
+[38/41] Linking CXX executable ScriptPackageTests.exe
+[39/41] Linking CXX executable SessionTests.exe
+[40/41] Linking CXX executable AssemblyTests.exe
+[41/41] Linking CXX executable GnsTests.exe

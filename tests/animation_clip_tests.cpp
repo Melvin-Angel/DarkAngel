@@ -35,6 +35,9 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
     assets.package(id,source/"registry.json");auto registry=read(source/"registry.json");
     auto rig=load_cooked_rig(source/"registry.json",assets.cas_path(),decode_rig_source(read(source/"human.daskeleton")).id);
     auto cooked=load_cooked_clip(source/"registry.json",assets.cas_path(),id);AnimationClip clip(cooked.definition,cooked.archive);
+    const std::map<std::string,std::size_t> unoptimized={{"idle",155217},{"run",61655},{"attack",79210},{"dodge",137680}};
+    std::cout<<name<<" archive_bytes="<<cooked.archive.size()<<std::endl;
+    require(cooked.archive.size()<unoptimized.at(name)*.7,"Translation optimization must reduce fixture archive size by at least 30 percent");
     RigPose first(rig.definition,rig.archive),second(rig.definition,rig.archive);
     const auto saved_second=second.sample(clip,3);first.sample(clip,17);
     require(second.sample(clip,3)[12].values==saved_second[12].values,"Independent sampling context/buffers");
@@ -68,7 +71,8 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
         for(unsigned axis=0;axis<3;++axis)require(std::abs(actual[0].values[12+axis]-translations[0][axis])<.001,"Root translation stripped from sampled pose");
         auto root=cooked.definition.root[tick];max_root=std::max(max_root,double(std::sqrt(root[0]*root[0]+root[1]*root[1]+root[2]*root[2])));
     }
-    require(max_tip_error<.002,"Ozz compression error at sockets/half-metre weapon tips exceeds 2 mm");
+    std::cout<<name<<" optimized_bytes="<<cooked.archive.size()<<" max_tip_error_m="<<max_tip_error<<std::endl;
+    require(max_tip_error<.0005,"Ozz optimized compression error at sockets/half-metre weapon tips exceeds 0.5 mm");
     if(cooked.definition.loop){auto start=first.sample(clip,0)[0].values;require(start==first.sample(clip,cooked.definition.ticks)[0].values,"Loop pose wraps at exact duration");}
     auto wrong=cooked.definition;wrong.signature=std::string(64,'a');AnimationClip incompatible(wrong,cooked.archive);bool denied=false;try{first.sample(incompatible,0);}catch(...){denied=true;}require(denied,"Incompatible clip rejects before sampling");
     auto sidecar=Json::parse(read(source/"clip.glb.daimport"));sidecar["loop"]=!cooked.definition.loop;write(source/"clip.glb.daimport",sidecar.dump());
