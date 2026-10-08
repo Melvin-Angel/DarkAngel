@@ -21,11 +21,11 @@ class Loopback final:public Transport {
 public:
     Loopback(std::shared_ptr<Shared> shared,unsigned role):state(std::move(shared)),side(role){}
     ~Loopback() override {if(state->open[side]){for(unsigned i=0;i<2;++i){state->incoming[i].clear();state->open[i]=false;state->queued[i]=0;}if(state->epoch<std::numeric_limits<std::uint64_t>::max())++state->epoch;}}
-    ConnectionHandle open(const SessionHandshake& hello) override {thread();const auto& expected=state->expected;require(hello.protocol==expected.protocol && hello.schema_hash==expected.schema_hash && hello.content_hash==expected.content_hash && hello.session_epoch==expected.session_epoch,"Incompatible protocol/schema/content/session epoch");state->open[side]=true;return peer();}
+    ConnectionHandle open(const SessionHandshake& hello) override {thread();const auto& expected=state->expected;require(compatible_session_handshake(hello,expected),"Incompatible protocol/schema/content/session epoch");state->open[side]=true;return peer();}
     bool connected() const override {thread();return state->open[0] && state->open[1];}
     bool valid(ConnectionHandle h) const override {return h==peer() && connected();}
     TransportLimits limits() const override {thread();return state->limits;}
-    bool send(ConnectionHandle target,Delivery delivery,std::span<const std::byte> bytes) override {check(target);require(delivery==Delivery::ReliableOrdered || delivery==Delivery::UnreliableState,"Invalid transport channel");require(bytes.size()<=state->limits.payload_bytes,"Transport payload limit");auto destination=1-side;
+    bool send(ConnectionHandle target,Delivery delivery,std::span<const std::byte> bytes) override {check(target);require(delivery==Delivery::ReliableOrdered || delivery==Delivery::UnreliableState || delivery==Delivery::ReliableBootstrap,"Invalid transport channel");require(bytes.size()<=state->limits.payload_bytes,"Transport payload limit");auto destination=1-side;
         if(state->incoming[destination].size()>=state->limits.packets || bytes.size()>state->limits.queued_bytes-state->queued[destination])return false;
         require(state->sequence[side]<std::numeric_limits<std::uint64_t>::max(),"Transport sequence exhausted");TransportMessage message{{state->token,state->epoch,side+1},delivery,state->sequence[side]+1,{bytes.begin(),bytes.end()}};
         state->incoming[destination].push_back(std::move(message));state->queued[destination]+=bytes.size();++state->sequence[side];return true;
@@ -35,5 +35,8 @@ public:
 };
 }
 std::uint64_t allocate_transport_identity(){auto value=next_transport.load();do{require(value<std::numeric_limits<std::uint64_t>::max(),"Transport identity exhausted");}while(!next_transport.compare_exchange_weak(value,value+1));return value;}
-LoopbackPair create_loopback(SessionHandshake expected,TransportLimits limits){auto digest=[](const std::string& hash){return hash.size()==64 && hash.find_first_not_of("0123456789abcdef")==hash.npos;};require(expected.protocol>0 && expected.session_epoch>0 && digest(expected.schema_hash) && digest(expected.content_hash),"Invalid session admission descriptor");require(limits.packets>0 && limits.packets<=1024 && limits.payload_bytes>0 && limits.payload_bytes<=64*1024 && limits.queued_bytes>0 && limits.queued_bytes<=64*1024*1024,"Invalid transport limits");auto shared=std::make_shared<Shared>();shared->expected=std::move(expected);shared->limits=limits;return {std::make_unique<Loopback>(shared,0),std::make_unique<Loopback>(shared,1)};}
+void validate_session_handshake(const SessionHandshake& expected){auto digest=[](const std::string& hash){return hash.size()==64 && hash.find_first_not_of("0123456789abcdef")==hash.npos;};require(expected.protocol>0 && expected.session_epoch>0 && digest(expected.schema_hash) && digest(expected.content_hash),"Invalid session admission descriptor");}
+bool compatible_session_handshake(const SessionHandshake& a,const SessionHandshake& b){return a.protocol==b.protocol && a.schema_hash==b.schema_hash && a.content_hash==b.content_hash && a.session_epoch==b.session_epoch;}
+void validate_transport_limits(TransportLimits limits){require(limits.packets>0 && limits.packets<=1024 && limits.payload_bytes>0 && limits.payload_bytes<=64*1024 && limits.queued_bytes>0 && limits.queued_bytes<=64*1024*1024,"Invalid transport limits");}
+LoopbackPair create_loopback(SessionHandshake expected,TransportLimits limits){validate_session_handshake(expected);validate_transport_limits(limits);auto shared=std::make_shared<Shared>();shared->expected=std::move(expected);shared->limits=limits;return {std::make_unique<Loopback>(shared,0),std::make_unique<Loopback>(shared,1)};}
 }

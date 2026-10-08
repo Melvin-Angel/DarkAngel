@@ -2,10 +2,30 @@
 #include <darkangel/world_session.hpp>
 #include <iostream>
 #include <limits>
+#include <deque>
 #include <stdexcept>
 using namespace darkangel;
 void check(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 template<class F>void rejects(F&& action){bool rejected=false;try{action();}catch(const std::exception&){rejected=true;}check(rejected,"Expected transport rejection");}
+// Exercise the contract that control and bootstrap have no mutual ordering.
+// Delay actual control packets; do not reproduce the session encoder in tests.
+class Reordered final:public Transport {
+    Transport& inner;std::deque<TransportMessage> delayed;
+public:
+    bool hold_control{};
+    explicit Reordered(Transport& value):inner(value){}
+    ConnectionHandle open(const SessionHandshake& h) override{return inner.open(h);}
+    bool connected() const override{return inner.connected();}
+    bool valid(ConnectionHandle h) const override{return inner.valid(h);}
+    TransportLimits limits() const override{return inner.limits();}
+    bool send(ConnectionHandle h,Delivery d,std::span<const std::byte> b) override{return inner.send(h,d,b);}
+    void disconnect(ConnectionHandle h) override{delayed.clear();inner.disconnect(h);}
+    std::vector<TransportMessage> poll(std::size_t count) override{std::vector<TransportMessage> out;if(!hold_control)while(!delayed.empty() && out.size()<count){out.push_back(std::move(delayed.front()));delayed.pop_front();}for(auto& m:inner.poll(count-out.size()))if(hold_control && m.delivery==Delivery::ReliableOrdered){check(delayed.size()<8,"Reorder test queue exceeded");delayed.push_back(std::move(m));}else out.push_back(std::move(m));return out;}
+};
+void traffic_order(){SessionHandshake hello{1,std::string(64,'a'),std::string(64,'b'),100};auto pair=create_loopback(hello);auto hp=pair.host->open(hello),cp=pair.client->open(hello);Reordered transport(*pair.client);WorldSession server(SessionRole::Server,hello),client(SessionRole::Client,hello);server.attach(*pair.host,hp);client.attach(transport,cp);ObjectData o;o.id={9,1};auto id=server.create(o);
+    for(unsigned i=0;i<10;++i){server.tick();client.tick();if(client.revision()==1 && client.readiness(cp)==SessionReadiness::CatchUp)break;}
+    transport.hold_control=true;server.tick();client.tick();Transform t;t.x=12;server.move(id,t);for(unsigned i=0;i<10;++i){server.tick();client.tick();}check(client.revision()==2 && client.readiness(cp)==SessionReadiness::CatchUp,"Control hold failed to exercise cross-class ordering");transport.hold_control=false;client.tick();check(client.readiness(cp)==SessionReadiness::Ready && client.objects().at(id).transform.x==12,"Obsolete Ready overtook a newer bootstrap revision");
+}
 void authority(){
     SessionHandshake hello{1,std::string(64,'a'),std::string(64,'b'),99};
     WorldSession server(SessionRole::Server,hello),client(SessionRole::Client,hello);
@@ -32,6 +52,7 @@ void authority(){
     for(unsigned i=0;i<30;++i){server.tick();client.tick();for(auto& view:views)view->tick();}
     for(unsigned i=0;i<views.size();++i)check(views[i]->readiness(handles[i])==SessionReadiness::Ready && views[i]->revision()==server.revision() && views[i]->objects().size()==server.objects().size(),"Bounded multi-peer baseline diverged");
     auto excess=create_loopback(hello);auto eh=excess.host->open(hello);excess.client->open(hello);rejects([&]{server.attach(*excess.host,eh);});
+    traffic_order();
     std::cout<<"M3 authority/chunked atomic baseline/late join/catch-up/identity/forgery checks passed\n";
 }
 int main(int argc,char** argv){try{

@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "port": "gamenetworkingsockets",
+  "version": "1.6.0",
+  "source_commit": "2cb93a06350bb065db53abdb0d87cf297e0bfd34",
+  "protobuf": "6.33.4#2 static",
+  "crt": "dynamic /MD (/MDd Debug)",
+  "reason": "Upstream GNS defaults Protobuf_USE_STATIC_LIBS OFF and compiles DLL imports, even when the pinned vcpkg triplet provides static protobuf. Pass the upstream linkage option; no SDK/source version changes.",
+  "upstream_sha256": {
+    "portfile.cmake": "8b22470e79afa84dbbef33790927b34c98db2f4dcbea0f03b9cc69b01ec2be25",
+    "vcpkg.json": "28884fc2d9a321bb6b70f73cafaab6f9adce6f9a4cb4a3d17866c749ab26cd54"
+  },
+  "overlay_sha256": {
+    "portfile.cmake": "1fb48671a9d93d2c6f1c745573d9b9b3e051ec3e1546e906ac43443b3e5730ca",
+    "vcpkg.json": "28884fc2d9a321bb6b70f73cafaab6f9adce6f9a4cb4a3d17866c749ab26cd54"
+  }
+}

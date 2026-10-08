@@ -1,5 +1,5 @@
 """Activate the pinned Microsoft toolchain inside one child environment."""
-import json, os, pathlib, subprocess
+import json, os, pathlib, subprocess, tempfile
 from acquire import ROOT
 
 def activate():
@@ -11,10 +11,15 @@ def activate():
     setup=pathlib.Path(instance)/'VC/Auxiliary/Build/vcvars64.bat'
     if '"' in str(setup) or '%' in str(setup):raise RuntimeError('Unsupported shell metacharacter in compiler installation path')
     pins=json.loads((ROOT/'cmake/native-toolchain.lock.json').read_text(encoding='utf-8'))
-    script=ROOT/'.cache/scoped-msvc.cmd';script.parent.mkdir(exist_ok=True)
+    cache=ROOT/'.cache';cache.mkdir(exist_ok=True)
+    descriptor,name=tempfile.mkstemp(prefix='scoped-msvc-',suffix='.cmd',dir=cache)
+    os.close(descriptor);script=pathlib.Path(name)
     keys=['PATH','INCLUDE','LIB','LIBPATH','VCToolsInstallDir','VCToolsVersion','WindowsSDKVersion','WindowsSdkDir','WindowsLibPath','UCRTVersion','UniversalCRTSdkDir']
     script.write_text('@echo off\ncall "'+str(setup)+'" '+pins['windows_sdk']+' -vcvars_ver='+pins['msvc_toolset']+' >nul\nif errorlevel 1 exit /b 1\n'+'\n'.join('set '+key for key in keys)+'\n',encoding='utf-8')
-    result=subprocess.run(['cmd','/d','/c',str(script)],capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=60)
+    try:
+        result=subprocess.run(['cmd','/d','/c',str(script)],capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=60)
+    finally:
+        script.unlink(missing_ok=True)
     if result.returncode:raise RuntimeError('Pinned vcvars activation failed: '+result.stderr[:1000])
     allowed={key.upper() for key in keys}
     for line in result.stdout.splitlines():
