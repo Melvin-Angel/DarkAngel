@@ -1,0 +1,64 @@
+[1/102] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[2/100] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[3/97] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[4/96] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[5/95] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[6/94] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[7/94] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[8/93] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[9/93] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[10/92] Generating CXX dyndep file CMakeFiles\PhysicsQuerySensorTests.dir\CXX.dd
+[11/91] Generating CXX dyndep file CMakeFiles\MotorBudgetTests.dir\CXX.dd
+[12/90] Generating CXX dyndep file CMakeFiles\PlatformAxesTests.dir\CXX.dd
+[13/89] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[14/88] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[15/87] Generating CXX dyndep file CMakeFiles\AnimationTests.dir\CXX.dd
+[16/86] Generating CXX dyndep file CMakeFiles\AnimationClipTests.dir\CXX.dd
+[17/85] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
+[18/84] Generating CXX dyndep file CMakeFiles\JointMaskTests.dir\CXX.dd
+[19/83] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[20/82] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[21/81] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
+[22/80] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
+[23/79] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[24/78] Generating CXX dyndep file CMakeFiles\CollisionObserverTests.dir\CXX.dd
+[25/77] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[26/76] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[27/75] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[28/73] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[29/71] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[30/69] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[31/68] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[32/67] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[33/66] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[34/65] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[35/64] Linking CXX executable MotorTests.exe
+[36/64] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[37/64] Linking CXX static library DarkAngelCharacterScene.lib
+[38/64] Linking CXX executable MotorFaultTests.exe
+[39/64] Linking CXX executable MotorSessionTests.exe
+[40/64] Linking CXX executable MotorActorHistoryTests.exe
+[41/64] Linking CXX executable MotorDynamicTests.exe
+[42/64] Linking CXX executable PhysicsQuerySensorTests.exe
+[43/64] Linking CXX executable MotorBudgetTests.exe
+[44/64] Linking CXX executable PlatformAxesTests.exe
+[45/64] Linking CXX executable DarkAngelHeadless.exe
+[46/64] Linking CXX executable AssetTool.exe
+[47/64] Linking CXX executable AnimationClipTests.exe
+[48/64] Linking CXX executable AnimationTests.exe
+[49/64] Linking CXX executable AnimationGraphTests.exe
+[50/64] Linking CXX executable CharacterSceneTests.exe
+[51/64] Linking CXX executable RenderableHumanTests.exe
+[52/64] Linking CXX executable JointMaskTests.exe
+[53/64] Linking CXX executable CollisionAssetTests.exe
+[54/64] Linking CXX executable ActionTimelineTests.exe
+[55/64] Linking CXX executable CollisionStreamTests.exe
+[56/64] Linking CXX executable CollisionMeshTests.exe
+[57/64] Linking CXX executable CollisionObserverTests.exe
+[58/64] Linking CXX executable AssetTests.exe
+[59/64] Linking CXX executable EditorTests.exe
+[60/64] Linking CXX executable FoundationTests.exe
+[61/64] Linking CXX executable ScriptPackageTests.exe
+[62/64] Linking CXX executable SessionTests.exe
+[63/64] Linking CXX executable AssemblyTests.exe
+[64/64] Linking CXX executable GnsTests.exe

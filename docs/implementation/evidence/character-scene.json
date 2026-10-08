@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "base_head": "bfcb10294bc5928843b3673261b7608305374c15",
+  "scope": "Initial local listen-host coordinator through existing WorldSession wire2; static collision/upright unscaled live human/standing locomotion. Prepared collision ACK, owner correction, bounded topology baseline replacement, achieved-movement graph and fixed render-rate poses. Royal editor controls, combat, external-provider scene launch, posture and streaming remain separate.",
+  "gates": [
+    {
+      "name": "build",
+      "exit": 0,
+      "seconds": 10.647,
+      "log": "docs/implementation/evidence/character-scene-build.log"
+    },
+    {
+      "name": "focused",
+      "exit": 0,
+      "seconds": 2.945,
+      "log": "docs/implementation/evidence/character-scene-focused.log"
+    },
+    {
+      "name": "ctest",
+      "exit": 0,
+      "seconds": 10.863,
+      "log": "docs/implementation/evidence/character-scene-ctest.log"
+    }
+  ],
+  "source_sha256": {
+    "engine/runtime/character_scene.cpp": "b142d7e5c98c1c66d9eb6694bf6916c83a0dab311c8ec8686802e3e7778c1649",
+    "engine/runtime/include/darkangel/character_scene.hpp": "153078768b3fe004d216cadde04539d8eb294c60d89886dc104f13b12770d20d",
+    "tests/character_scene_tests.cpp": "e5178fb203157957be6bb3317cdaedb840c6b8e7f5c3f5017cb063b46f8188d3",
+    "CMakeLists.txt": "21cb753c6564716491a39ee022cd6afc5ad79cfcc17a07171bac4199acac7f95"
+  },
+  "binary_sha256": "fbf144d535d75df4688d6f64d23f9102dfd08cd6b114ea96585851651a76576f",
+  "online": "EOS remains blocked; previous independent GNS receipts unchanged"
+}

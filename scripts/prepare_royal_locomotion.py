@@ -22,6 +22,8 @@ if not destination.exists():
 if not Path(str(destination) + '.daimport').exists():
     subprocess.run([str(TOOL),'adopt-clip',str(SOURCE),str(CACHE),'royal_district/clips/idle.glb','animation/canonical_human.daskeleton','loop'],cwd=ROOT,check=True,timeout=120)
 subprocess.run([str(TOOL),'cook',str(SOURCE),str(CACHE),'royal_district/clips/idle.glb'],cwd=ROOT,check=True,timeout=120)
+if digest(destination) != idle_report['glb_sha256'] or idle_report['canonical_sha256'] != digest(SOURCE / 'animation/canonical_human.daskeleton'):
+    raise RuntimeError('Owned idle/canonical hash fence')
 records['idle'] = idle_report
 
 for name, stem in clips.items():
