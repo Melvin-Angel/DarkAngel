@@ -129,6 +129,15 @@
         "DAE_AUTHORING": false,
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m4-relwithdebinfo"
       }
+    },
+    {
+      "name": "m5-relwithdebinfo",
+      "inherits": "m4-relwithdebinfo",
+      "binaryDir": "${sourceDir}/build/m5-relwithdebinfo",
+      "cacheVariables": {
+        "DAE_ANIMATION": true,
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m5-relwithdebinfo"
+      }
     }
   ],
   "buildPresets": [

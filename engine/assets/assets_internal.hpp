@@ -14,7 +14,10 @@ struct Import {
     std::vector<Product> products;
     std::map<std::string,std::string> inputs;
     std::vector<std::string> keys;
+    std::size_t product_count{}; // includes frozen transitive products, not extra source identities
 };
+Import import_skeleton(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+Import import_human(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path& canonical,bool inspect=false);
 Import import_collision(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false);
 CookedMesh decode_mesh(std::string_view);

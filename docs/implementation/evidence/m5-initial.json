@@ -1,0 +1,589 @@
+{
+  "schema": 1,
+  "base_head": "ed81b833d93c708b5efc999cb2e037e3a5f0c473",
+  "scope": "First M5 canonical-human rig, skin binding and Ozz rest-pose increment; complete animation/combat/UI acceptance remains open",
+  "ozz": "744eb9d99f606eda849acb0b1204f7a3dc20bca1",
+  "online": "M3 EOS live acceptance remains blocked; Loopback/GNS explicitly authorized",
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 73.032,
+      "log": "docs/implementation/evidence/m5-build.log"
+    },
+    {
+      "gate": "rig",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\AnimationTests.exe"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 0.474,
+      "log": "docs/implementation/evidence/m5-rig.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 5.122,
+      "log": "docs/implementation/evidence/m5-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 3.971,
+      "log": "docs/implementation/evidence/m5-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "C:\\DarkAngel\\build\\m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 35.346,
+      "log": "docs/implementation/evidence/m5-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "C:\\DarkAngel\\build\\m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 0.443,
+      "log": "docs/implementation/evidence/m5-no-animation-regression.log"
+    }
+  ],
+  "fixture": {
+    "blender": "4.5.1 LTS",
+    "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Characters\\LowPoly\\FREE_HumanLowPoly\\Meshes_Humans\\HumanMale_Character.fbx",
+    "source_sha256": "0c99d39d08d123a1114c6cf2e19d3e089f14501bea887250fea6748374d2122f",
+    "glb_sha256": "dbf0c9225d8cda73be06970e7df89f40de68db3edbd62bcfce02855020c13e13",
+    "bone_count": 81,
+    "mesh": "Body_Legs",
+    "skin_joints": 81,
+    "joints": [
+      {
+        "node": 80,
+        "name": "Root_M",
+        "parent": 82
+      },
+      {
+        "node": 69,
+        "name": "Spine1_M",
+        "parent": 80
+      },
+      {
+        "node": 68,
+        "name": "Spine2_M",
+        "parent": 69
+      },
+      {
+        "node": 67,
+        "name": "Chest_M",
+        "parent": 68
+      },
+      {
+        "node": 16,
+        "name": "Neck_M",
+        "parent": 67
+      },
+      {
+        "node": 15,
+        "name": "Head_M",
+        "parent": 16
+      },
+      {
+        "node": 0,
+        "name": "HeadEnd_M",
+        "parent": 15
+      },
+      {
+        "node": 2,
+        "name": "Eye_R",
+        "parent": 15
+      },
+      {
+        "node": 1,
+        "name": "EyeEnd_R",
+        "parent": 2
+      },
+      {
+        "node": 4,
+        "name": "Jaw_M",
+        "parent": 15
+      },
+      {
+        "node": 3,
+        "name": "JawEnd_M",
+        "parent": 4
+      },
+      {
+        "node": 6,
+        "name": "jnt_eyelid_R",
+        "parent": 15
+      },
+      {
+        "node": 5,
+        "name": "jnt_eyelidEnd_R",
+        "parent": 6
+      },
+      {
+        "node": 8,
+        "name": "jnt_eyeBrow_R",
+        "parent": 15
+      },
+      {
+        "node": 7,
+        "name": "jnt_eyeBrowEnd_R",
+        "parent": 8
+      },
+      {
+        "node": 10,
+        "name": "Eye_L",
+        "parent": 15
+      },
+      {
+        "node": 9,
+        "name": "EyeEnd_L",
+        "parent": 10
+      },
+      {
+        "node": 12,
+        "name": "jnt_eyelid_L",
+        "parent": 15
+      },
+      {
+        "node": 11,
+        "name": "jnt_eyelid_LEnd_L",
+        "parent": 12
+      },
+      {
+        "node": 14,
+        "name": "jnt_eyeBrow_L",
+        "parent": 15
+      },
+      {
+        "node": 13,
+        "name": "jnt_eyeBrow_LEnd_L",
+        "parent": 14
+      },
+      {
+        "node": 41,
+        "name": "Scapula_R",
+        "parent": 67
+      },
+      {
+        "node": 40,
+        "name": "Shoulder_R",
+        "parent": 41
+      },
+      {
+        "node": 39,
+        "name": "Elbow_R",
+        "parent": 40
+      },
+      {
+        "node": 38,
+        "name": "Wrist_R",
+        "parent": 39
+      },
+      {
+        "node": 20,
+        "name": "MiddleFinger1_R",
+        "parent": 38
+      },
+      {
+        "node": 19,
+        "name": "MiddleFinger2_R",
+        "parent": 20
+      },
+      {
+        "node": 18,
+        "name": "MiddleFinger3_R",
+        "parent": 19
+      },
+      {
+        "node": 17,
+        "name": "MiddleFinger4_R",
+        "parent": 18
+      },
+      {
+        "node": 24,
+        "name": "ThumbFinger1_R",
+        "parent": 38
+      },
+      {
+        "node": 23,
+        "name": "ThumbFinger2_R",
+        "parent": 24
+      },
+      {
+        "node": 22,
+        "name": "ThumbFinger3_R",
+        "parent": 23
+      },
+      {
+        "node": 21,
+        "name": "ThumbFinger4_R",
+        "parent": 22
+      },
+      {
+        "node": 28,
+        "name": "IndexFinger1_R",
+        "parent": 38
+      },
+      {
+        "node": 27,
+        "name": "IndexFinger2_R",
+        "parent": 28
+      },
+      {
+        "node": 26,
+        "name": "IndexFinger3_R",
+        "parent": 27
+      },
+      {
+        "node": 25,
+        "name": "IndexFinger4_R",
+        "parent": 26
+      },
+      {
+        "node": 32,
+        "name": "RingFinger1_R",
+        "parent": 38
+      },
+      {
+        "node": 31,
+        "name": "RingFinger2_R",
+        "parent": 32
+      },
+      {
+        "node": 30,
+        "name": "RingFinger3_R",
+        "parent": 31
+      },
+      {
+        "node": 29,
+        "name": "RingFinger4_R",
+        "parent": 30
+      },
+      {
+        "node": 36,
+        "name": "PinkyFinger1_R",
+        "parent": 38
+      },
+      {
+        "node": 35,
+        "name": "PinkyFinger2_R",
+        "parent": 36
+      },
+      {
+        "node": 34,
+        "name": "PinkyFinger3_R",
+        "parent": 35
+      },
+      {
+        "node": 33,
+        "name": "PinkyFinger4_R",
+        "parent": 34
+      },
+      {
+        "node": 37,
+        "name": "jointItemR",
+        "parent": 38
+      },
+      {
+        "node": 66,
+        "name": "Scapula_L",
+        "parent": 67
+      },
+      {
+        "node": 65,
+        "name": "Shoulder_L",
+        "parent": 66
+      },
+      {
+        "node": 64,
+        "name": "Elbow_L",
+        "parent": 65
+      },
+      {
+        "node": 63,
+        "name": "Wrist_L",
+        "parent": 64
+      },
+      {
+        "node": 45,
+        "name": "MiddleFinger1_L",
+        "parent": 63
+      },
+      {
+        "node": 44,
+        "name": "MiddleFinger2_L",
+        "parent": 45
+      },
+      {
+        "node": 43,
+        "name": "MiddleFinger3_L",
+        "parent": 44
+      },
+      {
+        "node": 42,
+        "name": "MiddleFinger4_L",
+        "parent": 43
+      },
+      {
+        "node": 49,
+        "name": "ThumbFinger1_L",
+        "parent": 63
+      },
+      {
+        "node": 48,
+        "name": "ThumbFinger2_L",
+        "parent": 49
+      },
+      {
+        "node": 47,
+        "name": "ThumbFinger3_L",
+        "parent": 48
+      },
+      {
+        "node": 46,
+        "name": "ThumbFinger4_L",
+        "parent": 47
+      },
+      {
+        "node": 53,
+        "name": "IndexFinger1_L",
+        "parent": 63
+      },
+      {
+        "node": 52,
+        "name": "IndexFinger2_L",
+        "parent": 53
+      },
+      {
+        "node": 51,
+        "name": "IndexFinger3_L",
+        "parent": 52
+      },
+      {
+        "node": 50,
+        "name": "IndexFinger4_L",
+        "parent": 51
+      },
+      {
+        "node": 57,
+        "name": "RingFinger1_L",
+        "parent": 63
+      },
+      {
+        "node": 56,
+        "name": "RingFinger2_L",
+        "parent": 57
+      },
+      {
+        "node": 55,
+        "name": "RingFinger3_L",
+        "parent": 56
+      },
+      {
+        "node": 54,
+        "name": "RingFinger4_L",
+        "parent": 55
+      },
+      {
+        "node": 61,
+        "name": "PinkyFinger1_L",
+        "parent": 63
+      },
+      {
+        "node": 60,
+        "name": "PinkyFinger2_L",
+        "parent": 61
+      },
+      {
+        "node": 59,
+        "name": "PinkyFinger3_L",
+        "parent": 60
+      },
+      {
+        "node": 58,
+        "name": "PinkyFinger4_L",
+        "parent": 59
+      },
+      {
+        "node": 62,
+        "name": "jointItemL",
+        "parent": 63
+      },
+      {
+        "node": 74,
+        "name": "Hip_R",
+        "parent": 80
+      },
+      {
+        "node": 73,
+        "name": "Knee_R",
+        "parent": 74
+      },
+      {
+        "node": 72,
+        "name": "Ankle_R",
+        "parent": 73
+      },
+      {
+        "node": 71,
+        "name": "Toes_R",
+        "parent": 72
+      },
+      {
+        "node": 70,
+        "name": "ToesEnd_R",
+        "parent": 71
+      },
+      {
+        "node": 79,
+        "name": "Hip_L",
+        "parent": 80
+      },
+      {
+        "node": 78,
+        "name": "Knee_L",
+        "parent": 79
+      },
+      {
+        "node": 77,
+        "name": "Ankle_L",
+        "parent": 78
+      },
+      {
+        "node": 76,
+        "name": "Toes_L",
+        "parent": 77
+      },
+      {
+        "node": 75,
+        "name": "ToesEnd_L",
+        "parent": 76
+      }
+    ],
+    "nodes": 83
+  },
+  "source_sha256": {
+    "engine/assets/animation_cooker.cpp": "2c758056ffe84bff7513d122cfbae09a78186ce3e924f64ae6d471ac2d7f532b",
+    "engine/assets/assets_common.cpp": "570c7ae40596d04a35566d594bedd8d5c9ce6fb7c58c85b71be70afccd9fcb45",
+    "engine/assets/assets_internal.hpp": "95cee6977ef0e12b3357e4afa79eaaa58b970aeedb537d8f4bc8798a83f9a1b9",
+    "engine/assets/asset_service.cpp": "6c776b0c1e11df6826d58d1a975ccbc521f5c3583998135a5c5a5775eed794b8",
+    "engine/assets/collision_cooker.cpp": "64e92f44f7146a031c89fe6ae6a87ecd168727f371bb0dd360c59784010f20de",
+    "engine/assets/gltf_cooker.cpp": "291a3b1d266001b59b32a2e92d415838a6d516ad3813776035f738de5c5ef7cc",
+    "engine/foundation/asset_id.cpp": "a33f0a342ce755837e2454934b2527b122e7fa57f863bdb40c2cba05e471f585",
+    "engine/foundation/build_info.cpp": "8bdde1f14a3cee2311a85c145369d841ea74ed3a42f54e0fb34b0b50344c896a",
+    "engine/foundation/hash.cpp": "dbc86d66158915721b47a823f7a0a1bc0b507b8a883ba6b5c010520dc0842ad1",
+    "engine/foundation/metadata.cpp": "a5468f12cdd91385bfafcf88ea4604811ecb03673ce1dc424ece14a6bb9118f7",
+    "engine/foundation/metadata.hpp": "7431f3d55fc38d6b8dc164bb7be46d211890c2fff4fb7b76e4c1ccf12c2d80d3",
+    "engine/foundation/world.cpp": "c9219425840d4a54c7a3ca565036bf74c2cd5101528b69689aa43d07c112ebfb",
+    "engine/runtime/animation_pose.cpp": "989e12f8098309f8a0962fa631cbd6d356f09dafdc7d723c018372109a0b19c1",
+    "engine/runtime/animation_source.cpp": "191247e516c00ee2b7530372ed0feec6d00c844703800df81f434d7e54f16639",
+    "engine/runtime/assembly.cpp": "2b65d5dde5244d5a47d8a90001f2331740f89a12e600ad508353805e3e5a72d8",
+    "engine/runtime/bootstrap.cpp": "02c7a08394e86f82bd613d884c9e0903f356b8df1d59d6abcb2b65cc78bd2ed4",
+    "engine/runtime/character_motor.cpp": "8bdca3cacfd179b2640601bde01acda8f8eda73902a276dc5daa08a36e391b45",
+    "engine/runtime/eos_session.cpp": "2f9add98938f91e29c51357d2e6bbbea568c52c493d1afc9a3a5fdbdbe333023",
+    "engine/runtime/gns_transport.cpp": "d4bedb0426a96a605f80e4604587a3bbcc54a91fe98aaf27f0635e57ed9c3a7f",
+    "engine/runtime/motor_state.cpp": "0cff0ce754a4f2f84b93be16c09067c841c1f753436e4be1482715071660dc1b",
+    "engine/runtime/script_package.cpp": "7f07d78a4152835ede5cff5d6e542b9f943a1725bbdf3ce924189a0c9f216d0c",
+    "engine/runtime/script_runtime.cpp": "8d51168195102ce3cf6f8489907058d9ca8cd633803c9ba796462dffe7dce45b",
+    "engine/runtime/script_state.cpp": "e78e231df70694b343ef7396c329131a8026145adade793ae2675eacb63ae013",
+    "engine/runtime/script_state.hpp": "8a03250b356e72d8ef699f77317bc2a254a7453547bdeee371f98996f2355fe2",
+    "engine/runtime/transport.cpp": "6784e957da3be504c9e01de5b722c7880d2242b2d22a829605828b37e173992d",
+    "engine/runtime/world_session.cpp": "0904cf2de1e5cf41d14ace6a073cc4adf9a32276b26e1c95383a7778cdec9a8f",
+    "engine/runtime/include/darkangel/animation.hpp": "c1284ec3d7517605009ea1d95b78b1a15da3e99f6c206df509cc8028847d5052",
+    "engine/runtime/include/darkangel/assembly.hpp": "b01109ca8bf2ada0c71cfbd34b3bf50f19a8de4e2a9f3f30a3a8fdfeef66a81f",
+    "engine/runtime/include/darkangel/bootstrap.hpp": "1f2811ca04fab9d33e565477a2ed1d119587c27bf767e18e6d446bccdaba5548",
+    "engine/runtime/include/darkangel/character_motor.hpp": "678d283e43cc68a427fcbe110f95d496b476697089498ced968c3106ed50862c",
+    "engine/runtime/include/darkangel/eos_session.hpp": "b6b9a73f5dae0e2ebe982ac1500b38d7108dd64c572d9dc454dde260789ecab2",
+    "engine/runtime/include/darkangel/gns_transport.hpp": "a0e5b1ce76a84bb8f4240222e73804032659800b69059a5aaf8a4e0fc13505d4",
+    "engine/runtime/include/darkangel/script_package.hpp": "ad770304db2975dc82526a145c044434edb2e805d0c2a9c7cf4e18100f9551e2",
+    "engine/runtime/include/darkangel/script_runtime.hpp": "bbdd2de88a47c75768158a2caac8d5406edfb2572b561fb041809b6aa9bf68ba",
+    "engine/runtime/include/darkangel/transport.hpp": "5216a506d778bbb9aec5523259a4c24ab1970c7dc57dc8f06fc0f055a3253f3c",
+    "engine/runtime/include/darkangel/world_session.hpp": "5bee15aa0c729fb0cde604c92952576d4574b1f773726a1e31d6b2b6474e185c",
+    "engine/foundation/include/darkangel/asset_id.hpp": "03d00cf9f07fdd42f4d14950561f5219204071031095cf8720583229aa635f22",
+    "engine/foundation/include/darkangel/foundation.hpp": "02e0a9417cdd66c3fd1183b6cbfc3c3ea663e1cf98067baf599da2bb3b5a7170",
+    "engine/foundation/include/darkangel/hash.hpp": "3ae199d3002a3a60237e040a1ad66a2f82f2c1f03d694f034c4070030950136e",
+    "engine/foundation/include/darkangel/jobs.hpp": "196cfc802d018495e28eaba9523d4a345232d3b1ca4fae6c3558d2c39321e6e6",
+    "engine/foundation/include/darkangel/world.hpp": "eccda97d899e57ae2b237993e3610f23934c15c95eaf326655ea19761eeb7263",
+    "engine/assets/include/darkangel/animation_assets.hpp": "67f43d65ed4c9e745c9251246701a9497ca393e1958fb02e1fa73183bc6ef78f",
+    "engine/assets/include/darkangel/assets.hpp": "2684f59a50fa4afcb5feb16dde00721535c167e92b96347620fc44cc866f8c0b",
+    "tests/agent_tests.cpp": "3da4007a52086356343e42c20eac1afbca17e7717fc8db13068b3c3b024e4b7c",
+    "tests/animation_tests.cpp": "1abb1420cade7231bbd902c4c1857f20da082c82cfe6fdd81ca313f31b0235de",
+    "tests/assembly_tests.cpp": "77d1b47f4df140b67af56e5c9eca7413007ef696e3381f142ed7faf608dbd45e",
+    "tests/asset_tests.cpp": "75dee3d1c25aa76c59d4fa459619e08613c6043dc57e9e7f87dab67f4a6b3257",
+    "tests/collision_asset_tests.cpp": "df6f4bb9d9972ea51c0b0f18410518d5a595d58d1546e4d2f441681b609643b7",
+    "tests/editor_tests.cpp": "dbb80e58e5b1965f600b7abf3b324d3faa58058f6b65fcee056629721ca50b17",
+    "tests/eos_tests.cpp": "2eb9d9e9400259ddb048285263af651f28c8bb6cfc3a4aac4e0436f3fc0be024",
+    "tests/flecs_probe.cpp": "1fff5a794ea7dca3d50d68ea2f3aac0fa1d83ef629e8d9ec3220b5bc3ce5180c",
+    "tests/foundation_tests.cpp": "f2482769fbb02d4db2766664d7983be3155ed3e59066ef62c761370999000c28",
+    "tests/gns_tests.cpp": "a3b815cc1abc82306698d0a1390a02ce8737064e6092306c18399bf2b214b3db",
+    "tests/luau_probe.cpp": "066566f1e418b79c6ad9593cb358847ae7a8a52977c5754dcf512d85cb37fc94",
+    "tests/motor_fault_tests.cpp": "17b4967e5f3ed29ff1652ea27692d6b88e4f0ffea70a8d400a2131ad491f821e",
+    "tests/motor_session_tests.cpp": "3bce5f4939f395c197d70b1de87aa98aa7a028f005fd01a5d9b84aa9daa962c0",
+    "tests/motor_tests.cpp": "9634a48baf6bbd0654b21cac6d9d27fc0a9072858671b96d3944b8c163f42833",
+    "tests/script_package_tests.cpp": "36ff7c1ecf153077d7252d567bfe7c468f40b047df0d234c55166fffcf2a9a21",
+    "tests/session_tests.cpp": "f211893b11d135701d0f24efcd66ce89a82d44597bc0b8322ef076ef01e1d2f7",
+    "tests/sqlite_probe.cpp": "15abe691040a22e035b8bada2fe437b6d535b4d5f047b999036be3c4e66bc195",
+    "tools/editor/agent_endpoint.cpp": "19cc989dd735f666cc3b2315c3d7d000b6582e02494543d87c3a8f115f496742",
+    "tools/editor/agent_host.cpp": "0a54b816e59b96b0da220c0c4baff03f16884bf56845921925e638be483670f5",
+    "tools/editor/editor_document.cpp": "cf4a4a2888d63643aaa8b8146305f6afe6cf7ab9f6d646be7e405ab55aa413ec",
+    "tools/editor/editor_rpc.cpp": "155052994f0eb85d65aa85a108d85a94e30e6f97f60bcfb7bdbfedec7ca3586b",
+    "tools/editor/editor_service.cpp": "41d8def73670046ada5992dd439d8e2b90be169ce2f4c3047b3e5719fd0beb76",
+    "tools/editor/main.cpp": "a05295e261f8fb829186fea9236bc5f464f0129f85306f9de136ac33604f2415",
+    "tools/editor/include/darkangel/editor_document.hpp": "90778524f44007afc01c2d875ed7e6d164d1016999900284fc99ce7d75a28819",
+    "tools/editor/include/darkangel/editor_rpc.hpp": "6195c146b35a6d7703389374fff0dc9665bf582dbe90213910df18bca9b11841",
+    "tools/editor/include/darkangel/editor_service.hpp": "6f7fe7783b95c68ae701952b241284c2526f62fa66cfd86b91cef081a790ecb0",
+    "tools/cooker/main.cpp": "65ce4961729dba968822ddaa7730c71b5cb74c601884676375d26a1cc217ef11",
+    "content/animation/canonical_human.daskeleton": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+    "CMakeLists.txt": "a067977dba0cb2b3b16f9eb6456c4694a0e0eafc46d95b8523c4dcf2e042498a",
+    "CMakePresets.json": "ab5a643e52a2abfa9e4781e9b0bf7807bb7d0d0b70c3cdf90116aa3cf504c7b7",
+    "vcpkg.json": "4e4e843e529bfe6f82489be005fc6543b23c61df7ae992daa6f0339c22660567",
+    "scripts/convert_human_fixture.py": "e84144521060064db8389e9a9bbd39678b8fa1278410ae62d68355fcdaa816f9"
+  },
+  "binary_sha256": {
+    "AnimationTests.exe": "d1cd7eaada4fa827e3ac84ee77277e0b38c7652dfdf29b03d54548dde6efa1ac",
+    "MotorSessionTests.exe": "1e4beed47007bc5f520e2bffd2fae49be1f01cbf3d60fa515f2ad6aaf0fbfe85",
+    "AssetTool.exe": "07414f42e9d67d6b050965ce6eebe78540093876e4e274e8774d0b642fb2a22b"
+  }
+}

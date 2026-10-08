@@ -874,11 +874,11 @@
       "destination": "third_party/ozz",
       "active": true,
       "submodule_pins": {},
-      "status": "acquired",
+      "status": "built and first integration verified",
       "acquisition": "acquired",
-      "native_build": "not built",
-      "integration": "not integrated",
-      "acceptance_gate": "later subsystem integration"
+      "native_build": "Static optimized /MD runtime and offline builders at frozen 744eb9d99f606eda849acb0b1204f7a3dc20bca1",
+      "integration": "Canonical human skeleton/archive and CPU rest-pose/skin binding verified; clips/graph/action/combat/skinning renderer remain M5 gates",
+      "acceptance_gate": "Complete detailed M5 gates; see M5_REPORT.md"
     },
     {
       "name": "imguizmo",
