@@ -1,0 +1,21 @@
+omni-walk archive_bytes=55215
+omni-walk masked_blend_tip_error_m=0.000131345
+omni-walk optimized_bytes=55215 max_tip_error_m=0.000464777
+omni-walk root_end=0.00109843,2.38419e-07,1.35541,0
+omni-walk ticks=70 archive_bytes=55215 max_tip_error_m=0.000464777 root_extent_m=1.35541
+omni-run archive_bytes=30292
+omni-run masked_blend_tip_error_m=0.000159913
+omni-run optimized_bytes=30292 max_tip_error_m=0.000435159
+omni-run root_end=-0.00476356,2.38419e-07,2.72529,0
+omni-run ticks=36 archive_bytes=30292 max_tip_error_m=0.000435159 root_extent_m=2.72529
+omni-left archive_bytes=55218
+omni-left masked_blend_tip_error_m=0.000204557
+omni-left optimized_bytes=55218 max_tip_error_m=0.000507854
+omni-left root_end=1.3601,0,0.000705612,0
+omni-left ticks=70 archive_bytes=55218 max_tip_error_m=0.000507854 root_extent_m=1.3601
+omni-right archive_bytes=55219
+omni-right masked_blend_tip_error_m=0.000149335
+omni-right optimized_bytes=55219 max_tip_error_m=0.000387455
+omni-right root_end=-1.35785,0,0.000384529,0
+omni-right ticks=70 archive_bytes=55219 max_tip_error_m=0.000387455 root_extent_m=1.35785
+Offline Omni canonical clips, native frozen cook and independent Ozz reference passed

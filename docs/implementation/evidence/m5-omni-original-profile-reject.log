@@ -1,0 +1,9 @@
+Blender 4.5.1 LTS (hash b0a72b245dcf built 2025-07-29 06:36:07)
+
+Blender quit
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\convert_omni_fixture.py", line 23, in <module>
+    raise RuntimeError('Only Omni CoreLocomotion/Animations/TPose profile is supported')
+RuntimeError: Only Omni CoreLocomotion/Animations/TPose profile is supported
+
+Error: script failed, file: 'scripts/convert_omni_fixture.py', exiting.

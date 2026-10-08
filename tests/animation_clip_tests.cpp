@@ -30,14 +30,14 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
     auto source=output/name;std::filesystem::create_directories(source);
     std::filesystem::copy_file(project/"content/animation/canonical_human.daskeleton",source/"human.daskeleton");
     std::filesystem::copy_file(project/".cache/fixtures"/(name+".glb"),source/"clip.glb");
-    AssetService assets(source,source/"cache");auto id=assets.adopt_clip("clip.glb","human.daskeleton",name=="idle"||name=="run");
+    AssetService assets(source,source/"cache");auto id=assets.adopt_clip("clip.glb","human.daskeleton",name=="idle"||name=="run"||name.starts_with("omni-"));
     auto result=assets.cook("clip.glb");require(result.changed&&!assets.cook("clip.glb").changed,"Clip cold/warm cook");
     assets.package(id,source/"registry.json");auto registry=read(source/"registry.json");
     auto rig=load_cooked_rig(source/"registry.json",assets.cas_path(),decode_rig_source(read(source/"human.daskeleton")).id);
     auto cooked=load_cooked_clip(source/"registry.json",assets.cas_path(),id);AnimationClip clip(cooked.definition,cooked.archive);
     const std::map<std::string,std::size_t> unoptimized={{"idle",155217},{"run",61655},{"attack",79210},{"dodge",137680}};
     std::cout<<name<<" archive_bytes="<<cooked.archive.size()<<std::endl;
-    require(cooked.archive.size()<unoptimized.at(name)*.7,"Translation optimization must reduce fixture archive size by at least 30 percent");
+    if(auto baseline=unoptimized.find(name);baseline!=unoptimized.end())require(cooked.archive.size()<baseline->second*.7,"Translation optimization must reduce fixture archive size by at least 30 percent");
     RigPose first(rig.definition,rig.archive),second(rig.definition,rig.archive);
     const auto saved_second=second.sample(clip,3);first.sample(clip,17);
     require(second.sample(clip,3)[12].values==saved_second[12].values,"Independent sampling context/buffers");
@@ -86,7 +86,22 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
         auto root=cooked.definition.root[tick];max_root=std::max(max_root,double(std::sqrt(root[0]*root[0]+root[1]*root[1]+root[2]*root[2])));
     }
     std::cout<<name<<" optimized_bytes="<<cooked.archive.size()<<" max_tip_error_m="<<max_tip_error<<std::endl;
-    require(max_tip_error<.0005,"Ozz optimized compression error at sockets/half-metre weapon tips exceeds 0.5 mm");
+    // The four Blink clips retain their existing 0.5 mm profile. Offline Omni
+    // clips use a separately measured 0.75 mm profile: retained rotation keys
+    // still incur the pinned codec's quaternion quantization along the hierarchy.
+    const double tip_budget=name.starts_with("omni-")?.00075:.0005;
+    require(max_tip_error<tip_budget,"Ozz socket/half-metre tip error exceeds the documented content profile");
+    if(name.starts_with("omni-")){
+        const auto& last=cooked.definition.root.back();
+        std::cout<<name<<" root_end="<<last[0]<<','<<last[1]<<','<<last[2]<<','<<last[3]<<std::endl;
+        require(cooked.definition.joints==81&&cooked.definition.ticks>=30&&max_root>.5,"Omni canonical duration and authored displacement");
+        // Offline root-basis normalization preserves the source directional grid
+        // despite the initial gait pose's pelvis twist. Millimetre drift is
+        // authored in the source; a rotated path must not silently qualify.
+        if(name=="omni-walk"||name=="omni-run")require(last[2]>.5&&std::abs(last[0])<.01,"Omni forward root direction");
+        if(name=="omni-left")require(last[0]>.5&&std::abs(last[2])<.01,"Omni source left strafe direction");
+        if(name=="omni-right")require(last[0]<-.5&&std::abs(last[2])<.01,"Omni source right strafe direction");
+    }
     if(cooked.definition.loop){auto start=first.sample(clip,0)[0].values;require(start==first.sample(clip,cooked.definition.ticks)[0].values,"Loop pose wraps at exact duration");}
     auto wrong=cooked.definition;wrong.signature=std::string(64,'a');AnimationClip incompatible(wrong,cooked.archive);bool denied=false;try{first.sample(incompatible,0);}catch(...){denied=true;}require(denied,"Incompatible clip rejects before sampling");PoseLayer mismatch{&incompatible,3,1,{}};denied=false;try{first.blend(std::span(&mismatch,1));}catch(...){denied=true;}require(denied,"Incompatible blended clip rejects before pose mutation");
     auto sidecar=Json::parse(read(source/"clip.glb.daimport"));sidecar["loop"]=!cooked.definition.loop;write(source/"clip.glb.daimport",sidecar.dump());
@@ -112,7 +127,13 @@ void mixed_clips(const std::filesystem::path& project,const std::filesystem::pat
 }
 
 }
-int main(){try{
+int main(int argc,char** argv){try{
+    if(argc==2&&std::string_view(argv[1])=="--omni"){
+        auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("omni-fixture-"+AssetId::random().text());
+        for(auto name:{"omni-walk","omni-run","omni-left","omni-right"})clip_test(project,output,name);
+        std::cout<<"Offline Omni canonical clips, native frozen cook and independent Ozz reference passed\n";return 0;
+    }
+    require(argc==1,"Unknown clip test arguments");
     ClipDefinition looping;looping.ticks=2;looping.loop=true;looping.root={{{0,0,0,0}},{{.5,0,0,float(3.141592653589793/4)}},{{1,0,0,float(3.141592653589793/2)}}};
     auto first=clip_root_delta(looping,0,2),second=clip_root_delta(looping,2,4),both=clip_root_delta(looping,0,4);
     require(std::abs(first.translation[0]-1)<.00001&&std::abs(second.translation[0]-1)<.00001&&std::abs(second.translation[2])<.00001,"Each loop produces the same local root delta");

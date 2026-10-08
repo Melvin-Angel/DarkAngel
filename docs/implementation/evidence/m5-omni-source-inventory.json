@@ -1,0 +1,746 @@
+{
+  "source_root": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations",
+  "qualification": "Read-only source discovery only; Blender canonical compatibility and native cook not tested",
+  "files": [
+    {
+      "path": "Original\\CrouchIdle.fbx",
+      "bytes": 508688,
+      "sha256": "5997d7f45e9ef2464de598a445f851375a5dbcfd14f9d1b710b54fc50e67baf0"
+    },
+    {
+      "path": "Original\\CrouchIdleTurnLeft180.fbx",
+      "bytes": 243184,
+      "sha256": "18d559224711d71331af9f524f6d07916d5a0c961b94696c247b583a48698751"
+    },
+    {
+      "path": "Original\\CrouchIdleTurnLeft45.fbx",
+      "bytes": 302560,
+      "sha256": "5d5656a4a82898e629c317e6ac21b875da60c4e090a64de396bc96c46d369fec"
+    },
+    {
+      "path": "Original\\CrouchIdleTurnLeft90.fbx",
+      "bytes": 309584,
+      "sha256": "793659eb2779ac902d99c3031eab0817dfdc459501f24b0e71eef519edff5913"
+    },
+    {
+      "path": "Original\\CrouchIdleTurnRight180.fbx",
+      "bytes": 243200,
+      "sha256": "b3e5e91cfd4196534e65886aaa39222b4b71fb6fbee7c305e11cd99ea683a09e"
+    },
+    {
+      "path": "Original\\CrouchIdleTurnRight45.fbx",
+      "bytes": 303200,
+      "sha256": "c7ace6d7a76dba9dcfa10e53ea867cdfc688e6f67faa66139e4cfee9fd2f906f"
+    },
+    {
+      "path": "Original\\CrouchIdleTurnRight90.fbx",
+      "bytes": 308944,
+      "sha256": "c341a5f9cfff587ed34505bbeffe2a4bc5793eced5fa9453f3b8cb0e113b70c1"
+    },
+    {
+      "path": "Original\\CrouchRunBackward.fbx",
+      "bytes": 274240,
+      "sha256": "32b2f4ac41bfddb45ed9c8a6fa79706e8cf4a4e2b7a8dd35c9af202a45198610"
+    },
+    {
+      "path": "Original\\CrouchRunBackwardDiagonalLeft.fbx",
+      "bytes": 273824,
+      "sha256": "019c42044efc586408b7e5f8ecf75d0d72285aa16dfd31dae6a1f91b59f03207"
+    },
+    {
+      "path": "Original\\CrouchRunBackwardDiagonalRight.fbx",
+      "bytes": 273792,
+      "sha256": "d81bbbb4738e89b8959d3c86a1d65a5a76209c0f409d15df0ca6590b9d966b26"
+    },
+    {
+      "path": "Original\\CrouchRunForward.fbx",
+      "bytes": 213936,
+      "sha256": "fb8a2dd7892a23d07a3f606bf4561da04c4afe37137079f992d890c7cf022947"
+    },
+    {
+      "path": "Original\\CrouchRunForwardDiagonalLeft.fbx",
+      "bytes": 213968,
+      "sha256": "3a414bd37aa534d23c6c59d41c9588d1edf3f53d58d788cae49788e7c0b996ee"
+    },
+    {
+      "path": "Original\\CrouchRunForwardDiagonalRight.fbx",
+      "bytes": 213968,
+      "sha256": "5fc9b694660719038c3f9d96df0f3e96fe3f1eebff7de2f5f020574ec3e83eca"
+    },
+    {
+      "path": "Original\\CrouchRunStrafeLeft.fbx",
+      "bytes": 273104,
+      "sha256": "117a7fd4eec82c45b0163670a425c92b5ead3df106a70fe3ae0c6377365493b0"
+    },
+    {
+      "path": "Original\\CrouchRunStrafeRight.fbx",
+      "bytes": 273712,
+      "sha256": "0319f952050c6ff848026711134d68b268730572345f19e9b5bdc3e8f7ff1724"
+    },
+    {
+      "path": "Original\\CrouchWalkBackward.fbx",
+      "bytes": 227552,
+      "sha256": "c3446cf830c36460efffa363c52010a143e4e125dd1372346ec82775bce59b8d"
+    },
+    {
+      "path": "Original\\CrouchWalkBackwardDiagonalLeft.fbx",
+      "bytes": 227664,
+      "sha256": "4227b0c70a29ec43e57a1ec9a10598416a81e23009877904a0fd74b2958a5e5a"
+    },
+    {
+      "path": "Original\\CrouchWalkBackwardDiagonalRight.fbx",
+      "bytes": 227568,
+      "sha256": "cffbd25a77ee2f856076748ad8f87147961872cbaba22b232f43f9c9c57136d8"
+    },
+    {
+      "path": "Original\\CrouchWalkForward.fbx",
+      "bytes": 274496,
+      "sha256": "765e28eeaafe61758086c94710de067dc21be8d4e950e651663a0468b5f05237"
+    },
+    {
+      "path": "Original\\CrouchWalkForwardDiagonalLeft.fbx",
+      "bytes": 273360,
+      "sha256": "e81a92b271c59bc89443e128fd4a5dabc9382288d33c94b5c3fe0d09821097fe"
+    },
+    {
+      "path": "Original\\CrouchWalkForwardDiagonalRight.fbx",
+      "bytes": 273840,
+      "sha256": "2d78bc5ed6e2d6bcec0610398ef7189d95a8745d7867ee917f39a8377078d7e2"
+    },
+    {
+      "path": "Original\\CrouchWalkStrafeLeft.fbx",
+      "bytes": 223376,
+      "sha256": "32ea234e727f768b4f5dc4f8a2e0614c9e6e5271d1e16f5b79eed85aa9ecde5d"
+    },
+    {
+      "path": "Original\\CrouchWalkStrafeRight.fbx",
+      "bytes": 223408,
+      "sha256": "54ca48769d3b6b7579b0cd1a6ecd7c65dcf56a369e0200a132d463325e0b44a6"
+    },
+    {
+      "path": "Original\\Idle.fbx",
+      "bytes": 786816,
+      "sha256": "ca70f7c2b9ccc48714cc9b6b915717ec17f981dd8bbbad5cdd045b60313dcfdf"
+    },
+    {
+      "path": "Original\\IdleJump.fbx",
+      "bytes": 332304,
+      "sha256": "189fd2c533c29b127c313cdcd3e42a808eb4894ed551acfc6ff24ba34ab4ee91"
+    },
+    {
+      "path": "Original\\IdleTurnLeft180.fbx",
+      "bytes": 241824,
+      "sha256": "643359572f80e2f9fcd131c73f648d64f2293d043b0a919322a4209aa3706992"
+    },
+    {
+      "path": "Original\\IdleTurnLeft45.fbx",
+      "bytes": 300544,
+      "sha256": "7e6ae1ead3df7d41f4f1cd0b22629213a1cf2b44156c01eb9830340461d5e58a"
+    },
+    {
+      "path": "Original\\IdleTurnLeft90.fbx",
+      "bytes": 308784,
+      "sha256": "e836a587c20596ea2be78c79feb24d27ac51aae54387c3aca4b5ea9756205021"
+    },
+    {
+      "path": "Original\\IdleTurnRight180.fbx",
+      "bytes": 242384,
+      "sha256": "08784767584ebe057f56647d0cc935ab5b657aa5efd8ecfc52af0a73128603d9"
+    },
+    {
+      "path": "Original\\IdleTurnRight45.fbx",
+      "bytes": 301184,
+      "sha256": "1317aa796fcdb9b18cec8ba9a6bb104cc2b7dac128454ff607ee552bff47dd3a"
+    },
+    {
+      "path": "Original\\IdleTurnRight90.fbx",
+      "bytes": 308704,
+      "sha256": "679dae777c1da2a34e36768546762bb9e9f3d24ebc9925c281f658b9e080716c"
+    },
+    {
+      "path": "Original\\RunBackward.fbx",
+      "bytes": 212192,
+      "sha256": "d2e9eed1f4ea54d17ec083b90922fe3eb426de1c60a1a4eee07b005249446203"
+    },
+    {
+      "path": "Original\\RunBackwardDiagonalLeft.fbx",
+      "bytes": 212224,
+      "sha256": "61688425688c9db91cdc1b56bca16152b6c636654a971052cb5d0e58059db5ce"
+    },
+    {
+      "path": "Original\\RunBackwardDiagonalRight.fbx",
+      "bytes": 212224,
+      "sha256": "dc305d72dcfeae84f40ef641101a3d9e1a9cb9e67b625be8a5f3d8b90e9ee56d"
+    },
+    {
+      "path": "Original\\RunForward.fbx",
+      "bytes": 213056,
+      "sha256": "0b7b597fa943dac8e971f7ee9aa5158114a08e07232f9eb9e1fd819a34dc17dd"
+    },
+    {
+      "path": "Original\\RunForwardDiagonalLeft.fbx",
+      "bytes": 213056,
+      "sha256": "4ed4fbde3dfe7edeb5e80fc4a31db003281c3047435cc749212c25eb75565819"
+    },
+    {
+      "path": "Original\\RunForwardDiagonalRight.fbx",
+      "bytes": 213088,
+      "sha256": "1ac347a3cdeb926e77dd618f67a88a622cab511833f0fb99988a558e65b0fa3f"
+    },
+    {
+      "path": "Original\\RunJumpLeft.fbx",
+      "bytes": 218320,
+      "sha256": "8c6ae2d5d5b9982b8ed10adbe30eab0faebba7b6dbc144e8704cfcea23e291d5"
+    },
+    {
+      "path": "Original\\RunJumpRight.fbx",
+      "bytes": 218320,
+      "sha256": "37b0d3325d758033184b0363cbf49e7772c2c92a65487e891cb3ee7e65c72787"
+    },
+    {
+      "path": "Original\\RunStrafeLeft.fbx",
+      "bytes": 214752,
+      "sha256": "ce63391d01c59c3c02335ffb763ef8d4a735fa7f761235608d1103be139552d6"
+    },
+    {
+      "path": "Original\\RunStrafeRight.fbx",
+      "bytes": 214784,
+      "sha256": "adc5752fae18cd9643dcddc66c55b30986df302e1dd496c512b969a6132c6ec0"
+    },
+    {
+      "path": "Original\\SprintForward.fbx",
+      "bytes": 233760,
+      "sha256": "accf11ef7aea43766ab64dd1a08e42897bcd1d4aaa62cce531ea39a80c73803d"
+    },
+    {
+      "path": "Original\\SprintForwardDiagonalLeft.fbx",
+      "bytes": 233824,
+      "sha256": "16976fc7278b8b85811ccf83b5a9006c63ccf5371a15dbaa476833cfdc2a475a"
+    },
+    {
+      "path": "Original\\SprintForwardDiagonalRight.fbx",
+      "bytes": 233616,
+      "sha256": "9d292534bc6da3b7732e878684a4751853f6869f4b8c64623842a3ca920366b4"
+    },
+    {
+      "path": "Original\\StartCrouchRunLeft.fbx",
+      "bytes": 297792,
+      "sha256": "d3e263d98459dcd21785d2d4d21ef6a13cb5cb2e0a133c2fc09d7bd761946745"
+    },
+    {
+      "path": "Original\\StartCrouchRunRight.fbx",
+      "bytes": 297536,
+      "sha256": "30394df34cfa351a1b41270b885d07df62a0325777faf9fc919e0a6944070dc9"
+    },
+    {
+      "path": "Original\\StartCrouchWalkLeft.fbx",
+      "bytes": 272128,
+      "sha256": "a8c89e53459eebbbad5e0047041f1d029dedaac23fc51770fa5b7f3749a042ea"
+    },
+    {
+      "path": "Original\\StartCrouchWalkRight.fbx",
+      "bytes": 273104,
+      "sha256": "1e4cef096032a41545a85b81108681e14da2a71f4f5a7bc96804536fb7b449de"
+    },
+    {
+      "path": "Original\\StartRunLeft.fbx",
+      "bytes": 300016,
+      "sha256": "4dca9caf44bf231b403ef139223b7cdec66b5398f9b23ebe154855f55184ed56"
+    },
+    {
+      "path": "Original\\StartRunRight.fbx",
+      "bytes": 300064,
+      "sha256": "25b8ca2109a4ca3bca8e8a0963aaa0e362f6f2a65f5e7c99dab5dda806c64cb5"
+    },
+    {
+      "path": "Original\\StartSprintLeft.fbx",
+      "bytes": 314992,
+      "sha256": "adc563d9ccaa67bc8f7271267dc6a2c94fc3675ed4650ff03d40e5496f471184"
+    },
+    {
+      "path": "Original\\StartSprintRight.fbx",
+      "bytes": 314752,
+      "sha256": "67de5c975fa75c6532f2a6f197aa08deb34d1768819b76d3571adb7b7ffb19ad"
+    },
+    {
+      "path": "Original\\StartWalkLeft.fbx",
+      "bytes": 272224,
+      "sha256": "994a254669673c0a274d30125ffa2e9b3415e7ac0447dd8dad4fff53358554c9"
+    },
+    {
+      "path": "Original\\StartWalkRight.fbx",
+      "bytes": 273760,
+      "sha256": "482035a21fab1025892eba34f031a3b82bc2daa9bb37d4236641d534b1210c91"
+    },
+    {
+      "path": "Original\\StopCrouchRunLeft.fbx",
+      "bytes": 318592,
+      "sha256": "d38a754c81b3a8b4f518b077a07b13ccfbbaf8a8f755f36a1eaa77df2184c475"
+    },
+    {
+      "path": "Original\\StopCrouchRunRight.fbx",
+      "bytes": 318320,
+      "sha256": "ccff53bc1281cec521819910b60892ee96f4a5a466be64a8d4e8e03dbd17d635"
+    },
+    {
+      "path": "Original\\StopCrouchWalkLeft.fbx",
+      "bytes": 313632,
+      "sha256": "bd40b1d468c4ba49a3c81b82e0027d0337b2247fa78b5f2973ee0b7a9830a909"
+    },
+    {
+      "path": "Original\\StopCrouchWalkRight.fbx",
+      "bytes": 313568,
+      "sha256": "3b124709c4c3ae357f9251f39689c37e2628839d9f85c48a6452e49a8c3901fe"
+    },
+    {
+      "path": "Original\\StopRunLeft.fbx",
+      "bytes": 320784,
+      "sha256": "facca78546f4ae828619a4566649e5b0ed456b281d1fbe81b2b8c22dafdc09d5"
+    },
+    {
+      "path": "Original\\StopRunRight.fbx",
+      "bytes": 320848,
+      "sha256": "0cc8c18c7fed228208171ab845efb6b20a8645d7179a3575c543d2c67aeb60a6"
+    },
+    {
+      "path": "Original\\StopSprintLeft.fbx",
+      "bytes": 329008,
+      "sha256": "507db978eb209c6fc2dd07b4df275e6844ede22af8c8b662d1c18ad2b712bf0f"
+    },
+    {
+      "path": "Original\\StopSprintRight.fbx",
+      "bytes": 328992,
+      "sha256": "a57d420247d80b0bed268ac58025c45bc4e7efbe664da0b2b37e62b25e41cfd1"
+    },
+    {
+      "path": "Original\\StopWalkLeft.fbx",
+      "bytes": 301760,
+      "sha256": "3f20b8a7683529c9bd935c5cc3922e767cb3d20354e7409c5cf86e6f8301ad5a"
+    },
+    {
+      "path": "Original\\StopWalkRight.fbx",
+      "bytes": 302464,
+      "sha256": "dd047d3be0bc07f429aa150d247ad332f02ab726cd76a2757dea51a432c8154a"
+    },
+    {
+      "path": "Original\\WalkBackward.fbx",
+      "bytes": 222432,
+      "sha256": "b0e3c45b5e2778bf1eaa60f6193b96028d1d13be6afa73ceb623206de2df6f66"
+    },
+    {
+      "path": "Original\\WalkBackwardDiagonalLeft.fbx",
+      "bytes": 222496,
+      "sha256": "17241574de98bbbc70651bf7a3dae162a35b22de9e0265a00bbedf126dd5ed3f"
+    },
+    {
+      "path": "Original\\WalkBackwardDiagonalRight.fbx",
+      "bytes": 222464,
+      "sha256": "1c3c2e08dd7dd1ec5f269747e2bead18cd4e74515191556f682e97d44ee50903"
+    },
+    {
+      "path": "Original\\WalkForward.fbx",
+      "bytes": 298816,
+      "sha256": "131673834f796695fdf965949ca7b4ab2447f48173076f0bc873ec2602092ba7"
+    },
+    {
+      "path": "Original\\WalkForwardDiagonalLeft.fbx",
+      "bytes": 299520,
+      "sha256": "ca98886514addee5338f1ee340ff88ecde0c7697de0e4e35d38e2d16ab09a231"
+    },
+    {
+      "path": "Original\\WalkForwardDiagonalRight.fbx",
+      "bytes": 299440,
+      "sha256": "6cc3d592cbdbe64f07ce1f9b9b0d5deb4aaefc9696e1d88692c1d9488b705717"
+    },
+    {
+      "path": "Original\\WalkJumpLeft.fbx",
+      "bytes": 221664,
+      "sha256": "1d54d4a91a531e39fc9d309e4c5c618f1db9d46a1236f6997b78a58140afa727"
+    },
+    {
+      "path": "Original\\WalkJumpRight.fbx",
+      "bytes": 221472,
+      "sha256": "421b332c8254f18507307afdb17db60d465ae72c4016d9e96bb2e30b69d57c7d"
+    },
+    {
+      "path": "Original\\WalkStrafeLeft.fbx",
+      "bytes": 227744,
+      "sha256": "c259b90d55d3119f98427c42ff81e711d221665b789dfd0e1e678f3aa660d3a3"
+    },
+    {
+      "path": "Original\\WalkStrafeRight.fbx",
+      "bytes": 227744,
+      "sha256": "2d1b8b4cba746db38d8e8fb724eef326bc558390b0ff6a9e20222206b24744e2"
+    },
+    {
+      "path": "TPose\\CrouchIdle.fbx",
+      "bytes": 528464,
+      "sha256": "a5c1ad5a5206d415411fe314492beb2cefa2485adbdb56a3d5f8203b511ea982"
+    },
+    {
+      "path": "TPose\\CrouchIdleTurnLeft180.fbx",
+      "bytes": 287632,
+      "sha256": "e7f4e50fcf68c4a8d6e02a4cc8ce1013dc98a6b257d407f1abfe0ff30979cdcf"
+    },
+    {
+      "path": "TPose\\CrouchIdleTurnLeft45.fbx",
+      "bytes": 307216,
+      "sha256": "6c17e5b96a12f1b26b4cbfb532e927458f06e9c94a4d77c7f268615dd1f66bea"
+    },
+    {
+      "path": "TPose\\CrouchIdleTurnLeft90.fbx",
+      "bytes": 315376,
+      "sha256": "b1bec712fd9b5ed396ee79a36b361c8ef4762f9a3a2e6139f35e89ad04ebbd99"
+    },
+    {
+      "path": "TPose\\CrouchIdleTurnRight180.fbx",
+      "bytes": 287632,
+      "sha256": "4913ba377fb4c3f1b1db2655e38aabc35ce6b11cfd590efc7eeeadb0bdc0f278"
+    },
+    {
+      "path": "TPose\\CrouchIdleTurnRight45.fbx",
+      "bytes": 307472,
+      "sha256": "9c976307a5a8598cf9ba97e7db254595d41b054ac46c4bbe13087dbc9f987b40"
+    },
+    {
+      "path": "TPose\\CrouchIdleTurnRight90.fbx",
+      "bytes": 314976,
+      "sha256": "e5cbac65076bd9d8ec918f7a3510987a6cee4ccc6b950f165836bcad03a03230"
+    },
+    {
+      "path": "TPose\\CrouchRunBackward.fbx",
+      "bytes": 277664,
+      "sha256": "2e477299469efcffc8bd3e92b11f8b394fc3059f7fba13882355b5db6c9b2f3b"
+    },
+    {
+      "path": "TPose\\CrouchRunBackwardDiagonalLeft.fbx",
+      "bytes": 277232,
+      "sha256": "f81fc5ad91641b4a68e60e958481694092d5ea70ff78709a28b481fde7e10771"
+    },
+    {
+      "path": "TPose\\CrouchRunBackwardDiagonalRight.fbx",
+      "bytes": 277200,
+      "sha256": "de8a5ecb7f5cfaeb53a8d62cf20e0c7a4d1e4e0b18ce7eb110ec39ff7a257dfc"
+    },
+    {
+      "path": "TPose\\CrouchRunForward.fbx",
+      "bytes": 242864,
+      "sha256": "4959d18ed830af1f642bdea10f6153d5150e1be1f7dcd12ea5049046e4493c0d"
+    },
+    {
+      "path": "TPose\\CrouchRunForwardDiagonalLeft.fbx",
+      "bytes": 242912,
+      "sha256": "01a35c3da5de3e9e049ad57b7c0bf8248c6496127f59a95f7930cb8a916d5ee2"
+    },
+    {
+      "path": "TPose\\CrouchRunForwardDiagonalRight.fbx",
+      "bytes": 242912,
+      "sha256": "01425d4221c1307f33c0407b54273cfc8651a75176f1450057e56c8d8685b03f"
+    },
+    {
+      "path": "TPose\\CrouchRunStrafeLeft.fbx",
+      "bytes": 276656,
+      "sha256": "7e8826a9aabd49ea7d453a07a226863e88c598e42d9ceb8afd96e76b23b90133"
+    },
+    {
+      "path": "TPose\\CrouchRunStrafeRight.fbx",
+      "bytes": 276672,
+      "sha256": "66b14496747c25f3ecbae8ed91b018ec00e55e57074ea4b8866780117e5a08bb"
+    },
+    {
+      "path": "TPose\\CrouchWalkBackward.fbx",
+      "bytes": 271488,
+      "sha256": "7877b93e756c96b361cb3a6f817c329009bfe8efcd103b262a2ad549ec7a1505"
+    },
+    {
+      "path": "TPose\\CrouchWalkBackwardDiagonalLeft.fbx",
+      "bytes": 271584,
+      "sha256": "ae4c1a625d5b38cc416a77fba2fa98c7b023f521645df9d296827b476cc15d5f"
+    },
+    {
+      "path": "TPose\\CrouchWalkBackwardDiagonalRight.fbx",
+      "bytes": 271504,
+      "sha256": "66bc1e9a936b69c5d7400ac75255c9b7c7a3fe2c54586a1fc372249cb931c03c"
+    },
+    {
+      "path": "TPose\\CrouchWalkForward.fbx",
+      "bytes": 295072,
+      "sha256": "ac60913aeac32048c1626e4a4afe5469a9f9ce62b77122e1732b4c20bb925552"
+    },
+    {
+      "path": "TPose\\CrouchWalkForwardDiagonalLeft.fbx",
+      "bytes": 294832,
+      "sha256": "a8cb6e4a8aa04b2f2694e4817cf35c1cb879e399daf4302e45e2f6d5170929f1"
+    },
+    {
+      "path": "TPose\\CrouchWalkForwardDiagonalRight.fbx",
+      "bytes": 294896,
+      "sha256": "4a50f9c07b4e1d76796bafd7b9b8f4bfe50121e6aad6acf14e667a029077c146"
+    },
+    {
+      "path": "TPose\\CrouchWalkStrafeLeft.fbx",
+      "bytes": 267376,
+      "sha256": "42f4eebfb30b0d77bf1537e62cda6b2f61b6c87a2f97ed26a631cc68e38f525c"
+    },
+    {
+      "path": "TPose\\CrouchWalkStrafeRight.fbx",
+      "bytes": 267392,
+      "sha256": "26a1098f1f9ff917b19bb55259c668e7da059a9dca6e63217af87bad2639a09b"
+    },
+    {
+      "path": "TPose\\Idle.fbx",
+      "bytes": 800656,
+      "sha256": "c278d7e500cac963fa0a56bf4f221ccc5acbadcf808564197da6868f0403d875"
+    },
+    {
+      "path": "TPose\\IdleJump.fbx",
+      "bytes": 335136,
+      "sha256": "5d8354562c2eec8f9e69572cf320477e64d5e79df838e19fa4812ef655cd0f65"
+    },
+    {
+      "path": "TPose\\IdleTurnLeft180.fbx",
+      "bytes": 286336,
+      "sha256": "4a509b67ab29f59c76e921898cb747d1249a03017fadb2254911e8f31ea863c3"
+    },
+    {
+      "path": "TPose\\IdleTurnLeft45.fbx",
+      "bytes": 305648,
+      "sha256": "4d1cde7053f0c8dfbf915db426d140ee7941b20a9716fc655847e1f923f1afe2"
+    },
+    {
+      "path": "TPose\\IdleTurnLeft90.fbx",
+      "bytes": 314528,
+      "sha256": "2f30e9f01cbe3fa4f23d68161aa1cc301f3518acb83ad9fb2c03bbdb34a74e75"
+    },
+    {
+      "path": "TPose\\IdleTurnRight180.fbx",
+      "bytes": 286816,
+      "sha256": "8d694ff5a85b7cfbbcd365f54cc4e80400dac486d57d0cd5c997c0e23119cd51"
+    },
+    {
+      "path": "TPose\\IdleTurnRight45.fbx",
+      "bytes": 305904,
+      "sha256": "217ca1309dd488f9cdf9c3e445f74a400957e884961fcc2076269b45ba5babc9"
+    },
+    {
+      "path": "TPose\\IdleTurnRight90.fbx",
+      "bytes": 314400,
+      "sha256": "06570180ff8ddbe439f96f6b3c1cfc1b0e7441ae7e71727a88952170a4f4044c"
+    },
+    {
+      "path": "TPose\\RunBackward.fbx",
+      "bytes": 241120,
+      "sha256": "874195cc5a16f06b1a81e375f3799c8d08fa736a2a238bf1c9c36051602935c5"
+    },
+    {
+      "path": "TPose\\RunBackwardDiagonalLeft.fbx",
+      "bytes": 241168,
+      "sha256": "ad61f52cfb280f252557a0690db227363ae5cdb8fcb31012661cc2075cbf1791"
+    },
+    {
+      "path": "TPose\\RunBackwardDiagonalRight.fbx",
+      "bytes": 241168,
+      "sha256": "4a898308613260b7e926f45f2d92dd5d8edbfebcb933dc4f0cf201461b1e442a"
+    },
+    {
+      "path": "TPose\\RunForward.fbx",
+      "bytes": 241952,
+      "sha256": "e83e00f32a8c83cfe5dc9d2fa773e481bc0f1cc53df1a26930219d9274256b81"
+    },
+    {
+      "path": "TPose\\RunForwardDiagonalLeft.fbx",
+      "bytes": 242000,
+      "sha256": "2361773f3fd6d4386a3ae5913e487b83dcae579425847ba3b62dd263e5607588"
+    },
+    {
+      "path": "TPose\\RunForwardDiagonalRight.fbx",
+      "bytes": 242032,
+      "sha256": "a8b07d97a906cfe4a57f5b8e7d073a9864c6053b82791b80055469197cc656ed"
+    },
+    {
+      "path": "TPose\\RunJumpLeft.fbx",
+      "bytes": 247264,
+      "sha256": "8b1d6651470d975a400df5d118162da4e2eed21e2d652c6ae5a3711554ed3643"
+    },
+    {
+      "path": "TPose\\RunJumpRight.fbx",
+      "bytes": 247264,
+      "sha256": "8c3f39bd7d9da473b30b04d94884fc91795dcb8b368e15d1be3b69fb0d869145"
+    },
+    {
+      "path": "TPose\\RunStrafeLeft.fbx",
+      "bytes": 243696,
+      "sha256": "c99c7737699047ac150127c12d61bbc8ad463fd68030b211a54e28f8a3c5df86"
+    },
+    {
+      "path": "TPose\\RunStrafeRight.fbx",
+      "bytes": 243696,
+      "sha256": "f146e71399ca0e0ef08d9f042ffd56474508533273a315b23281734475b4fce4"
+    },
+    {
+      "path": "TPose\\SprintForward.fbx",
+      "bytes": 266176,
+      "sha256": "dd529a1b147e2f26e4ec75e62033b509312a6c2862d7f67340c56fe7e4cc63b6"
+    },
+    {
+      "path": "TPose\\SprintForwardDiagonalLeft.fbx",
+      "bytes": 266208,
+      "sha256": "61b11a74bc4c856942489ee1cbd6f9cc765a818ae62296ae39407455ff18dc6c"
+    },
+    {
+      "path": "TPose\\SprintForwardDiagonalRight.fbx",
+      "bytes": 266032,
+      "sha256": "eadf1a8ebed509a6d3e167b82d27dfa89242c805168bc83c7ddb3fd23deb286b"
+    },
+    {
+      "path": "TPose\\StartCrouchRunLeft.fbx",
+      "bytes": 299808,
+      "sha256": "3b5a39369898b061bf5a96b870ea7f174c2cdbd1941aab74cafa90f45a30fd40"
+    },
+    {
+      "path": "TPose\\StartCrouchRunRight.fbx",
+      "bytes": 299632,
+      "sha256": "c499d742d5b23748fb884fd1453c39c18912534cfe47a0366832b2eab71ceb82"
+    },
+    {
+      "path": "TPose\\StartCrouchWalkLeft.fbx",
+      "bytes": 297040,
+      "sha256": "e1b642b2f19123f787a241b1b5cb84dcb31d3b00d29fb2e029499be31e2f13a8"
+    },
+    {
+      "path": "TPose\\StartCrouchWalkRight.fbx",
+      "bytes": 297584,
+      "sha256": "b63d7a0e94c48de448c5655c3bc62bcf5182208e3db3cebf394be2880228cdf7"
+    },
+    {
+      "path": "TPose\\StartRunLeft.fbx",
+      "bytes": 301936,
+      "sha256": "8d66c10dc3d121c040500264ed0df74f80d7944cb9f594cb53740dfbd852af9c"
+    },
+    {
+      "path": "TPose\\StartRunRight.fbx",
+      "bytes": 302080,
+      "sha256": "70ebd31ec52b052aad31719abdb5845d25d3c8c6b392156ec2d4df3bcf3e79c8"
+    },
+    {
+      "path": "TPose\\StartSprintLeft.fbx",
+      "bytes": 317440,
+      "sha256": "e64045c5c4f40e638e77fe53e720d8c23155882052dfb6e20c2e8b0809dcc027"
+    },
+    {
+      "path": "TPose\\StartSprintRight.fbx",
+      "bytes": 317296,
+      "sha256": "c7b5db9de2c1ac349d4d690c2cf996c9eea1f55c4685aef547e8a4ca42d8dc58"
+    },
+    {
+      "path": "TPose\\StartWalkLeft.fbx",
+      "bytes": 297136,
+      "sha256": "7926d550ebba3c9fe9fabe0384439f6b14bbf787eacf3518373293079b9deb5e"
+    },
+    {
+      "path": "TPose\\StartWalkRight.fbx",
+      "bytes": 297856,
+      "sha256": "09dfd50dbf8297810a70a695ef8953a2235e5bd898574609fcfdfd4dfa468396"
+    },
+    {
+      "path": "TPose\\StopCrouchRunLeft.fbx",
+      "bytes": 321056,
+      "sha256": "53699df8dbc571c10c5ca5f8e27a78aae0b0705c926c09acb0f57e0bca857e62"
+    },
+    {
+      "path": "TPose\\StopCrouchRunRight.fbx",
+      "bytes": 320768,
+      "sha256": "c730c73642b2539b75d87968b582247969d76a1713b1a5ce19c04475ca85c575"
+    },
+    {
+      "path": "TPose\\StopCrouchWalkLeft.fbx",
+      "bytes": 326592,
+      "sha256": "9445831c33a23909f1acc61608092246b2c416df326d5b44cf57aba08229b153"
+    },
+    {
+      "path": "TPose\\StopCrouchWalkRight.fbx",
+      "bytes": 325968,
+      "sha256": "b9a5beecf8ca9383963b133c6f67bf2aa914c373d1812e65c000be00e4bf98b9"
+    },
+    {
+      "path": "TPose\\StopRunLeft.fbx",
+      "bytes": 322688,
+      "sha256": "5d3244f9c943fd11731ba87c93265a6899f07e02bed50e67c080ad6f8b6dc989"
+    },
+    {
+      "path": "TPose\\StopRunRight.fbx",
+      "bytes": 322784,
+      "sha256": "b1e75b7c9f3c32e137ef3db4fbc58cc9e741a57a22b6e353a30ef2ecea730466"
+    },
+    {
+      "path": "TPose\\StopSprintLeft.fbx",
+      "bytes": 331184,
+      "sha256": "7784ca3f9abcf6121b82b08c5f68a05edfb6f59eb44a0da8cdc0703836d32a78"
+    },
+    {
+      "path": "TPose\\StopSprintRight.fbx",
+      "bytes": 331152,
+      "sha256": "c4456264d07bfb0b47db9be79e4be2128770f200c0dca90578fd874ac7291955"
+    },
+    {
+      "path": "TPose\\StopWalkLeft.fbx",
+      "bytes": 316224,
+      "sha256": "ad0f7d011391336034f10d93b35408247d33eed56a8cac39650bdbeb95615c9e"
+    },
+    {
+      "path": "TPose\\StopWalkRight.fbx",
+      "bytes": 316768,
+      "sha256": "fc45ce9072e759f1a8c1dbbe61761d92bd77730a4f422c5e2b5aff5cdfd30208"
+    },
+    {
+      "path": "TPose\\WalkBackward.fbx",
+      "bytes": 269680,
+      "sha256": "077608be55d89d85e18c7bbbd9950a19d11fe0879a4fbf7f2ed5a50251e09be4"
+    },
+    {
+      "path": "TPose\\WalkBackwardDiagonalLeft.fbx",
+      "bytes": 269760,
+      "sha256": "34d3aa330e5b7c4a4ba0e48773d889335c289cb8f50c619eeebc3efb9401cc08"
+    },
+    {
+      "path": "TPose\\WalkBackwardDiagonalRight.fbx",
+      "bytes": 269728,
+      "sha256": "6ff5c9f9a55cf0e3aa97800a91e437292bfcd498132e2950e4a14b1edcb6081b"
+    },
+    {
+      "path": "TPose\\WalkForward.fbx",
+      "bytes": 302544,
+      "sha256": "0897058dbf9d51a26ce142f6a0131883e099b452c93c69a467d070c1dd2d6ad1"
+    },
+    {
+      "path": "TPose\\WalkForwardDiagonalLeft.fbx",
+      "bytes": 302816,
+      "sha256": "6b2e9232f6196ae837d6333d1feb545c45a1b294b90009e5b7f87a7d868409ea"
+    },
+    {
+      "path": "TPose\\WalkForwardDiagonalRight.fbx",
+      "bytes": 302736,
+      "sha256": "f9e17b0fb820f4be92e66693352775644004d75de015a2fbdf2762d0626cb709"
+    },
+    {
+      "path": "TPose\\WalkJumpLeft.fbx",
+      "bytes": 266080,
+      "sha256": "642dbf3117a705ec861432f39b4393d104e5e7930915012e0efbc01893eb42db"
+    },
+    {
+      "path": "TPose\\WalkJumpRight.fbx",
+      "bytes": 265968,
+      "sha256": "7587cd9691c1fd99a2d90635a4efdad92d4dea69b296ba19e4a0fedaa74d48db"
+    },
+    {
+      "path": "TPose\\WalkStrafeLeft.fbx",
+      "bytes": 272176,
+      "sha256": "3c6f03575a130d2c5cfb7d8f4bed0acf945f3779abeccf41f4b3189a915a7f53"
+    },
+    {
+      "path": "TPose\\WalkStrafeRight.fbx",
+      "bytes": 269264,
+      "sha256": "22455d4ec4346471c2c0fcfe2eff98134b52143d0709c032a323f87daff8a829"
+    }
+  ]
+}
