@@ -62,6 +62,7 @@ int main(int argc,char** argv){
                             sent++;
                         }if(state.tick>=90){
                             require(state.sequence==90&&state.position.x>6&&state.position.x<8,"GNS authoritative motor outcome");
+                            prepare_collision_frame(session.collisions().back(),{});session.acknowledge_collision(state.tick);
                             require(session.submit_motor(id,{
                                 91,91,1
                             }),"Final application receipt");
@@ -85,7 +86,7 @@ int main(int argc,char** argv){
                             require(motor.state().sequence>=1,"GNS consumed owner input");
                         }
                     }
-                    if(host&&executed==90&&session.motor_input_ready(id,91)){
+                    if(host&&executed==90&&session.motor_input_ready(id,91)&&session.collision_diagnostics(peer).has_ack&&session.collision_diagnostics(peer).ack_tick==90){
                         std::this_thread::sleep_for(std::chrono::milliseconds(150));
                         std::cout<<"M4 GNS host fixed movement x="<<motor.state().position.x<<" sequence="<<motor.state().sequence<<"\n";
                         return 0;

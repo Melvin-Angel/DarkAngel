@@ -1,0 +1,32 @@
+[1/32] Scanning C:\DarkAngel\tests\motor_fault_tests.cpp for CXX dependencies
+[2/32] Scanning C:\DarkAngel\tests\motor_tests.cpp for CXX dependencies
+[3/32] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[4/32] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[5/32] Scanning C:\DarkAngel\tests\gns_tests.cpp for CXX dependencies
+[6/32] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[7/32] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[8/32] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[9/32] Building CXX object CMakeFiles\MotorFaultTests.dir\tests\motor_fault_tests.cpp.obj
+[10/32] Building CXX object CMakeFiles\MotorTests.dir\tests\motor_tests.cpp.obj
+[11/32] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[12/32] Linking CXX executable MotorTests.exe
+[13/32] Linking CXX executable MotorFaultTests.exe
+[14/32] Building CXX object CMakeFiles\GnsTests.dir\tests\gns_tests.cpp.obj
+[15/32] Linking CXX executable MotorActorHistoryTests.exe
+[16/32] Linking CXX executable MotorDynamicTests.exe
+[17/32] Linking CXX executable PhysicsQuerySensorTests.exe
+[18/32] Linking CXX executable DarkAngelHeadless.exe
+[19/32] Linking CXX executable AssetTool.exe
+[20/32] Linking CXX executable AnimationClipTests.exe
+[21/32] Linking CXX executable AnimationTests.exe
+[22/32] Linking CXX executable CollisionAssetTests.exe
+[23/32] Linking CXX executable ActionTimelineTests.exe
+[24/32] Linking CXX executable CollisionObserverTests.exe
+[25/32] Linking CXX executable CollisionMeshTests.exe
+[26/32] Linking CXX executable AssetTests.exe
+[27/32] Linking CXX executable EditorTests.exe
+[28/32] Linking CXX executable FoundationTests.exe
+[29/32] Linking CXX executable ScriptPackageTests.exe
+[30/32] Linking CXX executable AssemblyTests.exe
+[31/32] Linking CXX executable SessionTests.exe
+[32/32] Linking CXX executable GnsTests.exe

@@ -1,0 +1,11 @@
+[1/22] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[2/22] Scanning C:\DarkAngel\tests\collision_stream_tests.cpp for CXX dependencies
+[3/22] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[4/11] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[5/11] Building CXX object CMakeFiles\CollisionStreamTests.dir\tests\collision_stream_tests.cpp.obj
+[6/11] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[7/11] Linking CXX static library DarkAngelRuntime.lib
+[8/11] Linking CXX executable CollisionAssetTests.exe
+[9/11] Linking CXX executable CollisionStreamTests.exe
+[10/11] Linking CXX executable AssetTests.exe
+[11/11] Linking CXX executable EditorTests.exe
