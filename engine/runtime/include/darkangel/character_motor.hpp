@@ -5,6 +5,7 @@
 #include <span>
 #include <string_view>
 #include <vector>
+#include <array>
 namespace darkangel {
 // Meters, seconds, Y-up right-handed. Tick is always 1/60 second.
 struct MotorVec {double x{},y{},z{}; auto operator<=>(const MotorVec&) const=default;};
@@ -18,7 +19,12 @@ struct MotorState {
 };
 void validate_motor_input(const MotorInput&);
 void validate_motor_state(const MotorState&);
-struct CollisionBox {std::uint64_t id{};MotorVec center{},half{1,1,1},velocity{},angular{};double yaw{},roll{};bool moving{};};
+struct CollisionBox {
+    std::uint64_t id{};MotorVec center{},half{1,1,1},velocity{},angular{};double yaw{},roll{};bool moving{};
+    bool dynamic{};double mass{50};
+    // All zero selects authored yaw/roll. Captures retain full normalized rotation.
+    std::array<double,4> rotation{};
+};
 struct CollisionHit {std::uint64_t identity{};double fraction{};bool character{};};
 struct CollisionQuery {std::vector<CollisionHit> hits;bool overflow{};};
 // Tick snapshots of authoritative characters, never independently simulated in replay.
@@ -32,7 +38,10 @@ private:double debt_{};std::uint64_t tick_{};
 };
 class PhysicsWorld {
 public:
-    PhysicsWorld();~PhysicsWorld();PhysicsWorld(const PhysicsWorld&)=delete;
+    enum class Mode {Authoritative,Prediction,Replay};
+    explicit PhysicsWorld(Mode=Mode::Authoritative);~PhysicsWorld();PhysicsWorld(const PhysicsWorld&)=delete;
+    Mode mode()const;
+    void apply_impulse(std::uint64_t,MotorVec);
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});
     void load_cooked(std::string_view);
     void step();CollisionFrame capture() const;void load(const CollisionFrame&,std::uint64_t replay_owner=0);

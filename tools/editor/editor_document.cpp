@@ -1,6 +1,7 @@
 #include <darkangel/editor_document.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/animation.hpp>
+#include <darkangel/collision_asset.hpp>
 #include <nlohmann/json.hpp>
 #include <Windows.h>
 #include <fstream>
@@ -13,7 +14,7 @@ using Json=nlohmann::json;
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 Json parse(std::string_view text){require(text.size()<=1024*1024,"Document byte limit");std::vector<std::set<std::string>> keys;std::size_t count{};return Json::parse(text,[&](int depth,Json::parse_event_t event,Json& value){require(depth<=32 && ++count<=65536,"Document JSON work limit");if(event==Json::parse_event_t::object_start)keys.emplace_back();if(event==Json::parse_event_t::key)require(keys.back().insert(value.get<std::string>()).second,"Duplicate document key");if(event==Json::parse_event_t::object_end)keys.pop_back();return true;});}
 std::string read(const std::filesystem::path& path){std::ifstream in(path,std::ios::binary|std::ios::ate);require(in.good() && in.tellg()>=0 && in.tellg()<=1024*1024,"Document missing/oversized");std::string text(static_cast<std::size_t>(in.tellg()),'\0');in.seekg(0);in.read(text.data(),text.size());require(in.good(),"Document read failed");return text;}
-void validate_native_sources(const AssemblySources& sources){for(const auto& [id,text]:sources){auto source=parse(text);if(source.value("kind","")=="skeleton"){auto rig=decode_rig_source(text);require(rig.id==id,"Owned skeleton UUID mismatch");}}}
+void validate_native_sources(const AssemblySources& sources){for(const auto& [id,text]:sources){auto source=parse(text);if(source.value("kind","")=="skeleton"){auto rig=decode_rig_source(text);require(rig.id==id,"Owned skeleton UUID mismatch");}else if(source.value("kind","")=="collision"){require(decode_collision_source(text).id==id,"Owned collision UUID mismatch");}}}
 
 }
 struct EditorDocument::Impl {

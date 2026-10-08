@@ -1,0 +1,9 @@
+{
+  "schema": 2,
+  "kind": "collision",
+  "asset": "da047eed-f9fe-4b46-b12d-e22433aaf006",
+  "boxes": [
+    {"id":"1","center":[0,-0.5,0],"half":[20,0.5,20],"yaw":0,"roll":0,"motion":"static"},
+    {"id":"2","center":[1.5,0.26,0],"half":[0.25,0.25,0.25],"yaw":0,"roll":0,"motion":"dynamic","mass":50}
+  ]
+}

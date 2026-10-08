@@ -140,11 +140,12 @@ namespace darkangel {
         };
         unsigned motors{
         };
+        PhysicsWorld::Mode mode;
         std::uint64_t next_motor{
             1
         };
         std::thread::id owner=std::this_thread::get_id();
-        Impl(){
+        explicit Impl(PhysicsWorld::Mode world_mode):mode(world_mode){
             system.Init(256,0,512,512,layers,broad,pair);
             system.SetGravity({
                 0,-20,0
@@ -176,9 +177,14 @@ namespace darkangel {
             historical_actors.push_back(character);
         }
         void insert(CollisionBox b){
-            check(b.id&&b.id<(1ULL<<63)&&boxes.size()<64&&!boxes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&b.angular.x==0&&b.angular.z==0&&finite(b.yaw)&&finite(b.roll),"Invalid collision box");
+            check(b.id&&b.id<(1ULL<<63)&&boxes.size()<64&&!boxes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&(b.dynamic||(b.angular.x==0&&b.angular.z==0))&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
             auto q=JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(b.yaw))*JPH::Quat::sRotation(JPH::Vec3::sAxisZ(),float(b.roll));
-            JPH::BodyCreationSettings settings(new JPH::BoxShape(v(b.half)),v(b.center),q,b.moving?JPH::EMotionType::Kinematic:JPH::EMotionType::Static,b.moving?1:0);
+            double norm{};for(double n:b.rotation){check(finite(n),"Invalid collision rotation");norm+=n*n;}
+            if(norm){check(std::abs(norm-1)<.0001,"Collision rotation normalization");q=JPH::Quat(float(b.rotation[0]),float(b.rotation[1]),float(b.rotation[2]),float(b.rotation[3]));}
+            const auto moving=b.moving||b.dynamic;
+            const auto type=b.dynamic&&mode==PhysicsWorld::Mode::Authoritative?JPH::EMotionType::Dynamic:moving?JPH::EMotionType::Kinematic:JPH::EMotionType::Static;
+            JPH::BodyCreationSettings settings(new JPH::BoxShape(v(b.half)),v(b.center),q,type,moving?1:0);
+            if(b.dynamic){settings.mOverrideMassProperties=JPH::EOverrideMassProperties::CalculateInertia;settings.mMassPropertiesOverride.mMass=float(b.mass);settings.mMaxLinearVelocity=30;settings.mMaxAngularVelocity=10;}
             settings.mUserData=b.id;
             settings.mLinearVelocity=v(b.velocity);
             settings.mAngularVelocity=v(b.angular);
@@ -189,10 +195,15 @@ namespace darkangel {
             });
         }
     };
-    PhysicsWorld::PhysicsWorld(){
+    PhysicsWorld::PhysicsWorld(Mode mode){
         initialize();
-        impl_=std::make_unique<Impl>();
+        impl_=std::make_unique<Impl>(mode);
     }PhysicsWorld::~PhysicsWorld()=default;
+    PhysicsWorld::Mode PhysicsWorld::mode()const{return impl_->mode;}
+    void PhysicsWorld::apply_impulse(std::uint64_t id,MotorVec impulse){
+        auto& s=*impl_;s.thread();check(s.mode==Mode::Authoritative&&s.boxes.contains(id)&&s.boxes.at(id).data.dynamic&&valid(impulse)&&v(impulse).Length()<=500,"Dynamic impulse authority/bounds");
+        s.system.GetBodyInterface().AddImpulse(s.boxes.at(id).body,v(impulse));
+    }
     void PhysicsWorld::add(CollisionBox b){
         auto& s=*impl_;
         s.thread();
@@ -235,7 +246,9 @@ namespace darkangel {
         for(const auto& [id,b]:s.boxes){
             auto d=b.data;
             d.center=m(s.system.GetBodyInterface().GetPosition(b.body));
+            d.velocity=m(s.system.GetBodyInterface().GetLinearVelocity(b.body));d.angular=m(s.system.GetBodyInterface().GetAngularVelocity(b.body));
             auto q=s.system.GetBodyInterface().GetRotation(b.body);
+            d.rotation={q.GetX(),q.GetY(),q.GetZ(),q.GetW()};
             auto angles=q.GetEulerAngles();
             d.yaw=angles.GetY();
             d.roll=angles.GetZ();
@@ -266,7 +279,7 @@ namespace darkangel {
     void PhysicsWorld::load_cooked(std::string_view bytes){
         check(bytes.size()<=1024*1024,"Collision asset byte limit");
         auto json=nlohmann::json::parse(bytes);
-        check(json.at("schema")==1&&json.at("kind")=="collision"&&json.at("jolt")=="5.6.0"&&json.at("axes")=="right-handed-y-up-metres"&&json.at("boxes").size()<=64,"Collision asset contract");
+        check((json.at("schema")==1||json.at("schema")==2)&&json.at("kind")=="collision"&&json.at("jolt")=="5.6.0"&&json.at("axes")=="right-handed-y-up-metres"&&json.at("boxes").size()<=64,"Collision asset contract");
         CollisionFrame frame{
             0,1,{
             }
@@ -283,6 +296,7 @@ namespace darkangel {
                 },{
                 },b.at("yaw").get<double>(),b.at("roll").get<double>(),b.at("moving").get<bool>()
             });
+            if(json.at("schema")==2){frame.boxes.back().dynamic=b.at("dynamic").get<bool>();frame.boxes.back().mass=b.at("mass").get<double>();}
         }load(frame);
     }
     std::uint64_t PhysicsWorld::tick()const{
@@ -383,7 +397,7 @@ namespace darkangel {
             settings.mInnerBodyShape=standing;
             settings.mInnerBodyLayer=2;
             settings.mMaxSlopeAngle=JPH::DegreesToRadians(45);
-            settings.mMaxStrength=0;
+            settings.mMaxStrength=w.mode==PhysicsWorld::Mode::Authoritative?1000.f:0.f;
             settings.mSupportingVolume=JPH::Plane(JPH::Vec3::sAxisY(),-.3f);
             settings.mMaxNumHits=32;
             check(identity<(1ULL<<63),"Invalid character identity");
@@ -511,7 +525,7 @@ namespace darkangel {
         },settings,s.world.system.GetDefaultBroadPhaseLayerFilter(1),s.filter,{
         },{
         },s.world.temp);
-        check(!s.character->GetMaxHitsExceeded(),"Motor collision work overflow");
+        if(s.character->GetMaxHitsExceeded()){s.failed=true;throw std::runtime_error("Motor collision work overflow; resynchronize");}
         state.position=m(s.character->GetPosition());
         state.achieved=m(JPH::Vec3(s.character->GetPosition()-before));
         state.velocity=m(s.character->GetLinearVelocity());
@@ -615,7 +629,7 @@ namespace darkangel {
             };
             auto status=validate_owner(*f);
             if(status!=ReplayResult::Applied)return status;
-            PhysicsWorld isolated;
+            PhysicsWorld isolated(PhysicsWorld::Mode::Replay);
             isolated.load(*f,owner);
             CharacterMotor motor(isolated,baseline.position,owner);
             // Constructing a live motor advances topology; restore the retained
@@ -634,6 +648,16 @@ namespace darkangel {
                 motor.restore(motor.state());
                 motor.step(command,record.motion);
                 isolated.step();
+                // Dynamic trajectories are authoritative snapshots, never a
+                // locally re-simulated rigid-body rollback. Post-step support
+                // requires the matching completed-tick collision state.
+                const bool dynamic=std::any_of(f->boxes.begin(),f->boxes.end(),[](const auto& box){return box.dynamic;});
+                if(dynamic){
+                    auto next=history.find(command.tick);if(!next)return ReplayResult::MissingHistory;
+                    if(next->topology!=baseline.topology)return ReplayResult::TopologyMismatch;
+                    status=validate_owner(*next);if(status!=ReplayResult::Applied)return status;
+                    isolated.load(*next,owner);motor.restore(motor.state());
+                }
                 motor.post_physics();
             }output=motor.state();
             return ReplayResult::Applied;
@@ -657,7 +681,12 @@ namespace darkangel {
         if(commands_.size()>=30){
             resync_=true;
             throw std::runtime_error("Owner history overflow; resynchronize");
-        }history_.retain(world_.capture());
+        }
+        auto frame=world_.capture();
+        if(world_.mode()==PhysicsWorld::Mode::Authoritative&&std::any_of(frame.boxes.begin(),frame.boxes.end(),[](const auto& box){return box.dynamic;})){
+            resync_=true;throw std::runtime_error("Owner prediction needs authoritative dynamic proxies, not a server physics world");
+        }
+        if(!history_.find(frame.tick))history_.retain(std::move(frame));
         auto state=motor_.step(input,motion);
         commands_.push_back({
             input,motion
@@ -672,7 +701,9 @@ namespace darkangel {
         }if(baseline.tick>before.tick||baseline.sequence>before.sequence){
             resync_=true;
             return ReplayResult::Invalid;
-        }std::vector<MotorCommand> pending;
+        }
+        if(!history_.find(world_.tick()))history_.retain(world_.capture());
+        std::vector<MotorCommand> pending;
         for(auto command:commands_)if(command.input.tick>baseline.tick)pending.push_back(command);
         MotorState output;
         auto result=replay_motor(baseline,pending,history_,output,motor_.identity());

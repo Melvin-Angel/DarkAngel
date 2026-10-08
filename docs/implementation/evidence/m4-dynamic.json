@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "base_head": "f6b10aa3012ff00ea5a6e06c8cc0b5c0b8bae129",
+  "scope": "Server-owned dynamic box profile, full-rotation historical proxies, native collision source v2 and shared authoring validation; broader M4/M5 gates open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "settings": {
+    "crate_mass_kg": 50,
+    "motor_strength_newtons": 1000,
+    "max_dynamic_speed_mps": 30,
+    "max_angular_speed_radps": 10,
+    "max_requested_impulse_ns": 500,
+    "history_frames": 31
+  },
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 25.683,
+      "log": "docs/implementation/evidence/m4-dynamic-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorDynamicTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.015,
+      "log": "docs/implementation/evidence/m4-dynamic-focused.log"
+    },
+    {
+      "gate": "native-cook",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionAssetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.162,
+      "log": "docs/implementation/evidence/m4-dynamic-native-cook.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 3.987,
+      "log": "docs/implementation/evidence/m4-dynamic-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 3.971,
+      "log": "docs/implementation/evidence/m4-dynamic-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 37.879,
+      "log": "docs/implementation/evidence/m4-dynamic-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.514,
+      "log": "docs/implementation/evidence/m4-dynamic-no-animation-regression.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "eba8b0ca40eee0cf8c17551b35e2584daae042d52077296c19b29528de567094",
+    "scripts/verify_dynamic.py": "b9a585f91378f5f299d5b3c669d27c780e2a8eec3d904985d24d6776ad8c9952",
+    "tests/motor_dynamic_tests.cpp": "b61a9dd243ad21f9c673c3114543458d069a4507afd5d57ffe07b9fac5765418",
+    "tests/collision_asset_tests.cpp": "0e6ba30963bbf78060cc53616ad6c573804033446bcee1ea13be311ff12b2b8c",
+    "engine/runtime/character_motor.cpp": "c4a7040121beed59677a017db6282811d0dda07949df1cfe9a2df81b75764b20",
+    "engine/runtime/collision_source.cpp": "6cd818e7c7ab10535ca226693fcfaeab86a0568e243fd92be86a651f731a8761",
+    "engine/runtime/include/darkangel/character_motor.hpp": "f164e0fe936d494e5a57dd7685f28782fbd95c05310d25fe2b0e96f9be95a441",
+    "engine/runtime/include/darkangel/collision_asset.hpp": "e51559a555ed1293ee0773401e3f0e72fd6020018f37a5281da211742029ce6e",
+    "engine/assets/collision_cooker.cpp": "fa5097d2c8d791c1f714268ae201e532f56f90974ee19d0c7eab6d033ea4d14a",
+    "engine/assets/asset_service.cpp": "9d417c64e225ac6bf94f78a26c79a8a5968dce1183354381b85bcfdb2afe9ee2",
+    "tools/editor/editor_document.cpp": "f24c2e4e23e1f3382a65c7b1ad6e90237a203c2e6b9b3f14e23d06311406a16a",
+    "content/physics/m4_crate.dacollision": "5c43c3b1ed536eac752dc9ba993f9065e70b7a870d791ec18433a53a53b2b070"
+  },
+  "binary_sha256": {
+    "MotorDynamicTests.exe": "064855513439b4e4c3aaf78ee8342143150aa0208fff88aa328bf6bec5e03638",
+    "CollisionAssetTests.exe": "e1e67df95a8bdb43f4feaab8600ee5b2fcdb13848c6cd1f05a33931deea9be87",
+    "MotorSessionTests.exe": "0a05c9334a81baadf8e3bb283255882b6acd7cea780ecc8e6d571f5c57cb91c4"
+  }
+}
