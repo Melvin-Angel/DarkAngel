@@ -114,6 +114,21 @@
         "DAE_AUTHORING": true,
         "VCPKG_INSTALL_OPTIONS": "--x-buildtrees-root=$env{LOCALAPPDATA}/DarkAngel/vcpkg-buildtrees"
       }
+    },
+    {
+      "name": "m4-relwithdebinfo",
+      "inherits": "m3-relwithdebinfo",
+      "binaryDir": "${sourceDir}/build/m4-relwithdebinfo",
+      "cacheVariables": {
+        "VCPKG_MANIFEST_FEATURES": "m1;m2;m3;m4",
+        "DAE_PHYSICS": true,
+        "DAE_NETWORK_EOS": false,
+        "DAE_ASSETS": true,
+        "DAE_RENDERER_SPIKE": false,
+        "DAE_AGENT_ENDPOINTS": false,
+        "DAE_AUTHORING": false,
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m4-relwithdebinfo"
+      }
     }
   ],
   "buildPresets": [

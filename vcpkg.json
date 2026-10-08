@@ -177,6 +177,15 @@
           "default-features": false
         }
       ]
+    },
+    "m4": {
+      "description": "Pinned Jolt character simulation",
+      "dependencies": [
+        {
+          "name": "joltphysics",
+          "default-features": false
+        }
+      ]
     }
   },
   "overrides": [

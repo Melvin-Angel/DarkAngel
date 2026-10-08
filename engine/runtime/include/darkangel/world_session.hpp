@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/transport.hpp>
+#include <darkangel/character_motor.hpp>
 #include <darkangel/world.hpp>
 #include <map>
 #include <memory>
@@ -21,6 +22,13 @@ public:
     std::uint64_t create(ObjectData);
     void move(std::uint64_t,const Transform&);
     void destroy(std::uint64_t);
+    // Explicit server ownership; movement commands never grant authority.
+    void own_motor(std::uint64_t,ConnectionHandle);
+    bool submit_motor(std::uint64_t,const MotorInput&);
+    bool motor_input_ready(std::uint64_t,std::uint64_t) const;
+    MotorInput consume_motor(std::uint64_t,std::uint64_t simulation_tick,std::uint64_t epoch);
+    void publish_motor(std::uint64_t,const MotorState&);
+    const std::map<std::uint64_t,MotorState>& motors() const;
     const World& world() const;
     const std::map<std::uint64_t,ObjectData>& objects() const;
     std::uint64_t revision() const;

@@ -60,6 +60,7 @@ struct NumberEdit { EntityHandle entity; TypeId type; PropertyId property; doubl
 std::span<const TypeMetadata> metadata();
 std::string luau_types();
 
+class WorldSession;
 class World {
 public:
     explicit World(WorldDomain, std::size_t capacity=1024, std::size_t command_limit=1024);
@@ -92,6 +93,8 @@ private:
     void release_script_runtime();
     std::size_t script_checkpoint() const;
     void rollback_script(std::size_t);
+    friend class WorldSession;
+    void apply_replica_transform(EntityHandle,const Transform&);
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };

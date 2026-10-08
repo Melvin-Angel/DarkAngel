@@ -15,6 +15,7 @@ struct Import {
     std::map<std::string,std::string> inputs;
     std::vector<std::string> keys;
 };
+Import import_collision(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false);
 CookedMesh decode_mesh(std::string_view);
 CookedTexture decode_texture(std::string_view);

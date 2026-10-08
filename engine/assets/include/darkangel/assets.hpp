@@ -17,6 +17,7 @@ struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};};
 struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};};
 struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<CookedMaterial> materials;std::vector<std::pair<AssetId,CookedTexture>> textures;};
 // Load solely from the verified cooked registry/CAS; no SQLite, source assets or editor state.
+std::string load_cooked_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 struct ModelGeneration {std::uint64_t number;std::shared_ptr<const RuntimeModel> model;};
 class ModelStore {

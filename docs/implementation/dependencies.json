@@ -291,9 +291,9 @@
       "registry_git_tree": "2eab0b6e73bfbe491fa0ffb297fd3ffdb6bf4ecf",
       "portfile_sha256": "3302e2cb1211ba060dd5eb0c579fbfebbfe8b90ff97b54995a803e8ccbf14974",
       "acquisition": "acquired",
-      "status": "acquired",
-      "native_build": "not built for later integration",
-      "integration": "not integrated",
+      "status": "built and integrated initial M4 profile",
+      "native_build": "Windows x64 optimized /MD; pinned 5.6.0",
+      "integration": "CharacterVirtual, isolated historical replay, static/kinematic primitive collision; see M4_REPORT.md",
       "active": true
     },
     {

@@ -1,6 +1,6 @@
 # M3 session and agent foundation
 
-Updated 8 October 2026. **M3 is Blocked on live EOS acceptance.** The independent native gates pass; online service behavior remains unverified without an Epic deployment/public-client policy and two authorized identities. M4 has not started.
+Updated 8 October 2026. **M3 is Blocked on live EOS acceptance.** The independent native gates pass; online service behavior remains unverified without an Epic deployment/public-client policy and two authorized identities. M4 proceeded through Loopback/GNS under explicit user authorization; its initial gates and remaining qualifications are in M4_REPORT.md.
 
 | Gate | Result |
 |---|---|
@@ -28,4 +28,4 @@ The separate TypeScript bridge uses pinned Node 24.21.0 and official MCP SDK 1.3
 
 The editor uses centralized gray panels, dark titles/tabs, blue focus/selection and restrained orange Play/unsaved cues. A separate installed Segoe Fluent Icons font loads a small GDI-verified glyph set with readable label fallback; no system font is bundled. DPI changes rescale the base style. Toolbar rows, spacing, IDs/provenance and narrow Inspector values remain readable. Console icons use explicit native severity. Rendering retains the existing Diligent ImGui/ImGuizmo integration.
 
-Visual evidence: [D3D12](evidence/m3-editor-d3d12.png), [Vulkan](evidence/m3-editor-vulkan.png), [960-pixel window](evidence/m3-editor-d3d12-narrow.png), [capture commands](evidence/m3-editor-captures.json) and [live editor MCP](evidence/m3-editor-agent-live.png). Current hashes are in [provenance](evidence/m3-source-provenance.json). Continue from [CONTINUE.md](CONTINUE.md); commit the verified M3 boundary before opening the requested M4 chat.
+Visual evidence: [D3D12](evidence/m3-editor-d3d12.png), [Vulkan](evidence/m3-editor-vulkan.png), [960-pixel window](evidence/m3-editor-d3d12-narrow.png), [capture commands](evidence/m3-editor-captures.json) and [live editor MCP](evidence/m3-editor-agent-live.png). Current hashes are in [provenance](evidence/m3-source-provenance.json). Continue from [CONTINUE.md](CONTINUE.md); M3 receipts remain historical evidence; the user authorized continuing M4/M5 here while live EOS remains blocked.
