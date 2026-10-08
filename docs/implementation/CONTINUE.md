@@ -1,3 +1,5 @@
+Latest handoff: read ROYAL_CONTINUE.md first. Implementation checkpoint116c10f; native Royal viewport locomotion is available, real ability/attack remains incomplete.
+
 # Development continuation
 
 Updated 8 October 2026 in C:\DarkAngel. Work is authorized autonomously through Loopback/GNS. Preserve local work, commit coherent checkpoints and never push; there is no remote. Do not upgrade pins. M3 live EOS remains Blocked on private deployment/policy and two identities. MCP SDK1.32.1 remains the tested 2025-11-25 compatibility profile. M4/M5 are In progress; start M6 only after their required gates pass.
