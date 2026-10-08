@@ -1,0 +1,25 @@
+[1/37] Scanning C:\DarkAngel\tools\editor\editor_service.cpp for CXX dependencies
+[2/37] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/29] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[4/29] Scanning C:\DarkAngel\tools\editor\editor_rpc.cpp for CXX dependencies
+[5/29] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[6/25] Scanning C:\DarkAngel\tools\editor\agent_host.cpp for CXX dependencies
+[7/25] Generating CXX dyndep file CMakeFiles\AgentHost.dir\CXX.dd
+[8/25] Scanning C:\DarkAngel\tests\agent_tests.cpp for CXX dependencies
+[9/25] Scanning C:\DarkAngel\tools\editor\editor_document.cpp for CXX dependencies
+[10/25] Generating CXX dyndep file CMakeFiles\AgentTests.dir\CXX.dd
+[11/25] Scanning C:\DarkAngel\tools\editor\agent_endpoint.cpp for CXX dependencies
+[12/25] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[13/25] Generating CXX dyndep file CMakeFiles\DarkAngelAgent.dir\CXX.dd
+[14/25] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[15/25] Building CXX object CMakeFiles\DarkAngelEditorService.dir\tools\editor\editor_service.cpp.obj
+[16/25] Linking CXX static library DarkAngelFoundation.lib
+[17/25] Building CXX object CMakeFiles\AgentHost.dir\tools\editor\agent_host.cpp.obj
+[18/25] Building CXX object CMakeFiles\AgentTests.dir\tests\agent_tests.cpp.obj
+[19/25] Building CXX object CMakeFiles\DarkAngelAgent.dir\tools\editor\agent_endpoint.cpp.obj
+[20/25] Building CXX object CMakeFiles\DarkAngelAgent.dir\tools\editor\editor_rpc.cpp.obj
+[21/25] Building CXX object CMakeFiles\DarkAngelEditorService.dir\tools\editor\editor_document.cpp.obj
+[22/25] Linking CXX static library DarkAngelEditorService.lib
+[23/25] Linking CXX static library DarkAngelAgent.lib
+[24/25] Linking CXX executable AgentTests.exe
+[25/25] Linking CXX executable AgentHost.exe

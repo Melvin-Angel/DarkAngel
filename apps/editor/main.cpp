@@ -19,6 +19,10 @@
 #include <darkangel/assets.hpp>
 #include <darkangel/editor_service.hpp>
 #include "editor_ui.hpp"
+#include "editor_theme.hpp"
+#ifdef DAE_AGENT_ENDPOINTS
+#include <darkangel/editor_rpc.hpp>
+#endif
 #include <ImGuizmo.h>
 #include <chrono>
 #include <algorithm>
@@ -34,8 +38,12 @@ using namespace darkangel;
 namespace {
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 struct ComApartment {ComApartment(){require(SUCCEEDED(CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED)),"Editor COM initialization failed");}~ComApartment(){DirectX::SetWICFactory(nullptr);CoUninitialize();}};
-struct Options {std::filesystem::path registry,cas,capture;std::string model,backend{"d3d12"};unsigned frames{};bool hidden{},exercise{};};
-Options options(int argc,char** argv){Options out;for(int i=1;i<argc;++i){std::string arg=argv[i];if(arg=="--hidden"){out.hidden=true;continue;}if(arg=="--exercise"){out.exercise=true;continue;}require(i+1<argc,"Missing editor option value");std::string value=argv[++i];if(arg=="--registry")out.registry=value;else if(arg=="--cas")out.cas=value;else if(arg=="--model")out.model=value;else if(arg=="--capture")out.capture=value;else if(arg=="--frames")out.frames=static_cast<unsigned>(std::stoul(value));else if(arg=="--backend")out.backend=value;else throw std::runtime_error("Unknown editor option");}require(!out.registry.empty() && !out.cas.empty() && !out.model.empty(),"DarkAngelEditor requires --registry file --cas directory --model UUID");require(out.backend=="d3d12" || out.backend=="vulkan","Unsupported backend");require(out.frames<=10000,"Frame budget limit");return out;}
+struct Options {std::filesystem::path registry,cas,capture,agent_descriptor;std::string agent_project;bool agent_authoring{};std::string model,backend{"d3d12"};unsigned frames{};bool hidden{},exercise{};};
+Options options(int argc,char** argv){Options out;for(int i=1;i<argc;++i){std::string arg=argv[i];if(arg=="--agent-authoring"){out.agent_authoring=true;continue;}if(arg=="--hidden"){out.hidden=true;continue;}if(arg=="--exercise"){out.exercise=true;continue;}require(i+1<argc,"Missing editor option value");std::string value=argv[++i];if(arg=="--agent-descriptor")out.agent_descriptor=value;else if(arg=="--agent-project")out.agent_project=StableId::parse(value).text();else if(arg=="--registry")out.registry=value;else if(arg=="--cas")out.cas=value;else if(arg=="--model")out.model=value;else if(arg=="--capture")out.capture=value;else if(arg=="--frames")out.frames=static_cast<unsigned>(std::stoul(value));else if(arg=="--backend")out.backend=value;else throw std::runtime_error("Unknown editor option");}require(!out.registry.empty() && !out.cas.empty() && !out.model.empty(),"DarkAngelEditor requires --registry file --cas directory --model UUID");require(out.backend=="d3d12" || out.backend=="vulkan","Unsupported backend");require(out.frames<=10000,"Frame budget limit");require(out.agent_descriptor.empty()==out.agent_project.empty() && (!out.agent_authoring || !out.agent_descriptor.empty()),"Agent requires explicit descriptor and project UUID");
+#ifndef DAE_AGENT_ENDPOINTS
+require(out.agent_descriptor.empty(),"This build excludes agent endpoints");
+#endif
+return out;}
 ImGuiImplWin32* window_gui{};unsigned resize_width{},resize_height{};
 LRESULT CALLBACK window_proc(HWND window,UINT message,WPARAM wparam,LPARAM lparam){
     if(window_gui && window_gui->Win32_ProcHandler(window,message,wparam,lparam))return 1;
@@ -103,7 +111,7 @@ std::string shader_text(){std::ifstream in("games/AshenRoots/shaders/stylized_pr
 }
 int main(int argc,char** argv){try{
     auto args=options(argc,argv);auto id=AssetId::parse(args.model);ModelStore store;auto lease=store.prepare(args.registry,args.cas,id);store.publish(lease);
-    ComApartment apartment;
+    ComApartment apartment;SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     WNDCLASSW wc{};wc.lpfnWndProc=window_proc;wc.hInstance=GetModuleHandleW(nullptr);wc.lpszClassName=L"DarkAngelM2Editor";wc.hCursor=LoadCursorW(nullptr,IDC_ARROW);require(RegisterClassW(&wc),"Window class registration failed");
     RECT rect{0,0,1280,800};AdjustWindowRect(&rect,WS_OVERLAPPEDWINDOW,FALSE);HWND window=CreateWindowW(wc.lpszClassName,L"DarkAngel — M2 asset and editor slice",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,rect.right-rect.left,rect.bottom-rect.top,nullptr,nullptr,wc.hInstance,nullptr);require(window,"Editor window creation failed");
     RefCntAutoPtr<IRenderDevice> device;RefCntAutoPtr<IDeviceContext> context;RefCntAutoPtr<ISwapChain> swap;
@@ -111,10 +119,13 @@ int main(int argc,char** argv){try{
     if(args.backend=="d3d12"){auto* factory=GetEngineFactoryD3D12();EngineD3D12CreateInfo ci;ci.pDxCompilerPath=DAE_DXC_DLL;ci.EnableValidation=true;factory->CreateDeviceAndContextsD3D12(ci,&device,&context);require(device && context,"D3D12 device initialization failed");factory->CreateSwapChainD3D12(device,context,swap_desc,FullScreenModeDesc{},native,&swap);}
     else{auto* factory=GetEngineFactoryVk();EngineVkCreateInfo ci;ci.pDxCompilerPath=DAE_DXC_DLL;ci.EnableValidation=true;factory->CreateDeviceAndContextsVk(ci,&device,&context);require(device && context,"Vulkan device initialization failed");factory->CreateSwapChainVk(device,context,swap_desc,native,&swap);}require(swap,"Swap chain creation failed");
     auto gui=ImGuiImplWin32::Create(ImGuiDiligentCreateInfo{device,swap->GetDesc()},window);window_gui=gui.get();ImGui::GetIO().ConfigFlags|=ImGuiConfigFlags_DockingEnable;ImGui::GetIO().IniFilename=nullptr;
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf",16);ImGui::StyleColorsDark();if(!args.hidden)ShowWindow(window,SW_SHOW);
+    darkangel::editor_app::initialize_theme(GetDpiForWindow(window)/96.f);if(!args.hidden)ShowWindow(window,SW_SHOW);
     BufferDesc cb;cb.Name="DarkAngel frame constants";cb.Size=sizeof(Constants);cb.Usage=USAGE_DYNAMIC;cb.BindFlags=BIND_UNIFORM_BUFFER;cb.CPUAccessFlags=CPU_ACCESS_WRITE;RefCntAutoPtr<IBuffer> constant_buffer;device->CreateBuffer(cb,nullptr,&constant_buffer);require(constant_buffer,"Constant buffer creation failed");
     auto source=shader_text();auto pso=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,false,source.c_str());auto pso_cull=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,true,source.c_str());
     auto gpu=upload(device,*lease.model,pso,pso_cull);darkangel::editor_app::Controller editor(id,gpu.radius);darkangel::editor_app::Shell shell;
+#ifdef DAE_AGENT_ENDPOINTS
+std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_agent=[&]{if(args.agent_descriptor.empty())return;if(agent_document!=editor.document.get()){agent.reset();agent=std::make_unique<AgentEndpoint>(*editor.document,args.agent_project,args.agent_authoring,args.agent_descriptor);agent_document=editor.document.get();editor.log("Issued scoped agent descriptor for this authoring document.");}agent->poll();};
+#endif
     auto reload_model=[&]{auto candidate=store.prepare(args.registry,args.cas,id);auto resources=upload(device,*candidate.model,pso,pso_cull);context->Flush();context->WaitForIdle();store.publish(candidate);gpu=std::move(resources);lease=store.acquire();store.collect();editor.log("Published resource generation after GPU upload; retired unpinned data at GPU idle.");};
     auto reload_shader=[&](const std::string& text){auto next=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,false,text.c_str());auto next_cull=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,true,text.c_str());auto resources=upload(device,*lease.model,next,next_cull);context->Flush();context->WaitForIdle();gpu=std::move(resources);pso=std::move(next);pso_cull=std::move(next_cull);editor.log("Shader candidate and material bindings committed at GPU idle.");};
     RefCntAutoPtr<ITexture> scene_color,scene_depth;unsigned scene_width=700,scene_height=500;auto last=std::chrono::steady_clock::now();
@@ -126,7 +137,11 @@ int main(int argc,char** argv){try{
             auto generation=store.acquire().number;bool failed=false;try{store.prepare(".cache/editor/missing.registry",args.cas,id);}catch(...){failed=true;}require(failed && store.acquire().number==generation,"Failed model candidate replaced active generation");reload_model();failed=false;try{reload_shader("deliberate shader syntax failure");}catch(...){failed=true;}require(failed,"Invalid shader candidate accepted");editor.log("Acceptance: Play isolation, Step, undo/redo, save/open, model generation and failed shader preservation passed.");}
         editor.update(seconds);const auto& desc=swap->GetDesc();
         if(!scene_color || scene_color->GetDesc().Width!=scene_width || scene_color->GetDesc().Height!=scene_height){context->Flush();context->WaitForIdle();TextureDesc color;color.Name="Editor scene viewport";color.Type=RESOURCE_DIM_TEX_2D;color.Width=scene_width;color.Height=scene_height;color.Format=swap_desc.ColorBufferFormat;color.BindFlags=BIND_RENDER_TARGET|BIND_SHADER_RESOURCE;device->CreateTexture(color,nullptr,&scene_color);color.Name="Editor scene depth";color.Format=swap_desc.DepthBufferFormat;color.BindFlags=BIND_DEPTH_STENCIL;device->CreateTexture(color,nullptr,&scene_depth);require(scene_color && scene_depth,"Viewport resource creation failed");}
-        gui->NewFrame(desc.Width,desc.Height,desc.PreTransform);ImGuizmo::BeginFrame();auto image=reinterpret_cast<ImTextureID>(scene_color->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));auto area=shell.draw(editor,desc.Width,desc.Height,args.backend.c_str(),lease.number,seconds,image);scene_width=std::max(1u,static_cast<unsigned>(area.width));scene_height=std::max(1u,static_cast<unsigned>(area.height));
+        darkangel::editor_app::set_theme_dpi(GetDpiForWindow(window)/96.f);gui->NewFrame(desc.Width,desc.Height,desc.PreTransform);ImGuizmo::BeginFrame();auto image=reinterpret_cast<ImTextureID>(scene_color->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));auto area=shell.draw(editor,desc.Width,desc.Height,args.backend.c_str(),lease.number,seconds,image);
+#ifdef DAE_AGENT_ENDPOINTS
+poll_agent();
+#endif
+scene_width=std::max(1u,static_cast<unsigned>(area.width));scene_height=std::max(1u,static_cast<unsigned>(area.height));
         if(shell.reload_model){try{reload_model();}catch(const std::exception& error){context->Flush();context->WaitForIdle();editor.log(error.what());}shell.reload_model=false;}
         if(shell.reload_shader){try{reload_shader(shader_text());}catch(const std::exception& error){context->Flush();context->WaitForIdle();editor.log(error.what());}shell.reload_shader=false;}
         auto* rtv=scene_color->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);auto* dsv=scene_depth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);context->SetRenderTargets(1,&rtv,dsv,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);const float background[]={.015f,.025f,.045f,1};context->ClearRenderTarget(rtv,background,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearDepthStencil(dsv,CLEAR_DEPTH_FLAG,1,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

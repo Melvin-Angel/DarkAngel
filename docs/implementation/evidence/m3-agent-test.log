@@ -1,0 +1,11 @@
+Test project C:/DarkAngel/build/m1-debug
+    Start 1: M3.agent_transactions
+1/1 Test #1: M3.agent_transactions ............   Passed    0.14 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+M3       =   0.14 sec*proc (1 test)
+agent    =   0.14 sec*proc (1 test)
+
+Total Test time (real) =   0.21 sec

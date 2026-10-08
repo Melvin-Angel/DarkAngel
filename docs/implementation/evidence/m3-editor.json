@@ -1,0 +1,29 @@
+[
+  {
+    "gate": "build",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--build",
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo",
+      "--target",
+      "DarkAngelEditor"
+    ],
+    "exit_code": 0,
+    "seconds": 146.864,
+    "log": "docs/implementation/evidence/m3-editor-build.log"
+  },
+  {
+    "gate": "test",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+      "--test-dir",
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo",
+      "-R",
+      "^M2.editor_transactions$",
+      "--output-on-failure"
+    ],
+    "exit_code": 0,
+    "seconds": 0.377,
+    "log": "docs/implementation/evidence/m3-editor-test.log"
+  }
+]

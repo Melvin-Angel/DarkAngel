@@ -1,0 +1,16 @@
+#include <darkangel/editor_rpc.hpp>
+#include <nlohmann/json.hpp>
+#include <iostream>
+using namespace darkangel;using Json=nlohmann::json;
+void check(bool ok,const char* error){if(!ok)throw std::runtime_error(error);}
+int main(){try{
+    auto root=AssetId::parse("11111111-1111-4111-8111-111111111111");const std::string source=R"({"schema":1,"asset":"11111111-1111-4111-8111-111111111111","entities":{"00000000000000000000000000000001":{"types":{"1":{"version":1,"fields":{"1":0}},"2":{"version":1,"fields":{"1":100,"2":100}}}}}})";
+    EditorDocument doc(root,{1,1},{{root,source}});AgentAuthorization authorization{"project","host",std::string(64,'a'),true};EditorRpc rpc(doc,authorization);auto auth=Json{{"project","project"},{"host","host"},{"credential",std::string(64,'a')}};
+    auto call=[&](const char* method,Json args,EditorRpc& endpoint){return Json::parse(endpoint.dispatch(Json{{"jsonrpc","2.0"},{"id","1"},{"method",method},{"params",{{"authorization",auth},{"arguments",args}}}}.dump()));};
+    auto describe=call("describe",Json::object(),rpc);check(describe.contains("result") && describe["result"]["data"]["tools"].size()==8,"Capability discovery failed");
+    auto id=doc.plan().origins[0].object;Json changes=Json::array({{{"object",id.text()},{"type",1},{"property",1},{"value",5}}});auto prepared=call("prepare",{{"revision","0"},{"scope","placement"},{"changes",changes}},rpc);check(prepared.contains("result") && doc.revision()==0,"Prepare changed document");auto plan=prepared["result"]["data"];Json commit{{"plan",plan["plan"]},{"digest",plan["digest"]},{"operation","00000000000000000000000000000001"}};
+    auto applied=call("commit",commit,rpc);check(applied.contains("result") && doc.revision()==1 && doc.world().read(doc.world().find(id)).transform.yaw==5,"Agent transaction not reflected in UI world");check(call("commit",commit,rpc)==applied && doc.revision()==1,"Retry committed twice");commit["digest"]="bad";check(call("commit",commit,rpc).contains("error"),"Operation UUID reused for different payload");
+    auto before=doc.revision();check(call("prepare",{{"revision","0"},{"scope","placement"},{"changes",changes}},rpc).contains("error") && doc.revision()==before,"Stale edit accepted");changes[0]["type"]=3;check(call("prepare",{{"revision","1"},{"scope","placement"},{"changes",changes}},rpc).contains("error"),"Read-only identity edited");
+    auto undo=call("undo",{{"revision","1"},{"operation","00000000000000000000000000000002"}},rpc);check(undo.contains("result") && doc.world().read(doc.world().find(id)).transform.yaw==0,"Native shared undo failed");
+    authorization.authoring=false;EditorRpc readonly(doc,authorization);check(call("undo",{{"revision","2"},{"operation","00000000000000000000000000000003"}},readonly).contains("error"),"Inspection authorization mutated source");auth["host"]="other";check(call("describe",Json::object(),rpc).contains("error"),"Wrong host context accepted");auth["host"]="host";rpc.revoke();check(call("describe",Json::object(),rpc).contains("error"),"Revocation failed");check(Json::parse(rpc.dispatch(std::string(65537,'x'))).contains("error"),"Oversized request accepted");std::cout<<"M3 scoped agent discovery/prepare/commit/retry/undo/authority/bounds passed\n";return 0;
+}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

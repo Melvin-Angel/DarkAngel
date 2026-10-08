@@ -1,0 +1,67 @@
+[1/52] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/46] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/38] Scanning C:\DarkAngel\tests\agent_tests.cpp for CXX dependencies
+[4/38] Scanning C:\DarkAngel\tools\editor\editor_rpc.cpp for CXX dependencies
+[5/38] Scanning C:\DarkAngel\tools\editor\agent_host.cpp for CXX dependencies
+[6/38] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[7/35] Scanning C:\DarkAngel\tools\editor\agent_endpoint.cpp for CXX dependencies
+[8/35] Scanning C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp for CXX dependencies
+[9/35] Scanning C:\DarkAngel\apps\editor\editor_controller.cpp for CXX dependencies
+[10/35] Generating CXX dyndep file CMakeFiles\AgentHost.dir\CXX.dd
+[11/35] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[12/35] Generating CXX dyndep file CMakeFiles\AgentTests.dir\CXX.dd
+[13/35] Generating CXX dyndep file CMakeFiles\DarkAngelAgent.dir\CXX.dd
+[14/35] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[15/35] Scanning C:\DarkAngel\apps\editor\editor_theme.cpp for CXX dependencies
+[16/35] Scanning C:\DarkAngel\apps\editor\editor_ui.cpp for CXX dependencies
+[17/35] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[18/33] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[19/33] Building CXX object CMakeFiles\DarkAngelEditor.dir\third_party\imguizmo\src\ImGuizmo.cpp.obj
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(778): warning C4245: 'initializing': conversion from 'int' to 'ImGuiID', signed/unsigned mismatch
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(788): warning C4245: 'argument': conversion from 'int' to 'const T', signed/unsigned mismatch
+        with
+        [
+            T=ImU32
+        ]
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(1347): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(1377): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(1640): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(1937): warning C4245: '=': conversion from 'int' to 'ImGuiID', signed/unsigned mismatch
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(2522): warning C4245: '=': conversion from 'int' to 'ImGuiID', signed/unsigned mismatch
+C:\DarkAngel\third_party\imguizmo\src\ImGuizmo.cpp(2587): warning C4245: 'argument': conversion from 'int' to 'const T', signed/unsigned mismatch
+        with
+        [
+            T=ImU32
+        ]
+[20/33] Building CXX object CMakeFiles\AgentHost.dir\tools\editor\agent_host.cpp.obj
+[21/33] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_theme.cpp.obj
+[22/33] Building CXX object CMakeFiles\AgentTests.dir\tests\agent_tests.cpp.obj
+[23/33] Building CXX object CMakeFiles\DarkAngelAgent.dir\tools\editor\agent_endpoint.cpp.obj
+[24/33] Building CXX object CMakeFiles\DarkAngelAgent.dir\tools\editor\editor_rpc.cpp.obj
+[25/33] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(151): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[26/33] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[27/33] Linking CXX static library DarkAngelAgent.lib
+[28/33] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+[29/33] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[30/33] Linking CXX static library DarkAngelAssets.lib
+[31/33] Linking CXX executable AgentTests.exe
+[32/33] Linking CXX executable AgentHost.exe
+[33/33] Linking CXX executable DarkAngelEditor.exe

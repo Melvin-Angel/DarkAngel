@@ -95,6 +95,21 @@
         "DAE_RENDERER_SPIKE": true,
         "CMAKE_POLICY_VERSION_MINIMUM": "3.10"
       }
+    },
+    {
+      "name": "m3-relwithdebinfo",
+      "inherits": "m0-base",
+      "binaryDir": "${sourceDir}/build/m3-relwithdebinfo",
+      "cacheVariables": {
+        "VCPKG_MANIFEST_FEATURES": "m1;m3",
+        "DAE_NETWORK_GNS": true,
+        "DAE_NETWORK_EOS": true,
+        "DAE_EOS_SDK_ROOT": "${sourceDir}/EOS-SDK-58105819-Release-v1.19.2.1/SDK",
+        "DAE_AGENT_ENDPOINTS": true,
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "DAE_AUTHORING": true,
+        "VCPKG_INSTALL_OPTIONS": "--x-buildtrees-root=$env{LOCALAPPDATA}/DarkAngel/vcpkg-buildtrees"
+      }
     }
   ],
   "buildPresets": [

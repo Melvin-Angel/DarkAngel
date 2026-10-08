@@ -168,6 +168,15 @@
           "default-features": false
         }
       ]
+    },
+    "m3": {
+      "description": "Pinned offline LAN transport",
+      "dependencies": [
+        {
+          "name": "gamenetworkingsockets",
+          "default-features": false
+        }
+      ]
     }
   },
   "overrides": [
