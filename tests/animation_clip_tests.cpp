@@ -26,10 +26,10 @@ Matrix trs(const std::array<float,3>& t,const std::array<float,4>& q){
 }
 Matrix multiply(const Matrix& a,const Matrix& b){Matrix c{};for(unsigned col=0;col<4;++col)for(unsigned row=0;row<4;++row)for(unsigned k=0;k<4;++k)c[col*4+row]+=a[k*4+row]*b[col*4+k];return c;}
 std::array<float,4> quat_multiply(std::array<float,4> a,std::array<float,4> b){return {a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]};}
-void clip_test(const std::filesystem::path& project,const std::filesystem::path& output,const std::string& name){
+void clip_test(const std::filesystem::path& project,const std::filesystem::path& output,const std::string& name,bool owned=false){
     auto source=output/name;std::filesystem::create_directories(source);
     std::filesystem::copy_file(project/"content/animation/canonical_human.daskeleton",source/"human.daskeleton");
-    std::filesystem::copy_file(project/".cache/fixtures"/(name+".glb"),source/"clip.glb");
+    std::filesystem::copy_file(project/(owned?"content/royal_district/clips":".cache/fixtures")/(name+".glb"),source/"clip.glb");
     AssetService assets(source,source/"cache");auto id=assets.adopt_clip("clip.glb","human.daskeleton",name=="idle"||name=="run"||name.starts_with("omni-"));
     auto result=assets.cook("clip.glb");require(result.changed&&!assets.cook("clip.glb").changed,"Clip cold/warm cook");
     assets.package(id,source/"registry.json");auto registry=read(source/"registry.json");
@@ -101,6 +101,9 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
         if(name=="omni-walk"||name=="omni-run")require(last[2]>.5&&std::abs(last[0])<.01,"Omni forward root direction");
         if(name=="omni-left")require(last[0]>.5&&std::abs(last[2])<.01,"Omni source left strafe direction");
         if(name=="omni-right")require(last[0]<-.5&&std::abs(last[2])<.01,"Omni source right strafe direction");
+        if(name=="omni-back"||name=="omni-run-back")require(last[2]<-.5&&std::abs(last[0])<.01,"Omni backward root direction");
+        if(name=="omni-run-left")require(last[0]>.5&&std::abs(last[2])<.01,"Omni run left root direction");
+        if(name=="omni-run-right")require(last[0]<-.5&&std::abs(last[2])<.01,"Omni run right root direction");
     }
     if(cooked.definition.loop){auto start=first.sample(clip,0)[0].values;require(start==first.sample(clip,cooked.definition.ticks)[0].values,"Loop pose wraps at exact duration");}
     auto wrong=cooked.definition;wrong.signature=std::string(64,'a');AnimationClip incompatible(wrong,cooked.archive);bool denied=false;try{first.sample(incompatible,0);}catch(...){denied=true;}require(denied,"Incompatible clip rejects before sampling");PoseLayer mismatch{&incompatible,3,1,{}};denied=false;try{first.blend(std::span(&mismatch,1));}catch(...){denied=true;}require(denied,"Incompatible blended clip rejects before pose mutation");
@@ -128,6 +131,11 @@ void mixed_clips(const std::filesystem::path& project,const std::filesystem::pat
 
 }
 int main(int argc,char** argv){try{
+    if(argc==2&&std::string_view(argv[1])=="--royal"){
+        auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("royal-clip-fixture-"+AssetId::random().text());
+        for(auto name:{"idle","omni-walk","omni-run","omni-left","omni-right","omni-back","omni-run-back","omni-run-left","omni-run-right"})clip_test(project,output,name,true);
+        std::cout<<"Royal canonical locomotion content and compression reference passed\n";return 0;
+    }
     if(argc==2&&std::string_view(argv[1])=="--omni"){
         auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("omni-fixture-"+AssetId::random().text());
         for(auto name:{"omni-walk","omni-run","omni-left","omni-right"})clip_test(project,output,name);

@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "base_head": "156a2103596729418ef330fc0923fc591cb5b6a4",
+  "scope": "Bounded selector catalogue, nine-point directional selection, simultaneous-layer compile rejection, playback rates and existing replay/render-rate gates; eight canonical Omni cardinal walk/run sources plus Blink idle. Interactive movement/action binding remains separate.",
+  "limits": {
+    "nodes": 32,
+    "depth": 16,
+    "points": 32,
+    "triangles": 64,
+    "catalogue_capacity": 32,
+    "simultaneous_layers": 4,
+    "playback_rate": [
+      0,
+      4
+    ]
+  },
+  "gates": [
+    {
+      "name": "content",
+      "exit": 0,
+      "seconds": 2.689,
+      "log": "docs/implementation/evidence/royal-directional-content.log"
+    },
+    {
+      "name": "build",
+      "exit": 0,
+      "seconds": 38.592,
+      "log": "docs/implementation/evidence/royal-directional-build.log"
+    },
+    {
+      "name": "graph",
+      "exit": 0,
+      "seconds": 3.027,
+      "log": "docs/implementation/evidence/royal-directional-graph.log"
+    },
+    {
+      "name": "clips",
+      "exit": 0,
+      "seconds": 4.715,
+      "log": "docs/implementation/evidence/royal-directional-clips.log"
+    },
+    {
+      "name": "ctest",
+      "exit": 0,
+      "seconds": 11.717,
+      "log": "docs/implementation/evidence/royal-directional-ctest.log"
+    }
+  ],
+  "source_sha256": {
+    "engine/runtime/animation_graph.cpp": "3d545f412459ad9959bc061b16f9a4218770dad78d89acc87c562ff826809637",
+    "engine/runtime/include/darkangel/animation_graph.hpp": "a49f0f270ec92d24f3626f84af27178ff85542753c77cbc8d1a56c88933b7fda",
+    "tests/animation_graph_tests.cpp": "29e01a35aa50ff1e83f76d0d8ccb3038195188ace25e1946a594f0976973eb97",
+    "tests/animation_clip_tests.cpp": "98da18e6b0f38422daa96bdddd3cbd6eca0a77709fa5d7583f2cb731f7e16561",
+    "scripts/prepare_royal_locomotion.py": "cbbd8964827dcf3d2d25ab169e935b0b925c6c6d990a764c3e3e4d3b85284056"
+  },
+  "online": "EOS remains blocked; existing GNS receipts unchanged"
+}

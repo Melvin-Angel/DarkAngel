@@ -1,0 +1,10 @@
+Blender 4.5.1 LTS (hash b0a72b245dcf built 2025-07-29 06:36:07)
+FBX version: 7700
+
+Blender quit
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\convert_omni_fixture.py", line 70, in <module>
+    raise RuntimeError('Unsupported source timing')
+RuntimeError: Unsupported source timing
+
+Error: script failed, file: 'scripts/convert_omni_fixture.py', exiting.

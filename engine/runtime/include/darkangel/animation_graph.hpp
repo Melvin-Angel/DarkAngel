@@ -15,7 +15,7 @@ struct GraphNode {
     // Explicit triangles reference point indices; no runtime triangulation.
     std::vector<std::array<unsigned,3>> triangles;
 };
-struct GraphParameters { float speed{}, forward{}, lateral{}; };
+struct GraphParameters { float speed{}, forward{}, lateral{},playback_rate{1}; };
 struct GraphState { std::uint64_t tick{}; double phase{}; std::string generation; };
 struct GraphPoseInputs {
     // Descriptors borrow the frozen clips; keep the instance/plan alive while
@@ -25,7 +25,7 @@ struct GraphPoseInputs {
     std::span<const PoseLayer> span() const { return {layers.data(), count}; }
 };
 // Initial native compiled profile: clip, 1D and explicit triangle-based 2D
-// selectors, one normalized locomotion cycle. No runtime reflection or mapping.
+// selectors, one normalized locomotion cycle, up to32 catalogue clips and four simultaneous layers. No runtime reflection or mapping.
 // Asset authoring, markers, transitions and action/additive slots remain separate.
 class AnimationGraphPlan {
 public:

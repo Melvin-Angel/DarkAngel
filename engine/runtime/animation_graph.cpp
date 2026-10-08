@@ -1,12 +1,14 @@
 #include <darkangel/animation_graph.hpp>
 #include <darkangel/hash.hpp>
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <functional>
 #include <limits>
 #include <stdexcept>
 #include <sstream>
 #include <locale>
+#include <set>
 
 namespace darkangel {
 namespace {
@@ -25,19 +27,19 @@ bool overlap(const std::vector<GraphPoint>& points,const std::array<unsigned,3>&
 }
 }
 struct AnimationGraphPlan::Impl {
-    struct Node { GraphNode source; std::vector<unsigned> children; unsigned leaf{}; };
+    struct Node { GraphNode source; std::vector<unsigned> children; unsigned leaf{},active_bound{};std::uint32_t mask{}; };
     std::string generation;
     std::vector<Node> nodes;
-    std::array<std::shared_ptr<const AnimationClip>,4> leaves;
+    std::array<std::shared_ptr<const AnimationClip>,32> leaves;
     unsigned leaf_count{},root{};
 
-    std::array<double,4> weights(GraphParameters parameters) const {
-        require(bounded(parameters.speed)&&parameters.speed>=0&&bounded(parameters.forward)&&bounded(parameters.lateral),"Graph parameter bounds");
-        std::array<std::array<double,4>,32> outputs{};
+    std::array<double,32> weights(GraphParameters parameters) const {
+        require(bounded(parameters.speed)&&parameters.speed>=0&&bounded(parameters.forward)&&bounded(parameters.lateral)&&std::isfinite(parameters.playback_rate)&&parameters.playback_rate>=0&&parameters.playback_rate<=4,"Graph parameter bounds");
+        std::array<std::array<double,32>,32> outputs{};
         for(unsigned index=0;index<nodes.size();++index){
             const auto& node=nodes[index];const auto& source=node.source;auto& result=outputs[index];
             if(source.kind==GraphNodeKind::Clip){result[node.leaf]=1;continue;}
-            std::array<double,8> selected{};
+            std::array<double,32> selected{};
             if(source.kind==GraphNodeKind::Blend1D){
                 const auto value=source.parameter==GraphParameter::Speed?parameters.speed:source.parameter==GraphParameter::Forward?parameters.forward:parameters.lateral;
                 if(value<=source.points.front().x)selected[0]=1;
@@ -76,7 +78,7 @@ struct AnimationGraphPlan::Impl {
     GraphPoseInputs pose(GraphParameters parameters,double phase)const {
         auto selected=weights(parameters);GraphPoseInputs result;
         for(unsigned leaf=0;leaf<leaf_count;++leaf)if(selected[leaf]>0){
-            result.layers[result.count++]={leaves[leaf].get(),phase*leaves[leaf]->definition().ticks,float(std::clamp(selected[leaf],0.0,1.0)),{}};
+            require(result.count<result.layers.size(),"Graph active pose budget");result.layers[result.count++]={leaves[leaf].get(),phase*leaves[leaf]->definition().ticks,float(std::clamp(selected[leaf],0.0,1.0)),{}};
         }
         return result;
     }
@@ -90,7 +92,7 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
         require(node.kind==GraphNodeKind::Clip||node.kind==GraphNodeKind::Blend1D||node.kind==GraphNodeKind::Blend2D,"Unknown graph node kind");
         require(node.parameter==GraphParameter::Speed||node.parameter==GraphParameter::Forward||node.parameter==GraphParameter::Lateral,"Unknown graph parameter");
         if(node.kind==GraphNodeKind::Clip){require(node.clip&&node.clip->definition().loop&&node.points.empty()&&node.triangles.empty(),"Locomotion clip node contract");continue;}
-        require(!node.clip&&node.points.size()>=2&&node.points.size()<=8,"Graph point budget");
+        require(!node.clip&&node.points.size()>=2&&node.points.size()<=32,"Graph point budget");
         for(unsigned point=0;point<node.points.size();++point){
             const auto& value=node.points[point];require(value.input&&bounded(value.x)&&bounded(value.y),"Graph point bounds");
             if(node.kind==GraphNodeKind::Blend1D){require(value.y==0,"1D point has no second coordinate");if(point)require(value.x>node.points[point-1].x,"1D points strictly ordered");}
@@ -98,8 +100,8 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
         }
         if(node.kind==GraphNodeKind::Blend1D)require(node.triangles.empty(),"1D node has no triangles");
         else{
-            require(node.points.size()>=3&&!node.triangles.empty()&&node.triangles.size()<=8,"2D triangle budget");
-            std::array<bool,8> used{};
+            require(node.points.size()>=3&&!node.triangles.empty()&&node.triangles.size()<=64,"2D triangle budget");
+            std::array<bool,32> used{};
             for(unsigned index_triangle=0;index_triangle<node.triangles.size();++index_triangle){
                 auto triangle=node.triangles[index_triangle];
                 for(auto point:triangle){require(point<node.points.size(),"2D triangle point index");used[point]=true;}
@@ -121,8 +123,14 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
             if(plan.leaf_count){const auto& first=plan.leaves[0]->definition();require(definition.skeleton==first.skeleton&&definition.signature==first.signature&&definition.joints==first.joints,"Graph clip skeleton/signature mismatch");}
             auto found=std::find(plan.leaves.begin(),plan.leaves.begin()+plan.leaf_count,node.source.clip);
             node.leaf=unsigned(found-plan.leaves.begin());
-            if(node.leaf==plan.leaf_count){require(plan.leaf_count<4,"Graph initial distinct clip budget");plan.leaves[plan.leaf_count++]=node.source.clip;}
+            if(node.leaf==plan.leaf_count){require(plan.leaf_count<32,"Graph distinct clip catalogue budget");plan.leaves[plan.leaf_count++]=node.source.clip;}
         }
+        if(node.source.kind==GraphNodeKind::Clip){node.mask=std::uint32_t(1)<<node.leaf;node.active_bound=1;}
+        else{for(auto child:node.children)node.mask|=plan.nodes[child].mask;
+            auto bound=[&](std::span<const unsigned> points){unsigned total{};std::uint32_t mask{};std::set<unsigned> unique;for(auto point:points){auto child=node.children[point];if(unique.insert(child).second)total+=plan.nodes[child].active_bound;mask|=plan.nodes[child].mask;}return std::min(total,unsigned(std::popcount(mask)));};
+            if(node.source.kind==GraphNodeKind::Blend1D)for(unsigned point=1;point<node.children.size();++point){std::array<unsigned,2> pair{point-1,point};node.active_bound=std::max(node.active_bound,bound(pair));}
+            else for(const auto& triangle:node.source.triangles)node.active_bound=std::max(node.active_bound,bound(triangle));
+            require(node.active_bound<=4,"Graph simultaneous pose layer budget");}
         compiled[index]=unsigned(plan.nodes.size());plan.nodes.push_back(std::move(node));colors[index]=2;return compiled[index];
     };
     plan.root=visit(lookup(root),0);for(unsigned index=0;index<source.size();++index)require(colors[index]==2,"Unreachable graph node");
@@ -148,7 +156,7 @@ GraphPoseInputs AnimationGraphInstance::advance(std::uint64_t tick,GraphParamete
     require(state_.tick!=std::numeric_limits<std::uint64_t>::max()&&tick==state_.tick+1,"Graph requires consecutive fixed ticks");
     auto weights=plan_->impl_->weights(parameters);double delta{};
     for(unsigned leaf=0;leaf<plan_->impl_->leaf_count;++leaf)delta+=weights[leaf]/plan_->impl_->leaves[leaf]->definition().ticks;
-    const auto accumulated=state_.phase+delta;
+    const auto accumulated=state_.phase+delta*parameters.playback_rate;
     // Snap only roundoff at an exact cycle boundary. Otherwise repeated 1/N
     // increments can leave the Nth tick just below one instead of at zero.
     const auto phase=std::max(0.0,accumulated-std::floor(accumulated+1e-12));
