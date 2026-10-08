@@ -12,7 +12,7 @@ public:
     std::optional<Transform> draft;
     bool reload_model{},reload_shader{};
 private:
-    bool docked{};ViewArea area;ImDrawList* viewport_draw{};
+    AssetId script_asset;bool docked{};ViewArea area;ImDrawList* viewport_draw{};
     EditScope scope{EditScope::Placement};std::uint64_t gesture_revision{};StableId gesture_object;
     int operation{};bool dragging{},cancelled{},show_script{};char script[8192]{};char filter[128]{};
 };

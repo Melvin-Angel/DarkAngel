@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/editor_document.hpp>
 #include <darkangel/assets.hpp>
+#include <functional>
 namespace darkangel::editor_app {
 enum class ConsoleSeverity {Info,Warning,Error};
 struct ConsoleEntry {std::string message;ConsoleSeverity severity;};
@@ -19,6 +20,7 @@ public:
     std::filesystem::path path{L".cache/editor/TestScene.dascene"};
     AssetId model;
     double radius;
+    std::function<void(AssetId)> prepare_model;
     void log(std::string message,ConsoleSeverity=ConsoleSeverity::Info);
 };
 }

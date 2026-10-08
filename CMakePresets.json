@@ -138,6 +138,17 @@
         "DAE_ANIMATION": true,
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m5-relwithdebinfo"
       }
+    },
+    {
+      "name": "m5-editor-relwithdebinfo",
+      "inherits": "m5-relwithdebinfo",
+      "binaryDir": "${sourceDir}/build/m5-editor-relwithdebinfo",
+      "cacheVariables": {
+        "DAE_AUTHORING": true,
+        "DAE_RENDERER_SPIKE": true,
+        "CMAKE_POLICY_VERSION_MINIMUM": "3.10",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m5-editor-relwithdebinfo"
+      }
     }
   ],
   "buildPresets": [

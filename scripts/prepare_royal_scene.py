@@ -25,7 +25,10 @@ def prepare():
     for relative in chosen:
         run('cook', SOURCE, CACHE, relative)
     run('cook', SOURCE, CACHE, human)
-    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human))
+    clips = sorted((SOURCE / 'royal_district/clips').glob('*.glb'))
+    for clip in clips:
+        run('cook', SOURCE, CACHE, clip.relative_to(SOURCE).as_posix())
+    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips])
     for relative in chosen:
         run('inspect', CACHE / 'registry.json', CACHE / 'cas', asset(relative))
     root = '492cd837-3bf6-45d7-b640-b0470c5cec82'
@@ -37,7 +40,7 @@ def prepare():
     place(1, 'Temple ground', asset(ground), 0, 0, 0)
     place(2, huts[0].stem, asset(chosen[1]), -7, .5, -4)
     place(3, huts[1].stem, asset(chosen[2]), 7, .5, -4)
-    # Player is packaged now; GPU skin integration will add its native placement.
+    place(4, 'Canonical player', asset(human), 0, .5, 3)
     graph = dict(schema=1, asset=root, entities=entities, mounts={})
     output = ROOT / 'content/royal_district/RoyalVillage.dascene'
     output.write_text(json.dumps(dict(schema=1, root=root, placement=f'{1:032x}', sources={root: graph}), indent=2) + '\n')
