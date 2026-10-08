@@ -1,0 +1,11 @@
+Test project C:/DarkAngel/build/m1-debug
+    Start 1: M3.eos_sdk_boundary
+1/1 Test #1: M3.eos_sdk_boundary ..............   Passed    0.10 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+M3            =   0.10 sec*proc (1 test)
+online-sdk    =   0.10 sec*proc (1 test)
+
+Total Test time (real) =   0.11 sec

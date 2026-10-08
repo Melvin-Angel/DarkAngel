@@ -1,3 +1,11 @@
-# Agent bridge tooling
+# Native editor MCP bridge
 
-The official TypeScript MCP package is acquired here with an exact package-lock.json. M3 implements the bridge and scoped native named-pipe endpoint. M0 opens no endpoint and implements no authoring service. Native JSON parser selection remains M1 work.
+The pinned official SDK 1.32.1 handles MCP over stdio. Node 24.21.0 executes this TypeScript source directly; no second SDK or compiler/runtime dependency is installed.
+
+Configure an authoring build with `-DDAE_AGENT_ENDPOINTS=ON`. Shipping rejects authoring/agent flags and has no AgentHost or agent library. Start `AgentHost DOCUMENT PROJECT_UUID NEW_DESCRIPTOR [--authoring]` explicitly, or start a compiled native editor with `--agent-project UUID --agent-descriptor NEW_PATH [--agent-authoring]` plus its normal model/catalog arguments. Inspection is the default. An existing descriptor is never overwritten. Host shutdown removes its descriptor; after a crash remove only the stale descriptor before starting a new host. New host instances issue new credentials. Never commit or share a descriptor.
+
+Configure the MCP client command as the absolute pinned Node path and arguments as the absolute `tools/agent-bridge/main.ts` and the explicit descriptor path. The bridge attaches to that project/host and does not launch an engine. Diagnostic output stays on stderr. The native current-user ACL rejects remote pipe clients. Authoring rights and payload/schema/revision checks remain enforced natively.
+
+Use describe/inspect, then prepare a bounded typed change batch at the observed revision. Commit the returned plan/digest with a fresh operation UUID. All 64-bit revision/plan/offset fields are canonical decimal strings. Commit retries must use the identical operation and payload. Query operation status if delivery is uncertain; a new host reports unknown rather than guessing whether a former host committed. Successful edits are in-memory `CommittedUnsaved` and share the UI history. Source save remains explicit through the editor. Undo requires the current revision and cannot silently rewind a intervening UI edit.
+
+Run `.tools/node/node-v24.21.0-win-x64/node.exe tools/agent-bridge/verify.mjs [ABSOLUTE_AGENTHOST_EXE]` after building the native host and generating the existing M2 AcceptanceScene fixture. The test starts a temporary host, uses an actual official SDK client, performs prepare/commit/retry/inspect/undo, and removes its private descriptor. It never saves those edits to the fixture.

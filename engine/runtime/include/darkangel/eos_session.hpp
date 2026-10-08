@@ -19,6 +19,9 @@ public:
     void host();
     void search();
     std::size_t search_results() const;
+    std::vector<std::string> lobby_results() const;
+    std::string lobby_id() const;
+    SessionHandshake handshake() const;
     void join(std::size_t result_index);
     void leave();
     void tick();
@@ -31,4 +34,5 @@ private:
     std::shared_ptr<Impl> impl_;
 };
 void probe_eos_sdk();
+void shutdown_eos_sdk(); // final process shutdown only; cannot reinitialize
 }

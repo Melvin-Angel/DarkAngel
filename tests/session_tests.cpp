@@ -14,16 +14,24 @@ void authority(){
     std::vector<std::uint64_t> ids;
     for(unsigned i=0;i<23;++i){ObjectData o;o.id={1,i+1};o.transform.x=i;ids.push_back(server.create(o));}
     auto drive=[&]{for(unsigned i=0;i<50;++i){server.tick();client.tick();}check(client.readiness(cp)==SessionReadiness::Ready && server.readiness(hp)==SessionReadiness::Ready,"Client not ready after complete baseline ACK");check(client.revision()==server.revision(),"Baseline catch-up revision mismatch");};
-    server.tick();client.tick();check(client.objects().empty(),"Partial baseline visible");drive();check(client.objects().size()==23 && client.objects().at(ids[10]).transform.x==10,"Late join lost authoritative objects");
+    server.tick();client.tick();check(client.objects().empty(),"Partial baseline visible");
+    for(unsigned i=0;i<3;++i){server.tick();client.tick();}
+    Transform during_bootstrap;during_bootstrap.x=88;server.move(ids[10],during_bootstrap);
+    drive();check(client.objects().size()==23 && client.objects().at(ids[10]).transform.x==88,"Bootstrap Ready skipped intervening authority changes");
     rejects([&]{client.create(ObjectData{});});rejects([&]{client.move(ids[0],Transform{});});rejects([&]{client.destroy(ids[0]);});
     auto revision=server.revision();Transform bad;bad.x=std::numeric_limits<double>::quiet_NaN();rejects([&]{server.move(ids[0],bad);});check(server.revision()==revision,"Invalid server mutation changed revision");
-    Transform moved;moved.x=45;server.move(ids[0],moved);server.destroy(ids[1]);drive();check(client.objects().at(ids[0]).transform.x==45 && !client.objects().contains(ids[1]),"Create/move/despawn replication mismatch");
+    auto server_handle=server.world().find({1,1});Transform moved;moved.x=45;server.move(ids[0],moved);server.destroy(ids[1]);check(server.world().valid(server_handle),"Server movement replaced unrelated native world handles");drive();check(client.objects().at(ids[0]).transform.x==45 && !client.objects().contains(ids[1]),"Create/move/despawn replication mismatch");
     auto late_pair=create_loopback(hello);auto lh=late_pair.host->open(hello),lc=late_pair.client->open(hello);WorldSession late(SessionRole::Client,hello);server.attach(*late_pair.host,lh);late.attach(*late_pair.client,lc);for(unsigned i=0;i<30;++i){server.tick();client.tick();late.tick();}check(late.objects().size()==22 && late.objects().at(ids[0]).transform.x==45 && late.readiness(lc)==SessionReadiness::Ready,"Late baseline not current");
     ObjectData replacement;replacement.id={1,2};auto replacement_id=server.create(replacement);check(replacement_id!=ids[1],"Network ID reused within session");drive();
     // A peer cannot send arbitrary authoritative operations, even through an
     // admitted transport. Protocol failure closes it without changing host state.
     const std::byte forged[]={std::byte{0}};late_pair.client->send(lc,Delivery::ReliableOrdered,forged);revision=server.revision();rejects([&]{server.tick();});check(server.revision()==revision && !late_pair.client->connected(),"Forged wire operation changed authority");
     auto epoch=hello;epoch.session_epoch++;auto wrong=create_loopback(epoch);auto wh=wrong.host->open(epoch),wc=wrong.client->open(epoch);WorldSession stale(SessionRole::Client,epoch);stale.attach(*wrong.client,wc);server.attach(*wrong.host,wh);stale.tick();rejects([&]{server.tick();});
+    std::vector<LoopbackPair> peers;std::vector<std::unique_ptr<WorldSession>> views;std::vector<ConnectionHandle> handles;
+    for(unsigned i=0;i<3;++i){peers.push_back(create_loopback(hello));auto h=peers.back().host->open(hello),c=peers.back().client->open(hello);views.push_back(std::make_unique<WorldSession>(SessionRole::Client,hello));server.attach(*peers.back().host,h);views.back()->attach(*peers.back().client,c);handles.push_back(c);}
+    for(unsigned i=0;i<30;++i){server.tick();client.tick();for(auto& view:views)view->tick();}
+    for(unsigned i=0;i<views.size();++i)check(views[i]->readiness(handles[i])==SessionReadiness::Ready && views[i]->revision()==server.revision() && views[i]->objects().size()==server.objects().size(),"Bounded multi-peer baseline diverged");
+    auto excess=create_loopback(hello);auto eh=excess.host->open(hello);excess.client->open(hello);rejects([&]{server.attach(*excess.host,eh);});
     std::cout<<"M3 authority/chunked atomic baseline/late join/catch-up/identity/forgery checks passed\n";
 }
 int main(int argc,char** argv){try{

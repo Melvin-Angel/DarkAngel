@@ -3,7 +3,7 @@
 namespace darkangel::editor_app {
 using Json=nlohmann::json;
 Controller::Controller(AssetId asset,double r):model(asset),radius(r){demo();}
-void Controller::log(std::string message){console.push_back(std::move(message));if(console.size()>128)console.erase(console.begin());}
+void Controller::log(std::string message,ConsoleSeverity severity){console.push_back({std::move(message),severity});if(console.size()>128)console.erase(console.begin());}
 void Controller::demo(){stop();World defaults(WorldDomain::Authoring);ObjectData object;object.id={0,1};defaults.create(object);auto entity=Json::parse(defaults.serialize()).at("objects")[0];entity.erase("id");entity["name"]="Spinner";entity["model"]=model.text();entity["scripts"]={{StableId{0,9}.text(),{{"asset","33333333-3333-4333-8333-333333333333"},{"config",{{"speed",.5}}},{"enabled",true}}}};
     auto root=AssetId::parse("22222222-2222-4222-8222-222222222222"),assembly=AssetId::parse("11111111-1111-4111-8111-111111111111"),script=AssetId::parse("33333333-3333-4333-8333-333333333333");
     Json definition={{"schema",1},{"asset",assembly.text()},{"entities",{{StableId{0,1}.text(),entity}}}};

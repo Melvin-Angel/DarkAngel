@@ -17,11 +17,15 @@ public:
     virtual ~Transport()=default;
     virtual ConnectionHandle open(const SessionHandshake&)=0;
     virtual bool connected() const=0;
+    virtual bool valid(ConnectionHandle) const=0;
     virtual TransportLimits limits() const=0;
     virtual bool send(ConnectionHandle,Delivery,std::span<const std::byte>)=0;
     virtual std::vector<TransportMessage> poll(std::size_t max_packets)=0;
     virtual void disconnect(ConnectionHandle)=0;
 };
 struct LoopbackPair {std::unique_ptr<Transport> host,client;};
+// One process-wide namespace across every provider; foreign handles never
+// alias merely because two adapters started their private counters at one.
+std::uint64_t allocate_transport_identity();
 LoopbackPair create_loopback(SessionHandshake expected,TransportLimits={});
 }

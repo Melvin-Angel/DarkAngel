@@ -1,0 +1,12 @@
+[1/12] Scanning C:\DarkAngel\tests\eos_tests.cpp for CXX dependencies
+[2/12] Generating CXX dyndep file CMakeFiles\EosTests.dir\CXX.dd
+[3/12] Scanning C:\DarkAngel\engine\runtime\eos_session.cpp for CXX dependencies
+[4/12] Generating CXX dyndep file CMakeFiles\DarkAngelOnline.dir\CXX.dd
+[5/12] Scanning C:\DarkAngel\apps\headless\online_probe.cpp for CXX dependencies
+[6/12] Generating CXX dyndep file CMakeFiles\OnlineProbe.dir\CXX.dd
+[7/12] Building CXX object CMakeFiles\EosTests.dir\tests\eos_tests.cpp.obj
+[8/12] Building CXX object CMakeFiles\DarkAngelOnline.dir\engine\runtime\eos_session.cpp.obj
+[9/12] Linking CXX static library DarkAngelOnline.lib
+[10/12] Linking CXX executable EosTests.exe
+[11/12] Building CXX object CMakeFiles\OnlineProbe.dir\apps\headless\online_probe.cpp.obj
+[12/12] Linking CXX executable OnlineProbe.exe

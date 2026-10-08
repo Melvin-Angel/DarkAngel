@@ -1,0 +1,30 @@
+[
+  {
+    "gate": "build",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+      "--build",
+      "C:\\DarkAngel\\build\\m1-debug",
+      "--target",
+      "EosTests",
+      "OnlineProbe"
+    ],
+    "exit_code": 0,
+    "seconds": 4.348,
+    "log": "docs/implementation/evidence/m3-eos-build.log"
+  },
+  {
+    "gate": "test",
+    "command": [
+      "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+      "--test-dir",
+      "C:\\DarkAngel\\build\\m1-debug",
+      "-R",
+      "^M3.eos",
+      "--output-on-failure"
+    ],
+    "exit_code": 0,
+    "seconds": 0.146,
+    "log": "docs/implementation/evidence/m3-eos-test.log"
+  }
+]

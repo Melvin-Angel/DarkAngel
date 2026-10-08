@@ -22,6 +22,8 @@
         "BUILD_TESTING": true,
         "DAE_AUTHORING": false,
         "DAE_AGENT_ENDPOINTS": false,
+        "DAE_NETWORK_GNS": false,
+        "DAE_NETWORK_EOS": false,
         "DAE_SHIPPING": false
       }
     },
@@ -92,6 +94,7 @@
         "VCPKG_MANIFEST_FEATURES": "m1;m2",
         "DAE_ASSETS": true,
         "DAE_AUTHORING": true,
+        "DAE_AGENT_ENDPOINTS": true,
         "DAE_RENDERER_SPIKE": true,
         "CMAKE_POLICY_VERSION_MINIMUM": "3.10"
       }

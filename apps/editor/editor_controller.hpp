@@ -2,6 +2,8 @@
 #include <darkangel/editor_document.hpp>
 #include <darkangel/assets.hpp>
 namespace darkangel::editor_app {
+enum class ConsoleSeverity {Info,Warning,Error};
+struct ConsoleEntry {std::string message;ConsoleSeverity severity;};
 class Controller {
 public:
     explicit Controller(AssetId model,double radius=1);
@@ -13,10 +15,10 @@ public:
     World& displayed();
     std::unique_ptr<EditorDocument> document;
     SceneSession preview{WorldDomain::Preview};
-    StableId selected;bool paused{};std::vector<std::string> console;
+    StableId selected;bool paused{};std::vector<ConsoleEntry> console;
     std::filesystem::path path{L".cache/editor/TestScene.dascene"};
     AssetId model;
     double radius;
-    void log(std::string message);
+    void log(std::string message,ConsoleSeverity=ConsoleSeverity::Info);
 };
 }

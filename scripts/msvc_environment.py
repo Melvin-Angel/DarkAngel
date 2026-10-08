@@ -23,7 +23,8 @@ def activate():
             if key.upper() in allowed:env[key.upper()]=value
     if env.get('VCTOOLSVERSION','').strip()!=pins['msvc_toolset']:raise RuntimeError('Selected MSVC toolset differs from pin')
     if env.get('WINDOWSSDKVERSION','').strip('\\ /')!=pins['windows_sdk']:raise RuntimeError('Selected Windows SDK differs from pin')
-    env['PATH']=str(ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin')+';'+str(ROOT/'.tools/ninja')+';'+env.get('PATH','')
+    tools=[ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin',ROOT/'.tools/ninja',ROOT/'.tools/perl/perl/bin',ROOT/'.tools/nasm/nasm-3.01']
+    env['PATH']=';'.join(str(path) for path in tools)+';'+env.get('PATH','')
     env['VCPKG_MAX_CONCURRENCY']='2'
     return env
 

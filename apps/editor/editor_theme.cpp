@@ -26,4 +26,5 @@ void initialize_theme(float scale){
 }
 bool icon_button(Icon icon,const char* label,const char* tooltip){auto position=ImGui::GetCursorScreenPos();std::string text=icons?std::string("     ")+label:label;auto pressed=ImGui::Button(text.c_str());if(icons)draw_icon(icon,{position.x+ImGui::GetStyle().FramePadding.x,position.y+ImGui::GetStyle().FramePadding.y},ImGui::GetStyleColorVec4(ImGuiCol_Text));if(tooltip && ImGui::IsItemHovered())ImGui::SetTooltip("%s",tooltip);return pressed;}
 void icon_text(Icon icon,const char* label){if(icons){auto position=ImGui::GetCursorScreenPos();draw_icon(icon,position,ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));ImGui::Dummy({ImGui::GetFontSize(),ImGui::GetFontSize()});ImGui::SameLine();}ImGui::TextUnformatted(label);}
+bool icon_selectable(Icon icon,const char* label,bool selected){auto pos=ImGui::GetCursorScreenPos();std::string text=icons?std::string("     ")+label:label;auto result=ImGui::Selectable(text.c_str(),selected);if(icons)draw_icon(icon,pos,ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));return result;}
 }
