@@ -2,7 +2,7 @@
 
 Updated 8 October 2026 in C:\DarkAngel. Work is authorized autonomously through Loopback/GNS. Preserve local work, commit coherent checkpoints and never push; there is no remote. Do not upgrade pins. M3 live EOS remains Blocked on private deployment/policy and two identities. MCP SDK1.32.1 remains the tested 2025-11-25 compatibility profile. M4/M5 are In progress; start M6 only after their required gates pass.
 
-The original requested checkpoints a447242/4175978 are in history. This continuation began at clean 9c22c46. Current verified source checkpoint precedes the pose-composition commit at f6770ae; obtain the exact final HEAD with `git log -5 --oneline` and `git status --short`. No other user's changes were overwritten.
+The original requested checkpoints a447242/4175978 are in history. This continuation began at clean 9c22c46. Latest implemented/verified source checkpoint is **2d1d0d7** (pose composition), after f6770ae (control readiness). A documentation-only usage checkpoint follows; obtain exact HEAD with `git log -5 --oneline` and `git status --short`. No other user's changes were overwritten.
 
 Coherent checkpoints:
 - ed81b83: initial M4 gates, committed before M5 began.
@@ -16,7 +16,7 @@ Coherent checkpoints:
 - 05185db/58962cc: atomic WorldSession collision streams, network-fed isolated owner reconciliation and distinct observer presentation.
 - 90583f4/93b7d88/0169f74: fragment timeout/prepared ACK, local CPU/C++/Jolt allocation measurements and full-axis platform profile.
 - f6770ae: wire envelope2 and prepared current-topology client/server control fence.
-- Final pose checkpoint: four regular/masked Ozz layers, reusable independent contexts/buffers and uncompressed glTF reference checks; use git log for its hash.
+- 2d1d0d7: four regular/masked Ozz layers, reusable independent contexts/buffers and uncompressed glTF reference checks; source commit is recorded above.
 
 Latest acceptance: **41/41** optimized native tests; separate GNS host/client executes 90 owner commands at x=7.125 and verifies character/dynamic-crate state plus native-prepared collision ACK tick90. Pose-focused build-without-animation checks pass3/3; prior collision/readiness gates pass4/4. These are scoped receipts, not full milestone verification. The GNS fixture is paced at40ms wall time per fixed step and is not a realtime performance proof.
 
@@ -44,4 +44,6 @@ Evidence is under docs/implementation/evidence, retaining earlier M3/initial rec
 
 Read-only external source: C:\Unity Projects\AshenRootsMP\Assets\thirdparty\3D\Blink. Human source: Art\Characters\LowPoly\FREE_HumanLowPoly\Meshes_Humans\HumanMale_Character.fbx, SHA2560c99d39d08d123a1114c6cf2e19d3e089f14501bea887250fea6748374d2122f. Animation source: Art\Animations\Animations_Starter_Pack. The user also suggested Unity Games/Custom Characters/Bink; inspect actual paths before use. Installed Blender4.5.1LTS at C:\Program Files\Blender Foundation\Blender 4.5\blender.exe. Existing bpy scripts convert into ignored owned .cache/fixtures; never modify originals. Walk content was not found in the inspected starter pack.
 
-Last usage check: five-hour90percent used, weekly36percent; no reset credit consumed. Read fresh usage with get_usage_limits before starting a large increment. Preserve exact commits, completed work and next commands before any limit interruption; do not consume reset credits without explicit per-use human confirmation.
+Last usage check: five-hour97percent used, weekly37percent; no reset credit consumed. Read fresh usage with get_usage_limits before starting a large increment. Preserve exact commits, completed work and next commands before any limit interruption; do not consume reset credits without explicit per-use human confirmation.
+
+Limit handoff: all implementation and acceptance work is committed; tree checked clean at2d1d0d7 and the Ozz vendor tree remains clean at744eb9d99f606eda849acb0b1204f7a3dc20bca1. There is no remote. The following commit changes continuation documentation only. No implementation process remains running. Resume by reading this file, STATUS.md and M4/M5 reports, checking fresh usage/git status, then implementing the remaining gates listed above. Do not begin M6 or mark M4/M5 Verified on the strength of41/41 alone.
