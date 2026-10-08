@@ -55,6 +55,22 @@ Identity, authority, ownership, content generations and bounded work are foundat
 
 These milestones order implementation rather than delaying all validation until M9. Each adapter gets its focused acceptance spike before production systems rely on it. Four-player stress and poor-connection tests begin as soon as the relevant session/combat code exists. Terrain, UI, audio and VFX features expand only after their minimal working path is proven.
 
+## Ashen Roots editor workflow workstream
+
+Added 8 October 2026 from the user's product direction. The editor is tailored to third-person co-op action authoring. Top-level workflow tabs change the main layout, with Scene / Level Design as the default and embedded panels preferred over floating windows. A shared typed import dialog routes owned sources into category folders; a shared visual asset picker provides thumbnails, rotating 3D previews, search, asset tags, type tabs and compatible single/multi-selection.
+
+The detailed roadmap, proposed folder policy, workflow scope, acceptance gates and implementation sequence are in [Editor workflow plan](../implementation/EDITOR_WORKFLOW_PLAN.md). This adds planned authoring work alongside the existing runtime gates; it does not change their evidence/status or replace the locked decisions.
+
+| Milestone | Planned editor delivery |
+|---|---|
+| M4/M5 | Workspace blueprint/tab shell, supported typed import, shared browser/picker and Scene foundation; M5 Character, Ability, Animation Composer, Projectile/AOE and agreed Item core |
+| M6 | Level placement, mesh-first terrain/floating-island sculpting and surface painting, spline/scatter/procedural tools; NPC behavior/profile and agreed dialog/loot links |
+| M7 | VFX workflow, integrated audio authoring/preview/import and real Composer effect/event bindings |
+| M8 | Save inspection, checkpoint/reset authoring and persistent character/item/world state inspection |
+| M9 | End-to-end authoring usability and clean tools-package qualification alongside game release gates |
+
+Broader Texture / Material painting is a later proposal requiring design; required terrain material/biome painting belongs to M6. Exact layouts and Item/dialog/loot schema details remain to be designed. Existing M4/M5 completion and M3 live EOS gates remain explicit.
+
 ## Dependency acquisition and integration
 
 Prompt 001 carries the full acquisition inventory. Use one vcpkg manifest graph with milestone features and approved source/SDK exceptions. Pre-download the selected graph; build the bootstrap subset first. Record transitive package versions, features, patches, licenses and bundled providers. Never acquire a dependency twice as independent runtime implementations.

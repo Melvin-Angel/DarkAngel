@@ -1,5 +1,7 @@
 # Implementation status
 
+Editor product direction captured 8 October 2026: [Ashen Roots editor workflow plan](EDITOR_WORKFLOW_PLAN.md) adds workflow tabs, typed import with automatic project-folder routing, a shared visual asset picker and subsystem authoring across M4/M5-M9. This workstream is Planned; the current native editor foundation and Royal movement are implemented, but the new import/picker/workspace workflows are not delivered. Existing milestone statuses and receipts below are unchanged.
+
 M0 is **Verified** on native Windows x64. No M0 blocker remains. Full evidence, exact pins and limitations are in [M0 report](M0_REPORT.md), [dependency inventory](dependencies.json) and [verification receipts](evidence/verification.json).
 
 | Milestone | Status | Evidence / remaining gate |

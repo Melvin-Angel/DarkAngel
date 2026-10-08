@@ -1,5 +1,7 @@
 Latest handoff: read ROYAL_CONTINUE.md first. Implementation checkpoint116c10f; native Royal viewport locomotion is available, real ability/attack remains incomplete.
 
+Editor roadmap update 8 October 2026: read [EDITOR_WORKFLOW_PLAN.md](EDITOR_WORKFLOW_PLAN.md) for the user's workflow-tab layout direction, typed import/category routing, shared visual asset picker and Character/Ability/Composer/Projectile-AOE/Item/Scene/VFX authoring plan across M4/M5-M9. Broader texture painting remains a later proposal. This is documentation of planned work, not delivery evidence or a change to existing milestone gates.
+
 # Development continuation
 
 Updated 8 October 2026 in C:\DarkAngel. Work is authorized autonomously through Loopback/GNS. Preserve local work, commit coherent checkpoints and never push; there is no remote. Do not upgrade pins. M3 live EOS remains Blocked on private deployment/policy and two identities. MCP SDK1.32.1 remains the tested 2025-11-25 compatibility profile. M4/M5 are In progress; start M6 only after their required gates pass.
