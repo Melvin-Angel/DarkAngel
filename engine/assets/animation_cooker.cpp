@@ -316,8 +316,10 @@ namespace darkangel::assets_detail {
                 rig.id,skin_id
             }
         });
+        auto skin_bytes=skin_product.dump();
+        json(skin_bytes,16*1024*1024); // Apply the runtime decode work budget before publishing a generation.
         out.products.push_back({
-            skin_id,"skin-binding","skin.json",skin_product.dump(),{
+            skin_id,"skin-binding","skin.json",std::move(skin_bytes),{
                 rig.id
             }
         });

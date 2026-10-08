@@ -721,45 +721,33 @@ joltphysics provides CMake targets:
   find_package(Jolt CONFIG REQUIRED)
   target_link_libraries(main PRIVATE Jolt::Jolt)
 
-All requested installations completed successfully in: 448 us
+All requested installations completed successfully in: 511 us
 -- Running vcpkg install - done
--- Configuring done (4.3s)
+-- Configuring done (4.1s)
 -- Generating done (0.1s)
 -- Build files have been written to: C:/DarkAngel/build/m4-relwithdebinfo
-[1/51] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
-[2/51] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
-[3/51] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[4/47] Scanning C:\DarkAngel\engine\runtime\animation_source.cpp for CXX dependencies
-[5/47] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[6/40] Scanning C:\DarkAngel\tools\editor\editor_document.cpp for CXX dependencies
-[7/40] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
-[8/40] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
-[9/40] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
-[10/40] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
-[11/40] Linking CXX static library DarkAngelFoundation.lib
-[12/40] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
-[13/40] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
-[14/40] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
-[15/38] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
-[16/37] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[17/37] Scanning C:\DarkAngel\tests\collision_asset_tests.cpp for CXX dependencies
-[18/37] Scanning C:\DarkAngel\tests\asset_tests.cpp for CXX dependencies
-[19/37] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\animation_source.cpp.obj
-[20/37] Linking CXX static library DarkAngelRuntime.lib
-[21/37] Building CXX object CMakeFiles\DarkAngelEditorService.dir\tools\editor\editor_document.cpp.obj
-[22/37] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
-[23/37] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[1/46] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[2/36] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[3/36] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[4/32] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[5/32] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[6/32] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[7/32] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[8/32] Linking CXX static library DarkAngelFoundation.lib
+[9/32] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[10/30] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[11/27] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[12/26] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[13/25] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[14/25] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[15/24] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[16/24] Linking CXX executable EditorTests.exe
+[17/24] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[18/24] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
 C:\DarkAngel\engine\assets\asset_service.cpp(81): warning C4100: 'canonical': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(81): warning C4100: 'relative': unreferenced parameter
-[24/37] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
-[25/37] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
-[26/37] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
-[27/37] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
-[28/36] Linking CXX static library DarkAngelEditorService.lib
-[29/36] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
-[30/36] Linking CXX static library DarkAngelAssets.lib
-[31/36] Building CXX object CMakeFiles\CollisionAssetTests.dir\tests\collision_asset_tests.cpp.obj
-[32/36] Linking CXX executable CollisionAssetTests.exe
-[33/36] Linking CXX executable EditorTests.exe
-[34/36] Building CXX object CMakeFiles\AssetTests.dir\tests\asset_tests.cpp.obj
-[35/36] Linking CXX executable AssetTests.exe
+[19/24] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[20/24] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[21/24] Linking CXX static library DarkAngelAssets.lib
+[22/24] Linking CXX executable AssetTests.exe
+[23/24] Linking CXX executable CollisionAssetTests.exe

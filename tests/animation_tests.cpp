@@ -76,6 +76,21 @@ int main(){
                     for(unsigned axis=0;axis<3;++axis)result[axis]+=posed[axis]*vertex.at("weights")[influence].get<float>();
                 }for(unsigned axis=0;axis<3;++axis)require(std::abs(result[axis]-expected[axis])<.0005,"Ozz CPU reference bind-pose skinning error");
             }
+            // Duplicate the real bound mesh in an owned temporary GLB. Its source
+            // size remains legal, but its cooked skin exceeds the decoder work cap.
+            auto glb=read(source/"human.glb");
+            auto u32=[](std::string_view bytes,std::size_t offset){unsigned value{};for(unsigned i=0;i<4;++i)value|=static_cast<unsigned char>(bytes[offset+i])<<(8*i);return value;};
+            auto json_size=u32(glb,12);auto gltf=Json::parse(glb.substr(20,json_size));
+            std::size_t mesh_node{};for(std::size_t i=0;i<gltf["nodes"].size();++i)if(gltf["nodes"][i].contains("mesh")){mesh_node=i;break;}
+            for(unsigned i=0;i<16;++i)gltf["nodes"].push_back(gltf["nodes"][mesh_node]);
+            auto json_bytes=gltf.dump();while(json_bytes.size()%4)json_bytes+=' ';
+            std::string oversized="glTF";auto append=[&](unsigned value){for(unsigned i=0;i<4;++i)oversized+=static_cast<char>(value>>(8*i));};
+            append(2);append(static_cast<unsigned>(20+json_bytes.size()+glb.size()-20-json_size));append(static_cast<unsigned>(json_bytes.size()));append(0x4e4f534a);oversized+=json_bytes;oversized+=glb.substr(20+json_size);
+            {std::ofstream out(source/"human.glb",std::ios::binary);out.write(oversized.data(),oversized.size());}
+            bool work_rejected=false;try{assets.cook("human.glb");}catch(const std::exception& e){work_rejected=std::string(e.what()).find("work limit")!=std::string::npos;}
+            require(work_rejected,"Oversized cooked skin rejected before publication");
+            assets.package(id,output/"registry.json");require(load_cooked_human_binding(output/"registry.json",assets.cas_path(),id)==binding,"Cooked work overflow preserves prior coherent generation");
+            {std::ofstream out(source/"human.glb",std::ios::binary);out.write(glb.data(),glb.size());}
             auto bad=Json::parse(original);
             bad["joints"][0]["translation"][1]=5;
             std::ofstream(source/"human.daskeleton")<<bad.dump();

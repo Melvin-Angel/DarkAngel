@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "base_head": "ed81b833d93c708b5efc999cb2e037e3a5f0c473",
+  "base_head": "5ff194f5996fb4fc189341f73aa081cff2ce6290",
   "scope": "First M5 canonical-human rig, skin binding and Ozz rest-pose increment; complete animation/combat/UI acceptance remains open",
   "ozz": "744eb9d99f606eda849acb0b1204f7a3dc20bca1",
   "online": "M3 EOS live acceptance remains blocked; Loopback/GNS explicitly authorized",
@@ -16,7 +16,7 @@
       ],
       "exit_code": 0,
       "passed": true,
-      "seconds": 73.032,
+      "seconds": 3.368,
       "log": "docs/implementation/evidence/m5-build.log"
     },
     {
@@ -26,7 +26,7 @@
       ],
       "exit_code": 0,
       "passed": true,
-      "seconds": 0.474,
+      "seconds": 0.772,
       "log": "docs/implementation/evidence/m5-rig.log"
     },
     {
@@ -39,7 +39,7 @@
       ],
       "exit_code": 0,
       "passed": true,
-      "seconds": 5.122,
+      "seconds": 2.832,
       "log": "docs/implementation/evidence/m5-ctest.log"
     },
     {
@@ -50,7 +50,7 @@
       ],
       "exit_code": 0,
       "passed": true,
-      "seconds": 3.971,
+      "seconds": 3.967,
       "log": "docs/implementation/evidence/m5-gns-client.log"
     },
     {
@@ -68,7 +68,7 @@
       ],
       "exit_code": 0,
       "passed": true,
-      "seconds": 35.346,
+      "seconds": 17.875,
       "log": "docs/implementation/evidence/m5-no-animation-build.log"
     },
     {
@@ -83,7 +83,7 @@
       ],
       "exit_code": 0,
       "passed": true,
-      "seconds": 0.443,
+      "seconds": 0.475,
       "log": "docs/implementation/evidence/m5-no-animation-regression.log"
     }
   ],
@@ -505,7 +505,7 @@
     "nodes": 83
   },
   "source_sha256": {
-    "engine/assets/animation_cooker.cpp": "2c758056ffe84bff7513d122cfbae09a78186ce3e924f64ae6d471ac2d7f532b",
+    "engine/assets/animation_cooker.cpp": "b10979c582641a71a250f2071bc26c12f375ebd163907ddf336fe9b71fba8106",
     "engine/assets/assets_common.cpp": "570c7ae40596d04a35566d594bedd8d5c9ce6fb7c58c85b71be70afccd9fcb45",
     "engine/assets/assets_internal.hpp": "95cee6977ef0e12b3357e4afa79eaaa58b970aeedb537d8f4bc8798a83f9a1b9",
     "engine/assets/asset_service.cpp": "6c776b0c1e11df6826d58d1a975ccbc521f5c3583998135a5c5a5775eed794b8",
@@ -549,7 +549,7 @@
     "engine/assets/include/darkangel/animation_assets.hpp": "67f43d65ed4c9e745c9251246701a9497ca393e1958fb02e1fa73183bc6ef78f",
     "engine/assets/include/darkangel/assets.hpp": "2684f59a50fa4afcb5feb16dde00721535c167e92b96347620fc44cc866f8c0b",
     "tests/agent_tests.cpp": "3da4007a52086356343e42c20eac1afbca17e7717fc8db13068b3c3b024e4b7c",
-    "tests/animation_tests.cpp": "1abb1420cade7231bbd902c4c1857f20da082c82cfe6fdd81ca313f31b0235de",
+    "tests/animation_tests.cpp": "94be83f65c946b9a9dbe44ef96bbcbcd8a176e72f60514b8af1740b2af644887",
     "tests/assembly_tests.cpp": "77d1b47f4df140b67af56e5c9eca7413007ef696e3381f142ed7faf608dbd45e",
     "tests/asset_tests.cpp": "75dee3d1c25aa76c59d4fa459619e08613c6043dc57e9e7f87dab67f4a6b3257",
     "tests/collision_asset_tests.cpp": "df6f4bb9d9972ea51c0b0f18410518d5a595d58d1546e4d2f441681b609643b7",
@@ -582,8 +582,8 @@
     "scripts/convert_human_fixture.py": "e84144521060064db8389e9a9bbd39678b8fa1278410ae62d68355fcdaa816f9"
   },
   "binary_sha256": {
-    "AnimationTests.exe": "d1cd7eaada4fa827e3ac84ee77277e0b38c7652dfdf29b03d54548dde6efa1ac",
-    "MotorSessionTests.exe": "1e4beed47007bc5f520e2bffd2fae49be1f01cbf3d60fa515f2ad6aaf0fbfe85",
-    "AssetTool.exe": "07414f42e9d67d6b050965ce6eebe78540093876e4e274e8774d0b642fb2a22b"
+    "AnimationTests.exe": "8b359faa6e61e37a282d9828b91df305843b3b1c163b56dff50b95019b34a742",
+    "MotorSessionTests.exe": "6d8316d916888d5a3c426b80c415195c7a34c3be8db2ca6d51c0b595213a6173",
+    "AssetTool.exe": "83c1645487d47103d31b8a0de66faa85c8c598c2ea522b8441c54f4866e3c8e8"
   }
 }
