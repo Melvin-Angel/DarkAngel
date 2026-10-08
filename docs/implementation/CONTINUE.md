@@ -10,7 +10,7 @@ The canonical asset is content/animation/canonical_human.daskeleton. It is deriv
 
 Next required implementation:
 1. M4 character proxy history now passes four moving/stance traces, explicit owner exclusion, isolated OwnerPrediction reconciliation, epoch/missing/ambiguous/removal rejection and peer spawn/teleport clearance. Integrated 32/32 and independent GNS pass; evidence/m4-actors.json. Continue broader query/body/dynamic proxy history, triangle-mesh cook/filter/material/subshape/sensor/dynamic contact gates and measured input-clock/streaming qualification. Retained peer trajectories are authoritative proxies, not coupled rigid-body rollback.
-2. M5 clip importer/offline normalization for real idle/walk/run/root attack, independent stripped-root Ozz poses and fixed-tick root tracks, canonical compatibility and compression checks. Generic native skeletons exist, but unique nonhuman skin/clip validation remains unverified.
+2. M5 real idle/run/attack/dodge FBX-to-canonical bpy conversion, bounded LINEAR clip cook/Ozz sampling, stripped root tracks, rotating/fractional loop accumulation and frozen generation checks now pass. Integrated 33/33, independent GNS and build-without-animation 3/3: evidence/m5-clips.json. Conversion needs explicit offline rest normalization and eight facial rest joints (source FBXs differ); visual motion quality remains open. Walk content is absent in the inspected starter pack. Continue graph/action integration, offline optimization, GPU/visual qualification and unique nonhuman skin/clip validation.
 3. Native Animation Graph/Action Composer, tick poses/sockets, bounded hit intervals/root motion and motor-achieved feedback; then native atomic abilities/effects/tags, authority/receipts/prediction/ghost/projectile/late-join contracts and RmlUi runtime health UI. Follow full DAE-007/008/009/010/011/013 gates; the summary is not exhaustive.
 4. Extend the existing AssetService and EditorDocument (including native source validation/history) for supported authoring. Preserve native theme and editing/Play/undo/save behavior. No parallel networking runtime or asset/authoring authority.
 
@@ -18,6 +18,8 @@ Commands:
 - python scripts/verify_m5.py --skip-configure: integrated native build/rig/suite, GNS processes and affected build-without-animation checks. Omitting the flag configures m5-relwithdebinfo first.
 - python scripts/verify_m4.py: initial M4 acceptance; historical receipt belongs to ed81b83's source hashes.
 - python scripts/verify_actor_history.py: current integrated actor-history extension, 32 tests and independent GNS, separate receipt.
+- python scripts/verify_clips.py --convert: read-only bpy conversion of four FBXs, current 33-test integration, GNS and three affected build-without-animation checks; separate clip receipt.
+- AssetTool adopt-clip SOURCE CACHE relative.glb canonical.daskeleton [loop]: bounded normalized external clip adoption; no second runtime or dependency upgrade.
 - build\m5-relwithdebinfo\AssetTool.exe adopt-human SOURCE CACHE relative.glb canonical.daskeleton: explicit external human adoption; native skeleton UUIDs are embedded, never regenerated. Cook/package use the existing CLI.
 - Regenerate the local fixture only if needed: "C:\Program Files\Blender Foundation\Blender 4.5\blender.exe" --background --factory-startup --python scripts/convert_human_fixture.py -- "C:\Unity Projects\AshenRootsMP\Assets\thirdparty\3D\Blink\Art\Characters\LowPoly\FREE_HumanLowPoly\Meshes_Humans\HumanMale_Character.fbx" .cache/fixtures/canonical-human.glb
 

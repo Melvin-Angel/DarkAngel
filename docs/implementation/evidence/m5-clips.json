@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "base_head": "b8ed803b2c359d84b3aaecbd3b5ad961d1be926f",
+  "scope": "Canonical clip/Ozz/root-track foundation; full M4/M5 gates remain open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "gates": [
+    {
+      "gate": "convert-idle",
+      "command": [
+        "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+        "--background",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--python",
+        "scripts/convert_animation_fixture.py",
+        "--",
+        "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\Idle.fbx",
+        "content/animation/canonical_human.daskeleton",
+        ".cache/fixtures/idle.glb",
+        "--normalize-rest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.401,
+      "log": "docs/implementation/evidence/m5-clips-convert-idle.log"
+    },
+    {
+      "gate": "convert-run",
+      "command": [
+        "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+        "--background",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--python",
+        "scripts/convert_animation_fixture.py",
+        "--",
+        "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RunForward.fbx",
+        "content/animation/canonical_human.daskeleton",
+        ".cache/fixtures/run.glb",
+        "--normalize-rest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.307,
+      "log": "docs/implementation/evidence/m5-clips-convert-run.log"
+    },
+    {
+      "gate": "convert-attack",
+      "command": [
+        "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+        "--background",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--python",
+        "scripts/convert_animation_fixture.py",
+        "--",
+        "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Combat\\MeleeAttack_OneHanded.fbx",
+        "content/animation/canonical_human.daskeleton",
+        ".cache/fixtures/attack.glb",
+        "--normalize-rest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.267,
+      "log": "docs/implementation/evidence/m5-clips-convert-attack.log"
+    },
+    {
+      "gate": "convert-dodge",
+      "command": [
+        "C:\\Program Files\\Blender Foundation\\Blender 4.5\\blender.exe",
+        "--background",
+        "--factory-startup",
+        "--python-exit-code",
+        "1",
+        "--python",
+        "scripts/convert_animation_fixture.py",
+        "--",
+        "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RollForward.fbx",
+        "content/animation/canonical_human.daskeleton",
+        ".cache/fixtures/dodge.glb",
+        "--normalize-rest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.396,
+      "log": "docs/implementation/evidence/m5-clips-convert-dodge.log"
+    },
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 24.219,
+      "log": "docs/implementation/evidence/m5-clips-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\AnimationClipTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.968,
+      "log": "docs/implementation/evidence/m5-clips-focused.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 3.511,
+      "log": "docs/implementation/evidence/m5-clips-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 3.966,
+      "log": "docs/implementation/evidence/m5-clips-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 18.088,
+      "log": "docs/implementation/evidence/m5-clips-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.419,
+      "log": "docs/implementation/evidence/m5-clips-no-animation-regression.log"
+    }
+  ],
+  "fixtures": {
+    "idle": {
+      "blender": "4.5.1 LTS",
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\Idle.fbx",
+      "source_sha256": "8e97c9ebb3a2c9e7ff4df9241e4b454187ca605156ade551273fa47fa2a64028",
+      "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+      "glb_sha256": "75d1457e08f9dc36d05054cbce3003a5de94cf99fd6e3fb8684b4b7bc8c7907d",
+      "action": "Armature|human_male_idle_01|BaseLayer",
+      "reference": "Armature|tpose|BaseLayer",
+      "source_fps": 30.0,
+      "source_frames": [
+        3.0,
+        55.0
+      ],
+      "ticks": 104,
+      "joints": 81,
+      "omitted_helpers": [
+        "jnt_eyelidDOWNEnd_L",
+        "jnt_eyelidDOWNEnd_R",
+        "jnt_eyelidDOWN_L",
+        "jnt_eyelidDOWN_R",
+        "jnt_eyelidUPEnd_L",
+        "jnt_eyelidUPEnd_R",
+        "jnt_eyelidUP_L",
+        "jnt_eyelidUP_R",
+        "jnt_shoulderEnd_L",
+        "jnt_shoulderEnd_R",
+        "jnt_shoulder_L",
+        "jnt_shoulder_R"
+      ],
+      "rest_only_face_joints": [
+        "jnt_eyeBrow_L",
+        "jnt_eyeBrow_LEnd_L",
+        "jnt_eyeBrow_R",
+        "jnt_eyeBrowEnd_R",
+        "jnt_eyelid_L",
+        "jnt_eyelid_LEnd_L",
+        "jnt_eyelid_R",
+        "jnt_eyelidEnd_R"
+      ],
+      "normalized_rest": true,
+      "max_rest_basis_matrix_difference": 0.4444817453622818,
+      "max_rest_length_difference_metres": 0.07756632826040766,
+      "profile": "Mapped canonical hierarchy validated; explicit offline authored-tpose rest normalization and missing brow/eyelid rest fill; rigid metre/Y-up transforms sampled at 60 Hz; no runtime retarget; visual motion quality still requires acceptance"
+    },
+    "run": {
+      "blender": "4.5.1 LTS",
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RunForward.fbx",
+      "source_sha256": "76309e8c7bc688b987574c41a404270ba105795ee5b7e16c70d10150584f198e",
+      "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+      "glb_sha256": "debcd1e2390e406b1389811528f5ae914570ef3ae4d42f4a8c8ccb46eec32dc2",
+      "action": "Armature|human_male_run_01|BaseLayer",
+      "reference": "Armature|tpose|BaseLayer",
+      "source_fps": 60.0,
+      "source_frames": [
+        3.0,
+        43.0
+      ],
+      "ticks": 40,
+      "joints": 81,
+      "omitted_helpers": [
+        "jnt_eyelidDOWNEnd_L",
+        "jnt_eyelidDOWNEnd_R",
+        "jnt_eyelidDOWN_L",
+        "jnt_eyelidDOWN_R",
+        "jnt_eyelidUPEnd_L",
+        "jnt_eyelidUPEnd_R",
+        "jnt_eyelidUP_L",
+        "jnt_eyelidUP_R",
+        "jnt_shoulderEnd_L",
+        "jnt_shoulderEnd_R",
+        "jnt_shoulder_L",
+        "jnt_shoulder_R"
+      ],
+      "rest_only_face_joints": [
+        "jnt_eyeBrow_L",
+        "jnt_eyeBrow_LEnd_L",
+        "jnt_eyeBrow_R",
+        "jnt_eyeBrowEnd_R",
+        "jnt_eyelid_L",
+        "jnt_eyelid_LEnd_L",
+        "jnt_eyelid_R",
+        "jnt_eyelidEnd_R"
+      ],
+      "normalized_rest": true,
+      "max_rest_basis_matrix_difference": 0.4444802328944206,
+      "max_rest_length_difference_metres": 0.07756651295440398,
+      "profile": "Mapped canonical hierarchy validated; explicit offline authored-tpose rest normalization and missing brow/eyelid rest fill; rigid metre/Y-up transforms sampled at 60 Hz; no runtime retarget; visual motion quality still requires acceptance"
+    },
+    "attack": {
+      "blender": "4.5.1 LTS",
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Combat\\MeleeAttack_OneHanded.fbx",
+      "source_sha256": "7b89dae8d5778d0c2249e889084aacaf6b5e0a46b9d260a9132c0160ab23dcc5",
+      "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+      "glb_sha256": "1406807cb14cb3e3ddb9ff4aa819b8cc45f1462c827fa1886232f86317199648",
+      "action": "Armature|hum_male_meleeattack_1H_Weapon_01|BaseLayer",
+      "reference": "Armature|tpose|BaseLayer",
+      "source_fps": 60.0,
+      "source_frames": [
+        3.0,
+        55.0
+      ],
+      "ticks": 52,
+      "joints": 81,
+      "omitted_helpers": [
+        "jnt_eyelidDOWNEnd_L",
+        "jnt_eyelidDOWNEnd_R",
+        "jnt_eyelidDOWN_L",
+        "jnt_eyelidDOWN_R",
+        "jnt_eyelidUPEnd_L",
+        "jnt_eyelidUPEnd_R",
+        "jnt_eyelidUP_L",
+        "jnt_eyelidUP_R",
+        "jnt_shoulderEnd_L",
+        "jnt_shoulderEnd_R",
+        "jnt_shoulder_L",
+        "jnt_shoulder_R"
+      ],
+      "rest_only_face_joints": [
+        "jnt_eyeBrow_L",
+        "jnt_eyeBrow_LEnd_L",
+        "jnt_eyeBrow_R",
+        "jnt_eyeBrowEnd_R",
+        "jnt_eyelid_L",
+        "jnt_eyelid_LEnd_L",
+        "jnt_eyelid_R",
+        "jnt_eyelidEnd_R"
+      ],
+      "normalized_rest": true,
+      "max_rest_basis_matrix_difference": 0.4444802924990654,
+      "max_rest_length_difference_metres": 0.0775665129543942,
+      "profile": "Mapped canonical hierarchy validated; explicit offline authored-tpose rest normalization and missing brow/eyelid rest fill; rigid metre/Y-up transforms sampled at 60 Hz; no runtime retarget; visual motion quality still requires acceptance"
+    },
+    "dodge": {
+      "blender": "4.5.1 LTS",
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RollForward.fbx",
+      "source_sha256": "8e7489970057f2f6b99de1bc5546a815f14fd33835d8097dd6b133405f123a55",
+      "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+      "glb_sha256": "9568c29d0bddeb8d008506ad75551700805c949aced42a33ca8840ca09e2fd12",
+      "action": "Armature|human_male_roll_01|BaseLayer",
+      "reference": "Armature|tpose|BaseLayer",
+      "source_fps": 30.0,
+      "source_frames": [
+        3.0,
+        49.0
+      ],
+      "ticks": 92,
+      "joints": 81,
+      "omitted_helpers": [
+        "jnt_eyelidDOWNEnd_L",
+        "jnt_eyelidDOWNEnd_R",
+        "jnt_eyelidDOWN_L",
+        "jnt_eyelidDOWN_R",
+        "jnt_eyelidUPEnd_L",
+        "jnt_eyelidUPEnd_R",
+        "jnt_eyelidUP_L",
+        "jnt_eyelidUP_R",
+        "jnt_shoulderEnd_L",
+        "jnt_shoulderEnd_R",
+        "jnt_shoulder_L",
+        "jnt_shoulder_R"
+      ],
+      "rest_only_face_joints": [
+        "jnt_eyeBrow_L",
+        "jnt_eyeBrow_LEnd_L",
+        "jnt_eyeBrow_R",
+        "jnt_eyeBrowEnd_R",
+        "jnt_eyelid_L",
+        "jnt_eyelid_LEnd_L",
+        "jnt_eyelid_R",
+        "jnt_eyelidEnd_R"
+      ],
+      "normalized_rest": true,
+      "max_rest_basis_matrix_difference": 0.44448094069957733,
+      "max_rest_length_difference_metres": 0.07756638366857393,
+      "profile": "Mapped canonical hierarchy validated; explicit offline authored-tpose rest normalization and missing brow/eyelid rest fill; rigid metre/Y-up transforms sampled at 60 Hz; no runtime retarget; visual motion quality still requires acceptance"
+    }
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "26b44ac80bc709ee3a745ba008256178d0ec25a5b2fb762eb008f07492c1f1a5",
+    "scripts/verify_clips.py": "2f78537c5b14c8869b70da85e0479553422e4cda89df7873c92a8d48c2f258a1",
+    "scripts/convert_animation_fixture.py": "9d23b33f25d5ecbb052623c662d2a2c94ba70c16c827da55c9b712d75f68f5b2",
+    "tests/animation_clip_tests.cpp": "876a47786923366245779863ebb040367978b61ddb2e86f161437ff35cc4588c",
+    "engine/runtime/animation_source.cpp": "778ec5ffffeadc0696ee63eba4a155d92f0267354fc06dd1e9c49475f97101c2",
+    "engine/runtime/animation_pose.cpp": "8aee794bb1b0bf6e7d2d54e180ec2ca5adbd75fa6080a6ed082bd5a5bc417fa3",
+    "engine/runtime/include/darkangel/animation.hpp": "7885dea6c766893651a8e2a8ed344a23ea212991ce3ea0e0fc988a02256e5f47",
+    "engine/assets/animation_cooker.cpp": "dac99ff40c11ab964526d81af800306dd2e4f334aee94928c0ab31bd373cca13",
+    "engine/assets/asset_service.cpp": "e78e7b0fdb152f5b7a1f16bc31e360fda68dcc19b569ba21fbc9440221b439c7",
+    "engine/assets/assets_internal.hpp": "4f4b9482d234398cd8ff19b667f9793dcf63ebf5e1ce29e5fb1b8cffb4320a35",
+    "engine/assets/include/darkangel/animation_assets.hpp": "2ae34d402344fe2082540bdc7dac93f06d22d9d369156ff0eff25376a7ddc5a8",
+    "engine/assets/include/darkangel/assets.hpp": "4e07c82a97f9dddc4dfdf97ea61a8e22141f299ba07d0ddaf5861d80ae53981f",
+    "tools/cooker/main.cpp": "d34c9931bf940335570dde6e8a91fc75d0a6a6b54de595de83120b92230ca383"
+  },
+  "binary_sha256": {
+    "AnimationClipTests.exe": "10a7f98e07d81ffc28b94e793114123512273f55d52e9622f1929b57d13f5a4f",
+    "AssetTool.exe": "c1f987cd091597adfdfafae7ec7554dbae9be4063ccb8082bf7d4ff688714fe9",
+    "MotorSessionTests.exe": "568f5962a1b2e5b2d56521dd9bfa07dcb9494b55f50008c5bd8d17640bae73ee"
+  }
+}

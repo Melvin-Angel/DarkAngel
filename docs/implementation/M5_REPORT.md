@@ -17,9 +17,24 @@ Reproduce with `python scripts/verify_m5.py`. [Receipt](evidence/m5-initial.json
 
 The importer follows the [Khronos glTF skin contract](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html): skinned-node transforms cancel out, and joint transforms plus inverse bind matrices determine the result. The initial fixture requires baked bind-space metre positions. Nonuniform/mirrored joint scale, morph targets, more than four influences, additional skins, animation channels and required glTF extensions are rejected explicitly. Material/texture rendering is not implemented by this binding increment. The fixture is a representative original body part, not a claim that the full modular human is rendered.
 
+The subsequent clip foundation cooks real Blink idle, run, one-handed attack and forward-dodge FBXs, converted read-only with [Blender bpy](../../scripts/convert_animation_fixture.py) into local normalized GLBs. The animation FBXs have 85 joints and a different authored tpose basis from the 81-joint character. Explicit offline `--normalize-rest` bakes same-key local pose deltas onto canonical rest transforms, omits 12 auxiliary joints and fills eight missing brow/eyelid joints with canonical rest. Required body/socket hierarchy differences reject. Source rest-length differences reach 77.6 mm; this is a content conversion, not evidence of visually faithful final animation. All adjustments and original/derived SHA-256 values are in [conversion and acceptance receipt](evidence/m5-clips.json). Runtime has no mapping asset or retargeting.
+
+The existing AssetService now supports typed clip adoption, sidecar-owned UUIDs, four-product frozen clip/rig/archive closure, warm cook and failed-reimport preservation. Import settings participate in the recipe, including loop policy. Initial interchange is deliberately bounded: one GLB animation, complete canonical translation/rotation channels, unit-scale exact rest, LINEAR keys normalized on the 60 Hz grid, at most 600 ticks/50,000 joint keys, no skin/morph/required extension or external buffer. STEP and CUBICSPLINE reject before publication. JSON work is checked before cgltf structure allocation. Ozz AnimationBuilder produces compressed immutable archives, with per-RigPose sampling contexts and buffers, coherent signature checks and live generation retention.
+
+Translation/yaw are stripped from poses and stored as independent cumulative fixed-tick root tracks. Forward root sampling supports fractional tick phases and composes translation with unwrapped yaw across loops; one request is limited to eight ticks. Fixed-tick reference checks measure all authored sockets and half-metre weapon-tip probes against normalized source transforms:
+
+| Clip | Ticks | Ozz bytes | Maximum probe error | Root track extent |
+|---|---:|---:|---:|---:|
+| Idle | 104 | 155,217 | 0.450 mm | 1.3 mm |
+| Run | 40 | 61,655 | 0.326 mm | 111.8 mm |
+| Attack | 52 | 79,210 | 0.470 mm | 120.0 mm |
+| Dodge | 92 | 137,680 | 0.455 mm | 965.5 mm |
+
+These are compression measurements against the offline normalized clips, not visual quality or combat/motor acceptance. Tests also cover independent contexts, exact loop boundaries, rotating loop accumulation, incompatible signatures, changed loop settings, STEP/CUBICSPLINE rejection and a failed canonical reimport retaining the previous frozen closure. Reproduce with `python scripts/verify_clips.py --convert`; [focused results](evidence/m5-clips-focused.log) and [integrated suite](evidence/m5-clips-ctest.log) are separate from first-increment receipts. Integrated **33/33**, independent GNS movement and build-without-animation **3/3** pass. Ozz optimization, walk content, root-driven action integration, visual/GPU skinning and action/combat gates remain open.
+
 Next required M5 work, still unverified:
 
-- Import/cook real idle/walk/run/root attack clips through the same canonical glTF normalization, strip root translation/yaw and emit fixed-tick motion tracks. Test STEP/LINEAR/CUBICSPLINE or reject them; establish compression errors at weapon tips/hands/feet/root and generation pins.
+- Complete walk content, motion-quality visual acceptance and offline optimization/error budgets. The four-clip foundation above does not close all clip/content gates.
 - Animation Graph nodes, synchronized locomotion, masked/additive/action layers and optional IK; CPU pose and Diligent GPU skinning. Animation state and required gameplay sockets must advance at ticks even with rendering/culling disabled.
 - Action Composer fixed-resolution clocks, stable block/event identities, crossed hit intervals, loop root accumulation, cancellation/combo/hitstop, preview scrubbing and achieved-motor feedback. Native motion requests must remain collision-constrained and replayable.
 - Native abilities/effects/tags/attributes: atomic costs/cooldowns/action preparation, owner tokens/reservations, per-source Burn, slow, dodge immunity, stagger/death, equipment modifiers and cleanup. Follow DAE-008's simultaneous, duplicate, deferred, suppression, cleanse, source-destruction and MaxHealth gates.

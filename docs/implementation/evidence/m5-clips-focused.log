@@ -1,0 +1,5 @@
+idle ticks=104 archive_bytes=155217 max_tip_error_m=0.000449623 root_extent_m=0.00132787
+run ticks=40 archive_bytes=61655 max_tip_error_m=0.000326058 root_extent_m=0.111847
+attack ticks=52 archive_bytes=79210 max_tip_error_m=0.000469739 root_extent_m=0.11999
+dodge ticks=92 archive_bytes=137680 max_tip_error_m=0.000454794 root_extent_m=0.965453
+Real canonical FBX clip cook, compression, stripped poses, independent contexts, loop root and generation preservation passed

@@ -5,6 +5,50 @@
 #include <set>
 #include <stdexcept>
 namespace darkangel {
+    ClipMotion clip_root_delta(const ClipDefinition& clip,double from,double to){
+        if(!std::isfinite(from)||!std::isfinite(to)||from<0||to<from||to>1e9||to-from>8||!clip.ticks||clip.ticks>600||clip.root.size()!=clip.ticks+1)throw std::runtime_error("Clip root interval bounds");
+        auto compose=[](ClipMotion a,ClipMotion b){
+            const auto c=std::cos(a.yaw),s=std::sin(a.yaw);
+            return ClipMotion{{a.translation[0]+c*b.translation[0]+s*b.translation[2],a.translation[1]+b.translation[1],a.translation[2]-s*b.translation[0]+c*b.translation[2]},a.yaw+b.yaw};
+        };
+        auto sample=[&](double tick){
+            const auto phase=std::min(tick,double(clip.ticks));const auto i=std::min(static_cast<unsigned>(phase),clip.ticks-1);const auto ratio=phase-i;
+            ClipMotion value;for(unsigned a=0;a<3;++a)value.translation[a]=clip.root[i][a]+(clip.root[i+1][a]-clip.root[i][a])*ratio;value.yaw=clip.root[i][3]+(clip.root[i+1][3]-clip.root[i][3])*ratio;return value;
+        };
+        auto cumulative=[&](double tick){
+            if(!clip.loop)return sample(tick);
+            auto loops=static_cast<std::uint64_t>(tick/clip.ticks);auto power=sample(clip.ticks);ClipMotion result;
+            while(loops){if(loops&1)result=compose(result,power);power=compose(power,power);loops>>=1;}
+            return compose(result,sample(std::fmod(tick,double(clip.ticks))));
+        };
+        auto a=cumulative(from),b=cumulative(to);auto c=std::cos(a.yaw),s=std::sin(a.yaw);auto x=b.translation[0]-a.translation[0],z=b.translation[2]-a.translation[2];
+        return {{c*x-s*z,b.translation[1]-a.translation[1],s*x+c*z},b.yaw-a.yaw};
+    }
+    ClipDefinition decode_clip_manifest(std::string_view text){
+        using Json=nlohmann::json;
+        auto require=[](bool value,const char* message){if(!value)throw std::runtime_error(message);};
+        require(text.size()<=256*1024,"Clip manifest byte limit");
+        std::size_t events{};std::vector<std::set<std::string>> keys;
+        auto j=Json::parse(text,[&](int depth,Json::parse_event_t event,Json& value){
+            require(depth<=8&&++events<=8192,"Clip manifest work bounds");
+            if(event==Json::parse_event_t::object_start)keys.emplace_back();
+            if(event==Json::parse_event_t::key)require(keys.back().insert(value.get<std::string>()).second,"Duplicate clip field");
+            if(event==Json::parse_event_t::object_end)keys.pop_back();return true;
+        });
+        require(j.is_object()&&j.size()==12&&j.at("schema")==1&&j.at("kind")=="clip"&&j.at("ozz")=="744eb9d99f606eda849acb0b1204f7a3dc20bca1"&&j.at("root_policy")=="stripped-translation-yaw-60hz","Clip manifest schema/profile");
+        ClipDefinition clip;clip.id=AssetId::parse(j.at("id").get<std::string>());clip.runtime=AssetId::parse(j.at("runtime").get<std::string>());clip.skeleton=AssetId::parse(j.at("skeleton").get<std::string>());
+        require(clip.id!=clip.runtime&&clip.id!=clip.skeleton&&clip.runtime!=clip.skeleton,"Clip identity collision");
+        clip.signature=j.at("signature").get<std::string>();require(clip.signature.size()==64&&clip.signature.find_first_not_of("0123456789abcdef")==clip.signature.npos,"Clip signature");
+        require(j.at("ticks").is_number_unsigned()&&j.at("joints").is_number_unsigned(),"Clip count types");
+        require(j.at("ticks").get<std::uint64_t>()<=600&&j.at("joints").get<std::uint64_t>()<=256,"Clip count range");
+        clip.ticks=j.at("ticks").get<unsigned>();clip.joints=j.at("joints").get<unsigned>();clip.loop=j.at("loop").get<bool>();
+        require(clip.ticks>0&&clip.ticks<=600&&clip.joints>0&&clip.joints<=256&&j.at("root").is_array()&&j.at("root").size()==clip.ticks+1,"Clip duration/root bounds");
+        for(const auto& key:j.at("root")){
+            auto value=key.get<std::array<float,4>>();for(float n:value)require(std::isfinite(n)&&std::abs(n)<=100,"Clip root finite/range");clip.root.push_back(value);
+        }
+        for(float n:clip.root.front())require(std::abs(n)<.00001f,"Clip root starts at identity");
+        return clip;
+    }
     RigDefinition decode_rig_source(std::string_view text){
         using Json=nlohmann::json;
         auto require=[](bool b,const char* s){

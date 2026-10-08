@@ -8,6 +8,7 @@ int main(int argc,char** argv){try{
     darkangel::AssetService assets(argv[2],argv[3]);
     if(mode=="scan"){if(argc!=4)throw std::runtime_error("scan arguments");assets.scan();for(const auto& asset:assets.assets())std::cout<<asset.id.text()<<' '<<asset.path<<" generation="<<asset.generation<<'\n';}
     else if(mode=="adopt-human"){if(argc!=6)throw std::runtime_error("adopt-human arguments");std::cout<<assets.adopt_human(argv[4],argv[5]).text()<<'\n';assets.scan();}
+    else if(mode=="adopt-clip"){if(argc!=6&&argc!=7)throw std::runtime_error("adopt-clip SOURCE CACHE relative.glb canonical.daskeleton [loop]");if(argc==7&&std::string_view(argv[6])!="loop")throw std::runtime_error("Expected loop option");std::cout<<assets.adopt_clip(argv[4],argv[5],argc==7).text()<<'\n';assets.scan();}
     else if(mode=="adopt"){if(argc!=5)throw std::runtime_error("adopt arguments");std::cout<<assets.adopt(argv[4]).text()<<'\n';assets.scan();}
     else if(mode=="cook"){if(argc!=5)throw std::runtime_error("cook arguments");auto result=assets.cook(argv[4]);std::cout<<result.root.text()<<" generation="<<result.generation<<" changed="<<result.changed<<'\n';}
     else if(mode=="package"){if(argc!=6)throw std::runtime_error("package arguments");assets.package(darkangel::AssetId::parse(argv[4]),argv[5]);std::cout<<"Cooked registry published\n";}

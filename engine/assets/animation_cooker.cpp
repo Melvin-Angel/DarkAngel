@@ -4,6 +4,9 @@
 #include <cgltf.h>
 #include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/animation/offline/raw_animation.h>
+#include <ozz/animation/offline/animation_builder.h>
+#include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/io/archive.h>
 #include <ozz/base/io/stream.h>
@@ -11,6 +14,7 @@
 #include <ozz/base/maths/quaternion.h>
 #include <cmath>
 #include <set>
+#include <cstring>
 namespace darkangel::assets_detail {
     namespace {
         constexpr auto ozz_pin="744eb9d99f606eda849acb0b1204f7a3dc20bca1";
@@ -33,6 +37,77 @@ namespace darkangel::assets_detail {
         void close(float a,float b,float tolerance,const char* diagnostic){
             require(std::isfinite(a)&&std::isfinite(b)&&std::abs(a-b)<=tolerance,diagnostic);
         }
+    }
+    Import import_clip(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,const std::filesystem::path& canonical,bool loop,bool inspect){
+        require(source.extension()==".glb"&&canonical.extension()==".daskeleton","Initial clip profile requires normalized GLB and native skeleton");
+        auto rig_bytes=read(canonical,1024*1024);auto rig=decode_rig_source(rig_bytes);
+        auto bytes=read(source,16*1024*1024);Import out;out.keys={"runtime"};out.product_count=4;
+        out.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);out.inputs[canonical.lexically_relative(root).generic_string()]=sha256(rig_bytes);
+        require(bytes.size()>=20,"Clip GLB header bounds");std::uint32_t header[5];std::memcpy(header,bytes.data(),20);
+        require(header[0]==0x46546c67&&header[1]==2&&header[2]==bytes.size()&&header[4]==0x4e4f534a&&header[3]<=bytes.size()-20,"Clip GLB container profile");
+        // Bound JSON work before cgltf allocates its node/channel structures.
+        auto document=json(std::string_view(bytes.data()+20,header[3]),16*1024*1024);
+        cgltf_options options{};cgltf_data* pointer{};require(cgltf_parse(&options,bytes.data(),bytes.size(),&pointer)==cgltf_result_success,"Clip cgltf parse");
+        std::unique_ptr<cgltf_data,decltype(&cgltf_free)> data(pointer,cgltf_free);
+        require(document.at("extras").at("darkangel_axes")=="right-handed-y-up-metres"&&document.at("extras").at("darkangel_canonical")==rig.id.text(),"Clip conversion axes/canonical contract");
+        require(data->animations_count==1&&data->nodes_count==rig.joints.size()&&data->meshes_count==0&&data->skins_count==0&&data->extensions_required_count==0&&data->buffers_count==1&&!data->buffers[0].uri&&data->bin&&data->bin_size>=data->buffers[0].size,"Normalized clip GLB profile");
+        data->buffers[0].data=const_cast<void*>(data->bin);data->buffers[0].data_free_method=cgltf_data_free_method_none;
+        require(cgltf_validate(data.get())==cgltf_result_success,"Clip glTF validation");
+        std::map<std::string,unsigned> keys;for(unsigned i=0;i<rig.joints.size();++i)keys.emplace(rig.joints[i].key,i);
+        std::vector<unsigned> remap(data->nodes_count);std::set<unsigned> unique;
+        for(unsigned n=0;n<data->nodes_count;++n){
+            const auto& node=data->nodes[n];require(node.name&&keys.contains(node.name)&&!node.has_matrix,"Clip canonical node key/TRS");
+            auto index=keys.at(node.name);require(unique.insert(index).second,"Duplicate clip joint");remap[n]=index;const auto& joint=rig.joints[index];
+            require((joint.parent<0&&!node.parent)||(joint.parent>=0&&node.parent&&node.parent->name&&rig.joints[joint.parent].key==node.parent->name),"Clip canonical hierarchy mismatch");
+            for(int i=0;i<3;++i){close(node.translation[i],joint.translation[i],.0001f,"Clip canonical rest translation");close(node.scale[i],1,.0001f,"Clip canonical rest scale");}
+            float dot{};for(int i=0;i<4;++i)dot+=node.rotation[i]*joint.rotation[i];close(std::abs(dot),1,.0001f,"Clip canonical rest rotation");
+        }
+        const auto& animation=data->animations[0];require(animation.channels_count==2*rig.joints.size(),"Clip requires complete translation/rotation tracks");
+        auto* first=animation.channels[0].sampler->input;require(first&&!first->is_sparse&&first->count>=2&&first->count<=601,"Clip key count bounds");
+        unsigned ticks=static_cast<unsigned>(first->count-1);float duration=ticks/60.f;
+        require(std::uint64_t(ticks+1)*rig.joints.size()<=50000,"Clip cook key work limit");
+        ozz::animation::offline::RawAnimation raw;raw.duration=duration;raw.name=animation.name?animation.name:"clip";raw.tracks.resize(rig.joints.size());
+        std::vector<unsigned> seen(rig.joints.size());
+        for(const auto& channel:std::span(animation.channels,animation.channels_count)){
+            require(channel.target_node&&channel.sampler&&channel.sampler->interpolation==cgltf_interpolation_type_linear,"Only normalized LINEAR clip tracks supported");
+            auto index=remap.at(static_cast<std::size_t>(channel.target_node-data->nodes));auto& track=raw.tracks[index];const auto& sampler=*channel.sampler;
+            const auto* input=sampler.input;const auto* output=sampler.output;
+            unsigned width=channel.target_path==cgltf_animation_path_type_translation?3:channel.target_path==cgltf_animation_path_type_rotation?4:0;
+            require(width&&input&&output&&!input->is_sparse&&!output->is_sparse&&input->component_type==cgltf_component_type_r_32f&&input->type==cgltf_type_scalar&&output->component_type==cgltf_component_type_r_32f&&input->count==ticks+1&&output->count==ticks+1&&output->type==(width==3?cgltf_type_vec3:cgltf_type_vec4),"Clip channel dimensions/profile");
+            const unsigned flag=width==3?1:2;require(!(seen[index]&flag),"Duplicate clip channel");seen[index]|=flag;
+            for(unsigned k=0;k<=ticks;++k){
+                float time{},value[4]{};require(cgltf_accessor_read_float(input,k,&time,1)&&cgltf_accessor_read_float(output,k,value,width),"Clip accessor read");close(time,k/60.f,.00001f,"Clip keys require exact normalized 60 Hz grid");
+                for(unsigned c=0;c<width;++c)require(std::isfinite(value[c])&&std::abs(value[c])<=100,"Clip transform bounds");
+                if(width==3)track.translations.push_back({time,{value[0],value[1],value[2]}});
+                else {float norm{};for(float v:value)norm+=v*v;close(norm,1,.0001f,"Clip quaternion normalization");track.rotations.push_back({time,{value[0],value[1],value[2],value[3]}});}
+            }
+        }
+        for(auto count:seen)require(count==3,"Missing clip track");
+        auto& root_track=raw.tracks[0];const auto& rest=rig.joints[0];
+        ozz::math::Quaternion rest_rotation(rest.rotation[0],rest.rotation[1],rest.rotation[2],rest.rotation[3]);
+        const auto origin=root_track.translations.front().value;double previous{},first_yaw{};Json roots=Json::array();
+        for(unsigned k=0;k<=ticks;++k){
+            auto q=root_track.rotations[k].value;auto delta=q*ozz::math::Conjugate(rest_rotation);
+            require(delta.y*delta.y+delta.w*delta.w>.00001f,"Clip root yaw singularity");
+            double yaw=2*std::atan2(delta.y,delta.w);if(k)yaw=previous+std::remainder(yaw-previous,2*3.141592653589793);else first_yaw=yaw;previous=yaw;
+            auto t=root_track.translations[k].value;const auto dx=t.x-origin.x,dz=t.z-origin.z;
+            roots.push_back({float(std::cos(first_yaw)*dx-std::sin(first_yaw)*dz),t.y-origin.y,float(std::sin(first_yaw)*dx+std::cos(first_yaw)*dz),float(yaw-first_yaw)});
+            root_track.translations[k].value={rest.translation[0],rest.translation[1],rest.translation[2]};
+            auto rotation=ozz::math::Quaternion::FromAxisAngle(ozz::math::Float3(0,1,0),float(-yaw));root_track.rotations[k].value=rotation*q;
+        }
+        require(raw.Validate(),"Ozz raw clip validation");
+        if(inspect)return out;
+        require(ids.size()==2,"Clip owned UUID count");const auto id=ids.at("$source"),runtime=ids.at("runtime");
+        Json manifest={{"schema",1},{"kind","clip"},{"id",id.text()},{"runtime",runtime.text()},{"skeleton",rig.id.text()},{"signature",rig.signature},{"ticks",ticks},{"joints",static_cast<unsigned>(rig.joints.size())},{"loop",loop},{"root",roots},{"root_policy","stripped-translation-yaw-60hz"},{"ozz",ozz_pin}};
+        auto manifest_bytes=manifest.dump();decode_clip_manifest(manifest_bytes);
+        ozz::animation::offline::AnimationBuilder builder;auto cooked=builder(raw);require(bool(cooked),"Ozz animation build failure");
+        ozz::io::MemoryStream stream;{ozz::io::OArchive archive(&stream);archive<<*cooked;}
+        std::string archive(stream.Size(),'\0');stream.Seek(0,ozz::io::Stream::kSet);require(stream.Read(archive.data(),archive.size())==archive.size(),"Ozz clip archive read");
+        out.products.push_back({id,"clip","clip.json",std::move(manifest_bytes),{runtime,rig.id}});
+        out.products.push_back({runtime,"ozz-animation","ozzanim",std::move(archive),{}});
+        auto closure=import_skeleton(root,canonical,{{"$source",rig.id},{"runtime",rig.runtime}},false);
+        for(auto& product:closure.products){require(product.id!=id&&product.id!=runtime,"Clip and rig UUID collision");out.products.push_back(std::move(product));}
+        return out;
     }
     Import import_skeleton(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
         auto bytes=read(source,1024*1024);
@@ -367,6 +442,12 @@ namespace darkangel {
         return {
             definition,files.load(definition.runtime,"ozz-skeleton","ozz")
         };
+    }
+    CookedClip load_cooked_clip(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
+        using namespace assets_detail;Registry files(registry,cas);auto definition=decode_clip_manifest(files.load(id,"clip","clip.json"));
+        require(definition.id==id,"Cooked clip identity");auto rig=load_cooked_rig(registry,cas,definition.skeleton);
+        require(definition.signature==rig.definition.signature&&definition.joints==rig.definition.joints.size(),"Cooked clip skeleton compatibility");
+        return {definition,files.load(definition.runtime,"ozz-animation","ozzanim")};
     }
     std::string load_cooked_human_binding(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
         using namespace assets_detail;

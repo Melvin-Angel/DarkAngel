@@ -40,6 +40,7 @@ public:
     AssetService& operator=(const AssetService&)=delete;
     AssetId adopt(std::string_view relative_source); // explicit creation; existing IDs are never regenerated
     AssetId adopt_human(std::string_view relative_source,std::string_view canonical_skeleton);
+    AssetId adopt_clip(std::string_view relative_source,std::string_view canonical_skeleton,bool loop=false);
     void scan(); // validate complete source identity inventory before updating the index
     std::vector<AssetInfo> assets() const;
     CookResult cook(std::string_view relative_source);

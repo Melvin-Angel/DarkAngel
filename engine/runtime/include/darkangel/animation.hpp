@@ -11,12 +11,31 @@ struct RigJoint {std::string key;int parent{-1};std::array<float,3> translation{
 struct RigDefinition {AssetId id,runtime;bool human{};std::string signature;std::vector<RigJoint> joints;std::map<std::string,std::string> sockets;};
 RigDefinition decode_rig_source(std::string_view);
 struct JointMatrix {std::array<float,16> values;};
+struct ClipDefinition {
+    AssetId id,runtime,skeleton;std::string signature;
+    unsigned ticks{},joints{};bool loop{};
+    // Cumulative translation XYZ and unwrapped yaw, relative to clip time zero.
+    std::vector<std::array<float,4>> root;
+};
+ClipDefinition decode_clip_manifest(std::string_view);
+struct ClipMotion {std::array<double,3> translation{};double yaw{};};
+// Forward tick intervals only, at most eight ticks of work. Loop transforms
+// compose translation with yaw rather than adding a hidden reset displacement.
+ClipMotion clip_root_delta(const ClipDefinition&,double from_tick,double to_tick);
+class AnimationClip {
+public:
+    AnimationClip(ClipDefinition,std::string_view verified_archive);~AnimationClip();
+    AnimationClip(const AnimationClip&)=delete;
+    const ClipDefinition& definition()const;
+private:struct Impl;std::unique_ptr<Impl> impl_;friend class RigPose;
+};
 // Pinned Ozz runtime is private. Each instance owns its buffers.
 class RigPose {
 public:
     RigPose(RigDefinition,std::string_view verified_archive);~RigPose();
     RigPose(const RigPose&)=delete;
     const std::vector<JointMatrix>& rest_pose();
+    const std::vector<JointMatrix>& sample(const AnimationClip&,double tick);
     const RigDefinition& definition()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
