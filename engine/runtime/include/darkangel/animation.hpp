@@ -28,6 +28,7 @@ public:
     AnimationClip(ClipDefinition,std::string_view verified_archive);~AnimationClip();
     AnimationClip(const AnimationClip&)=delete;
     const ClipDefinition& definition()const;
+    std::string_view archive_generation()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;friend class RigPose;
 };
 // Regular local-space pose layers. Masks are compiled canonical joint order,

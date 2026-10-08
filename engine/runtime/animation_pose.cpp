@@ -26,6 +26,7 @@ namespace darkangel {
     AnimationClip::AnimationClip(ClipDefinition definition,std::string_view bytes):impl_(std::make_unique<Impl>(std::move(definition),bytes)){}
     AnimationClip::~AnimationClip()=default;
     const ClipDefinition& AnimationClip::definition()const{return impl_->definition;}
+    std::string_view AnimationClip::archive_generation()const{return impl_->generation;}
     struct RigPose::Impl {
         RigDefinition definition;
         ozz::animation::Skeleton skeleton;

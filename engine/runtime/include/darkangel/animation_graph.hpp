@@ -1,0 +1,51 @@
+#pragma once
+#include <darkangel/animation.hpp>
+#include <cstdint>
+
+namespace darkangel {
+enum class GraphNodeKind { Clip, Blend1D, Blend2D };
+enum class GraphParameter { Speed, Forward, Lateral };
+struct GraphPoint { std::uint32_t input{}; float x{}, y{}; };
+struct GraphNode {
+    std::uint32_t id{};
+    GraphNodeKind kind{};
+    GraphParameter parameter{GraphParameter::Speed};
+    std::shared_ptr<const AnimationClip> clip;
+    std::vector<GraphPoint> points;
+    // Explicit triangles reference point indices; no runtime triangulation.
+    std::vector<std::array<unsigned,3>> triangles;
+};
+struct GraphParameters { float speed{}, forward{}, lateral{}; };
+struct GraphState { std::uint64_t tick{}; double phase{}; std::string generation; };
+struct GraphPoseInputs {
+    // Descriptors borrow the frozen clips; keep the instance/plan alive while
+    // consuming them. They never transfer root-motion ownership to the motor.
+    std::array<PoseLayer,4> layers{};
+    unsigned count{};
+    std::span<const PoseLayer> span() const { return {layers.data(), count}; }
+};
+// Initial native compiled profile: clip, 1D and explicit triangle-based 2D
+// selectors, one normalized locomotion cycle. No runtime reflection or mapping.
+// Asset authoring, markers, transitions and action/additive slots remain separate.
+class AnimationGraphPlan {
+public:
+    AnimationGraphPlan(std::string generation, std::uint32_t root, std::vector<GraphNode>);
+    ~AnimationGraphPlan();
+    AnimationGraphPlan(const AnimationGraphPlan&)=delete;
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+    friend class AnimationGraphInstance;
+};
+class AnimationGraphInstance {
+public:
+    explicit AnimationGraphInstance(std::shared_ptr<const AnimationGraphPlan>);
+    GraphPoseInputs evaluate(GraphParameters) const;
+    GraphPoseInputs advance(std::uint64_t tick, GraphParameters);
+    const GraphState& state() const { return state_; }
+    void restore(const GraphState&);
+private:
+    std::shared_ptr<const AnimationGraphPlan> plan_;
+    GraphState state_;
+};
+}

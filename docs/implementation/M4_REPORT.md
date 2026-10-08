@@ -64,3 +64,6 @@ Focused tests inject a raw owner command to bypass the client check and verify s
 
 
 Omni offline M5 content checkpoint raises the integrated optimized native suite to 42/42. It adds no new M4 network/streaming qualification. Existing separate-process GNS evidence remains the prior receipt; broader M4 gates and live EOS limitation are unchanged. See M5_REPORT.md and evidence/m5-omni.json.
+
+
+Native initial Animation Graph checkpoint raises integrated optimized tests to 43/43. Graph tick traces match at 30/60/144/headless; this adds no coupled motor/action/ability or new M4 network qualification. M4 streaming/fault/performance gates and EOS limitations remain open.

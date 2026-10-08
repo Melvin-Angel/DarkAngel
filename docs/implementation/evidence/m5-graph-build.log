@@ -1,0 +1,10 @@
+[1/11] Scanning C:\DarkAngel\tests\animation_graph_tests.cpp for CXX dependencies
+[2/11] Scanning C:\DarkAngel\engine\runtime\animation_graph.cpp for CXX dependencies
+[3/11] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
+[4/11] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[5/10] Building CXX object CMakeFiles\DarkAngelAnimation.dir\engine\runtime\animation_graph.cpp.obj
+[6/10] Linking CXX static library DarkAngelAnimation.lib
+[7/10] Linking CXX executable AnimationTests.exe
+[8/10] Building CXX object CMakeFiles\AnimationGraphTests.dir\tests\animation_graph_tests.cpp.obj
+[9/10] Linking CXX executable AnimationClipTests.exe
+[10/10] Linking CXX executable AnimationGraphTests.exe
