@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 namespace darkangel {
+struct CollisionDefinition;
 struct Vertex {std::array<float,3> position,normal;std::array<float,2> uv;};
 struct MeshPart {AssetId material;std::uint32_t first,count;};
 struct CookedMesh {std::vector<Vertex> vertices;std::vector<std::uint32_t> indices;std::vector<MeshPart> parts;std::array<float,3> minimum,maximum;};
@@ -18,6 +19,7 @@ struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float rough
 struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<CookedMaterial> materials;std::vector<std::pair<AssetId,CookedTexture>> textures;};
 // Load solely from the verified cooked registry/CAS; no SQLite, source assets or editor state.
 std::string load_cooked_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
+CollisionDefinition load_cooked_collision_scene(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 struct ModelGeneration {std::uint64_t number;std::shared_ptr<const RuntimeModel> model;};
 class ModelStore {

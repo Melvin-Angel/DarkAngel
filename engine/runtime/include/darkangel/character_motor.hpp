@@ -4,6 +4,7 @@
 #include <memory>
 #include <span>
 #include <string_view>
+#include <string>
 #include <vector>
 #include <array>
 namespace darkangel {
@@ -41,7 +42,17 @@ enum class SensorPhase {Begin,End};
 struct SensorEvent {std::uint64_t world{},tick{},token{},sensor{},other{},other_generation{},epoch{};bool character{};SensorPhase phase{};};
 // Tick snapshots of authoritative characters, never independently simulated in replay.
 struct CollisionActor {std::uint64_t id{},epoch{};MotorVec foot{},velocity{};double yaw{};bool crouched{};};
-struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;std::vector<CollisionActor> actors;};
+struct CollisionMeshData;
+class CollisionGeometry {
+public:
+    explicit CollisionGeometry(const CollisionMeshData&);~CollisionGeometry();
+    CollisionGeometry(const CollisionGeometry&)=delete;
+    const CollisionMeshData& definition()const;
+private:struct Impl;std::unique_ptr<Impl> impl_;friend class PhysicsWorld;friend class CharacterMotor;
+};
+struct CollisionMesh {std::uint64_t id{};std::shared_ptr<const CollisionGeometry> geometry;};
+struct CollisionDefinition;
+struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;std::vector<CollisionActor> actors;std::vector<CollisionMesh> meshes;};
 // Debt is retained. A frame cannot enlarge the step or silently skip a tick.
 class SimulationClock {
 public:
@@ -56,6 +67,7 @@ public:
     bool needs_resync()const;bool sleeping(std::uint64_t)const;
     void apply_impulse(std::uint64_t,MotorVec);
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});
+    void add_mesh(CollisionMesh);void load_scene(const CollisionDefinition&);
     void load_cooked(std::string_view);
     void step();CollisionFrame capture() const;void load(const CollisionFrame&,std::uint64_t replay_owner=0);
     std::uint64_t tick() const;std::uint64_t topology() const;
@@ -63,6 +75,7 @@ public:
     CollisionQuery sweep(MotorVec from,MotorVec delta,double radius,unsigned limit=16,QueryFilter={}) const;
     CollisionQuery query_ray(MotorVec from,MotorVec delta,QueryFilter={})const;
     bool valid_hit(const CollisionHit&)const;
+    std::string material_key(const CollisionHit&)const;
     // After all motor post_physics calls. One bounded, atomic sensor event batch
     // per authoritative tick. Sleep does not imply exit; cancellation uses token.
     void finish_tick();std::vector<SensorEvent> take_sensor_events();

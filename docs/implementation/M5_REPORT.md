@@ -43,3 +43,5 @@ Next required M5 work, still unverified:
 - Complete detailed DAE-007/008/009/010/011/013 gates, fault traces, 30/60/144/headless combat equality, nonhuman rig validation and measured CPU/allocation/clip/skinning costs. Neither this increment nor compilation establishes those results.
 
 M4's broader collision/query/dynamic/streaming qualifications remain in M4_REPORT.md. M3 live EOS remains blocked on private deployment/policy and two identities; Loopback/GNS development is explicitly authorized. The MCP pin still uses tested 2025-11-25 compatibility. No milestone with remaining required gates is marked Verified.
+
+M4 static cave geometry qualification now passes 36/36 integration, independent GNS and 4/4 without animation. It supplies immutable historical geometry and authored query material keys for future action sweeps. M5 clip/graph/combat gates remain independent. M6 is authorized only after the required M4/M5 gates.

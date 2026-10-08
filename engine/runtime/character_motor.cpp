@@ -1,4 +1,5 @@
 #include <darkangel/character_motor.hpp>
+#include <darkangel/collision_asset.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
@@ -8,6 +9,8 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/PhysicsMaterialSimple.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/CollideShape.h>
@@ -118,6 +121,24 @@ namespace darkangel {
             ++tick_;
         }return n;
     }
+    struct CollisionGeometry::Impl {
+        CollisionMeshData definition;JPH::RefConst<JPH::MeshShape> shape;
+        explicit Impl(const CollisionMeshData& data):definition(data){
+            validate_collision_mesh(definition);const auto signature=collision_mesh_signature(definition);
+            check(definition.signature.empty()||definition.signature==signature,"Collision geometry signature mismatch");definition.signature=signature;
+            JPH::VertexList vertices;JPH::IndexedTriangleList triangles;JPH::PhysicsMaterialList materials;
+            vertices.reserve(data.vertices.size());triangles.reserve(data.triangles.size());materials.reserve(data.materials.size());
+            for(auto p:data.vertices)vertices.emplace_back(float(p.x),float(p.y),float(p.z));
+            for(const auto& t:data.triangles)triangles.emplace_back(t.vertices[0],t.vertices[1],t.vertices[2],t.material,t.key);
+            for(const auto& key:data.materials)materials.push_back(new JPH::PhysicsMaterialSimple(key.c_str(),JPH::Color::sWhite));
+            JPH::MeshShapeSettings settings(std::move(vertices),std::move(triangles),std::move(materials));settings.mPerTriangleUserData=true;
+            check(settings.mIndexedTriangles.size()==data.triangles.size(),"Jolt sanitization changed approved triangle identities");
+            auto result=settings.Create();check(!result.HasError(),"Jolt static mesh build failure");shape=static_cast<const JPH::MeshShape*>(result.Get().GetPtr());
+        }
+    };
+    CollisionGeometry::CollisionGeometry(const CollisionMeshData& data){initialize();impl_=std::make_unique<Impl>(data);}
+    CollisionGeometry::~CollisionGeometry()=default;
+    const CollisionMeshData& CollisionGeometry::definition()const{return impl_->definition;}
     struct PhysicsWorld::Impl {
         Layers layers;
         Pair pair;
@@ -136,6 +157,8 @@ namespace darkangel {
             std::uint64_t generation;
         };
         std::map<std::uint64_t,Box> boxes;
+        struct Mesh {CollisionMesh data;JPH::BodyID body;std::uint64_t generation;};
+        std::map<std::uint64_t,Mesh> meshes;
         struct Actor {JPH::CharacterVirtual* character;const MotorState* state;std::uint64_t generation,post_tick;};
         std::map<std::uint64_t,Actor> actors;
         std::vector<JPH::Ref<JPH::CharacterVirtual>> historical_actors;
@@ -170,6 +193,7 @@ namespace darkangel {
             for(auto& actor:historical_actors)characters.Remove(actor);
             historical_actors.clear();
             historical_generations.clear();
+            for(auto& [id,mesh]:meshes){system.GetBodyInterface().RemoveBody(mesh.body);system.GetBodyInterface().DestroyBody(mesh.body);}meshes.clear();
             for(auto& [id,b]:boxes){
                 system.GetBodyInterface().RemoveBody(b.body);
                 system.GetBodyInterface().DestroyBody(b.body);
@@ -191,7 +215,7 @@ namespace darkangel {
             historical_generations.emplace(actor.id,std::pair{++next_generation,actor.epoch});
         }
         void insert(CollisionBox b){
-            check(b.id&&b.id<(1ULL<<63)&&boxes.size()<64&&!boxes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&(b.dynamic||(b.angular.x==0&&b.angular.z==0))&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
+            check(b.id&&b.id<(1ULL<<63)&&boxes.size()+meshes.size()<64&&!boxes.contains(b.id)&&!meshes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&(b.dynamic||(b.angular.x==0&&b.angular.z==0))&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
             auto q=JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(b.yaw))*JPH::Quat::sRotation(JPH::Vec3::sAxisZ(),float(b.roll));
             double norm{};for(double n:b.rotation){check(finite(n),"Invalid collision rotation");norm+=n*n;}
             if(norm){check(std::abs(norm-1)<.0001,"Collision rotation normalization");q=JPH::Quat(float(b.rotation[0]),float(b.rotation[1]),float(b.rotation[2]),float(b.rotation[3]));}
@@ -209,8 +233,14 @@ namespace darkangel {
                 b,body,++next_generation
             });
         }
+        void insert_mesh(CollisionMesh mesh){
+            check(mesh.id&&mesh.id<(1ULL<<63)&&mesh.geometry&&boxes.size()+meshes.size()<64&&meshes.size()<16&&!boxes.contains(mesh.id)&&!meshes.contains(mesh.id),"Invalid static mesh body/budget");
+            JPH::BodyCreationSettings settings(mesh.geometry->impl_->shape,JPH::RVec3::sZero(),JPH::Quat::sIdentity(),JPH::EMotionType::Static,0);settings.mUserData=mesh.id;
+            auto body=system.GetBodyInterface().CreateAndAddBody(settings,JPH::EActivation::DontActivate);check(!body.IsInvalid(),"Static mesh body allocation");meshes.emplace(mesh.id,Mesh{mesh,body,++next_generation});
+        }
         unsigned category(std::uint64_t user)const{
             if(user&(1ULL<<63))return CharacterCollision;
+            if(meshes.contains(user))return StaticCollision;
             const auto& data=boxes.at(user).data;return data.sensor?SensorCollision:data.dynamic?DynamicCollision:data.moving?KinematicCollision:StaticCollision;
         }
         struct QueryBodies:JPH::BodyFilter {
@@ -226,7 +256,9 @@ namespace darkangel {
             CollisionHit result;result.identity=id;result.character=(user&(1ULL<<63))!=0;result.fraction=fraction;result.world=world_id;result.tick=tick;result.topology=topology;
             result.point=point;result.normal=normal;result.subshape=0;result.sensor=category(user)==SensorCollision;
             if(result.character){if(actors.contains(id)){result.generation=actors.at(id).generation;result.epoch=actors.at(id).state->epoch;}else {auto version=historical_generations.at(id);result.generation=version.first;result.epoch=version.second;}}
-            else result.generation=boxes.at(id).generation;
+            else if(meshes.contains(id)){
+                const auto& mesh=meshes.at(id);result.generation=mesh.generation;result.subshape=mesh.data.geometry->impl_->shape->GetTriangleUserData(subshape);result.material=mesh.data.geometry->impl_->shape->GetMaterialIndex(subshape);
+            }else result.generation=boxes.at(id).generation;
             return result;
         }
     };
@@ -247,11 +279,19 @@ namespace darkangel {
         s.insert(b);
         ++s.topology;
     }
+    void PhysicsWorld::add_mesh(CollisionMesh mesh){auto& s=*impl_;s.thread();s.insert_mesh(std::move(mesh));++s.topology;}
+    void PhysicsWorld::load_scene(const CollisionDefinition& scene){
+        CollisionFrame frame;frame.topology=1;frame.boxes=scene.boxes;
+        for(const auto& mesh:scene.meshes){check(bool(mesh.data),"Missing collision geometry");frame.meshes.push_back({mesh.id,std::make_shared<const CollisionGeometry>(*mesh.data)});}
+        load(frame);
+    }
     void PhysicsWorld::remove(std::uint64_t id){
         auto& s=*impl_;
         s.thread();
         auto it=s.boxes.find(id);
-        check(it!=s.boxes.end(),"Unknown collision identity");
+        if(it==s.boxes.end()){
+            auto mesh=s.meshes.find(id);check(mesh!=s.meshes.end(),"Unknown collision identity");s.system.GetBodyInterface().RemoveBody(mesh->second.body);s.system.GetBodyInterface().DestroyBody(mesh->second.body);s.meshes.erase(mesh);++s.topology;return;
+        }
         s.system.GetBodyInterface().RemoveBody(it->second.body);
         s.system.GetBodyInterface().DestroyBody(it->second.body);
         s.boxes.erase(it);
@@ -297,12 +337,13 @@ namespace darkangel {
         for(const auto& [id,actor]:s.actors){
             f.actors.push_back({id,actor.state->epoch,m(actor.character->GetPosition()),m(actor.character->GetLinearVelocity()),actor.state->yaw,actor.state->crouched});
         }
+        for(const auto& [id,mesh]:s.meshes)f.meshes.push_back(mesh.data);
         return f;
     }
     void PhysicsWorld::load(const CollisionFrame& f,std::uint64_t replay_owner){
         auto& s=*impl_;
         s.thread();
-        check(f.topology&&f.boxes.size()<=64&&f.actors.size()<=4,"Invalid history frame");
+        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=4,"Invalid history frame");
         check(s.motors<=1,"Cannot replace shared live motor topology");
         check(!s.motors||f.actors.empty()||(replay_owner&&s.actors.contains(replay_owner)),"History load requires an explicit matching replay owner");
         std::map<std::uint64_t,bool> identities;
@@ -311,6 +352,7 @@ namespace darkangel {
         }
         s.clear();
         for(auto b:f.boxes)s.insert(b);
+        for(auto mesh:f.meshes)s.insert_mesh(mesh);
         for(const auto& actor:f.actors)if(actor.id!=replay_owner)s.insert_actor(actor);
         s.tick=f.tick;
         s.topology=f.topology;
@@ -388,8 +430,9 @@ namespace darkangel {
         auto& s=*impl_;s.thread();if(s.failed||hit.world!=s.world_id||hit.tick!=s.tick||hit.topology!=s.topology)return false;
         if(hit.character){if(s.actors.contains(hit.identity))return s.actors.at(hit.identity).generation==hit.generation&&s.actors.at(hit.identity).state->epoch==hit.epoch;
             return s.historical_generations.contains(hit.identity)&&s.historical_generations.at(hit.identity)==std::pair{hit.generation,hit.epoch};}
-        return s.boxes.contains(hit.identity)&&s.boxes.at(hit.identity).generation==hit.generation;
+        return (s.boxes.contains(hit.identity)&&s.boxes.at(hit.identity).generation==hit.generation)||(s.meshes.contains(hit.identity)&&s.meshes.at(hit.identity).generation==hit.generation);
     }
+    std::string PhysicsWorld::material_key(const CollisionHit& hit)const{check(valid_hit(hit),"Material lookup requires a current qualified hit");auto& s=*impl_;if(!s.meshes.contains(hit.identity)||hit.character)return "Default";const auto& materials=s.meshes.at(hit.identity).data.geometry->definition().materials;check(hit.material<materials.size(),"Invalid authored material key");return materials[hit.material];}
     CollisionQuery PhysicsWorld::overlap(MotorVec center,double radius,unsigned limit,QueryFilter filter)const{
         auto& s=*impl_;
         s.thread();
@@ -520,8 +563,8 @@ namespace darkangel {
             };
             state.support_local={
             };
-            if(state.support&&world.boxes.contains(state.support)){
-                auto body=world.boxes.at(state.support).body;
+            if(state.support&&(world.boxes.contains(state.support)||world.meshes.contains(state.support))){
+                auto body=world.boxes.contains(state.support)?world.boxes.at(state.support).body:world.meshes.at(state.support).body;
                 auto pos=world.system.GetBodyInterface().GetPosition(body);
                 auto q=world.system.GetBodyInterface().GetRotation(body);
                 state.support_local=m(q.Conjugated()*JPH::Vec3(character->GetGroundPosition()-pos));
@@ -708,7 +751,7 @@ namespace darkangel {
         return true;
     }
     void CollisionHistory::retain(CollisionFrame f){
-        check(f.topology&&f.boxes.size()<=64&&f.actors.size()<=4&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
+        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=4&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
         frames_.push_back(std::move(f));
         while(frames_.size()>31)frames_.pop_front();
     }
@@ -733,7 +776,12 @@ namespace darkangel {
             std::vector<std::uint64_t> retained_actors;
             for(const auto& actor:f->actors)retained_actors.push_back(actor.id);
             std::sort(retained_actors.begin(),retained_actors.end());
+            std::map<std::uint64_t,std::string> retained_meshes;
+            for(const auto& mesh:f->meshes){if(!mesh.geometry||!retained_meshes.emplace(mesh.id,mesh.geometry->definition().signature).second)return ReplayResult::Invalid;}
             auto validate_owner=[&](const CollisionFrame& frame){
+                std::map<std::uint64_t,std::string> present_meshes;
+                for(const auto& mesh:frame.meshes){if(!mesh.geometry||!present_meshes.emplace(mesh.id,mesh.geometry->definition().signature).second)return ReplayResult::Invalid;}
+                if(present_meshes!=retained_meshes)return ReplayResult::TopologyMismatch;
                 std::vector<std::uint64_t> present;
                 for(const auto& a:frame.actors)present.push_back(a.id);
                 std::sort(present.begin(),present.end());

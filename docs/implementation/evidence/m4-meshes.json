@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "base_head": "3d821d702975d614048f65ce1535cc9cc0419b38",
+  "scope": "Native static cave geometry cook, authored triangle/material queries, backfaces, roof/seam fixed ticks and immutable removed-generation replay; broader network/M4/M5 gates remain open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "settings": {
+    "mesh_limit": 16,
+    "vertices_per_mesh": 2048,
+    "triangles_per_mesh": 4096,
+    "materials_per_mesh": 32,
+    "history_frames": 31,
+    "replay_ticks": 30
+  },
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 55.61,
+      "log": "docs/implementation/evidence/m4-meshes-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionMeshTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.208,
+      "log": "docs/implementation/evidence/m4-meshes-focused.log"
+    },
+    {
+      "gate": "native-cook",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionAssetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.175,
+      "log": "docs/implementation/evidence/m4-meshes-native-cook.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 5.006,
+      "log": "docs/implementation/evidence/m4-meshes-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 4.012,
+      "log": "docs/implementation/evidence/m4-meshes-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "CollisionMeshTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 46.836,
+      "log": "docs/implementation/evidence/m4-meshes-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets|M4.collision_meshes",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.677,
+      "log": "docs/implementation/evidence/m4-meshes-no-animation-regression.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "4a58f72dea03bb44167bd7c155fb00bd5f1cd5624330925c17032a332f03dc01",
+    "scripts/verify_meshes.py": "a74c63bb9be5f479818cc931c8ea0ebb5ab8d92fbda1cee08fd631ff5b182da8",
+    "tests/collision_mesh_tests.cpp": "bbe09ab19e5459db3eeacc82d4cbd588ea0a0ca484955f4b1a0f17d81b9e970b",
+    "content/physics/m4_cave.dacollision": "fd988ea3d2f371a6cdb79adaa5efc657ed7f5cbc3416d7b00ee53ed47a2d3049",
+    "tests/collision_asset_tests.cpp": "59f92c0be3b34ee7f522fff094361d46d5293dd5b535a5fce6bb4f36c6b95c07",
+    "engine/runtime/character_motor.cpp": "bc17b41bee5b69866d8834d3f15f9831520a58125b0e7d61afa46bb22a67e991",
+    "engine/runtime/collision_source.cpp": "f2e6c49587af77c9b4c364979eca1eb3780ee19645551e52675d421d682b70e3",
+    "engine/runtime/include/darkangel/character_motor.hpp": "482394e785da0b5203fae9b2dac4391a1db8dd84f7b42e46fdb0a7a1d056df8b",
+    "engine/assets/collision_cooker.cpp": "d624dba576346a382f7ba492401dfa73004d6d5e64c3126fb4f249de22284353"
+  },
+  "binary_sha256": {
+    "CollisionMeshTests.exe": "e7918e2288ffb11e29311fb148cabe82bd3b7502a43cb1e61cd2222971c20965",
+    "CollisionAssetTests.exe": "dcf246c4f5f9b6c71fb66f0df4ed64828026d7a5354088b9933a9b016604316b",
+    "MotorSessionTests.exe": "ade13d25344c4105d9e58fd0e5c4b71b6bc42b130ad8db384f9f96e65d17e3da"
+  }
+}
