@@ -228,7 +228,7 @@ namespace darkangel {
             historical_generations.emplace(actor.id,std::pair{++next_generation,actor.epoch});historical_states.emplace(actor.id,actor);
         }
         void insert(CollisionBox b){
-            check(b.id&&b.id<(1ULL<<63)&&boxes.size()+meshes.size()<64&&!boxes.contains(b.id)&&!meshes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&(b.dynamic||(b.angular.x==0&&b.angular.z==0))&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
+            check(b.id&&b.id<(1ULL<<63)&&boxes.size()+meshes.size()<64&&!boxes.contains(b.id)&&!meshes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
             auto q=JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(b.yaw))*JPH::Quat::sRotation(JPH::Vec3::sAxisZ(),float(b.roll));
             double norm{};for(double n:b.rotation){check(finite(n),"Invalid collision rotation");norm+=n*n;}
             if(norm){check(std::abs(norm-1)<.0001,"Collision rotation normalization");q=JPH::Quat(float(b.rotation[0]),float(b.rotation[1]),float(b.rotation[2]),float(b.rotation[3]));}
@@ -322,7 +322,7 @@ namespace darkangel {
         auto& s=*impl_;
         s.thread();
         auto& b=s.boxes.at(id);
-        check(b.data.moving&&valid(vel)&&valid(angular)&&angular.x==0&&angular.z==0,"Invalid platform target");
+        check(b.data.moving&&valid(vel)&&valid(angular),"Invalid platform target");
         b.data.velocity=vel;
         b.data.angular=angular;
         s.system.GetBodyInterface().SetLinearAndAngularVelocity(b.body,v(vel),v(angular));

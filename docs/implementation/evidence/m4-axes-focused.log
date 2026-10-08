@@ -1,0 +1,4 @@
+angular=0.2,0,0 carry_error_m=0.0332676 y=2.19612
+angular=0,0,0.2 carry_error_m=0.0332675 y=2.59346
+angular=0.15,0.2,-0.1 carry_error_m=0.0298707 y=2.15377
+Pitch/roll/combined platform carry and isolated replay passed

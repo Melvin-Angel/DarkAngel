@@ -1,0 +1,13 @@
+#include <darkangel/character_motor.hpp>
+#include <darkangel/collision_asset.hpp>
+#include <cmath>
+#include <iostream>
+using namespace darkangel;
+void require(bool b,const char* s){if(!b)throw std::runtime_error(s);}
+MotorVec rotate(std::array<double,4> q,MotorVec p){auto tx=2*(q[1]*p.z-q[2]*p.y),ty=2*(q[2]*p.x-q[0]*p.z),tz=2*(q[0]*p.y-q[1]*p.x);return {p.x+q[3]*tx+q[1]*tz-q[2]*ty,p.y+q[3]*ty+q[2]*tx-q[0]*tz,p.z+q[3]*tz+q[0]*ty-q[1]*tx};}
+void run(MotorVec angular){PhysicsWorld world;world.add({1,{0,2,0},{3,.25,3},{},{},0,0,true});CharacterMotor rider(world,{1,2.25,1},10);for(unsigned n=1;n<=20;++n){rider.step({n,n,1});world.step();rider.post_physics();}const auto initial=rider.state();world.set_platform(1,{0,.15,0},angular);CollisionHistory history;std::vector<MotorInput> commands;MotorState baseline;
+    for(unsigned n=0;n<60;++n){history.retain(world.capture());auto t=world.tick()+1;MotorInput input{t,t,1};rider.step(input);world.step();rider.post_physics();if(n==29)baseline=rider.state();if(n>=30)commands.push_back(input);require(rider.state().grounded&&rider.state().support==1&&!rider.needs_resync(),"Full-axis platform maintains support at tested walkable tilt");}
+    auto frame=world.capture();auto offset=rotate(frame.boxes[0].rotation,initial.support_local);MotorVec wanted{offset.x+frame.boxes[0].center.x,offset.y+frame.boxes[0].center.y,offset.z+frame.boxes[0].center.z};auto actual=rider.state().position;double error=std::sqrt((actual.x-wanted.x)*(actual.x-wanted.x)+(actual.y-wanted.y)*(actual.y-wanted.y)+(actual.z-wanted.z)*(actual.z-wanted.z));std::cout<<"angular="<<angular.x<<','<<angular.y<<','<<angular.z<<" carry_error_m="<<error<<" y="<<actual.y<<'\n';require(error<.04,"Full-axis carry exceeds tested 4 cm contact/anchor tolerance");MotorState replayed;require(replay_motor(baseline,commands,history,replayed,10)==ReplayResult::Applied&&std::abs(replayed.position.x-actual.x)<.02&&std::abs(replayed.position.y-actual.y)<.02&&std::abs(replayed.position.z-actual.z)<.02,"Full quaternion/point-velocity historical platform replay");require(world.capture().tick==frame.tick&&world.capture().boxes[0].rotation==frame.boxes[0].rotation,"Tilt replay never rewinds live platform");
+    world.set_platform(1,{},{});auto t=world.tick()+1;rider.step({t,t,1,0,0,0,true});world.step();rider.post_physics();require(!rider.state().grounded&&rider.state().velocity.y>5,"Stopped tilted platform allows responsive jump");
+}
+int main(){try{run({.2,0,0});run({0,0,.2});run({.15,.2,-.1});std::cout<<"Pitch/roll/combined platform carry and isolated replay passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
