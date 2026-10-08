@@ -1,0 +1,8 @@
+[1/9] Linking CXX static library DarkAngelEditorService.lib
+[2/9] Scanning C:\DarkAngel\tools\editor\editor_rpc.cpp for CXX dependencies
+[3/9] Generating CXX dyndep file CMakeFiles\DarkAngelAgent.dir\CXX.dd
+[4/8] Linking CXX executable EditorTests.exe
+[5/8] Building CXX object CMakeFiles\DarkAngelAgent.dir\tools\editor\editor_rpc.cpp.obj
+[6/8] Linking CXX static library DarkAngelAgent.lib
+[7/8] Linking CXX executable AgentTests.exe
+[8/8] Linking CXX executable AgentHost.exe

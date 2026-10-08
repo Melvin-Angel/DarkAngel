@@ -1,0 +1,46 @@
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows-darkangel...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages are already installed:
+    flecs:x64-windows-darkangel@4.1.6
+    luau:x64-windows-darkangel@0.729
+    nlohmann-json:x64-windows-darkangel@3.12.0#2
+    sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4
+  * vcpkg-cmake:x64-windows-darkangel@2024-04-23
+  * vcpkg-cmake-config:x64-windows-darkangel@2026-07-21
+The package flecs provides CMake targets:
+
+    find_package(flecs CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:flecs::flecs>,flecs::flecs,flecs::flecs_static>)
+
+luau provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(unofficial-luau CONFIG REQUIRED)
+  # note: 6 additional targets are not displayed.
+  target_link_libraries(main PRIVATE unofficial::luau::Luau.VM unofficial::luau::Luau.Ast unofficial::luau::Luau.Common unofficial::luau::Luau.Config)
+
+The package nlohmann-json provides CMake targets:
+
+    find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
+
+The package nlohmann-json can be configured to not provide implicit conversions via a custom triplet file:
+
+    set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
+
+For more information, see the docs here:
+    
+    https://json.nlohmann.me/api/macros/json_use_implicit_conversions/
+
+sqlite3 provides pkgconfig bindings.
+sqlite3 provides CMake targets:
+
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
+
+All requested installations completed successfully in: 437 us
+-- Running vcpkg install - done
+-- Configuring done (4.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: C:/DarkAngel/build/m1-release

@@ -66,3 +66,7 @@ The shell displays one loaded model asset reused by scene placements; opening a 
 Native script and geometry prerequisites are handled by their focused adapters; a unified catalog for all native asset kinds, optional/editor dependency policies, background import/reverse invalidation and CAS garbage collection remain extensions. Material/rig/animation profiles expand in their respective milestones. Device-loss/validation-layer qualification, nonblocking uploads/retirement, release package closure and clean-machine runs remain later release gates. The Vulkan Khronos validation layer is still unavailable on this machine.
 
 M3 is **In progress** with a bounded LocalLoopback transport starter. Authoritative replication, GNS/EOS sessions and the scoped agent bridge are pending. There is no gameplay, physics, audio/VFX or online-session qualification in the M1/M2 receipt. Historical M0 evidence remains historical.
+
+## M3 integration recheck (8 October 2026)
+
+The current optimized editor profile passes 28/28 tests after integrating bounded sessions, scoped agent transactions and shared history-head metadata. `scripts/verify_m2.py` also passes both native backend captures, asset validation/cook/package, normalized UI/CLI edits and cooked Headless. The earlier 26-test count above describes the initial M2 completion snapshot. Current receipts and source hashes were refreshed, and the restrained native theme is documented in [M3 report](M3_REPORT.md).

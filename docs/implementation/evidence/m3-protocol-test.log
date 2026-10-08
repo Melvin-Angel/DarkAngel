@@ -1,0 +1,21 @@
+Test project C:/DarkAngel/build/m3-relwithdebinfo
+    Start  1: M3.eos_sdk_boundary
+1/5 Test  #1: M3.eos_sdk_boundary ..............   Passed    0.07 sec
+    Start  2: M3.agent_transactions
+2/5 Test  #2: M3.agent_transactions ............   Passed    0.03 sec
+    Start 17: M3.authority
+3/5 Test #17: M3.authority .....................   Passed    0.09 sec
+    Start 18: M3.loopback
+4/5 Test #18: M3.loopback ......................   Passed    0.01 sec
+    Start 19: M3.gns_lan
+5/5 Test #19: M3.gns_lan .......................   Passed    0.12 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+M3            =   0.32 sec*proc (5 tests)
+agent         =   0.03 sec*proc (1 test)
+network       =   0.12 sec*proc (1 test)
+online-sdk    =   0.07 sec*proc (1 test)
+
+Total Test time (real) =   0.33 sec

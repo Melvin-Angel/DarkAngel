@@ -1,0 +1,9 @@
+[1/21] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/15] Scanning C:\DarkAngel\engine\runtime\transport.cpp for CXX dependencies
+[3/15] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[4/14] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[5/14] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[6/9] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\transport.cpp.obj
+[7/9] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[8/9] Linking CXX static library DarkAngelRuntime.lib
+[9/9] Linking CXX executable DarkAngelHeadless.exe

@@ -1,10 +1,10 @@
 Test project C:/DarkAngel/build/m2-relwithdebinfo
-    Start 5: M2.editor_transactions
-1/1 Test #5: M2.editor_transactions ...........   Passed    0.09 sec
+    Start 6: M2.editor_transactions
+1/1 Test #6: M2.editor_transactions ...........   Passed    0.09 sec
 
 100% tests passed out of 1
 
 Label Time Summary:
 M2    =   0.09 sec*proc (1 test)
 
-Total Test time (real) =   0.34 sec
+Total Test time (real) =   0.20 sec

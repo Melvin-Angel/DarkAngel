@@ -79,7 +79,7 @@
 [39m[39mDiligent Engine: Info: Using SURFACE_TRANSFORM_IDENTITY swap chain pretransform
 [39m[39mDiligent Engine: Info: Using VK_PRESENT_MODE_IMMEDIATE_KHR swap chain present mode
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 2). Current allocated size: 32.00 MB
-[39mViewport foreground pixels=11133 capture=C:\DarkAngel\docs\implementation\evidence\m2-vulkan-mask.png
+[39mViewport foreground pixels=11133 capture=C:\DarkAngel\docs\implementation\evidence\m3-editor-vulkan.png
 DarkAngel editor rendered 8 frames with vulkan
 [39mDiligent Engine: Info: Dynamic descriptor set allocator of immediate context peak descriptor pool count: 1
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

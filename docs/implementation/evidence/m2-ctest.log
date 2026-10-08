@@ -1,67 +1,72 @@
 Test project C:/DarkAngel/build/m2-relwithdebinfo
-      Start  1: M2.asset_pipeline
- 1/26 Test  #1: M2.asset_pipeline ................   Passed    0.33 sec
-      Start  2: M2.real_prop
- 2/26 Test  #2: M2.real_prop .....................   Passed    0.32 sec
-      Start  3: M2.device_d3d12
- 3/26 Test  #3: M2.device_d3d12 ..................   Passed    0.12 sec
-      Start  4: M2.device_vulkan
- 4/26 Test  #4: M2.device_vulkan .................   Passed    0.19 sec
-      Start  5: M2.editor_transactions
- 5/26 Test  #5: M2.editor_transactions ...........   Passed    0.17 sec
-      Start  6: FlecsProbe
- 6/26 Test  #6: FlecsProbe .......................   Passed    0.03 sec
-      Start  7: LuauProbe
- 7/26 Test  #7: LuauProbe ........................   Passed    0.02 sec
-      Start  8: SQLiteProbe
- 8/26 Test  #8: SQLiteProbe ......................   Passed    0.03 sec
-      Start  9: HeadlessSmoke
- 9/26 Test  #9: HeadlessSmoke ....................   Passed    0.07 sec
-      Start 10: M1.identity
-10/26 Test #10: M1.identity ......................   Passed    0.08 sec
-      Start 11: M1.scene
-11/26 Test #11: M1.scene .........................   Passed    0.04 sec
-      Start 12: M1.phases
-12/26 Test #12: M1.phases ........................   Passed    0.02 sec
-      Start 13: M1.scripts
-13/26 Test #13: M1.scripts .......................   Passed    0.04 sec
-      Start 14: M1.reload
-14/26 Test #14: M1.reload ........................   Passed    0.06 sec
-      Start 15: M1.limits
-15/26 Test #15: M1.limits ........................   Passed    0.06 sec
-      Start 16: M2.assemblies
-16/26 Test #16: M2.assemblies ....................   Passed    0.10 sec
-      Start 17: M2.cook_scene_fixture
-17/26 Test #17: M2.cook_scene_fixture ............   Passed    0.05 sec
-      Start 18: M2.cooked_scene_headless
-18/26 Test #18: M2.cooked_scene_headless .........   Passed    0.02 sec
-      Start 19: M3.loopback
-19/26 Test #19: M3.loopback ......................   Passed    0.04 sec
-      Start 20: M1.imports
-20/26 Test #20: M1.imports .......................   Passed    0.12 sec
-      Start 21: M1.tasks
-21/26 Test #21: M1.tasks .........................   Passed    0.04 sec
-      Start 22: M1.cooked
-22/26 Test #22: M1.cooked ........................   Passed    0.04 sec
-      Start 23: M1.state
-23/26 Test #23: M1.state .........................   Passed    0.07 sec
-      Start 24: M1.bindings
-24/26 Test #24: M1.bindings ......................   Passed    0.05 sec
-      Start 25: M1.cook_fixture
-25/26 Test #25: M1.cook_fixture ..................   Passed    0.04 sec
-      Start 26: M1.cooked_headless
-26/26 Test #26: M1.cooked_headless ...............   Passed    0.03 sec
+      Start  1: M3.agent_transactions
+ 1/28 Test  #1: M3.agent_transactions ............   Passed    0.07 sec
+      Start  2: M2.asset_pipeline
+ 2/28 Test  #2: M2.asset_pipeline ................   Passed    0.22 sec
+      Start  3: M2.real_prop
+ 3/28 Test  #3: M2.real_prop .....................   Passed    0.46 sec
+      Start  4: M2.device_d3d12
+ 4/28 Test  #4: M2.device_d3d12 ..................   Passed    0.17 sec
+      Start  5: M2.device_vulkan
+ 5/28 Test  #5: M2.device_vulkan .................   Passed    0.24 sec
+      Start  6: M2.editor_transactions
+ 6/28 Test  #6: M2.editor_transactions ...........   Passed    0.10 sec
+      Start  7: FlecsProbe
+ 7/28 Test  #7: FlecsProbe .......................   Passed    0.31 sec
+      Start  8: LuauProbe
+ 8/28 Test  #8: LuauProbe ........................   Passed    0.04 sec
+      Start  9: SQLiteProbe
+ 9/28 Test  #9: SQLiteProbe ......................   Passed    0.07 sec
+      Start 10: HeadlessSmoke
+10/28 Test #10: HeadlessSmoke ....................   Passed    0.03 sec
+      Start 11: M1.identity
+11/28 Test #11: M1.identity ......................   Passed    0.04 sec
+      Start 12: M1.scene
+12/28 Test #12: M1.scene .........................   Passed    0.02 sec
+      Start 13: M1.phases
+13/28 Test #13: M1.phases ........................   Passed    0.02 sec
+      Start 14: M1.scripts
+14/28 Test #14: M1.scripts .......................   Passed    0.05 sec
+      Start 15: M1.reload
+15/28 Test #15: M1.reload ........................   Passed    0.04 sec
+      Start 16: M1.limits
+16/28 Test #16: M1.limits ........................   Passed    0.05 sec
+      Start 17: M2.assemblies
+17/28 Test #17: M2.assemblies ....................   Passed    0.06 sec
+      Start 18: M2.cook_scene_fixture
+18/28 Test #18: M2.cook_scene_fixture ............   Passed    0.04 sec
+      Start 19: M2.cooked_scene_headless
+19/28 Test #19: M2.cooked_scene_headless .........   Passed    0.02 sec
+      Start 20: M3.authority
+20/28 Test #20: M3.authority .....................   Passed    0.08 sec
+      Start 21: M3.loopback
+21/28 Test #21: M3.loopback ......................   Passed    0.01 sec
+      Start 22: M1.imports
+22/28 Test #22: M1.imports .......................   Passed    0.07 sec
+      Start 23: M1.tasks
+23/28 Test #23: M1.tasks .........................   Passed    0.03 sec
+      Start 24: M1.cooked
+24/28 Test #24: M1.cooked ........................   Passed    0.03 sec
+      Start 25: M1.state
+25/28 Test #25: M1.state .........................   Passed    0.05 sec
+      Start 26: M1.bindings
+26/28 Test #26: M1.bindings ......................   Passed    0.03 sec
+      Start 27: M1.cook_fixture
+27/28 Test #27: M1.cook_fixture ..................   Passed    0.03 sec
+      Start 28: M1.cooked_headless
+28/28 Test #28: M1.cooked_headless ...............   Passed    0.02 sec
 
-100% tests passed out of 26
+100% tests passed out of 28
 
 Label Time Summary:
-M0               =   0.07 sec*proc (3 tests)
-M1               =   0.68 sec*proc (13 tests)
-M2               =   1.31 sec*proc (8 tests)
-M3               =   0.04 sec*proc (1 test)
-asset            =   0.65 sec*proc (2 tests)
-dependency       =   0.07 sec*proc (3 tests)
-device           =   0.31 sec*proc (2 tests)
-local-fixture    =   0.32 sec*proc (1 test)
+M0               =   0.42 sec*proc (3 tests)
+M1               =   0.49 sec*proc (13 tests)
+M2               =   1.33 sec*proc (8 tests)
+M3               =   0.16 sec*proc (3 tests)
+agent            =   0.07 sec*proc (1 test)
+asset            =   0.69 sec*proc (2 tests)
+dependency       =   0.42 sec*proc (3 tests)
+device           =   0.42 sec*proc (2 tests)
+local-fixture    =   0.46 sec*proc (1 test)
 
-Total Test time (real) =   2.33 sec
+Total Test time (real) =   3.15 sec

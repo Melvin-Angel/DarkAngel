@@ -1,0 +1,86 @@
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows-darkangel...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages are already installed:
+  * abseil:x64-windows-darkangel@20260107.1#3
+    flecs:x64-windows-darkangel@4.1.6
+    luau:x64-windows-darkangel@0.729
+    nlohmann-json:x64-windows-darkangel@3.12.0#2
+  * openssl:x64-windows-darkangel@3.6.3
+  * protobuf:x64-windows-darkangel@6.33.4#2
+    sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4
+  * utf8-range:x64-windows-darkangel@6.33.4
+  * vcpkg-cmake:x64-windows-darkangel@2024-04-23
+  * vcpkg-cmake-config:x64-windows-darkangel@2026-07-21
+  * vcpkg-cmake-get-vars:x64-windows-darkangel@2025-05-29
+The following packages will be rebuilt:
+    gamenetworkingsockets:x64-windows-darkangel@1.6.0 -- C:/DarkAngel/cmake/overlay-ports\gamenetworkingsockets
+Restored 0 package(s) from C:\Users\bengt\AppData\Local\vcpkg\archives in 332 us. Use --debug to see more details.
+Removing 1/2 gamenetworkingsockets:x64-windows-darkangel
+Elapsed time to handle gamenetworkingsockets:x64-windows-darkangel: 18.3 ms
+Installing 2/2 gamenetworkingsockets:x64-windows-darkangel@1.6.0...
+gamenetworkingsockets:x64-windows-darkangel@1.6.0 package ABI: d98f5b050dc0e777ae57875c8c4339593ae51f4d327803bcac217120a22ea328
+Building gamenetworkingsockets:x64-windows-darkangel@1.6.0...
+C:\DarkAngel\cmake\triplets\x64-windows-darkangel.cmake: info: loaded overlay triplet from here
+C:/DarkAngel/cmake/overlay-ports\gamenetworkingsockets: info: installing overlay port from here
+-- Using cached ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz
+-- Cleaning sources at C:/Users/bengt/AppData/Local/DarkAngel/vcpkg-buildtrees/gamenetworkingsockets/src/297e0bfd34-3d69d438d6.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/DarkAngel/.tools/vcpkg/downloads/ValveSoftware-GameNetworkingSockets-2cb93a06350bb065db53abdb0d87cf297e0bfd34.tar.gz
+-- Using source at C:/Users/bengt/AppData/Local/DarkAngel/vcpkg-buildtrees/gamenetworkingsockets/src/297e0bfd34-3d69d438d6.clean
+-- Configuring x64-windows-darkangel
+-- Building x64-windows-darkangel-dbg
+-- Building x64-windows-darkangel-rel
+-- Using cached msys2-mingw-w64-x86_64-pkgconf-1~2.5.1-1-any.pkg.tar.zst
+-- Using cached msys2-msys2-runtime-3.6.5-1-x86_64.pkg.tar.zst
+-- Using msys root at C:/DarkAngel/.tools/vcpkg/downloads/tools/msys2/3e71d1f8e22ab23f
+-- Installing: C:/DarkAngel/.tools/vcpkg/packages/gamenetworkingsockets_x64-windows-darkangel/share/gamenetworkingsockets/copyright
+-- Performing post-build validation
+Starting submission of gamenetworkingsockets:x64-windows-darkangel@1.6.0 to 1 binary cache(s) in the background
+Elapsed time to handle gamenetworkingsockets:x64-windows-darkangel: 1.1 min
+Installed contents are licensed to you by owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Packages installed in this vcpkg installation declare the following licenses:
+BSD-3-Clause
+The package flecs provides CMake targets:
+
+    find_package(flecs CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:flecs::flecs>,flecs::flecs,flecs::flecs_static>)
+
+luau provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(unofficial-luau CONFIG REQUIRED)
+  # note: 6 additional targets are not displayed.
+  target_link_libraries(main PRIVATE unofficial::luau::Luau.VM unofficial::luau::Luau.Ast unofficial::luau::Luau.Common unofficial::luau::Luau.Config)
+
+The package nlohmann-json provides CMake targets:
+
+    find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
+
+The package nlohmann-json can be configured to not provide implicit conversions via a custom triplet file:
+
+    set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
+
+For more information, see the docs here:
+    
+    https://json.nlohmann.me/api/macros/json_use_implicit_conversions/
+
+sqlite3 provides pkgconfig bindings.
+sqlite3 provides CMake targets:
+
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
+
+gamenetworkingsockets provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(GameNetworkingSockets CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE GameNetworkingSockets::shared GameNetworkingSockets::static GameNetworkingSockets::GameNetworkingSockets_s)
+
+Waiting for 1 remaining binary cache submissions...
+Completed submission of gamenetworkingsockets:x64-windows-darkangel@1.6.0 to 1 binary cache(s) in 4.8 s (1/1)
+All requested installations completed successfully in: 1.1 min
+-- Running vcpkg install - done
+-- Configuring done (77.8s)
+-- Generating done (0.2s)
+-- Build files have been written to: C:/DarkAngel/build/m3-relwithdebinfo

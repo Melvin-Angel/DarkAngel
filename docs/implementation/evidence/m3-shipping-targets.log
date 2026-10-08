@@ -1,0 +1,18 @@
+[1/1] All primary targets available:
+CMakeFiles/DarkAngelFoundation.dir/CXXModules.json: CXX_DYNDEP__DarkAngelFoundation_Release
+CMakeFiles/DarkAngelRuntime.dir/CXXModules.json: CXX_DYNDEP__DarkAngelRuntime_Release
+CMakeFiles/DarkAngelHeadless.dir/CXXModules.json: CXX_DYNDEP__DarkAngelHeadless_Release
+package: phony
+package_source: phony
+edit_cache: phony
+rebuild_cache: phony
+list_install_components: phony
+install: phony
+install/local: phony
+DarkAngelFoundation: phony
+DarkAngelHeadless: phony
+DarkAngelRuntime: phony
+build.ninja: RERUN_CMAKE
+C:/DarkAngel/build/m1-release/cmake_install.cmake: RERUN_CMAKE
+clean: CLEAN
+help: HELP

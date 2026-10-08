@@ -1,0 +1,93 @@
+[
+  {
+    "gate": "d3d12",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelEditor.exe",
+      "--registry",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json",
+      "--cas",
+      "C:\\DarkAngel\\.cache\\assets-real\\cas",
+      "--model",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+      "--backend",
+      "d3d12",
+      "--width",
+      "1280",
+      "--height",
+      "800",
+      "--frames",
+      "8",
+      "--hidden",
+      "--capture",
+      "C:\\DarkAngel\\docs\\implementation\\evidence\\m3-editor-d3d12.png",
+      "--exercise"
+    ],
+    "exit_code": 0,
+    "seconds": 0.296,
+    "log": "docs/implementation/evidence/m3-editor-d3d12.log"
+  },
+  {
+    "gate": "vulkan",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelEditor.exe",
+      "--registry",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json",
+      "--cas",
+      "C:\\DarkAngel\\.cache\\assets-real\\cas",
+      "--model",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+      "--backend",
+      "vulkan",
+      "--width",
+      "1280",
+      "--height",
+      "800",
+      "--frames",
+      "8",
+      "--hidden",
+      "--capture",
+      "C:\\DarkAngel\\docs\\implementation\\evidence\\m3-editor-vulkan.png"
+    ],
+    "exit_code": 0,
+    "seconds": 0.315,
+    "log": "docs/implementation/evidence/m3-editor-vulkan.log"
+  },
+  {
+    "gate": "d3d12-narrow",
+    "command": [
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelEditor.exe",
+      "--registry",
+      "C:\\DarkAngel\\.cache\\fixtures\\mask.registry.json",
+      "--cas",
+      "C:\\DarkAngel\\.cache\\assets-real\\cas",
+      "--model",
+      "d10003ce-2f74-41ea-928c-7cf71c8476b3",
+      "--backend",
+      "d3d12",
+      "--width",
+      "960",
+      "--height",
+      "720",
+      "--frames",
+      "8",
+      "--hidden",
+      "--capture",
+      "C:\\DarkAngel\\docs\\implementation\\evidence\\m3-editor-d3d12-narrow.png"
+    ],
+    "exit_code": 0,
+    "seconds": 0.265,
+    "log": "docs/implementation/evidence/m3-editor-d3d12-narrow.log"
+  },
+  {
+    "gate": "mcp",
+    "command": [
+      "C:\\DarkAngel\\.tools\\node\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\DarkAngel\\tools\\agent-bridge\\verify.mjs",
+      "C:\\DarkAngel\\build\\m2-relwithdebinfo\\DarkAngelEditor.exe",
+      "--editor"
+    ],
+    "exit_code": 0,
+    "seconds": 3.952,
+    "log": "docs/implementation/evidence/m3-editor-mcp.log"
+  }
+]

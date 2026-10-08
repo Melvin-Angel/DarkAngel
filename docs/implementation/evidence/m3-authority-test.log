@@ -1,12 +1,12 @@
 Test project C:/DarkAngel/build/m1-debug
-    Start 15: M3.authority
-1/2 Test #15: M3.authority .....................   Passed    0.12 sec
-    Start 16: M3.loopback
-2/2 Test #16: M3.loopback ......................   Passed    0.01 sec
+    Start 17: M3.authority
+1/2 Test #17: M3.authority .....................   Passed    0.33 sec
+    Start 18: M3.loopback
+2/2 Test #18: M3.loopback ......................   Passed    0.02 sec
 
 100% tests passed out of 2
 
 Label Time Summary:
-M3    =   0.14 sec*proc (2 tests)
+M3    =   0.35 sec*proc (2 tests)
 
-Total Test time (real) =   0.14 sec
+Total Test time (real) =   0.37 sec

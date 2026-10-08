@@ -9,7 +9,7 @@
       "SessionTests"
     ],
     "exit_code": 0,
-    "seconds": 2.294,
+    "seconds": 148.764,
     "log": "docs/implementation/evidence/m3-authority-build.log"
   },
   {
@@ -19,11 +19,11 @@
       "--test-dir",
       "C:\\DarkAngel\\build\\m1-debug",
       "-R",
-      "^M3\\.",
+      "^M3.(authority|loopback)$",
       "--output-on-failure"
     ],
     "exit_code": 0,
-    "seconds": 0.179,
+    "seconds": 0.431,
     "log": "docs/implementation/evidence/m3-authority-test.log"
   }
 ]

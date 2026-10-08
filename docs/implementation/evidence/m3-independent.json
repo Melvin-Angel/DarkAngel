@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "online_gate": "Unverified; requires deployment/public-client policy and two authorized identities",
+  "gates": [
+    {
+      "gate": "configure",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--preset",
+        "m3-relwithdebinfo"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 78.113,
+      "log": "docs/implementation/evidence/m3-configure.log"
+    },
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "C:\\DarkAngel\\build\\m3-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 15.485,
+      "log": "docs/implementation/evidence/m3-build.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "C:\\DarkAngel\\build\\m3-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 3.182,
+      "log": "docs/implementation/evidence/m3-ctest.log"
+    },
+    {
+      "gate": "gns-client-process",
+      "command": [
+        "C:\\DarkAngel\\build\\m3-relwithdebinfo\\GnsTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 0.177,
+      "log": "docs/implementation/evidence/m3-gns-client-process.log"
+    },
+    {
+      "gate": "mcp",
+      "command": [
+        "C:\\DarkAngel\\.tools\\node\\node-v24.21.0-win-x64\\node.exe",
+        "C:\\DarkAngel\\tools\\agent-bridge\\verify.mjs",
+        "C:\\DarkAngel\\build\\m3-relwithdebinfo\\AgentHost.exe"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 5.618,
+      "log": "docs/implementation/evidence/m3-mcp.log"
+    },
+    {
+      "gate": "shipping-configure",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--preset",
+        "m1-release",
+        "-DDAE_SHIPPING=ON",
+        "-DBUILD_TESTING=OFF",
+        "-DCMAKE_INSTALL_PREFIX=C:\\DarkAngel\\stage\\m3-shipping"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 4.423,
+      "log": "docs/implementation/evidence/m3-shipping-configure.log"
+    },
+    {
+      "gate": "shipping-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "C:\\DarkAngel\\build\\m1-release",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 4.629,
+      "log": "docs/implementation/evidence/m3-shipping-build.log"
+    },
+    {
+      "gate": "shipping-targets",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "C:\\DarkAngel\\build\\m1-release",
+        "--target",
+        "help"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 0.082,
+      "log": "docs/implementation/evidence/m3-shipping-targets.log"
+    },
+    {
+      "gate": "shipping-run",
+      "command": [
+        "C:\\DarkAngel\\build\\m1-release\\DarkAngelHeadless.exe"
+      ],
+      "exit_code": 0,
+      "expected_success": true,
+      "passed": true,
+      "seconds": 0.042,
+      "log": "docs/implementation/evidence/m3-shipping-run.log"
+    },
+    {
+      "gate": "shipping-invalid",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--preset",
+        "m1-release",
+        "-B",
+        "C:\\DarkAngel\\build\\m3-invalid-shipping",
+        "-DDAE_SHIPPING=ON",
+        "-DDAE_AUTHORING=ON",
+        "-DDAE_AGENT_ENDPOINTS=ON",
+        "-DBUILD_TESTING=OFF"
+      ],
+      "exit_code": 1,
+      "expected_success": false,
+      "passed": true,
+      "seconds": 4.099,
+      "log": "docs/implementation/evidence/m3-shipping-invalid.log"
+    }
+  ]
+}

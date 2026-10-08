@@ -4,26 +4,28 @@
     "command": [
       "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
       "--build",
-      "C:\\DarkAngel\\build\\m2-relwithdebinfo",
+      "C:\\DarkAngel\\build\\m3-relwithdebinfo",
       "--target",
-      "DarkAngelEditor"
+      "SessionTests",
+      "GnsTests",
+      "EosTests"
     ],
     "exit_code": 0,
-    "seconds": 176.049,
-    "log": "docs/implementation/evidence/m3-editor-build.log"
+    "seconds": 1.813,
+    "log": "docs/implementation/evidence/m3-protocol-build.log"
   },
   {
     "gate": "test",
     "command": [
       "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
       "--test-dir",
-      "C:\\DarkAngel\\build\\m2-relwithdebinfo",
+      "C:\\DarkAngel\\build\\m3-relwithdebinfo",
       "-R",
-      "^M2.editor_transactions$",
+      "^M3.",
       "--output-on-failure"
     ],
     "exit_code": 0,
-    "seconds": 0.241,
-    "log": "docs/implementation/evidence/m3-editor-test.log"
+    "seconds": 0.364,
+    "log": "docs/implementation/evidence/m3-protocol-test.log"
   }
 ]

@@ -1,0 +1,35 @@
+[1/78] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/72] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/64] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[4/61] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[5/59] Generating CXX dyndep file CMakeFiles\DarkAngelOnline.dir\CXX.dd
+[6/57] Scanning C:\DarkAngel\tools\editor\main.cpp for CXX dependencies
+[7/57] Scanning C:\DarkAngel\apps\headless\online_probe.cpp for CXX dependencies
+[8/57] Generating CXX dyndep file CMakeFiles\DarkAngelAgent.dir\CXX.dd
+[9/54] Generating CXX dyndep file CMakeFiles\OnlineProbe.dir\CXX.dd
+[10/54] Generating CXX dyndep file CMakeFiles\EosTests.dir\CXX.dd
+[11/52] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[12/51] Generating CXX dyndep file CMakeFiles\EditorCli.dir\CXX.dd
+[13/51] Scanning C:\DarkAngel\tests\agent_tests.cpp for CXX dependencies
+[14/51] Generating CXX dyndep file CMakeFiles\AgentHost.dir\CXX.dd
+[15/49] Generating CXX dyndep file CMakeFiles\AgentTests.dir\CXX.dd
+[16/49] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[17/47] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[18/45] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[19/43] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[20/41] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[21/40] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[22/39] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[23/38] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[24/36] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[25/35] Building CXX object CMakeFiles\EditorCli.dir\tools\editor\main.cpp.obj
+[26/35] Building CXX object CMakeFiles\OnlineProbe.dir\apps\headless\online_probe.cpp.obj
+[27/35] Linking CXX executable OnlineProbe.exe
+[28/35] Linking CXX executable DarkAngelHeadless.exe
+[29/35] Building CXX object CMakeFiles\AgentTests.dir\tests\agent_tests.cpp.obj
+[30/35] Linking CXX executable EditorCli.exe
+[31/35] Linking CXX executable FoundationTests.exe
+[32/35] Linking CXX executable ScriptPackageTests.exe
+[33/35] Linking CXX executable AgentTests.exe
+[34/35] Linking CXX executable AssemblyTests.exe
+[35/35] Linking CXX executable GnsTests.exe
