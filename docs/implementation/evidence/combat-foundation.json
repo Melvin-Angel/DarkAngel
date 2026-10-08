@@ -1,0 +1,24 @@
+{
+  "base_head": "1f3d7136795a5c57a86dac31454802f7d58f0dc2",
+  "scope": "Native kit routing/replacement and attribute primitives only; no gameplay integration",
+  "gates": [
+    {
+      "profile": "m5-relwithdebinfo",
+      "exit": 0
+    },
+    {
+      "profile": "m5-editor-relwithdebinfo",
+      "exit": 0
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "c4e200f158cf0dd61caf75010ef84d943643715abbf4f5dd44a6774f73a66034",
+    "engine/runtime/combat_kit.cpp": "10d1aa4e2c4d18edf593fbd3255b76c647589be1fd94c98bff042e47bc2eeb39",
+    "engine/runtime/include/darkangel/combat_kit.hpp": "2897a412a2dfdadcfd3f14209ac7d65a95ac069845aca45c52585260ceac83c9",
+    "engine/runtime/attributes.cpp": "33d0b76458a9910ad76a46858c2af634707944b814d4d79a9358962625fd2998",
+    "engine/runtime/include/darkangel/attributes.hpp": "b77cfd835f2cb7856896a04518eba3e76ae2c16e2837ae9cb5a41e863bd2c735",
+    "tests/combat_kit_tests.cpp": "1b20b0ffbf3df6e4258f1507e81de17b469cf55438fe4d554a391c130257c8f5",
+    "tests/attribute_tests.cpp": "9c3959ba4f0eac8bf20d0101f127dd5126f41c5c564f9b1085be1c72b71daae8"
+  },
+  "editor_sha256": "c46726816cb1c4bd731b13adcdef8df5372bef0f76200c86f2a4d362d8e6ed11"
+}

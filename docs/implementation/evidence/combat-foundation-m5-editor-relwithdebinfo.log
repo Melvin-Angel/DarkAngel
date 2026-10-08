@@ -1,0 +1,14 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+    Start 23: M5.attributes
+1/2 Test #23: M5.attributes ....................   Passed    0.03 sec
+    Start 24: M5.combat_kit
+2/2 Test #24: M5.combat_kit ....................   Passed    0.04 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+M5            =   0.07 sec*proc (2 tests)
+combat        =   0.07 sec*proc (2 tests)
+foundation    =   0.07 sec*proc (2 tests)
+
+Total Test time (real) =   0.38 sec

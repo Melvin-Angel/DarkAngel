@@ -1,3 +1,5 @@
+Latest combat foundation (9 October): [combat-kit/attribute report](COMBAT_FOUNDATION_REPORT.md) records native optional-slot input routing, immutable runtime replacement and atomic resource/statistic primitives. These are not yet wired into playable abilities, WorldSession grants or Character authoring. The user's typed graph/state/event and game-owned mask-swap direction is recorded in EDITOR_WORKFLOW_PLAN.md.
+
 Latest increment (9 October 2026): [native input and Game workflow](INPUT_WORKFLOW_REPORT.md) adds frozen semantic action/chord profiles, mapped character movement, a docked Game workspace, File/Tools menus and Settings placeholders. Focused checks pass on D3D12/Vulkan; Player/NPC/camera authoring and full M4/M5 gates remain open. Read this report and obtain the exact checkpoint with `git log -3 --oneline` and `git status --short`.
 
 # Implementation status
