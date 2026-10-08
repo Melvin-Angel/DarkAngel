@@ -3,7 +3,10 @@
 #include <DirectXMath.h>
 #include <imgui.h>
 #include <optional>
+#include <darkangel/input.hpp>
 namespace darkangel::editor_app {
+enum class Workspace {Scene,Assets,Game,Tools,Settings};
+enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
 public:
@@ -16,12 +19,22 @@ public:
     void choose_asset_import();
     void draw_import(Controller&);
     void draw_assets(Controller&,bool expanded=false);
-    bool assets_workflow{};
+    Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{};
+    void select_workspace(Workspace);
+    void open_tool(ToolView);
+    void draw_game(Controller&,unsigned,unsigned,float,double,ImTextureID);
+    void draw_auxiliary(Controller&,unsigned,unsigned,float);
+    void draw_console(Controller&);
+    InputManager* input{};std::vector<InputEvent> input_events;
+    double input_processing_us{};
+    bool controls_acquired{},jump{};
+    std::function<std::string()> gameplay_metrics;
     std::optional<Transform> draft;
     bool reload_model{},reload_shader{};
     bool native_controls{},controls_focus{},walk{};float forward{},lateral{},turn{};
 private:
-    AssetId script_asset;bool docked{};ViewArea area;ImDrawList* viewport_draw{};
+    AssetId script_asset;bool docked{},game_docked{};ViewArea area;ImDrawList* viewport_draw{};
+    std::vector<float> frame_ms;
     EditScope scope{EditScope::Placement};std::uint64_t gesture_revision{};StableId gesture_object;
     int operation{};bool dragging{},cancelled{},show_script{};char script[8192]{};char filter[128]{};
     bool import_open{};std::filesystem::path import_file;int import_type{-1};

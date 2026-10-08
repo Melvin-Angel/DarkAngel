@@ -8,7 +8,11 @@ $taskRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $taskRoot
 $taskEditor = Join-Path $taskRoot 'build/m5-editor-relwithdebinfo/DarkAngelEditor.exe'
 if (!(Test-Path -LiteralPath $taskEditor)) { throw 'Build the m5-editor-relwithdebinfo DarkAngelEditor target first.' }
-if (!(Test-Path -LiteralPath '.cache/royal-scene/registry.json')) {
+$taskRegistryReady = Test-Path -LiteralPath '.cache/royal-scene/registry.json'
+if ($taskRegistryReady) {
+    $taskRegistryReady = @((Get-Content -LiteralPath '.cache/royal-scene/registry.json' -Raw | ConvertFrom-Json).assets | Where-Object { $_.kind -eq 'input' }).Count -eq 1
+}
+if (!$taskRegistryReady) {
     python scripts/prepare_royal_scene.py
     if ($LASTEXITCODE -ne 0) { throw 'Royal scene preparation failed.' }
 }

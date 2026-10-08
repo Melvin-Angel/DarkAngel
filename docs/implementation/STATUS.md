@@ -1,3 +1,5 @@
+Latest increment (9 October 2026): [native input and Game workflow](INPUT_WORKFLOW_REPORT.md) adds frozen semantic action/chord profiles, mapped character movement, a docked Game workspace, File/Tools menus and Settings placeholders. Focused checks pass on D3D12/Vulkan; Player/NPC/camera authoring and full M4/M5 gates remain open. Read this report and obtain the exact checkpoint with `git log -3 --oneline` and `git status --short`.
+
 # Implementation status
 
 Editor delivery targets one full editor with all implemented features. Milestone-named build directories are temporary iteration checkpoints; feature-disabled library checks do not constitute separate editor editions.

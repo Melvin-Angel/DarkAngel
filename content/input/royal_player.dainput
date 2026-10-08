@@ -1,0 +1,722 @@
+{
+  "schema": 1,
+  "kind": "input",
+  "asset": "efdd846a-9480-448a-85e6-35fca1da43ee",
+  "actions": [
+    {
+      "id": 1,
+      "name": "move.forward",
+      "type": "axis",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0.15
+    },
+    {
+      "id": 2,
+      "name": "move.lateral",
+      "type": "axis",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0.15
+    },
+    {
+      "id": 3,
+      "name": "look.turn",
+      "type": "axis",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0.15
+    },
+    {
+      "id": 4,
+      "name": "walk",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 5,
+      "name": "jump",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 6,
+      "name": "dodge",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 7,
+      "name": "interact",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 8,
+      "name": "attack.light",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 9,
+      "name": "attack.heavy",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 10,
+      "name": "combat.defensive",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 11,
+      "name": "combat.ranged",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 12,
+      "name": "spell.utility",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 13,
+      "name": "spell.signature",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 14,
+      "name": "projectile.light",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 15,
+      "name": "projectile.heavy",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 16,
+      "name": "mask.up",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 17,
+      "name": "mask.right",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 18,
+      "name": "mask.down",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 19,
+      "name": "mask.left",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    },
+    {
+      "id": 20,
+      "name": "lock.on",
+      "type": "button",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0
+    }
+  ],
+  "bindings": [
+    {
+      "id": 1,
+      "action": 1,
+      "controls": [
+        "Keyboard.W"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0
+    },
+    {
+      "id": 2,
+      "action": 1,
+      "controls": [
+        "Keyboard.S"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": -1,
+      "threshold": 0
+    },
+    {
+      "id": 3,
+      "action": 1,
+      "controls": [
+        "Gamepad0.LeftY"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0
+    },
+    {
+      "id": 4,
+      "action": 2,
+      "controls": [
+        "Keyboard.A"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0
+    },
+    {
+      "id": 5,
+      "action": 2,
+      "controls": [
+        "Keyboard.D"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": -1,
+      "threshold": 0
+    },
+    {
+      "id": 6,
+      "action": 2,
+      "controls": [
+        "Gamepad0.LeftX"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": -1,
+      "threshold": 0
+    },
+    {
+      "id": 7,
+      "action": 3,
+      "controls": [
+        "Keyboard.Q"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0
+    },
+    {
+      "id": 8,
+      "action": 3,
+      "controls": [
+        "Keyboard.E"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": -1,
+      "threshold": 0
+    },
+    {
+      "id": 9,
+      "action": 3,
+      "controls": [
+        "Gamepad0.RightX"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": -1,
+      "threshold": 0
+    },
+    {
+      "id": 10,
+      "action": 4,
+      "controls": [
+        "Keyboard.ShiftLeft"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 11,
+      "action": 4,
+      "controls": [
+        "Keyboard.ShiftRight"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 12,
+      "action": 5,
+      "controls": [
+        "Keyboard.Space"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 13,
+      "action": 5,
+      "controls": [
+        "Gamepad0.South"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 14,
+      "action": 6,
+      "controls": [
+        "Keyboard.C"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 15,
+      "action": 6,
+      "controls": [
+        "Gamepad0.East"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 16,
+      "action": 7,
+      "controls": [
+        "Keyboard.F"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 17,
+      "action": 7,
+      "controls": [
+        "Gamepad0.North"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 18,
+      "action": 8,
+      "controls": [
+        "Mouse.Left"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 19,
+      "action": 8,
+      "controls": [
+        "Gamepad0.RightShoulder"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 20,
+      "action": 9,
+      "controls": [
+        "Mouse.Right"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 21,
+      "action": 9,
+      "controls": [
+        "Gamepad0.RightTrigger"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 22,
+      "action": 10,
+      "controls": [
+        "Keyboard.ControlLeft"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 23,
+      "action": 10,
+      "controls": [
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 24,
+      "action": 11,
+      "controls": [
+        "Keyboard.AltLeft"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 25,
+      "action": 11,
+      "controls": [
+        "Gamepad0.LeftTrigger"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 26,
+      "action": 16,
+      "controls": [
+        "Keyboard.1"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 27,
+      "action": 16,
+      "controls": [
+        "Gamepad0.DpadUp"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 28,
+      "action": 17,
+      "controls": [
+        "Keyboard.2"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 29,
+      "action": 17,
+      "controls": [
+        "Gamepad0.DpadRight"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 30,
+      "action": 18,
+      "controls": [
+        "Keyboard.3"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 31,
+      "action": 18,
+      "controls": [
+        "Gamepad0.DpadDown"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 32,
+      "action": 19,
+      "controls": [
+        "Keyboard.4"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 33,
+      "action": 19,
+      "controls": [
+        "Gamepad0.DpadLeft"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 34,
+      "action": 20,
+      "controls": [
+        "Mouse.Middle"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 35,
+      "action": 20,
+      "controls": [
+        "Gamepad0.RightThumb"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 36,
+      "action": 9,
+      "controls": [
+        "Mouse.Left",
+        "Keyboard.ShiftLeft"
+      ],
+      "consume": "all",
+      "priority": 10,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 37,
+      "action": 9,
+      "controls": [
+        "Mouse.Left",
+        "Keyboard.ShiftRight"
+      ],
+      "consume": "all",
+      "priority": 10,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 38,
+      "action": 12,
+      "controls": [
+        "Gamepad0.RightShoulder",
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "all",
+      "priority": 30,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 39,
+      "action": 13,
+      "controls": [
+        "Gamepad0.RightTrigger",
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "all",
+      "priority": 30,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 40,
+      "action": 14,
+      "controls": [
+        "Gamepad0.RightShoulder",
+        "Gamepad0.LeftTrigger"
+      ],
+      "consume": "trigger",
+      "priority": 20,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 41,
+      "action": 15,
+      "controls": [
+        "Gamepad0.RightTrigger",
+        "Gamepad0.LeftTrigger"
+      ],
+      "consume": "trigger",
+      "priority": 20,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 42,
+      "action": 12,
+      "controls": [
+        "Mouse.Left",
+        "Keyboard.ControlLeft"
+      ],
+      "consume": "all",
+      "priority": 30,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 43,
+      "action": 13,
+      "controls": [
+        "Mouse.Right",
+        "Keyboard.ControlLeft"
+      ],
+      "consume": "all",
+      "priority": 30,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 44,
+      "action": 14,
+      "controls": [
+        "Mouse.Left",
+        "Keyboard.AltLeft"
+      ],
+      "consume": "trigger",
+      "priority": 20,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 45,
+      "action": 15,
+      "controls": [
+        "Mouse.Right",
+        "Keyboard.AltLeft"
+      ],
+      "consume": "trigger",
+      "priority": 20,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 46,
+      "action": 16,
+      "controls": [
+        "Gamepad0.DpadUp",
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "all",
+      "priority": 40,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 47,
+      "action": 17,
+      "controls": [
+        "Gamepad0.DpadRight",
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "all",
+      "priority": 40,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 48,
+      "action": 18,
+      "controls": [
+        "Gamepad0.DpadDown",
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "all",
+      "priority": 40,
+      "scale": 1,
+      "threshold": 0.5
+    },
+    {
+      "id": 49,
+      "action": 19,
+      "controls": [
+        "Gamepad0.DpadLeft",
+        "Gamepad0.LeftShoulder"
+      ],
+      "consume": "all",
+      "priority": 40,
+      "scale": 1,
+      "threshold": 0.5
+    }
+  ]
+}

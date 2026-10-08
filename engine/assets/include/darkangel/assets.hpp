@@ -11,6 +11,8 @@
 #include <vector>
 namespace darkangel {
 struct ActionDefinition;
+struct InputProfile;
+InputProfile load_cooked_input(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 ActionDefinition load_cooked_action(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 struct CollisionDefinition;
 struct Vertex {std::array<float,3> position,normal;std::array<float,2> uv;};

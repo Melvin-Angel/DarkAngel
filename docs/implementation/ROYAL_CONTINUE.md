@@ -1,3 +1,5 @@
+Latest increment (9 October 2026): [native input and Game workflow](INPUT_WORKFLOW_REPORT.md) adds frozen semantic action/chord profiles, mapped character movement, a docked Game workspace, File/Tools menus and Settings placeholders. Focused checks pass on D3D12/Vulkan; Player/NPC/camera authoring and full M4/M5 gates remain open. Read this report and obtain the exact checkpoint with `git log -3 --oneline` and `git status --short`.
+
 # Current Royal scene handoff - 8 October 2026
 
 Latest implementation increment: typed external import and Scene/Assets workflows after planning checkpoint9c8fd2b; see [EDITOR_IMPORT_REPORT.md](EDITOR_IMPORT_REPORT.md) for profiles, focused verification and remaining scope. Native viewport locomotion checkpoint116c10f remains available. Obtain the exact current HEAD/status from git; earlier CONTINUE entries retain historical evidence.
@@ -17,7 +19,7 @@ Current result:
 - content/royal_district/RoyalVillage.dascene contains ground32x32, two huts and the complete skinned canonical human.
 - All original Unity FBXs/textures remain read-only; dependencies unchanged. Owned glTF/GLB/.daimport sources are committed.
 - Launch: powershell -ExecutionPolicy Bypass -File scripts/open_royal_scene.ps1
-- Press Play, click viewport. WASD moves, Shift walks, Q/E turns, Esc releases input. Pause/Step/Stop and native editing/undo/save/open remain available.
+- Select Game, press Play, click viewport. WASD moves, Shift walks, Q/E turns, Esc releases input. Pause/Step/Stop and native editing/undo/save/open remain available.
 - Standing cardinal walk/run blending uses nine frozen clips and native graph. Per-session RigPose supplies GPU palettes from fixed ticks; render sampling does not drive the motor.
 - Collision is the explicit initial solid rotated box-proxy profile from cooked bounds/current document transforms. Doorways/interiors are blocked. Precise mesh collision is NOT qualified for this scene.
 - Native test baseline46/46 at dd6a0a0. Latest scoped GUI checks, no-animation editor compile and GPU reference checks pass. New scene acceptance is local Loopback; independent GNS receipts are retained from prior M4 work, not refreshed or claimed for this scene.

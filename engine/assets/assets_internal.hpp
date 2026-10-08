@@ -22,6 +22,7 @@ Import import_human(const std::filesystem::path&,const std::filesystem::path&,co
 std::string cook_color_texture(std::string_view);
 Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+Import import_input(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_joint_mask(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_collision(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false);

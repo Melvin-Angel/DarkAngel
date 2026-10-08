@@ -1,0 +1,20 @@
+Test project C:/DarkAngel/build/m2-relwithdebinfo
+    Start 2: M2.asset_pipeline
+1/4 Test #2: M2.asset_pipeline ................   Passed    0.23 sec
+    Start 3: M5.external_import
+2/4 Test #3: M5.external_import ...............   Passed    0.97 sec
+    Start 4: M4.input_actions
+3/4 Test #4: M4.input_actions .................   Passed    0.13 sec
+    Start 9: M2.editor_transactions
+4/4 Test #9: M2.editor_transactions ...........   Passed    0.10 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+M2        =   0.32 sec*proc (2 tests)
+M4        =   0.13 sec*proc (1 test)
+asset     =   0.35 sec*proc (2 tests)
+editor    =   0.13 sec*proc (1 test)
+input     =   0.13 sec*proc (1 test)
+
+Total Test time (real) =   1.44 sec

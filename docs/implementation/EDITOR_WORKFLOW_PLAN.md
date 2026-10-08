@@ -14,6 +14,20 @@ Use top-level workflow tabs that change the main editor layout, following the wo
 
 Exact panel placement, tab names, keyboard behavior and visual design will be designed with the user. The layouts below describe intent, not an approved final mockup. Retain the established dark-gray theme, blue primary interactions and restrained orange attention states.
 
+## Player, NPC, Game and input direction (9 October 2026)
+
+The user added separate Player and NPC workflows and a dedicated Game workflow. Player/NPC authoring reuses Character definitions and shared combat kits rather than duplicating their data. These are all workflows in the one full editor.
+
+Game owns the game viewport and docked profiler/debugging panels. Play, Stop, Pause and Step controls belong only here. Scene remains the default level-design workspace. Save Scene and resource/script reload actions live in drop-down menus, not a permanent button toolbar. A Tools menu hosts auxiliary views that do not belong to a main workflow; keep them embedded. Settings exposes general Editor and Project sections, with empty placeholders acceptable until the settings are designed.
+
+Player authoring assigns the character, input profile and player-specific setup. It configures free-look, aim, dialog and lock-on camera modes, their transitions/offsets/limits, and the player lifecycle. Camera presentation does not determine authoritative hits; tick aim/targets still require native validation. M5 owns the initial player/input/camera authoring; dialog/interaction and persistent roster links extend through M6/M8. The existing follow camera is only an initial preview, not all four modes.
+
+NPC authoring creates/edits behavior trees, NPC decision profiles, sensing and shared combat-kit references, plus dialog and SFX-pack assignments. M6 owns native BT.CPP/JSON topology, Luau leaves, blackboards, sensing/navigation and decision profiles; M7 owns real audio packs/events, and later dialog/persistence needs their own defined schemas. Keep tree orchestration separate from candidate scoring, ability validation and Composer timing. Do not import Unity's YAML behavior-tree runtime into the native engine.
+
+Input authoring binds keyboard, mouse and gamepad controls to semantic actions, with Pressed, Hold, Released and Tapped events for both single controls and chords. Hold/tap timing and chord consumption are explicit settings. Support consuming none, the trigger only, or all participating controls, with deterministic arbitration and cancellation. Focus loss, pause, workspace changes, disconnect and rebinding must not produce accidental taps or stuck actions. Local binding preferences remain separate from authoritative gameplay state and campaign saves. Map semantic intent to the existing WorldSession/motor/ability APIs; never drive damage from a key callback.
+
+The supplied Unity reference is actually under `C:/Unity Projects/AshenRootsMP/Assets/Game/Docs`. Read `Combat_System_TODO.md`, `Core_Traversal_System.md` and `NPC_Behaviour_Trees.md` as read-only gameplay references. Relevant behavior includes stance/mask slot resolution, L1-alone defense on release unless consumed by a chord, L2 ranged mode, shared player/NPC kit rules, and server-only NPC decision execution. Preserve these responsibilities while following the locked native architecture. Unity status checkmarks are not DarkAngel acceptance evidence.
+
 ## Shared import workflow
 
 Provide Import inside the editor. After choosing one or more external files, require an explicit item type before importing. Show the destination, compatible options, detected dependencies and validation results before publication. Extension-based suggestions can help, but do not replace the user's type choice.
@@ -57,6 +71,9 @@ Acceptance: find an animation by name/type/tag, inspect it, assign it to a compo
 | Workflow | User-facing authoring scope | Delivery |
 |---|---|---|
 | Scene / Level Design (default) | Scene viewport, hierarchy, asset placement, object/system presets, transforms and collision; later terrain, islands, splines, procedural placement and scatter | M4/M5 foundation; M6 world tools |
+| Game | Dedicated game viewport and play controls, profiler, input/session inspection and docked logs; authoring controls remain in menus | M4/M5 working foundation; qualification expands with each subsystem |
+| Player | Character assignment, input/action bindings, free-look/aim/dialog/lock-on camera setup and player-specific lifecycle | M5 foundation; M6 interaction/dialog links; M8 persistent roster |
+| NPC | Behavior-tree and decision-profile editing, shared character/kit, sensing, dialog and SFX-pack links | M6 AI/sensing/tree core; M7 audio packs; later dialog/persistence schemas |
 | Character | Canonical modular character creation and piece swapping; compatible other skinned/unskinned meshes and attachments; combat kit, stats, equipment and component assignments; later NPC behavior, dialog and loot | M5 character/combat core; M6 NPC/world links; M8 persistence links |
 | Ability | Ability data, costs/cooldowns/effects and composer assignment; projectile/cast presets with fire rate, burst, spread, hold-to-charge and AOE settings | M5 |
 | Animation Composer | Animation timeline and preview; hitboxes/slashes, object/VFX/projectile/AOE spawning, motion warping, invincibility/gameplay effects, parry/block windows and combo transition windows | M5 authoritative action core; M7 real VFX/audio authoring and preview |
@@ -84,6 +101,7 @@ This workstream extends the roadmap alongside the existing runtime gates. It doe
 | Milestone | Editor work and observable gate |
 |---|---|
 | M4/M5 shared foundation | Design workspace blueprint; implement workflow-tab shell, Scene default, typed import and shared browser/picker in bounded increments. Tab switching preserves document/selection/Play state and handles pending edits explicitly. Existing undo/save/reload behavior remains passing. |
+| M4/M5 input and Game | Deliver semantic input profiles and single/chord events, focus/lifecycle/device cancellation, and the Game-only play/viewport/profiler layout. Put save/reload in menus; add embedded Tools and Editor/Project Settings placeholders. Verify that workspace switching cancels intent without mutating scene authoring. Player camera/input assignment remains a dedicated authoring task. |
 | M5 animation/combat | Deliver Character, Ability, Composer and Projectile/AOE workflows plus agreed Item core. Create a modular character, assign kit/stats/equipment, author an action/ability and test real accepted/rejected combat. Include compatible selection, timeline preview, native cook validation and shared transactional editing. |
 | M6 world/NPCs | Deliver scene placement presets, terrain/sculpt/paint/spline/scatter tools, region/navigation inspection and NPC profile/behavior authoring. Extend Character/Item workflows with agreed NPC/dialog/loot references. Verify editor changes through cooked geometry, cell cycles and scripted NPC behavior. |
 | M7 VFX/audio | Deliver VFX workflow and integrated audio authoring/preview, real supported imports, and Composer cue bindings. Create/edit actual effect/event content and verify activation, rejection, tails and resource retirement. |
@@ -99,3 +117,5 @@ This workstream extends the roadmap alongside the existing runtime gates. It doe
 5. Expand world, NPC, VFX/audio and save workflows at their owning milestones, with scoped receipts and documented remaining gates.
 
 All authoring uses existing EditorService/EditorDocument validation, prepare/commit, revision checks, undo/redo, save/open and scoped agent commands. Keep source assets authoritative and cooked products derived. Use the locked DAE-007/008/010/011/012/013/014/015 contracts. Exact layouts, proposed schemas and later painting scope remain open design work; this document records direction and acceptance tasks, not a new parallel runtime or finished UI specification.
+
+Implementation update 9 October: native semantic input profiles and chords, mapped Royal movement, docked Game controls/profiler/input monitor, File/Tools menus and Settings placeholders are implemented and scoped separately in [INPUT_WORKFLOW_REPORT.md](INPUT_WORKFLOW_REPORT.md). Player/NPC authoring, camera modes and interactive rebinding remain planned.

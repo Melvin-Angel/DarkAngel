@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "base_head": "d7de3298405c006efb9bebddc6022b9ba5f7cb1c",
+  "scope": "Native semantic input/chords and frozen profile; Win32 message adapter with synthetic source; full editor Game/Scene/Assets/Tools/Settings workflows and mapped Loopback character movement. One editor product; feature-disabled targets are shared-library checks only.",
+  "gates": [
+    {
+      "name": "input-workflow-editor-build",
+      "exit": 0,
+      "seconds": 32.706
+    },
+    {
+      "name": "input-workflow-native-build",
+      "exit": 0,
+      "seconds": 0.067
+    },
+    {
+      "name": "input-workflow-library-build",
+      "exit": 0,
+      "seconds": 0.07
+    },
+    {
+      "name": "input-workflow-core",
+      "exit": 0,
+      "seconds": 1.467
+    },
+    {
+      "name": "input-workflow-platform",
+      "exit": 0,
+      "seconds": 0.019
+    },
+    {
+      "name": "input-workflow-affected",
+      "exit": 0,
+      "seconds": 5.404
+    },
+    {
+      "name": "input-workflow-library",
+      "exit": 0,
+      "seconds": 1.466
+    },
+    {
+      "name": "input-workflow-royal-regression",
+      "exit": 0,
+      "seconds": 3.326
+    },
+    {
+      "name": "input-workflow-game-d3d12",
+      "exit": 0,
+      "seconds": 0.707
+    },
+    {
+      "name": "input-workflow-switch-d3d12",
+      "exit": 0,
+      "seconds": 0.738
+    },
+    {
+      "name": "input-workflow-game-vulkan",
+      "exit": 0,
+      "seconds": 0.644
+    },
+    {
+      "name": "input-workflow-switch-vulkan",
+      "exit": 0,
+      "seconds": 0.75
+    },
+    {
+      "name": "input-workflow-scene",
+      "exit": 0,
+      "seconds": 0.604
+    },
+    {
+      "name": "input-workflow-bindings",
+      "exit": 0,
+      "seconds": 0.473
+    },
+    {
+      "name": "input-workflow-settings",
+      "exit": 0,
+      "seconds": 0.52
+    }
+  ],
+  "binary_sha256": "90a44afbd97873bb35689938c808d1b294f1ebe501775fba7734f948c8b3ccdc",
+  "implementation_sha256": {
+    "CMakeLists.txt": "6ef129bcf3e599a6e7b45ed2d4c79ffd75d56bc31d3478713a6a1fe028372abf",
+    "engine/runtime/input.cpp": "94a7f47883eae9e0747da0ab78eaaf24e5695d9501b0f5a2655a8519f60056d4",
+    "engine/runtime/include/darkangel/input.hpp": "162bf9075cbd5fb9143ec6a53e0497779c95cb10668f742f9fc42886332aac23",
+    "engine/assets/input_cooker.cpp": "fd16091d33dab1dca66f7eaa30907604046342fc4412cc4856a1fb2a44d69a46",
+    "tools/editor/editor_document.cpp": "e7ded254c4dee6d792d628638c4014a77a0ea52b6cbebf3e3533fe225c6b7364",
+    "content/input/royal_player.dainput": "da11f3e2c9dfd2ca6c4d38ae5700da3570e0814bf1737ae46e19015d064a9432",
+    "apps/editor/main.cpp": "54e78fae80e8034ef880a67dda33cb4ba5807f390cb0938ce5512bdb0e664e4c",
+    "apps/editor/native_input.cpp": "10380c9cb19e821905ee1366f1b862cf6a2386f78cca920e4bce4a474e362af3",
+    "apps/editor/native_input.hpp": "0dfbe3bda78364553eda193af15497095e33629ff2df04fbbaf52b9aaa2103ad",
+    "apps/editor/editor_ui.cpp": "6c910aa8fb5012b7540b59f0f7e1992f82986070e147cee91f16ee946e93e429",
+    "apps/editor/editor_workspaces.cpp": "7b10aff975de86be9a1f2a00cb4890ccd5d61241b607c2d981ad94907902ac51"
+  },
+  "limitations": [
+    "Physical gamepad hardware/rebinding UI and camera-mode/player/NPC authoring remain open.",
+    "Combat events are intent only; ability/combat authority is not implemented.",
+    "Synthetic hidden fixtures are not real-time performance qualification.",
+    "Full M4/M5 timing/fault/streaming/authority gates remain open; no new GNS/EOS acceptance."
+  ]
+}
