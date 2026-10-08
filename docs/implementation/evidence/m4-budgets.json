@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "hardware": {
+    "cpu": "11th Gen Intel(R) Core(TM) i7-1185G7 @ 3.00GHz",
+    "logical_processors": 8,
+    "os": "Windows-11-10.0.26300-SP0"
+  },
+  "measurement": {
+    "schema": 1,
+    "scope": "4 motors, 2 dynamic crates, 1 kinematic platform, 8-triangle cave, 3 queries and retained history",
+    "ticks": 1200,
+    "replay_runs": 64,
+    "replay_commands": 30,
+    "live_p50_us": 44.6,
+    "live_p99_us": 77.1,
+    "replay_p50_us": 1199.3,
+    "replay_p95_us": 1427,
+    "grounded_jitter_m": 4.38839e-07,
+    "cpp_live_new_calls_per_tick": 15.0567,
+    "cpp_live_requested_bytes_per_tick": 39083.5,
+    "cpp_replay_new_calls_per_run": 1386,
+    "cpp_replay_requested_bytes_per_run": 132831,
+    "jolt_live_allocations_per_tick": 2,
+    "jolt_live_reallocations_per_tick": 0.00416667,
+    "jolt_live_requested_bytes_per_tick": 64.1967,
+    "jolt_replay_allocations_per_run": 1687,
+    "jolt_replay_reallocations_per_run": 6,
+    "jolt_replay_requested_bytes_per_run": 9102940.0,
+    "allocation_scope": "Separate C++ new and process-global Jolt allocator requests; requested bytes are not resident memory"
+  },
+  "base_head": "90583f45b3a744ed2fe5473a4b18a7e1d946266a",
+  "scope": "Local four-motor/prop/cave/query/history CPU and separate C++/Jolt allocation requests; not total resident memory or production/full gameplay stress; broader M4/M5 remain open",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "settings": {
+    "live_ticks": 1200,
+    "replay_runs": 64,
+    "replay_commands": 30,
+    "candidate_cpu_budget_us": 16667,
+    "grounded_jitter_limit_m": 0.002
+  },
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 55.701,
+      "log": "docs/implementation/evidence/m4-budgets-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorBudgetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.154,
+      "log": "docs/implementation/evidence/m4-budgets-focused.log"
+    },
+    {
+      "gate": "native-cook",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\CollisionAssetTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.185,
+      "log": "docs/implementation/evidence/m4-budgets-native-cook.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 6.272,
+      "log": "docs/implementation/evidence/m4-budgets-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 3.973,
+      "log": "docs/implementation/evidence/m4-budgets-gns-client.log"
+    },
+    {
+      "gate": "no-animation-build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m4-relwithdebinfo",
+        "--target",
+        "AssetTests",
+        "EditorTests",
+        "CollisionAssetTests",
+        "MotorBudgetTests",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 48.12,
+      "log": "docs/implementation/evidence/m4-budgets-no-animation-build.log"
+    },
+    {
+      "gate": "no-animation-regression",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m4-relwithdebinfo",
+        "-R",
+        "M2.asset_pipeline|M2.editor_transactions|M4.collision_assets|M4.local_budgets",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 0.786,
+      "log": "docs/implementation/evidence/m4-budgets-no-animation-regression.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "512068d426d2a6219100cc8c594f096d7dcb07a8bfb70f52245f8baf271fcaef",
+    "scripts/verify_budgets.py": "ee4fbc09161d82a6a07d366b2a3a6ac7e43a18e08e00cfc4886e738f619a0012",
+    "tests/motor_budget_tests.cpp": "d5e02318818b46dfef7fe6a4e88765162cc613e4d558184b4bce749e811b22b6",
+    "engine/runtime/collision_observer.cpp": "cff7949ba711f96df9d70f77d0a6c247a155109fb87897d499664a74eebaa1fb",
+    "tests/motor_session_tests.cpp": "e02f3fa9fc5a0d89b3954c33553c4a207ef373b0fad1ba52882db6e2905ab867",
+    "engine/runtime/world_session.cpp": "01e61f9c1dd4c269b2d83e9bd3d483c34848b3b946254e33416de4ab3adc4515",
+    "engine/runtime/include/darkangel/world_session.hpp": "8168a60e77be0651b8b44254aa34cc90e85cf54f3a85dbcaabd1246a5da5e880",
+    "content/physics/m4_cave.dacollision": "fd988ea3d2f371a6cdb79adaa5efc657ed7f5cbc3416d7b00ee53ed47a2d3049",
+    "tests/collision_asset_tests.cpp": "59f92c0be3b34ee7f522fff094361d46d5293dd5b535a5fce6bb4f36c6b95c07",
+    "engine/runtime/character_motor.cpp": "ba313e1df8a951ce55632610f0f709eb5aa19e9b7b44c6d3e0ffbb300224b0d2",
+    "engine/runtime/collision_source.cpp": "e41b9fa209d5505cd1006ddc5d8ee47afe674914e1b95db5fc8451f72df322a5",
+    "engine/runtime/include/darkangel/character_motor.hpp": "b2088700c86ff518d62681913b716e17524e9e3a10b8cef618fe3ec757f3c0b1",
+    "engine/assets/collision_cooker.cpp": "d624dba576346a382f7ba492401dfa73004d6d5e64c3126fb4f249de22284353",
+    "engine/runtime/include/darkangel/collision_asset.hpp": "55b40402b441b5850afe86bcc09be287fe8c345833dd54ac31c77c3a90da0ec7"
+  },
+  "binary_sha256": {
+    "MotorBudgetTests.exe": "267d5486ed9458e629c125d10f7fe6f29154357ba43de5693946b4d177ecc6d7",
+    "CollisionAssetTests.exe": "e1ac3669fb208490cfb018d8f0e401870d55ca627dfdc2cebdc6700d79194a96",
+    "MotorSessionTests.exe": "31940e238941622022c7be5bed1f65e98a341bd1e27e07cff5927772ad158b08"
+  }
+}

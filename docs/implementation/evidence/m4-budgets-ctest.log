@@ -1,0 +1,99 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+      Start  1: M4.session
+ 1/40 Test  #1: M4.session .......................   Passed    0.18 sec
+      Start  2: M4.faults
+ 2/40 Test  #2: M4.faults ........................   Passed    0.26 sec
+      Start  3: M4.motor
+ 3/40 Test  #3: M4.motor .........................   Passed    0.05 sec
+      Start  4: M4.actor_history
+ 4/40 Test  #4: M4.actor_history .................   Passed    0.05 sec
+      Start  5: M4.dynamic_proxies
+ 5/40 Test  #5: M4.dynamic_proxies ...............   Passed    0.05 sec
+      Start  6: M4.queries_sensors
+ 6/40 Test  #6: M4.queries_sensors ...............   Passed    0.05 sec
+      Start  7: M4.local_budgets
+ 7/40 Test  #7: M4.local_budgets .................   Passed    0.13 sec
+      Start  8: M5.canonical_rig
+ 8/40 Test  #8: M5.canonical_rig .................   Passed    0.86 sec
+      Start  9: M5.clips
+ 9/40 Test  #9: M5.clips .........................   Passed    1.12 sec
+      Start 10: M4.collision_assets
+10/40 Test #10: M4.collision_assets ..............   Passed    1.30 sec
+      Start 11: M5.action_timeline
+11/40 Test #11: M5.action_timeline ...............   Passed    0.25 sec
+      Start 12: M4.collision_meshes
+12/40 Test #12: M4.collision_meshes ..............   Passed    0.19 sec
+      Start 13: M4.collision_stream
+13/40 Test #13: M4.collision_stream ..............   Passed    0.07 sec
+      Start 14: M4.collision_observer
+14/40 Test #14: M4.collision_observer ............   Passed    0.04 sec
+      Start 15: M2.asset_pipeline
+15/40 Test #15: M2.asset_pipeline ................   Passed    0.20 sec
+      Start 16: M2.real_prop
+16/40 Test #16: M2.real_prop .....................   Passed    0.21 sec
+      Start 17: M2.editor_transactions
+17/40 Test #17: M2.editor_transactions ...........   Passed    0.12 sec
+      Start 18: FlecsProbe
+18/40 Test #18: FlecsProbe .......................   Passed    0.02 sec
+      Start 19: LuauProbe
+19/40 Test #19: LuauProbe ........................   Passed    0.01 sec
+      Start 20: SQLiteProbe
+20/40 Test #20: SQLiteProbe ......................   Passed    0.02 sec
+      Start 21: HeadlessSmoke
+21/40 Test #21: HeadlessSmoke ....................   Passed    0.05 sec
+      Start 22: M1.identity
+22/40 Test #22: M1.identity ......................   Passed    0.06 sec
+      Start 23: M1.scene
+23/40 Test #23: M1.scene .........................   Passed    0.02 sec
+      Start 24: M1.phases
+24/40 Test #24: M1.phases ........................   Passed    0.02 sec
+      Start 25: M1.scripts
+25/40 Test #25: M1.scripts .......................   Passed    0.03 sec
+      Start 26: M1.reload
+26/40 Test #26: M1.reload ........................   Passed    0.04 sec
+      Start 27: M1.limits
+27/40 Test #27: M1.limits ........................   Passed    0.05 sec
+      Start 28: M2.assemblies
+28/40 Test #28: M2.assemblies ....................   Passed    0.10 sec
+      Start 29: M2.cook_scene_fixture
+29/40 Test #29: M2.cook_scene_fixture ............   Passed    0.04 sec
+      Start 30: M2.cooked_scene_headless
+30/40 Test #30: M2.cooked_scene_headless .........   Passed    0.02 sec
+      Start 31: M3.authority
+31/40 Test #31: M3.authority .....................   Passed    0.09 sec
+      Start 32: M3.loopback
+32/40 Test #32: M3.loopback ......................   Passed    0.01 sec
+      Start 33: M3.gns_lan
+33/40 Test #33: M3.gns_lan .......................   Passed    0.19 sec
+      Start 34: M1.imports
+34/40 Test #34: M1.imports .......................   Passed    0.10 sec
+      Start 35: M1.tasks
+35/40 Test #35: M1.tasks .........................   Passed    0.03 sec
+      Start 36: M1.cooked
+36/40 Test #36: M1.cooked ........................   Passed    0.02 sec
+      Start 37: M1.state
+37/40 Test #37: M1.state .........................   Passed    0.07 sec
+      Start 38: M1.bindings
+38/40 Test #38: M1.bindings ......................   Passed    0.04 sec
+      Start 39: M1.cook_fixture
+39/40 Test #39: M1.cook_fixture ..................   Passed    0.02 sec
+      Start 40: M1.cooked_headless
+40/40 Test #40: M1.cooked_headless ...............   Passed    0.02 sec
+
+100% tests passed out of 40
+
+Label Time Summary:
+M0               =   0.05 sec*proc (3 tests)
+M1               =   0.51 sec*proc (13 tests)
+M2               =   0.67 sec*proc (6 tests)
+M3               =   0.29 sec*proc (3 tests)
+M4               =   1.80 sec*proc (4 tests)
+M5               =   0.86 sec*proc (1 test)
+animation        =   0.86 sec*proc (1 test)
+asset            =   2.56 sec*proc (4 tests)
+dependency       =   0.05 sec*proc (3 tests)
+local-fixture    =   0.21 sec*proc (1 test)
+network          =   0.63 sec*proc (3 tests)
+physics          =   0.05 sec*proc (1 test)
+
+Total Test time (real) =   6.22 sec

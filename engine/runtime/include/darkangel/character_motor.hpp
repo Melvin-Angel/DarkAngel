@@ -8,6 +8,9 @@
 #include <vector>
 #include <array>
 namespace darkangel {
+// Process-wide diagnostic counters for the private Jolt allocator hooks.
+struct PhysicsAllocationCounters {std::uint64_t allocations{},reallocations{},requested_bytes{},frees{};};
+void track_physics_allocations(bool);PhysicsAllocationCounters physics_allocation_counters();
 // Meters, seconds, Y-up right-handed. Tick is always 1/60 second.
 struct MotorVec {double x{},y{},z{}; auto operator<=>(const MotorVec&) const=default;};
 struct MotorInput {std::uint64_t sequence{},tick{},epoch{1};double x{},z{},yaw{};bool jump{},crouch{};};

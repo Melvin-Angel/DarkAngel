@@ -92,9 +92,19 @@ namespace darkangel {
                 return l!=2&&l!=3;
             }
         };
+        std::atomic<bool> allocation_tracking{};
+        std::atomic<std::uint64_t> sdk_allocations{},sdk_reallocations{},sdk_requested{},sdk_frees{};
+        JPH::AllocateFunction original_allocate;JPH::ReallocateFunction original_reallocate;JPH::FreeFunction original_free;JPH::AlignedAllocateFunction original_aligned_allocate;JPH::AlignedFreeFunction original_aligned_free;
+        void* counted_allocate(std::size_t size){if(allocation_tracking){++sdk_allocations;sdk_requested+=size;}return original_allocate(size);}
+        void* counted_reallocate(void* pointer,std::size_t old_size,std::size_t size){if(allocation_tracking){++sdk_reallocations;sdk_requested+=size;}return original_reallocate(pointer,old_size,size);}
+        void counted_free(void* pointer){if(pointer&&allocation_tracking)++sdk_frees;original_free(pointer);}
+        void* counted_aligned_allocate(std::size_t size,std::size_t alignment){if(allocation_tracking){++sdk_allocations;sdk_requested+=size;}return original_aligned_allocate(size,alignment);}
+        void counted_aligned_free(void* pointer){if(pointer&&allocation_tracking)++sdk_frees;original_aligned_free(pointer);}
         struct JoltLifetime {
             JoltLifetime(){
                 JPH::RegisterDefaultAllocator();
+                original_allocate=JPH::Allocate;original_reallocate=JPH::Reallocate;original_free=JPH::Free;original_aligned_allocate=JPH::AlignedAllocate;original_aligned_free=JPH::AlignedFree;
+                JPH::Allocate=counted_allocate;JPH::Reallocate=counted_reallocate;JPH::Free=counted_free;JPH::AlignedAllocate=counted_aligned_allocate;JPH::AlignedFree=counted_aligned_free;
                 JPH::Factory::sInstance=new JPH::Factory;
                 JPH::RegisterTypes();
             }~JoltLifetime(){
@@ -111,6 +121,8 @@ namespace darkangel {
             return new JPH::RotatedTranslatedShape(JPH::Vec3(0,height/2,0),JPH::Quat::sIdentity(),new JPH::CapsuleShape(height/2-.3f,.3f));
         }
     }
+    void track_physics_allocations(bool enabled){initialize();allocation_tracking=enabled;}
+    PhysicsAllocationCounters physics_allocation_counters(){return {sdk_allocations.load(),sdk_reallocations.load(),sdk_requested.load(),sdk_frees.load()};}
     unsigned SimulationClock::advance(double seconds){
         check(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Invalid clock delta");
         debt_+=seconds;

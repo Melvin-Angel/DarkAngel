@@ -1,0 +1,30 @@
+#include <darkangel/character_motor.hpp>
+#include <darkangel/collision_asset.hpp>
+#include <chrono>
+#include <cstdlib>
+#include <new>
+#include <malloc.h>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <cmath>
+using namespace darkangel;
+namespace {bool track{};std::uint64_t calls{},bytes{};void count(std::size_t n){if(track){++calls;bytes+=n;}}}
+void* operator new(std::size_t n){if(auto* p=std::malloc(n?n:1)){count(n);return p;}throw std::bad_alloc();}
+void* operator new[](std::size_t n){return ::operator new(n);}void operator delete(void* p)noexcept{std::free(p);}void operator delete[](void* p)noexcept{std::free(p);}void operator delete(void* p,std::size_t)noexcept{std::free(p);}void operator delete[](void* p,std::size_t)noexcept{std::free(p);}
+void* operator new(std::size_t n,std::align_val_t alignment){if(auto* p=_aligned_malloc(n?n:1,static_cast<std::size_t>(alignment))){count(n);return p;}throw std::bad_alloc();}void* operator new[](std::size_t n,std::align_val_t alignment){return ::operator new(n,alignment);}void operator delete(void* p,std::align_val_t)noexcept{_aligned_free(p);}void operator delete[](void* p,std::align_val_t)noexcept{_aligned_free(p);}void operator delete(void* p,std::size_t,std::align_val_t)noexcept{_aligned_free(p);}void operator delete[](void* p,std::size_t,std::align_val_t)noexcept{_aligned_free(p);}
+namespace {
+void require(bool b,const char* s){if(!b)throw std::runtime_error(s);}
+double percentile(std::vector<double> values,double fraction){std::sort(values.begin(),values.end());return values[static_cast<std::size_t>((values.size()-1)*fraction)];}
+}
+int main(){try{
+    std::ifstream input(std::string(DAE_SOURCE_DIR)+"/content/physics/m4_cave.dacollision");std::string source{std::istreambuf_iterator<char>(input),{}};PhysicsWorld world;world.load_scene(decode_collision_source(source));world.add({3,{4,.5,0},{.4,.5,.4},{},{},0,0,false,true,50});world.add({4,{6,.5,0},{.4,.5,.4},{},{},0,0,false,true,50});world.add({5,{-8,.3,0},{.8,.2,.8},{0,.005,0},{0,.2,0},0,0,true});std::vector<std::unique_ptr<CharacterMotor>> motors;for(unsigned n=0;n<4;++n)motors.push_back(std::make_unique<CharacterMotor>(world,MotorVec{-4,0,double(n)*2-3},n+1));
+    auto step=[&]{auto tick=world.tick()+1;for(auto& motor:motors)motor->step({tick,tick,1,.4});world.step();for(auto& motor:motors)motor->post_physics();};for(unsigned n=0;n<64;++n)step();
+    CollisionHistory history;std::vector<double> live;live.reserve(1200);std::vector<MotorInput> commands;MotorState baseline;double low=100,high=-100;std::uint64_t live_calls{},live_bytes{};
+    auto sdk_before=physics_allocation_counters();track_physics_allocations(true);
+    for(unsigned n=0;n<1200;++n){auto start=std::chrono::steady_clock::now();calls=bytes=0;track=true;history.retain(world.capture());step();auto ray=world.query_ray({0,2,0},{0,-4,0});QueryFilter filter;filter.owner=1;auto sweep=world.sweep({0,1,0},{1,-1,0},.2,16,filter);auto overlap=world.overlap({0,.1,0},.2,16,filter);track=false;live_calls+=calls;live_bytes+=bytes;live.push_back(std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count());require(!ray.overflow&&!sweep.overflow&&!overlap.overflow,"Measured fixture query budget");low=std::min(low,motors[0]->state().position.y);high=std::max(high,motors[0]->state().position.y);if(n==1169)baseline=motors[0]->state();if(n>=1170)commands.push_back({world.tick(),world.tick(),1,.4});}
+    track_physics_allocations(false);auto sdk_live=physics_allocation_counters();
+    history.retain(world.capture());const auto before=world.capture();std::vector<double> replay;replay.reserve(64);std::uint64_t replay_calls{},replay_bytes{};track_physics_allocations(true);for(unsigned n=0;n<64;++n){MotorState result;calls=bytes=0;auto start=std::chrono::steady_clock::now();track=true;auto status=replay_motor(baseline,commands,history,result,1);track=false;replay.push_back(std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count());replay_calls+=calls;replay_bytes+=bytes;require(status==ReplayResult::Applied&&std::abs(result.position.x-motors[0]->state().position.x)<.02,"Measured isolated 30-command replay");}track_physics_allocations(false);auto sdk_replay=physics_allocation_counters();require(world.capture().tick==before.tick&&world.capture().actors[0].foot==before.actors[0].foot,"Measured replay preserves live state");
+    auto live_p99=percentile(live,.99),replay_p95=percentile(replay,.95);require(live_p99<16667&&replay_p95<16667,"Candidate local 60 Hz CPU budget exceeded");require(high-low<.002,"Flat grounded peak-to-peak jitter exceeds 2 mm");
+    std::cout<<"{\"schema\":1,\"scope\":\"4 motors, 2 dynamic crates, 1 kinematic platform, 8-triangle cave, 3 queries and retained history\",\"ticks\":1200,\"replay_runs\":64,\"replay_commands\":30,\"live_p50_us\":"<<percentile(live,.5)<<",\"live_p99_us\":"<<live_p99<<",\"replay_p50_us\":"<<percentile(replay,.5)<<",\"replay_p95_us\":"<<replay_p95<<",\"grounded_jitter_m\":"<<high-low<<",\"cpp_live_new_calls_per_tick\":"<<live_calls/1200.0<<",\"cpp_live_requested_bytes_per_tick\":"<<live_bytes/1200.0<<",\"cpp_replay_new_calls_per_run\":"<<replay_calls/64.0<<",\"cpp_replay_requested_bytes_per_run\":"<<replay_bytes/64.0<<",\"jolt_live_allocations_per_tick\":"<<(sdk_live.allocations-sdk_before.allocations)/1200.0<<",\"jolt_live_reallocations_per_tick\":"<<(sdk_live.reallocations-sdk_before.reallocations)/1200.0<<",\"jolt_live_requested_bytes_per_tick\":"<<(sdk_live.requested_bytes-sdk_before.requested_bytes)/1200.0<<",\"jolt_replay_allocations_per_run\":"<<(sdk_replay.allocations-sdk_live.allocations)/64.0<<",\"jolt_replay_reallocations_per_run\":"<<(sdk_replay.reallocations-sdk_live.reallocations)/64.0<<",\"jolt_replay_requested_bytes_per_run\":"<<(sdk_replay.requested_bytes-sdk_live.requested_bytes)/64.0<<",\"allocation_scope\":\"Separate C++ new and process-global Jolt allocator requests; requested bytes are not resident memory\"}\n";return 0;
+}catch(const std::exception& e){track=false;track_physics_allocations(false);std::cerr<<e.what()<<'\n';return 1;}}
