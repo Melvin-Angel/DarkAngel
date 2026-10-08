@@ -13,7 +13,7 @@ public:
     void save(const std::filesystem::path&);
     void play();void stop();void step();void update(double seconds);
     void reload_scripts();
-    World& displayed();
+    const World& displayed();
     std::unique_ptr<EditorDocument> document;
     SceneSession preview{WorldDomain::Preview};
     StableId selected;bool paused{};std::vector<ConsoleEntry> console;
@@ -21,6 +21,10 @@ public:
     AssetId model;
     double radius;
     std::function<void(AssetId)> prepare_model;
+    std::function<void(const SpawnPlan&,const World&)> prepare_gameplay;
+    std::function<void()> stop_gameplay,step_gameplay;
+    std::function<void(double)> update_gameplay;
+    std::function<const World*()> gameplay_view;
     void log(std::string message,ConsoleSeverity=ConsoleSeverity::Info);
 };
 }

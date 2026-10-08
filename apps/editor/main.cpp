@@ -24,6 +24,9 @@
 #include <darkangel/editor_service.hpp>
 #include "editor_ui.hpp"
 #include "editor_theme.hpp"
+#ifdef DAE_CHARACTER_SCENE
+#include "character_preview.hpp"
+#endif
 #ifdef DAE_AGENT_ENDPOINTS
 #include <darkangel/editor_rpc.hpp>
 #endif
@@ -43,14 +46,18 @@ using namespace darkangel;
 namespace {
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 struct ComApartment {ComApartment(){require(SUCCEEDED(CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED)),"Editor COM initialization failed");}~ComApartment(){DirectX::SetWICFactory(nullptr);CoUninitialize();}};
-struct Options {std::filesystem::path registry,cas,capture,agent_descriptor,scene;std::string agent_project;bool agent_authoring{};std::string pose_clip;double pose_tick{};std::string model,backend{"d3d12"};unsigned frames{},width{1280},height{800};bool hidden{},exercise{},camera_close{},skin_reference{};};
-Options options(int argc,char** argv){Options out;for(int i=1;i<argc;++i){std::string arg=argv[i];if(arg=="--skin-reference"){out.skin_reference=true;continue;}if(arg=="--camera-close"){out.camera_close=true;continue;}if(arg=="--agent-authoring"){out.agent_authoring=true;continue;}if(arg=="--hidden"){out.hidden=true;continue;}if(arg=="--exercise"){out.exercise=true;continue;}require(i+1<argc,"Missing editor option value");std::string value=argv[++i];if(arg=="--pose-clip")out.pose_clip=value;else if(arg=="--pose-tick")out.pose_tick=std::stod(value);else if(arg=="--scene")out.scene=value;else if(arg=="--width")out.width=static_cast<unsigned>(std::stoul(value));else if(arg=="--height")out.height=static_cast<unsigned>(std::stoul(value));else if(arg=="--agent-descriptor")out.agent_descriptor=value;else if(arg=="--agent-project")out.agent_project=StableId::parse(value).text();else if(arg=="--registry")out.registry=value;else if(arg=="--cas")out.cas=value;else if(arg=="--model")out.model=value;else if(arg=="--capture")out.capture=value;else if(arg=="--frames")out.frames=static_cast<unsigned>(std::stoul(value));else if(arg=="--backend")out.backend=value;else throw std::runtime_error("Unknown editor option");}require(!out.registry.empty() && !out.cas.empty() && !out.model.empty(),"DarkAngelEditor requires --registry file --cas directory --model UUID");require(out.backend=="d3d12" || out.backend=="vulkan","Unsupported backend");require(out.width>=640 && out.width<=3840 && out.height>=480 && out.height<=2160,"Editor window size bounds");require(out.frames<=10000,"Frame budget limit");require(std::isfinite(out.pose_tick)&&out.pose_tick>=0&&out.pose_tick<=600,"Pose diagnostic tick limit");require(out.agent_descriptor.empty()==out.agent_project.empty() && (!out.agent_authoring || !out.agent_descriptor.empty()),"Agent requires explicit descriptor and project UUID");
+struct Options {std::filesystem::path registry,cas,capture,agent_descriptor,scene;std::string agent_project;bool agent_authoring{};std::string character_clips;std::string pose_clip;double pose_tick{};std::string model,backend{"d3d12"};unsigned frames{},width{1280},height{800};bool hidden{},exercise{},camera_close{},skin_reference{},exercise_character{};};
+Options options(int argc,char** argv){Options out;for(int i=1;i<argc;++i){std::string arg=argv[i];if(arg=="--exercise-character"){out.exercise_character=true;continue;}if(arg=="--skin-reference"){out.skin_reference=true;continue;}if(arg=="--camera-close"){out.camera_close=true;continue;}if(arg=="--agent-authoring"){out.agent_authoring=true;continue;}if(arg=="--hidden"){out.hidden=true;continue;}if(arg=="--exercise"){out.exercise=true;continue;}require(i+1<argc,"Missing editor option value");std::string value=argv[++i];if(arg=="--character-clips")out.character_clips=value;else if(arg=="--pose-clip")out.pose_clip=value;else if(arg=="--pose-tick")out.pose_tick=std::stod(value);else if(arg=="--scene")out.scene=value;else if(arg=="--width")out.width=static_cast<unsigned>(std::stoul(value));else if(arg=="--height")out.height=static_cast<unsigned>(std::stoul(value));else if(arg=="--agent-descriptor")out.agent_descriptor=value;else if(arg=="--agent-project")out.agent_project=StableId::parse(value).text();else if(arg=="--registry")out.registry=value;else if(arg=="--cas")out.cas=value;else if(arg=="--model")out.model=value;else if(arg=="--capture")out.capture=value;else if(arg=="--frames")out.frames=static_cast<unsigned>(std::stoul(value));else if(arg=="--backend")out.backend=value;else throw std::runtime_error("Unknown editor option");}require(!out.registry.empty() && !out.cas.empty() && !out.model.empty(),"DarkAngelEditor requires --registry file --cas directory --model UUID");require(out.backend=="d3d12" || out.backend=="vulkan","Unsupported backend");require(out.width>=640 && out.width<=3840 && out.height>=480 && out.height<=2160,"Editor window size bounds");require(out.frames<=10000,"Frame budget limit");require(std::isfinite(out.pose_tick)&&out.pose_tick>=0&&out.pose_tick<=600,"Pose diagnostic tick limit");require(out.agent_descriptor.empty()==out.agent_project.empty() && (!out.agent_authoring || !out.agent_descriptor.empty()),"Agent requires explicit descriptor and project UUID");
 #ifndef DAE_AGENT_ENDPOINTS
 require(out.agent_descriptor.empty(),"This build excludes agent endpoints");
 #endif
 #ifndef DAE_ANIMATION
 require(out.pose_clip.empty()&&!out.skin_reference&&out.pose_tick==0,"Pose diagnostics require animation-enabled editor");
 #endif
+#ifndef DAE_CHARACTER_SCENE
+require(out.character_clips.empty()&&!out.exercise_character,"Character scene requires the animation/physics editor");
+#endif
+require(!out.exercise_character||(!out.character_clips.empty()&&out.frames>=30),"Character exercise requires configured clips and at least30 frames");require(out.character_clips.empty()||(!out.scene.empty()&&!out.skin_reference),"Character scene requires a saved scene and GPU skinning");
 return out;}
 ImGuiImplWin32* window_gui{};unsigned resize_width{},resize_height{};
 LRESULT CALLBACK window_proc(HWND window,UINT message,WPARAM wparam,LPARAM lparam){
@@ -131,7 +138,7 @@ UploadedSkin upload_skin(IRenderDevice* device,RuntimeSkinnedModel model,IPipeli
     UploadedSkin result;result.gpu=upload(device,visible,pso,cull);for(unsigned index=0;index<model.meshes.size();++index)result.gpu.meshes[index].color=model.meshes[index].color;if(!reference)for(unsigned index=0;index<model.meshes.size();++index){const auto& mesh=model.meshes[index];BufferDesc desc;desc.Name="Canonical four-influence skin vertices";desc.Usage=USAGE_IMMUTABLE;desc.BindFlags=BIND_VERTEX_BUFFER;desc.Size=mesh.vertices.size()*sizeof(SkinnedVertex);BufferData data{mesh.vertices.data(),desc.Size};device->CreateBuffer(desc,&data,&result.gpu.meshes[index].vertices);require(result.gpu.meshes[index].vertices,"GPU skin vertex upload failed");}
     result.pose=std::make_unique<RigPose>(model.rig.definition,model.rig.archive);result.model=std::move(model);return result;
 }
-void upload_palette(IDeviceContext* context,IBuffer* buffer,UploadedSkin& skin,const AnimationClip* clip,double tick){const auto& matrices=clip?skin.pose->sample(*clip,tick):skin.pose->rest_pose();std::array<std::array<float,16>,256> palette{};for(unsigned joint=0;joint<matrices.size();++joint)for(unsigned col=0;col<4;++col)for(unsigned row=0;row<4;++row)for(unsigned k=0;k<4;++k)palette[joint][col*4+row]+=matrices[joint].values[k*4+row]*skin.model.inverse_bind[joint][col*4+k];void* mapped{};context->MapBuffer(buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"GPU skin palette map failed");std::memcpy(mapped,palette.data(),sizeof(palette));context->UnmapBuffer(buffer,MAP_WRITE);}
+void upload_palette(IDeviceContext* context,IBuffer* buffer,UploadedSkin& skin,const AnimationClip* clip,double tick,const std::vector<JointMatrix>* gameplay=nullptr){const auto& matrices=gameplay?*gameplay:(clip?skin.pose->sample(*clip,tick):skin.pose->rest_pose());require(matrices.size()==skin.model.inverse_bind.size(),"Gameplay pose skin layout mismatch");std::array<std::array<float,16>,256> palette{};for(unsigned joint=0;joint<matrices.size();++joint)for(unsigned col=0;col<4;++col)for(unsigned row=0;row<4;++row)for(unsigned k=0;k<4;++k)palette[joint][col*4+row]+=matrices[joint].values[k*4+row]*skin.model.inverse_bind[joint][col*4+k];void* mapped{};context->MapBuffer(buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"GPU skin palette map failed");std::memcpy(mapped,palette.data(),sizeof(palette));context->UnmapBuffer(buffer,MAP_WRITE);}
 #endif
 
 }
@@ -160,6 +167,14 @@ int main(int argc,char** argv){try{
 #endif
         auto cooked=load_cooked_model(args.registry,args.cas,requested);auto resources=upload(device,cooked,pso,pso_cull);scene_models.emplace(requested,std::move(resources));};
     if(!args.scene.empty())editor.open(args.scene);
+#ifdef DAE_CHARACTER_SCENE
+    std::unique_ptr<CharacterSceneSession> character;StableId character_player;std::unique_ptr<darkangel::editor_app::CharacterPreviewResources> character_resources;CharacterSceneInput character_input;
+    if(!args.character_clips.empty()){require(scene_skins.size()==1,"Character preset requires one loaded skin");character_resources=std::make_unique<darkangel::editor_app::CharacterPreviewResources>(darkangel::editor_app::load_character_preview(args.registry,args.cas,args.character_clips,scene_skins.begin()->second.model));shell.native_controls=true;
+        editor.prepare_gameplay=[&](const SpawnPlan& plan,const World& world){auto prepared=darkangel::editor_app::prepare_character_preview(plan,world,*character_resources,[&](AssetId asset){return load_cooked_model(args.registry,args.cas,asset);});character_player=prepared.first;character=std::move(prepared.second);editor.log("Native Loopback character Play: standing locomotion and solid box collision proxies. Click viewport for WASD, Shift walk, Q/E turn; Esc releases input.");};
+        editor.stop_gameplay=[&]{character.reset();shell.controls_focus=false;};editor.gameplay_view=[&]()->const World*{return character?&character->presentation():nullptr;};editor.update_gameplay=[&](double seconds){if(character)character->advance(seconds,character_input);};editor.step_gameplay=[&]{if(character)character->step({0,0,character->motor().yaw});};
+    }
+#endif
+
 #ifdef DAE_AGENT_ENDPOINTS
 std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_agent=[&]{if(args.agent_descriptor.empty())return;if(agent_document!=editor.document.get()){agent.reset();agent=std::make_unique<AgentEndpoint>(*editor.document,args.agent_project,args.agent_authoring,args.agent_descriptor);agent_document=editor.document.get();editor.log("Issued scoped agent descriptor for this authoring document.");}agent->poll();};
 #endif
@@ -167,9 +182,16 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
 #ifdef DAE_ANIMATION
         std::map<AssetId,UploadedSkin> skins;for(const auto& [asset,unused]:scene_skins)skins.emplace(asset,upload_skin(device,load_cooked_skinned_model(args.registry,args.cas,asset),args.skin_reference?pso.RawPtr():skin_pso.RawPtr(),args.skin_reference?pso_cull.RawPtr():skin_cull.RawPtr(),diagnostic_clip.get(),args.pose_tick,args.skin_reference));
 #endif
+#ifdef DAE_CHARACTER_SCENE
+        std::unique_ptr<darkangel::editor_app::CharacterPreviewResources> preview_candidate;if(character_resources){require(skins.size()==1,"Character reload requires one skin");preview_candidate=std::make_unique<darkangel::editor_app::CharacterPreviewResources>(darkangel::editor_app::load_character_preview(args.registry,args.cas,args.character_clips,skins.begin()->second.model));}
+#endif
         context->Flush();context->WaitForIdle();scene_models=std::move(other);
 #ifdef DAE_ANIMATION
         scene_skins=std::move(skins);
+#endif
+
+#ifdef DAE_CHARACTER_SCENE
+        if(character)editor.stop();if(preview_candidate)character_resources=std::move(preview_candidate);
 #endif
         store.publish(candidate);gpu=std::move(resources);lease=store.acquire();store.collect();editor.log("Published resource generation after GPU upload; retired unpinned data at GPU idle.");};
     auto reload_shader=[&](const std::string& text){auto next=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,false,text.c_str());auto next_cull=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,true,text.c_str());auto resources=upload(device,*lease.model,next,next_cull);std::map<AssetId,UploadedModel> other;for(const auto& [asset,unused]:scene_models)other.emplace(asset,upload(device,load_cooked_model(args.registry,args.cas,asset),next,next_cull));context->Flush();context->WaitForIdle();scene_models=std::move(other);gpu=std::move(resources);pso=std::move(next);pso_cull=std::move(next_cull);editor.log("Static shader candidate and material bindings committed at GPU idle.");};
@@ -177,12 +199,22 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
     bool running=true;unsigned frame{};while(running && (!args.frames || frame<args.frames)){
         MSG message{};while(PeekMessageW(&message,nullptr,0,0,PM_REMOVE)){if(message.message==WM_QUIT)running=false;TranslateMessage(&message);DispatchMessageW(&message);}if(!running)break;
         if(resize_width && resize_height){context->WaitForIdle();swap->Resize(resize_width,resize_height);resize_width=resize_height=0;}
-        auto now=std::chrono::steady_clock::now();auto seconds=std::chrono::duration<double>(now-last).count();last=now;seconds=std::clamp(seconds,0.,.1);
+        auto now=std::chrono::steady_clock::now();auto elapsed_seconds=std::chrono::duration<double>(now-last).count();auto seconds=elapsed_seconds;last=now;seconds=std::clamp(seconds,0.,.1);
         if(args.exercise && frame==1){auto baseline=editor.document->world().serialize();editor.play();editor.step();require(editor.document->world().serialize()==baseline,"Play mutated authoring data");editor.stop();auto selected=editor.selected;auto handle=editor.document->world().find(selected);PropertyChange change{selected,1,1,.2};auto command=editor.document->prepare(editor.document->revision(),{&change,1});editor.document->commit(command);editor.document->undo(editor.document->revision());editor.document->redo(editor.document->revision());editor.save(".cache/editor/AcceptanceScene.dascene");editor.open(".cache/editor/AcceptanceScene.dascene");require(!editor.document->world().valid(handle),"Open/restart reused old world handle");
             auto generation=store.acquire().number;bool failed=false;try{store.prepare(".cache/editor/missing.registry",args.cas,id);}catch(...){failed=true;}require(failed && store.acquire().number==generation,"Failed model candidate replaced active generation");reload_model();failed=false;try{reload_shader("deliberate shader syntax failure");}catch(...){failed=true;}require(failed,"Invalid shader candidate accepted");editor.log("Acceptance: Play isolation, Step, undo/redo, save/open, model generation and failed shader preservation passed.");}
-        editor.update(seconds);const auto& desc=swap->GetDesc();
+#ifdef DAE_CHARACTER_SCENE
+        if(args.exercise_character&&frame==0)editor.play();
+        if(args.character_clips.empty())editor.update(seconds);
+#else
+        editor.update(seconds);
+#endif
+        const auto& desc=swap->GetDesc();
         if(!scene_color || scene_color->GetDesc().Width!=scene_width || scene_color->GetDesc().Height!=scene_height){context->Flush();context->WaitForIdle();TextureDesc color;color.Name="Editor scene viewport";color.Type=RESOURCE_DIM_TEX_2D;color.Width=scene_width;color.Height=scene_height;color.Format=swap_desc.ColorBufferFormat;color.BindFlags=BIND_RENDER_TARGET|BIND_SHADER_RESOURCE;device->CreateTexture(color,nullptr,&scene_color);color.Name="Editor scene depth";color.Format=swap_desc.DepthBufferFormat;color.BindFlags=BIND_DEPTH_STENCIL;device->CreateTexture(color,nullptr,&scene_depth);require(scene_color && scene_depth,"Viewport resource creation failed");}
         darkangel::editor_app::set_theme_dpi(GetDpiForWindow(window)/96.f);gui->NewFrame(desc.Width,desc.Height,desc.PreTransform);ImGuizmo::BeginFrame();auto image=reinterpret_cast<ImTextureID>(scene_color->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));auto area=shell.draw(editor,desc.Width,desc.Height,args.backend.c_str(),lease.number,seconds,image);
+#ifdef DAE_CHARACTER_SCENE
+        if(!args.character_clips.empty()){character_input={};if(character){double forward=shell.forward,lateral=shell.lateral;auto length=std::hypot(forward,lateral);if(length>1){forward/=length;lateral/=length;}double scale=shell.walk?.4:1;double yaw=character->motor().yaw+shell.turn*std::min(elapsed_seconds,.1)*2;yaw=std::remainder(yaw,6.283185307179586);character_input={scale*(lateral*std::cos(yaw)+forward*std::sin(yaw)),scale*(forward*std::cos(yaw)-lateral*std::sin(yaw)),yaw};if(args.exercise_character)character_input={0,1,0};}editor.update(args.exercise_character?1./60:elapsed_seconds);}
+#endif
+
 #ifdef DAE_AGENT_ENDPOINTS
 poll_agent();
 #endif
@@ -191,11 +223,19 @@ scene_width=std::max(1u,static_cast<unsigned>(area.width));scene_height=std::max
         if(shell.reload_shader){try{reload_shader(shader_text());}catch(const std::exception& error){context->Flush();context->WaitForIdle();editor.log(error.what(),darkangel::editor_app::ConsoleSeverity::Error);}shell.reload_shader=false;}
         auto* rtv=scene_color->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);auto* dsv=scene_depth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);context->SetRenderTargets(1,&rtv,dsv,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);const float background[]={.015f,.025f,.045f,1};context->ClearRenderTarget(rtv,background,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearDepthStencil(dsv,CLEAR_DEPTH_FLAG,1,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Viewport viewport;viewport.Width=static_cast<float>(scene_color->GetDesc().Width);viewport.Height=static_cast<float>(scene_color->GetDesc().Height);context->SetViewports(1,&viewport,scene_color->GetDesc().Width,scene_color->GetDesc().Height);
-        using namespace DirectX;auto view=XMMatrixLookAtRH(XMVectorSet(0,gpu.radius*.2f,gpu.radius*std::max(3.8f,2.4f/(.4142f*viewport.Width/viewport.Height)),1),XMVectorZero(),XMVectorSet(0,1,0,0));if(!args.scene.empty())view=XMMatrixLookAtRH(XMVectorSet(26,24,34,1),XMVectorSet(0,1,0,1),XMVectorSet(0,1,0,0));if(args.camera_close)view=XMMatrixLookAtRH(XMVectorSet(4,2.5f,8,1),XMVectorSet(0,1.3f,3,1),XMVectorSet(0,1,0,0));auto projection=XMMatrixPerspectiveFovRH(XM_PIDIV4,viewport.Width/viewport.Height,gpu.radius*.01f,gpu.radius*40);XMFLOAT4X4 view_matrix,projection_matrix;XMStoreFloat4x4(&view_matrix,view);XMStoreFloat4x4(&projection_matrix,projection);if(!args.hidden)shell.gizmo(editor,view_matrix,projection_matrix);
+        using namespace DirectX;auto view=XMMatrixLookAtRH(XMVectorSet(0,gpu.radius*.2f,gpu.radius*std::max(3.8f,2.4f/(.4142f*viewport.Width/viewport.Height)),1),XMVectorZero(),XMVectorSet(0,1,0,0));if(!args.scene.empty())view=XMMatrixLookAtRH(XMVectorSet(26,24,34,1),XMVectorSet(0,1,0,1),XMVectorSet(0,1,0,0));if(args.camera_close)view=XMMatrixLookAtRH(XMVectorSet(4,2.5f,8,1),XMVectorSet(0,1.3f,3,1),XMVectorSet(0,1,0,0));
+#ifdef DAE_CHARACTER_SCENE
+        if(character){const auto& state=character->motor();double x=4*std::cos(state.yaw)-7*std::sin(state.yaw),z=-4*std::sin(state.yaw)-7*std::cos(state.yaw);view=XMMatrixLookAtRH(XMVectorSet(float(state.position.x+x),float(state.position.y+3),float(state.position.z+z),1),XMVectorSet(float(state.position.x),float(state.position.y+1),float(state.position.z),1),XMVectorSet(0,1,0,0));}
+#endif
+        auto projection=XMMatrixPerspectiveFovRH(XM_PIDIV4,viewport.Width/viewport.Height,gpu.radius*.01f,gpu.radius*40);XMFLOAT4X4 view_matrix,projection_matrix;XMStoreFloat4x4(&view_matrix,view);XMStoreFloat4x4(&projection_matrix,projection);if(!args.hidden)shell.gizmo(editor,view_matrix,projection_matrix);
         for(const auto& [object_id,model_id]:editor.document->plan().models){auto entity=editor.displayed().find(object_id);if(!editor.displayed().valid(entity))continue;auto pose=editor.displayed().read(entity).transform;if(shell.draft && editor.selected==object_id)pose=*shell.draft;
 
 #ifdef DAE_ANIMATION
-            auto skin=scene_skins.find(model_id);auto* drawn_ptr=skin==scene_skins.end()?nullptr:&skin->second.gpu;if(drawn_ptr&&!args.skin_reference)upload_palette(context,bone_buffer,skin->second,diagnostic_clip.get(),args.pose_tick);
+            auto skin=scene_skins.find(model_id);auto* drawn_ptr=skin==scene_skins.end()?nullptr:&skin->second.gpu;if(drawn_ptr&&!args.skin_reference){const std::vector<JointMatrix>* gameplay_pose=nullptr;
+#ifdef DAE_CHARACTER_SCENE
+                if(character&&object_id==character_player)gameplay_pose=&character->pose();
+#endif
+                upload_palette(context,bone_buffer,skin->second,diagnostic_clip.get(),args.pose_tick,gameplay_pose);}
 #else
             UploadedModel* drawn_ptr=nullptr;
 #endif
@@ -213,5 +253,8 @@ scene_width=std::max(1u,static_cast<unsigned>(area.width));scene_height=std::max
         }
         auto* back=swap->GetCurrentBackBufferRTV();context->SetRenderTargets(1,&back,nullptr,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearRenderTarget(back,background,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);gui->Render(context);if(!args.capture.empty() && args.frames && frame+1==args.frames)capture(device,context,back->GetTexture(),args.capture,area);swap->Present(args.hidden?0:1);++frame;
     }
+#ifdef DAE_CHARACTER_SCENE
+    if(args.exercise_character){require(character&&character->motor().tick==args.frames&&character->motor().position.z>4,"Native character editor exercise did not move at fixed ticks");std::cout<<"Native character editor tick="<<character->motor().tick<<" foot="<<character->motor().position.x<<','<<character->motor().position.y<<','<<character->motor().position.z<<" graph_phase="<<character->graph().phase<<" pending="<<character->pending_prediction()<<'\n';editor.stop();}
+#endif
     context->Flush();context->WaitForIdle();window_gui=nullptr;gui.reset();if(IsWindow(window))DestroyWindow(window);std::cout<<"DarkAngel editor rendered "<<frame<<" frames with "<<args.backend<<'\n';return 0;
 }catch(const std::exception& e){std::cerr<<"DarkAngelEditor: "<<e.what()<<'\n';return 1;}}

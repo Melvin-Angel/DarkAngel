@@ -14,6 +14,10 @@ if (!(Test-Path -LiteralPath '.cache/royal-scene/registry.json')) {
 }
 $taskModel = (Get-Content -LiteralPath 'content/royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport' -Raw | ConvertFrom-Json).id
 $taskArguments = @('--registry','.cache/royal-scene/registry.json','--cas','.cache/royal-scene/cas','--model',$taskModel,'--scene','content/royal_district/RoyalVillage.dascene','--backend',$Backend)
+$taskClips = @('idle','omni-walk','omni-left','omni-back','omni-right','omni-run','omni-run-left','omni-run-back','omni-run-right') | ForEach-Object {
+    (Get-Content -LiteralPath ("content/royal_district/clips/$_.glb.daimport") -Raw | ConvertFrom-Json).id
+}
+$taskArguments += @('--character-clips',($taskClips -join ','))
 if ($CloseView) { $taskArguments += '--camera-close' }
 if ($AttackPose) {
     $taskClip = (Get-Content -LiteralPath 'content/royal_district/clips/attack.glb.daimport' -Raw | ConvertFrom-Json).id

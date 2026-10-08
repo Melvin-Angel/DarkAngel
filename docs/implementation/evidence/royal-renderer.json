@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "base_head": "5380bc37fd9ebc3382158ea701d6f7d3fcb03226",
+  "base_head": "dd6a0a0b4c51e2234630d07a713fb4d17f4c3c48",
   "scope": "Four-object native scene; D3D12/Vulkan GPU skin versus CPU rest/deformed attack reference; isolated Play/Step, undo/redo, save/open, resource reload and failed shader preservation. Interactive locomotion/combat remains integration work.",
-  "binary_sha256": "dd102fa9480c4013b0021d52e5576df9a09400db583b1938d50425c4e59c972c",
+  "binary_sha256": "881866258a0602d9039442f1cb8861b1599dc1e8473939c767272c48143f900c",
   "comparisons": [
     {
       "backend": "d3d12",
@@ -33,52 +33,52 @@
     {
       "name": "royal-document",
       "exit": 0,
-      "seconds": 0.02
+      "seconds": 0.031
     },
     {
       "name": "royal-d3d12-rest-gpu",
       "exit": 0,
-      "seconds": 0.452
+      "seconds": 0.46
     },
     {
       "name": "royal-d3d12-rest-reference",
       "exit": 0,
-      "seconds": 0.436
+      "seconds": 0.42
     },
     {
       "name": "royal-d3d12-attack-gpu",
       "exit": 0,
-      "seconds": 0.41
+      "seconds": 0.465
     },
     {
       "name": "royal-d3d12-attack-reference",
       "exit": 0,
-      "seconds": 0.403
+      "seconds": 0.414
     },
     {
       "name": "royal-vulkan-rest-gpu",
       "exit": 0,
-      "seconds": 0.449
+      "seconds": 0.459
     },
     {
       "name": "royal-vulkan-rest-reference",
       "exit": 0,
-      "seconds": 0.438
+      "seconds": 0.468
     },
     {
       "name": "royal-vulkan-attack-gpu",
       "exit": 0,
-      "seconds": 0.452
+      "seconds": 0.441
     },
     {
       "name": "royal-vulkan-attack-reference",
       "exit": 0,
-      "seconds": 0.467
+      "seconds": 0.516
     },
     {
       "name": "royal-editor-regression",
       "exit": 0,
-      "seconds": 0.538
+      "seconds": 0.523
     }
   ],
   "vulkan_validation": "Khronos validation layer unavailable; Diligent checks enabled",

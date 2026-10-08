@@ -11,6 +11,7 @@ public:
     void gizmo(Controller&,const DirectX::XMFLOAT4X4& view,const DirectX::XMFLOAT4X4& projection);
     std::optional<Transform> draft;
     bool reload_model{},reload_shader{};
+    bool native_controls{},controls_focus{},walk{};float forward{},lateral{},turn{};
 private:
     AssetId script_asset;bool docked{};ViewArea area;ImDrawList* viewport_draw{};
     EditScope scope{EditScope::Placement};std::uint64_t gesture_revision{};StableId gesture_object;
