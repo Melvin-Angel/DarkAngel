@@ -14,5 +14,6 @@ int main(int argc,char** argv){try{
     else if(mode=="adopt-many"){if(argc<5||argc>132)throw std::runtime_error("adopt-many SOURCE CACHE relative-file... (maximum 128)");for(int index=4;index<argc;++index)std::cout<<assets.adopt(argv[index]).text()<<'\n';assets.scan();}
     else if(mode=="cook"){if(argc!=5)throw std::runtime_error("cook arguments");auto result=assets.cook(argv[4]);std::cout<<result.root.text()<<" generation="<<result.generation<<" changed="<<result.changed<<'\n';}
     else if(mode=="package"){if(argc!=6)throw std::runtime_error("package arguments");assets.package(darkangel::AssetId::parse(argv[4]),argv[5]);std::cout<<"Cooked registry published\n";}
+    else if(mode=="package-many"){if(argc<7||argc>69)throw std::runtime_error("package-many SOURCE CACHE primary-UUID registry extra-UUID... (maximum 64 roots)");std::vector<darkangel::AssetId> roots;for(int index=6;index<argc;++index)roots.push_back(darkangel::AssetId::parse(argv[index]));assets.package(darkangel::AssetId::parse(argv[4]),argv[5],roots);std::cout<<"Cooked scene registry published\n";}
     else throw std::runtime_error("Unknown asset command");return 0;
 }catch(const std::exception& e){std::cerr<<"AssetTool: "<<e.what()<<'\n';return 1;}}

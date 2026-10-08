@@ -1,0 +1,25 @@
+{
+  "canonical_source": "animation/canonical_human.daskeleton",
+  "id": "e87a6c8d-5708-4699-9a67-58249a4a7877",
+  "importer": "human-gltf-v2",
+  "schema": 1,
+  "subassets": {
+    "mesh/human/Beard6/primitive/0": "f5c30f44-c345-4c26-912a-f09f9b704e72",
+    "mesh/human/Body_Arms/primitive/0": "da83b86a-e362-4b6c-8cef-911ca706dccb",
+    "mesh/human/Body_Chest/primitive/0": "02a1681f-f869-4b09-a923-96a0b9d5d0c4",
+    "mesh/human/Body_Feet/primitive/0": "c3e65b18-a2bd-4f12-96e0-40c485f7972c",
+    "mesh/human/Body_Hands/primitive/0": "c55330a7-d939-4fa1-b77f-d1cb5dd855c4",
+    "mesh/human/Body_Head/primitive/0": "29c8d58b-aaec-410a-90b4-51ef65ea64b8",
+    "mesh/human/Body_Legs/primitive/0": "71ea190e-b5d5-4183-b2cb-f5a78b85a49e",
+    "mesh/human/Body_Neck/primitive/0": "ea52ac00-4118-4bc7-b21b-c2039a82b101",
+    "mesh/human/Eyebrows/primitive/0": "b3172018-4828-41f3-bdea-65c51cb54c01",
+    "mesh/human/Eyelashes/primitive/0": "d5b9c7d5-e545-4de2-8a01-872e5189d226",
+    "mesh/human/Eyes/primitive/0": "79986c13-43c6-4b17-b7d0-7fe557d05a43",
+    "mesh/human/Hair7/primitive/0": "2fe77eaa-8179-4d2a-ad5b-87b58f9cc1f8",
+    "mesh/human/Moustache4/primitive/0": "780222b5-052b-46e5-a9d1-8e9f8506d8b2",
+    "mesh/human/Underwear/primitive/0": "f24d5217-d894-449a-a4b2-182f92745f9e",
+    "skin": "8db3dfd0-238c-426f-9b7f-5237907cc4a4",
+    "texture": "9d7bebb2-a0fe-4afa-9da2-250c66a121b5"
+  },
+  "tags": []
+}

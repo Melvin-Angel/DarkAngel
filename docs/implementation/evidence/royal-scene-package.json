@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "base_head": "b6580ac63ea888d0793b10891d5f42ec45f5266b",
+  "roots": [
+    "415c93bd-946a-4e73-a155-4a7f08015d00",
+    "35d15141-eae0-400d-a616-78d890fc0982",
+    "9a300109-7840-4bf0-bdae-94fb58759e99",
+    "e87a6c8d-5708-4699-9a67-58249a4a7877"
+  ],
+  "products": 31,
+  "registry_sha256": "3374fc214984087f984349b1217af0c9296c013071554173abf3ebcf49377876",
+  "checks": [
+    "native multi-root load",
+    "legacy root rejection",
+    "missing/duplicate root retains package",
+    "conflicting shared generation retains package",
+    "native asset regression"
+  ],
+  "scope": "Native package only; editor/GPU/gameplay acceptance remains separate"
+}

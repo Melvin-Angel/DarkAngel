@@ -1,0 +1,13 @@
+package-many C:\DarkAngel\content C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t 415c93bd-946a-4e73-a155-4a7f08015d00 C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t\registry.json 35d15141-eae0-400d-a616-78d890fc0982
+Cooked scene registry published
+
+package-many C:\DarkAngel\content C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t 415c93bd-946a-4e73-a155-4a7f08015d00 C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t\registry.json 415c93bd-946a-4e73-a155-4a7f08015d00
+AssetTool: Duplicate runtime package root
+
+package-many C:\DarkAngel\content C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t 415c93bd-946a-4e73-a155-4a7f08015d00 C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t\registry.json 77777777-7777-4777-8777-777777777777
+AssetTool: Missing required runtime dependency
+
+package-many C:\DarkAngel\content C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t 415c93bd-946a-4e73-a155-4a7f08015d00 C:\DarkAngel\.cache\royal-scene\scene-package-0h0o57_t\registry.json 35d15141-eae0-400d-a616-78d890fc0982 9a300109-7840-4bf0-bdae-94fb58759e99 e87a6c8d-5708-4699-9a67-58249a4a7877
+AssetTool: Conflicting shared cooked product generations
+
+Asset catalog/cook/runtime checks passed; root=a32a873c-b674-472d-b427-a1b0bfcf2c1c workspace=C:\DarkAngel\build\m5-relwithdebinfo\asset-tests\121e3a75-630d-4a18-b4b9-3ecf4e1008f7

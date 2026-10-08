@@ -1,4 +1,5 @@
 #pragma once
+#include <span>
 #include <darkangel/asset_id.hpp>
 #include <array>
 #include <cstdint>
@@ -48,7 +49,7 @@ public:
     void scan(); // validate complete source identity inventory before updating the index
     std::vector<AssetInfo> assets() const;
     CookResult cook(std::string_view relative_source);
-    void package(AssetId root,const std::filesystem::path& registry) const;
+    void package(AssetId root,const std::filesystem::path& registry,std::span<const AssetId> additional_roots={}) const;
     std::filesystem::path cas_path() const;
     std::uint64_t conversion_count() const;
 private:
