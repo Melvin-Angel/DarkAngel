@@ -1,0 +1,11 @@
+{
+  "id": "a4d0eb1b-9674-43ec-928e-530a825c4057",
+  "importer": "static-gltf-v1",
+  "schema": 1,
+  "subassets": {
+    "material/trim": "4e9804c4-1780-4454-93ff-dd794be4ec7a",
+    "mesh/0": "fc5d0d5d-c6e7-4338-b17c-e78a03dd4e71",
+    "texture/base-color/material/trim": "5cf46342-510d-43d0-b167-c16661542df0"
+  },
+  "tags": []
+}

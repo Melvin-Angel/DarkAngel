@@ -1,0 +1,1302 @@
+{
+  "blender": "4.5.1 LTS",
+  "profile": "Read-only FBX, original shared trim atlases, retained pivots/UVs, metre/Y-up static glTF",
+  "files": [
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\SM_RC_MudHut_Round_1F.fbx",
+      "source_sha256": "147cf2096d8b9f354654fa39be242854d553d1d2d69e51f571bc3962ea61754f",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\mudhut trim sheet.png",
+      "texture_sha256": "60ecc00f56daa977f0fa277a42cd2cd7d3d59b5df7987125b5b78f7f9d5469ac",
+      "gltf": "content/royal_district/static/mud_huts/SM_RC_MudHut_Round_1F.gltf",
+      "gltf_sha256": "11fd10424366c6ce6ccb6b31b80b912d9cb39c6ceab7ee6065f07288eaae2b8e",
+      "buffers": {
+        "SM_RC_MudHut_Round_1F.bin": "9e6bb102e42177c0981a931b6f959f48141f54e9aff52c5b7ca26d0b3f612071"
+      },
+      "meshes": 1,
+      "triangles": 482,
+      "minimum": [
+        -3.869999885559082,
+        -2.3700745543919766e-07,
+        -3.870000123977661
+      ],
+      "maximum": [
+        3.869999885559082,
+        6.440000057220459,
+        3.869999647140503
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.82"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\SM_RC_MudHut_Round_2F_Setback.fbx",
+      "source_sha256": "b24d3f5c9ee1fae4fd965437ecc8da6b54a80f3668eff8e93e34096f8d70f0ce",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\mudhut trim sheet.png",
+      "texture_sha256": "60ecc00f56daa977f0fa277a42cd2cd7d3d59b5df7987125b5b78f7f9d5469ac",
+      "gltf": "content/royal_district/static/mud_huts/SM_RC_MudHut_Round_2F_Setback.gltf",
+      "gltf_sha256": "0ed87092bc50ce26fc3a4011a5730d5ce81d03097d55c79bfa33bd3bd6475ed6",
+      "buffers": {
+        "SM_RC_MudHut_Round_2F_Setback.bin": "5c6117f6fca34f27efb3e9c623864fc0e9f9abb5ed266adfe9d86116fe4f2424"
+      },
+      "meshes": 1,
+      "triangles": 826,
+      "minimum": [
+        -4.46999979019165,
+        -2.880552187889407e-07,
+        -4.470000267028809
+      ],
+      "maximum": [
+        4.46999979019165,
+        10.4399995803833,
+        4.469999313354492
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.82"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\SM_RC_MudHut_Round_3F_Overhang.fbx",
+      "source_sha256": "637055682695d04d9e593d534d1b56fd5481b3a3e8c1249d2bd453ad0895baff",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\mudhut trim sheet.png",
+      "texture_sha256": "60ecc00f56daa977f0fa277a42cd2cd7d3d59b5df7987125b5b78f7f9d5469ac",
+      "gltf": "content/royal_district/static/mud_huts/SM_RC_MudHut_Round_3F_Overhang.gltf",
+      "gltf_sha256": "505064b8a2571068089846eb942d4739670ac536afd2954c2d917f3e26d5b4a6",
+      "buffers": {
+        "SM_RC_MudHut_Round_3F_Overhang.bin": "e22a0f0b94a1a6bc4765d7e773472f0833e5852dd57fd38ad28f7e697ec83a02"
+      },
+      "meshes": 1,
+      "triangles": 1146,
+      "minimum": [
+        -4.119999885559082,
+        -2.1512984460514417e-07,
+        -4.12000036239624
+      ],
+      "maximum": [
+        4.119999885559082,
+        14.4399995803833,
+        4.119999408721924
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.82"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\SM_RC_MudHut_Square_1F.fbx",
+      "source_sha256": "3851f096677b6107039216e4aecb0187be76d26a425c313fbbe3756ef05f25ba",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\mudhut trim sheet.png",
+      "texture_sha256": "60ecc00f56daa977f0fa277a42cd2cd7d3d59b5df7987125b5b78f7f9d5469ac",
+      "gltf": "content/royal_district/static/mud_huts/SM_RC_MudHut_Square_1F.gltf",
+      "gltf_sha256": "d81f71009e09ee9b2c16743c3bc4e1e535205baa060b8b1b8e3b0f48d1f5a879",
+      "buffers": {
+        "SM_RC_MudHut_Square_1F.bin": "8742bab5cf71a0e5e231e2c9e89ecc2fe165645269986fdbe5470a83466f190d"
+      },
+      "meshes": 1,
+      "triangles": 426,
+      "minimum": [
+        -3.4200000762939453,
+        -2.113941235393213e-07,
+        -3.4200003147125244
+      ],
+      "maximum": [
+        3.4200000762939453,
+        6.269999980926514,
+        3.419999837875366
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.82"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\SM_RC_MudHut_Square_2F_Overhang.fbx",
+      "source_sha256": "2ad0dfc15bb5bdc629d21516f8195b377e44736c5318e44bb2d6f7345884141d",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\mudhut trim sheet.png",
+      "texture_sha256": "60ecc00f56daa977f0fa277a42cd2cd7d3d59b5df7987125b5b78f7f9d5469ac",
+      "gltf": "content/royal_district/static/mud_huts/SM_RC_MudHut_Square_2F_Overhang.gltf",
+      "gltf_sha256": "a3d7dde1cff0f8ddec9b21fae80e2b9f719847d360581be3df2003922d63bfb2",
+      "buffers": {
+        "SM_RC_MudHut_Square_2F_Overhang.bin": "fd0bb6a095f3c361ac1dcf32cab436d8f329326c9059bf2fe068ca3a9ad888b7"
+      },
+      "meshes": 1,
+      "triangles": 826,
+      "minimum": [
+        -4.119999885559082,
+        -2.1516900972073927e-07,
+        -4.12000036239624
+      ],
+      "maximum": [
+        4.119999885559082,
+        10.270000457763672,
+        4.4549994468688965
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.82"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\SM_RC_MudHut_Square_4F_Setback.fbx",
+      "source_sha256": "cbaa810d2eb884266dffc7eb19859c6a9afeb32cac0ddf5c3c1c6406961c0bea",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\Mud Huts\\mudhut trim sheet.png",
+      "texture_sha256": "60ecc00f56daa977f0fa277a42cd2cd7d3d59b5df7987125b5b78f7f9d5469ac",
+      "gltf": "content/royal_district/static/mud_huts/SM_RC_MudHut_Square_4F_Setback.gltf",
+      "gltf_sha256": "22a216540143ced0975427bd33134280e81b29f54a624a593d119d56609e1c45",
+      "buffers": {
+        "SM_RC_MudHut_Square_4F_Setback.bin": "6917f352f1ab208565820bf383fb03a83fa1a6647baee43bff5ea810cadd596f"
+      },
+      "meshes": 1,
+      "triangles": 1194,
+      "minimum": [
+        -4.420000076293945,
+        -2.9444183269333735e-07,
+        -4.4200005531311035
+      ],
+      "maximum": [
+        4.420000076293945,
+        18.270000457763672,
+        4.419999599456787
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.82"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Cliff_16x4.fbx",
+      "source_sha256": "8f2a8059fe193e6956b202a9ab10a42bea47adcf202b678e2e574556cc3d340d",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Cliff_16x4.gltf",
+      "gltf_sha256": "aefe83eecc6e3138600e4c5156408ae03af41295003e6013201d8c903ea52539",
+      "buffers": {
+        "SM_RC_Terrain_Cliff_16x4.bin": "89dabc17d4e02d00a6254f73b502a33ea0e4cbbd335b27d15c7d6fd4de88f940"
+      },
+      "meshes": 1,
+      "triangles": 100,
+      "minimum": [
+        -8.0,
+        -1.5099580252808664e-07,
+        -2.000000238418579
+      ],
+      "maximum": [
+        8.0,
+        4.0,
+        2.2233800888061523
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Cliff_16x8.fbx",
+      "source_sha256": "857e04fbe4d6fba59fc3369d183fc0d3d48c2d137339b1c88560500fb90a1d08",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Cliff_16x8.gltf",
+      "gltf_sha256": "e036c57d0b8ff7b6fd26d5d5de8d956ac0434dfcf4c331e8d2a10dc9a86feffd",
+      "buffers": {
+        "SM_RC_Terrain_Cliff_16x8.bin": "47570871faabfb7bb64c1a76a7d4588b27d2de20e901d62d566070b13f6cd7ed"
+      },
+      "meshes": 1,
+      "triangles": 100,
+      "minimum": [
+        -8.0,
+        -1.5099580252808664e-07,
+        -2.0000007152557373
+      ],
+      "maximum": [
+        8.0,
+        8.0,
+        2.2789697647094727
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Cliff_8x2.fbx",
+      "source_sha256": "3b66a65a8c47f097fe6f27684b6b51f0b8f059e00f1152e7164786e46f5e0dee",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Cliff_8x2.gltf",
+      "gltf_sha256": "c858eda8f8666c40ec8ec57154b8289bf420b60f49372189a7727f553a2fbb41",
+      "buffers": {
+        "SM_RC_Terrain_Cliff_8x2.bin": "bbe0235b63db4af592514e0e64a571e4c1fc18a03328bec57eefeace03b54155"
+      },
+      "meshes": 1,
+      "triangles": 60,
+      "minimum": [
+        -4.0,
+        -1.5099580252808664e-07,
+        -2.000000238418579
+      ],
+      "maximum": [
+        4.0,
+        2.000000238418579,
+        2.0268499851226807
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Cliff_8x4.fbx",
+      "source_sha256": "5d92bc8fe9122dc88a5353a5cd67c31528678f52600f5257d065b69aa9760afc",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Cliff_8x4.gltf",
+      "gltf_sha256": "13f8bbc41dc8a7fdf3ff8bcb3aa7cd2b96414363dc050097a870a4ce796b7cd2",
+      "buffers": {
+        "SM_RC_Terrain_Cliff_8x4.bin": "5386996c76ba288050311fdc343a36f5d22c9f9124b424c8d8972bbd7b0d9f70"
+      },
+      "meshes": 1,
+      "triangles": 60,
+      "minimum": [
+        -4.0,
+        -1.5099580252808664e-07,
+        -2.000000238418579
+      ],
+      "maximum": [
+        4.0,
+        4.0,
+        2.0798499584198
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Cliff_8x8.fbx",
+      "source_sha256": "94bfec4b2a040b7cea7211c911ec9ae432053c545eb565edcd5a954c19afa8a6",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Cliff_8x8.gltf",
+      "gltf_sha256": "81a28f7abe04714457242b5b94bbd0f60fedf7bd344dc58e7a6e9d0f06fb57dc",
+      "buffers": {
+        "SM_RC_Terrain_Cliff_8x8.bin": "4acc3e14a2d78bc2616e921e42b625a016f868633a55201635a9968c7f0ca6ad"
+      },
+      "meshes": 1,
+      "triangles": 60,
+      "minimum": [
+        -4.0,
+        -1.5099580252808664e-07,
+        -2.0000007152557373
+      ],
+      "maximum": [
+        4.0,
+        8.0,
+        2.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffBottomTransition_8x4.fbx",
+      "source_sha256": "8e1ffa239e703cb8a2249aad44df3ccd4956966ef72909a2598667b4d94c8922",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffBottomTransition_8x4.gltf",
+      "gltf_sha256": "551312a3344cf36e487356e1944adcc7e9925b9ec64558f568d9bc44a12b079b",
+      "buffers": {
+        "SM_RC_Terrain_CliffBottomTransition_8x4.bin": "eee70a4e5f94e3d5160960dbef1e1fbe373f2adfcfe67ba3b85130653edbba52"
+      },
+      "meshes": 1,
+      "triangles": 24,
+      "minimum": [
+        -4.0,
+        -1.5099580252808664e-07,
+        -2.0
+      ],
+      "maximum": [
+        4.0,
+        1.1499998569488525,
+        2.180000066757202
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffCorner_Inner_8x8x4.fbx",
+      "source_sha256": "c1b8c79e567cb00897755344539fc667d65c265deb6a8170a08262b080dd856d",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x4.gltf",
+      "gltf_sha256": "d62e026085e8505eb094cb0d75f7a4326f5e62cc1b9107848bfe6b6d058c0df0",
+      "buffers": {
+        "SM_RC_Terrain_CliffCorner_Inner_8x8x4.bin": "b511d45b7c909b19cf5a52e019ba19e94c76de3cbff5dcff8183a76817d2648a"
+      },
+      "meshes": 1,
+      "triangles": 76,
+      "minimum": [
+        -4.0,
+        -3.019916050561733e-07,
+        -4.000000476837158
+      ],
+      "maximum": [
+        4.0,
+        4.000000476837158,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffCorner_Inner_8x8x8.fbx",
+      "source_sha256": "b6c8dade867bf7943b53ec26ddda9ff59020265c7bc4864f0d41d3afc4ddf8ef",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x8.gltf",
+      "gltf_sha256": "5d39738511e43abfbe55349203c954536b8f86af795faa1d8b09480fbc4a2ffd",
+      "buffers": {
+        "SM_RC_Terrain_CliffCorner_Inner_8x8x8.bin": "573a9fbb04d2260e03b1ad8aa1b68ea25a65aa95362fa2195fd19fbf7b6248ca"
+      },
+      "meshes": 1,
+      "triangles": 76,
+      "minimum": [
+        -4.0,
+        -3.019916050561733e-07,
+        -4.000000476837158
+      ],
+      "maximum": [
+        4.0,
+        8.0,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffCorner_Outer_8x8x2.fbx",
+      "source_sha256": "72de08faaaede2bd5e4625b9f608688f5782393f76596d1548bd089651e5a344",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x2.gltf",
+      "gltf_sha256": "51362706d137c5d3f729cac2a7ea229055041d26c1038285f5c03184568dbd78",
+      "buffers": {
+        "SM_RC_Terrain_CliffCorner_Outer_8x8x2.bin": "8c2290bd2fc681871b94db33b4c2b8c8e82e1284b26b2b93e78d3270cff1dfb7"
+      },
+      "meshes": 1,
+      "triangles": 108,
+      "minimum": [
+        -0.18129999935626984,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        2.0,
+        0.2536199390888214
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffCorner_Outer_8x8x4.fbx",
+      "source_sha256": "7199bae5633bcee95d36f134f0b5024a7c5e7d67984d13f3ba0dadcd6a69c917",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x4.gltf",
+      "gltf_sha256": "66d42023466ce1f0d4d32b8fc18ae270f85997b3a4ac9ecefc3c6d1109cdfc50",
+      "buffers": {
+        "SM_RC_Terrain_CliffCorner_Outer_8x8x4.bin": "5cf546f4249ddae830011706dd80d06ca4893f0c857527b61bddd3d694c281cd"
+      },
+      "meshes": 1,
+      "triangles": 108,
+      "minimum": [
+        -0.23077000677585602,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        4.0,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffCorner_Outer_8x8x8.fbx",
+      "source_sha256": "0b82cbae5dffa8899715e8f77d71d67a619cbc0b080d344f77561be434c5e7aa",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x8.gltf",
+      "gltf_sha256": "124aa28ef509de0637d9ef8d1846f32b304cc7c57b67d18a03040ccebd66e82f",
+      "buffers": {
+        "SM_RC_Terrain_CliffCorner_Outer_8x8x8.bin": "05e04ef42d99f145f8182c527c8e58d5c4e6e7f7301d83a9314293728222c15c"
+      },
+      "meshes": 1,
+      "triangles": 108,
+      "minimum": [
+        -0.2794800102710724,
+        -6.039832101123466e-07,
+        -8.000000953674316
+      ],
+      "maximum": [
+        8.0,
+        8.0,
+        0.25737977027893066
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_CliffTopTransition_8x4.fbx",
+      "source_sha256": "fb76947a3169550054b25e4f8eea368803c043ca85a97e794eb39eb15118c7e5",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_CliffTopTransition_8x4.gltf",
+      "gltf_sha256": "f21b4d8ee565d9ee4a0c5bf1e458ae55b7bdcd0893887a6e1206e2cecc091258",
+      "buffers": {
+        "SM_RC_Terrain_CliffTopTransition_8x4.bin": "1d8ae1cce08855db01e719271d13eaf654168035802e8226e0d0126ae5e81d58"
+      },
+      "meshes": 1,
+      "triangles": 24,
+      "minimum": [
+        -4.0,
+        -1.5099580252808664e-07,
+        -2.0
+      ],
+      "maximum": [
+        4.0,
+        0.5499998331069946,
+        2.180000066757202
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Ground_16x16.fbx",
+      "source_sha256": "317e319e91927f19e614069c0b0c8cd7997f0edfd694b2fb759bb6daa8f6877f",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Ground_16x16.gltf",
+      "gltf_sha256": "e9447bbd40911314a1646b49fb974f1c8efe5fee43b211d0e50b75a5c5e5ab38",
+      "buffers": {
+        "SM_RC_Terrain_Ground_16x16.bin": "59f2f92d2cada633777ac37542ec26f066a83f1e7677c10d0c3459e758225b9b"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -8.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        0.5000005960464478,
+        8.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Ground_32x32.fbx",
+      "source_sha256": "4b6535453eee9c63eb150724f4b8f022f414c4c9dfa559c6b2e482a82a49470b",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf",
+      "gltf_sha256": "e611de6a306e6ded9ed75dea93fff6db61b6a7ece983dadd0fa781b2f0f754b0",
+      "buffers": {
+        "SM_RC_Terrain_Ground_32x32.bin": "4ca8a532d775373419412ef99c781620fec8cb279eac0f48be58e6a272385420"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -16.0,
+        -1.2079664202246931e-06,
+        -16.0
+      ],
+      "maximum": [
+        16.0,
+        0.5000011920928955,
+        16.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Ground_8x8.fbx",
+      "source_sha256": "fffe4e0b21eeb152c102120a3f48a413c13883bd6c7f1c7834d1fe32a6fd472f",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Ground_8x8.gltf",
+      "gltf_sha256": "17b0e0e47f57189b5ce7f93c9bc19c3c8ec6c39ebcdfc69bcd541d0b4b3d3da5",
+      "buffers": {
+        "SM_RC_Terrain_Ground_8x8.bin": "d0c4b36ef5675b7e5b987937aefc372f0c87dd94072fb4a672d514d7a3751265"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -4.0,
+        -3.019916050561733e-07,
+        -4.0
+      ],
+      "maximum": [
+        4.0,
+        0.5000002980232239,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_IslandEdge_16x16_Large.fbx",
+      "source_sha256": "36394431080bf4a892a05d4a292c0e0ae64d986da8f4de0e53f6a7f6779e7624",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_IslandEdge_16x16_Large.gltf",
+      "gltf_sha256": "e05e5d8aa3763befb53aad0443caf9c211620c04a3056ed18b7cb3b321022b86",
+      "buffers": {
+        "SM_RC_Terrain_IslandEdge_16x16_Large.bin": "e148462f5aaf2806b583dbd8a556f880a5c95bb4657414d8b21088e74d9be05d"
+      },
+      "meshes": 1,
+      "triangles": 116,
+      "minimum": [
+        -8.0,
+        -8.000000953674316,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        6.039832101123466e-07,
+        8.000000953674316
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_IslandEdge_45_8m.fbx",
+      "source_sha256": "33462eff3d8b23f6b09ef20720adb20f7d2e122be7c0bd3c108a9982b317bdf8",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_IslandEdge_45_8m.gltf",
+      "gltf_sha256": "4114423c9d4e112d5d30ee9baad31846df118c78bde372b2b852611364712cd7",
+      "buffers": {
+        "SM_RC_Terrain_IslandEdge_45_8m.bin": "557df373397fe515d888477225311442004d8fe1baf4918123e39a8a83f48fbf"
+      },
+      "meshes": 1,
+      "triangles": 68,
+      "minimum": [
+        0.0,
+        -8.000000953674316,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        0.0,
+        6.039832101123466e-07
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_IslandEdge_OuterCorner_8m.fbx",
+      "source_sha256": "8e69bb798a4965fb4fef4489a4b517186960ba5b301b6b2348c6718b123afc83",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_IslandEdge_OuterCorner_8m.gltf",
+      "gltf_sha256": "8b073193914c5011dfd8633b04cb1a6e4668c14fdcccd59662a66dc27996e42e",
+      "buffers": {
+        "SM_RC_Terrain_IslandEdge_OuterCorner_8m.bin": "d4944d7b7d93f66218c78416ba34515afaafcdaf1db16bd98bfa98dc902175d9"
+      },
+      "meshes": 1,
+      "triangles": 92,
+      "minimum": [
+        -0.23077000677585602,
+        -8.000000953674316,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        0.0,
+        6.039832101123466e-07
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_IslandEdge_Rounded_8m.fbx",
+      "source_sha256": "4ed8ee6d69146040d2aa15808412921ed30605284d46a59c4b011b8deb1f11fe",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_IslandEdge_Rounded_8m.gltf",
+      "gltf_sha256": "a47388c0f43902a488c9704160190b1b4884613fd1bbde174a51472d7ba7018a",
+      "buffers": {
+        "SM_RC_Terrain_IslandEdge_Rounded_8m.bin": "1f6272200a7c31d598a09c4f4ba5b86f733d44f4389d47b457747af954fef6bb"
+      },
+      "meshes": 1,
+      "triangles": 60,
+      "minimum": [
+        0.0,
+        -8.000000953674316,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        0.0,
+        6.039832101123466e-07
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_IslandEdge_Straight_16m.fbx",
+      "source_sha256": "9c9883529fe9a201fb85d0a8ab1c5690c4d93a35306403c7b3d8fe720da37974",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_IslandEdge_Straight_16m.gltf",
+      "gltf_sha256": "b8fd029e6ddb09afabce7faf865ea655beb55d06409b9edba14653daa1528943",
+      "buffers": {
+        "SM_RC_Terrain_IslandEdge_Straight_16m.bin": "2a4af7f8795efa3c69004cea06af67275b26dd3f89757353bb91c43c558ca697"
+      },
+      "meshes": 1,
+      "triangles": 100,
+      "minimum": [
+        -8.0,
+        -8.0,
+        -4.0
+      ],
+      "maximum": [
+        8.0,
+        3.019916050561733e-07,
+        4.074620246887207
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_IslandEdge_Straight_8m.fbx",
+      "source_sha256": "1da94dd2b556d4cab4c219c137cfb4146747aef42133cde2bad5493f1717192b",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_IslandEdge_Straight_8m.gltf",
+      "gltf_sha256": "ab09ddec9af323acbb2c3040ac16ca0c59a424b090f665085f88e500b489a544",
+      "buffers": {
+        "SM_RC_Terrain_IslandEdge_Straight_8m.bin": "d5659c07009d0fdc239f801e703dac302ff6be5e30fc0078d9af18e9b6eb6f4b"
+      },
+      "meshes": 1,
+      "triangles": 60,
+      "minimum": [
+        -4.0,
+        -8.0,
+        -4.0
+      ],
+      "maximum": [
+        4.0,
+        3.019916050561733e-07,
+        4.257380485534668
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Cross_8m.fbx",
+      "source_sha256": "9e31e053894286243be9b5ff45525744ab69f1c4de5b7b38bb0ac1735ca463f1",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Cross_8m.gltf",
+      "gltf_sha256": "d8326ed4ff458b85107cc4eb5b7b2fab63aeafd68d2544922957908bdd489d6b",
+      "buffers": {
+        "SM_RC_Terrain_Path_Cross_8m.bin": "c659121890cd55baeafb3c8ef8bb038332a52557f4fd94786c03502df85333d0"
+      },
+      "meshes": 1,
+      "triangles": 44,
+      "minimum": [
+        -4.0,
+        -3.019916050561733e-07,
+        -4.0
+      ],
+      "maximum": [
+        4.0,
+        0.050000302493572235,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Curve45_8m.fbx",
+      "source_sha256": "662012fafadc3ac49dfa2faf012c68955a101067c767776396f5c419922b7c30",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Curve45_8m.gltf",
+      "gltf_sha256": "b5e67173c07d2ff2dc69b0cb650178801569d68ff27a8f4712048312e34d494e",
+      "buffers": {
+        "SM_RC_Terrain_Path_Curve45_8m.bin": "eba21ab36e9f839487af6df2bb28e3b17476a9c835fd3c12491e4217f6e6530c"
+      },
+      "meshes": 1,
+      "triangles": 28,
+      "minimum": [
+        -4.878680229187012,
+        -3.736957410183095e-07,
+        -4.949749946594238
+      ],
+      "maximum": [
+        4.878680229187012,
+        0.050000373274087906,
+        4.949749946594238
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Curve90_8m.fbx",
+      "source_sha256": "a017b53ac6ed4e363e2673c07d455d31c5369ad7c628bff71edc9ac203444919",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Curve90_8m.gltf",
+      "gltf_sha256": "e3ec98bf56d2d6bc0a09bee2b8306a3aefd22ef541d61f1108974b9ca02e8762",
+      "buffers": {
+        "SM_RC_Terrain_Path_Curve90_8m.bin": "1afae1baedb7ce72ea915f05a67caf7e6b2e7d04d51503da87c07aa287b45546"
+      },
+      "meshes": 1,
+      "triangles": 44,
+      "minimum": [
+        -5.0,
+        -3.7748949921478925e-07,
+        -5.0
+      ],
+      "maximum": [
+        5.0,
+        0.050000376999378204,
+        5.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Straight_4x8.fbx",
+      "source_sha256": "d8736af66cfbedfac3fd5a9b9e65c1085d76f3d4338fc0ff611854106a1b7926",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Straight_4x8.gltf",
+      "gltf_sha256": "b5ff392fb49784ff2f4db55b6233ed3567256fb5ef8640de922d2de21413ffd8",
+      "buffers": {
+        "SM_RC_Terrain_Path_Straight_4x8.bin": "3f42a3ed60456193d26704af8bea9a0016ac242727757e517fb4b52ec2216bd3"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -2.0,
+        -3.019916050561733e-07,
+        -4.0
+      ],
+      "maximum": [
+        2.0,
+        0.050000302493572235,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Straight_8x16.fbx",
+      "source_sha256": "e51b7894dc048429ef52ad710df3ea78da3b69087be04ae50cc4ab68123a8cf6",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Straight_8x16.gltf",
+      "gltf_sha256": "6bbe9584d092185866b7b077551f4727961291aee76994b2d29eb7d4db2ef5ce",
+      "buffers": {
+        "SM_RC_Terrain_Path_Straight_8x16.bin": "c13152327282030877b1cd053fba39693f70315697cfe8b196ec977f11e21a8e"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -4.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        4.0,
+        0.05000060424208641,
+        8.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Straight_8x8.fbx",
+      "source_sha256": "6aac5a71f17ada374bdb603474ccc882af3ccb7bc4341d07664fc8b29e9b244c",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Straight_8x8.gltf",
+      "gltf_sha256": "6588a048867ee1394830a31b0e777574fd2d046822f4422d440b472c7a1819f5",
+      "buffers": {
+        "SM_RC_Terrain_Path_Straight_8x8.bin": "0aff8776da900113e8b72fa1c4550e691b9086cb519efd93bfd41731ef43b156"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -4.0,
+        -3.019916050561733e-07,
+        -4.0
+      ],
+      "maximum": [
+        4.0,
+        0.050000302493572235,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_TJunction_8m.fbx",
+      "source_sha256": "80be035bb2e3f9c6f29f700408ef0a642162930cfb9a967cd1a9c0c4ce13d3d6",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_TJunction_8m.gltf",
+      "gltf_sha256": "dee27c5bbb101e6dfb1ff629f515d59e988a51f333fbf6be2872d10b135c6a16",
+      "buffers": {
+        "SM_RC_Terrain_Path_TJunction_8m.bin": "5903622b3f4054850fbf23f045c8ffae19b802254a04be182bc8b184db8251cc"
+      },
+      "meshes": 1,
+      "triangles": 28,
+      "minimum": [
+        -4.0,
+        -3.019916050561733e-07,
+        -4.0
+      ],
+      "maximum": [
+        4.0,
+        0.050000302493572235,
+        4.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Uphill_16x16x4.fbx",
+      "source_sha256": "bb826f099f814973fe5018222f51a682bc6b7dbb9532364a3dc69f1ac67745ce",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Uphill_16x16x4.gltf",
+      "gltf_sha256": "f30d5ba18acf08f6e600d7ce75c30196a09ba6aa959df4ba812c408b2eaf9981",
+      "buffers": {
+        "SM_RC_Terrain_Path_Uphill_16x16x4.bin": "1a529710e9ce700f32797a6022534070b66d4fd4f10b9a801361e4da3aba7bd7"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -8.0,
+        0.0,
+        -16.0
+      ],
+      "maximum": [
+        8.0,
+        4.049998760223389,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Path_Uphill_8x8x4.fbx",
+      "source_sha256": "bec486ab3fa8c4062e8d1b03c950034975c80f102fc62977d79bfdfe1f77e369",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Path_Uphill_8x8x4.gltf",
+      "gltf_sha256": "8852a66c9fe03bdbe323ab7b7c0899e3f8ec67c5614b0020aea9a9475c20cbd4",
+      "buffers": {
+        "SM_RC_Terrain_Path_Uphill_8x8x4.bin": "4af893338628c274463ebc8504889b495b3f169a872ee8da12ec7486bf499e99"
+      },
+      "meshes": 1,
+      "triangles": 12,
+      "minimum": [
+        -4.0,
+        0.0,
+        -8.0
+      ],
+      "maximum": [
+        4.0,
+        4.049999713897705,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Plateau_16x16x2.fbx",
+      "source_sha256": "e7cf450351f08549dfa929bd7aa3495c7a9a7088f21fef88a7699c80c13c74c8",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Plateau_16x16x2.gltf",
+      "gltf_sha256": "ec0728d3964aef5b47846d0ab5de5ed0dd8d3090ba1d84189b0b6a0f44432ffe",
+      "buffers": {
+        "SM_RC_Terrain_Plateau_16x16x2.bin": "3016f6dee58f7387d225ed4af91bd13cb74c6cd482e57a8d5978c8bc6a904e85"
+      },
+      "meshes": 1,
+      "triangles": 316,
+      "minimum": [
+        -8.265410423278809,
+        -6.09834330589365e-07,
+        -8.203949928283691
+      ],
+      "maximum": [
+        8.246419906616211,
+        2.0000007152557373,
+        8.076860427856445
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Plateau_16x16x4.fbx",
+      "source_sha256": "8923aaa098c539a8b31f38589f58d9f750f107d50d8925b9399eacacf556b74d",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Plateau_16x16x4.gltf",
+      "gltf_sha256": "d4d205915e5eb2db586cc9ab917687b65cc95879844b4d33d66dbe51bf03d88b",
+      "buffers": {
+        "SM_RC_Terrain_Plateau_16x16x4.bin": "93fbe16d316fa917f199534a3a1c14df47c554fa20dfc3a519a82fd2c6d82c19"
+      },
+      "meshes": 1,
+      "triangles": 316,
+      "minimum": [
+        -8.103469848632812,
+        -6.104435783527151e-07,
+        -8.225179672241211
+      ],
+      "maximum": [
+        8.276300430297852,
+        4.000000476837158,
+        8.223380088806152
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Plateau_16x16x8.fbx",
+      "source_sha256": "3745257434874dd523ec53114832f88e8471cf69009a412105282a465dbac00c",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Plateau_16x16x8.gltf",
+      "gltf_sha256": "8248e6cccb6eff24511216d5f6149d628067390142da15f5950ba7e2546bd69d",
+      "buffers": {
+        "SM_RC_Terrain_Plateau_16x16x8.bin": "42848cefa2c9ad11daf5e1b6a5e40687c4873514cd2ff94f6fa3784b12ff46ff"
+      },
+      "meshes": 1,
+      "triangles": 316,
+      "minimum": [
+        -8.234780311584473,
+        -6.112076107456232e-07,
+        -8.251819610595703
+      ],
+      "maximum": [
+        8.272749900817871,
+        8.000000953674316,
+        8.278969764709473
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Plateau_32x32x4.fbx",
+      "source_sha256": "dcc2e2d96aaf5eb4add6e5a481143e8d864ab32b6a92d58f629b9c11eb5b8371",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Plateau_32x32x4.gltf",
+      "gltf_sha256": "d1c5f45843b2042d2318077e111aa3504f9de9c6a0be0516844708ca34ccc491",
+      "buffers": {
+        "SM_RC_Terrain_Plateau_32x32x4.bin": "cbd901299e35fb31c60ce968bda14a580d2e8a49c9c591607874b7e08fb4de7f"
+      },
+      "meshes": 1,
+      "triangles": 668,
+      "minimum": [
+        -16.22323989868164,
+        -1.2157744322394137e-06,
+        -16.27215003967285
+      ],
+      "maximum": [
+        16.279600143432617,
+        4.000001430511475,
+        16.269929885864258
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Plateau_32x32x8.fbx",
+      "source_sha256": "42ccff4fd8d2ca3332f71b16218c9c31e0a3eed8314f2ece2fb78a247ad42cf1",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Plateau_32x32x8.gltf",
+      "gltf_sha256": "34ebfb5ac5c204a08df3d293475ce1f87c601d333bf4c220f773c68a332e4d53",
+      "buffers": {
+        "SM_RC_Terrain_Plateau_32x32x8.bin": "c0807ca06ae991111770c06351fe639e6504d41efbf23b8df47081e88e5a02e2"
+      },
+      "meshes": 1,
+      "triangles": 668,
+      "minimum": [
+        -16.255020141601562,
+        -1.215630163642345e-06,
+        -16.26712989807129
+      ],
+      "maximum": [
+        16.273420333862305,
+        8.000000953674316,
+        16.257190704345703
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Rock_Large_A.fbx",
+      "source_sha256": "0112d31858d95b071dc756ac5235fcfaa725011149e4891de3209db807989144",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Rock_Large_A.gltf",
+      "gltf_sha256": "c320ad85a910ce300ff29d905c0c4069e539ba4c55884dc11819dc9a1c1c24bf",
+      "buffers": {
+        "SM_RC_Terrain_Rock_Large_A.bin": "5d4a9b07e9a171b34b96b7303afb4c8c5771f60e984c74603b6792685729cc28"
+      },
+      "meshes": 1,
+      "triangles": 32,
+      "minimum": [
+        -2.5,
+        -1.2381656233628746e-07,
+        -2.000000238418579
+      ],
+      "maximum": [
+        2.5,
+        5.0,
+        1.999999761581421
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Rock_Large_B.fbx",
+      "source_sha256": "397688298bafde97794bff68b9992d75bd96476221ace84d3360371b9a64b07f",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Rock_Large_B.gltf",
+      "gltf_sha256": "3bab46b57630780b3b54d1fda6bb6e4c6903204180951d9f1ca4b0a934a0d801",
+      "buffers": {
+        "SM_RC_Terrain_Rock_Large_B.bin": "fb71e193cfd83c74c3b62d6f3ca9a7e63a135f22f476323029484d2aca6e18b0"
+      },
+      "meshes": 1,
+      "triangles": 32,
+      "minimum": [
+        -3.0,
+        -1.547706887095046e-07,
+        -2.500000238418579
+      ],
+      "maximum": [
+        3.0,
+        4.0,
+        2.499999761581421
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Rock_Medium_A.fbx",
+      "source_sha256": "fb26eac945ca123bc0bb6d787d45837299268317b56d83d9c8e6fe8710e44ccc",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Rock_Medium_A.gltf",
+      "gltf_sha256": "dbf6030a7ceceb2a9b926940f279eac1aaed3aedcb90a055ef4df46f5e9e5f9e",
+      "buffers": {
+        "SM_RC_Terrain_Rock_Medium_A.bin": "ea191dc3367a04ef7e27d061ec8c6ab955e0a54eb76496f6339a16f581a5309e"
+      },
+      "meshes": 1,
+      "triangles": 32,
+      "minimum": [
+        -1.5,
+        -9.28624217522156e-08,
+        -1.5000001192092896
+      ],
+      "maximum": [
+        1.5,
+        3.0,
+        1.4999998807907104
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Rock_Medium_B.fbx",
+      "source_sha256": "fb381d4a0cdd535c458a1ebf1dab012a9b7812384a97bc992ba4b95f94f29e81",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Rock_Medium_B.gltf",
+      "gltf_sha256": "c9ec8f1417cf3eea2efe57ea63da4563a0b00402c314a4f09a2213332a69080a",
+      "buffers": {
+        "SM_RC_Terrain_Rock_Medium_B.bin": "4ec458f0a69bea48325c7cb8245740d0792bb9fb7a632151e1c0f6270bb9b2a2"
+      },
+      "meshes": 1,
+      "triangles": 32,
+      "minimum": [
+        -1.75,
+        -8.048075983424496e-08,
+        -1.3000000715255737
+      ],
+      "maximum": [
+        1.75,
+        2.700000047683716,
+        1.2999998331069946
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Rock_Small_A.fbx",
+      "source_sha256": "39848b4c3255842a190d476d67b8a1c79a40122a17be6dfa9acc06e66a3f44d2",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Rock_Small_A.gltf",
+      "gltf_sha256": "f1846e20417925d79256de54d40026632044d7005b3240ddbc3428b401335a70",
+      "buffers": {
+        "SM_RC_Terrain_Rock_Small_A.bin": "b0dfa621a99d019a3983878cd5396d3fea43bf5c1b7a40e1747b975e5eac9bc2"
+      },
+      "meshes": 1,
+      "triangles": 32,
+      "minimum": [
+        -0.8999999761581421,
+        -4.9526626355600456e-08,
+        -0.8000000715255737
+      ],
+      "maximum": [
+        0.8999999761581421,
+        1.7999999523162842,
+        0.7999999523162842
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Rock_Small_B.fbx",
+      "source_sha256": "fcb6a9f85e2f4ef6f6b09adc648cb756f294923570663e4e1df6096d7ad5e5b9",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Rock_Small_B.gltf",
+      "gltf_sha256": "908b77d46df0b401dd1490409ef570ad33c21344b92233b454b06ec171a43981",
+      "buffers": {
+        "SM_RC_Terrain_Rock_Small_B.bin": "d86e4a90597d29f0081489e5371261e5e846c86c2abfe639acbc14c25fec6287"
+      },
+      "meshes": 1,
+      "triangles": 32,
+      "minimum": [
+        -1.0,
+        -5.2622038282379435e-08,
+        -0.8500000834465027
+      ],
+      "maximum": [
+        1.0,
+        1.399999976158142,
+        0.8499999642372131
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Slope_16x16x4.fbx",
+      "source_sha256": "65230b1926d71b182360059aae646a2db8d60fc1d5c8f8b495465dc9fd2ea106",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Slope_16x16x4.gltf",
+      "gltf_sha256": "a896e0768fb786c8083e0fc06db0d70875bd29f5210eeaf1d6b7e442b97b6e49",
+      "buffers": {
+        "SM_RC_Terrain_Slope_16x16x4.bin": "1ee568a3db5edc7265cfc4fe7e83874dcdf2ca3fe4222599a0af0a4cfe8fe6b2"
+      },
+      "meshes": 1,
+      "triangles": 8,
+      "minimum": [
+        -8.0,
+        -1.2079664202246931e-06,
+        -16.0
+      ],
+      "maximum": [
+        8.0,
+        3.9999988079071045,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Slope_16x16x8.fbx",
+      "source_sha256": "4a72c594ee5fa99ac4f38be0fb0a57293c62e1c920122077c0dead669e86380b",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Slope_16x16x8.gltf",
+      "gltf_sha256": "5342ddcb42a68a8f80f1e73d949da0731324e4f4dd5f46d449072dabe7771090",
+      "buffers": {
+        "SM_RC_Terrain_Slope_16x16x8.bin": "9db348e7bb44b050da8f66d4dd45301c3bade63085b7912fcc8f31b9e9bfff67"
+      },
+      "meshes": 1,
+      "triangles": 8,
+      "minimum": [
+        -8.0,
+        -1.2079664202246931e-06,
+        -16.0
+      ],
+      "maximum": [
+        8.0,
+        7.999998569488525,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Slope_8x8x2.fbx",
+      "source_sha256": "af035fb4d6d3f950170fd9bb0e239068023d5d61567531c28b8e455de3843714",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Slope_8x8x2.gltf",
+      "gltf_sha256": "bcd017307a1618de6e7fd2d356573ebcefe8882205a4b9ae42b772a3f3675eb2",
+      "buffers": {
+        "SM_RC_Terrain_Slope_8x8x2.bin": "c4c746eeeb9cdd61bd8a7380a7cb17deeb913ddd4cc5d662d01cb5c541667550"
+      },
+      "meshes": 1,
+      "triangles": 8,
+      "minimum": [
+        -4.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        4.0,
+        1.9999994039535522,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_Slope_8x8x4.fbx",
+      "source_sha256": "e7f41de2e9fd875e146709767fe9649e846f928bbfdaaece6b5f4d514768f8c7",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_Slope_8x8x4.gltf",
+      "gltf_sha256": "5085a1b54c7bfb7e2bf08171e9bb5bb22f93e3db26ee89f24eafe6adc7b18ebc",
+      "buffers": {
+        "SM_RC_Terrain_Slope_8x8x4.bin": "ea06bb4d6cf0b942b2336123d4bef4d855f3ce890321bcf74a44c81900d77067"
+      },
+      "meshes": 1,
+      "triangles": 8,
+      "minimum": [
+        -4.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        4.0,
+        3.9999992847442627,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_SlopeCorner_Inner_8x8x4.fbx",
+      "source_sha256": "b7c5462c46e3c172ab78ae5c63ba15de9038609ecad365fe2be0bb9288cbf363",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_SlopeCorner_Inner_8x8x4.gltf",
+      "gltf_sha256": "7df4d28ddd6e13509659a0c89d6b46ff4699ca046ceb73fcb867a47ebe88cce0",
+      "buffers": {
+        "SM_RC_Terrain_SlopeCorner_Inner_8x8x4.bin": "3fc5c497a2b3ecdb59b4d3d29e7e41eb83aecff70b87bee81434e8de79639bfc"
+      },
+      "meshes": 1,
+      "triangles": 10,
+      "minimum": [
+        0.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        4.0,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_SlopeCorner_Outer_8x8x4.fbx",
+      "source_sha256": "e0201899be45597a7db8c98165bd4c9b7fdf3dac9b8b8bda34aae2f1abbbc436",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_SlopeCorner_Outer_8x8x4.gltf",
+      "gltf_sha256": "2cd0bc50269e51fcef18e6d4561bcb9e514bed144a5e932ae8acaf509968c87c",
+      "buffers": {
+        "SM_RC_Terrain_SlopeCorner_Outer_8x8x4.bin": "8d49bf5d1109f59cd9236db75c956be8545896d8d214815396ea778d319abfa9"
+      },
+      "meshes": 1,
+      "triangles": 6,
+      "minimum": [
+        0.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        8.0,
+        3.9999992847442627,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    },
+    {
+      "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\SM_RC_Terrain_SlopeDiagonal_8x8x4.fbx",
+      "source_sha256": "97baf990e2d27cec74aef7c67f887bca56144825d2d31b0e9e5448e53064123a",
+      "texture": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Royal District\\TempleIslandTerrain\\1-Foto-1.jpg",
+      "texture_sha256": "ebe37a7ed93707d31646159a81c1d93c614122b71a25c8fdc2de1f8c0c4fa5db",
+      "gltf": "content/royal_district/static/terrain/SM_RC_Terrain_SlopeDiagonal_8x8x4.gltf",
+      "gltf_sha256": "87e5fdb7936ef5b720b450f739077ca1ee185451c9867e5c2f7f24ef5f4e5474",
+      "buffers": {
+        "SM_RC_Terrain_SlopeDiagonal_8x8x4.bin": "246bd362c621f9b1aaab0d8b8cc7484521b7bda985742be018b5e9bd27a6e577"
+      },
+      "meshes": 1,
+      "triangles": 4,
+      "minimum": [
+        -4.0,
+        -6.039832101123466e-07,
+        -8.0
+      ],
+      "maximum": [
+        4.0,
+        3.9999992847442627,
+        0.0
+      ],
+      "material_profile": "Original trim UVs/base color; native PBR roughness 0.9"
+    }
+  ]
+}

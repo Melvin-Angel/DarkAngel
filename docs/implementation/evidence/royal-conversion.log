@@ -1,0 +1,382 @@
+FBX version: 7400
+INFO Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.5\4.5\scripts\addons_core\io_scene_gltf2\extern_draco.dll
+17:15:13 | INFO: Starting glTF 2.0 export
+17:15:13 | INFO: Extracting primitive: SM_RC_MudHut_Round_1F_FixedTemp
+17:15:13 | INFO: Primitives created: 1
+17:15:13 | INFO: Finished glTF 2.0 export in 0.029532670974731445 s
+
+ROYAL_CONVERTED SM_RC_MudHut_Round_1F.fbx triangles= 482
+FBX version: 7400
+17:15:13 | INFO: Starting glTF 2.0 export
+17:15:13 | INFO: Extracting primitive: SM_RC_MudHut_Round_2F_Setback_FixedTemp
+17:15:13 | INFO: Primitives created: 1
+17:15:13 | INFO: Finished glTF 2.0 export in 0.030249834060668945 s
+
+ROYAL_CONVERTED SM_RC_MudHut_Round_2F_Setback.fbx triangles= 826
+FBX version: 7400
+17:15:13 | INFO: Starting glTF 2.0 export
+17:15:13 | INFO: Extracting primitive: SM_RC_MudHut_Round_3F_Overhang_FixedTemp
+17:15:13 | INFO: Primitives created: 1
+17:15:13 | INFO: Finished glTF 2.0 export in 0.02919173240661621 s
+
+ROYAL_CONVERTED SM_RC_MudHut_Round_3F_Overhang.fbx triangles= 1146
+FBX version: 7400
+17:15:13 | INFO: Starting glTF 2.0 export
+17:15:13 | INFO: Extracting primitive: SM_RC_MudHut_Square_1F_FixedTemp
+17:15:13 | INFO: Primitives created: 1
+17:15:13 | INFO: Finished glTF 2.0 export in 0.031383514404296875 s
+
+ROYAL_CONVERTED SM_RC_MudHut_Square_1F.fbx triangles= 426
+FBX version: 7400
+17:15:13 | INFO: Starting glTF 2.0 export
+17:15:13 | INFO: Extracting primitive: SM_RC_MudHut_Square_2F_Overhang_FixedTemp
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.03564333915710449 s
+
+ROYAL_CONVERTED SM_RC_MudHut_Square_2F_Overhang.fbx triangles= 826
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_MudHut_Square_4F_Setback_FixedTemp
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.03227043151855469 s
+
+ROYAL_CONVERTED SM_RC_MudHut_Square_4F_Setback.fbx triangles= 1194
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_Cliff_16x4
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.016405105590820312 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Cliff_16x4.fbx triangles= 100
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_Cliff_16x8
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.016214847564697266 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Cliff_16x8.fbx triangles= 100
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_Cliff_8x2
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.014759063720703125 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Cliff_8x2.fbx triangles= 60
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_Cliff_8x4
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.014217376708984375 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Cliff_8x4.fbx triangles= 60
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_Cliff_8x8
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.013187646865844727 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Cliff_8x8.fbx triangles= 60
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_CliffBottomTransition_8x4
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.014240741729736328 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffBottomTransition_8x4.fbx triangles= 24
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_CliffCorner_Inner_8x8x4
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.0150299072265625 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffCorner_Inner_8x8x4.fbx triangles= 76
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_CliffCorner_Inner_8x8x8
+17:15:14 | INFO: Primitives created: 1
+17:15:14 | INFO: Finished glTF 2.0 export in 0.017188310623168945 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffCorner_Inner_8x8x8.fbx triangles= 76
+FBX version: 7400
+17:15:14 | INFO: Starting glTF 2.0 export
+17:15:14 | INFO: Extracting primitive: SM_RC_Terrain_CliffCorner_Outer_8x8x2
+17:15:14 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.014259099960327148 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffCorner_Outer_8x8x2.fbx triangles= 108
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_CliffCorner_Outer_8x8x4
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.015019655227661133 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffCorner_Outer_8x8x4.fbx triangles= 108
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_CliffCorner_Outer_8x8x8
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.01526331901550293 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffCorner_Outer_8x8x8.fbx triangles= 108
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_CliffTopTransition_8x4
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.015130043029785156 s
+
+ROYAL_CONVERTED SM_RC_Terrain_CliffTopTransition_8x4.fbx triangles= 24
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_Ground_16x16
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.024136781692504883 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Ground_16x16.fbx triangles= 12
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_Ground_32x32
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.01629018783569336 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Ground_32x32.fbx triangles= 12
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_Ground_8x8
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.015017986297607422 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Ground_8x8.fbx triangles= 12
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_IslandEdge_16x16_Large
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.01529073715209961 s
+
+ROYAL_CONVERTED SM_RC_Terrain_IslandEdge_16x16_Large.fbx triangles= 116
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_IslandEdge_45_8m
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.014539003372192383 s
+
+ROYAL_CONVERTED SM_RC_Terrain_IslandEdge_45_8m.fbx triangles= 68
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_IslandEdge_OuterCorner_8m
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.014513254165649414 s
+
+ROYAL_CONVERTED SM_RC_Terrain_IslandEdge_OuterCorner_8m.fbx triangles= 92
+FBX version: 7400
+17:15:15 | INFO: Starting glTF 2.0 export
+17:15:15 | INFO: Extracting primitive: SM_RC_Terrain_IslandEdge_Rounded_8m
+17:15:15 | INFO: Primitives created: 1
+17:15:15 | INFO: Finished glTF 2.0 export in 0.014030694961547852 s
+
+ROYAL_CONVERTED SM_RC_Terrain_IslandEdge_Rounded_8m.fbx triangles= 60
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_IslandEdge_Straight_16m
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.018621444702148438 s
+
+ROYAL_CONVERTED SM_RC_Terrain_IslandEdge_Straight_16m.fbx triangles= 100
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_IslandEdge_Straight_8m
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.016198158264160156 s
+
+ROYAL_CONVERTED SM_RC_Terrain_IslandEdge_Straight_8m.fbx triangles= 60
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Cross_8m
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.018541574478149414 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Cross_8m.fbx triangles= 44
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Curve45_8m
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.014236688613891602 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Curve45_8m.fbx triangles= 28
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Curve90_8m
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.015045881271362305 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Curve90_8m.fbx triangles= 44
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Straight_4x8
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.018545150756835938 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Straight_4x8.fbx triangles= 12
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Straight_8x16
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.014893293380737305 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Straight_8x16.fbx triangles= 12
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Straight_8x8
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.014698028564453125 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Straight_8x8.fbx triangles= 12
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_TJunction_8m
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.014832019805908203 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_TJunction_8m.fbx triangles= 28
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Uphill_16x16x4
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.016080141067504883 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Uphill_16x16x4.fbx triangles= 12
+FBX version: 7400
+17:15:16 | INFO: Starting glTF 2.0 export
+17:15:16 | INFO: Extracting primitive: SM_RC_Terrain_Path_Uphill_8x8x4
+17:15:16 | INFO: Primitives created: 1
+17:15:16 | INFO: Finished glTF 2.0 export in 0.014033794403076172 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Path_Uphill_8x8x4.fbx triangles= 12
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Plateau_16x16x2
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.01520085334777832 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Plateau_16x16x2.fbx triangles= 316
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Plateau_16x16x4
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.023057222366333008 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Plateau_16x16x4.fbx triangles= 316
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Plateau_16x16x8
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.017093420028686523 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Plateau_16x16x8.fbx triangles= 316
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Plateau_32x32x4
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.030686616897583008 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Plateau_32x32x4.fbx triangles= 668
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Plateau_32x32x8
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.018023967742919922 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Plateau_32x32x8.fbx triangles= 668
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Rock_Large_A
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.014241933822631836 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Rock_Large_A.fbx triangles= 32
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Rock_Large_B
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.014663457870483398 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Rock_Large_B.fbx triangles= 32
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Rock_Medium_A
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.01602458953857422 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Rock_Medium_A.fbx triangles= 32
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Rock_Medium_B
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.014201641082763672 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Rock_Medium_B.fbx triangles= 32
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Rock_Small_A
+17:15:17 | INFO: Primitives created: 1
+17:15:17 | INFO: Finished glTF 2.0 export in 0.015364646911621094 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Rock_Small_A.fbx triangles= 32
+FBX version: 7400
+17:15:17 | INFO: Starting glTF 2.0 export
+17:15:17 | INFO: Extracting primitive: SM_RC_Terrain_Rock_Small_B
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.015356302261352539 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Rock_Small_B.fbx triangles= 32
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_Slope_16x16x4
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.016276836395263672 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Slope_16x16x4.fbx triangles= 8
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_Slope_16x16x8
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.018219947814941406 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Slope_16x16x8.fbx triangles= 8
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_Slope_8x8x2
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.017531394958496094 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Slope_8x8x2.fbx triangles= 8
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_Slope_8x8x4
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.015066385269165039 s
+
+ROYAL_CONVERTED SM_RC_Terrain_Slope_8x8x4.fbx triangles= 8
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_SlopeCorner_Inner_8x8x4
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.025491952896118164 s
+
+ROYAL_CONVERTED SM_RC_Terrain_SlopeCorner_Inner_8x8x4.fbx triangles= 10
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_SlopeCorner_Outer_8x8x4
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.01602625846862793 s
+
+ROYAL_CONVERTED SM_RC_Terrain_SlopeCorner_Outer_8x8x4.fbx triangles= 6
+FBX version: 7400
+17:15:18 | INFO: Starting glTF 2.0 export
+17:15:18 | INFO: Extracting primitive: SM_RC_Terrain_SlopeDiagonal_8x8x4
+17:15:18 | INFO: Primitives created: 1
+17:15:18 | INFO: Finished glTF 2.0 export in 0.015016317367553711 s
+
+ROYAL_CONVERTED SM_RC_Terrain_SlopeDiagonal_8x8x4.fbx triangles= 4
+Blender 4.5.1 LTS (hash b0a72b245dcf built 2025-07-29 06:36:07)
+
+Blender quit

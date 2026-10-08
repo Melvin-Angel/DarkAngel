@@ -1,0 +1,1089 @@
+{
+  "schema": 1,
+  "base_head": "0a63eaf2132660a0c8174677f2fa7e704ad553c9",
+  "scope": "54 original-UV/trim static sources; native cold/warm cook and frozen registry inspection; playable scene remains integration work",
+  "tool_sha256": "3dc5e3a1588474cf00ee54ca5af8c6dda2e729510450222baa28fc62d660015d",
+  "converter_sha256": "abba66fe3c0230f9ed8d6a6aa768ca32c6578e3a617b6bca70e2e21f6db10a4f",
+  "files": [
+    {
+      "asset": "35d15141-eae0-400d-a616-78d890fc0982",
+      "source": "mud_huts/SM_RC_MudHut_Round_1F.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_MudHut_Round_1F.json",
+      "registry_sha256": "cd9cf59cae49733ac9cbc1538de0295725b5133174788f38074d7a57b62a9d1a",
+      "inspection": "Cooked model 35d15141-eae0-400d-a616-78d890fc0982 meshes=1 vertices=888 triangles=482 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -3.869999885559082,
+          -2.3700745543919766e-07,
+          -3.870000123977661
+        ],
+        "maximum": [
+          3.869999885559082,
+          6.440000057220459,
+          3.869999647140503
+        ]
+      },
+      "triangles": 482
+    },
+    {
+      "asset": "9a300109-7840-4bf0-bdae-94fb58759e99",
+      "source": "mud_huts/SM_RC_MudHut_Round_2F_Setback.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_MudHut_Round_2F_Setback.json",
+      "registry_sha256": "06f008cbfb8000d234643c2b0e006e2bb12eec3bc8c46418264108d660a5e517",
+      "inspection": "Cooked model 9a300109-7840-4bf0-bdae-94fb58759e99 meshes=1 vertices=1512 triangles=826 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.46999979019165,
+          -2.880552187889407e-07,
+          -4.470000267028809
+        ],
+        "maximum": [
+          4.46999979019165,
+          10.4399995803833,
+          4.469999313354492
+        ]
+      },
+      "triangles": 826
+    },
+    {
+      "asset": "76216fff-893b-4ba1-8574-a65615e15bd6",
+      "source": "mud_huts/SM_RC_MudHut_Round_3F_Overhang.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_MudHut_Round_3F_Overhang.json",
+      "registry_sha256": "a88d532ea2b8a392cf0b7d9953a72a86283c1aecbfe2bee343e916abcb0490b6",
+      "inspection": "Cooked model 76216fff-893b-4ba1-8574-a65615e15bd6 meshes=1 vertices=2088 triangles=1146 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.119999885559082,
+          -2.1512984460514417e-07,
+          -4.12000036239624
+        ],
+        "maximum": [
+          4.119999885559082,
+          14.4399995803833,
+          4.119999408721924
+        ]
+      },
+      "triangles": 1146
+    },
+    {
+      "asset": "53a35b5c-be67-4cc8-a0f1-2621419b12f2",
+      "source": "mud_huts/SM_RC_MudHut_Square_1F.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_MudHut_Square_1F.json",
+      "registry_sha256": "30334f0ae8eff5adea1f7371cd97a114d7d0e2fe96fbe5cb17beeb2696af610f",
+      "inspection": "Cooked model 53a35b5c-be67-4cc8-a0f1-2621419b12f2 meshes=1 vertices=808 triangles=426 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -3.4200000762939453,
+          -2.113941235393213e-07,
+          -3.4200003147125244
+        ],
+        "maximum": [
+          3.4200000762939453,
+          6.269999980926514,
+          3.419999837875366
+        ]
+      },
+      "triangles": 426
+    },
+    {
+      "asset": "74f22d54-cb54-4b73-820a-86af4a0880cc",
+      "source": "mud_huts/SM_RC_MudHut_Square_2F_Overhang.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_MudHut_Square_2F_Overhang.json",
+      "registry_sha256": "632ff34c4cf1fef93f6b2825b55619e560a6594754ad9d7f92f727575f4660ce",
+      "inspection": "Cooked model 74f22d54-cb54-4b73-820a-86af4a0880cc meshes=1 vertices=1576 triangles=826 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.119999885559082,
+          -2.1516900972073927e-07,
+          -4.12000036239624
+        ],
+        "maximum": [
+          4.119999885559082,
+          10.270000457763672,
+          4.4549994468688965
+        ]
+      },
+      "triangles": 826
+    },
+    {
+      "asset": "39a344f8-6d69-4d04-b509-9b8e8de63d09",
+      "source": "mud_huts/SM_RC_MudHut_Square_4F_Setback.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_MudHut_Square_4F_Setback.json",
+      "registry_sha256": "90975b788c2ee927beee63c58c4eef59e921521e47bd7125dec9eca9e9ad92c6",
+      "inspection": "Cooked model 39a344f8-6d69-4d04-b509-9b8e8de63d09 meshes=1 vertices=2248 triangles=1194 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.420000076293945,
+          -2.9444183269333735e-07,
+          -4.4200005531311035
+        ],
+        "maximum": [
+          4.420000076293945,
+          18.270000457763672,
+          4.419999599456787
+        ]
+      },
+      "triangles": 1194
+    },
+    {
+      "asset": "3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60",
+      "source": "terrain/SM_RC_Terrain_Cliff_16x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Cliff_16x4.json",
+      "registry_sha256": "582df147245081ea5a08995026e1471efe76468344224bc4aa22e5787c5599de",
+      "inspection": "Cooked model 3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60 meshes=1 vertices=236 triangles=100 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -1.5099580252808664e-07,
+          -2.000000238418579
+        ],
+        "maximum": [
+          8.0,
+          4.0,
+          2.2233800888061523
+        ]
+      },
+      "triangles": 100
+    },
+    {
+      "asset": "d806b14b-135d-48b6-8a3c-8eb076732e7e",
+      "source": "terrain/SM_RC_Terrain_Cliff_16x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Cliff_16x8.json",
+      "registry_sha256": "0bf16ab82f5fa3e89d67aa685bc77b90cf979420af33db8c5cca79c1b7fd9d67",
+      "inspection": "Cooked model d806b14b-135d-48b6-8a3c-8eb076732e7e meshes=1 vertices=236 triangles=100 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -1.5099580252808664e-07,
+          -2.0000007152557373
+        ],
+        "maximum": [
+          8.0,
+          8.0,
+          2.2789697647094727
+        ]
+      },
+      "triangles": 100
+    },
+    {
+      "asset": "e18cb708-36ef-4be0-8657-9ee7b105e180",
+      "source": "terrain/SM_RC_Terrain_Cliff_8x2.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Cliff_8x2.json",
+      "registry_sha256": "511399be16a91c2a9bf5be9372aef3b3dbe963819cbec96dfad833de560aa492",
+      "inspection": "Cooked model e18cb708-36ef-4be0-8657-9ee7b105e180 meshes=1 vertices=136 triangles=60 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -1.5099580252808664e-07,
+          -2.000000238418579
+        ],
+        "maximum": [
+          4.0,
+          2.000000238418579,
+          2.0268499851226807
+        ]
+      },
+      "triangles": 60
+    },
+    {
+      "asset": "e0f1970d-2546-451e-ab24-f8463b057652",
+      "source": "terrain/SM_RC_Terrain_Cliff_8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Cliff_8x4.json",
+      "registry_sha256": "f980cba1a53135fa2d107e7d1e086a402fd2d292197af67de0596acf0a92d317",
+      "inspection": "Cooked model e0f1970d-2546-451e-ab24-f8463b057652 meshes=1 vertices=136 triangles=60 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -1.5099580252808664e-07,
+          -2.000000238418579
+        ],
+        "maximum": [
+          4.0,
+          4.0,
+          2.0798499584198
+        ]
+      },
+      "triangles": 60
+    },
+    {
+      "asset": "68caf02b-04ed-493a-b338-2f28c2728041",
+      "source": "terrain/SM_RC_Terrain_Cliff_8x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Cliff_8x8.json",
+      "registry_sha256": "b7e6ff1539b92302a18b902298a0be84f297c8ef603c4c1a23721c48d92f91fa",
+      "inspection": "Cooked model 68caf02b-04ed-493a-b338-2f28c2728041 meshes=1 vertices=136 triangles=60 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -1.5099580252808664e-07,
+          -2.0000007152557373
+        ],
+        "maximum": [
+          4.0,
+          8.0,
+          2.0
+        ]
+      },
+      "triangles": 60
+    },
+    {
+      "asset": "a4d0eb1b-9674-43ec-928e-530a825c4057",
+      "source": "terrain/SM_RC_Terrain_CliffBottomTransition_8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffBottomTransition_8x4.json",
+      "registry_sha256": "f3a10fd1cef294a4cbd7f6d4231f1eefbe8ef20e4016d6cc123af14a402c0938",
+      "inspection": "Cooked model a4d0eb1b-9674-43ec-928e-530a825c4057 meshes=1 vertices=50 triangles=24 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -1.5099580252808664e-07,
+          -2.0
+        ],
+        "maximum": [
+          4.0,
+          1.1499998569488525,
+          2.180000066757202
+        ]
+      },
+      "triangles": 24
+    },
+    {
+      "asset": "8b571669-0c6d-4359-8705-f51546f7190f",
+      "source": "terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffCorner_Inner_8x8x4.json",
+      "registry_sha256": "4f974add878e4d6db00120675134d9fbd2849136c52340308362736deeba315f",
+      "inspection": "Cooked model 8b571669-0c6d-4359-8705-f51546f7190f meshes=1 vertices=168 triangles=76 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -3.019916050561733e-07,
+          -4.000000476837158
+        ],
+        "maximum": [
+          4.0,
+          4.000000476837158,
+          4.0
+        ]
+      },
+      "triangles": 76
+    },
+    {
+      "asset": "a32710b4-ddcc-4465-aee0-463a483b15b6",
+      "source": "terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffCorner_Inner_8x8x8.json",
+      "registry_sha256": "aac1aa522940f86db206e45708d3a0e2633de3b1fff6c001971ba68ba035c93e",
+      "inspection": "Cooked model a32710b4-ddcc-4465-aee0-463a483b15b6 meshes=1 vertices=168 triangles=76 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -3.019916050561733e-07,
+          -4.000000476837158
+        ],
+        "maximum": [
+          4.0,
+          8.0,
+          4.0
+        ]
+      },
+      "triangles": 76
+    },
+    {
+      "asset": "2c87d958-3549-48c0-ade7-8cea9e6a29cd",
+      "source": "terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x2.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffCorner_Outer_8x8x2.json",
+      "registry_sha256": "c3dc253fc4e97551f464142599f4a6f60e65ea693a811f3de4126f896d2ceb84",
+      "inspection": "Cooked model 2c87d958-3549-48c0-ade7-8cea9e6a29cd meshes=1 vertices=248 triangles=108 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -0.18129999935626984,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          2.0,
+          0.2536199390888214
+        ]
+      },
+      "triangles": 108
+    },
+    {
+      "asset": "912988e7-b5b1-460c-8aa2-5a4b5ec4d445",
+      "source": "terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffCorner_Outer_8x8x4.json",
+      "registry_sha256": "04a4bbedb0178ba69e2ba01f679788e10a5a713ba247b2de66e609e5d5818fed",
+      "inspection": "Cooked model 912988e7-b5b1-460c-8aa2-5a4b5ec4d445 meshes=1 vertices=248 triangles=108 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -0.23077000677585602,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          4.0,
+          0.0
+        ]
+      },
+      "triangles": 108
+    },
+    {
+      "asset": "f948a817-48ec-431f-860d-213670aa6e82",
+      "source": "terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffCorner_Outer_8x8x8.json",
+      "registry_sha256": "66067efb34339c3b94635eeae8d58e47fe9dbc61732ac9fb05affc434a3cad57",
+      "inspection": "Cooked model f948a817-48ec-431f-860d-213670aa6e82 meshes=1 vertices=248 triangles=108 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -0.2794800102710724,
+          -6.039832101123466e-07,
+          -8.000000953674316
+        ],
+        "maximum": [
+          8.0,
+          8.0,
+          0.25737977027893066
+        ]
+      },
+      "triangles": 108
+    },
+    {
+      "asset": "74320696-4905-4475-a202-2972f995fb28",
+      "source": "terrain/SM_RC_Terrain_CliffTopTransition_8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_CliffTopTransition_8x4.json",
+      "registry_sha256": "d68cd62bba2fed0f310b3bd393aef6e63db94023fa970f4d5a487d097743da4e",
+      "inspection": "Cooked model 74320696-4905-4475-a202-2972f995fb28 meshes=1 vertices=50 triangles=24 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -1.5099580252808664e-07,
+          -2.0
+        ],
+        "maximum": [
+          4.0,
+          0.5499998331069946,
+          2.180000066757202
+        ]
+      },
+      "triangles": 24
+    },
+    {
+      "asset": "035210a8-ef67-46f0-9586-58f9f522f7a6",
+      "source": "terrain/SM_RC_Terrain_Ground_16x16.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Ground_16x16.json",
+      "registry_sha256": "24857ced94de4d9b8a9ef8bd266cd1b9ebb3b8771d6ff67a8fbeeebaf5c04d4a",
+      "inspection": "Cooked model 035210a8-ef67-46f0-9586-58f9f522f7a6 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          0.5000005960464478,
+          8.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "415c93bd-946a-4e73-a155-4a7f08015d00",
+      "source": "terrain/SM_RC_Terrain_Ground_32x32.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Ground_32x32.json",
+      "registry_sha256": "2a62c13b04c3d95b5f4e7306262600204eda3e2b89b9b3db36fceba3c0c77b64",
+      "inspection": "Cooked model 415c93bd-946a-4e73-a155-4a7f08015d00 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -16.0,
+          -1.2079664202246931e-06,
+          -16.0
+        ],
+        "maximum": [
+          16.0,
+          0.5000011920928955,
+          16.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "f16d189b-5bda-41df-bb8a-3a47097b0377",
+      "source": "terrain/SM_RC_Terrain_Ground_8x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Ground_8x8.json",
+      "registry_sha256": "b011d41275a84f852824e444dd25c049b47d37b612b2d9c88a63e7cc196c968b",
+      "inspection": "Cooked model f16d189b-5bda-41df-bb8a-3a47097b0377 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -3.019916050561733e-07,
+          -4.0
+        ],
+        "maximum": [
+          4.0,
+          0.5000002980232239,
+          4.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "938923c5-4de7-4cc5-87ea-49aafee4ff25",
+      "source": "terrain/SM_RC_Terrain_IslandEdge_16x16_Large.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_IslandEdge_16x16_Large.json",
+      "registry_sha256": "51c4683b29bf398dabffa0e2ccffb4bf728ad1b0b4bcb564f383065e31554ac4",
+      "inspection": "Cooked model 938923c5-4de7-4cc5-87ea-49aafee4ff25 meshes=1 vertices=276 triangles=116 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -8.000000953674316,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          6.039832101123466e-07,
+          8.000000953674316
+        ]
+      },
+      "triangles": 116
+    },
+    {
+      "asset": "eb7b9358-0bfb-4185-b1ec-2c16c556689c",
+      "source": "terrain/SM_RC_Terrain_IslandEdge_45_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_IslandEdge_45_8m.json",
+      "registry_sha256": "e0dae1bdfb370955aaae737ae987f81ae59b91cbfc4b20e8f600b5087ad80d1c",
+      "inspection": "Cooked model eb7b9358-0bfb-4185-b1ec-2c16c556689c meshes=1 vertices=164 triangles=68 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          0.0,
+          -8.000000953674316,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          0.0,
+          6.039832101123466e-07
+        ]
+      },
+      "triangles": 68
+    },
+    {
+      "asset": "b539c8b9-1907-45d4-a7d6-b02cb62dbe01",
+      "source": "terrain/SM_RC_Terrain_IslandEdge_OuterCorner_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_IslandEdge_OuterCorner_8m.json",
+      "registry_sha256": "d6a66fab47e3a7bd2b35f58c7c773a64703b0460071fdec670cf95a4dbd609bb",
+      "inspection": "Cooked model b539c8b9-1907-45d4-a7d6-b02cb62dbe01 meshes=1 vertices=224 triangles=92 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -0.23077000677585602,
+          -8.000000953674316,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          0.0,
+          6.039832101123466e-07
+        ]
+      },
+      "triangles": 92
+    },
+    {
+      "asset": "4b1f77d5-1d28-4f35-b839-69c5ef29a7d6",
+      "source": "terrain/SM_RC_Terrain_IslandEdge_Rounded_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_IslandEdge_Rounded_8m.json",
+      "registry_sha256": "0e4b40e62d269b9928e275dc808197be7fc278f9781393e8e9ab42545488bcf5",
+      "inspection": "Cooked model 4b1f77d5-1d28-4f35-b839-69c5ef29a7d6 meshes=1 vertices=96 triangles=60 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          0.0,
+          -8.000000953674316,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          0.0,
+          6.039832101123466e-07
+        ]
+      },
+      "triangles": 60
+    },
+    {
+      "asset": "c1a16f93-d20d-474b-92ae-27f098b198ff",
+      "source": "terrain/SM_RC_Terrain_IslandEdge_Straight_16m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_IslandEdge_Straight_16m.json",
+      "registry_sha256": "35c32cd0054820a14e482617f351c0ffdce5c6eb9e289a95f6b78f88b62f788b",
+      "inspection": "Cooked model c1a16f93-d20d-474b-92ae-27f098b198ff meshes=1 vertices=236 triangles=100 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -8.0,
+          -4.0
+        ],
+        "maximum": [
+          8.0,
+          3.019916050561733e-07,
+          4.074620246887207
+        ]
+      },
+      "triangles": 100
+    },
+    {
+      "asset": "af0ff5c8-1704-48f5-aeea-f20128c48353",
+      "source": "terrain/SM_RC_Terrain_IslandEdge_Straight_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_IslandEdge_Straight_8m.json",
+      "registry_sha256": "cec27e1d90574069207a032e6e52aa909c40e78e27d8554d08fb386a22f747a6",
+      "inspection": "Cooked model af0ff5c8-1704-48f5-aeea-f20128c48353 meshes=1 vertices=136 triangles=60 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -8.0,
+          -4.0
+        ],
+        "maximum": [
+          4.0,
+          3.019916050561733e-07,
+          4.257380485534668
+        ]
+      },
+      "triangles": 60
+    },
+    {
+      "asset": "ed848d93-b96d-43d3-8e3c-bffc6bff5fb6",
+      "source": "terrain/SM_RC_Terrain_Path_Cross_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Cross_8m.json",
+      "registry_sha256": "efd2097c3aee0acdf71ecf913160af06379a1b50b904cf31b7f2fc3b708d6b75",
+      "inspection": "Cooked model ed848d93-b96d-43d3-8e3c-bffc6bff5fb6 meshes=1 vertices=72 triangles=44 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -3.019916050561733e-07,
+          -4.0
+        ],
+        "maximum": [
+          4.0,
+          0.050000302493572235,
+          4.0
+        ]
+      },
+      "triangles": 44
+    },
+    {
+      "asset": "a54b72e0-b1aa-4ce7-8206-13dd702b2d15",
+      "source": "terrain/SM_RC_Terrain_Path_Curve45_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Curve45_8m.json",
+      "registry_sha256": "6387a4c103160d7e50bf78a7d2044ed471205e785fc3859a496d629a89c3ab11",
+      "inspection": "Cooked model a54b72e0-b1aa-4ce7-8206-13dd702b2d15 meshes=1 vertices=48 triangles=28 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.878680229187012,
+          -3.736957410183095e-07,
+          -4.949749946594238
+        ],
+        "maximum": [
+          4.878680229187012,
+          0.050000373274087906,
+          4.949749946594238
+        ]
+      },
+      "triangles": 28
+    },
+    {
+      "asset": "60f3d81c-e99f-4ce0-ada9-ae96044c554d",
+      "source": "terrain/SM_RC_Terrain_Path_Curve90_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Curve90_8m.json",
+      "registry_sha256": "0bbce454bd1ea848d3501143b02a8b471ce3e97b52865d6edb0a88f2076c1984",
+      "inspection": "Cooked model 60f3d81c-e99f-4ce0-ada9-ae96044c554d meshes=1 vertices=72 triangles=44 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -5.0,
+          -3.7748949921478925e-07,
+          -5.0
+        ],
+        "maximum": [
+          5.0,
+          0.050000376999378204,
+          5.0
+        ]
+      },
+      "triangles": 44
+    },
+    {
+      "asset": "4eb51520-db08-4bd5-94d9-ae990dd572e0",
+      "source": "terrain/SM_RC_Terrain_Path_Straight_4x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Straight_4x8.json",
+      "registry_sha256": "8751cd66dfdcadd54e08c87e5eb1b50560234dfa4d036a92f2bf8e233ccc1163",
+      "inspection": "Cooked model 4eb51520-db08-4bd5-94d9-ae990dd572e0 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -2.0,
+          -3.019916050561733e-07,
+          -4.0
+        ],
+        "maximum": [
+          2.0,
+          0.050000302493572235,
+          4.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "d4c58126-a7de-4bc3-b588-1d6c152cb396",
+      "source": "terrain/SM_RC_Terrain_Path_Straight_8x16.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Straight_8x16.json",
+      "registry_sha256": "08546c2986924586b9b9eed4b183d817a05862fffb10b87ec55e1301b188bcad",
+      "inspection": "Cooked model d4c58126-a7de-4bc3-b588-1d6c152cb396 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          4.0,
+          0.05000060424208641,
+          8.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "22a08e1b-fbcb-47cd-b915-587de0690d42",
+      "source": "terrain/SM_RC_Terrain_Path_Straight_8x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Straight_8x8.json",
+      "registry_sha256": "0f9bc60bd926bf0931af591c331bf8ac45968d2115970a39c772a617a110d424",
+      "inspection": "Cooked model 22a08e1b-fbcb-47cd-b915-587de0690d42 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -3.019916050561733e-07,
+          -4.0
+        ],
+        "maximum": [
+          4.0,
+          0.050000302493572235,
+          4.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "429f39c4-fc37-4c20-87a0-93f1665b2b47",
+      "source": "terrain/SM_RC_Terrain_Path_TJunction_8m.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_TJunction_8m.json",
+      "registry_sha256": "71768c1e9ac12bd88d821a2136b865782412e17e22ff771d712830a53b23067d",
+      "inspection": "Cooked model 429f39c4-fc37-4c20-87a0-93f1665b2b47 meshes=1 vertices=48 triangles=28 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -3.019916050561733e-07,
+          -4.0
+        ],
+        "maximum": [
+          4.0,
+          0.050000302493572235,
+          4.0
+        ]
+      },
+      "triangles": 28
+    },
+    {
+      "asset": "97534597-347d-4539-b1c9-d4019d7b9ae2",
+      "source": "terrain/SM_RC_Terrain_Path_Uphill_16x16x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Uphill_16x16x4.json",
+      "registry_sha256": "c03583efe1658092e9aa475fa50d28b76a7f6854e864f76b651663a38850bce9",
+      "inspection": "Cooked model 97534597-347d-4539-b1c9-d4019d7b9ae2 meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          0.0,
+          -16.0
+        ],
+        "maximum": [
+          8.0,
+          4.049998760223389,
+          0.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "36f362c5-c071-453e-80f3-73cc5f26970e",
+      "source": "terrain/SM_RC_Terrain_Path_Uphill_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Path_Uphill_8x8x4.json",
+      "registry_sha256": "a535adb7cd7c5f44a8c0a732049b023a901aa692aff7f0ccf230463c353cb20b",
+      "inspection": "Cooked model 36f362c5-c071-453e-80f3-73cc5f26970e meshes=1 vertices=24 triangles=12 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          0.0,
+          -8.0
+        ],
+        "maximum": [
+          4.0,
+          4.049999713897705,
+          0.0
+        ]
+      },
+      "triangles": 12
+    },
+    {
+      "asset": "7ca53e2a-9e41-4b54-bf5e-9b059d60fa56",
+      "source": "terrain/SM_RC_Terrain_Plateau_16x16x2.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Plateau_16x16x2.json",
+      "registry_sha256": "9d775d5421825e3ccf08d7b819836163acbf5ef8c5a4d7454a552a7ee8b79a16",
+      "inspection": "Cooked model 7ca53e2a-9e41-4b54-bf5e-9b059d60fa56 meshes=1 vertices=800 triangles=316 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.265410423278809,
+          -6.09834330589365e-07,
+          -8.203949928283691
+        ],
+        "maximum": [
+          8.246419906616211,
+          2.0000007152557373,
+          8.076860427856445
+        ]
+      },
+      "triangles": 316
+    },
+    {
+      "asset": "f03539b6-9b55-494d-8c20-3bc2301bbd31",
+      "source": "terrain/SM_RC_Terrain_Plateau_16x16x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Plateau_16x16x4.json",
+      "registry_sha256": "593d9f47dba77fc86073c5b4bae17845b00863bd96480f6880ac2f7c015ee945",
+      "inspection": "Cooked model f03539b6-9b55-494d-8c20-3bc2301bbd31 meshes=1 vertices=798 triangles=316 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.103469848632812,
+          -6.104435783527151e-07,
+          -8.225179672241211
+        ],
+        "maximum": [
+          8.276300430297852,
+          4.000000476837158,
+          8.223380088806152
+        ]
+      },
+      "triangles": 316
+    },
+    {
+      "asset": "3886e3c0-828a-4c6e-b466-b709dedff0b4",
+      "source": "terrain/SM_RC_Terrain_Plateau_16x16x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Plateau_16x16x8.json",
+      "registry_sha256": "b70b0a71770e47b56c8673b69a82b2cad4e0acdf2b5ac0cf379721076b2e8ea9",
+      "inspection": "Cooked model 3886e3c0-828a-4c6e-b466-b709dedff0b4 meshes=1 vertices=800 triangles=316 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.234780311584473,
+          -6.112076107456232e-07,
+          -8.251819610595703
+        ],
+        "maximum": [
+          8.272749900817871,
+          8.000000953674316,
+          8.278969764709473
+        ]
+      },
+      "triangles": 316
+    },
+    {
+      "asset": "38f28735-a422-4b30-bd4c-fd5a3e26f7cf",
+      "source": "terrain/SM_RC_Terrain_Plateau_32x32x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Plateau_32x32x4.json",
+      "registry_sha256": "56c2e6fcc944dd9334d7f1e22bcb453cf40c60ac063080bbfbbf772db7bac54a",
+      "inspection": "Cooked model 38f28735-a422-4b30-bd4c-fd5a3e26f7cf meshes=1 vertices=1680 triangles=668 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -16.22323989868164,
+          -1.2157744322394137e-06,
+          -16.27215003967285
+        ],
+        "maximum": [
+          16.279600143432617,
+          4.000001430511475,
+          16.269929885864258
+        ]
+      },
+      "triangles": 668
+    },
+    {
+      "asset": "45b906df-8913-4d1a-8772-5302f5d8840b",
+      "source": "terrain/SM_RC_Terrain_Plateau_32x32x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Plateau_32x32x8.json",
+      "registry_sha256": "a3dde29c434cddafe83e3574a0386680191bf59573c1ddef828882debc069080",
+      "inspection": "Cooked model 45b906df-8913-4d1a-8772-5302f5d8840b meshes=1 vertices=1680 triangles=668 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -16.255020141601562,
+          -1.215630163642345e-06,
+          -16.26712989807129
+        ],
+        "maximum": [
+          16.273420333862305,
+          8.000000953674316,
+          16.257190704345703
+        ]
+      },
+      "triangles": 668
+    },
+    {
+      "asset": "990145a5-cf01-4ffe-b47e-7b7b8464d163",
+      "source": "terrain/SM_RC_Terrain_Rock_Large_A.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Rock_Large_A.json",
+      "registry_sha256": "208214e039e538f0fdf552300244b5bc301c5ae3892be6eac4cae63059181710",
+      "inspection": "Cooked model 990145a5-cf01-4ffe-b47e-7b7b8464d163 meshes=1 vertices=78 triangles=32 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -2.5,
+          -1.2381656233628746e-07,
+          -2.000000238418579
+        ],
+        "maximum": [
+          2.5,
+          5.0,
+          1.999999761581421
+        ]
+      },
+      "triangles": 32
+    },
+    {
+      "asset": "d9b19176-d8b8-4b2b-86b7-da83ad7d0329",
+      "source": "terrain/SM_RC_Terrain_Rock_Large_B.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Rock_Large_B.json",
+      "registry_sha256": "4cc7968243d36f8197e9fad28a630e861a7a61ba2ba32ff9b39f7ccbd145496a",
+      "inspection": "Cooked model d9b19176-d8b8-4b2b-86b7-da83ad7d0329 meshes=1 vertices=78 triangles=32 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -3.0,
+          -1.547706887095046e-07,
+          -2.500000238418579
+        ],
+        "maximum": [
+          3.0,
+          4.0,
+          2.499999761581421
+        ]
+      },
+      "triangles": 32
+    },
+    {
+      "asset": "da767443-6b1d-4ad6-94c8-2630d56a5412",
+      "source": "terrain/SM_RC_Terrain_Rock_Medium_A.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Rock_Medium_A.json",
+      "registry_sha256": "158e4f4785ef661e7ecf3c1b28643012d5039e811415ab9c2b82c1ca21b99ca6",
+      "inspection": "Cooked model da767443-6b1d-4ad6-94c8-2630d56a5412 meshes=1 vertices=78 triangles=32 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -1.5,
+          -9.28624217522156e-08,
+          -1.5000001192092896
+        ],
+        "maximum": [
+          1.5,
+          3.0,
+          1.4999998807907104
+        ]
+      },
+      "triangles": 32
+    },
+    {
+      "asset": "94ea4080-9cf5-4c31-bd59-78324bf11954",
+      "source": "terrain/SM_RC_Terrain_Rock_Medium_B.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Rock_Medium_B.json",
+      "registry_sha256": "5bf4a5a3488c128b29b068f8c8db8193b133ca5281a8f2e8d6632914e6facda1",
+      "inspection": "Cooked model 94ea4080-9cf5-4c31-bd59-78324bf11954 meshes=1 vertices=78 triangles=32 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -1.75,
+          -8.048075983424496e-08,
+          -1.3000000715255737
+        ],
+        "maximum": [
+          1.75,
+          2.700000047683716,
+          1.2999998331069946
+        ]
+      },
+      "triangles": 32
+    },
+    {
+      "asset": "2470a273-92b5-47f0-bb56-afb41952b61f",
+      "source": "terrain/SM_RC_Terrain_Rock_Small_A.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Rock_Small_A.json",
+      "registry_sha256": "a32787dcf42957fd09b4f82ebe8a2a00b222fa274f1be16a708ed22c11f5f44b",
+      "inspection": "Cooked model 2470a273-92b5-47f0-bb56-afb41952b61f meshes=1 vertices=78 triangles=32 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -0.8999999761581421,
+          -4.9526626355600456e-08,
+          -0.8000000715255737
+        ],
+        "maximum": [
+          0.8999999761581421,
+          1.7999999523162842,
+          0.7999999523162842
+        ]
+      },
+      "triangles": 32
+    },
+    {
+      "asset": "08838cab-24dd-4d62-861d-ed317bbc1c8e",
+      "source": "terrain/SM_RC_Terrain_Rock_Small_B.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Rock_Small_B.json",
+      "registry_sha256": "e7c65cadf910abadccb68f5221e59b74f75266689d8a8a65e869a1091c47b971",
+      "inspection": "Cooked model 08838cab-24dd-4d62-861d-ed317bbc1c8e meshes=1 vertices=78 triangles=32 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -1.0,
+          -5.2622038282379435e-08,
+          -0.8500000834465027
+        ],
+        "maximum": [
+          1.0,
+          1.399999976158142,
+          0.8499999642372131
+        ]
+      },
+      "triangles": 32
+    },
+    {
+      "asset": "e85312e5-9600-41fe-aaa6-51f4d4810604",
+      "source": "terrain/SM_RC_Terrain_Slope_16x16x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Slope_16x16x4.json",
+      "registry_sha256": "f36954d1c7e3079abc713501f8b26aab019c8ad4ab50f5220b678112f944a4f6",
+      "inspection": "Cooked model e85312e5-9600-41fe-aaa6-51f4d4810604 meshes=1 vertices=18 triangles=8 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -1.2079664202246931e-06,
+          -16.0
+        ],
+        "maximum": [
+          8.0,
+          3.9999988079071045,
+          0.0
+        ]
+      },
+      "triangles": 8
+    },
+    {
+      "asset": "9efb5ddb-62cd-4373-952a-2d6bab4386fa",
+      "source": "terrain/SM_RC_Terrain_Slope_16x16x8.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Slope_16x16x8.json",
+      "registry_sha256": "360ae565328504590241f0c86093650f9335147dd8e14051ababec604853e713",
+      "inspection": "Cooked model 9efb5ddb-62cd-4373-952a-2d6bab4386fa meshes=1 vertices=18 triangles=8 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -8.0,
+          -1.2079664202246931e-06,
+          -16.0
+        ],
+        "maximum": [
+          8.0,
+          7.999998569488525,
+          0.0
+        ]
+      },
+      "triangles": 8
+    },
+    {
+      "asset": "af50c905-f94e-4728-89b1-20b373cd9349",
+      "source": "terrain/SM_RC_Terrain_Slope_8x8x2.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Slope_8x8x2.json",
+      "registry_sha256": "e17792cfefa4e0c0abb048011490bc9cf3dbc464d3066135810f84e1a4011d47",
+      "inspection": "Cooked model af50c905-f94e-4728-89b1-20b373cd9349 meshes=1 vertices=18 triangles=8 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          4.0,
+          1.9999994039535522,
+          0.0
+        ]
+      },
+      "triangles": 8
+    },
+    {
+      "asset": "f94efe05-3dbf-423d-8f0c-340e1f112ba1",
+      "source": "terrain/SM_RC_Terrain_Slope_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_Slope_8x8x4.json",
+      "registry_sha256": "2b84a36d78da05fef6e03e8c42d907605075eefbe8a4855be83b03a5506dd837",
+      "inspection": "Cooked model f94efe05-3dbf-423d-8f0c-340e1f112ba1 meshes=1 vertices=18 triangles=8 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          4.0,
+          3.9999992847442627,
+          0.0
+        ]
+      },
+      "triangles": 8
+    },
+    {
+      "asset": "0bf618f2-3b46-4929-9e09-17d6d29067a6",
+      "source": "terrain/SM_RC_Terrain_SlopeCorner_Inner_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_SlopeCorner_Inner_8x8x4.json",
+      "registry_sha256": "93fa080973d6c40e0ad10312e2d1a7f142f1d7d596d2b7d169f3d9533627e933",
+      "inspection": "Cooked model 0bf618f2-3b46-4929-9e09-17d6d29067a6 meshes=1 vertices=24 triangles=10 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          0.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          4.0,
+          0.0
+        ]
+      },
+      "triangles": 10
+    },
+    {
+      "asset": "645ecc75-eb89-451d-86b1-27000effd657",
+      "source": "terrain/SM_RC_Terrain_SlopeCorner_Outer_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_SlopeCorner_Outer_8x8x4.json",
+      "registry_sha256": "3fb158a25a8bcfdfd6e32fd4f253e305df393baf1ae70a2e4a5445ace53ff06e",
+      "inspection": "Cooked model 645ecc75-eb89-451d-86b1-27000effd657 meshes=1 vertices=16 triangles=6 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          0.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          8.0,
+          3.9999992847442627,
+          0.0
+        ]
+      },
+      "triangles": 6
+    },
+    {
+      "asset": "0ae473a1-b933-4fa8-a4f0-07ee58fc3b00",
+      "source": "terrain/SM_RC_Terrain_SlopeDiagonal_8x8x4.gltf",
+      "registry": ".cache/royal-district/registries/SM_RC_Terrain_SlopeDiagonal_8x8x4.json",
+      "registry_sha256": "c63bbcf05e91b7f1ceb29ded1d5874ddad619d61878f7c72018ae09d1b85ec5b",
+      "inspection": "Cooked model 0ae473a1-b933-4fa8-a4f0-07ee58fc3b00 meshes=1 vertices=12 triangles=4 materials=1 textures=1",
+      "bounds": {
+        "minimum": [
+          -4.0,
+          -6.039832101123466e-07,
+          -8.0
+        ],
+        "maximum": [
+          4.0,
+          3.9999992847442627,
+          0.0
+        ]
+      },
+      "triangles": 4
+    }
+  ]
+}

@@ -1,0 +1,702 @@
+adopt-many C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_2F_Setback.gltf mud_huts/SM_RC_MudHut_Round_3F_Overhang.gltf mud_huts/SM_RC_MudHut_Square_1F.gltf mud_huts/SM_RC_MudHut_Square_2F_Overhang.gltf mud_huts/SM_RC_MudHut_Square_4F_Setback.gltf terrain/SM_RC_Terrain_Cliff_16x4.gltf terrain/SM_RC_Terrain_Cliff_16x8.gltf terrain/SM_RC_Terrain_Cliff_8x2.gltf terrain/SM_RC_Terrain_Cliff_8x4.gltf terrain/SM_RC_Terrain_Cliff_8x8.gltf terrain/SM_RC_Terrain_CliffBottomTransition_8x4.gltf terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x4.gltf terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x8.gltf terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x2.gltf terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x4.gltf terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x8.gltf terrain/SM_RC_Terrain_CliffTopTransition_8x4.gltf terrain/SM_RC_Terrain_Ground_16x16.gltf terrain/SM_RC_Terrain_Ground_32x32.gltf terrain/SM_RC_Terrain_Ground_8x8.gltf terrain/SM_RC_Terrain_IslandEdge_16x16_Large.gltf terrain/SM_RC_Terrain_IslandEdge_45_8m.gltf terrain/SM_RC_Terrain_IslandEdge_OuterCorner_8m.gltf terrain/SM_RC_Terrain_IslandEdge_Rounded_8m.gltf terrain/SM_RC_Terrain_IslandEdge_Straight_16m.gltf terrain/SM_RC_Terrain_IslandEdge_Straight_8m.gltf terrain/SM_RC_Terrain_Path_Cross_8m.gltf terrain/SM_RC_Terrain_Path_Curve45_8m.gltf terrain/SM_RC_Terrain_Path_Curve90_8m.gltf terrain/SM_RC_Terrain_Path_Straight_4x8.gltf terrain/SM_RC_Terrain_Path_Straight_8x16.gltf terrain/SM_RC_Terrain_Path_Straight_8x8.gltf terrain/SM_RC_Terrain_Path_TJunction_8m.gltf terrain/SM_RC_Terrain_Path_Uphill_16x16x4.gltf terrain/SM_RC_Terrain_Path_Uphill_8x8x4.gltf terrain/SM_RC_Terrain_Plateau_16x16x2.gltf terrain/SM_RC_Terrain_Plateau_16x16x4.gltf terrain/SM_RC_Terrain_Plateau_16x16x8.gltf terrain/SM_RC_Terrain_Plateau_32x32x4.gltf terrain/SM_RC_Terrain_Plateau_32x32x8.gltf terrain/SM_RC_Terrain_Rock_Large_A.gltf terrain/SM_RC_Terrain_Rock_Large_B.gltf terrain/SM_RC_Terrain_Rock_Medium_A.gltf terrain/SM_RC_Terrain_Rock_Medium_B.gltf terrain/SM_RC_Terrain_Rock_Small_A.gltf terrain/SM_RC_Terrain_Rock_Small_B.gltf terrain/SM_RC_Terrain_Slope_16x16x4.gltf terrain/SM_RC_Terrain_Slope_16x16x8.gltf terrain/SM_RC_Terrain_Slope_8x8x2.gltf terrain/SM_RC_Terrain_Slope_8x8x4.gltf terrain/SM_RC_Terrain_SlopeCorner_Inner_8x8x4.gltf terrain/SM_RC_Terrain_SlopeCorner_Outer_8x8x4.gltf terrain/SM_RC_Terrain_SlopeDiagonal_8x8x4.gltf
+9a300109-7840-4bf0-bdae-94fb58759e99
+76216fff-893b-4ba1-8574-a65615e15bd6
+53a35b5c-be67-4cc8-a0f1-2621419b12f2
+74f22d54-cb54-4b73-820a-86af4a0880cc
+39a344f8-6d69-4d04-b509-9b8e8de63d09
+3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60
+d806b14b-135d-48b6-8a3c-8eb076732e7e
+e18cb708-36ef-4be0-8657-9ee7b105e180
+e0f1970d-2546-451e-ab24-f8463b057652
+68caf02b-04ed-493a-b338-2f28c2728041
+a4d0eb1b-9674-43ec-928e-530a825c4057
+8b571669-0c6d-4359-8705-f51546f7190f
+a32710b4-ddcc-4465-aee0-463a483b15b6
+2c87d958-3549-48c0-ade7-8cea9e6a29cd
+912988e7-b5b1-460c-8aa2-5a4b5ec4d445
+f948a817-48ec-431f-860d-213670aa6e82
+74320696-4905-4475-a202-2972f995fb28
+035210a8-ef67-46f0-9586-58f9f522f7a6
+415c93bd-946a-4e73-a155-4a7f08015d00
+f16d189b-5bda-41df-bb8a-3a47097b0377
+938923c5-4de7-4cc5-87ea-49aafee4ff25
+eb7b9358-0bfb-4185-b1ec-2c16c556689c
+b539c8b9-1907-45d4-a7d6-b02cb62dbe01
+4b1f77d5-1d28-4f35-b839-69c5ef29a7d6
+c1a16f93-d20d-474b-92ae-27f098b198ff
+af0ff5c8-1704-48f5-aeea-f20128c48353
+ed848d93-b96d-43d3-8e3c-bffc6bff5fb6
+a54b72e0-b1aa-4ce7-8206-13dd702b2d15
+60f3d81c-e99f-4ce0-ada9-ae96044c554d
+4eb51520-db08-4bd5-94d9-ae990dd572e0
+d4c58126-a7de-4bc3-b588-1d6c152cb396
+22a08e1b-fbcb-47cd-b915-587de0690d42
+429f39c4-fc37-4c20-87a0-93f1665b2b47
+97534597-347d-4539-b1c9-d4019d7b9ae2
+36f362c5-c071-453e-80f3-73cc5f26970e
+7ca53e2a-9e41-4b54-bf5e-9b059d60fa56
+f03539b6-9b55-494d-8c20-3bc2301bbd31
+3886e3c0-828a-4c6e-b466-b709dedff0b4
+38f28735-a422-4b30-bd4c-fd5a3e26f7cf
+45b906df-8913-4d1a-8772-5302f5d8840b
+990145a5-cf01-4ffe-b47e-7b7b8464d163
+d9b19176-d8b8-4b2b-86b7-da83ad7d0329
+da767443-6b1d-4ad6-94c8-2630d56a5412
+94ea4080-9cf5-4c31-bd59-78324bf11954
+2470a273-92b5-47f0-bb56-afb41952b61f
+08838cab-24dd-4d62-861d-ed317bbc1c8e
+e85312e5-9600-41fe-aaa6-51f4d4810604
+9efb5ddb-62cd-4373-952a-2d6bab4386fa
+af50c905-f94e-4728-89b1-20b373cd9349
+f94efe05-3dbf-423d-8f0c-340e1f112ba1
+0bf618f2-3b46-4929-9e09-17d6d29067a6
+645ecc75-eb89-451d-86b1-27000effd657
+0ae473a1-b933-4fa8-a4f0-07ee58fc3b00
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_1F.gltf
+35d15141-eae0-400d-a616-78d890fc0982 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_1F.gltf
+35d15141-eae0-400d-a616-78d890fc0982 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 35d15141-eae0-400d-a616-78d890fc0982 C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Round_1F.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Round_1F.json C:\DarkAngel\.cache\royal-district\cas 35d15141-eae0-400d-a616-78d890fc0982
+Cooked model 35d15141-eae0-400d-a616-78d890fc0982 meshes=1 vertices=888 triangles=482 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_2F_Setback.gltf
+9a300109-7840-4bf0-bdae-94fb58759e99 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_2F_Setback.gltf
+9a300109-7840-4bf0-bdae-94fb58759e99 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 9a300109-7840-4bf0-bdae-94fb58759e99 C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Round_2F_Setback.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Round_2F_Setback.json C:\DarkAngel\.cache\royal-district\cas 9a300109-7840-4bf0-bdae-94fb58759e99
+Cooked model 9a300109-7840-4bf0-bdae-94fb58759e99 meshes=1 vertices=1512 triangles=826 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_3F_Overhang.gltf
+76216fff-893b-4ba1-8574-a65615e15bd6 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Round_3F_Overhang.gltf
+76216fff-893b-4ba1-8574-a65615e15bd6 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 76216fff-893b-4ba1-8574-a65615e15bd6 C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Round_3F_Overhang.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Round_3F_Overhang.json C:\DarkAngel\.cache\royal-district\cas 76216fff-893b-4ba1-8574-a65615e15bd6
+Cooked model 76216fff-893b-4ba1-8574-a65615e15bd6 meshes=1 vertices=2088 triangles=1146 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Square_1F.gltf
+53a35b5c-be67-4cc8-a0f1-2621419b12f2 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Square_1F.gltf
+53a35b5c-be67-4cc8-a0f1-2621419b12f2 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 53a35b5c-be67-4cc8-a0f1-2621419b12f2 C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Square_1F.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Square_1F.json C:\DarkAngel\.cache\royal-district\cas 53a35b5c-be67-4cc8-a0f1-2621419b12f2
+Cooked model 53a35b5c-be67-4cc8-a0f1-2621419b12f2 meshes=1 vertices=808 triangles=426 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Square_2F_Overhang.gltf
+74f22d54-cb54-4b73-820a-86af4a0880cc generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Square_2F_Overhang.gltf
+74f22d54-cb54-4b73-820a-86af4a0880cc generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 74f22d54-cb54-4b73-820a-86af4a0880cc C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Square_2F_Overhang.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Square_2F_Overhang.json C:\DarkAngel\.cache\royal-district\cas 74f22d54-cb54-4b73-820a-86af4a0880cc
+Cooked model 74f22d54-cb54-4b73-820a-86af4a0880cc meshes=1 vertices=1576 triangles=826 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Square_4F_Setback.gltf
+39a344f8-6d69-4d04-b509-9b8e8de63d09 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district mud_huts/SM_RC_MudHut_Square_4F_Setback.gltf
+39a344f8-6d69-4d04-b509-9b8e8de63d09 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 39a344f8-6d69-4d04-b509-9b8e8de63d09 C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Square_4F_Setback.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_MudHut_Square_4F_Setback.json C:\DarkAngel\.cache\royal-district\cas 39a344f8-6d69-4d04-b509-9b8e8de63d09
+Cooked model 39a344f8-6d69-4d04-b509-9b8e8de63d09 meshes=1 vertices=2248 triangles=1194 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_16x4.gltf
+3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_16x4.gltf
+3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_16x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_16x4.json C:\DarkAngel\.cache\royal-district\cas 3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60
+Cooked model 3c4591e1-fb5e-4fcf-94d0-8254c8cb0d60 meshes=1 vertices=236 triangles=100 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_16x8.gltf
+d806b14b-135d-48b6-8a3c-8eb076732e7e generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_16x8.gltf
+d806b14b-135d-48b6-8a3c-8eb076732e7e generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district d806b14b-135d-48b6-8a3c-8eb076732e7e C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_16x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_16x8.json C:\DarkAngel\.cache\royal-district\cas d806b14b-135d-48b6-8a3c-8eb076732e7e
+Cooked model d806b14b-135d-48b6-8a3c-8eb076732e7e meshes=1 vertices=236 triangles=100 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_8x2.gltf
+e18cb708-36ef-4be0-8657-9ee7b105e180 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_8x2.gltf
+e18cb708-36ef-4be0-8657-9ee7b105e180 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district e18cb708-36ef-4be0-8657-9ee7b105e180 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_8x2.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_8x2.json C:\DarkAngel\.cache\royal-district\cas e18cb708-36ef-4be0-8657-9ee7b105e180
+Cooked model e18cb708-36ef-4be0-8657-9ee7b105e180 meshes=1 vertices=136 triangles=60 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_8x4.gltf
+e0f1970d-2546-451e-ab24-f8463b057652 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_8x4.gltf
+e0f1970d-2546-451e-ab24-f8463b057652 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district e0f1970d-2546-451e-ab24-f8463b057652 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_8x4.json C:\DarkAngel\.cache\royal-district\cas e0f1970d-2546-451e-ab24-f8463b057652
+Cooked model e0f1970d-2546-451e-ab24-f8463b057652 meshes=1 vertices=136 triangles=60 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_8x8.gltf
+68caf02b-04ed-493a-b338-2f28c2728041 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Cliff_8x8.gltf
+68caf02b-04ed-493a-b338-2f28c2728041 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 68caf02b-04ed-493a-b338-2f28c2728041 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_8x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Cliff_8x8.json C:\DarkAngel\.cache\royal-district\cas 68caf02b-04ed-493a-b338-2f28c2728041
+Cooked model 68caf02b-04ed-493a-b338-2f28c2728041 meshes=1 vertices=136 triangles=60 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffBottomTransition_8x4.gltf
+a4d0eb1b-9674-43ec-928e-530a825c4057 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffBottomTransition_8x4.gltf
+a4d0eb1b-9674-43ec-928e-530a825c4057 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district a4d0eb1b-9674-43ec-928e-530a825c4057 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffBottomTransition_8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffBottomTransition_8x4.json C:\DarkAngel\.cache\royal-district\cas a4d0eb1b-9674-43ec-928e-530a825c4057
+Cooked model a4d0eb1b-9674-43ec-928e-530a825c4057 meshes=1 vertices=50 triangles=24 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x4.gltf
+8b571669-0c6d-4359-8705-f51546f7190f generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x4.gltf
+8b571669-0c6d-4359-8705-f51546f7190f generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 8b571669-0c6d-4359-8705-f51546f7190f C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Inner_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Inner_8x8x4.json C:\DarkAngel\.cache\royal-district\cas 8b571669-0c6d-4359-8705-f51546f7190f
+Cooked model 8b571669-0c6d-4359-8705-f51546f7190f meshes=1 vertices=168 triangles=76 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x8.gltf
+a32710b4-ddcc-4465-aee0-463a483b15b6 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Inner_8x8x8.gltf
+a32710b4-ddcc-4465-aee0-463a483b15b6 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district a32710b4-ddcc-4465-aee0-463a483b15b6 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Inner_8x8x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Inner_8x8x8.json C:\DarkAngel\.cache\royal-district\cas a32710b4-ddcc-4465-aee0-463a483b15b6
+Cooked model a32710b4-ddcc-4465-aee0-463a483b15b6 meshes=1 vertices=168 triangles=76 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x2.gltf
+2c87d958-3549-48c0-ade7-8cea9e6a29cd generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x2.gltf
+2c87d958-3549-48c0-ade7-8cea9e6a29cd generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 2c87d958-3549-48c0-ade7-8cea9e6a29cd C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Outer_8x8x2.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Outer_8x8x2.json C:\DarkAngel\.cache\royal-district\cas 2c87d958-3549-48c0-ade7-8cea9e6a29cd
+Cooked model 2c87d958-3549-48c0-ade7-8cea9e6a29cd meshes=1 vertices=248 triangles=108 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x4.gltf
+912988e7-b5b1-460c-8aa2-5a4b5ec4d445 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x4.gltf
+912988e7-b5b1-460c-8aa2-5a4b5ec4d445 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 912988e7-b5b1-460c-8aa2-5a4b5ec4d445 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Outer_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Outer_8x8x4.json C:\DarkAngel\.cache\royal-district\cas 912988e7-b5b1-460c-8aa2-5a4b5ec4d445
+Cooked model 912988e7-b5b1-460c-8aa2-5a4b5ec4d445 meshes=1 vertices=248 triangles=108 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x8.gltf
+f948a817-48ec-431f-860d-213670aa6e82 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffCorner_Outer_8x8x8.gltf
+f948a817-48ec-431f-860d-213670aa6e82 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district f948a817-48ec-431f-860d-213670aa6e82 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Outer_8x8x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffCorner_Outer_8x8x8.json C:\DarkAngel\.cache\royal-district\cas f948a817-48ec-431f-860d-213670aa6e82
+Cooked model f948a817-48ec-431f-860d-213670aa6e82 meshes=1 vertices=248 triangles=108 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffTopTransition_8x4.gltf
+74320696-4905-4475-a202-2972f995fb28 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_CliffTopTransition_8x4.gltf
+74320696-4905-4475-a202-2972f995fb28 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 74320696-4905-4475-a202-2972f995fb28 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffTopTransition_8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_CliffTopTransition_8x4.json C:\DarkAngel\.cache\royal-district\cas 74320696-4905-4475-a202-2972f995fb28
+Cooked model 74320696-4905-4475-a202-2972f995fb28 meshes=1 vertices=50 triangles=24 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Ground_16x16.gltf
+035210a8-ef67-46f0-9586-58f9f522f7a6 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Ground_16x16.gltf
+035210a8-ef67-46f0-9586-58f9f522f7a6 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 035210a8-ef67-46f0-9586-58f9f522f7a6 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Ground_16x16.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Ground_16x16.json C:\DarkAngel\.cache\royal-district\cas 035210a8-ef67-46f0-9586-58f9f522f7a6
+Cooked model 035210a8-ef67-46f0-9586-58f9f522f7a6 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Ground_32x32.gltf
+415c93bd-946a-4e73-a155-4a7f08015d00 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Ground_32x32.gltf
+415c93bd-946a-4e73-a155-4a7f08015d00 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 415c93bd-946a-4e73-a155-4a7f08015d00 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Ground_32x32.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Ground_32x32.json C:\DarkAngel\.cache\royal-district\cas 415c93bd-946a-4e73-a155-4a7f08015d00
+Cooked model 415c93bd-946a-4e73-a155-4a7f08015d00 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Ground_8x8.gltf
+f16d189b-5bda-41df-bb8a-3a47097b0377 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Ground_8x8.gltf
+f16d189b-5bda-41df-bb8a-3a47097b0377 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district f16d189b-5bda-41df-bb8a-3a47097b0377 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Ground_8x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Ground_8x8.json C:\DarkAngel\.cache\royal-district\cas f16d189b-5bda-41df-bb8a-3a47097b0377
+Cooked model f16d189b-5bda-41df-bb8a-3a47097b0377 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_16x16_Large.gltf
+938923c5-4de7-4cc5-87ea-49aafee4ff25 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_16x16_Large.gltf
+938923c5-4de7-4cc5-87ea-49aafee4ff25 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 938923c5-4de7-4cc5-87ea-49aafee4ff25 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_16x16_Large.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_16x16_Large.json C:\DarkAngel\.cache\royal-district\cas 938923c5-4de7-4cc5-87ea-49aafee4ff25
+Cooked model 938923c5-4de7-4cc5-87ea-49aafee4ff25 meshes=1 vertices=276 triangles=116 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_45_8m.gltf
+eb7b9358-0bfb-4185-b1ec-2c16c556689c generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_45_8m.gltf
+eb7b9358-0bfb-4185-b1ec-2c16c556689c generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district eb7b9358-0bfb-4185-b1ec-2c16c556689c C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_45_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_45_8m.json C:\DarkAngel\.cache\royal-district\cas eb7b9358-0bfb-4185-b1ec-2c16c556689c
+Cooked model eb7b9358-0bfb-4185-b1ec-2c16c556689c meshes=1 vertices=164 triangles=68 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_OuterCorner_8m.gltf
+b539c8b9-1907-45d4-a7d6-b02cb62dbe01 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_OuterCorner_8m.gltf
+b539c8b9-1907-45d4-a7d6-b02cb62dbe01 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district b539c8b9-1907-45d4-a7d6-b02cb62dbe01 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_OuterCorner_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_OuterCorner_8m.json C:\DarkAngel\.cache\royal-district\cas b539c8b9-1907-45d4-a7d6-b02cb62dbe01
+Cooked model b539c8b9-1907-45d4-a7d6-b02cb62dbe01 meshes=1 vertices=224 triangles=92 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_Rounded_8m.gltf
+4b1f77d5-1d28-4f35-b839-69c5ef29a7d6 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_Rounded_8m.gltf
+4b1f77d5-1d28-4f35-b839-69c5ef29a7d6 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 4b1f77d5-1d28-4f35-b839-69c5ef29a7d6 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_Rounded_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_Rounded_8m.json C:\DarkAngel\.cache\royal-district\cas 4b1f77d5-1d28-4f35-b839-69c5ef29a7d6
+Cooked model 4b1f77d5-1d28-4f35-b839-69c5ef29a7d6 meshes=1 vertices=96 triangles=60 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_Straight_16m.gltf
+c1a16f93-d20d-474b-92ae-27f098b198ff generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_Straight_16m.gltf
+c1a16f93-d20d-474b-92ae-27f098b198ff generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district c1a16f93-d20d-474b-92ae-27f098b198ff C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_Straight_16m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_Straight_16m.json C:\DarkAngel\.cache\royal-district\cas c1a16f93-d20d-474b-92ae-27f098b198ff
+Cooked model c1a16f93-d20d-474b-92ae-27f098b198ff meshes=1 vertices=236 triangles=100 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_Straight_8m.gltf
+af0ff5c8-1704-48f5-aeea-f20128c48353 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_IslandEdge_Straight_8m.gltf
+af0ff5c8-1704-48f5-aeea-f20128c48353 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district af0ff5c8-1704-48f5-aeea-f20128c48353 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_Straight_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_IslandEdge_Straight_8m.json C:\DarkAngel\.cache\royal-district\cas af0ff5c8-1704-48f5-aeea-f20128c48353
+Cooked model af0ff5c8-1704-48f5-aeea-f20128c48353 meshes=1 vertices=136 triangles=60 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Cross_8m.gltf
+ed848d93-b96d-43d3-8e3c-bffc6bff5fb6 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Cross_8m.gltf
+ed848d93-b96d-43d3-8e3c-bffc6bff5fb6 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district ed848d93-b96d-43d3-8e3c-bffc6bff5fb6 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Cross_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Cross_8m.json C:\DarkAngel\.cache\royal-district\cas ed848d93-b96d-43d3-8e3c-bffc6bff5fb6
+Cooked model ed848d93-b96d-43d3-8e3c-bffc6bff5fb6 meshes=1 vertices=72 triangles=44 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Curve45_8m.gltf
+a54b72e0-b1aa-4ce7-8206-13dd702b2d15 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Curve45_8m.gltf
+a54b72e0-b1aa-4ce7-8206-13dd702b2d15 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district a54b72e0-b1aa-4ce7-8206-13dd702b2d15 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Curve45_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Curve45_8m.json C:\DarkAngel\.cache\royal-district\cas a54b72e0-b1aa-4ce7-8206-13dd702b2d15
+Cooked model a54b72e0-b1aa-4ce7-8206-13dd702b2d15 meshes=1 vertices=48 triangles=28 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Curve90_8m.gltf
+60f3d81c-e99f-4ce0-ada9-ae96044c554d generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Curve90_8m.gltf
+60f3d81c-e99f-4ce0-ada9-ae96044c554d generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 60f3d81c-e99f-4ce0-ada9-ae96044c554d C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Curve90_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Curve90_8m.json C:\DarkAngel\.cache\royal-district\cas 60f3d81c-e99f-4ce0-ada9-ae96044c554d
+Cooked model 60f3d81c-e99f-4ce0-ada9-ae96044c554d meshes=1 vertices=72 triangles=44 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Straight_4x8.gltf
+4eb51520-db08-4bd5-94d9-ae990dd572e0 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Straight_4x8.gltf
+4eb51520-db08-4bd5-94d9-ae990dd572e0 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 4eb51520-db08-4bd5-94d9-ae990dd572e0 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Straight_4x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Straight_4x8.json C:\DarkAngel\.cache\royal-district\cas 4eb51520-db08-4bd5-94d9-ae990dd572e0
+Cooked model 4eb51520-db08-4bd5-94d9-ae990dd572e0 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Straight_8x16.gltf
+d4c58126-a7de-4bc3-b588-1d6c152cb396 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Straight_8x16.gltf
+d4c58126-a7de-4bc3-b588-1d6c152cb396 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district d4c58126-a7de-4bc3-b588-1d6c152cb396 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Straight_8x16.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Straight_8x16.json C:\DarkAngel\.cache\royal-district\cas d4c58126-a7de-4bc3-b588-1d6c152cb396
+Cooked model d4c58126-a7de-4bc3-b588-1d6c152cb396 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Straight_8x8.gltf
+22a08e1b-fbcb-47cd-b915-587de0690d42 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Straight_8x8.gltf
+22a08e1b-fbcb-47cd-b915-587de0690d42 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 22a08e1b-fbcb-47cd-b915-587de0690d42 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Straight_8x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Straight_8x8.json C:\DarkAngel\.cache\royal-district\cas 22a08e1b-fbcb-47cd-b915-587de0690d42
+Cooked model 22a08e1b-fbcb-47cd-b915-587de0690d42 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_TJunction_8m.gltf
+429f39c4-fc37-4c20-87a0-93f1665b2b47 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_TJunction_8m.gltf
+429f39c4-fc37-4c20-87a0-93f1665b2b47 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 429f39c4-fc37-4c20-87a0-93f1665b2b47 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_TJunction_8m.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_TJunction_8m.json C:\DarkAngel\.cache\royal-district\cas 429f39c4-fc37-4c20-87a0-93f1665b2b47
+Cooked model 429f39c4-fc37-4c20-87a0-93f1665b2b47 meshes=1 vertices=48 triangles=28 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Uphill_16x16x4.gltf
+97534597-347d-4539-b1c9-d4019d7b9ae2 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Uphill_16x16x4.gltf
+97534597-347d-4539-b1c9-d4019d7b9ae2 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 97534597-347d-4539-b1c9-d4019d7b9ae2 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Uphill_16x16x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Uphill_16x16x4.json C:\DarkAngel\.cache\royal-district\cas 97534597-347d-4539-b1c9-d4019d7b9ae2
+Cooked model 97534597-347d-4539-b1c9-d4019d7b9ae2 meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Uphill_8x8x4.gltf
+36f362c5-c071-453e-80f3-73cc5f26970e generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Path_Uphill_8x8x4.gltf
+36f362c5-c071-453e-80f3-73cc5f26970e generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 36f362c5-c071-453e-80f3-73cc5f26970e C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Uphill_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Path_Uphill_8x8x4.json C:\DarkAngel\.cache\royal-district\cas 36f362c5-c071-453e-80f3-73cc5f26970e
+Cooked model 36f362c5-c071-453e-80f3-73cc5f26970e meshes=1 vertices=24 triangles=12 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_16x16x2.gltf
+7ca53e2a-9e41-4b54-bf5e-9b059d60fa56 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_16x16x2.gltf
+7ca53e2a-9e41-4b54-bf5e-9b059d60fa56 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 7ca53e2a-9e41-4b54-bf5e-9b059d60fa56 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_16x16x2.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_16x16x2.json C:\DarkAngel\.cache\royal-district\cas 7ca53e2a-9e41-4b54-bf5e-9b059d60fa56
+Cooked model 7ca53e2a-9e41-4b54-bf5e-9b059d60fa56 meshes=1 vertices=800 triangles=316 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_16x16x4.gltf
+f03539b6-9b55-494d-8c20-3bc2301bbd31 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_16x16x4.gltf
+f03539b6-9b55-494d-8c20-3bc2301bbd31 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district f03539b6-9b55-494d-8c20-3bc2301bbd31 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_16x16x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_16x16x4.json C:\DarkAngel\.cache\royal-district\cas f03539b6-9b55-494d-8c20-3bc2301bbd31
+Cooked model f03539b6-9b55-494d-8c20-3bc2301bbd31 meshes=1 vertices=798 triangles=316 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_16x16x8.gltf
+3886e3c0-828a-4c6e-b466-b709dedff0b4 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_16x16x8.gltf
+3886e3c0-828a-4c6e-b466-b709dedff0b4 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 3886e3c0-828a-4c6e-b466-b709dedff0b4 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_16x16x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_16x16x8.json C:\DarkAngel\.cache\royal-district\cas 3886e3c0-828a-4c6e-b466-b709dedff0b4
+Cooked model 3886e3c0-828a-4c6e-b466-b709dedff0b4 meshes=1 vertices=800 triangles=316 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_32x32x4.gltf
+38f28735-a422-4b30-bd4c-fd5a3e26f7cf generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_32x32x4.gltf
+38f28735-a422-4b30-bd4c-fd5a3e26f7cf generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 38f28735-a422-4b30-bd4c-fd5a3e26f7cf C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_32x32x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_32x32x4.json C:\DarkAngel\.cache\royal-district\cas 38f28735-a422-4b30-bd4c-fd5a3e26f7cf
+Cooked model 38f28735-a422-4b30-bd4c-fd5a3e26f7cf meshes=1 vertices=1680 triangles=668 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_32x32x8.gltf
+45b906df-8913-4d1a-8772-5302f5d8840b generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Plateau_32x32x8.gltf
+45b906df-8913-4d1a-8772-5302f5d8840b generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 45b906df-8913-4d1a-8772-5302f5d8840b C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_32x32x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Plateau_32x32x8.json C:\DarkAngel\.cache\royal-district\cas 45b906df-8913-4d1a-8772-5302f5d8840b
+Cooked model 45b906df-8913-4d1a-8772-5302f5d8840b meshes=1 vertices=1680 triangles=668 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Large_A.gltf
+990145a5-cf01-4ffe-b47e-7b7b8464d163 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Large_A.gltf
+990145a5-cf01-4ffe-b47e-7b7b8464d163 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 990145a5-cf01-4ffe-b47e-7b7b8464d163 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Large_A.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Large_A.json C:\DarkAngel\.cache\royal-district\cas 990145a5-cf01-4ffe-b47e-7b7b8464d163
+Cooked model 990145a5-cf01-4ffe-b47e-7b7b8464d163 meshes=1 vertices=78 triangles=32 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Large_B.gltf
+d9b19176-d8b8-4b2b-86b7-da83ad7d0329 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Large_B.gltf
+d9b19176-d8b8-4b2b-86b7-da83ad7d0329 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district d9b19176-d8b8-4b2b-86b7-da83ad7d0329 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Large_B.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Large_B.json C:\DarkAngel\.cache\royal-district\cas d9b19176-d8b8-4b2b-86b7-da83ad7d0329
+Cooked model d9b19176-d8b8-4b2b-86b7-da83ad7d0329 meshes=1 vertices=78 triangles=32 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Medium_A.gltf
+da767443-6b1d-4ad6-94c8-2630d56a5412 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Medium_A.gltf
+da767443-6b1d-4ad6-94c8-2630d56a5412 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district da767443-6b1d-4ad6-94c8-2630d56a5412 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Medium_A.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Medium_A.json C:\DarkAngel\.cache\royal-district\cas da767443-6b1d-4ad6-94c8-2630d56a5412
+Cooked model da767443-6b1d-4ad6-94c8-2630d56a5412 meshes=1 vertices=78 triangles=32 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Medium_B.gltf
+94ea4080-9cf5-4c31-bd59-78324bf11954 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Medium_B.gltf
+94ea4080-9cf5-4c31-bd59-78324bf11954 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 94ea4080-9cf5-4c31-bd59-78324bf11954 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Medium_B.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Medium_B.json C:\DarkAngel\.cache\royal-district\cas 94ea4080-9cf5-4c31-bd59-78324bf11954
+Cooked model 94ea4080-9cf5-4c31-bd59-78324bf11954 meshes=1 vertices=78 triangles=32 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Small_A.gltf
+2470a273-92b5-47f0-bb56-afb41952b61f generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Small_A.gltf
+2470a273-92b5-47f0-bb56-afb41952b61f generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 2470a273-92b5-47f0-bb56-afb41952b61f C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Small_A.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Small_A.json C:\DarkAngel\.cache\royal-district\cas 2470a273-92b5-47f0-bb56-afb41952b61f
+Cooked model 2470a273-92b5-47f0-bb56-afb41952b61f meshes=1 vertices=78 triangles=32 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Small_B.gltf
+08838cab-24dd-4d62-861d-ed317bbc1c8e generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Rock_Small_B.gltf
+08838cab-24dd-4d62-861d-ed317bbc1c8e generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 08838cab-24dd-4d62-861d-ed317bbc1c8e C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Small_B.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Rock_Small_B.json C:\DarkAngel\.cache\royal-district\cas 08838cab-24dd-4d62-861d-ed317bbc1c8e
+Cooked model 08838cab-24dd-4d62-861d-ed317bbc1c8e meshes=1 vertices=78 triangles=32 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_16x16x4.gltf
+e85312e5-9600-41fe-aaa6-51f4d4810604 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_16x16x4.gltf
+e85312e5-9600-41fe-aaa6-51f4d4810604 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district e85312e5-9600-41fe-aaa6-51f4d4810604 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_16x16x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_16x16x4.json C:\DarkAngel\.cache\royal-district\cas e85312e5-9600-41fe-aaa6-51f4d4810604
+Cooked model e85312e5-9600-41fe-aaa6-51f4d4810604 meshes=1 vertices=18 triangles=8 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_16x16x8.gltf
+9efb5ddb-62cd-4373-952a-2d6bab4386fa generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_16x16x8.gltf
+9efb5ddb-62cd-4373-952a-2d6bab4386fa generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 9efb5ddb-62cd-4373-952a-2d6bab4386fa C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_16x16x8.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_16x16x8.json C:\DarkAngel\.cache\royal-district\cas 9efb5ddb-62cd-4373-952a-2d6bab4386fa
+Cooked model 9efb5ddb-62cd-4373-952a-2d6bab4386fa meshes=1 vertices=18 triangles=8 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_8x8x2.gltf
+af50c905-f94e-4728-89b1-20b373cd9349 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_8x8x2.gltf
+af50c905-f94e-4728-89b1-20b373cd9349 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district af50c905-f94e-4728-89b1-20b373cd9349 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_8x8x2.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_8x8x2.json C:\DarkAngel\.cache\royal-district\cas af50c905-f94e-4728-89b1-20b373cd9349
+Cooked model af50c905-f94e-4728-89b1-20b373cd9349 meshes=1 vertices=18 triangles=8 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_8x8x4.gltf
+f94efe05-3dbf-423d-8f0c-340e1f112ba1 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_Slope_8x8x4.gltf
+f94efe05-3dbf-423d-8f0c-340e1f112ba1 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district f94efe05-3dbf-423d-8f0c-340e1f112ba1 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_Slope_8x8x4.json C:\DarkAngel\.cache\royal-district\cas f94efe05-3dbf-423d-8f0c-340e1f112ba1
+Cooked model f94efe05-3dbf-423d-8f0c-340e1f112ba1 meshes=1 vertices=18 triangles=8 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_SlopeCorner_Inner_8x8x4.gltf
+0bf618f2-3b46-4929-9e09-17d6d29067a6 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_SlopeCorner_Inner_8x8x4.gltf
+0bf618f2-3b46-4929-9e09-17d6d29067a6 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 0bf618f2-3b46-4929-9e09-17d6d29067a6 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_SlopeCorner_Inner_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_SlopeCorner_Inner_8x8x4.json C:\DarkAngel\.cache\royal-district\cas 0bf618f2-3b46-4929-9e09-17d6d29067a6
+Cooked model 0bf618f2-3b46-4929-9e09-17d6d29067a6 meshes=1 vertices=24 triangles=10 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_SlopeCorner_Outer_8x8x4.gltf
+645ecc75-eb89-451d-86b1-27000effd657 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_SlopeCorner_Outer_8x8x4.gltf
+645ecc75-eb89-451d-86b1-27000effd657 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 645ecc75-eb89-451d-86b1-27000effd657 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_SlopeCorner_Outer_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_SlopeCorner_Outer_8x8x4.json C:\DarkAngel\.cache\royal-district\cas 645ecc75-eb89-451d-86b1-27000effd657
+Cooked model 645ecc75-eb89-451d-86b1-27000effd657 meshes=1 vertices=16 triangles=6 materials=1 textures=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_SlopeDiagonal_8x8x4.gltf
+0ae473a1-b933-4fa8-a4f0-07ee58fc3b00 generation=1 changed=1
+
+cook C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district terrain/SM_RC_Terrain_SlopeDiagonal_8x8x4.gltf
+0ae473a1-b933-4fa8-a4f0-07ee58fc3b00 generation=1 changed=0
+
+package C:\DarkAngel\content\royal_district\static C:\DarkAngel\.cache\royal-district 0ae473a1-b933-4fa8-a4f0-07ee58fc3b00 C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_SlopeDiagonal_8x8x4.json
+Cooked registry published
+
+inspect C:\DarkAngel\.cache\royal-district\registries\SM_RC_Terrain_SlopeDiagonal_8x8x4.json C:\DarkAngel\.cache\royal-district\cas 0ae473a1-b933-4fa8-a4f0-07ee58fc3b00
+Cooked model 0ae473a1-b933-4fa8-a4f0-07ee58fc3b00 meshes=1 vertices=12 triangles=4 materials=1 textures=1

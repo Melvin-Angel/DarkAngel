@@ -70,3 +70,6 @@ Native initial Animation Graph checkpoint raises integrated optimized tests to 4
 
 
 Native joint-mask asset/authoring integration raises the optimized native suite to 44/44; affected no-animation asset/editor/collision checks pass3/3. It adds no M4 fault-matrix, clock, streaming or coupled combat gate. Prior GNS and performance receipts retain their documented scopes.
+
+
+Royal District scene target: all6 Mud Huts and48 TempleIslandTerrain FBXs are converted to owned native glTF sources with preserved UVs/pivots and two shared exact trim atlases. All54 pass native adoption/cold/warm cook/package/runtime inspection; see ROYAL_SCENE.md and evidence/royal-assets.json. Source UUIDs use standard .daimport sidecars. Original FBXs/textures remain unchanged. This content checkpoint does not close playable multi-asset editor, skinned renderer, motor/graph/action/ability integration or broader M4/M5 gates. Next implement that end-to-end scene within existing native systems.
