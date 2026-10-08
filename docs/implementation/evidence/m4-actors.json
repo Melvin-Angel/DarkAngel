@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "base_head": "9c22c46217ef5b5cb01d017efec16add36d8f972",
+  "scope": "Retained authoritative character collision proxies for isolated motor replay; full M4/M5 remain in progress",
+  "online": "EOS live acceptance blocked; Loopback/GNS authorized",
+  "gates": [
+    {
+      "gate": "build",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\cmake.exe",
+        "--build",
+        "build/m5-relwithdebinfo",
+        "--parallel",
+        "2"
+      ],
+      "exit_code": 0,
+      "seconds": 8.235,
+      "log": "docs/implementation/evidence/m4-actors-build.log"
+    },
+    {
+      "gate": "focused",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorActorHistoryTests.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.043,
+      "log": "docs/implementation/evidence/m4-actors-focused.log"
+    },
+    {
+      "gate": "ctest",
+      "command": [
+        "C:\\DarkAngel\\.tools\\cmake\\cmake-4.4.4-windows-x86_64\\bin\\ctest.exe",
+        "--test-dir",
+        "build/m5-relwithdebinfo",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "seconds": 2.432,
+      "log": "docs/implementation/evidence/m4-actors-ctest.log"
+    },
+    {
+      "gate": "gns-client",
+      "command": [
+        "C:\\DarkAngel\\build\\m5-relwithdebinfo\\MotorSessionTests.exe",
+        "--client"
+      ],
+      "exit_code": 0,
+      "seconds": 3.977,
+      "log": "docs/implementation/evidence/m4-actors-gns-client.log"
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "28fc3cf21e6f7fb2449da9acd5653c3e72e6799af33d7964e5ba5eb68d9e8445",
+    "engine/runtime/character_motor.cpp": "19ba61a49f3695a47ee0e030420c0f8d5286d1111e1bda11852499b1e9a6a7c9",
+    "engine/runtime/include/darkangel/character_motor.hpp": "7591011918960a7adb0828aa434c0e0b5bbc58bf6565569305960e483b33cb24",
+    "tests/motor_actor_history_tests.cpp": "25e935da0c9f78cd3a7ecad686e1557cf29c3cfb745566b7b81fffa55a16aaaf",
+    "scripts/verify_actor_history.py": "bd6a1db66f017ca98ed0e8380f93874ecabd01ec7d71acf43c6cb094c8c0dfe3"
+  },
+  "binary_sha256": {
+    "MotorActorHistoryTests.exe": "b2d31e3c2a4e31780150365b82081519c445eaaf430e6d484f1535b18223c091",
+    "MotorTests.exe": "b8c2b388774a768fe4330333d0bbfac8cdac790705e4f72c42f6bce1be13a3d2",
+    "MotorSessionTests.exe": "a1163947146df63c989432620eba9e106a6fdd0b3d0955f24eae536b86ba8302"
+  }
+}

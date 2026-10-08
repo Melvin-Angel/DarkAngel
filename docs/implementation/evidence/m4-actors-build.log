@@ -1,0 +1,12 @@
+[1/12] Scanning C:\DarkAngel\tests\motor_actor_history_tests.cpp for CXX dependencies
+[2/12] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[3/12] Scanning C:\DarkAngel\engine\runtime\character_motor.cpp for CXX dependencies
+[4/12] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[5/12] Building CXX object CMakeFiles\MotorActorHistoryTests.dir\tests\motor_actor_history_tests.cpp.obj
+[6/12] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\character_motor.cpp.obj
+[7/12] Linking CXX static library DarkAngelPhysics.lib
+[8/12] Linking CXX executable MotorTests.exe
+[9/12] Linking CXX executable MotorFaultTests.exe
+[10/12] Linking CXX executable MotorActorHistoryTests.exe
+[11/12] Linking CXX executable MotorSessionTests.exe
+[12/12] Linking CXX executable CollisionAssetTests.exe

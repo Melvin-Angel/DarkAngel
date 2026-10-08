@@ -21,7 +21,9 @@ void validate_motor_state(const MotorState&);
 struct CollisionBox {std::uint64_t id{};MotorVec center{},half{1,1,1},velocity{},angular{};double yaw{},roll{};bool moving{};};
 struct CollisionHit {std::uint64_t identity{};double fraction{};bool character{};};
 struct CollisionQuery {std::vector<CollisionHit> hits;bool overflow{};};
-struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;};
+// Tick snapshots of authoritative characters, never independently simulated in replay.
+struct CollisionActor {std::uint64_t id{},epoch{};MotorVec foot{},velocity{};double yaw{};bool crouched{};};
+struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;std::vector<CollisionActor> actors;};
 // Debt is retained. A frame cannot enlarge the step or silently skip a tick.
 class SimulationClock {
 public:
@@ -33,7 +35,7 @@ public:
     PhysicsWorld();~PhysicsWorld();PhysicsWorld(const PhysicsWorld&)=delete;
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});
     void load_cooked(std::string_view);
-    void step();CollisionFrame capture() const;void load(const CollisionFrame&);
+    void step();CollisionFrame capture() const;void load(const CollisionFrame&,std::uint64_t replay_owner=0);
     std::uint64_t tick() const;std::uint64_t topology() const;
     CollisionQuery overlap(MotorVec center,double radius,unsigned limit=16) const;
     CollisionQuery sweep(MotorVec from,MotorVec delta,double radius,unsigned limit=16) const;
@@ -44,6 +46,7 @@ class CharacterMotor {
 public:
     CharacterMotor(PhysicsWorld&,MotorVec foot,std::uint64_t identity=0);~CharacterMotor();CharacterMotor(const CharacterMotor&)=delete;
     MotorState step(const MotorInput&,const MotionRequest& = {});
+    std::uint64_t identity() const;
     void post_physics();bool needs_resync() const;const MotorState& state() const;void restore(const MotorState&);bool teleport(MotorVec foot);
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
@@ -54,8 +57,10 @@ public:
 private:std::deque<CollisionFrame> frames_;
 };
 // All work happens in a disposable Jolt world. Failure leaves output unchanged.
-ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput>,const CollisionHistory&,MotorState& output);
-ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&);
+// Multi-character history requires an explicit owner identity. Single-character
+// histories infer it for existing callers; ambiguity fails without changing output.
+ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput>,const CollisionHistory&,MotorState& output,std::uint64_t owner=0);
+ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner=0);
 class OwnerPrediction {
 public:
     OwnerPrediction(PhysicsWorld&,CharacterMotor&);

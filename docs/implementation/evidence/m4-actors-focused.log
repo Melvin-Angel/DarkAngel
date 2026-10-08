@@ -1,0 +1,5 @@
+Actor replay moving=0 crouched=0 live_x=1.37667 replay_x=1.37667
+Actor replay moving=1 crouched=0 live_x=1.56666 replay_x=1.56666
+Actor replay moving=0 crouched=1 live_x=1.12667 replay_x=1.12667
+Actor replay moving=1 crouched=1 live_x=1.64666 replay_x=1.64666
+Historical actor identity, stance, collision, removal and owner reconciliation passed

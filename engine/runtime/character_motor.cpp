@@ -131,6 +131,9 @@ namespace darkangel {
             JPH::BodyID body;
         };
         std::map<std::uint64_t,Box> boxes;
+        struct Actor {JPH::CharacterVirtual* character;const MotorState* state;};
+        std::map<std::uint64_t,Actor> actors;
+        std::vector<JPH::Ref<JPH::CharacterVirtual>> historical_actors;
         std::uint64_t tick{
         },topology{
             1
@@ -151,6 +154,8 @@ namespace darkangel {
             check(owner==std::this_thread::get_id(),"Physics owner thread mismatch");
         }
         void clear(){
+            for(auto& actor:historical_actors)characters.Remove(actor);
+            historical_actors.clear();
             for(auto& [id,b]:boxes){
                 system.GetBodyInterface().RemoveBody(b.body);
                 system.GetBodyInterface().DestroyBody(b.body);
@@ -158,6 +163,17 @@ namespace darkangel {
         }
         ~Impl(){
             clear();
+        }
+        void insert_actor(const CollisionActor& actor){
+            JPH::CharacterVirtualSettings settings;
+            settings.mShape=capsule(actor.crouched);
+            settings.mInnerBodyShape=settings.mShape;
+            settings.mInnerBodyLayer=2;
+            settings.mMaxStrength=0;
+            JPH::Ref<JPH::CharacterVirtual> character=new JPH::CharacterVirtual(&settings,v(actor.foot),JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(actor.yaw)),actor.id|(1ULL<<63),&system);
+            character->SetLinearVelocity(v(actor.velocity));
+            characters.Add(character);
+            historical_actors.push_back(character);
         }
         void insert(CollisionBox b){
             check(b.id&&b.id<(1ULL<<63)&&boxes.size()<64&&!boxes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&b.angular.x==0&&b.angular.z==0&&finite(b.yaw)&&finite(b.roll),"Invalid collision box");
@@ -224,15 +240,26 @@ namespace darkangel {
             d.yaw=angles.GetY();
             d.roll=angles.GetZ();
             f.boxes.push_back(d);
-        }return f;
+        }
+        check(s.historical_actors.empty(),"Cannot publish a replay context as live history");
+        for(const auto& [id,actor]:s.actors){
+            f.actors.push_back({id,actor.state->epoch,m(actor.character->GetPosition()),m(actor.character->GetLinearVelocity()),actor.state->yaw,actor.state->crouched});
+        }
+        return f;
     }
-    void PhysicsWorld::load(const CollisionFrame& f){
+    void PhysicsWorld::load(const CollisionFrame& f,std::uint64_t replay_owner){
         auto& s=*impl_;
         s.thread();
-        check(f.topology&&f.boxes.size()<=64,"Invalid history frame");
+        check(f.topology&&f.boxes.size()<=64&&f.actors.size()<=4,"Invalid history frame");
         check(s.motors<=1,"Cannot replace shared live motor topology");
+        check(!s.motors||f.actors.empty()||(replay_owner&&s.actors.contains(replay_owner)),"History load requires an explicit matching replay owner");
+        std::map<std::uint64_t,bool> identities;
+        for(const auto& actor:f.actors){
+            check(actor.id&&actor.id<(1ULL<<63)&&actor.epoch&&valid(actor.foot)&&valid(actor.velocity)&&finite(actor.yaw)&&identities.emplace(actor.id,true).second,"Invalid historical actor");
+        }
         s.clear();
         for(auto b:f.boxes)s.insert(b);
+        for(const auto& actor:f.actors)if(actor.id!=replay_owner)s.insert_actor(actor);
         s.tick=f.tick;
         s.topology=f.topology;
     }
@@ -360,21 +387,26 @@ namespace darkangel {
             settings.mSupportingVolume=JPH::Plane(JPH::Vec3::sAxisY(),-.3f);
             settings.mMaxNumHits=32;
             check(identity<(1ULL<<63),"Invalid character identity");
-            if(!identity)identity=w.next_motor++;
+            if(!identity){while(w.actors.contains(w.next_motor))++w.next_motor;identity=w.next_motor++;}
+            check(!w.actors.contains(identity),"Duplicate character identity");
             character=new JPH::CharacterVirtual(&settings,v(foot),JPH::Quat::sIdentity(),identity|(1ULL<<63),&w.system);
-            check(clear(foot),"Invalid spawn overlaps collision; choose validated safe pose");
+            check(clear(foot,true),"Invalid spawn overlaps collision; choose validated safe pose");
             character->SetCharacterVsCharacterCollision(&w.characters);
             w.characters.Add(character);
+            w.actors.emplace(identity,PhysicsWorld::Impl::Actor{character,&state});
             ++w.motors;
+            ++w.topology;
             state.position=foot;
             state.topology=w.topology;
             state.tick=w.tick;
             refresh();
         }
         ~Impl(){
+            world.actors.erase(character->GetUserData()&~(1ULL<<63));
             world.characters.Remove(character);
             character=nullptr;
             --world.motors;
+            ++world.topology;
         }
         void refresh(bool contacts=true){
             if(contacts)character->RefreshContacts(world.system.GetDefaultBroadPhaseLayerFilter(1),filter,{
@@ -403,7 +435,7 @@ namespace darkangel {
             state.crouched=crouched;
             return true;
         }
-        bool clear(MotorVec foot){
+        bool clear(MotorVec foot,bool peers=false){
             struct Clearance:JPH::CollideShapeCollector{
                 bool hit{
                 };
@@ -417,12 +449,15 @@ namespace darkangel {
             Clearance collector;
             auto shape=state.crouched?low:standing;
             JPH::CollideShapeSettings settings;
-            world.system.GetNarrowPhaseQuery().CollideShape(shape,JPH::Vec3::sReplicate(1),JPH::RMat44::sTranslation(v(foot)+shape->GetCenterOfMass()),settings,v(foot),collector,world.system.GetDefaultBroadPhaseLayerFilter(1),filter);
+            JPH::IgnoreSingleBodyFilter self(character->GetInnerBodyID());
+            if(peers)world.system.GetNarrowPhaseQuery().CollideShape(shape,JPH::Vec3::sReplicate(1),JPH::RMat44::sTranslation(v(foot)+shape->GetCenterOfMass()),settings,v(foot),collector,{},{},self);
+            else world.system.GetNarrowPhaseQuery().CollideShape(shape,JPH::Vec3::sReplicate(1),JPH::RMat44::sTranslation(v(foot)+shape->GetCenterOfMass()),settings,v(foot),collector,world.system.GetDefaultBroadPhaseLayerFilter(1),filter,self);
             return !collector.hit;
         }
     };
     CharacterMotor::CharacterMotor(PhysicsWorld& w,MotorVec f,std::uint64_t id):impl_(std::make_unique<Impl>(*w.impl_,f,id)){
     }CharacterMotor::~CharacterMotor()=default;
+    std::uint64_t CharacterMotor::identity()const{return impl_->character->GetUserData()&~(1ULL<<63);}
     MotorState CharacterMotor::step(const MotorInput& input,const MotionRequest& request){
         auto& s=*impl_;
         s.world.thread();
@@ -525,7 +560,7 @@ namespace darkangel {
         auto& s=*impl_;
         s.world.thread();
         check(valid(foot),"Invalid teleport destination");
-        if(!s.clear(foot))return false;
+        if(!s.clear(foot,true))return false;
         check(s.state.epoch<UINT64_MAX,"Motor epoch exhausted");
         s.character->SetPosition(v(foot));
         s.character->SetLinearVelocity(JPH::Vec3::sZero());
@@ -543,7 +578,7 @@ namespace darkangel {
         return true;
     }
     void CollisionHistory::retain(CollisionFrame f){
-        check(f.topology&&f.boxes.size()<=64&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
+        check(f.topology&&f.boxes.size()<=64&&f.actors.size()<=4&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
         frames_.push_back(std::move(f));
         while(frames_.size()>31)frames_.pop_front();
     }
@@ -551,7 +586,7 @@ namespace darkangel {
         for(const auto& f:frames_)if(f.tick==tick)return &f;
         return nullptr;
     }
-    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output){
+    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner){
         if(commands.size()>30)return ReplayResult::WorkLimit;
         try{
             validate_motor_state(baseline);
@@ -561,9 +596,31 @@ namespace darkangel {
             }auto f=history.find(baseline.tick);
             if(!f)return ReplayResult::MissingHistory;
             if(f->topology!=baseline.topology)return ReplayResult::TopologyMismatch;
+            if(!owner){
+                if(f->actors.size()>1)return ReplayResult::Invalid;
+                owner=f->actors.empty()?1:f->actors.front().id;
+            }
+            std::vector<std::uint64_t> retained_actors;
+            for(const auto& actor:f->actors)retained_actors.push_back(actor.id);
+            std::sort(retained_actors.begin(),retained_actors.end());
+            auto validate_owner=[&](const CollisionFrame& frame){
+                std::vector<std::uint64_t> present;
+                for(const auto& a:frame.actors)present.push_back(a.id);
+                std::sort(present.begin(),present.end());
+                if(present!=retained_actors)return ReplayResult::MissingHistory;
+                auto actor=std::find_if(frame.actors.begin(),frame.actors.end(),[&](const auto& a){return a.id==owner;});
+                if(!frame.actors.empty()&&actor==frame.actors.end())return ReplayResult::MissingHistory;
+                if(actor!=frame.actors.end()&&actor->epoch!=baseline.epoch)return ReplayResult::Discontinuity;
+                return ReplayResult::Applied;
+            };
+            auto status=validate_owner(*f);
+            if(status!=ReplayResult::Applied)return status;
             PhysicsWorld isolated;
-            isolated.load(*f);
-            CharacterMotor motor(isolated,baseline.position);
+            isolated.load(*f,owner);
+            CharacterMotor motor(isolated,baseline.position,owner);
+            // Constructing a live motor advances topology; restore the retained
+            // version only inside this disposable replay world.
+            isolated.load(*f,owner);
             motor.restore(baseline);
             for(const auto& record:commands){
                 const auto& command=record.input;
@@ -571,7 +628,9 @@ namespace darkangel {
                 f=history.find(command.tick-1);
                 if(!f)return ReplayResult::MissingHistory;
                 if(f->topology!=baseline.topology)return ReplayResult::TopologyMismatch;
-                isolated.load(*f);
+                status=validate_owner(*f);
+                if(status!=ReplayResult::Applied)return status;
+                isolated.load(*f,owner);
                 motor.restore(motor.state());
                 motor.step(command,record.motion);
                 isolated.step();
@@ -582,14 +641,14 @@ namespace darkangel {
             return ReplayResult::Invalid;
         }
     }
-    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput> inputs,const CollisionHistory& history,MotorState& out){
+    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput> inputs,const CollisionHistory& history,MotorState& out,std::uint64_t owner){
         if(inputs.size()>30)return ReplayResult::WorkLimit;
         std::vector<MotorCommand> commands;
         for(auto input:inputs)commands.push_back({
             input,{
             }
         });
-        return replay_motor(baseline,commands,history,out);
+        return replay_motor(baseline,commands,history,out,owner);
     }
     OwnerPrediction::OwnerPrediction(PhysicsWorld& world,CharacterMotor& motor):world_(world),motor_(motor){
     }
@@ -616,7 +675,7 @@ namespace darkangel {
         }std::vector<MotorCommand> pending;
         for(auto command:commands_)if(command.input.tick>baseline.tick)pending.push_back(command);
         MotorState output;
-        auto result=replay_motor(baseline,pending,history_,output);
+        auto result=replay_motor(baseline,pending,history_,output,motor_.identity());
         if(result!=ReplayResult::Applied){
             resync_=true;
             return result;
