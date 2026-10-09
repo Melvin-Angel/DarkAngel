@@ -30,7 +30,7 @@ struct Statement {
 void exec(sqlite3* db,const char* sql){require(sqlite3_exec(db,sql,nullptr,nullptr,nullptr)==SQLITE_OK,"Asset catalog transaction/schema failed");}
 void atomic_write(const std::filesystem::path& path,std::string_view bytes,bool replace=true){
     std::filesystem::create_directories(path.parent_path());auto tmp=path;tmp+=".stage-"+AssetId::random().text();
-    try{std::ofstream out(tmp,std::ios::binary);out.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));out.close();require(!out.fail(),"Asset staging write failed");require(MoveFileExW(tmp.c_str(),path.c_str(),MOVEFILE_WRITE_THROUGH|(replace?MOVEFILE_REPLACE_EXISTING:0))!=0,"Asset atomic publication failed");}
+    try{std::ofstream out(tmp,std::ios::binary);out.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));out.close();if(out.fail())throw std::runtime_error("Asset staging write failed: "+path.string());require(MoveFileExW(tmp.c_str(),path.c_str(),MOVEFILE_WRITE_THROUGH|(replace?MOVEFILE_REPLACE_EXISTING:0))!=0,"Asset atomic publication failed");}
     catch(...){std::error_code ignored;std::filesystem::remove(tmp,ignored);throw;}
 }
 std::map<std::string,AssetId> metadata_ids(const Json& sidecar){
@@ -147,6 +147,11 @@ CookResult AssetService::cook(std::string_view relative){auto& p=*impl_;p.thread
     std::vector<std::string> hashes;for(const auto& product:imported.products){require(product.bytes.size()<=64*1024*1024,"Cooked product limit");auto hash=sha256(product.bytes);hashes.push_back(hash);auto path=p.cas/(hash+"."+product.extension);if(!std::filesystem::exists(path) || file_sha256(path)!=hash)atomic_write(path,product.bytes);require(file_sha256(path)==hash,"CAS publication digest mismatch");}
     // Files are immutable before the catalog head advances. Failures leave orphan cache blobs, never a partial head.
     exec(p.db,"BEGIN IMMEDIATE");try{
+        // An independently running cooker may have inspected an older source
+        // before a coordinated Save. Never let that delayed conversion replace
+        // the newer published head after waiting for SQLite's writer lock.
+        {Statement current(p.db,"SELECT revision,recipe FROM generations WHERE root=?1");current.id(1,root);bool found=current.row();require(found?(static_cast<std::uint64_t>(sqlite3_column_int64(current.p,0))==revision&&current.text(1)==previous):revision==0,"Cook catalog generation changed; result superseded");}
+        for(const auto& [path,hash]:imported.inputs)require(file_sha256(within(p.sources,path))==hash,"Cook input changed before catalog publication; result superseded");require(read(metadata_path(source),1024*1024)==metadata,"Cook settings changed before catalog publication");
         {Statement remove(p.db,"DELETE FROM products WHERE root=?1");remove.id(1,root);remove.row();}{Statement remove(p.db,"DELETE FROM dependencies WHERE root=?1");remove.id(1,root);remove.row();}
         for(std::size_t i=0;i<imported.products.size();++i){const auto& product=imported.products[i];Statement insert(p.db,"INSERT INTO products(root,id,kind,hash,extension) VALUES(?1,?2,?3,?4,?5)");insert.id(1,root);insert.id(2,product.id);insert.text(3,product.kind);insert.text(4,hashes[i]);insert.text(5,product.extension);insert.row();for(auto dependency:product.required){Statement edge(p.db,"INSERT INTO dependencies(root,owner,target,kind) VALUES(?1,?2,?3,1)");edge.id(1,root);edge.id(2,product.id);edge.id(3,dependency);edge.row();}}
         {Statement head(p.db,"INSERT INTO generations(root,revision,recipe) VALUES(?1,?2,?3) ON CONFLICT(root) DO UPDATE SET revision=excluded.revision,recipe=excluded.recipe");head.id(1,root);sqlite3_bind_int64(head.p,2,static_cast<sqlite3_int64>(revision+1));head.text(3,fingerprint);head.row();}
@@ -159,6 +164,109 @@ CookResult AssetService::edit_native(std::string_view relative,std::string_view 
     auto original=read(source,65536);require(sha256(original)==expected,"Native source edit is stale; reload the current source");auto before=json(original,65536),after=json(draft,65536);require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&before.at("schema")==after.at("schema"),"Native edit preserves asset UUID/type/schema");
     if(original==draft)return cook(relative);auto written_hash=sha256(draft);atomic_write(source,draft);
     try{return cook(relative);}catch(...){require(file_sha256(source)==written_hash,"Source changed externally during failed cook; external edit preserved");atomic_write(source,original);throw;}
+}
+struct PreparedNativeEdit::State {
+    struct Root {AssetId id;std::uint64_t revision{};std::string previous,recipe;Import imported;std::vector<std::string> hashes;};
+    AssetId owner;std::filesystem::path directory,registry;
+    std::map<std::string,std::string> inputs,originals,drafts;
+    std::vector<Root> roots;bool consumed{},recovery_required{};
+    ~State(){if(!directory.empty()&&!recovery_required){std::error_code ignored;std::filesystem::remove_all(directory,ignored);}}
+};
+std::filesystem::path PreparedNativeEdit::registry() const{require(bool(state_),"Missing native Save candidate");return state_->registry;}
+PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit> edits,std::span<const AssetId> scene_roots){
+    auto& p=*impl_;p.thread();require(!edits.empty()&&edits.size()<=64&&scene_roots.size()<=64,"Coordinated native Save bounds");
+    auto cache_relative=p.cache.lexically_relative(p.sources);require(cache_relative.empty()||*cache_relative.begin()=="..","Native Save cache must be outside the source mount");
+    auto state=std::make_shared<PreparedNativeEdit::State>();state->owner=p.import_owner;
+    auto directory=p.cache/("ns-"+AssetId::random().text().substr(0,16));require(std::filesystem::create_directory(directory),"Native Save staging name collision; retry");state->directory=directory;auto snapshot=state->directory/"s";
+    std::filesystem::create_directory(snapshot);std::size_t total{};
+    // A bounded private mount keeps native source locators and all existing
+    // importers unchanged. No candidate bytes are installed in the real mount.
+    for(const auto& entry:std::filesystem::recursive_directory_iterator(p.sources))if(entry.is_regular_file()){
+        auto relative=entry.path().lexically_relative(p.sources).generic_string();auto bytes=read(within(p.sources,relative));total+=bytes.size();
+        require(state->inputs.size()<4096&&total<=256*1024*1024,"Native Save snapshot exceeds 4096 files/256 MiB");
+        state->inputs.emplace(relative,sha256(bytes));atomic_write(within(snapshot,relative),bytes,false);
+    }
+    std::set<AssetId> selected(scene_roots.begin(),scene_roots.end());
+    for(const auto& edit:edits){
+        digest_check(edit.expected_sha256);auto source=p.source(edit.path);auto ext=source.extension();
+        require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit","Coordinated Save supports native gameplay sources");
+        auto relative=source.lexically_relative(p.sources).generic_string();auto original=read(within(snapshot,relative),65536);
+        if(sha256(original)!=edit.expected_sha256)throw std::runtime_error("Coordinated Save is stale for "+relative+"; reload the changed source");
+        auto before=json(original,65536),after=json(edit.draft,65536);
+        require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&before.at("schema")==after.at("schema"),"Native Save preserves UUID/type/schema");
+        require(state->drafts.emplace(relative,edit.draft).second,"Duplicate native Save source");state->originals.emplace(relative,original);
+        selected.insert(AssetId::parse(after.at("asset").get<std::string>()));atomic_write(within(snapshot,relative),edit.draft);
+        atomic_write(within(state->directory/"o",relative),original,false);
+    }
+    std::map<AssetId,std::string> inventory;std::set<AssetId> identities;std::set<std::string> paths;
+    for(const auto& [relative,digest]:state->inputs){
+        require(paths.insert(lowercase(relative)).second,"Case-colliding source snapshot");auto source=within(snapshot,relative);auto ext=source.extension();
+        bool native=ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit"||ext==".datags"||ext==".daattributes"||ext==".dagraph"||ext==".dainput"||ext==".dacollision"||ext==".daskeleton"||ext==".damask";
+        if(!native&&ext!=".glb"&&ext!=".gltf"&&!((ext==".png"||ext==".jpg"||ext==".jpeg")&&std::filesystem::exists(metadata_path(source))))continue;
+        auto ids=metadata_ids(source_metadata(source));for(auto [name,id]:ids)require(identities.insert(id).second,"Duplicate native Save identity");inventory.emplace(ids.at("$source"),relative);
+    }
+    // Follow existing native locators to find consumers before cooking. This
+    // also validates standalone ability consumers of edited action timelines;
+    // unrelated kits need not have their animation pipeline available.
+    std::function<bool(const std::string&,std::set<std::string>&)> affected;
+    affected=[&](const std::string& relative,std::set<std::string>& visited){
+        if(state->drafts.contains(relative))return true;if(!visited.insert(relative).second)return false;
+        require(visited.size()<=256,"Native Save consumer traversal limit");auto source=within(snapshot,relative);auto ext=source.extension();
+        if((ext!=".dakit"&&ext!=".daability"&&ext!=".daeffect"&&ext!=".daaction")||!std::filesystem::is_regular_file(source))return false;
+        auto value=json(read(source,65536),65536);bool changed=false;
+        std::function<void(const Json&)> locators=[&](const Json& v){if(v.is_string()){auto path=within(snapshot,v.get<std::string>()).lexically_relative(snapshot).generic_string();changed|=affected(path,visited);}else if(v.is_object()||v.is_array())for(const auto& entry:v)locators(entry);};
+        if(value.contains("sources"))locators(value.at("sources"));return changed;
+    };
+    for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".dakit"||ext==".daability"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
+    require(selected.size()<=64,"Coordinated Save root limit");
+    for(auto id:selected){
+        require(inventory.contains(id),"Native Save scene root missing");auto source=within(snapshot,inventory.at(id));auto metadata=read(metadata_path(source),1024*1024);auto sidecar=source_metadata(source);auto ids=metadata_ids(sidecar);
+        auto inspected=import_source(snapshot,source,ids,true);
+        Json recipe={{"schema",1},{"importer",sidecar.at("importer")},{"cgltf","1.15"},{"meshoptimizer","1.2"},{"DirectXTex","2026-05-07"},{"profile","Windows-x64-RGBA8-sRGB-CPU-mips"},{"build",DAE_COOKER_BUILD_HASH},{"settings",sha256(metadata)},{"inputs",inspected.inputs},{"mapping",sidecar.at("subassets")},{"id",id.text()}};
+        PreparedNativeEdit::State::Root root;root.id=id;root.recipe=sha256(recipe.dump());
+        {Statement query(p.db,"SELECT revision,recipe FROM generations WHERE root=?1");query.id(1,id);if(query.row()){root.revision=static_cast<std::uint64_t>(sqlite3_column_int64(query.p,0));root.previous=query.text(1);}}
+        require(root.revision<0x7fffffffffffffffULL,"Native Save generation limit");
+        ++p.conversions;root.imported=import_source(snapshot,source,ids,false);require(root.imported.inputs==inspected.inputs,"Native Save conversion closure changed");
+        for(const auto& product:root.imported.products){require(product.bytes.size()<=64*1024*1024,"Native Save product limit");auto hash=sha256(product.bytes);root.hashes.push_back(hash);auto path=p.cas/(hash+"."+product.extension);if(!std::filesystem::exists(path)||file_sha256(path)!=hash)atomic_write(path,product.bytes);require(file_sha256(path)==hash,"Native Save CAS digest mismatch");}
+        state->roots.push_back(std::move(root));
+    }
+    // Validate a frozen union for every coordinated root. Identical shared
+    // products deduplicate; conflicting generations and missing edges reject.
+    std::map<AssetId,Json> products;std::map<AssetId,std::vector<AssetId>> edges;
+    for(const auto& root:state->roots)for(std::size_t i=0;i<root.imported.products.size();++i){const auto& product=root.imported.products[i];Json record={{"id",product.id.text()},{"kind",product.kind},{"sha256",root.hashes[i]},{"extension",product.extension}};auto [found,inserted]=products.emplace(product.id,record);require(inserted||found->second==record,"Native Save conflicting shared generations");edges[product.id]=product.required;}
+    std::set<AssetId> visited;std::function<void(AssetId)> visit=[&](AssetId id){if(visited.contains(id))return;require(products.contains(id),"Native Save missing frozen dependency");visited.insert(id);for(auto dep:edges[id])visit(dep);};for(auto id:selected)visit(id);require(visited.size()<=512,"Native Save package product limit");
+    Json manifest={{"schema",1},{"root",selected.begin()->text()},{"roots",Json::array()},{"assets",Json::array()}};for(auto id:selected)manifest["roots"].push_back(id.text());for(auto id:visited)manifest["assets"].push_back(products.at(id));
+    state->registry=state->directory/"candidate.json";atomic_write(state->registry,manifest.dump(2)+"\n");
+    for(const auto& [relative,hash]:state->inputs)require(file_sha256(within(p.sources,relative))==hash,"Source changed during native Save preparation; external edit preserved");
+    PreparedNativeEdit result;result.state_=std::move(state);return result;
+}
+std::vector<CookResult> AssetService::commit_native(const PreparedNativeEdit& prepared){
+    auto& p=*impl_;p.thread();require(bool(prepared.state_),"Prepare coordinated Save first");auto& state=*prepared.state_;require(state.owner==p.import_owner&&!state.consumed,"Stale or foreign native Save candidate");
+    // Windows sharing exclusion closes the hash-check/write race, including
+    // replace-by-rename writers. Sources are inaccessible while being changed.
+    struct Locked {HANDLE handle{INVALID_HANDLE_VALUE};~Locked(){if(handle!=INVALID_HANDLE_VALUE)CloseHandle(handle);}Locked()=default;Locked(const Locked&)=delete;};
+    std::map<std::string,std::unique_ptr<Locked>> locked;
+    for(const auto& [relative,hash]:state.inputs){auto file=std::make_unique<Locked>();file->handle=CreateFileW(within(p.sources,relative).c_str(),GENERIC_READ|(state.drafts.contains(relative)?GENERIC_WRITE:0),0,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);if(file->handle==INVALID_HANDLE_VALUE)throw std::runtime_error("Native Save source busy or removed: "+relative+"; retry after external writer finishes");
+        LARGE_INTEGER size{};require(GetFileSizeEx(file->handle,&size)&&size.QuadPart>=0&&size.QuadPart<=64*1024*1024,"Native Save locked source size");std::string bytes(static_cast<std::size_t>(size.QuadPart),'\0');DWORD count{};require(ReadFile(file->handle,bytes.data(),static_cast<DWORD>(bytes.size()),&count,nullptr)&&count==bytes.size(),"Native Save source read failed");if(sha256(bytes)!=hash)throw std::runtime_error("Coordinated Save is stale for "+relative+"; external edit preserved; reload source");locked.emplace(relative,std::move(file));}
+    std::set<std::string> current;for(const auto& e:std::filesystem::recursive_directory_iterator(p.sources))if(e.is_regular_file())current.insert(e.path().lexically_relative(p.sources).generic_string());require(current.size()==state.inputs.size()&&std::all_of(current.begin(),current.end(),[&](const auto& path){return state.inputs.contains(path);}),"Native Save inventory changed; prepare again");
+    auto write_locked=[&](const std::string& path,const std::string& bytes){auto handle=locked.at(path)->handle;LARGE_INTEGER zero{};DWORD count{};require(SetFilePointerEx(handle,zero,nullptr,FILE_BEGIN)&&WriteFile(handle,bytes.data(),static_cast<DWORD>(bytes.size()),&count,nullptr)&&count==bytes.size()&&SetEndOfFile(handle)&&FlushFileBuffers(handle),"Native Save source write/flush failed");};
+    std::vector<std::string> written;std::vector<CookResult> results;exec(p.db,"BEGIN IMMEDIATE");
+    try{
+        for(const auto& root:state.roots){Statement query(p.db,"SELECT revision,recipe FROM generations WHERE root=?1");query.id(1,root.id);bool found=query.row();require(found?(static_cast<std::uint64_t>(sqlite3_column_int64(query.p,0))==root.revision&&query.text(1)==root.previous):root.revision==0,"Native Save catalog generation changed; prepare again");}
+        for(const auto& root:state.roots)for(std::size_t i=0;i<root.hashes.size();++i)require(file_sha256(p.cas/(root.hashes[i]+"."+root.imported.products[i].extension))==root.hashes[i],"Native Save prepared CAS changed");
+        Json recovery={{"schema",1},{"phase","publishing"},{"sources",p.sources.generic_string()},{"originals",state.originals},{"drafts",state.drafts},{"heads",Json::array()}};
+        for(const auto& root:state.roots)recovery["heads"].push_back({{"root",root.id.text()},{"previous_revision",root.revision},{"previous_recipe",root.previous},{"candidate_recipe",root.recipe},{"candidate_revision",root.revision+(root.recipe!=root.previous?1:0)}});
+        atomic_write(state.directory/"recovery.json",recovery.dump(2)+"\n");state.recovery_required=true;
+        for(const auto& [path,bytes]:state.drafts){written.push_back(path);write_locked(path,bytes);}
+        for(const auto& root:state.roots){const bool changed=root.recipe!=root.previous;auto revision=root.revision+(changed?1:0);
+            {Statement remove(p.db,"DELETE FROM products WHERE root=?1");remove.id(1,root.id);remove.row();}{Statement remove(p.db,"DELETE FROM dependencies WHERE root=?1");remove.id(1,root.id);remove.row();}
+            for(std::size_t i=0;i<root.imported.products.size();++i){const auto& product=root.imported.products[i];Statement insert(p.db,"INSERT INTO products(root,id,kind,hash,extension) VALUES(?1,?2,?3,?4,?5)");insert.id(1,root.id);insert.id(2,product.id);insert.text(3,product.kind);insert.text(4,root.hashes[i]);insert.text(5,product.extension);insert.row();for(auto dependency:product.required){Statement edge(p.db,"INSERT INTO dependencies(root,owner,target,kind) VALUES(?1,?2,?3,1)");edge.id(1,root.id);edge.id(2,product.id);edge.id(3,dependency);edge.row();}}
+            Statement head(p.db,"INSERT INTO generations(root,revision,recipe) VALUES(?1,?2,?3) ON CONFLICT(root) DO UPDATE SET revision=excluded.revision,recipe=excluded.recipe");head.id(1,root.id);sqlite3_bind_int64(head.p,2,static_cast<sqlite3_int64>(revision));head.text(3,root.recipe);head.row();results.push_back({root.id,revision,changed});
+        }
+        exec(p.db,"COMMIT");state.consumed=true;state.recovery_required=false;
+    }catch(...){auto failure=std::current_exception();bool restored=sqlite3_exec(p.db,"ROLLBACK",nullptr,nullptr,nullptr)==SQLITE_OK;for(auto it=written.rbegin();it!=written.rend();++it)try{write_locked(*it,state.originals.at(*it));}catch(...){restored=false;}
+        state.recovery_required=!restored;if(!restored)throw std::runtime_error("Native Save recovery I/O failed; retained originals and recovery journal: "+state.directory.string());std::rethrow_exception(failure);}
+    return results;
 }
 CookResult AssetService::create_native(std::string_view relative,std::string_view draft){
     auto& p=*impl_;p.thread();auto source=p.source(relative);auto ext=source.extension();require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit","Create supports owned native gameplay sources");require(!std::filesystem::exists(source),"Choose a new source name; existing files are preserved");

@@ -12,6 +12,7 @@ public:
     void demo();
     void open(const std::filesystem::path&);
     void save(const std::filesystem::path&);
+    void save_gameplay();
     void play();void stop();void step();void update(double seconds);
     void reload_scripts();
     void configure_assets(const std::filesystem::path& source,const std::filesystem::path& cache);
@@ -28,6 +29,7 @@ public:
     std::vector<AssetInfo> asset_inventory;
     NativeAuthoring authoring;AssetId authoring_kit;
     std::function<void()> prepare_play_resources;
+    std::function<std::vector<AssetId>()> authoring_roots;
     std::function<void(AssetId)> prepare_model;
     std::function<void(const SpawnPlan&,const World&)> prepare_gameplay;
     std::function<void()> stop_gameplay,step_gameplay;

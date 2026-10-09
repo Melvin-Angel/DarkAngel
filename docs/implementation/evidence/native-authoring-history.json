@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "base_head": "3334e56177f6283adbdeb2366faf0abfd672324e",
+  "scope": "Revisioned grouped native draft Undo/Redo; private changed-source/dependent kit/scene candidate; protected source publication with one catalog transaction; failure recovery/stale-writer conflict; D3D12 fresh isolated Play",
+  "gates": [
+    {
+      "name": "authoring-history-build",
+      "exit": 0,
+      "seconds": 47.572
+    },
+    {
+      "name": "authoring-history-no-animation-build",
+      "exit": 0,
+      "seconds": 0.113
+    },
+    {
+      "name": "authoring-history-asset-regression",
+      "exit": 0,
+      "seconds": 0.305
+    },
+    {
+      "name": "authoring-history-source-check",
+      "exit": 0,
+      "seconds": 0.508
+    },
+    {
+      "name": "authoring-history-workflow",
+      "exit": 0,
+      "seconds": 19.725
+    },
+    {
+      "name": "authoring-history-game-active",
+      "exit": 0,
+      "seconds": 5.509
+    },
+    {
+      "name": "authoring-history-game-expired",
+      "exit": 0,
+      "seconds": 2.39
+    },
+    {
+      "name": "authoring-history-light",
+      "exit": 0,
+      "seconds": 2.55
+    },
+    {
+      "name": "authoring-history-panel",
+      "exit": 0,
+      "seconds": 0.957
+    },
+    {
+      "name": "authoring-history-effect-panel",
+      "exit": 0,
+      "seconds": 1.245
+    },
+    {
+      "name": "authoring-history-action-panel",
+      "exit": 0,
+      "seconds": 1.279
+    },
+    {
+      "name": "authoring-history-no-animation",
+      "exit": 0,
+      "seconds": 0.778
+    }
+  ],
+  "fixture": {
+    "ability": "6894da82-d477-495e-b0cf-30ea5148a9a9",
+    "cache": "C:/DarkAngel/build/m5-editor-relwithdebinfo/authoring-fixture-dd666797-0380-4f65-beca-9e6b6acda43e/cache",
+    "effect": "dbd60b11-3de8-4a36-bb7d-a6e0e768cf6a",
+    "kit": "eecbc589-b6df-4e48-a4dd-38e3ec629d35",
+    "registry": "C:/DarkAngel/build/m5-editor-relwithdebinfo/authoring-fixture-dd666797-0380-4f65-beca-9e6b6acda43e/after.json",
+    "source": "C:/DarkAngel/build/m5-editor-relwithdebinfo/authoring-fixture-dd666797-0380-4f65-beca-9e6b6acda43e/sources"
+  },
+  "source_sha256": {
+    "tests/asset_tests.cpp": "3a1205326a7bb3d5b7af89522d6c54ae13456460218eebf51bcb8d4537506320",
+    "CMakeLists.txt": "3c959d963c699d1c2f14aa1fb521e0a83b8442820d5011428509b0fb026004d9",
+    "engine/assets/asset_service.cpp": "be119ce63e484afe19a24747b512973f4b9a7d8d973e318baf8992c49731a25a",
+    "engine/assets/include/darkangel/assets.hpp": "cb932c6f27758621d2a2c5a0df860db223cb13949b9c13f11e0fcad5a6e9b30b",
+    "apps/editor/native_authoring.hpp": "84c0d0705a8f2e48b9279e5032ae143d8d884b0d212c75db5b48e3f219008a0d",
+    "apps/editor/native_authoring.cpp": "7cf45950d71ddf554fb95872ec53adbfe381fff88482f64be47f0ccfd0347979",
+    "apps/editor/editor_authoring.cpp": "239408b17d787a75f7e5e08abfb1627b6a9639daf0227b2c00d1a89b62c9976a",
+    "apps/editor/editor_ui.hpp": "711c51870e2c1e5b7acbf2e82515fd9345097330e9710b62ab36a22c2c2c2bd3",
+    "apps/editor/editor_ui.cpp": "cf5c70a0968fd0adb4e9c55222f3997562217747d6decd20f11b50c3dd82a15a",
+    "apps/editor/editor_controller.hpp": "3b2abf9f6f1d84109fe27e2109ba9c52c42f4dd16500f4fdff3697343d0ccb80",
+    "apps/editor/editor_controller.cpp": "06f905beefe6d01a48dc174718356147cfa643d78ec90ede550be5511b347bda",
+    "apps/editor/main.cpp": "c2bfddab0895ab3e759c0e7bd2f74341f971839a914e19eb2894a8ccfa162682",
+    "tests/native_authoring_tests.cpp": "a9cc7adfb05773b32cf91e9be6069a16837da4a710355df9aa3ed1a9d680b153",
+    "tests/authored_effect_gns_tests.cpp": "a72cec2b4ba1eac7cdcd26b5662a98c6ff839f8e8d1dbf322ec7e172ad919fa0",
+    "tests/native_source_edit_tests.cpp": "a5f91689e4162bd283c857f2f8f91ae9c008acbf1ca3ec0aecb684ef6b33d858",
+    "scripts/verify_native_authoring.py": "1e228ea57e87682a9a2db410f51d4a7d2a5cd424ac19f00dde49d2dfeba59791",
+    "scripts/open_royal_scene.ps1": "9012016696cd42d1db4769e8da8bb76d6f26b80aac4fa9fe9f4431a85c397607"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor": "cf3eca05390c254273eeec39febb7bd7406ca89e0d96de8d0e28037c0152b436",
+    "NativeAuthoringTests": "33817ddd84df63daa94052a4f4f031c9d3685956bcc5ed415d4fbc8ead166cb5",
+    "NativeSourceEditTests": "3d19c2bafc8bc321084f071ac7bd8355f4a297ce5040a06569e361f4b8a3a117",
+    "AssetTests": "36a826c0853663c2a1ce9bcaef0b002b5515e3a84c279c460a286d49006d0800"
+  },
+  "limitations": [
+    "Windows file sharing excludes source writers during commit and SQLite heads commit together, but source files plus catalog are not crash-atomic or a cross-process multi-file reader snapshot. Recovery originals/journal are retained on recovery I/O failure or process crash; manual reconciliation is required.",
+    "Preparation snapshots at most 4096 files/256 MiB and conservatively rejects unrelated external changes. Immutable orphan CAS blobs may remain after failed preparation.",
+    "Create persists a fresh native source; creation/deletion is outside draft Undo. Reload clears session gameplay history while retaining other drafts. Shared actions must be duplicated before independent timing edits.",
+    "One D3D12 backend; scripted editor commands and rendered panels, not physical mouse/gamepad automation. Runtime/protocol/physics unchanged; historical GNS check not repeated.",
+    "Visual Composer/character preview and full M4/M5 qualification remain open; M4/M5 In progress, M6 not started, live EOS externally blocked."
+  ]
+}

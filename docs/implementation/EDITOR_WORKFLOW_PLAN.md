@@ -6,6 +6,8 @@ Initial implementation update: Scene / Level Design and Assets layouts, a single
 
 Ability authoring implementation update (9 October): [NATIVE_AUTHORING_REPORT.md](NATIVE_AUTHORING_REPORT.md) records the initial embedded Ability/Effect/action forms, typed reference fields, native creation/duplication, kit slot/effect composition and Save/cook/complete scene/fresh Play loop. The numeric action forms are an initial Composer surface; visual timeline/character preview, structural block creation, broad thumbnail/tag picker and the other workflow designers below remain planned. Scene stays the default workspace and all Play controls stay in Game. This does not change M4/M5 or M6 acceptance gates.
 
+History/Save implementation update (after `3334e56`): [NATIVE_AUTHORING_HISTORY_REPORT.md](NATIVE_AUTHORING_HISTORY_REPORT.md) records session gameplay Undo/Redo, grouped form/kit-composition edits, stale-command rejection and a prepared coordinated native source/dependent kit/scene Save with normal-failure rollback. The next smallest visual increment is a read-only action lane view with isolated compatible clip/character scrubbing; full Composer remains planned.
+
 ## Product direction
 
 DarkAngel is tailored to making third-person co-op action games, with Ashen Roots as its concrete use case. Its main systems should have native authoring workflows integrated into the engine.

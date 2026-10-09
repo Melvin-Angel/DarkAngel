@@ -2,6 +2,7 @@
 #include <darkangel/assets.hpp>
 #include <nlohmann/json.hpp>
 #include <map>
+#include <functional>
 namespace darkangel::editor_app {
 struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool dirty()const{return nlohmann::json::parse(saved)!=value;}};
 class NativeAuthoring {
@@ -12,8 +13,20 @@ public:
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
     bool dirty()const;
-    void save_all(AssetService&);
+    void save_all(AssetService&,std::span<const AssetId> scene_roots={});
+    void apply(AssetService&,AssetId,std::uint64_t expected_revision,nlohmann::json,std::string_view label);
+    void record_changes(AssetService&,std::string_view label,bool continuous=false);
+    void undo(AssetService&);void redo(AssetService&);
+    void reload(AssetService&,AssetId);void revert(AssetService&,AssetId);
+    bool can_undo()const{return !undo_.empty();}bool can_redo()const{return !redo_.empty();}
+    std::uint64_t revision()const{return revision_;}
     std::map<AssetId,NativeDraft> drafts;
+private:
+    using Values=std::map<AssetId,nlohmann::json>;
+    struct Command {std::string label;Values before,after;};
+    Values observed_;std::vector<Command> undo_,redo_;std::uint64_t revision_{};bool continuous_{};
+    void check_sources(AssetService&,const Values&)const;
+    void travel(AssetService&,bool redo);
 };
 // Cook every selected scene root and its complete native closure into a candidate
 // package. The caller validates runtime/GPU/session resources before switching.

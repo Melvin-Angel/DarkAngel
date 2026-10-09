@@ -40,6 +40,16 @@ private:
 };
 struct AssetInfo {AssetId id;std::string path;std::uint64_t generation{};};
 struct CookResult {AssetId root;std::uint64_t generation;bool changed;};
+struct NativeSourceEdit {std::string path,expected_sha256,draft;};
+class PreparedNativeEdit {
+public:
+    PreparedNativeEdit()=default;
+    explicit operator bool() const{return bool(state_);}
+    std::filesystem::path registry() const;
+private:
+    struct State;std::shared_ptr<State> state_;
+    friend class AssetService;
+};
 enum class AssetImportType {Model,SkinnedMesh,Animation,Texture,Vfx,Audio,Material,UI};
 std::string_view asset_import_label(AssetImportType);
 std::string_view asset_import_folder(AssetImportType);
@@ -79,6 +89,10 @@ public:
     // Owned ability/effect/action/kit source edit. Reject stale bytes or identity
     // changes; failed native validation/cook restores the previous source.
     CookResult edit_native(std::string_view relative_source,std::string_view expected_source_sha256,std::string_view draft);
+    // Private source snapshot, complete changed/dependent kit and selected scene
+    // cook/package validation. No source or catalog head changes in prepare.
+    PreparedNativeEdit prepare_native(std::span<const NativeSourceEdit>,std::span<const AssetId> scene_roots={});
+    std::vector<CookResult> commit_native(const PreparedNativeEdit&);
     CookResult create_native(std::string_view relative_source,std::string_view draft); // fresh owned UUID/path; validates before cook
     void package(AssetId root,const std::filesystem::path& registry,std::span<const AssetId> additional_roots={}) const;
     std::filesystem::path cas_path() const;

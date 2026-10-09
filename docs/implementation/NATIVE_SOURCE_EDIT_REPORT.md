@@ -13,3 +13,8 @@ Five-hour remaining reached **4%**, so no further implementation started. Finish
 ## Follow-on authoring increment
 
 The usage stop above is historical. The next local increment adds AssetService::create_native with a fresh owned path/identity fence, non-overwriting atomic source creation and native cook. Failed creation removes only its unchanged authored bytes and restores the inventory. Existing edit safeguards remain. The native draft command layer supplies Create from template/Duplicate, edit, assignment/binding and ordered Save; the complete scene package and fresh CharacterPreviewResources/Play path are now delivered. Read NATIVE_AUTHORING_REPORT.md for focused receipts and exact limitations. Multi-source atomicity and source undo/redo history remain open.
+
+
+## Coordinated Save follow-on
+
+After `3334e56`, the editor routes Save through the additional AssetService::prepare_native/commit_native API. Private candidate sources, native consumers and selected scene closure validate before source/catalog publication; session gameplay Undo/Redo is implemented. The legacy single-source edit_native boundary described above remains available, but is no longer the editor Save path. Read NATIVE_AUTHORING_HISTORY_REPORT.md for publication/recovery limits and `python scripts/verify_native_authoring.py --history --build` for focused reproduction.
