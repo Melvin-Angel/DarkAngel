@@ -9,10 +9,16 @@ namespace darkangel {
 // Native immediate-commit subset. Definitions are frozen at grant installation.
 // Deferred reservations, effects/tags and targeting are not implied by this API.
 struct AbilityCost {AttributeId attribute{};double amount{};};
+struct AbilityMelee {
+    unsigned block{};std::array<double,3> offset{};double radius{},power{};
+    std::uint32_t evaluator{},damage_type{};
+};
 struct AbilityDefinition {
     AssetId id;std::string generation;
     std::shared_ptr<const ActionDefinition> action;
     std::vector<AbilityCost> costs;
+    // Initial explicit motor-relative sphere profile; animated socket sweeps follow.
+    std::vector<AbilityMelee> melee;
     std::uint32_t cooldown_group{};std::uint64_t cooldown_ticks{};
     InputEdge activate_on{InputEdge::Pressed};std::uint64_t minimum_held_us{};
     bool cancel_on_release{},interruptible{true};

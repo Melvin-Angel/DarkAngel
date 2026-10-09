@@ -30,3 +30,6 @@ Focused native checks pass 4/4 (asset closure, ability commitment, action timeli
 - Effects/tags, deferred reservations, checked Luau bindings, gameplay credit across respawn, health UI, visual motion qualification, precise Royal collision and all remaining M4 timing/fault/streaming gates.
 
 Dependencies and original assets are unchanged. M3 live EOS remains blocked on the private deployment/policy and two identities; Loopback/GNS continuation remains authorized. M6 is not started.
+
+
+Latest melee increment (9 October): [authoritative motor-relative melee](MELEE_REPORT.md) adds authored HitWindow profiles, a bound native post-physics query, registered game-owned damage evaluators, atomic Health/death/deduplication and existing Loopback baseline integration. Royal input/attack presentation, canonical socket sweeps, ability wire/prediction and the remaining M4/M5 gates are still open. Reproduce `python scripts/verify_melee.py --build`.

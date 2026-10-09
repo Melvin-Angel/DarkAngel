@@ -32,7 +32,7 @@ AttributeAsset attributes(const Json& source){
 }
 AssetId reference(const Json& value){return AssetId::parse(value.get<std::string>());}
 std::shared_ptr<const AbilityDefinition> ability(const Json& source,const AttributeAsset& schema,const std::shared_ptr<const ActionDefinition>& action){
-    fields(source,{"schema","kind","asset","action","attributes","costs","cooldown_group","cooldown_ticks","activate_on","minimum_held_us","cancel_on_release","interruptible"});
+    auto base=source;base.erase("melee");fields(base,{"schema","kind","asset","action","attributes","costs","cooldown_group","cooldown_ticks","activate_on","minimum_held_us","cancel_on_release","interruptible"});
     require(source.at("schema")==1&&source.at("kind")=="ability","Ability asset schema/type");
     require(reference(source.at("action"))==action->id&&reference(source.at("attributes"))==schema.id,"Ability dependency identity");
     AbilityDefinition result;result.id=reference(source.at("asset"));result.action=action;auto& costs=source.at("costs");require(costs.is_array()&&costs.size()<=8,"Ability asset cost count");
@@ -40,6 +40,15 @@ std::shared_ptr<const AbilityDefinition> ability(const Json& source,const Attrib
     result.cooldown_group=static_cast<std::uint32_t>(integer(source.at("cooldown_group"),UINT32_MAX));result.cooldown_ticks=integer(source.at("cooldown_ticks"),36000);result.minimum_held_us=integer(source.at("minimum_held_us"),10000000);
     auto edge=source.at("activate_on").get<std::string>();require(edge=="pressed"||edge=="hold"||edge=="released"||edge=="tapped","Ability input edge");result.activate_on=edge=="pressed"?InputEdge::Pressed:edge=="hold"?InputEdge::Hold:edge=="released"?InputEdge::Released:InputEdge::Tapped;
     result.cancel_on_release=source.at("cancel_on_release").get<bool>();result.interruptible=source.at("interruptible").get<bool>();
+    if(source.contains("melee")){
+        require(source.at("melee").is_array()&&source.at("melee").size()<=8,"Ability melee source count");
+        for(const auto& entry:source.at("melee")){
+            fields(entry,{"block","offset","radius","power","evaluator","damage_type"});AbilityMelee profile;
+            profile.block=static_cast<unsigned>(integer(entry.at("block"),UINT32_MAX));profile.evaluator=static_cast<std::uint32_t>(integer(entry.at("evaluator"),UINT32_MAX));profile.damage_type=static_cast<std::uint32_t>(integer(entry.at("damage_type"),UINT32_MAX));
+            require(entry.at("radius").is_number()&&entry.at("power").is_number(),"Melee scalar type");profile.radius=entry.at("radius").get<double>();profile.power=entry.at("power").get<double>();
+            profile.offset=entry.at("offset").get<std::array<double,3>>();result.melee.push_back(profile);
+        }
+    }
     // Include gameplay dependency generations, not just the parent source hash.
     result.generation=sha256(source.dump()+schema.generation+action->generation);
     return freeze_ability_definition(result,AttributeSet(schema.definitions()));

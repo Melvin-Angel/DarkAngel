@@ -2,6 +2,7 @@
 #include "ability_state.hpp"
 #include <algorithm>
 #include <bit>
+#include <cmath>
 #include <limits>
 #include <set>
 #include <stdexcept>
@@ -60,7 +61,9 @@ struct WorldSession::Impl {
     std::map<std::uint64_t,MotorQueue> motor_inputs;std::map<std::uint64_t,MotorState> motor_states;
     std::optional<CollisionStreamFrame> latest_collision;std::deque<CollisionStreamFrame> collision_states;
     std::map<std::uint64_t,std::unique_ptr<AbilityState>> abilities;
-    std::uint64_t ability_tick{};
+    std::uint64_t ability_tick{},resolved_hit_tick{};
+    std::map<std::uint32_t,DamageEvaluator> damage_evaluators;
+    std::shared_ptr<const MeleeQuery> melee_query;
     std::vector<AbilityActionUpdate> ability_actions;
 
     const AbilityState& ability(AbilityOwnerHandle h)const{
@@ -194,7 +197,7 @@ AbilityOwnerHandle WorldSession::configure_abilities(std::uint64_t id,std::vecto
     s.abilities.emplace(id,std::move(state));return handle;
 }
 void WorldSession::equip_combat_kit(AbilityOwnerHandle owner,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue){
-    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));auto updates=state->equip(std::move(kit),input,catalogue);s.commit_ability(owner.network,std::move(state),updates);
+    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));for(const auto& ability:catalogue)if(ability)for(const auto& hit:ability->melee)require(bool(s.melee_query)&&s.damage_evaluators.contains(hit.evaluator),"Missing authoritative query binding/game damage evaluator");auto updates=state->equip(std::move(kit),input,catalogue);s.commit_ability(owner.network,std::move(state),updates);
 }
 AbilityFailure WorldSession::can_activate(const AbilityRequest& request)const{return impl_->ability(request.owner).can_activate(request);}
 AbilityReceipt WorldSession::request_ability(const AbilityRequest& request){
@@ -216,5 +219,43 @@ AbilityOwnerSnapshot WorldSession::ability_snapshot(AbilityOwnerHandle owner)con
 std::vector<AbilityActionUpdate> WorldSession::drain_ability_actions(){auto& s=*impl_;s.authority();auto result=std::move(s.ability_actions);s.ability_actions.clear();return result;}
 void WorldSession::retire_ability_operations(AbilityOwnerHandle owner,std::uint64_t through){
     auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));state->retire(through);s.commit_ability(owner.network,std::move(state),{});
+}
+}
+
+namespace darkangel {
+void WorldSession::bind_melee_query(std::shared_ptr<const MeleeQuery> query){auto& s=*impl_;s.authority();require(bool(query)&&!s.melee_query,"Melee query is a single server-owned collision binding");s.melee_query=std::move(query);}
+void WorldSession::register_damage_evaluator(std::uint32_t id,DamageEvaluator evaluator){
+    auto& s=*impl_;s.authority();require(id&&bool(evaluator)&&s.damage_evaluators.size()<16&&!s.damage_evaluators.contains(id),"Damage evaluator registration");s.damage_evaluators.emplace(id,std::move(evaluator));
+}
+std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick){
+    auto& s=*impl_;s.authority();require(tick&&tick==s.ability_tick&&bool(s.melee_query),"Ability hit resolution fixed tick/query binding");if(s.resolved_hit_tick==tick)return {};const auto& query=*s.melee_query;
+    std::map<std::uint64_t,std::unique_ptr<AbilityState>> prepared;for(const auto& [id,state]:s.abilities)prepared.emplace(id,std::make_unique<AbilityState>(*state));
+    std::vector<AbilityActionUpdate> updates;std::vector<DamageResult> results;std::size_t work{};
+    // Stable owner/activation/block/loop/target order, independent of query insertion.
+    for(auto& [id,source]:prepared){auto pending=source->pending_hits;
+        std::sort(pending.begin(),pending.end(),[](const auto& a,const auto& b){return std::tie(a.handle.activation,a.interval.block,a.interval.loop,a.interval.from)<std::tie(b.handle.activation,b.interval.block,b.interval.loop,b.interval.from);});
+        for(const auto& hit:pending){
+            if(source->health().current<=0)break;
+            require(hit.tick==tick&&s.motor_states.contains(id)&&s.motor_states.at(id).tick==tick&&query.matches(id,s.motor_states.at(id)),"Melee requires current achieved authoritative motor pose");
+            auto candidates=query.query(id,s.motor_states.at(id),hit.profile);require(!candidates.overflow&&candidates.targets.size()<=16,"Melee query overflow");
+            std::sort(candidates.targets.begin(),candidates.targets.end());candidates.targets.erase(std::unique(candidates.targets.begin(),candidates.targets.end()),candidates.targets.end());
+            for(const auto& target:candidates.targets){
+                require(++work<=256,"Melee batch work bound");if(target.network==id||!prepared.contains(target.network)||!s.motor_states.contains(target.network))continue;
+                auto& victim=*prepared.at(target.network);auto& motor=s.motor_states.at(target.network);
+                if(motor.tick!=tick||motor.epoch!=target.epoch||!query.matches(target.network,motor)||victim.health().current<=0)continue;
+                if(!source->remember_hit(hit,target.network,target.epoch))continue;
+                auto source_snapshot=source->snapshot(),target_snapshot=victim.snapshot();
+                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_snapshot.attributes,target_snapshot.attributes};
+                auto amount=s.damage_evaluators.at(hit.profile.evaluator)(context);require(std::isfinite(amount)&&amount>=0&&amount<=1e9,"Game damage evaluator output bounds");
+                auto before=victim.health().current;auto death=victim.damage(amount);updates.insert(updates.end(),death.begin(),death.end());auto after=victim.health().current;
+                require(results.size()<128,"Damage result batch bound");results.push_back({hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,before,after,before-after,after<=0});
+            }
+        }
+        source->pending_hits.clear();
+    }
+    auto queue=s.queue_actions(updates);bool changed=false;
+    // Preparation, evaluator calls and all bounded queue checks completed first.
+    for(const auto& [id,state]:prepared){auto health=state->health();auto& object=s.objects.at(id);if(object.health.current!=health.current||object.health.maximum!=health.maximum){s.view->apply_server_health(state->owner().entity,health);object.health=health;changed=true;}}
+    s.abilities=std::move(prepared);s.ability_actions=std::move(queue);s.resolved_hit_tick=tick;if(changed)++s.revision;return results;
 }
 }

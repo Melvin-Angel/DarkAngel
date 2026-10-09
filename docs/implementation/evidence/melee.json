@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "base_head": "a3a8d12edbdd342d80d3bd3f04151c5808dfdcc4",
+  "scope": "WorldSession authored motor-relative sphere melee, bound native authoritative query, game-owned read-only evaluator, atomic Health/death and existing baseline",
+  "gates": [
+    {
+      "name": "melee-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 58.945
+    },
+    {
+      "name": "melee-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 89.865
+    },
+    {
+      "name": "melee-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.057
+    },
+    {
+      "name": "melee-native",
+      "exit": 0,
+      "seconds": 0.924
+    },
+    {
+      "name": "melee-editor",
+      "exit": 0,
+      "seconds": 0.63
+    },
+    {
+      "name": "melee-headless",
+      "exit": 0,
+      "seconds": 0.154
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "e3ea6ce39f48721793b11fb7fb5bc6acec6df2609f0a72a8df894b6c8a8d1377",
+    "engine/runtime/include/darkangel/ability.hpp": "28e1fa769661f1d1633505a0e0ae72c7ea70c67cc65cae7c6f15a7187fa5b67a",
+    "engine/runtime/include/darkangel/melee.hpp": "c7ef2b4044e67f25b7ef7a9888d2fd5d27b92ff8ae8904d6188968fa9dca8ec1",
+    "engine/runtime/include/darkangel/world_session.hpp": "0293d7e4825720cd8ed0364399ba517d819c6b403e137bdb4a0b68b8c9e0cad5",
+    "engine/runtime/ability.cpp": "2d9b95508cc26cd389e851c071d14268304fea7c7a9d09c757b92b923e9d06a6",
+    "engine/runtime/ability_state.hpp": "ce7af0f6a891620950aad420573b4c934100136b16a7de8a05a0733cc4e1926c",
+    "engine/runtime/world_session.cpp": "833cf75dc8e9ee74dfa8b9ac95a9b47be3e97ffe93f411ecac60e74e5d467c54",
+    "engine/runtime/melee_query.cpp": "639d02fede5e1ef173214178805aa7d783a613e429ba694bbe39f3269ee3c484",
+    "engine/runtime/character_motor.cpp": "c98e59c41952f75f42385de8c0a53d715f5da28819e7d8844b4396381715457c",
+    "engine/runtime/include/darkangel/character_motor.hpp": "3120ef76f1ee3c19fd36833d1ca16bc86a944c2509b0d68428736230d60e11a0",
+    "engine/assets/ability_cooker.cpp": "46b6e80579c5ca422649c0ab5b9f72173425f07835b6a4971773f7e8ddccff7f",
+    "tests/melee_tests.cpp": "4d7a0490afd69e4e99a7f1774d93e5f93deacd08df3c75016b09db2b106fd213",
+    "tests/ability_asset_tests.cpp": "ceb43b85bb558ab70a0157f3b4fda6a86a5052f9437d2c49bdca84dbdffe9fac",
+    "scripts/verify_melee.py": "d52506b365f01d93db7f6b80a373f977a09f223235405e913e6ce27fe429d835"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "98238752e9165d73383d0a1e8bf0f60d167bd97b64dc050463f81c3e1db992b1",
+    "build/m5-relwithdebinfo/MeleeTests.exe": "8363943170e6d21815966f2f952fc946a99fe8267adf58cfb46845c2b1574aa4",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "f517baa91082541bcc218634c61336732a4e7368cd20a5e6caef4247dea1dfe7"
+  },
+  "limitations": [
+    "No playable Royal input/action/pose integration yet.",
+    "Initial static motor-relative sphere, not animated canonical socket sweeps or historical melee.",
+    "No new client ability wire, inclusion/prediction, action/resource replication or GNS/EOS acceptance.",
+    "Full effects/tags/defense/status/stagger/formula/credit lifetime and M4/M5 gates remain open.",
+    "Render-rate comparison is synthetic fixed-tick equality, not performance qualification."
+  ]
+}

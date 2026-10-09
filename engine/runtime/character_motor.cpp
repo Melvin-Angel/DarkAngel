@@ -436,6 +436,10 @@ namespace darkangel {
             std::sort(result.hits.begin(),result.hits.end(),[](const auto& a,const auto& b){return std::tie(a.fraction,a.identity,a.character,a.subshape)<std::tie(b.fraction,b.identity,b.character,b.subshape);});
         }
     }
+    bool PhysicsWorld::gameplay_queries_ready()const{
+        auto& s=*impl_;s.thread();if(s.mode!=Mode::Authoritative||s.failed||!s.tick)return false;
+        for(const auto& [id,actor]:s.actors)if(actor.post_tick!=s.tick)return false;return true;
+    }
     CollisionQuery PhysicsWorld::query_ray(MotorVec from,MotorVec delta,QueryFilter filter)const{
         auto& s=*impl_;s.thread();check(valid(from)&&valid(delta),"Invalid ray");Impl::QueryBodies bodies(s,filter);
         BoundedHits<JPH::CastRayCollector,JPH::RayCastResult> collector(32);JPH::RayCastSettings settings;settings.SetBackFaceMode(filter.backfaces?JPH::EBackFaceMode::CollideWithBackFaces:JPH::EBackFaceMode::IgnoreBackFaces);

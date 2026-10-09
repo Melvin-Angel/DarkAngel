@@ -1,6 +1,8 @@
 #pragma once
 #include <darkangel/ability.hpp>
 #include <map>
+#include <set>
+#include <tuple>
 
 namespace darkangel {
 // Owned only by WorldSession, never a parallel world or client authority.
@@ -14,6 +16,10 @@ public:
     std::pair<AbilityFailure,std::vector<AbilityActionUpdate>> cancel(AbilityActivationHandle,AbilityActionReason);
     void retire(std::uint64_t through);
     AbilityOwnerSnapshot snapshot()const;
+    struct PendingHit {AbilityActivationHandle handle;std::shared_ptr<const AbilityDefinition> definition;AbilityMelee profile;ActionInterval interval;std::uint64_t tick{};};
+    std::vector<PendingHit> pending_hits;
+    bool remember_hit(const PendingHit&,std::uint64_t target,std::uint64_t epoch);
+    std::vector<AbilityActionUpdate> damage(double);
     Health health()const;
     AbilityOwnerHandle owner()const{return owner_;}
 private:
@@ -23,6 +29,7 @@ private:
     };
     struct Record {AbilityRequest request;AbilityReceipt receipt;};
     AbilityOwnerHandle owner_;std::uint64_t tick_{},revision_{},next_activation_{1},highest_operation_{},retired_through_{};
+    std::set<std::tuple<std::uint64_t,unsigned,unsigned,std::uint64_t,std::uint64_t>> hits_;
     AttributeSet attributes_;AttributeId health_,maximum_health_;
     std::optional<CombatKitInstance> kit_;
     std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants_;

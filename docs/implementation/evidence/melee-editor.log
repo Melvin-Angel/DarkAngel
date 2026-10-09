@@ -1,0 +1,9 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+    Start  6: M5.authoritative_melee
+1/2 Test  #6: M5.authoritative_melee ...........   Passed    0.12 sec
+    Start 17: M5.ability_assets
+2/2 Test #17: M5.ability_assets ................   Passed    0.38 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.60 sec

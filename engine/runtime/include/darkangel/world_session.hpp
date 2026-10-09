@@ -4,6 +4,7 @@
 #include <darkangel/world.hpp>
 #include <darkangel/collision_asset.hpp>
 #include <darkangel/ability.hpp>
+#include <darkangel/melee.hpp>
 #include <deque>
 #include <map>
 #include <memory>
@@ -34,6 +35,10 @@ public:
     AbilityReceipt request_ability(const AbilityRequest&);
     AbilityFailure cancel_ability(AbilityActivationHandle);
     void advance_abilities(std::uint64_t simulation_tick,unsigned action_rate=action_tick_units);
+    void bind_melee_query(std::shared_ptr<const MeleeQuery>);
+    void register_damage_evaluator(std::uint32_t,DamageEvaluator);
+    // After authoritative motor post_physics/publication, once per fixed tick.
+    std::vector<DamageResult> resolve_ability_hits(std::uint64_t);
     AbilityOwnerSnapshot ability_snapshot(AbilityOwnerHandle)const;
     std::vector<AbilityActionUpdate> drain_ability_actions();
     void retire_ability_operations(AbilityOwnerHandle,std::uint64_t through);

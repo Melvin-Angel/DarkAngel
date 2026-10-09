@@ -19,6 +19,12 @@ std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,
     require(source.action&&source.action->id!=AssetId{}&&source.costs.size()<=8&&source.cooldown_ticks<=36000&&
         (source.cooldown_ticks==0||source.cooldown_group!=0)&&static_cast<unsigned>(source.activate_on)<=static_cast<unsigned>(InputEdge::Tapped)&&
         source.minimum_held_us<=10000000&&!(source.cancel_on_release&&source.activate_on==InputEdge::Released),"Ability definition bounds/policy");
+    require(source.melee.size()<=8,"Ability melee profile count");std::set<unsigned> hit_blocks;
+    for(const auto& hit:source.melee){
+        auto block=std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& b){return b.id==hit.block&&b.kind==ActionBlockKind::HitWindow;});
+        require(block!=source.action->blocks.end()&&hit_blocks.insert(hit.block).second&&hit.evaluator&&hit.damage_type&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2,"Ability melee profile identity/bounds");
+        for(auto value:hit.offset)require(std::isfinite(value)&&std::abs(value)<=3,"Ability melee offset bounds");
+    }
     auto frozen=std::make_shared<AbilityDefinition>(source);
     frozen->action=std::make_shared<const ActionDefinition>(*source.action);
     // Validate action preparation now; active executions pin this complete generation.
@@ -44,6 +50,7 @@ AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vect
 }
 Health AbilityState::health()const{return {attributes_.value(maximum_health_),attributes_.value(health_)};}
 std::vector<AbilityActionUpdate> AbilityState::stop(AbilityActionReason reason){
+    pending_hits.clear();
     if(!active_)return {};
     AbilityActionUpdate update{{owner_,active_->timeline.state().activation},ActionPhase::Cancelled,reason,tick_,active_->timeline.cancel()};
     active_.reset();return {std::move(update)};
@@ -73,6 +80,7 @@ AbilityFailure AbilityState::validate(const AbilityRequest& request)const{
         return active_->definition->interruptible?AbilityFailure::None:AbilityFailure::CancelDenied;
     if(request.input.cancelled||request.input.edge!=definition->activate_on||request.input.held_us<definition->minimum_held_us)return AbilityFailure::InputIgnored;
     if(health().current<=0)return AbilityFailure::Dead;
+    if(!pending_hits.empty())return AbilityFailure::Busy;
     if(active_&&(!request.replace_active||!active_->definition->interruptible))return AbilityFailure::Busy;
     auto cooldown=cooldowns_.find(definition->cooldown_group);
     if(cooldown!=cooldowns_.end()&&cooldown->second>tick_)return AbilityFailure::Cooldown;
@@ -106,6 +114,7 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
             auto attributes=attributes_;attributes.transact(costs(*definition),true);
             // All allocations and action validation occur in a session-owned candidate.
             updates=stop(AbilityActionReason::Replaced);
+            hits_.clear();
             active_.emplace(Execution{request.slot,request.grant_generation,definition,std::move(prepared)});
             attributes_=std::move(attributes);
             if(definition->cooldown_ticks)cooldowns_[definition->cooldown_group]=tick_+definition->cooldown_ticks;
@@ -119,9 +128,14 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
 }
 std::vector<AbilityActionUpdate> AbilityState::advance(std::uint64_t tick,unsigned rate){
     require(tick_!=std::numeric_limits<std::uint64_t>::max()&&tick==tick_+1&&rate<=4*action_tick_units,"Ability fixed tick/rate");
+    require(pending_hits.empty(),"Unresolved ability hit work; resolve or cancel before advancing");
     tick_=tick;std::erase_if(cooldowns_,[&](const auto& cooldown){return cooldown.second<=tick_;});
     std::vector<AbilityActionUpdate> updates;
     if(active_){auto batch=active_->timeline.advance(tick,rate);auto phase=active_->timeline.state().phase;
+        for(const auto& interval:batch.traversed)if(interval.kind==ActionBlockKind::HitWindow)
+            for(const auto& profile:active_->definition->melee)if(profile.block==interval.block)
+                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,profile,interval,tick});
+        require(pending_hits.size()<=64,"Ability pending hit interval work bound");
         updates.push_back({{owner_,active_->timeline.state().activation},phase,phase==ActionPhase::Completed?AbilityActionReason::Completed:AbilityActionReason::Advanced,tick_,std::move(batch)});
         if(phase==ActionPhase::Completed)active_.reset();
     }
@@ -130,9 +144,18 @@ std::vector<AbilityActionUpdate> AbilityState::advance(std::uint64_t tick,unsign
 std::pair<AbilityFailure,std::vector<AbilityActionUpdate>> AbilityState::cancel(AbilityActivationHandle handle,AbilityActionReason reason){
     if(handle.owner!=owner_||!handle.activation||handle.activation>=next_activation_)return {AbilityFailure::InvalidRequest,{}};
     // Completed/previously cancelled handles are idempotent and cannot stop a new action.
-    if(!active_||active_->timeline.state().activation!=handle.activation)return {AbilityFailure::None,{}};
+    if(!active_||active_->timeline.state().activation!=handle.activation){auto removed=std::erase_if(pending_hits,[&](const auto& hit){return hit.handle==handle;});if(removed)++revision_;return {AbilityFailure::None,{}};}
     if(reason==AbilityActionReason::Cancelled&&!active_->definition->interruptible)return {AbilityFailure::CancelDenied,{}};
     auto updates=stop(reason);++revision_;return {AbilityFailure::None,std::move(updates)};
+}
+bool AbilityState::remember_hit(const PendingHit& hit,std::uint64_t target,std::uint64_t epoch){
+    auto key=std::make_tuple(hit.handle.activation,hit.interval.block,hit.interval.loop,target,epoch);
+    if(hits_.contains(key))return false;require(hits_.size()<256,"Ability hit history exhausted");hits_.insert(key);return true;
+}
+std::vector<AbilityActionUpdate> AbilityState::damage(double amount){
+    require(std::isfinite(amount)&&amount>=0,"Invalid prepared damage magnitude");
+    attributes_.transact(std::array<ResourceDelta,1>{{{health_,-amount}}},false);++revision_;
+    return health().current<=0?stop(AbilityActionReason::Death):std::vector<AbilityActionUpdate>{};
 }
 void AbilityState::retire(std::uint64_t through){
     require(through>=retired_through_&&through<=highest_operation_,"Ability operation retirement range");

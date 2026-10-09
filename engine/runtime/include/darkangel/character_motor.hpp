@@ -68,6 +68,8 @@ public:
     enum class Mode {Authoritative,Prediction,Replay};
     explicit PhysicsWorld(Mode=Mode::Authoritative);~PhysicsWorld();PhysicsWorld(const PhysicsWorld&)=delete;
     Mode mode()const;
+    bool gameplay_queries_ready()const; // authoritative tick after every motor post_physics
+
     bool needs_resync()const;bool sleeping(std::uint64_t)const;
     void apply_impulse(std::uint64_t,MotorVec);
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});

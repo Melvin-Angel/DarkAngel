@@ -32,3 +32,6 @@ Versioned/reflected Ability/CombatKit/Attribute assets and frozen cooking; Chara
 
 
 Implementation continuation (9 October): Latest asset increment (9 October): [frozen Ability/Attribute assets](ABILITY_ASSET_REPORT.md) adds versioned native sources, atomic action/schema cooking, dependency generation validation and source-free loading into the existing WorldSession grant/commit API. CombatKit/AnimationGraph cooking and reflected editor authoring remain open; Royal still has no playable hit/damage. M4/M5 remain In progress. Reproduce `python scripts/verify_ability_assets.py --build`.
+
+
+Latest melee increment (9 October): [authoritative motor-relative melee](MELEE_REPORT.md) adds authored HitWindow profiles, a bound native post-physics query, registered game-owned damage evaluators, atomic Health/death/deduplication and existing Loopback baseline integration. Royal input/attack presentation, canonical socket sweeps, ability wire/prediction and the remaining M4/M5 gates are still open. Reproduce `python scripts/verify_melee.py --build`.
