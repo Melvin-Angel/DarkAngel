@@ -41,7 +41,7 @@ std::vector<ResourceDelta> costs(const AbilityDefinition& definition){
 }
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes){return freeze(source,attributes);}
 AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vector<AttributeDefinition> definitions,AttributeId health,AttributeId maximum_health):
-    owner_(owner),tick_(tick),attributes_(std::move(definitions)),health_(health),maximum_health_(maximum_health){
+    owner_(owner),tick_(tick),attributes_(std::move(definitions)),health_(health),maximum_health_(maximum_health),effects_(std::make_shared<const TagDictionary>(std::vector<TagDefinition>{}),tick){
     require(health_&&maximum_health_&&health_!=maximum_health_,"Ability health schema IDs");
     const auto schema=attributes_.definitions();
     auto find=[&](AttributeId id)->const AttributeDefinition&{auto it=std::find_if(schema.begin(),schema.end(),[&](const auto& d){return d.id==id;});require(it!=schema.end(),"Ability health schema missing");return *it;};
@@ -123,7 +123,7 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
             if(definition->cooldown_ticks)cooldowns_[definition->cooldown_group]=tick_+definition->cooldown_ticks;
             receipt.handle={owner_,next_activation_++};receipt.committed=true;
             updates.push_back({receipt.handle,ActionPhase::Active,AbilityActionReason::Started,tick_,std::move(entry)});
-            if(health().current<=0){auto death=stop(AbilityActionReason::Death);updates.insert(updates.end(),std::make_move_iterator(death.begin()),std::make_move_iterator(death.end()));}
+            if(health().current<=0){effects_.death(attributes_);auto death=stop(AbilityActionReason::Death);updates.insert(updates.end(),std::make_move_iterator(death.begin()),std::make_move_iterator(death.end()));}
         }
     }
     receipt.operation=request.operation;receipt.tick=tick_;receipt.inclusion_revision=revision_+1;
@@ -200,7 +200,7 @@ bool AbilityState::remember_hit(const PendingHit& hit,std::uint64_t target,std::
 std::vector<AbilityActionUpdate> AbilityState::damage(double amount){
     require(std::isfinite(amount)&&amount>=0,"Invalid prepared damage magnitude");
     attributes_.transact(std::array<ResourceDelta,1>{{{health_,-amount}}},false);++revision_;
-    return health().current<=0?stop(AbilityActionReason::Death):std::vector<AbilityActionUpdate>{};
+    if(health().current<=0){effects_.death(attributes_);return stop(AbilityActionReason::Death);}return {};
 }
 std::vector<AbilityActionUpdate> AbilityState::disconnect(){auto result=stop(AbilityActionReason::Disconnected);held_.fill({});rearm_.fill(true);++revision_;return result;}
 void AbilityState::retire(std::uint64_t through){

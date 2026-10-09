@@ -20,6 +20,9 @@ public:
  std::span<const AttributeDefinition> definitions()const{return definitions_;}
  void add(std::span<const AttributeModifier>);
  void remove_owner(std::uint64_t);
+ // Replace a set of owned modifier contributions with one final recomputation;
+ // intermediate removals must not irreversibly clamp a resource.
+ void replace_owned(std::span<const std::uint64_t>,std::span<const AttributeModifier>);
  // Costs reject insufficient resources instead of silently clamping. Damage/heal
  // use reject_underflow=false and clamp to the current derived resource bounds.
  void transact(std::span<const ResourceDelta>,bool reject_underflow);

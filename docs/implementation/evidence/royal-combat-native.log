@@ -2,44 +2,44 @@ Test project C:/DarkAngel/build/m5-relwithdebinfo
       Start  1: M5.ability_motor_prediction
  1/16 Test  #1: M5.ability_motor_prediction ......   Passed    0.05 sec
       Start  5: M4.actor_history
- 2/16 Test  #5: M4.actor_history .................   Passed    0.05 sec
+ 2/16 Test  #5: M4.actor_history .................   Passed    0.06 sec
       Start  7: M5.authoritative_melee
- 3/16 Test  #7: M5.authoritative_melee ...........   Passed    0.12 sec
+ 3/16 Test  #7: M5.authoritative_melee ...........   Passed    0.16 sec
       Start 14: M5.combat_kit_assets
- 4/16 Test #14: M5.combat_kit_assets .............   Passed    0.91 sec
+ 4/16 Test #14: M5.combat_kit_assets .............   Passed    1.05 sec
       Start 15: M5.graph_assets
- 5/16 Test #15: M5.graph_assets ..................   Passed    0.89 sec
+ 5/16 Test #15: M5.graph_assets ..................   Passed    0.96 sec
       Start 17: M4.royal_mesh_collision
- 6/16 Test #17: M4.royal_mesh_collision ..........   Passed    1.99 sec
+ 6/16 Test #17: M4.royal_mesh_collision ..........   Passed    2.43 sec
       Start 18: M5.character_combat_scene
- 7/16 Test #18: M5.character_combat_scene ........   Passed    0.76 sec
+ 7/16 Test #18: M5.character_combat_scene ........   Passed    0.65 sec
       Start 19: M5.character_scene
- 8/16 Test #19: M5.character_scene ...............   Passed    0.92 sec
+ 8/16 Test #19: M5.character_scene ...............   Passed    1.03 sec
       Start 22: M5.ability_assets
- 9/16 Test #22: M5.ability_assets ................   Passed    0.43 sec
+ 9/16 Test #22: M5.ability_assets ................   Passed    0.44 sec
       Start 24: M5.action_clip_binding
-10/16 Test #24: M5.action_clip_binding ...........   Passed    0.41 sec
+10/16 Test #24: M5.action_clip_binding ...........   Passed    0.47 sec
       Start 25: M5.action_timeline
 11/16 Test #25: M5.action_timeline ...............   Passed    0.21 sec
       Start 49: M5.ability_observer
-12/16 Test #49: M5.ability_observer ..............   Passed    0.15 sec
+12/16 Test #49: M5.ability_observer ..............   Passed    0.16 sec
       Start 50: M5.ability_prediction
 13/16 Test #50: M5.ability_prediction ............   Passed    0.05 sec
       Start 51: M5.ability_intent
-14/16 Test #51: M5.ability_intent ................   Passed    0.12 sec
+14/16 Test #51: M5.ability_intent ................   Passed    0.16 sec
       Start 52: M5.ability_correction
-15/16 Test #52: M5.ability_correction ............   Passed    0.10 sec
-      Start 53: M5.ability_commit
-16/16 Test #53: M5.ability_commit ................   Passed    0.10 sec
+15/16 Test #52: M5.ability_correction ............   Passed    0.11 sec
+      Start 54: M5.ability_commit
+16/16 Test #54: M5.ability_commit ................   Passed    0.12 sec
 
 100% tests passed out of 16
 
 Label Time Summary:
-M5           =   1.03 sec*proc (2 tests)
-ability      =   0.10 sec*proc (1 test)
-animation    =   0.92 sec*proc (1 test)
-network      =   0.92 sec*proc (1 test)
-physics      =   0.92 sec*proc (1 test)
-session      =   0.10 sec*proc (1 test)
+M5           =   1.15 sec*proc (2 tests)
+ability      =   0.12 sec*proc (1 test)
+animation    =   1.03 sec*proc (1 test)
+network      =   1.03 sec*proc (1 test)
+physics      =   1.03 sec*proc (1 test)
+session      =   0.12 sec*proc (1 test)
 
-Total Test time (real) =   7.31 sec
+Total Test time (real) =   8.13 sec

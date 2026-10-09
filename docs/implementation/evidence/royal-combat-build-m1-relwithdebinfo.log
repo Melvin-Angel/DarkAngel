@@ -40,46 +40,54 @@ sqlite3 provides CMake targets:
     find_package(unofficial-sqlite3 CONFIG REQUIRED)
     target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
 
-All requested installations completed successfully in: 302 us
+All requested installations completed successfully in: 296 us
 -- Running vcpkg install - done
--- Configuring done (4.3s)
+-- Configuring done (4.0s)
 -- Generating done (0.1s)
 -- Build files have been written to: C:/DarkAngel/build/m1-relwithdebinfo
-[1/59] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
-[2/59] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[3/55] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
-[4/55] Scanning C:\DarkAngel\engine\runtime\collision_observer.cpp for CXX dependencies
-[5/55] Scanning C:\DarkAngel\engine\runtime\collision_source.cpp for CXX dependencies
-[6/55] Scanning C:\DarkAngel\engine\runtime\ability_observer.cpp for CXX dependencies
-[7/55] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
-[8/55] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[9/40] Scanning C:\DarkAngel\tests\ability_intent_tests.cpp for CXX dependencies
-[10/40] Scanning C:\DarkAngel\tests\ability_prediction_tests.cpp for CXX dependencies
-[11/40] Scanning C:\DarkAngel\tests\ability_observer_tests.cpp for CXX dependencies
-[12/40] Scanning C:\DarkAngel\tests\ability_correction_tests.cpp for CXX dependencies
-[13/40] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
-[14/40] Scanning C:\DarkAngel\tests\ability_tests.cpp for CXX dependencies
-[15/40] Linking CXX static library DarkAngelFoundation.lib
-[16/40] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
-[17/40] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_source.cpp.obj
-[18/40] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_observer.cpp.obj
-[19/40] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
-[20/40] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
-[21/39] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
-[22/39] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
-[23/39] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
-[24/39] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
-[25/39] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
-[26/39] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
-[27/39] Linking CXX static library DarkAngelRuntime.lib
-[28/39] Building CXX object CMakeFiles\AbilityIntentTests.dir\tests\ability_intent_tests.cpp.obj
-[29/39] Building CXX object CMakeFiles\AbilityPredictionTests.dir\tests\ability_prediction_tests.cpp.obj
-[30/39] Building CXX object CMakeFiles\AbilityObserverTests.dir\tests\ability_observer_tests.cpp.obj
-[31/39] Building CXX object CMakeFiles\AbilityCorrectionTests.dir\tests\ability_correction_tests.cpp.obj
-[32/39] Building CXX object CMakeFiles\AbilityTests.dir\tests\ability_tests.cpp.obj
-[33/39] Linking CXX executable DarkAngelHeadless.exe
-[34/39] Linking CXX executable AbilityPredictionTests.exe
-[35/39] Linking CXX executable AbilityIntentTests.exe
-[36/39] Linking CXX executable AbilityObserverTests.exe
-[37/39] Linking CXX executable AbilityCorrectionTests.exe
-[38/39] Linking CXX executable AbilityTests.exe
+[1/66] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[2/66] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[3/66] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[4/62] Scanning C:\DarkAngel\engine\runtime\attributes.cpp for CXX dependencies
+[5/62] Scanning C:\DarkAngel\engine\runtime\tags.cpp for CXX dependencies
+[6/62] Scanning C:\DarkAngel\engine\runtime\effects.cpp for CXX dependencies
+[7/62] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
+[8/62] Scanning C:\DarkAngel\engine\runtime\ability_effects.cpp for CXX dependencies
+[9/62] Scanning C:\DarkAngel\engine\runtime\ability_prediction.cpp for CXX dependencies
+[10/62] Scanning C:\DarkAngel\engine\runtime\ability_observer.cpp for CXX dependencies
+[11/62] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
+[12/62] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[13/48] Scanning C:\DarkAngel\tests\ability_intent_tests.cpp for CXX dependencies
+[14/48] Scanning C:\DarkAngel\tests\ability_prediction_tests.cpp for CXX dependencies
+[15/48] Scanning C:\DarkAngel\tests\ability_observer_tests.cpp for CXX dependencies
+[16/48] Scanning C:\DarkAngel\tests\ability_correction_tests.cpp for CXX dependencies
+[17/48] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[18/48] Scanning C:\DarkAngel\tests\ability_tests.cpp for CXX dependencies
+[19/48] Linking CXX static library DarkAngelFoundation.lib
+[20/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\attributes.cpp.obj
+[21/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\tags.cpp.obj
+[22/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effects.cpp.obj
+[23/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[24/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[25/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_effects.cpp.obj
+[26/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
+[27/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
+[28/48] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[29/47] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[30/47] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
+[31/47] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
+[32/47] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[33/47] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[34/47] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[35/47] Building CXX object CMakeFiles\AbilityIntentTests.dir\tests\ability_intent_tests.cpp.obj
+[36/47] Linking CXX static library DarkAngelRuntime.lib
+[37/47] Building CXX object CMakeFiles\AbilityPredictionTests.dir\tests\ability_prediction_tests.cpp.obj
+[38/47] Building CXX object CMakeFiles\AbilityObserverTests.dir\tests\ability_observer_tests.cpp.obj
+[39/47] Building CXX object CMakeFiles\AbilityTests.dir\tests\ability_tests.cpp.obj
+[40/47] Building CXX object CMakeFiles\AbilityCorrectionTests.dir\tests\ability_correction_tests.cpp.obj
+[41/47] Linking CXX executable DarkAngelHeadless.exe
+[42/47] Linking CXX executable AbilityIntentTests.exe
+[43/47] Linking CXX executable AbilityPredictionTests.exe
+[44/47] Linking CXX executable AbilityObserverTests.exe
+[45/47] Linking CXX executable AbilityCorrectionTests.exe
+[46/47] Linking CXX executable AbilityTests.exe

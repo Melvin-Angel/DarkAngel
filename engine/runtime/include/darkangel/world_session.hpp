@@ -5,6 +5,7 @@
 #include <darkangel/collision_asset.hpp>
 #include <darkangel/ability.hpp>
 #include <darkangel/melee.hpp>
+#include <darkangel/effects.hpp>
 #include <deque>
 #include <map>
 #include <memory>
@@ -41,6 +42,14 @@ public:
     void advance_abilities(std::uint64_t simulation_tick,unsigned action_rate=action_tick_units);
     void bind_melee_query(std::shared_ptr<const MeleeQuery>);
     void register_damage_evaluator(std::uint32_t,DamageEvaluator);
+    void configure_ability_tags(AbilityOwnerHandle,std::shared_ptr<const TagDictionary>);
+    void register_effect_evaluator(std::uint32_t,EffectEvaluator);
+    EffectHandle apply_effect(AbilityOwnerHandle target,AbilityOwnerHandle source,const EffectDefinition&,double power,std::uint64_t source_activation=0);
+    void remove_effect(AbilityOwnerHandle,EffectHandle);
+    void cleanse_effects(AbilityOwnerHandle,const TagRequirement&);
+    std::vector<EffectSnapshot> ability_effects(AbilityOwnerHandle)const;
+    std::vector<TagId> ability_tags(AbilityOwnerHandle,AttributeVisibility=AttributeVisibility::Server)const;
+    std::vector<EffectOutcome> drain_effect_outcomes();
     // After authoritative motor post_physics/publication, once per fixed tick.
     std::vector<DamageResult> resolve_ability_hits(std::uint64_t);
     const std::map<std::uint64_t,AbilityCorrection>& ability_corrections()const;

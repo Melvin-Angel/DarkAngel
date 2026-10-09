@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/ability.hpp>
+#include <darkangel/effects.hpp>
 #include <map>
 #include <set>
 #include <tuple>
@@ -31,6 +32,13 @@ public:
     std::vector<AbilityActionUpdate> damage(double);
     Health health()const;
     AbilityOwnerHandle owner()const{return owner_;}
+    void configure_tags(std::shared_ptr<const TagDictionary>);
+    std::pair<EffectHandle,std::vector<EffectExecution>> apply_effect(const EffectDefinition&,EffectCredit,const EffectEvaluator&,std::vector<AbilityActionUpdate>&);
+    std::vector<EffectExecution> advance_effects(const std::function<EffectEvaluator(std::uint32_t)>&,std::vector<AbilityActionUpdate>&);
+    void remove_effect(EffectHandle);
+    void cleanse_effects(const TagRequirement&);
+    void source_destroyed(std::uint64_t,std::uint64_t);
+    const OwnedEffects& effects()const{return effects_;}
 private:
     struct Execution {
         CombatSlot slot;std::uint64_t grant_generation;
@@ -42,6 +50,7 @@ private:
     AbilityOwnerHandle owner_;std::uint64_t tick_{},revision_{},next_activation_{1},highest_operation_{},retired_through_{};
     std::set<std::tuple<std::uint64_t,unsigned,unsigned,std::uint64_t,std::uint64_t>> hits_;
     AttributeSet attributes_;AttributeId health_,maximum_health_;
+    OwnedEffects effects_;bool tags_configured_{};
     std::optional<CombatKitInstance> kit_;
     std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants_;
     std::array<bool,combat_slot_count> rearm_{};

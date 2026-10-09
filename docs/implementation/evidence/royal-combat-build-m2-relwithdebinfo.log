@@ -1,27 +1,809 @@
-[1/19] Scanning C:\DarkAngel\tools\cooker\main.cpp for CXX dependencies
-[2/19] Scanning C:\DarkAngel\tests\ability_asset_tests.cpp for CXX dependencies
-[3/19] Linking CXX static library DarkAngelRuntime.lib
-[4/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
-[5/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[0/1] Re-running CMake...
+-- Running vcpkg install
+Detecting compiler hash for triplet x64-windows-darkangel...
+Compiler found: C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/Hostx64/x64/cl.exe
+The following packages are already installed:
+    abseil:x64-windows-darkangel@20260107.1#3
+    cgltf:x64-windows-darkangel@1.15
+  * directxmath:x64-windows-darkangel@2026-06-12
+    directxtex:x64-windows-darkangel@2026-05-07
+    flecs:x64-windows-darkangel@4.1.6
+    libpng:x64-windows-darkangel@1.6.58
+    luau:x64-windows-darkangel@0.729
+    meshoptimizer:x64-windows-darkangel@1.2
+    nlohmann-json:x64-windows-darkangel@3.12.0#2
+    sqlite3[core,omit-load-extension]:x64-windows-darkangel@3.53.4
+  * vcpkg-cmake:x64-windows-darkangel@2024-04-23
+  * vcpkg-cmake-config:x64-windows-darkangel@2026-07-21
+    zlib:x64-windows-darkangel@1.3.2#1
+The package flecs provides CMake targets:
+
+    find_package(flecs CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE $<IF:$<TARGET_EXISTS:flecs::flecs>,flecs::flecs,flecs::flecs_static>)
+
+luau provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(unofficial-luau CONFIG REQUIRED)
+  # note: 6 additional targets are not displayed.
+  target_link_libraries(main PRIVATE unofficial::luau::Luau.VM unofficial::luau::Luau.Ast unofficial::luau::Luau.Common unofficial::luau::Luau.Config)
+
+The package nlohmann-json provides CMake targets:
+
+    find_package(nlohmann_json CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
+
+The package nlohmann-json can be configured to not provide implicit conversions via a custom triplet file:
+
+    set(nlohmann-json_IMPLICIT_CONVERSIONS OFF)
+
+For more information, see the docs here:
+    
+    https://json.nlohmann.me/api/macros/json_use_implicit_conversions/
+
+sqlite3 provides pkgconfig bindings.
+sqlite3 provides CMake targets:
+
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
+
+abseil provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(absl CONFIG REQUIRED)
+  # note: 203 additional targets are not displayed.
+  target_link_libraries(main PRIVATE absl::any absl::log absl::base absl::bits)
+
+abseil provides pkg-config modules:
+
+  # Abseil absl_check library
+  absl_absl_check
+
+  # Abseil absl_log library
+  absl_absl_log
+
+  # Abseil absl_vlog_is_on library
+  absl_absl_vlog_is_on
+
+  # Abseil algorithm library
+  absl_algorithm
+
+  # Abseil algorithm_container library
+  absl_algorithm_container
+
+  # Abseil any library
+  absl_any
+
+  # Abseil any_invocable library
+  absl_any_invocable
+
+  # Abseil atomic_hook library
+  absl_atomic_hook
+
+  # Abseil bad_any_cast library
+  absl_bad_any_cast
+
+  # Abseil bad_optional_access library
+  absl_bad_optional_access
+
+  # Abseil bad_variant_access library
+  absl_bad_variant_access
+
+  # Abseil base library
+  absl_base
+
+  # Abseil base_internal library
+  absl_base_internal
+
+  # Abseil bind_front library
+  absl_bind_front
+
+  # Abseil bits library
+  absl_bits
+
+  # Abseil borrowed_fixup_buffer library
+  absl_borrowed_fixup_buffer
+
+  # Abseil bounded_utf8_length_sequence library
+  absl_bounded_utf8_length_sequence
+
+  # Abseil btree library
+  absl_btree
+
+  # Abseil charset library
+  absl_charset
+
+  # Abseil check library
+  absl_check
+
+  # Abseil chunked_queue library
+  absl_chunked_queue
+
+  # Abseil city library
+  absl_city
+
+  # Abseil civil_time library
+  absl_civil_time
+
+  # Abseil cleanup library
+  absl_cleanup
+
+  # Abseil cleanup_internal library
+  absl_cleanup_internal
+
+  # Abseil common_policy_traits library
+  absl_common_policy_traits
+
+  # Abseil compare library
+  absl_compare
+
+  # Abseil compressed_tuple library
+  absl_compressed_tuple
+
+  # Abseil config library
+  absl_config
+
+  # Abseil constexpr_testing_internal library
+  absl_constexpr_testing_internal
+
+  # Abseil container_common library
+  absl_container_common
+
+  # Abseil container_memory library
+  absl_container_memory
+
+  # Abseil cord library
+  absl_cord
+
+  # Abseil cord_internal library
+  absl_cord_internal
+
+  # Abseil cordz_functions library
+  absl_cordz_functions
+
+  # Abseil cordz_handle library
+  absl_cordz_handle
+
+  # Abseil cordz_info library
+  absl_cordz_info
+
+  # Abseil cordz_sample_token library
+  absl_cordz_sample_token
+
+  # Abseil cordz_statistics library
+  absl_cordz_statistics
+
+  # Abseil cordz_update_scope library
+  absl_cordz_update_scope
+
+  # Abseil cordz_update_tracker library
+  absl_cordz_update_tracker
+
+  # Abseil core_headers library
+  absl_core_headers
+
+  # Abseil crc32c library
+  absl_crc32c
+
+  # Abseil crc_cord_state library
+  absl_crc_cord_state
+
+  # Abseil crc_cpu_detect library
+  absl_crc_cpu_detect
+
+  # Abseil crc_internal library
+  absl_crc_internal
+
+  # Abseil debugging library
+  absl_debugging
+
+  # Abseil debugging_internal library
+  absl_debugging_internal
+
+  # Abseil decode_rust_punycode library
+  absl_decode_rust_punycode
+
+  # Abseil demangle_internal library
+  absl_demangle_internal
+
+  # Abseil demangle_rust library
+  absl_demangle_rust
+
+  # Abseil die_if_null library
+  absl_die_if_null
+
+  # Abseil dynamic_annotations library
+  absl_dynamic_annotations
+
+  # Abseil endian library
+  absl_endian
+
+  # Abseil errno_saver library
+  absl_errno_saver
+
+  # Abseil examine_stack library
+  absl_examine_stack
+
+  # Abseil exponential_biased library
+  absl_exponential_biased
+
+  # Abseil failure_signal_handler library
+  absl_failure_signal_handler
+
+  # Abseil fast_type_id library
+  absl_fast_type_id
+
+  # Abseil fixed_array library
+  absl_fixed_array
+
+  # Abseil flags library
+  absl_flags
+
+  # Abseil flags_commandlineflag library
+  absl_flags_commandlineflag
+
+  # Abseil flags_commandlineflag_internal library
+  absl_flags_commandlineflag_internal
+
+  # Abseil flags_config library
+  absl_flags_config
+
+  # Abseil flags_internal library
+  absl_flags_internal
+
+  # Abseil flags_marshalling library
+  absl_flags_marshalling
+
+  # Abseil flags_parse library
+  absl_flags_parse
+
+  # Abseil flags_path_util library
+  absl_flags_path_util
+
+  # Abseil flags_private_handle_accessor library
+  absl_flags_private_handle_accessor
+
+  # Abseil flags_program_name library
+  absl_flags_program_name
+
+  # Abseil flags_reflection library
+  absl_flags_reflection
+
+  # Abseil flags_usage library
+  absl_flags_usage
+
+  # Abseil flags_usage_internal library
+  absl_flags_usage_internal
+
+  # Abseil flat_hash_map library
+  absl_flat_hash_map
+
+  # Abseil flat_hash_set library
+  absl_flat_hash_set
+
+  # Abseil function_ref library
+  absl_function_ref
+
+  # Abseil generic_printer_internal library
+  absl_generic_printer_internal
+
+  # Abseil graphcycles_internal library
+  absl_graphcycles_internal
+
+  # Abseil has_ostream_operator library
+  absl_has_ostream_operator
+
+  # Abseil hash library
+  absl_hash
+
+  # Abseil hash_container_defaults library
+  absl_hash_container_defaults
+
+  # Abseil hash_function_defaults library
+  absl_hash_function_defaults
+
+  # Abseil hash_policy_traits library
+  absl_hash_policy_traits
+
+  # Abseil hashtable_control_bytes library
+  absl_hashtable_control_bytes
+
+  # Abseil hashtable_debug library
+  absl_hashtable_debug
+
+  # Abseil hashtable_debug_hooks library
+  absl_hashtable_debug_hooks
+
+  # Abseil hashtable_profiler library
+  absl_hashtable_profiler
+
+  # Abseil hashtablez_sampler library
+  absl_hashtablez_sampler
+
+  # Abseil inlined_vector library
+  absl_inlined_vector
+
+  # Abseil inlined_vector_internal library
+  absl_inlined_vector_internal
+
+  # Abseil int128 library
+  absl_int128
+
+  # Abseil iterator_traits_internal library
+  absl_iterator_traits_internal
+
+  # Abseil iterator_traits_test_helper_internal library
+  absl_iterator_traits_test_helper_internal
+
+  # Abseil kernel_timeout_internal library
+  absl_kernel_timeout_internal
+
+  # Abseil layout library
+  absl_layout
+
+  # Abseil leak_check library
+  absl_leak_check
+
+  # Abseil linked_hash_map library
+  absl_linked_hash_map
+
+  # Abseil linked_hash_set library
+  absl_linked_hash_set
+
+  # Abseil log library
+  absl_log
+
+  # Abseil log_entry library
+  absl_log_entry
+
+  # Abseil log_flags library
+  absl_log_flags
+
+  # Abseil log_globals library
+  absl_log_globals
+
+  # Abseil log_initialize library
+  absl_log_initialize
+
+  # Abseil log_internal_append_truncated library
+  absl_log_internal_append_truncated
+
+  # Abseil log_internal_check_impl library
+  absl_log_internal_check_impl
+
+  # Abseil log_internal_check_op library
+  absl_log_internal_check_op
+
+  # Abseil log_internal_conditions library
+  absl_log_internal_conditions
+
+  # Abseil log_internal_config library
+  absl_log_internal_config
+
+  # Abseil log_internal_container library
+  absl_log_internal_container
+
+  # Abseil log_internal_flags library
+  absl_log_internal_flags
+
+  # Abseil log_internal_fnmatch library
+  absl_log_internal_fnmatch
+
+  # Abseil log_internal_format library
+  absl_log_internal_format
+
+  # Abseil log_internal_globals library
+  absl_log_internal_globals
+
+  # Abseil log_internal_log_impl library
+  absl_log_internal_log_impl
+
+  # Abseil log_internal_log_sink_set library
+  absl_log_internal_log_sink_set
+
+  # Abseil log_internal_message library
+  absl_log_internal_message
+
+  # Abseil log_internal_nullguard library
+  absl_log_internal_nullguard
+
+  # Abseil log_internal_nullstream library
+  absl_log_internal_nullstream
+
+  # Abseil log_internal_proto library
+  absl_log_internal_proto
+
+  # Abseil log_internal_strip library
+  absl_log_internal_strip
+
+  # Abseil log_internal_structured library
+  absl_log_internal_structured
+
+  # Abseil log_internal_structured_proto library
+  absl_log_internal_structured_proto
+
+  # Abseil log_internal_voidify library
+  absl_log_internal_voidify
+
+  # Abseil log_severity library
+  absl_log_severity
+
+  # Abseil log_sink library
+  absl_log_sink
+
+  # Abseil log_sink_registry library
+  absl_log_sink_registry
+
+  # Abseil log_streamer library
+  absl_log_streamer
+
+  # Abseil log_structured library
+  absl_log_structured
+
+  # Abseil malloc_internal library
+  absl_malloc_internal
+
+  # Abseil memory library
+  absl_memory
+
+  # Abseil meta library
+  absl_meta
+
+  # Abseil no_destructor library
+  absl_no_destructor
+
+  # Abseil node_hash_map library
+  absl_node_hash_map
+
+  # Abseil node_hash_set library
+  absl_node_hash_set
+
+  # Abseil node_slot_policy library
+  absl_node_slot_policy
+
+  # Abseil non_temporal_arm_intrinsics library
+  absl_non_temporal_arm_intrinsics
+
+  # Abseil non_temporal_memcpy library
+  absl_non_temporal_memcpy
+
+  # Abseil nullability library
+  absl_nullability
+
+  # Abseil nullability_traits_internal library
+  absl_nullability_traits_internal
+
+  # Abseil numeric library
+  absl_numeric
+
+  # Abseil numeric_representation library
+  absl_numeric_representation
+
+  # Abseil optional library
+  absl_optional
+
+  # Abseil overload library
+  absl_overload
+
+  # Abseil periodic_sampler library
+  absl_periodic_sampler
+
+  # Abseil poison library
+  absl_poison
+
+  # Abseil prefetch library
+  absl_prefetch
+
+  # Abseil pretty_function library
+  absl_pretty_function
+
+  # Abseil profile_builder library
+  absl_profile_builder
+
+  # Abseil random_bit_gen_ref library
+  absl_random_bit_gen_ref
+
+  # Abseil random_distributions library
+  absl_random_distributions
+
+  # Abseil random_internal_distribution_caller library
+  absl_random_internal_distribution_caller
+
+  # Abseil random_internal_distribution_test_util library
+  absl_random_internal_distribution_test_util
+
+  # Abseil random_internal_entropy_pool library
+  absl_random_internal_entropy_pool
+
+  # Abseil random_internal_fast_uniform_bits library
+  absl_random_internal_fast_uniform_bits
+
+  # Abseil random_internal_fastmath library
+  absl_random_internal_fastmath
+
+  # Abseil random_internal_generate_real library
+  absl_random_internal_generate_real
+
+  # Abseil random_internal_iostream_state_saver library
+  absl_random_internal_iostream_state_saver
+
+  # Abseil random_internal_mock_helpers library
+  absl_random_internal_mock_helpers
+
+  # Abseil random_internal_nonsecure_base library
+  absl_random_internal_nonsecure_base
+
+  # Abseil random_internal_pcg_engine library
+  absl_random_internal_pcg_engine
+
+  # Abseil random_internal_platform library
+  absl_random_internal_platform
+
+  # Abseil random_internal_randen library
+  absl_random_internal_randen
+
+  # Abseil random_internal_randen_engine library
+  absl_random_internal_randen_engine
+
+  # Abseil random_internal_randen_hwaes library
+  absl_random_internal_randen_hwaes
+
+  # Abseil random_internal_randen_hwaes_impl library
+  absl_random_internal_randen_hwaes_impl
+
+  # Abseil random_internal_randen_slow library
+  absl_random_internal_randen_slow
+
+  # Abseil random_internal_salted_seed_seq library
+  absl_random_internal_salted_seed_seq
+
+  # Abseil random_internal_seed_material library
+  absl_random_internal_seed_material
+
+  # Abseil random_internal_traits library
+  absl_random_internal_traits
+
+  # Abseil random_internal_uniform_helper library
+  absl_random_internal_uniform_helper
+
+  # Abseil random_internal_wide_multiply library
+  absl_random_internal_wide_multiply
+
+  # Abseil random_random library
+  absl_random_random
+
+  # Abseil random_seed_gen_exception library
+  absl_random_seed_gen_exception
+
+  # Abseil random_seed_sequences library
+  absl_random_seed_sequences
+
+  # Abseil raw_hash_map library
+  absl_raw_hash_map
+
+  # Abseil raw_hash_set library
+  absl_raw_hash_set
+
+  # Abseil raw_hash_set_resize_impl library
+  absl_raw_hash_set_resize_impl
+
+  # Abseil raw_logging_internal library
+  absl_raw_logging_internal
+
+  # Abseil requires_internal library
+  absl_requires_internal
+
+  # Abseil sample_recorder library
+  absl_sample_recorder
+
+  # Abseil scoped_set_env library
+  absl_scoped_set_env
+
+  # Abseil span library
+  absl_span
+
+  # Abseil spinlock_wait library
+  absl_spinlock_wait
+
+  # Abseil stacktrace library
+  absl_stacktrace
+
+  # Abseil status library
+  absl_status
+
+  # Abseil statusor library
+  absl_statusor
+
+  # Abseil str_format library
+  absl_str_format
+
+  # Abseil str_format_internal library
+  absl_str_format_internal
+
+  # Abseil strerror library
+  absl_strerror
+
+  # Abseil string_view library
+  absl_string_view
+
+  # Abseil strings library
+  absl_strings
+
+  # Abseil strings_append_and_overwrite library
+  absl_strings_append_and_overwrite
+
+  # Abseil strings_internal library
+  absl_strings_internal
+
+  # Abseil strings_resize_and_overwrite library
+  absl_strings_resize_and_overwrite
+
+  # Abseil symbolize library
+  absl_symbolize
+
+  # Abseil synchronization library
+  absl_synchronization
+
+  # Abseil throw_delegate library
+  absl_throw_delegate
+
+  # Abseil time library
+  absl_time
+
+  # Abseil time_zone library
+  absl_time_zone
+
+  # Abseil tracing_internal library
+  absl_tracing_internal
+
+  # Abseil type_traits library
+  absl_type_traits
+
+  # Abseil utf8_for_code_point library
+  absl_utf8_for_code_point
+
+  # Abseil utility library
+  absl_utility
+
+  # Abseil variant library
+  absl_variant
+
+  # Abseil vlog_config_internal library
+  absl_vlog_config_internal
+
+  # Abseil vlog_is_on library
+  absl_vlog_is_on
+
+  # Abseil weakly_mixed_integer library
+  absl_weakly_mixed_integer
+
+cgltf is header-only and can be used from CMake via:
+
+  find_path(CGLTF_INCLUDE_DIRS "cgltf.h")
+  target_include_directories(main PRIVATE ${CGLTF_INCLUDE_DIRS})
+
+The DirectXTex package provides CMake targets:
+
+    find_package(directxtex CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE Microsoft::DirectXTex)
+
+zlib is compatible with built-in CMake targets:
+
+  find_package(ZLIB REQUIRED)
+  target_link_libraries(main PRIVATE ZLIB::ZLIB)
+
+libpng provides CMake targets:
+
+  find_package(PNG REQUIRED)
+  target_link_libraries(main PRIVATE PNG::PNG)
+
+meshoptimizer provides CMake targets:
+
+  # this is heuristically generated, and may not be correct
+  find_package(meshoptimizer CONFIG REQUIRED)
+  target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
+
+All requested installations completed successfully in: 356 us
+-- Running vcpkg install - done
+-- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
+-- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
+-- Found dxcompiler.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxcompiler.dll
+-- Found dxil.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxil.dll
+-- optimizer enabled
+-- SPIRV-Cross: Finding Git version for SPIRV-Cross.
+-- SPIRV-Cross: Git hash: vulkan-sdk-1.4.363.0
+-- xxHash build type: RelWithDebInfo
+-- Architecture: AMD64
+-- DiligentCore commit hash: 074060cf
+-- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
+-- Configuring done (10.1s)
+-- Generating done (0.8s)
+-- Build files have been written to: C:/DarkAngel/build/m2-relwithdebinfo
+[1/70] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[2/70] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[3/70] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[4/66] Scanning C:\DarkAngel\engine\runtime\attributes.cpp for CXX dependencies
+[5/66] Scanning C:\DarkAngel\engine\runtime\tags.cpp for CXX dependencies
+[6/66] Scanning C:\DarkAngel\engine\runtime\effects.cpp for CXX dependencies
+[7/66] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
+[8/66] Scanning C:\DarkAngel\engine\runtime\ability_effects.cpp for CXX dependencies
+[9/66] Scanning C:\DarkAngel\engine\runtime\ability_prediction.cpp for CXX dependencies
+[10/66] Scanning C:\DarkAngel\engine\runtime\ability_observer.cpp for CXX dependencies
+[11/66] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
+[12/66] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[13/52] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[14/52] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[15/52] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[16/52] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[17/52] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[18/52] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
+[19/52] Scanning C:\DarkAngel\engine\assets\model_collision.cpp for CXX dependencies
+[20/52] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
+[21/52] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
+[22/52] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
+[23/52] Linking CXX static library DarkAngelFoundation.lib
+[24/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\attributes.cpp.obj
+[25/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\tags.cpp.obj
+[26/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effects.cpp.obj
+[27/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[28/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[29/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_effects.cpp.obj
+[30/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
+[31/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
+[32/52] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[33/52] Scanning C:\DarkAngel\tests\ability_asset_tests.cpp for CXX dependencies
+[34/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[35/52] Linking CXX static library DarkAngelRuntime.lib
+[36/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[37/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
 C:\DarkAngel\engine\assets\asset_service.cpp(104): warning C4100: 'renderable': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(104): warning C4100: 'canonical': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(104): warning C4100: 'relative': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(111): warning C4100: 'loop': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(111): warning C4100: 'canonical': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(111): warning C4100: 'relative': unreferenced parameter
-[6/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
-[7/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
-[8/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\model_collision.cpp.obj
-[9/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
-[10/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
-[11/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[38/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[39/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[40/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[41/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\model_collision.cpp.obj
+[42/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[43/52] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
 C:\DarkAngel\engine\assets\external_import.cpp(42): warning C4100: 'loop': unreferenced parameter
 C:\DarkAngel\engine\assets\external_import.cpp(42): warning C4100: 'canonical': unreferenced parameter
-[12/19] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[13/19] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
-[14/19] Building CXX object CMakeFiles\AssetTool.dir\tools\cooker\main.cpp.obj
-[15/19] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
-[16/19] Linking CXX static library DarkAngelAssets.lib
-[17/19] Linking CXX executable AssetTool.exe
-[18/19] Building CXX object CMakeFiles\AbilityAssetTests.dir\tests\ability_asset_tests.cpp.obj
-[19/19] Linking CXX executable AbilityAssetTests.exe
+[44/52] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[45/51] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[46/51] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[47/51] Linking CXX static library DarkAngelAssets.lib
+[48/51] Linking CXX executable AssetTool.exe
+[49/51] Building CXX object CMakeFiles\AbilityAssetTests.dir\tests\ability_asset_tests.cpp.obj
+[50/51] Linking CXX executable AbilityAssetTests.exe
+Target processor: x86_64
+CMake generator: Ninja
+
+Windows SDK version: 10.0.26100.0
+
+Target platform: Win32 64
+
+Checking for Direct3D11 and Direct3D12 support:
+  d3d11.h found:   TRUE
+  d3d12.h found:   TRUE
+  atlbase.h found: TRUE
+
+D3D11_SUPPORTED:  FALSE
+D3D12_SUPPORTED:  TRUE
+GL_SUPPORTED:     FALSE
+GLES_SUPPORTED:   FALSE
+VULKAN_SUPPORTED: TRUE
+METAL_SUPPORTED:  FALSE
+WEBGPU_SUPPORTED: FALSE
+
+Additional MSVC compile options for release configurations: /GL/arch:AVX2
+Available .NET SDK versions: 9.0.203
+  Maximum .NET SDK version: 9.0.203
+CMake Warning (deprecated) at third_party/diligent-core/ThirdParty/glslang/CMakeLists.txt:111 (message):
+  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
+  major release of glslang.  See
+  https://github.com/KhronosGroup/glslang/issues/4210 for details.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+

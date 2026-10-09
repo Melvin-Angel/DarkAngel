@@ -60,6 +60,7 @@ struct WorldSession::Impl {
     std::map<std::uint64_t,std::unique_ptr<AbilityState>> abilities;
     std::uint64_t ability_tick{},resolved_hit_tick{};
     std::map<std::uint32_t,DamageEvaluator> damage_evaluators;
+    std::map<std::uint32_t,EffectEvaluator> effect_evaluators;std::vector<EffectOutcome> effect_outcomes;
     std::shared_ptr<const MeleeQuery> melee_query;
     std::map<std::uint64_t,AbilityCorrection> ability_corrections;
     std::map<std::uint64_t,AbilityPublicFrame> public_abilities;std::set<std::uint64_t> public_resync;
@@ -228,12 +229,16 @@ std::uint64_t WorldSession::create(ObjectData o){auto& s=*impl_;s.authority();re
 void WorldSession::move(std::uint64_t id,const Transform& t){auto& s=*impl_;s.authority();require(s.objects.contains(id),"Unknown network identity");require(!s.motor_states.contains(id),"Living character movement requires motor publication");auto candidate=s.objects;candidate.at(id).transform=t;s.view->set_transform(s.view->find(candidate.at(id).id),t,Authority::Server);s.objects=std::move(candidate);++s.revision;}
 void WorldSession::destroy(std::uint64_t id){
     auto& s=*impl_;s.authority();auto candidate=s.objects;require(candidate.erase(id)==1,"Unknown network identity");
-    auto queue=s.ability_actions;auto ability=s.abilities.find(id);
+    std::vector<AbilityActionUpdate> cleanup_updates;auto ability=s.abilities.find(id);
     if(ability!=s.abilities.end()){
         auto state=*ability->second;auto snapshot=state.snapshot();
-        if(snapshot.active){auto cleanup=state.cancel(*snapshot.active,AbilityActionReason::Despawned);queue=s.queue_actions(cleanup.second);}
+        if(snapshot.active){auto cleanup=state.cancel(*snapshot.active,AbilityActionReason::Despawned);cleanup_updates=std::move(cleanup.second);}
     }
+    std::map<std::uint64_t,std::unique_ptr<AbilityState>> affected;
+    for(const auto& [network,old]:s.abilities)if(network!=id){auto state=std::make_unique<AbilityState>(*old);state->source_destroyed(s.hello.session_epoch,id);auto cleanup=state->damage(0);cleanup_updates.insert(cleanup_updates.end(),cleanup.begin(),cleanup.end());affected.emplace(network,std::move(state));}
+    auto queue=s.queue_actions(cleanup_updates);
     s.view->destroy(s.view->find(s.objects.at(id).id),Authority::Server);
+    for(auto& [network,state]:affected){auto health=state->health();s.view->apply_server_health(state->owner().entity,health);candidate.at(network).health=health;s.abilities.at(network)=std::move(state);}
     s.objects=std::move(candidate);s.motor_inputs.erase(id);s.motor_states.erase(id);s.abilities.erase(id);s.ability_inputs.erase(id);s.ability_actions=std::move(queue);++s.revision;
 }
 const World& WorldSession::world() const{impl_->thread();return *impl_->view;}
@@ -286,7 +291,10 @@ AbilityFailure WorldSession::cancel_ability(AbilityActivationHandle handle){
 void WorldSession::advance_abilities(std::uint64_t tick,unsigned rate){
     auto& s=*impl_;s.authority();require(s.ability_tick!=std::numeric_limits<std::uint64_t>::max()&&tick==s.ability_tick+1&&rate<=4*action_tick_units,"Ability simulation must advance one fixed step");
     std::map<std::uint64_t,std::unique_ptr<AbilityState>> prepared;std::vector<AbilityActionUpdate> updates;auto pending=s.ability_inputs;auto notices=s.ability_notices;
-    for(const auto& [id,old]:s.abilities){auto state=std::make_unique<AbilityState>(*old);state->begin_tick(tick);
+    auto effects=s.effect_outcomes;
+    // Expiry and periodic effects across all owners precede every activation.
+    for(const auto& [id,old]:s.abilities){auto state=std::make_unique<AbilityState>(*old);state->begin_tick(tick);auto results=state->advance_effects([&](auto evaluator){return s.effect_evaluators.at(evaluator);},updates);for(auto& result:results){require(effects.size()<128,"Effect execution queue full; drain before advance");effects.push_back({state->owner(),std::move(result)});}prepared.emplace(id,std::move(state));}
+    for(auto& [id,state]:prepared){
         auto input=pending.find(id);if(input!=pending.end())for(auto request=input->second.begin();request!=input->second.end();){auto& queued=request->second;if(queued.intent.tick>tick){++request;continue;}
             if(!s.peers.contains(queued.peer)||!s.motor_inputs.contains(id)||s.motor_inputs.at(id).owner!=queued.peer){request=input->second.erase(request);continue;}
             std::optional<AbilityFailure> rejection;if(!s.motor_states.contains(id)||queued.intent.avatar_epoch!=s.motor_states.at(id).epoch)rejection=AbilityFailure::AvatarMismatch;else if(queued.intent.tick<tick)rejection=AbilityFailure::InputExpired;
@@ -296,11 +304,11 @@ void WorldSession::advance_abilities(std::uint64_t tick,unsigned rate){
             if(terminal||!queued.resync_notified){auto& output=notices[queued.peer];require(output.size()<128,"Ability terminal receipt queue full; drain/resynchronize");output.push_back({id,receipt,terminal});}
             if(terminal)request=input->second.erase(request);else {queued.resync_notified=true;++request;}
         }
-        auto batch=state->finish_tick(rate);for(auto& update:batch)if(update.phase!=ActionPhase::Active||!update.batch.events.empty()||!update.batch.traversed.empty())updates.push_back(std::move(update));prepared.emplace(id,std::move(state));
+        auto batch=state->finish_tick(rate);for(auto& update:batch)if(update.phase!=ActionPhase::Active||!update.batch.events.empty()||!update.batch.traversed.empty())updates.push_back(std::move(update));
     }
     auto queue=s.queue_actions(updates);bool changed=false;
     for(const auto& [id,state]:prepared){auto health=state->health();auto& object=s.objects.at(id);if(object.health.maximum!=health.maximum||object.health.current!=health.current){s.view->apply_server_health(state->owner().entity,health);object.health=health;changed=true;}}
-    s.abilities=std::move(prepared);s.ability_inputs=std::move(pending);s.ability_notices=std::move(notices);s.ability_actions=std::move(queue);s.ability_tick=tick;if(changed)++s.revision;
+    s.abilities=std::move(prepared);s.ability_inputs=std::move(pending);s.ability_notices=std::move(notices);s.ability_actions=std::move(queue);s.effect_outcomes=std::move(effects);s.ability_tick=tick;if(changed)++s.revision;
 }
 AbilityOwnerSnapshot WorldSession::ability_snapshot(AbilityOwnerHandle owner)const{return impl_->ability(owner).snapshot();}
 std::vector<AbilityActionUpdate> WorldSession::drain_ability_actions(){auto& s=*impl_;s.authority();auto result=std::move(s.ability_actions);s.ability_actions.clear();return result;}
@@ -310,6 +318,18 @@ void WorldSession::retire_ability_operations(AbilityOwnerHandle owner,std::uint6
 }
 
 namespace darkangel {
+void WorldSession::configure_ability_tags(AbilityOwnerHandle owner,std::shared_ptr<const TagDictionary> dictionary){auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));state->configure_tags(std::move(dictionary));s.commit_ability(owner.network,std::move(state),{});}
+void WorldSession::register_effect_evaluator(std::uint32_t id,EffectEvaluator evaluator){auto& s=*impl_;s.authority();require(id&&bool(evaluator)&&s.effect_evaluators.size()<16&&!s.effect_evaluators.contains(id),"Native effect evaluator registration");s.effect_evaluators.emplace(id,std::move(evaluator));}
+EffectHandle WorldSession::apply_effect(AbilityOwnerHandle target,AbilityOwnerHandle source,const EffectDefinition& definition,double power,std::uint64_t activation){
+ auto& s=*impl_;s.authority();const auto& origin=s.ability(source);require(!activation||activation<origin.snapshot().next_activation,"Invalid effect source activation credit");require(!definition.evaluator||s.effect_evaluators.contains(definition.evaluator),"Missing native effect evaluator");
+ auto state=std::make_unique<AbilityState>(s.ability(target));std::vector<AbilityActionUpdate> updates;auto result=state->apply_effect(definition,{s.hello.session_epoch,source.network,activation,power,origin.attribute_values()},definition.evaluator?s.effect_evaluators.at(definition.evaluator):EffectEvaluator{},updates);
+ auto outcomes=s.effect_outcomes;for(auto& execution:result.second){require(outcomes.size()<128,"Effect outcome queue full; drain before application");outcomes.push_back({target,std::move(execution)});}s.commit_ability(target.network,std::move(state),updates);s.effect_outcomes=std::move(outcomes);return result.first;
+}
+void WorldSession::remove_effect(AbilityOwnerHandle target,EffectHandle handle){auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(target));state->remove_effect(handle);auto cleanup=state->damage(0);s.commit_ability(target.network,std::move(state),cleanup);}
+void WorldSession::cleanse_effects(AbilityOwnerHandle target,const TagRequirement& tags){auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(target));state->cleanse_effects(tags);auto cleanup=state->damage(0);s.commit_ability(target.network,std::move(state),cleanup);}
+std::vector<EffectSnapshot> WorldSession::ability_effects(AbilityOwnerHandle owner)const{auto result=impl_->ability(owner).effects().snapshot();for(auto& state:result)state.handle.owner=owner;return result;}
+std::vector<TagId> WorldSession::ability_tags(AbilityOwnerHandle owner,AttributeVisibility audience)const{return impl_->ability(owner).effects().tags().values(audience);}
+std::vector<EffectOutcome> WorldSession::drain_effect_outcomes(){auto& s=*impl_;s.authority();auto results=std::move(s.effect_outcomes);s.effect_outcomes.clear();return results;}
 void WorldSession::bind_melee_query(std::shared_ptr<const MeleeQuery> query){auto& s=*impl_;s.authority();require(bool(query)&&!s.melee_query,"Melee query is a single server-owned collision binding");s.melee_query=std::move(query);}
 void WorldSession::register_damage_evaluator(std::uint32_t id,DamageEvaluator evaluator){
     auto& s=*impl_;s.authority();require(id&&bool(evaluator)&&s.damage_evaluators.size()<16&&!s.damage_evaluators.contains(id),"Damage evaluator registration");s.damage_evaluators.emplace(id,std::move(evaluator));
@@ -332,7 +352,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                 if(motor.tick!=tick||motor.epoch!=target.epoch||!query.matches(target.network,motor)||victim.health().current<=0)continue;
                 if(!source->remember_hit(hit,target.network,target.epoch))continue;
                 auto source_attributes=source->attribute_values(),target_attributes=victim.attribute_values();
-                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_attributes,target_attributes};
+                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_attributes,target_attributes,&source->effects().tags(),&victim.effects().tags()};
                 auto amount=s.damage_evaluators.at(hit.profile.evaluator)(context);require(std::isfinite(amount)&&amount>=0&&amount<=1e9,"Game damage evaluator output bounds");
                 auto before=victim.health().current;auto death=victim.damage(amount);updates.insert(updates.end(),death.begin(),death.end());auto after=victim.health().current;
                 require(results.size()<128,"Damage result batch bound");results.push_back({hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,before,after,before-after,after<=0});

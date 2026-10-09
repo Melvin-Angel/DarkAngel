@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "base_head": "5e1d098515ddcc6ccce8e5763cd83d20387c2300",
+  "scope": "Native frozen dictionary and per-token tags, AbilityState-owned timed effects, native game evaluators, Burn/slow/invulnerability/stagger/equipment, source/cleanse/death cleanup, captured credit and atomic preparation",
+  "gates": [
+    {
+      "name": "owned-effects-product",
+      "exit": 0,
+      "seconds": 423.112
+    },
+    {
+      "name": "owned-effects-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 4.512
+    },
+    {
+      "name": "owned-effects-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 4.469
+    },
+    {
+      "name": "owned-effects-native",
+      "exit": 0,
+      "seconds": 0.048
+    },
+    {
+      "name": "owned-effects-editor",
+      "exit": 0,
+      "seconds": 0.086
+    },
+    {
+      "name": "owned-effects-headless",
+      "exit": 0,
+      "seconds": 0.093
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "2156e2c69b321f19d54ec3a0b9b3ba012f69161c3215041bb490668afdf89645",
+    "engine/runtime/tags.cpp": "b576ff77ae7f691c0791a8ebcf4ce0d151ef3507d66174eded5e489498c347c6",
+    "engine/runtime/effects.cpp": "6cf9fe5f7acd8c70f93e48d2df4cb951c651b7544783a0994194394a03f3eb17",
+    "engine/runtime/ability_effects.cpp": "4ac155b373befc3bf5ac196cec1b70867eb1b0f1d240e1c1ebe48a47cba32a82",
+    "engine/runtime/ability.cpp": "d27daf7b9f935f8559e18252acd3d8a22cb0c7eaa8f4e5cae13197c4fff84add",
+    "engine/runtime/ability_state.hpp": "64290bfd0dc56d9ac5d40c1e3f6701d8c9e2b4ea51964b5cfe9c85a1156341c5",
+    "engine/runtime/world_session.cpp": "7e071fc4e56a21b615233a0f5adffa514f3cdfbf7f39f4ecfe190136f551a827",
+    "engine/runtime/attributes.cpp": "e28467edfac7baf8b60956ec5734569c4253d955ce2ac9dbfbe3790b1ce1585f",
+    "engine/runtime/include/darkangel/tags.hpp": "2c26f1ab7cf347f2338d0371999e126236e4e11369a6b15886100cd0d123ddb7",
+    "engine/runtime/include/darkangel/effects.hpp": "7e757e5d652bfe447c7c3e462fa3c70609167000153b808d23ed34e3a92ef013",
+    "engine/runtime/include/darkangel/attributes.hpp": "39fa8aff9faad327b3ef619b13403590e398bee7f12fbf2b9f6cb16fa2b882dd",
+    "engine/runtime/include/darkangel/world_session.hpp": "c688e70d9d204a3d2c97dde07f3c36f719596eb06adf58cd7137e96bb1df67b0",
+    "engine/runtime/include/darkangel/melee.hpp": "8b2847875998959b5450e8ed7b5552f7e0e379881e896a0e1998e35fd4169c0f",
+    "tests/effect_tests.cpp": "1515210410265ac176ac606a4773d13d69301886389f7d1dd5769b9bcaa13977",
+    "scripts/verify_owned_effects.py": "f256803274a71825b391381d53260ec20d621d7460e5d1304599a6d6dd12a006"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/EffectTests.exe": "95761c7445c3065ed6e27a8a8393c360d030713e3cdf01e9e62a0760d8c8dc87",
+    "build/m5-editor-relwithdebinfo/EffectTests.exe": "4f71469e9c0d9cc165dee8cb8ccb8eff85c64407bcbb02b12d7ba2415d3d1e88",
+    "build/m1-relwithdebinfo/EffectTests.exe": "04adbed8664bbdc9a66278df60a6be26ae49d9ad986b2bbd7cf02ced117f2b4e"
+  },
+  "related_evidence": [
+    "royal-collision.json",
+    "ability-observer.json",
+    "royal-combat.json"
+  ],
+  "limitations": [
+    "Effects and dictionaries use checked native construction only; versioned source/cook/CAS/editor authoring and Luau composition remain open.",
+    "Effects/tags/remaining lifetime/credit/cues are not on owner or observer wire; current attribute/Health outcomes use existing correction/baseline visibility. Prediction does not replay effect expiry or periodic execution.",
+    "Slow validates native statistic composition; character motor and authored dodge/combo/status presentation are not yet driven by these effects.",
+    "Native stagger interrupts active ownership but ongoing ability requirements/reservations and authored cancel/combo gates remain open.",
+    "Full clock/fault/streaming/performance and M4/M5 gates remain open; M6 not started."
+  ]
+}

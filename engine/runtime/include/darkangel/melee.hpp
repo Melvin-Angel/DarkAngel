@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/ability.hpp>
+#include <darkangel/tags.hpp>
 #include <darkangel/character_motor.hpp>
 #include <functional>
 namespace darkangel {
@@ -16,6 +17,7 @@ struct DamageContext {
     AbilityActivationHandle source;AbilityOwnerHandle target;
     std::uint64_t tick{};unsigned block{},loop{};std::uint32_t damage_type{};double power{};
     std::span<const AbilityAttributeValue> source_attributes,target_attributes;
+    const OwnedTags* source_tags{};const OwnedTags* target_tags{};
 };
 // Game-owned pure native evaluator: immutable context, finite nonnegative damage.
 // No world mutations, ambient random state or side effects during preparation.

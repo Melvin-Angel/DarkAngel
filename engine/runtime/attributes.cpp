@@ -42,6 +42,9 @@ void AttributeSet::add(std::span<const AttributeModifier> additions){
  std::sort(candidate.modifiers_.begin(),candidate.modifiers_.end(),[](const auto& a,const auto& b){return a.sequence<b.sequence;});candidate.recompute();*this=std::move(candidate);
 }
 void AttributeSet::remove_owner(std::uint64_t owner){auto candidate=*this;std::erase_if(candidate.modifiers_,[&](const auto& m){return m.owner==owner;});candidate.recompute();*this=std::move(candidate);}
+void AttributeSet::replace_owned(std::span<const std::uint64_t> owners,std::span<const AttributeModifier> additions){
+ if(owners.size()>128)throw std::invalid_argument("Attribute owned replacement bound");auto candidate=*this;std::erase_if(candidate.modifiers_,[&](const auto& m){return std::find(owners.begin(),owners.end(),m.owner)!=owners.end();});candidate.add(additions);*this=std::move(candidate);
+}
 void AttributeSet::transact(std::span<const ResourceDelta> deltas,bool reject_underflow){
  if(deltas.size()>64)throw std::invalid_argument("Resource transaction work limit");auto candidate=*this;std::vector<double> totals(definitions_.size());
  for(const auto& change:deltas){auto i=index(change.attribute);if(definitions_[i].kind!=AttributeKind::Resource||!std::isfinite(change.delta))throw std::invalid_argument("Invalid resource delta");totals[i]+=change.delta;if(!std::isfinite(totals[i]))throw std::invalid_argument("Resource delta overflow");}
