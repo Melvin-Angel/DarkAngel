@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "base_head": "387e04c2c85f398eacbd55a08ad36b542c20e938",
+  "scope": "Read-only native action track lanes, markers and scrub cursor linked to selected numeric block",
+  "gates": [
+    {
+      "name": "composer-lanes",
+      "exit": 0,
+      "seconds": 0.747
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_composer.cpp": "fc74205848a019ef19c8171e8f8af4224e673a0497eb7f0f25cd7345cb7faf58",
+    "apps/editor/editor_authoring.cpp": "58614a095f8e6431269b2979952f34af5e06aecc8acbe044cc9936b9f1ef6ad9",
+    "apps/editor/editor_ui.hpp": "20d0500c228402fc0d0690d462b3bd70b615aad963171a141f91e7adc8089c60",
+    "scripts/verify_composer.py": "eeb4bc5a157112555fb1e3e3cc805e46d1e6ea0634ddfd6ba26b314ee110bdfa"
+  },
+  "binary_sha256": "d7da83503738a0c8d6b2dc0ef89956b3818d60c9dd1641f3a6c9838e80b1cf77",
+  "limitations": [
+    "D3D12 rendered panel check; no physical input automation or full milestone matrix.",
+    "Character pose preview, structural block editing and dragging remain later chunks.",
+    "M4/M5 remain In progress; live EOS externally blocked."
+  ]
+}

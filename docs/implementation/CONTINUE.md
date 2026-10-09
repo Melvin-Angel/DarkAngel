@@ -1,3 +1,5 @@
+Current Composer chunk (9 October 2026): [read-only lanes](COMPOSER_LANES_REPORT.md) are delivered and the focused D3D12 panel check passes. Tick ruler/track bands/markers and selected-block numeric context do not activate gameplay. Next: isolated compatible clip/character pose scrubbing. M4/M5 remain In progress; previous reports/receipts retain their checkpoint boundaries.
+
 # Current authoring history/Save continuation
 
 Current checkpoint (9 October 2026, following clean local `3334e56`): grouped native gameplay Undo/Redo and coordinated Save are delivered. Read [NATIVE_AUTHORING_HISTORY_REPORT.md](NATIVE_AUTHORING_HISTORY_REPORT.md) and [ABILITY_AUTHORING_CONTINUE.md](ABILITY_AUTHORING_CONTINUE.md). NativeAuthoring owns bounded revisioned history for Ability/Effect/action and coherent kit slot/source-locator/effect-binding edits. Drafts/history survive workflow switches and Save. Undo after Save makes gameplay dirty; Revert is undoable. Reload adopts external bytes and clears session gameplay history while preserving other drafts; stale revisions/source commands reject clearly.

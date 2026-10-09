@@ -1,3 +1,5 @@
+Current Composer chunk (9 October 2026): [read-only lanes](COMPOSER_LANES_REPORT.md) are delivered and the focused D3D12 panel check passes. Tick ruler/track bands/markers and selected-block numeric context do not activate gameplay. Next: isolated compatible clip/character pose scrubbing. M4/M5 remain In progress; previous reports/receipts retain their checkpoint boundaries.
+
 Documentation planning update (9 October 2026): [Final Vision](../vision/DarkAngel_Engine_Vision.md) owns the product target; [M0–M9 roadmap](../architecture/DarkAngel_Implementation_Handoff.md) owns scope/acceptance; [editor plan](EDITOR_WORKFLOW_PLAN.md) owns delivery. This revision changes no verification receipts or milestone states. The delivered first authoring loop/history remains the checkpoint; visual Composer lanes and isolated clip/character scrubbing remain next.
 
 # Ability/effect authoring continuation
