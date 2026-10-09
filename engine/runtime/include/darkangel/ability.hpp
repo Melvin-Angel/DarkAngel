@@ -60,6 +60,14 @@ struct AbilityActionUpdate {
 struct AbilityAttributeValue {AttributeId id{};double value{};};
 struct AbilitySnapshotOperation {std::uint64_t operation{};AbilityFailure failure{};std::uint64_t activation{};bool committed{};};
 struct AbilityInputSnapshot {bool active{},hold_sent{},rearm{};std::uint64_t pressed{},released{},duration{};};
+// Public actor state has no grants, input, operation history, costs or cooldowns.
+struct AbilityPublicSnapshot {
+    AbilityOwnerHandle owner;std::uint64_t tick{},revision{};
+    AttributeId health_attribute{},maximum_health_attribute{};
+    std::vector<AbilityAttributeValue> attributes;
+    std::optional<AbilityActivationHandle> active;std::optional<ActionState> action;
+    AssetId action_definition;
+};
 struct AbilityOwnerSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},grant_generation{},revision{};
     std::vector<AbilityAttributeValue> attributes;

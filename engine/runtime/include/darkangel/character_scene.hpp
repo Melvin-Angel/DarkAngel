@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/animation_graph.hpp>
 #include <darkangel/collision_asset.hpp>
+#include <darkangel/ability_observer.hpp>
 #include <darkangel/world_session.hpp>
 
 namespace darkangel {
@@ -37,6 +38,7 @@ public:
     const AbilityOwnerSnapshot* predicted_ability()const;
     std::size_t pending_abilities()const;
     MotorVec prediction_visual_offset()const;
+    ObserverAbilitySample observer(StableId,double render_tick)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

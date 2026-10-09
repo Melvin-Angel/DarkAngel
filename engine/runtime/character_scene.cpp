@@ -15,6 +15,7 @@ struct CharacterSceneSession::Impl {
     std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner;std::uint64_t target{},next_operation{1};std::vector<InputEvent> pending_events;
     std::unique_ptr<OwnerPrediction> owner;
     std::unique_ptr<OwnerAbilityPrediction> ability_prediction;std::deque<MotorInput> semantic_commands;
+    std::map<std::uint64_t,std::unique_ptr<ObserverAbility>> observers;
     CollisionHistory history;
     std::vector<CollisionMesh> prepared_geometry;
     AnimationGraphInstance graph;
@@ -40,9 +41,10 @@ struct CharacterSceneSession::Impl {
         owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_geometry=prediction->capture().meshes;
         server.own_motor(player,host_peer);server.publish_motor(player,host_motor->state());
         auto initial=authoritative.capture();history.retain(initial);server.publish_collision(collision_stream(initial));
-        for(unsigned work=0;work<32&&(!client.motors().contains(player)||!client.collision_control_ready()||(combat&&!client.ability_corrections().contains(player)));++work)pump();
+        for(unsigned work=0;work<32&&(!client.motors().contains(player)||!client.collision_control_ready()||(combat&&(!client.ability_corrections().contains(player)||!client.public_abilities().contains(player)||!client.public_abilities().contains(target))));++work)pump();
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch);}
+        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);for(auto id:{player,target}){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(combat->attributes,combat->health,combat->maximum_health,actions);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));}}
         matrices=rig.blend(graph.evaluate({}).span());
     }
     void pump(){server.tick();client.tick();
@@ -88,7 +90,8 @@ struct CharacterSceneSession::Impl {
         owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
         host_motor->step(accepted,authoritative_motion);if(target_motor)target_motor->step({tick,tick,target_motor->state().epoch,0,0,target_motor->state().yaw});authoritative.step();host_motor->post_physics();if(target_motor)target_motor->post_physics();authoritative.finish_tick();
         auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());if(target_motor){server.publish_motor(target,target_motor->state());server.resolve_ability_hits(tick);}server.publish_collision(collision_stream(frame));pump();
-        for(unsigned work=0;combat&&work<32&&(!client.ability_corrections().contains(player)||client.ability_corrections().at(player).ability.tick!=tick||!client.collision_control_ready());++work)pump();
+        auto public_ready=[&]{return client.public_abilities().contains(player)&&client.public_abilities().contains(target)&&client.public_abilities().at(player).ability.tick==tick&&client.public_abilities().at(target).ability.tick==tick;};
+        for(unsigned work=0;combat&&work<32&&(!client.ability_corrections().contains(player)||client.ability_corrections().at(player).ability.tick!=tick||!client.collision_control_ready()||!public_ready());++work)pump();
         require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
         if(combat){const auto& correction=client.ability_corrections().at(player);require(correction.ability.tick==tick&&correction.motor.tick==tick,"Atomic combat correction clock");if(correction.ability.active)definition(correction.ability);}
         if(combat){auto prepared=*ability_prediction;for(const auto& receipt:client.drain_ability_receipts())prepared.receipt(receipt);const auto& correction=client.ability_corrections().at(player);prepared.reconcile(correction.ability);std::vector<MotorCommand> regenerated;
@@ -96,6 +99,7 @@ struct CharacterSceneSession::Impl {
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(prepared);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});
+        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(client.public_abilities().at(id));}
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
         auto selected=graph.evaluate(parameters);double stride{};
@@ -123,5 +127,6 @@ const AbilityOwnerSnapshot* CharacterSceneSession::ability()const{auto found=imp
 const AbilityOwnerSnapshot* CharacterSceneSession::predicted_ability()const{return impl_->ability_prediction?&impl_->ability_prediction->view():nullptr;}
 std::size_t CharacterSceneSession::pending_abilities()const{return impl_->ability_prediction?impl_->ability_prediction->pending():0;}
 MotorVec CharacterSceneSession::prediction_visual_offset()const{return impl_->owner->visual_offset();}
+ObserverAbilitySample CharacterSceneSession::observer(StableId identity,double render_tick)const{auto& p=*impl_;auto handle=p.client.world().find(identity);require(p.client.world().valid(handle),"Observer character lifecycle missing");auto id=p.client.world().read(handle).network.value;require(p.observers.contains(id)&&!p.client.public_ability_needs_resync(id),"Observer character state requires resynchronization");return p.observers.at(id)->sample(render_tick);}
 double CharacterSceneSession::debt()const{return impl_->clock.debt();}
 }

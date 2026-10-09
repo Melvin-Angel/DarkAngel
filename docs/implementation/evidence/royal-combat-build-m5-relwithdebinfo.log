@@ -721,101 +721,93 @@ joltphysics provides CMake targets:
   find_package(Jolt CONFIG REQUIRED)
   target_link_libraries(main PRIVATE Jolt::Jolt)
 
-All requested installations completed successfully in: 488 us
+All requested installations completed successfully in: 482 us
 -- Running vcpkg install - done
--- Configuring done (4.4s)
--- Generating done (0.4s)
+-- Configuring done (4.3s)
+-- Generating done (0.3s)
 -- Build files have been written to: C:/DarkAngel/build/m5-relwithdebinfo
 [1/132] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[2/126] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
-[3/126] Scanning C:\DarkAngel\engine\runtime\ability_prediction.cpp for CXX dependencies
-[4/126] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
-[5/123] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
-[6/120] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[7/103] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
-[8/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
-[9/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
-[10/103] Scanning C:\DarkAngel\tools\editor\editor_document.cpp for CXX dependencies
-[11/103] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
-[12/103] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
-[13/103] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
-[14/103] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
-[15/103] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
-[16/103] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
-[17/103] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
-[18/103] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
-[19/103] Scanning C:\DarkAngel\engine\assets\animation_cooker.cpp for CXX dependencies
-[20/103] Scanning C:\DarkAngel\engine\assets\joint_mask_cooker.cpp for CXX dependencies
-[21/103] Scanning C:\DarkAngel\engine\assets\graph_cooker.cpp for CXX dependencies
-[22/103] Scanning C:\DarkAngel\engine\assets\combat_kit_cooker.cpp for CXX dependencies
-[23/103] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
-[24/101] Scanning C:\DarkAngel\tests\melee_tests.cpp for CXX dependencies
-[25/101] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
-[26/101] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
-[27/100] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[28/100] Linking CXX static library DarkAngelRuntime.lib
-[29/100] Scanning C:\DarkAngel\tests\combat_kit_asset_tests.cpp for CXX dependencies
-[30/100] Scanning C:\DarkAngel\tests\ability_asset_tests.cpp for CXX dependencies
-[31/100] Scanning C:\DarkAngel\tests\action_clip_binding_tests.cpp for CXX dependencies
-[32/100] Scanning C:\DarkAngel\tests\action_timeline_tests.cpp for CXX dependencies
-[33/100] Scanning C:\DarkAngel\tests\ability_intent_gns_tests.cpp for CXX dependencies
-[34/100] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
-[35/99] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
-[36/98] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
-[37/98] Scanning C:\DarkAngel\tests\ability_prediction_tests.cpp for CXX dependencies
-[38/98] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
-[39/98] Building CXX object CMakeFiles\DarkAngelEditorService.dir\tools\editor\editor_document.cpp.obj
-[40/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
-[41/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
-[42/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
-[43/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
-[44/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
-[45/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
-[46/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
-[47/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
-[48/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\joint_mask_cooker.cpp.obj
-[49/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\animation_cooker.cpp.obj
-[50/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\graph_cooker.cpp.obj
-[51/98] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\combat_kit_cooker.cpp.obj
-[52/98] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[53/97] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
-[54/97] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
-[55/96] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
-[56/95] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
-[57/94] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
-[58/94] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
-[59/94] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
-[60/94] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
-[61/94] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
-[62/93] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
-[63/93] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
-[64/92] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
-[65/91] Linking CXX static library DarkAngelCharacterScene.lib
-[66/91] Linking CXX static library DarkAngelEditorService.lib
-[67/91] Linking CXX static library DarkAngelAssets.lib
-[68/91] Building CXX object CMakeFiles\MeleeTests.dir\tests\melee_tests.cpp.obj
-[69/91] Building CXX object CMakeFiles\CombatKitAssetTests.dir\tests\combat_kit_asset_tests.cpp.obj
-[70/91] Building CXX object CMakeFiles\AbilityAssetTests.dir\tests\ability_asset_tests.cpp.obj
-[71/91] Building CXX object CMakeFiles\ActionClipBindingTests.dir\tests\action_clip_binding_tests.cpp.obj
-[72/91] Building CXX object CMakeFiles\ActionTimelineTests.dir\tests\action_timeline_tests.cpp.obj
-[73/91] Building CXX object CMakeFiles\AbilityPredictionTests.dir\tests\ability_prediction_tests.cpp.obj
-[74/91] Building CXX object CMakeFiles\AbilityIntentGnsTests.dir\tests\ability_intent_gns_tests.cpp.obj
-[75/91] Linking CXX executable AbilityMotorPredictionTests.exe
-[76/91] Linking CXX executable MotorActorHistoryTests.exe
-[77/91] Linking CXX executable MeleeTests.exe
-[78/91] Linking CXX executable AssetTool.exe
-[79/91] Linking CXX executable CombatKitAssetTests.exe
-[80/91] Linking CXX executable GraphAssetTests.exe
-[81/91] Linking CXX executable CharacterCombatSceneTests.exe
-[82/91] Linking CXX executable CharacterSceneTests.exe
-[83/91] Linking CXX executable ActionClipBindingTests.exe
-[84/91] Linking CXX executable AbilityAssetTests.exe
-[85/91] Linking CXX executable ActionTimelineTests.exe
-[86/91] Linking CXX executable AbilityIntentTests.exe
-[87/91] Linking CXX executable AbilityPredictionTests.exe
-[88/91] Linking CXX executable AbilityCorrectionTests.exe
-[89/91] Linking CXX executable AbilityTests.exe
-[90/91] Linking CXX executable AbilityIntentGnsTests.exe
+[2/126] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[3/123] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[4/120] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[5/120] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[6/101] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[7/101] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[8/101] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[9/101] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[10/101] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
+[11/101] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
+[12/101] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
+[13/101] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
+[14/101] Scanning C:\DarkAngel\engine\assets\animation_cooker.cpp for CXX dependencies
+[15/101] Scanning C:\DarkAngel\engine\assets\joint_mask_cooker.cpp for CXX dependencies
+[16/101] Scanning C:\DarkAngel\engine\assets\graph_cooker.cpp for CXX dependencies
+[17/101] Scanning C:\DarkAngel\engine\assets\combat_kit_cooker.cpp for CXX dependencies
+[18/101] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[19/99] Scanning C:\DarkAngel\tests\ability_motor_prediction_tests.cpp for CXX dependencies
+[20/99] Scanning C:\DarkAngel\tests\melee_tests.cpp for CXX dependencies
+[21/99] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[22/97] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[23/94] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[24/94] Scanning C:\DarkAngel\tests\combat_kit_asset_tests.cpp for CXX dependencies
+[25/94] Scanning C:\DarkAngel\tests\character_scene_tests.cpp for CXX dependencies
+[26/94] Scanning C:\DarkAngel\tests\ability_intent_gns_tests.cpp for CXX dependencies
+[27/94] Scanning C:\DarkAngel\tests\ability_tests.cpp for CXX dependencies
+[28/94] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
+[29/94] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[30/93] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
+[31/93] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[32/93] Linking CXX static library DarkAngelRuntime.lib
+[33/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[34/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[35/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[36/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[37/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[38/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[39/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[40/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[41/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\joint_mask_cooker.cpp.obj
+[42/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\animation_cooker.cpp.obj
+[43/93] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\combat_kit_cooker.cpp.obj
+[44/93] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[45/92] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
+[46/92] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
+[47/91] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[48/90] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[49/90] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\graph_cooker.cpp.obj
+[50/90] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[51/89] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
+[52/88] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
+[53/87] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
+[54/87] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[55/86] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
+[56/85] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
+[57/84] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[58/83] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[59/83] Building CXX object CMakeFiles\MeleeTests.dir\tests\melee_tests.cpp.obj
+[60/83] Building CXX object CMakeFiles\AbilityMotorPredictionTests.dir\tests\ability_motor_prediction_tests.cpp.obj
+[61/83] Linking CXX static library DarkAngelAssets.lib
+[62/83] Building CXX object CMakeFiles\CharacterSceneTests.dir\tests\character_scene_tests.cpp.obj
+[63/83] Building CXX object CMakeFiles\CombatKitAssetTests.dir\tests\combat_kit_asset_tests.cpp.obj
+[64/83] Building CXX object CMakeFiles\AbilityIntentGnsTests.dir\tests\ability_intent_gns_tests.cpp.obj
+[65/83] Linking CXX executable AbilityMotorPredictionTests.exe
+[66/83] Linking CXX executable MotorActorHistoryTests.exe
+[67/83] Linking CXX executable MeleeTests.exe
+[68/83] Building CXX object CMakeFiles\AbilityTests.dir\tests\ability_tests.cpp.obj
+[69/83] Linking CXX executable AssetTool.exe
+[70/83] Linking CXX executable CombatKitAssetTests.exe
+[71/83] Linking CXX executable GraphAssetTests.exe
+[72/83] Linking CXX executable CharacterSceneTests.exe
+[73/83] Linking CXX executable CharacterCombatSceneTests.exe
+[74/83] Linking CXX executable ActionClipBindingTests.exe
+[75/83] Linking CXX executable AbilityAssetTests.exe
+[76/83] Linking CXX executable AbilityIntentGnsTests.exe
+[77/83] Linking CXX executable ActionTimelineTests.exe
+[78/83] Linking CXX executable AbilityPredictionTests.exe
+[79/83] Linking CXX executable AbilityIntentTests.exe
+[80/83] Linking CXX executable AbilityObserverTests.exe
+[81/83] Linking CXX executable AbilityCorrectionTests.exe
+[82/83] Linking CXX executable AbilityTests.exe
 Optional program clang-format not found.
 -- ---------------------------------------------------------
 -- Selected options:

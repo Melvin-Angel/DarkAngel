@@ -1,0 +1,101 @@
+[1/114] Scanning C:\DarkAngel\tests\motor_tests.cpp for CXX dependencies
+[2/114] Scanning C:\DarkAngel\tests\motor_session_tests.cpp for CXX dependencies
+[3/114] Scanning C:\DarkAngel\tests\motor_fault_tests.cpp for CXX dependencies
+[4/114] Scanning C:\DarkAngel\tests\motor_dynamic_tests.cpp for CXX dependencies
+[5/114] Scanning C:\DarkAngel\tests\physics_query_sensor_tests.cpp for CXX dependencies
+[6/114] Scanning C:\DarkAngel\tests\motor_budget_tests.cpp for CXX dependencies
+[7/114] Scanning C:\DarkAngel\tests\platform_axes_tests.cpp for CXX dependencies
+[8/114] Scanning C:\DarkAngel\apps\headless\main.cpp for CXX dependencies
+[9/114] Scanning C:\DarkAngel\tests\animation_tests.cpp for CXX dependencies
+[10/114] Scanning C:\DarkAngel\tests\joint_mask_tests.cpp for CXX dependencies
+[11/114] Scanning C:\DarkAngel\tests\collision_asset_tests.cpp for CXX dependencies
+[12/114] Scanning C:\DarkAngel\tests\collision_mesh_tests.cpp for CXX dependencies
+[13/114] Scanning C:\DarkAngel\tests\collision_stream_tests.cpp for CXX dependencies
+[14/114] Scanning C:\DarkAngel\tests\collision_observer_tests.cpp for CXX dependencies
+[15/114] Scanning C:\DarkAngel\tests\attribute_tests.cpp for CXX dependencies
+[16/114] Scanning C:\DarkAngel\tests\combat_kit_tests.cpp for CXX dependencies
+[17/114] Scanning C:\DarkAngel\tests\editor_tests.cpp for CXX dependencies
+[18/114] Scanning C:\DarkAngel\tests\script_package_tests.cpp for CXX dependencies
+[19/114] Scanning C:\DarkAngel\tests\assembly_tests.cpp for CXX dependencies
+[20/114] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[21/114] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[22/114] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[23/114] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[24/114] Scanning C:\DarkAngel\tests\gns_tests.cpp for CXX dependencies
+[25/114] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[26/114] Generating CXX dyndep file CMakeFiles\PhysicsQuerySensorTests.dir\CXX.dd
+[27/114] Generating CXX dyndep file CMakeFiles\MotorBudgetTests.dir\CXX.dd
+[28/114] Generating CXX dyndep file CMakeFiles\PlatformAxesTests.dir\CXX.dd
+[29/114] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[30/114] Generating CXX dyndep file CMakeFiles\AnimationClipTests.dir\CXX.dd
+[31/113] Generating CXX dyndep file CMakeFiles\AnimationTests.dir\CXX.dd
+[32/113] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
+[33/112] Generating CXX dyndep file CMakeFiles\JointMaskTests.dir\CXX.dd
+[34/112] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[35/112] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[36/111] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
+[37/111] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[38/111] Generating CXX dyndep file CMakeFiles\CollisionObserverTests.dir\CXX.dd
+[39/111] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[40/110] Generating CXX dyndep file CMakeFiles\ExternalImportTests.dir\CXX.dd
+[41/109] Generating CXX dyndep file CMakeFiles\AttributeTests.dir\CXX.dd
+[42/109] Generating CXX dyndep file CMakeFiles\CombatKitTests.dir\CXX.dd
+[43/109] Generating CXX dyndep file CMakeFiles\InputTests.dir\CXX.dd
+[44/108] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[45/108] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[46/106] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[47/104] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[48/102] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[49/101] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[50/101] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[51/101] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[52/101] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[53/101] Building CXX object CMakeFiles\MotorTests.dir\tests\motor_tests.cpp.obj
+[54/101] Building CXX object CMakeFiles\MotorSessionTests.dir\tests\motor_session_tests.cpp.obj
+[55/101] Building CXX object CMakeFiles\MotorFaultTests.dir\tests\motor_fault_tests.cpp.obj
+[56/101] Building CXX object CMakeFiles\MotorDynamicTests.dir\tests\motor_dynamic_tests.cpp.obj
+[57/101] Building CXX object CMakeFiles\PhysicsQuerySensorTests.dir\tests\physics_query_sensor_tests.cpp.obj
+[58/101] Building CXX object CMakeFiles\MotorBudgetTests.dir\tests\motor_budget_tests.cpp.obj
+[59/101] Building CXX object CMakeFiles\PlatformAxesTests.dir\tests\platform_axes_tests.cpp.obj
+[60/101] Building CXX object CMakeFiles\DarkAngelHeadless.dir\apps\headless\main.cpp.obj
+[61/101] Building CXX object CMakeFiles\AnimationTests.dir\tests\animation_tests.cpp.obj
+[62/101] Building CXX object CMakeFiles\JointMaskTests.dir\tests\joint_mask_tests.cpp.obj
+[63/101] Building CXX object CMakeFiles\CollisionAssetTests.dir\tests\collision_asset_tests.cpp.obj
+[64/101] Building CXX object CMakeFiles\CollisionMeshTests.dir\tests\collision_mesh_tests.cpp.obj
+[65/101] Building CXX object CMakeFiles\CollisionStreamTests.dir\tests\collision_stream_tests.cpp.obj
+[66/101] Building CXX object CMakeFiles\CollisionObserverTests.dir\tests\collision_observer_tests.cpp.obj
+[67/101] Building CXX object CMakeFiles\AttributeTests.dir\tests\attribute_tests.cpp.obj
+[68/101] Building CXX object CMakeFiles\CombatKitTests.dir\tests\combat_kit_tests.cpp.obj
+[69/101] Building CXX object CMakeFiles\EditorTests.dir\tests\editor_tests.cpp.obj
+[70/101] Building CXX object CMakeFiles\ScriptPackageTests.dir\tests\script_package_tests.cpp.obj
+[71/101] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[72/101] Building CXX object CMakeFiles\AssemblyTests.dir\tests\assembly_tests.cpp.obj
+[73/101] Linking CXX executable MotorTests.exe
+[74/101] Linking CXX executable MotorSessionTests.exe
+[75/101] Building CXX object CMakeFiles\GnsTests.dir\tests\gns_tests.cpp.obj
+[76/101] Linking CXX executable MotorDynamicTests.exe
+[77/101] Linking CXX executable MotorFaultTests.exe
+[78/101] Linking CXX executable PhysicsQuerySensorTests.exe
+[79/101] Linking CXX executable MotorBudgetTests.exe
+[80/101] Linking CXX executable PlatformAxesTests.exe
+[81/101] Linking CXX executable DarkAngelHeadless.exe
+[82/101] Linking CXX executable AnimationClipTests.exe
+[83/101] Linking CXX executable AnimationTests.exe
+[84/101] Linking CXX executable AnimationGraphTests.exe
+[85/101] Linking CXX executable RenderableHumanTests.exe
+[86/101] Linking CXX executable JointMaskTests.exe
+[87/101] Linking CXX executable CollisionAssetTests.exe
+[88/101] Linking CXX executable CollisionStreamTests.exe
+[89/101] Linking CXX executable CollisionObserverTests.exe
+[90/101] Linking CXX executable CollisionMeshTests.exe
+[91/101] Linking CXX executable AssetTests.exe
+[92/101] Linking CXX executable AttributeTests.exe
+[93/101] Linking CXX executable CombatKitTests.exe
+[94/101] Linking CXX executable ExternalImportTests.exe
+[95/101] Linking CXX executable EditorTests.exe
+[96/101] Linking CXX executable FoundationTests.exe
+[97/101] Linking CXX executable InputTests.exe
+[98/101] Linking CXX executable ScriptPackageTests.exe
+[99/101] Linking CXX executable AssemblyTests.exe
+[100/101] Linking CXX executable SessionTests.exe
+[101/101] Linking CXX executable GnsTests.exe

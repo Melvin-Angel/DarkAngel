@@ -8,7 +8,7 @@ std::size_t AttributeSet::index(AttributeId id)const{for(std::size_t i=0;i<defin
 AttributeSet::AttributeSet(std::vector<AttributeDefinition> definitions):definitions_(std::move(definitions)){
  if(definitions_.empty()||definitions_.size()>64)throw std::invalid_argument("Attribute schema size");
  for(std::size_t i=0;i<definitions_.size();++i){const auto& d=definitions_[i];
-  if(!d.id||d.name.empty()||d.name.size()>96||!std::isfinite(d.base)||!std::isfinite(d.minimum)||!std::isfinite(d.maximum)||d.minimum>d.maximum||d.base<d.minimum||d.base>d.maximum||static_cast<unsigned>(d.kind)>1)throw std::invalid_argument("Invalid attribute schema");
+  if(!d.id||d.name.empty()||d.name.size()>96||!std::isfinite(d.base)||!std::isfinite(d.minimum)||!std::isfinite(d.maximum)||d.minimum>d.maximum||d.base<d.minimum||d.base>d.maximum||static_cast<unsigned>(d.kind)>1||static_cast<unsigned>(d.visibility)>2)throw std::invalid_argument("Invalid attribute schema");
   for(std::size_t j=0;j<i;++j)if(definitions_[j].id==d.id||definitions_[j].name==d.name)throw std::invalid_argument("Duplicate attribute");
   if(d.maximum_attribute&&(d.kind!=AttributeKind::Resource||definitions_[index(d.maximum_attribute)].kind!=AttributeKind::Statistic))throw std::invalid_argument("Resource maximum must reference statistic");
   values_.push_back(d.base);

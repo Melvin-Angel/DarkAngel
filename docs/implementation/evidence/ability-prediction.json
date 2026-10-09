@@ -1,61 +1,61 @@
 {
   "schema": 1,
-  "base_head": "ab55e4d0eb30e7ed69dedd3f653d34a44035603c",
+  "base_head": "ee841f59270d1f53adb0b2c941601391c013b288",
   "scope": "Native owner pending commitment view, exact operation inclusion/receipt rejection/dependency invalidation, held-state correction schema2, regenerated root policy and atomic disposable Jolt motor replay; Royal full-editor and Headless integration",
   "gates": [
     {
       "name": "ability-prediction-royal",
       "exit": 0,
-      "seconds": 378.541
+      "seconds": 272.941
     },
     {
       "name": "ability-prediction-editor",
       "exit": 0,
-      "seconds": 0.053
+      "seconds": 0.059
     },
     {
       "name": "ability-prediction-gns-client",
       "exit": 0,
-      "seconds": 0.958
+      "seconds": 0.471
     },
     {
       "name": "ability-prediction-gns-host",
       "exit": 0,
-      "seconds": 1.102
+      "seconds": 0.616
     }
   ],
   "royal_evidence": "royal-combat.json",
   "source_sha256": {
-    "CMakeLists.txt": "8df0c2b229ceeb13609252ffa1884188bcf99f34fba2628e164a9fa54a8288b2",
+    "CMakeLists.txt": "14aed12dd4cf630eb4b3cd6584a0bb500e2faf5f8dcbd43a59ad65a076c11ee1",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "61d40ec28dd1d416da251efa3bfbc6c70a022bacdf030cbfea63c49425d7a4aa",
-    "engine/runtime/ability_prediction.cpp": "4a6b038037333fffb75db9e158f0f893e1b9b9523e02b4e87ee4deb62a75bd18",
-    "engine/runtime/include/darkangel/ability.hpp": "c2cb9bbd0a01ad8952146c579bc176111822ae617f32a7466c979541cf54db2d",
-    "engine/runtime/ability.cpp": "5d5438eefde95bde59b94a2d82caa53cc3271f01a090700528a7e4d7a50586b1",
-    "engine/runtime/ability_state.hpp": "6b48d5772d2b8112241d06d70e0198d7b9e02ed21cdde935bbd25eeb14369e46",
-    "engine/runtime/ability_wire.cpp": "88bba64616609a9e24df1f7c2f4da5771954396ab377ad0f7a8c504e9c932197",
+    "engine/runtime/ability_prediction.cpp": "6d5c63ce206ee9ea563fc09b0c3f090fa7d45f276713b4d614c34af41d5c937b",
+    "engine/runtime/include/darkangel/ability.hpp": "9af3234755855488455ee7ba980dea624994c1609e2ad475aa1c3ef8add83ff2",
+    "engine/runtime/ability.cpp": "475e45bfbb01b7c5256221403b6f6d9f8939118205a899776145ea898b8de485",
+    "engine/runtime/ability_state.hpp": "7140e113c6f9020df3c450947350e6988b2369842cf07bb46d851087b1a6acbf",
+    "engine/runtime/ability_wire.cpp": "c84893101f257485582bf26b1d4b08bd5d95a628114aed40bf0025bf3ab84db9",
     "engine/runtime/include/darkangel/combat_kit.hpp": "4860317e9682c2267d220c431f21c09d8d1e45832e42ec24fc3ec52bffdf0c27",
     "engine/runtime/character_motor.cpp": "844a39ec2ce8e086a2577fc1f357c9d3f58fa1070430db39b06406ef00bc55a5",
     "engine/runtime/include/darkangel/character_motor.hpp": "0297261cbd88d8c0b9c04b0347818826785f7d6fd4015c0d755b46ba41d04a84",
-    "engine/runtime/character_scene.cpp": "da4f67f7bcd9ce08dacf4541ccfeb8a13615b20275a198edabeca8f826f11883",
-    "engine/runtime/include/darkangel/character_scene.hpp": "78b887cb3b0e2a97c14cbb6b948f2802d489c07f447665f791e65eb8df47c029",
+    "engine/runtime/character_scene.cpp": "4c893a0cbde46437fd7cb971781cfdf35bb152a52ca5c801d5bfb90fadca1310",
+    "engine/runtime/include/darkangel/character_scene.hpp": "be14225fbe020a9de418756dde66bea407f570072a021fe016b35ee431fd00a8",
     "apps/editor/main.cpp": "566c9205b4d6476c9fb1d31cd31940ac42bbc5a9e584f02c931e2fa52208949f",
     "tests/ability_prediction_tests.cpp": "db3d2c121855e5bcac10f8d652ae86eb4bf4b60b0b9dce16c5219649a5744ba6",
     "tests/ability_motor_prediction_tests.cpp": "4ebf0240e9c0153b12ce3d0fa2aaad0789f5e6fb84a9815f68a488e06c53bcfc",
-    "tests/character_combat_scene_tests.cpp": "bf70daf31f2bbcebb9298c6f5cf2416193e2feec34dedd3d497b14c30729c10a",
-    "scripts/verify_ability_prediction.py": "86d38c3cc3088378d675ca35aca10e96c076866adf73652ccf95ca96cc0d8f28",
-    "scripts/verify_royal_combat.py": "ffedc4f88d1db7643e9154483701be0336da523468cbd4eac3368501522969e2"
+    "tests/character_combat_scene_tests.cpp": "14a31dbcf9708cbf3894e5b64956bd4a69a30fe5ff86044d7186579d2f82e52b",
+    "scripts/verify_ability_prediction.py": "ca02c6aedf92f8022d4228e89d121b086fd8b94484a3d0f15c849c3a0a9975f5",
+    "scripts/verify_royal_combat.py": "678965722451a45701b7be13fc68a1bf9edeb33e2b3b043e03040d7df57121e9"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0504d9ad13280d88dc18583589b24425c64652bf0120926e6603696192826412",
-    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "fdebe333335536b8ae3a403b3e7eb9df44904fbf25428f3e824ac2f29c37da8e",
-    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "bf04174f0cb2c0b19381404c871289ca4cb32f5cd74028c49b83b1c1cf46ab7e",
-    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "3c50a5c9445575f1f8099b8e59e75dc89c6be88cfc2eb9e5d3d60b2bfee8b1d4"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "dfabc3f8f78a548c9cf30dedaf7571c27f1be03f8e64dafdb191a9a600eea8ae",
+    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "1e3fad8658102506c82fce17e54f3f4dbe2ff820f3bbf9fb6c6f5b31648b9737",
+    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "de8e5973d9df2513e2a808a8133a2d6bf12611b4fa5870ee2867dc7c8de3f7b0",
+    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "ba6dbb3c35125647f95706a9172d5d01da39d5653d2237f74126795d78e7df4e"
   },
   "limitations": [
     "Operation dependencies are local prediction metadata; authored server combo transitions remain open.",
     "Prediction emits no damage or cosmetic cues; effects/tags, deferred reservations and game-owned Luau composition remain open.",
     "Missing exact inclusion, changed execution tick, grant/generation/lifecycle discontinuity and 30-tick history overflow require explicit resync.",
     "GNS refresh verifies schema2 commitment/correction compatibility, not delayed Jolt prediction over GNS or full network faults/performance.",
-    "Observer public state and active-state late join remain open; M4/M5 remain In progress; EOS live service remains blocked."
+    "Observer public state and active-action late join are checked separately in ability-observer.json; M4/M5 remain In progress; EOS live service remains blocked."
   ]
 }

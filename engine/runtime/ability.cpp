@@ -46,6 +46,7 @@ AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vect
     const auto schema=attributes_.definitions();
     auto find=[&](AttributeId id)->const AttributeDefinition&{auto it=std::find_if(schema.begin(),schema.end(),[&](const auto& d){return d.id==id;});require(it!=schema.end(),"Ability health schema missing");return *it;};
     const auto& h=find(health_);const auto& maximum=find(maximum_health_);
+    require(h.visibility!=AttributeVisibility::Server&&maximum.visibility!=AttributeVisibility::Server,"Existing public Health cannot have server-only visibility");
     require(h.kind==AttributeKind::Resource&&h.maximum_attribute==maximum_health_&&h.minimum==0&&maximum.kind==AttributeKind::Statistic&&maximum.minimum>=0,"Ability health schema relationship");
 }
 Health AbilityState::health()const{return {attributes_.value(maximum_health_),attributes_.value(health_)};}
@@ -216,6 +217,14 @@ AbilityOwnerSnapshot AbilityState::snapshot()const{
     result.next_activation=next_activation_;
     for(unsigned i=0;i<combat_slot_count;++i)result.input[i]={held_[i].active,held_[i].hold_sent,rearm_[i],held_[i].pressed,held_[i].released,held_[i].duration};
     for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
+}
+AbilityOwnerSnapshot AbilityState::owner_snapshot()const{
+    auto result=snapshot();std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});return result;
+}
+AbilityPublicSnapshot AbilityState::public_snapshot()const{
+    AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
+    for(const auto& definition:attributes_.definitions())if(definition.visibility==AttributeVisibility::Public||definition.id==health_||definition.id==maximum_health_)result.attributes.push_back({definition.id,attributes_.value(definition.id)});
+    if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.action_definition=active_->definition->action->id;}return result;
 }
 void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
     require(source.owner.network==owner_.network&&source.owner.session_epoch==owner_.session_epoch&&source.grant_generation&&kit_&&source.next_activation&&source.health_attribute==health_&&source.maximum_health_attribute==maximum_health_,"Prediction owner/schema identity");

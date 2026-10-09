@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "base_head": "ee841f59270d1f53adb0b2c941601391c013b288",
+  "scope": "Protocol3 atomic public motor/action frames, cooked visibility into native audience policies, server-only exclusion from owner corrections, active-action late join, prepared bounded observer interpolation and Royal coordinator; full optimized native integration",
+  "gates": [
+    {
+      "name": "ability-observer-royal",
+      "exit": 0,
+      "seconds": 276.34
+    },
+    {
+      "name": "ability-observer-editor",
+      "exit": 0,
+      "seconds": 0.157
+    },
+    {
+      "name": "ability-observer-integration-build",
+      "exit": 0,
+      "seconds": 68.836
+    },
+    {
+      "name": "ability-observer-integration",
+      "exit": 0,
+      "seconds": 17.014
+    }
+  ],
+  "related_evidence": [
+    "royal-combat.json",
+    "ability-prediction.json"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "14aed12dd4cf630eb4b3cd6584a0bb500e2faf5f8dcbd43a59ad65a076c11ee1",
+    "engine/runtime/include/darkangel/attributes.hpp": "01682e00ae25f2d1f5371b43bf9b605ed35e3196a32622da934f76953be11000",
+    "engine/runtime/attributes.cpp": "cd0ca8d26f466201d8dedd489cd4173b2340d12cde3ad9f5bfd59576910c965d",
+    "engine/assets/include/darkangel/ability_assets.hpp": "3fcb6a8d0bcb3984ebde638e33310d7b4b722fea4ede583e3511fee31c09e2fd",
+    "engine/assets/ability_cooker.cpp": "12714b80f72679cb138c3372d43427b5722a07c415c59c5beb9a9022ae9f73d9",
+    "engine/runtime/include/darkangel/ability.hpp": "9af3234755855488455ee7ba980dea624994c1609e2ad475aa1c3ef8add83ff2",
+    "engine/runtime/ability.cpp": "475e45bfbb01b7c5256221403b6f6d9f8939118205a899776145ea898b8de485",
+    "engine/runtime/ability_state.hpp": "7140e113c6f9020df3c450947350e6988b2369842cf07bb46d851087b1a6acbf",
+    "engine/runtime/ability_prediction.cpp": "6d5c63ce206ee9ea563fc09b0c3f090fa7d45f276713b4d614c34af41d5c937b",
+    "engine/runtime/ability_observer.cpp": "8d43a7e58565245b698ef205a8aaa162ed8906ef0972a9870250942d59c3de26",
+    "engine/runtime/include/darkangel/ability_observer.hpp": "7d550ea52fcdefd061c1f26a8578fa4af01717e55b75aa560d484cf820ab226e",
+    "engine/runtime/ability_wire.cpp": "c84893101f257485582bf26b1d4b08bd5d95a628114aed40bf0025bf3ab84db9",
+    "engine/runtime/ability_wire.hpp": "ede2252ac96e18e9bb4d62d03084e1c6cef56304424cd04a912d69cff9f6bea5",
+    "engine/runtime/world_session.cpp": "f27cb0fbefb8f2aac60d8d7dc4a69280fb84ff11e539063c0b1643ac52d850fa",
+    "engine/runtime/include/darkangel/world_session.hpp": "ad894b4cc386b84385c76ef764e5f0de07b1d2af651032417157d5e81d4f2d82",
+    "engine/runtime/character_scene.cpp": "4c893a0cbde46437fd7cb971781cfdf35bb152a52ca5c801d5bfb90fadca1310",
+    "engine/runtime/include/darkangel/character_scene.hpp": "be14225fbe020a9de418756dde66bea407f570072a021fe016b35ee431fd00a8",
+    "tests/ability_observer_tests.cpp": "d0303f91f8d22822c195a290651c2ce2dfb38206b5acdc7c8218d3558f85993b",
+    "tests/ability_intent_gns_tests.cpp": "9cb9deec858db9e8de69b90ac3e3cea79b94fb592d6d1ac65c6e965c8e4d0212",
+    "tests/ability_asset_tests.cpp": "5b20500061db18389ee6707692c1e607f021610a8fac4a5f45d0b93908f2e592",
+    "tests/character_combat_scene_tests.cpp": "14a31dbcf9708cbf3894e5b64956bd4a69a30fe5ff86044d7186579d2f82e52b",
+    "scripts/prepare_royal_scene.py": "ada675e77621ee60c8ea20ce736f48e308ebe82d54399aaefd28878d54298e3c",
+    "scripts/verify_ability_observer.py": "ca443028e7e4b01e3554a11cfff9447a5f6f08b13cecbbcc061b4e1af9fa4ed9"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "dfabc3f8f78a548c9cf30dedaf7571c27f1be03f8e64dafdb191a9a600eea8ae",
+    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "24c611044a81918d9c74b27d1f8c6a37f2ca4749ba3316fef1c37af5c21ff6d0",
+    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "d988781a74d1dfacfb478c1c8da14545a4cfefa367eff66ee24459dcf57c627a",
+    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "d90ee00e6670ac17ad4429be2032feeeff252ea6db4e039915c9a5102f9d3ddf"
+  },
+  "limitations": [
+    "Current four-actor arena-wide interest profile; public effects/tags/persistent cues and interest/cell restoration beyond reliable object lifecycle remain open.",
+    "Royal target remains stationary/rest pose; remote graphical scene/GNS late join and full timing/fault/bandwidth/performance gates are not qualified.",
+    "Owner native prediction requires visible cost and resource-bound attributes; server-only-dependent prediction fails preparation explicitly.",
+    "Observer tests use published synthetic motor trajectories; independent Jolt owner correction is checked by ability_motor_prediction.",
+    "Real combo/projectile/effects/Luau, graph/socket/authoring and precise collision gates remain open; M4/M5 stay In progress; EOS live service remains blocked."
+  ]
+}

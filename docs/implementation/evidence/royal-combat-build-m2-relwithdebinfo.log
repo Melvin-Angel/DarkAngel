@@ -703,7 +703,7 @@ meshoptimizer provides CMake targets:
   find_package(meshoptimizer CONFIG REQUIRED)
   target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
 
-All requested installations completed successfully in: 500 us
+All requested installations completed successfully in: 340 us
 -- Running vcpkg install - done
 -- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
 -- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
@@ -716,63 +716,59 @@ All requested installations completed successfully in: 500 us
 -- Architecture: AMD64
 -- DiligentCore commit hash: 074060cf
 -- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
--- Configuring done (10.2s)
+-- Configuring done (9.3s)
 -- Generating done (0.8s)
 -- Build files have been written to: C:/DarkAngel/build/m2-relwithdebinfo
-[1/63] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
-[2/63] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
-[3/63] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[4/59] Scanning C:\DarkAngel\engine\runtime\motor_state.cpp for CXX dependencies
-[5/59] Scanning C:\DarkAngel\engine\runtime\collision_source.cpp for CXX dependencies
-[6/59] Scanning C:\DarkAngel\engine\runtime\collision_observer.cpp for CXX dependencies
-[7/59] Scanning C:\DarkAngel\engine\runtime\combat_kit.cpp for CXX dependencies
-[8/59] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
-[9/59] Scanning C:\DarkAngel\engine\runtime\ability_prediction.cpp for CXX dependencies
-[10/59] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
-[11/59] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[12/48] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
-[13/48] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
-[14/48] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
-[15/48] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
-[16/48] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
-[17/48] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
-[18/48] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
-[19/48] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
-[20/48] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
-[21/48] Linking CXX static library DarkAngelFoundation.lib
-[22/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\motor_state.cpp.obj
-[23/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
-[24/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_observer.cpp.obj
-[25/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_source.cpp.obj
-[26/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\combat_kit.cpp.obj
-[27/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
-[28/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
-[29/48] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[30/48] Scanning C:\DarkAngel\tests\ability_asset_tests.cpp for CXX dependencies
-[31/48] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
-[32/48] Linking CXX static library DarkAngelRuntime.lib
-[33/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
-[34/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[1/62] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[2/62] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[3/58] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[4/58] Scanning C:\DarkAngel\engine\runtime\attributes.cpp for CXX dependencies
+[5/58] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
+[6/58] Scanning C:\DarkAngel\engine\runtime\ability_prediction.cpp for CXX dependencies
+[7/58] Scanning C:\DarkAngel\engine\runtime\ability_observer.cpp for CXX dependencies
+[8/58] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
+[9/58] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[10/44] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[11/44] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[12/44] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[13/44] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[14/44] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[15/44] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
+[16/44] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
+[17/44] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
+[18/44] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
+[19/44] Linking CXX static library DarkAngelFoundation.lib
+[20/44] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\attributes.cpp.obj
+[21/44] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[22/44] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
+[23/44] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[24/44] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[25/44] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[26/44] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
+[27/44] Scanning C:\DarkAngel\tests\ability_asset_tests.cpp for CXX dependencies
+[28/44] Linking CXX static library DarkAngelRuntime.lib
+[29/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[30/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
 C:\DarkAngel\engine\assets\asset_service.cpp(104): warning C4100: 'renderable': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(104): warning C4100: 'canonical': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(104): warning C4100: 'relative': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(111): warning C4100: 'loop': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(111): warning C4100: 'canonical': unreferenced parameter
 C:\DarkAngel\engine\assets\asset_service.cpp(111): warning C4100: 'relative': unreferenced parameter
-[35/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
-[36/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
-[37/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
-[38/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[31/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[32/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[33/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[34/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
 C:\DarkAngel\engine\assets\external_import.cpp(42): warning C4100: 'loop': unreferenced parameter
 C:\DarkAngel\engine\assets\external_import.cpp(42): warning C4100: 'canonical': unreferenced parameter
-[39/48] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
-[40/48] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[41/47] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
-[42/47] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
-[43/47] Linking CXX static library DarkAngelAssets.lib
-[44/47] Linking CXX executable AssetTool.exe
-[45/47] Building CXX object CMakeFiles\AbilityAssetTests.dir\tests\ability_asset_tests.cpp.obj
-[46/47] Linking CXX executable AbilityAssetTests.exe
+[35/44] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[36/44] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[37/43] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[38/43] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[39/43] Linking CXX static library DarkAngelAssets.lib
+[40/43] Linking CXX executable AssetTool.exe
+[41/43] Building CXX object CMakeFiles\AbilityAssetTests.dir\tests\ability_asset_tests.cpp.obj
+[42/43] Linking CXX executable AbilityAssetTests.exe
 Target processor: x86_64
 CMake generator: Ninja
 

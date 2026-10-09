@@ -1,0 +1,150 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+      Start  1: M5.ability_motor_prediction
+ 1/62 Test  #1: M5.ability_motor_prediction ......   Passed    0.02 sec
+      Start  2: M4.session
+ 2/62 Test  #2: M4.session .......................   Passed    0.15 sec
+      Start  3: M4.faults
+ 3/62 Test  #3: M4.faults ........................   Passed    0.24 sec
+      Start  4: M4.motor
+ 4/62 Test  #4: M4.motor .........................   Passed    0.07 sec
+      Start  5: M4.actor_history
+ 5/62 Test  #5: M4.actor_history .................   Passed    0.03 sec
+      Start  6: M4.dynamic_proxies
+ 6/62 Test  #6: M4.dynamic_proxies ...............   Passed    0.06 sec
+      Start  7: M5.authoritative_melee
+ 7/62 Test  #7: M5.authoritative_melee ...........   Passed    0.11 sec
+      Start  8: M4.queries_sensors
+ 8/62 Test  #8: M4.queries_sensors ...............   Passed    0.07 sec
+      Start  9: M4.local_budgets
+ 9/62 Test  #9: M4.local_budgets .................   Passed    0.19 sec
+      Start 10: M4.platform_axes
+10/62 Test #10: M4.platform_axes .................   Passed    0.05 sec
+      Start 11: M5.canonical_rig
+11/62 Test #11: M5.canonical_rig .................   Passed    0.96 sec
+      Start 12: M5.clips
+12/62 Test #12: M5.clips .........................   Passed    1.32 sec
+      Start 13: M5.omni_clips
+13/62 Test #13: M5.omni_clips ....................   Passed    1.66 sec
+      Start 14: M5.combat_kit_assets
+14/62 Test #14: M5.combat_kit_assets .............   Passed    0.82 sec
+      Start 15: M5.graph_assets
+15/62 Test #15: M5.graph_assets ..................   Passed    0.74 sec
+      Start 16: M5.graph_runtime
+16/62 Test #16: M5.graph_runtime .................   Passed    0.57 sec
+      Start 17: M5.character_combat_scene
+17/62 Test #17: M5.character_combat_scene ........   Passed    0.73 sec
+      Start 18: M5.character_scene
+18/62 Test #18: M5.character_scene ...............   Passed    0.95 sec
+      Start 19: M5.joint_masks
+19/62 Test #19: M5.joint_masks ...................   Passed    0.43 sec
+      Start 20: M5.renderable_human
+20/62 Test #20: M5.renderable_human ..............   Passed    0.57 sec
+      Start 21: M5.ability_assets
+21/62 Test #21: M5.ability_assets ................   Passed    0.73 sec
+      Start 22: M4.collision_assets
+22/62 Test #22: M4.collision_assets ..............   Passed    0.21 sec
+      Start 23: M5.action_clip_binding
+23/62 Test #23: M5.action_clip_binding ...........   Passed    0.37 sec
+      Start 24: M5.action_timeline
+24/62 Test #24: M5.action_timeline ...............   Passed    0.15 sec
+      Start 25: M4.collision_meshes
+25/62 Test #25: M4.collision_meshes ..............   Passed    0.19 sec
+      Start 26: M4.collision_stream
+26/62 Test #26: M4.collision_stream ..............   Passed    0.08 sec
+      Start 27: M4.collision_observer
+27/62 Test #27: M4.collision_observer ............   Passed    0.05 sec
+      Start 28: M2.asset_pipeline
+28/62 Test #28: M2.asset_pipeline ................   Passed    0.31 sec
+      Start 29: M5.external_import
+29/62 Test #29: M5.external_import ...............   Passed    1.66 sec
+      Start 30: M5.attributes
+30/62 Test #30: M5.attributes ....................   Passed    0.04 sec
+      Start 31: M5.combat_kit
+31/62 Test #31: M5.combat_kit ....................   Passed    0.04 sec
+      Start 32: M4.input_actions
+32/62 Test #32: M4.input_actions .................   Passed    0.19 sec
+      Start 33: M2.real_prop
+33/62 Test #33: M2.real_prop .....................   Passed    0.34 sec
+      Start 34: M2.editor_transactions
+34/62 Test #34: M2.editor_transactions ...........   Passed    0.16 sec
+      Start 35: FlecsProbe
+35/62 Test #35: FlecsProbe .......................   Passed    0.34 sec
+      Start 36: LuauProbe
+36/62 Test #36: LuauProbe ........................   Passed    0.04 sec
+      Start 37: SQLiteProbe
+37/62 Test #37: SQLiteProbe ......................   Passed    0.07 sec
+      Start 38: HeadlessSmoke
+38/62 Test #38: HeadlessSmoke ....................   Passed    0.05 sec
+      Start 39: M1.identity
+39/62 Test #39: M1.identity ......................   Passed    0.06 sec
+      Start 40: M1.scene
+40/62 Test #40: M1.scene .........................   Passed    0.03 sec
+      Start 41: M1.phases
+41/62 Test #41: M1.phases ........................   Passed    0.02 sec
+      Start 42: M1.scripts
+42/62 Test #42: M1.scripts .......................   Passed    0.07 sec
+      Start 43: M1.reload
+43/62 Test #43: M1.reload ........................   Passed    0.05 sec
+      Start 44: M1.limits
+44/62 Test #44: M1.limits ........................   Passed    0.05 sec
+      Start 45: M2.assemblies
+45/62 Test #45: M2.assemblies ....................   Passed    0.09 sec
+      Start 46: M2.cook_scene_fixture
+46/62 Test #46: M2.cook_scene_fixture ............   Passed    0.04 sec
+      Start 47: M2.cooked_scene_headless
+47/62 Test #47: M2.cooked_scene_headless .........   Passed    0.02 sec
+      Start 48: M5.ability_observer
+48/62 Test #48: M5.ability_observer ..............   Passed    0.11 sec
+      Start 49: M5.ability_prediction
+49/62 Test #49: M5.ability_prediction ............   Passed    0.26 sec
+      Start 50: M5.ability_intent
+50/62 Test #50: M5.ability_intent ................   Passed    0.12 sec
+      Start 51: M5.ability_correction
+51/62 Test #51: M5.ability_correction ............   Passed    0.07 sec
+      Start 52: M5.ability_commit
+52/62 Test #52: M5.ability_commit ................   Passed    0.08 sec
+      Start 53: M3.authority
+53/62 Test #53: M3.authority .....................   Passed    0.11 sec
+      Start 54: M3.loopback
+54/62 Test #54: M3.loopback ......................   Passed    0.01 sec
+      Start 55: M3.gns_lan
+55/62 Test #55: M3.gns_lan .......................   Passed    0.24 sec
+      Start 56: M1.imports
+56/62 Test #56: M1.imports .......................   Passed    0.10 sec
+      Start 57: M1.tasks
+57/62 Test #57: M1.tasks .........................   Passed    0.03 sec
+      Start 58: M1.cooked
+58/62 Test #58: M1.cooked ........................   Passed    0.03 sec
+      Start 59: M1.state
+59/62 Test #59: M1.state .........................   Passed    0.06 sec
+      Start 60: M1.bindings
+60/62 Test #60: M1.bindings ......................   Passed    0.03 sec
+      Start 61: M1.cook_fixture
+61/62 Test #61: M1.cook_fixture ..................   Passed    0.03 sec
+      Start 62: M1.cooked_headless
+62/62 Test #62: M1.cooked_headless ...............   Passed    0.02 sec
+
+100% tests passed out of 62
+
+Label Time Summary:
+M0               =   0.45 sec*proc (3 tests)
+M1               =   0.58 sec*proc (13 tests)
+M2               =   0.96 sec*proc (6 tests)
+M3               =   0.36 sec*proc (3 tests)
+M4               =   0.86 sec*proc (5 tests)
+M5               =   5.31 sec*proc (9 tests)
+ability          =   0.08 sec*proc (1 test)
+animation        =   5.15 sec*proc (6 tests)
+asset            =   4.67 sec*proc (8 tests)
+authoring        =   0.43 sec*proc (1 test)
+combat           =   0.08 sec*proc (2 tests)
+dependency       =   0.45 sec*proc (3 tests)
+editor           =   0.19 sec*proc (1 test)
+foundation       =   0.08 sec*proc (2 tests)
+input            =   0.19 sec*proc (1 test)
+local-fixture    =   0.34 sec*proc (1 test)
+network          =   1.59 sec*proc (4 tests)
+physics          =   1.02 sec*proc (2 tests)
+session          =   0.08 sec*proc (1 test)
+
+Total Test time (real) =  16.98 sec

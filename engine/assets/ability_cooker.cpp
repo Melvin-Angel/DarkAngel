@@ -26,7 +26,7 @@ AttributeAsset attributes(const Json& source){
         d.base=entry.at("base").get<double>();d.minimum=entry.at("minimum").get<double>();d.maximum=entry.at("maximum").get<double>();d.maximum_attribute=static_cast<AttributeId>(integer(entry.at("maximum_attribute"),UINT32_MAX));
         field.unit=entry.at("unit").get<std::string>();require(!field.unit.empty()&&field.unit.size()<=32,"Attribute unit");
         auto visibility=entry.at("visibility").get<std::string>();require(visibility=="server"||visibility=="owner"||visibility=="public","Attribute visibility");
-        field.visibility=visibility=="public"?AttributeVisibility::Public:visibility=="owner"?AttributeVisibility::Owner:AttributeVisibility::Server;result.fields.push_back(std::move(field));
+        field.visibility=visibility=="public"?AttributeVisibility::Public:visibility=="owner"?AttributeVisibility::Owner:AttributeVisibility::Server;d.visibility=field.visibility;result.fields.push_back(std::move(field));
     }
     AttributeSet checked(result.definitions());return result;
 }
@@ -67,7 +67,7 @@ struct Registry {
     }
 };
 }
-std::vector<AttributeDefinition> AttributeAsset::definitions()const{std::vector<AttributeDefinition> result;for(const auto& field:fields)result.push_back(field.definition);return result;}
+std::vector<AttributeDefinition> AttributeAsset::definitions()const{std::vector<AttributeDefinition> result;for(const auto& field:fields){auto definition=field.definition;definition.visibility=field.visibility;result.push_back(std::move(definition));}return result;}
 AttributeAsset load_cooked_attributes(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){return attributes(Registry(registry,cas).load(id,"attributes","attributes.json"));}
 CookedAbility load_cooked_ability(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
     Registry records(registry,cas);auto source=records.load(id,"ability","ability.json");auto schema=attributes(records.load(reference(source.at("attributes")),"attributes","attributes.json"));

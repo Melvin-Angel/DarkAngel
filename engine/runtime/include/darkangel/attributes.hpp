@@ -6,7 +6,8 @@
 namespace darkangel {
 using AttributeId=std::uint32_t;
 enum class AttributeKind {Resource,Statistic};
-struct AttributeDefinition {AttributeId id{};std::string name;AttributeKind kind{};double base{},minimum{},maximum{};AttributeId maximum_attribute{};};
+enum class AttributeVisibility {Server,Owner,Public};
+struct AttributeDefinition {AttributeId id{};std::string name;AttributeKind kind{};double base{},minimum{},maximum{};AttributeId maximum_attribute{};AttributeVisibility visibility{AttributeVisibility::Owner};};
 enum class AttributeModifierKind {Flat,ChannelBonus,Post,Override};
 struct AttributeModifier {std::uint64_t owner{},sequence{};AttributeId attribute{};AttributeModifierKind kind{};double magnitude{};std::string channel;int priority{};};
 struct ResourceDelta {AttributeId attribute{};double delta{};};

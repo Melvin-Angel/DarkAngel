@@ -1,5 +1,7 @@
 # Native owner ability prediction
 
+Subsequent verified increment: [public observer state and active-action late join](ABILITY_OBSERVER_REPORT.md) retains this owner model and refreshes the combined native/full-editor/Headless/GNS evidence. That report records the latest 62/62 optimized integration and public audience gates.
+
 9 October 2026, following ab55e4d. M4/M5 remain **In progress**.
 
 Royal now submits each semantic operation to the existing serialized WorldSession path and predicts its action, cost, cooldown and motor movement policy before server execution. The Game panel reads this one native owner view. Target Health and damage remain authoritative. Prediction runs the same immutable AbilityState gesture/commitment/timeline rules in a disposable candidate with gameplay hit collection disabled; it owns no World, transport, damage evaluator or presentation-event sink.

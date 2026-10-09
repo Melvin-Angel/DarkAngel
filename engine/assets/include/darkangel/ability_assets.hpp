@@ -2,7 +2,6 @@
 #include <darkangel/ability.hpp>
 #include <filesystem>
 namespace darkangel {
-enum class AttributeVisibility {Server,Owner,Public};
 struct AttributeAssetField {AttributeDefinition definition;std::string unit;AttributeVisibility visibility{};};
 struct AttributeAsset {
     AssetId id;std::string generation;std::vector<AttributeAssetField> fields;

@@ -22,6 +22,8 @@ public:
     std::vector<AbilityActionUpdate> disconnect();
     void retire(std::uint64_t through);
     AbilityOwnerSnapshot snapshot()const;
+    AbilityOwnerSnapshot owner_snapshot()const;
+    AbilityPublicSnapshot public_snapshot()const;
     std::vector<AbilityAttributeValue> attribute_values()const;
     struct PendingHit {AbilityActivationHandle handle;std::shared_ptr<const AbilityDefinition> definition;AbilityMelee profile;ActionInterval interval;std::uint64_t tick{};};
     std::vector<PendingHit> pending_hits;

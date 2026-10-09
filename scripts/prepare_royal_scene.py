@@ -52,12 +52,18 @@ def prepare():
     place(4, 'Canonical player', asset(human), 0, .5, 3)
     graph = dict(schema=1, asset=root, entities=entities, mounts={})
     output = ROOT / 'content/royal_district/RoyalVillage.dascene'
-    output.write_text(json.dumps(dict(schema=1, root=root, placement=f'{1:032x}', sources={root: graph}), indent=2) + '\n')
+    write_scene(output, dict(schema=1, root=root, placement=f'{1:032x}', sources={root: graph}))
     combat_root = '6b91b527-31be-4b15-aa9c-2c0b9970457b'
     place(5, 'Training target', asset(human), 0, .5, 4.2, 3.141592653589793)
     combat_graph = dict(schema=1, asset=combat_root, entities=entities, mounts={})
-    (SOURCE / 'royal_district/RoyalCombat.dascene').write_text(json.dumps(dict(schema=1, root=combat_root, placement=f'{1:032x}', sources={combat_root: combat_graph}), indent=2) + '\n')
+    write_scene(SOURCE / 'royal_district/RoyalCombat.dascene', dict(schema=1, root=combat_root, placement=f'{1:032x}', sources={combat_root: combat_graph}))
     print('Scene:', output, '\nPrimary model:', asset(ground), flush=True)
+
+def write_scene(path, data):
+    payload=(json.dumps(data, indent=2) + '\n').encode('utf8')
+    if path.exists() and path.read_bytes().replace(b'\r\n', b'\n')==payload:
+        return
+    path.write_bytes(payload)
 
 if __name__ == '__main__':
     prepare()

@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 namespace darkangel {
-namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}bool same_owner(const AbilityOwnerHandle& a,const AbilityOwnerHandle& b){return a.network==b.network&&a.session_epoch==b.session_epoch;}}
+namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}bool same_owner(const AbilityOwnerHandle& a,const AbilityOwnerHandle& b){return a.network==b.network&&a.session_epoch==b.session_epoch;}std::vector<AttributeDefinition> owner_schema(std::vector<AttributeDefinition> schema){std::erase_if(schema,[](const auto& definition){return definition.visibility==AttributeVisibility::Server;});return schema;}}
 struct OwnerAbilityPrediction::Impl {
     struct Operation {AbilityPredictionInput input;std::optional<AbilityOperationNotice> terminal;bool invalidated{};std::optional<bool> predicted_commit;};
     struct Frame {std::uint64_t tick{};unsigned rate{};std::vector<std::uint64_t> operations;};
@@ -48,7 +48,7 @@ struct OwnerAbilityPrediction::Impl {
     void rebuild(){state.restore_prediction(confirmed);motion.clear();invalidate();for(const auto& frame:frames)motion.push_back(run(frame));current=state.snapshot();}
 };
 OwnerAbilityPrediction::OwnerAbilityPrediction(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions,std::uint64_t epoch)
-    :impl_(std::make_unique<Impl>(baseline,std::move(schema),std::move(kit),input,definitions,epoch)){}
+    :impl_(std::make_unique<Impl>(baseline,owner_schema(std::move(schema)),std::move(kit),input,definitions,epoch)){}
 OwnerAbilityPrediction::~OwnerAbilityPrediction()=default;
 OwnerAbilityPrediction::OwnerAbilityPrediction(const OwnerAbilityPrediction& other):impl_(std::make_unique<Impl>(*other.impl_)){}
 OwnerAbilityPrediction& OwnerAbilityPrediction::operator=(const OwnerAbilityPrediction& other){if(this!=&other)impl_=std::make_unique<Impl>(*other.impl_);return *this;}

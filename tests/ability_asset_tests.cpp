@@ -26,7 +26,7 @@ int main(){try{
         AssetService service(sources,root/"cache");check(service.adopt("light.daability")==ability_id&&service.adopt("base.daattributes")==schema_id,"Embedded combat identities");
         check(service.cook("light.daability").changed&&!service.cook("light.daability").changed,"Warm closure skips conversion");service.package(ability_id,root/"registry.json");
         check(read(root/"registry.json").at("assets").size()==3,"Ability packages frozen action/schema dependencies");pinned=load_cooked_ability(root/"registry.json",service.cas_path(),ability_id);original_generation=pinned.definition->generation;
-        check(pinned.attributes.fields[1].visibility==AttributeVisibility::Public&&pinned.attributes.fields[2].unit=="points","Typed attribute metadata survives cook");
+        check(pinned.attributes.fields[1].visibility==AttributeVisibility::Public&&pinned.attributes.definitions()[1].visibility==AttributeVisibility::Public&&pinned.attributes.fields[2].unit=="points","Typed attribute metadata and runtime visibility survive cook");
         auto invalid=ability;invalid["costs"][0]["attribute"]=1;write(sources/"light.daability",invalid);rejects([&]{service.cook("light.daability");});service.package(ability_id,root/"registry.json");check(load_cooked_ability(root/"registry.json",service.cas_path(),ability_id).definition->generation==original_generation,"Statistic cost failure preserves usable generation");
         invalid=ability;invalid["costs"][0]["amount"]=-1;write(sources/"light.daability",invalid);rejects([&]{service.cook("light.daability");});
         invalid=ability;invalid["cooldown_ticks"]=6.5;write(sources/"light.daability",invalid);rejects([&]{service.cook("light.daability");});
