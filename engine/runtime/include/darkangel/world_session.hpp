@@ -62,6 +62,8 @@ public:
     // ACK only after assets and native owner reconciliation have been prepared.
     void acknowledge_ability_correction(std::uint64_t network);
     AbilityOwnerSnapshot ability_snapshot(AbilityOwnerHandle)const;
+    double ability_available(AbilityOwnerHandle,AttributeId)const;
+    std::vector<AbilityCommitUpdate> drain_ability_commitments();
     std::vector<AbilityActionUpdate> drain_ability_actions();
     void retire_ability_operations(AbilityOwnerHandle,std::uint64_t through);
     // Explicit server ownership; movement commands never grant authority.

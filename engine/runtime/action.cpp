@@ -18,7 +18,7 @@ void validate_motion(const ActionDefinition& definition){
     for(auto value:clip.root.front())require(std::abs(value)<1e-5,"Action clip initial root");
     for(const auto& key:clip.root)for(auto value:key)require(std::isfinite(value)&&std::abs(value)<=100,"Action clip root scalar bounds");
 }
-bool interval(ActionBlockKind kind){return kind!=ActionBlockKind::Cue;}
+bool interval(ActionBlockKind kind){return kind!=ActionBlockKind::Cue&&kind!=ActionBlockKind::Commit;}
 ActionEvent event(const ActionState& state,const ActionBlock& block,unsigned loop,unsigned local,ActionEdge edge,unsigned duration){return {state.activation,std::uint64_t(loop)*duration+local,block.id,block.track,loop,edge,block.kind,block.key};}
 void order(ActionBatch& batch){require(batch.events.size()<=512&&batch.traversed.size()<=256,"Action boundary work limit");std::sort(batch.events.begin(),batch.events.end(),[](const auto& a,const auto& b){return std::tie(a.time,a.loop,a.track,a.block,a.edge)<std::tie(b.time,b.loop,b.track,b.block,b.edge);});}
 }
@@ -32,7 +32,7 @@ ActionDefinition decode_action_source(std::string_view bytes){
     require(source.at("blocks").is_array()&&source.at("blocks").size()<=32,"Action block bound");std::set<unsigned> ids;
     for(const auto& record:source.at("blocks")){
         require(record.is_object()&&record.size()==6,"Action block schema");ActionBlock block;block.id=integer(record.at("id"),UINT32_MAX);require(block.id&&ids.insert(block.id).second,"Action block identity");block.track=integer(record.at("track"),31);block.begin=integer(record.at("begin"),definition.duration);block.end=integer(record.at("end"),definition.duration);block.key=record.at("key").get<std::string>();require(!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed key");
-        auto kind=record.at("kind").get<std::string>();if(kind=="cue")block.kind=ActionBlockKind::Cue;else if(kind=="hit")block.kind=ActionBlockKind::HitWindow;else if(kind=="invulnerability")block.kind=ActionBlockKind::Invulnerability;else if(kind=="movement-lock")block.kind=ActionBlockKind::MovementLock;else if(kind=="combo")block.kind=ActionBlockKind::ComboWindow;else throw std::runtime_error("Unsupported action block kind");
+        auto kind=record.at("kind").get<std::string>();if(kind=="cue")block.kind=ActionBlockKind::Cue;else if(kind=="hit")block.kind=ActionBlockKind::HitWindow;else if(kind=="invulnerability")block.kind=ActionBlockKind::Invulnerability;else if(kind=="movement-lock")block.kind=ActionBlockKind::MovementLock;else if(kind=="combo")block.kind=ActionBlockKind::ComboWindow;else if(kind=="commit")block.kind=ActionBlockKind::Commit;else throw std::runtime_error("Unsupported action block kind");
         require(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition.duration,"Action marker/interval range");definition.blocks.push_back(std::move(block));
     }
     if(source.at("schema")==2){
@@ -51,7 +51,7 @@ ActionMotion action_motion_between(const ActionDefinition& definition,std::uint6
 ActionTimeline::ActionTimeline(std::shared_ptr<const ActionDefinition> definition,std::uint64_t activation,std::uint64_t tick){
     require(definition&&activation&&definition->duration>=action_tick_units&&definition->duration<=600*action_tick_units&&definition->loops&&definition->loops<=8&&definition->blocks.size()<=32&&definition->generation.size()==64,"Action activation definition bounds");
     require(definition->priority<=255&&definition->generation.find_first_not_of("0123456789abcdef")==definition->generation.npos,"Action definition metadata");
-    std::set<unsigned> ids;for(const auto& block:definition->blocks)require(block.id&&ids.insert(block.id).second&&block.track<=31&&block.end<=definition->duration&&block.begin<=definition->duration&&static_cast<unsigned>(block.kind)<=static_cast<unsigned>(ActionBlockKind::ComboWindow)&&(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition->duration)&&!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed definition block");
+    std::set<unsigned> ids;for(const auto& block:definition->blocks)require(block.id&&ids.insert(block.id).second&&block.track<=31&&block.end<=definition->duration&&block.begin<=definition->duration&&static_cast<unsigned>(block.kind)<=static_cast<unsigned>(ActionBlockKind::Commit)&&(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition->duration)&&!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed definition block");
     validate_motion(*definition);
     // Definitions are copied so mutable aliases cannot change an active generation.
     definition_=std::make_shared<const ActionDefinition>(*definition);state_.activation=activation;state_.tick=tick;state_.generation=definition_->generation;

@@ -27,6 +27,8 @@ struct AbilityDefinition {
     AssetId tag_registry;std::string tag_generation;TagRequirement requirements;
     // Typed interval bindings. Their contribution belongs to this execution.
     std::vector<AbilityActionTag> action_tags;
+    // Zero preserves immediate commitment. A selected marker reserves first.
+    unsigned deferred_commit_block{};
 };
 // Shared validation/freezing for cooked definitions and runtime grant installation.
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
@@ -57,7 +59,7 @@ struct AbilityReceipt {
     std::uint64_t operation{},tick{},inclusion_revision{};
 };
 struct AbilityOperationNotice {std::uint64_t network{};AbilityReceipt receipt;bool terminal{true};};
-enum class AbilityActionReason {Started,Advanced,Completed,Cancelled,Replaced,GrantRemoved,Despawned,Death,Disconnected,InputLost};
+enum class AbilityActionReason {Started,Advanced,Completed,Cancelled,Replaced,GrantRemoved,Despawned,Death,Disconnected,InputLost,CommitRejected};
 struct AbilityActionUpdate {
     AbilityActivationHandle handle;ActionPhase phase{};
     AbilityActionReason reason{AbilityActionReason::Completed};std::uint64_t tick{};ActionBatch batch;
@@ -65,6 +67,9 @@ struct AbilityActionUpdate {
 struct AbilityAttributeValue {AttributeId id{};double value{};};
 struct AbilitySnapshotOperation {std::uint64_t operation{};AbilityFailure failure{};std::uint64_t activation{};bool committed{};};
 struct AbilityInputSnapshot {bool active{},hold_sent{},rearm{};std::uint64_t pressed{},released{},duration{};};
+enum class AbilityCommitPhase {Reserved,Committed,Released,Rejected};
+struct AbilityCommitUpdate {AbilityActivationHandle handle;std::uint64_t operation{},tick{},revision{};unsigned block{};AbilityCommitPhase phase{};AbilityFailure failure{};};
+struct AbilityReservationSnapshot {unsigned block{};std::vector<AbilityCost> costs;std::uint32_t cooldown_group{};std::uint64_t cooldown_ticks{};};
 // Public actor state has no grants, input, operation history, costs or cooldowns.
 struct AbilityPublicSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},revision{};
@@ -91,5 +96,7 @@ struct AbilityOwnerSnapshot {
     // Owner-only provenance: these exact tags have no external contributor.
     // The remaining aggregate is restored before the frozen action is rebuilt.
     std::vector<TagId> action_only_tags;
+    std::uint64_t active_operation{};
+    std::optional<AbilityReservationSnapshot> reservation;
 };
 }

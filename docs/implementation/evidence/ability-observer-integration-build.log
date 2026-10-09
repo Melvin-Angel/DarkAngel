@@ -1,1 +1,91 @@
-ninja: no work to do.
+[1/119] Scanning C:\DarkAngel\tests\motor_tests.cpp for CXX dependencies
+[2/119] Scanning C:\DarkAngel\tests\motor_session_tests.cpp for CXX dependencies
+[3/119] Scanning C:\DarkAngel\tests\motor_fault_tests.cpp for CXX dependencies
+[4/119] Scanning C:\DarkAngel\tests\effect_asset_tests.cpp for CXX dependencies
+[5/119] Scanning C:\DarkAngel\tests\collision_stream_tests.cpp for CXX dependencies
+[6/119] Scanning C:\DarkAngel\tests\effect_tests.cpp for CXX dependencies
+[7/119] Scanning C:\DarkAngel\tests\effect_budget_tests.cpp for CXX dependencies
+[8/119] Scanning C:\DarkAngel\tests\effect_replication_tests.cpp for CXX dependencies
+[9/119] Scanning C:\DarkAngel\tests\ability_reservation_tests.cpp for CXX dependencies
+[10/119] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[11/119] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[12/119] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[13/119] Scanning C:\DarkAngel\tests\gns_tests.cpp for CXX dependencies
+[14/119] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[15/119] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[16/118] Generating CXX dyndep file CMakeFiles\PhysicsQuerySensorTests.dir\CXX.dd
+[17/117] Generating CXX dyndep file CMakeFiles\MotorBudgetTests.dir\CXX.dd
+[18/116] Generating CXX dyndep file CMakeFiles\PlatformAxesTests.dir\CXX.dd
+[19/115] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[20/114] Generating CXX dyndep file CMakeFiles\AnimationTests.dir\CXX.dd
+[21/113] Generating CXX dyndep file CMakeFiles\AnimationClipTests.dir\CXX.dd
+[22/112] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
+[23/111] Generating CXX dyndep file CMakeFiles\JointMaskTests.dir\CXX.dd
+[24/110] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[25/109] Generating CXX dyndep file CMakeFiles\EffectAssetTests.dir\CXX.dd
+[26/109] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[27/108] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
+[28/107] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[29/107] Generating CXX dyndep file CMakeFiles\CollisionObserverTests.dir\CXX.dd
+[30/106] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[31/105] Generating CXX dyndep file CMakeFiles\ExternalImportTests.dir\CXX.dd
+[32/104] Generating CXX dyndep file CMakeFiles\AttributeTests.dir\CXX.dd
+[33/103] Generating CXX dyndep file CMakeFiles\CombatKitTests.dir\CXX.dd
+[34/102] Generating CXX dyndep file CMakeFiles\InputTests.dir\CXX.dd
+[35/101] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[36/100] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[37/98] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[38/96] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[39/94] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[40/93] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[41/92] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[42/91] Generating CXX dyndep file CMakeFiles\EffectTests.dir\CXX.dd
+[43/91] Generating CXX dyndep file CMakeFiles\EffectBudgetTests.dir\CXX.dd
+[44/91] Generating CXX dyndep file CMakeFiles\EffectReplicationTests.dir\CXX.dd
+[45/91] Generating CXX dyndep file CMakeFiles\AbilityReservationTests.dir\CXX.dd
+[46/91] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[47/91] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[48/91] Building CXX object CMakeFiles\MotorTests.dir\tests\motor_tests.cpp.obj
+[49/91] Building CXX object CMakeFiles\MotorSessionTests.dir\tests\motor_session_tests.cpp.obj
+[50/91] Building CXX object CMakeFiles\MotorFaultTests.dir\tests\motor_fault_tests.cpp.obj
+[51/91] Building CXX object CMakeFiles\CollisionStreamTests.dir\tests\collision_stream_tests.cpp.obj
+[52/91] Building CXX object CMakeFiles\EffectTests.dir\tests\effect_tests.cpp.obj
+[53/91] Building CXX object CMakeFiles\EffectAssetTests.dir\tests\effect_asset_tests.cpp.obj
+[54/91] Building CXX object CMakeFiles\EffectBudgetTests.dir\tests\effect_budget_tests.cpp.obj
+[55/91] Building CXX object CMakeFiles\EffectReplicationTests.dir\tests\effect_replication_tests.cpp.obj
+[56/91] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[57/91] Building CXX object CMakeFiles\AbilityReservationTests.dir\tests\ability_reservation_tests.cpp.obj
+[58/91] Linking CXX executable MotorTests.exe
+[59/91] Building CXX object CMakeFiles\GnsTests.dir\tests\gns_tests.cpp.obj
+[60/91] Linking CXX executable MotorFaultTests.exe
+[61/91] Linking CXX executable MotorSessionTests.exe
+[62/91] Linking CXX executable MotorDynamicTests.exe
+[63/91] Linking CXX executable PhysicsQuerySensorTests.exe
+[64/91] Linking CXX executable MotorBudgetTests.exe
+[65/91] Linking CXX executable PlatformAxesTests.exe
+[66/91] Linking CXX executable DarkAngelHeadless.exe
+[67/91] Linking CXX executable AnimationClipTests.exe
+[68/91] Linking CXX executable AnimationTests.exe
+[69/91] Linking CXX executable AnimationGraphTests.exe
+[70/91] Linking CXX executable JointMaskTests.exe
+[71/91] Linking CXX executable RenderableHumanTests.exe
+[72/91] Linking CXX executable EffectAssetTests.exe
+[73/91] Linking CXX executable CollisionAssetTests.exe
+[74/91] Linking CXX executable CollisionStreamTests.exe
+[75/91] Linking CXX executable CollisionMeshTests.exe
+[76/91] Linking CXX executable CollisionObserverTests.exe
+[77/91] Linking CXX executable AssetTests.exe
+[78/91] Linking CXX executable ExternalImportTests.exe
+[79/91] Linking CXX executable AttributeTests.exe
+[80/91] Linking CXX executable CombatKitTests.exe
+[81/91] Linking CXX executable EditorTests.exe
+[82/91] Linking CXX executable FoundationTests.exe
+[83/91] Linking CXX executable ScriptPackageTests.exe
+[84/91] Linking CXX executable InputTests.exe
+[85/91] Linking CXX executable AssemblyTests.exe
+[86/91] Linking CXX executable EffectBudgetTests.exe
+[87/91] Linking CXX executable EffectTests.exe
+[88/91] Linking CXX executable AbilityReservationTests.exe
+[89/91] Linking CXX executable EffectReplicationTests.exe
+[90/91] Linking CXX executable SessionTests.exe
+[91/91] Linking CXX executable GnsTests.exe

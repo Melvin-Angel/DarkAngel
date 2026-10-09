@@ -198,3 +198,6 @@ M4/M5 remain In progress; M6 is not ready and has not started. Next coherent inc
 
 
 9 October effect replication: EFFECT_REPLICATION_REPORT.md records bounded actor/audience effect metadata and durable attribution, prepared persistent cue lifetime state and late join. 69/69 final native and native/editor/Headless fixtures plus complete product compatibility pass. Initial transient external-import failure and successful retries are retained. Next deferred claims and authored gameplay; renderer/audio cues and all stated M4/M5 remaining gates stay open.
+
+
+9 October deferred commitment increment: ABILITY_RESERVATION_REPORT.md records typed frozen markers, resource/cooldown/slot claims, chronological revalidation/consumption, lifecycle release and schema5 owner replay. 70/70 native and editor/Headless/source-free/product compatibility pass. Next atomic on-hit status and authored Royal gameplay; all stated M4/M5 remaining gates stay open.

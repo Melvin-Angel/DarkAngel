@@ -1,3 +1,5 @@
+Current extension: ABILITY_RESERVATION_REPORT.md verifies the initial native deferred resource/cooldown/slot claim and marker/replay subset. The other listed gameplay/authoring/qualification gates remain open.
+
 # Replicated current effect state and persistent cues
 
 9 October 2026, following action-tag checkpoint 69e3b69. M4/M5 remain **In progress**.

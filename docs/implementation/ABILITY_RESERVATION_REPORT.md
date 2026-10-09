@@ -1,0 +1,25 @@
+# Deferred native ability claims and commit markers
+
+9 October 2026, following effect-state checkpoint 73357a1. M4/M5 remain **In progress**.
+
+Action Composer accepts a typed `commit` point marker. Optional `.daability` `deferred_commit_block` selects one marker in a single-loop action; zero preserves immediate commitment. Grant/cook preparation rejects missing or non-commit blocks, looping deferred actions and melee profiles that could damage before the selected marker. The existing frozen ability/action/attribute/tag/kit closure preserves and source-free loads the binding.
+
+Deferred start validates current state, reserves the frozen resource amounts and cooldown/active-slot claim, and launches the action without spending or starting the cooldown. This slice retains one active execution per owner. The checked availability query returns spendable resources above their declared minimum after the active claim. Successful replacement exchanges the outgoing claim for one incoming claim; another simultaneous request cannot consume the reserved slot. Start receipts acknowledge activation and its claims, rather than asserting that a deferred cost has been consumed.
+
+At the selected marker, native state rechecks grant, liveness, current tags, resources and cooldown eligibility. Consumption and cooldown start publish together, once. Fast action rates evaluate the exact marker's action-tag view before later interval/maximum-resource cleanup, preserving chronological cost/clamp semantics. Hitstop freezes the action marker while status/cooldown clocks continue. Failed marker validation cancels the action and releases its claims without restoring earlier resources. A crossed completion boundary and lethal Health cost use balanced cleanup. Pre-commit cancel, grant removal, death, disconnect and despawn release claims idempotently; cancellation after consumption refunds neither resources nor cooldown.
+
+Authority-side Reserved/Committed/Released/Rejected traces correlate owner/activation/start operation/marker block and simulation tick/revision. Their global queue is bounded to 128; exhaustion rejects the entire candidate before publication, allowing a drained exact retry. These traces are not an extra client RPC or gameplay authority.
+
+Owner correction schema 5 adds the active start operation and optional bounded resource/cooldown claim to the existing schema-4 provenance. Public action schema remains 2 and transport protocol remains 3. The maximum active owner tag/attribute/cooldown/operation/provenance plus eight reserved resources fits the existing 8192-byte limit. Server-only resource claims are filtered from the owner view; the prepared owner subset still rejects definitions requiring unavailable private resource schemas.
+
+Owner prediction restores claims against the pinned definition/marker phase and uses the same native subset for pending cancellation and marker consumption. Exact start inclusion retires the input operation while preserving the active claim. Explicit active-operation identity survives history retirement, allowing a newly prepared owner to restore the charging execution and replay it through its marker. Corrections after consumption do not charge twice. Unknown/forged claim magnitudes and inconsistent marker phases reject the candidate and require resynchronization. External effect-dependent attribute recomputation and periodic gameplay remain outside prediction.
+
+## Verification
+
+70/70 complete optimized native checks pass, together with the dedicated native/full-editor/Headless fixture, authored source-free ability checks, effect/cue/tag/asset/budget/Royal/observer/prediction compatibility, 16/16 affected Royal, 6/6 ordinary Headless, D3D12/Vulkan combat and GNS compatibility. Reproduce with `python scripts/verify_ability_reservations.py --build`; final source/binary hashes and linked receipts are recorded in `evidence/ability-reservations.json`.
+
+Focused checks cover reservation/availability, simultaneous/duplicate requests, hitstop, marker and time-zero consumption, pre/post-commit cancellation, new resource/blocker rejection, replacement, grant/death/disconnect/despawn cleanup, bounded queue rollback/retry, restored owner claims and exact inclusion/history retirement, malformed/frozen claim rejection, dense byte limits, source-free cooked marker execution, fast crossing with maximum-resource modifiers, and lethal consumption across completion.
+
+## Remaining gates
+
+This initial policy has one execution and one selected marker per owner. Concurrent multi-spec casts, channels, per-step combo/refund rules and targeting reservations are not implied. Primary Royal preserves its immediate light attack; authored charge/dodge/status/motor/combo/projectile gameplay is next. Typed graph/layer/mask/socket and reflected authoring, generated constants/checked Luau, cue renderer/audio/one-shot confirmation, full clock/fault/streaming/bandwidth/allocation/frame-performance qualification and graphical RmlUi bars remain open. M3 live EOS remains externally blocked; M6 has not started.

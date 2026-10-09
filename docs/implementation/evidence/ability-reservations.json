@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
+  "scope": "Frozen typed commit marker, one-execution resource/cooldown/slot claims, native marker revalidation/consumption/lifecycle release, correlated commitment trace and owner schema5 replay",
+  "gates": [
+    {
+      "name": "ability-reservations-product",
+      "exit": 0,
+      "seconds": 526.177
+    },
+    {
+      "name": "ability-reservations-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 4.123
+    },
+    {
+      "name": "ability-reservations-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 4.25
+    },
+    {
+      "name": "ability-reservations-native",
+      "exit": 0,
+      "seconds": 0.14
+    },
+    {
+      "name": "ability-reservations-editor",
+      "exit": 0,
+      "seconds": 0.175
+    },
+    {
+      "name": "ability-reservations-headless",
+      "exit": 0,
+      "seconds": 0.178
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
+    "engine/runtime/action.cpp": "1592fbefb1c5ec255ba4a96b711942a094b6cb11efb6bd950b9b3527b5ab48c8",
+    "engine/runtime/include/darkangel/action.hpp": "97f23b108a3d8ae172a4a9b37efddcb1ea83234be986c9f42b0ffea817eb9635",
+    "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
+    "engine/runtime/ability_state.hpp": "98e959686a826f8ccde346e50193420255ce7f7a8740c998f17d3527384192c9",
+    "engine/runtime/include/darkangel/ability.hpp": "891f39b1387843d0bb35095514f1165ba38dbddf85db36bff2d1a5b4804b432b",
+    "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
+    "engine/runtime/ability_wire.cpp": "c2b11f12edda8cd7a263404b7836d86debcbf271a37809473ed2f65b1f718b3c",
+    "engine/runtime/world_session.cpp": "b786b11847f2c8a8edf92ccd4eec7ed28c0b81a035a8813c8abad94e6f1bd29b",
+    "engine/runtime/include/darkangel/world_session.hpp": "d3da40c162c085a865c21f947e404cb38a169235de56e39fb9cb12a09247b416",
+    "engine/assets/ability_cooker.cpp": "f37694f3404e7309d0efe4d979d1c50f6dbfff22b7b51493b5d529098f0081ad",
+    "tests/ability_reservation_tests.cpp": "e3b1e74091d905f46ef43c87edc7bd60b9f140a66d2396e1f56802f74c2c72e7",
+    "tests/ability_asset_tests.cpp": "b38fbfd7aa0b94a9ffd8a032e4183e155a668f543d375f07ad4a727de8db9d3b",
+    "tests/ability_tag_tests.cpp": "5d891fa39f5962140a94fe601abec00facca15c56aa86e4ac787d95d5fca4574",
+    "scripts/verify_ability_reservations.py": "0d22f2afa86b2e38bff1f9640d2c6d6ea833717d6d6bc1e8b6c4414269b3e4ab"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/AbilityReservationTests.exe": "a75a66ba75018e4a6f1e9a1b38bed00ec0b964e467e2678a8c575d1c74e5cb05",
+    "build/m5-editor-relwithdebinfo/AbilityReservationTests.exe": "b9ed0d037d303686d2c845baadb73936b714bb4b9a214d96a316ff7297f6b3d3",
+    "build/m1-relwithdebinfo/AbilityReservationTests.exe": "cbb4cf753e5aa3b6572323e6aca7c13d98815cd6f8d142ac62eb7ecf6c542f36"
+  },
+  "related_evidence": [
+    "effect-replication.json",
+    "action-tags.json",
+    "effect-assets.json",
+    "royal-combat.json"
+  ],
+  "limitations": [
+    "The initial policy has one active execution per owner and one selected marker in a single-loop action; concurrent multi-spec casts, per-step/channel/refund policies and targeting reservations are not implied.",
+    "Start receipts confirm activation/claims. Native commitment updates correlate owner/activation/start operation/block; they are authority-side traces. Owner correction carries active start operation and pending resource/cooldown claims, never an additional client gameplay authority.",
+    "Owner prediction uses the same prepared claim/marker subset and corrected baseline; external effect-dependent attribute recomputation and periodic gameplay remain unpredicted.",
+    "Primary Royal preserves its light attack; authored charge/dodge/status/motor/combo/projectile, reflected/Luau/graph/socket, full clock/fault/streaming/performance and graphical RmlUi gates remain open. M4/M5 stay In progress; M6 not started."
+  ]
+}

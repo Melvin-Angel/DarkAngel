@@ -1,17 +1,17 @@
 {
   "schema": 1,
-  "base_head": "69e3b6974816fe4dc9311f3681561e17af1ef096",
+  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
   "scope": "Native normalized model-to-collision source/CAS, render-placement geometry fencing, precise Royal terrain/hut Jolt rays/materials/clearance and primary editor combat plus original scene locomotion",
   "gates": [
     {
       "name": "royal-collision-product",
       "exit": 0,
-      "seconds": 38.608
+      "seconds": 430.891
     },
     {
       "name": "royal-collision-editor",
       "exit": 0,
-      "seconds": 2.151
+      "seconds": 2.536
     }
   ],
   "related_evidence": [
@@ -19,7 +19,7 @@
     "royal-combat.json"
   ],
   "source_sha256": {
-    "CMakeLists.txt": "e72b2c7817c05083ab4827d4d53eaf99e5f15290da29c7d625fe170828ca841b",
+    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
     "engine/assets/model_collision.cpp": "ba49059bd6816f6805270e843565d16647e962075a218e76ea75e00cb3aaa2df",
     "engine/assets/include/darkangel/model_collision.hpp": "10b0aa75fda6dfeb1261f4c663f4ea7ee939ad670b07a5fe66b16d7a16d0abf1",
     "engine/assets/collision_cooker.cpp": "cb6e4679dc8354fe9144a23974538d062d5e7806a3e9a7096bc5349b2b2f1c23",
@@ -95,10 +95,10 @@
     "content/royal_district/static/terrain/SM_RC_Terrain_SlopeDiagonal_8x8x4.gltf": "87e5fdb7936ef5b720b450f739077ca1ee185451c9867e5c2f7f24ef5f4e5474"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "8d6960d3771a4dac3c72dd73fbd6670ab04557c1f4f87fe320c231b0f2faec8b",
-    "build/m5-relwithdebinfo/AssetTool.exe": "5bec5fa7701146d69befb0bb9188bdc28301d9eb0a0f4a7eedda310303832c58",
-    "build/m5-relwithdebinfo/RoyalCollisionTests.exe": "1a64175dd46f8f2b6a555d32bf8d595c0ef94a17a0388cacbb385fd87037783b",
-    "build/m5-editor-relwithdebinfo/RoyalCollisionTests.exe": "b2c07e11178f7d874316d378a59bb7274d2f12a896fbdcef9f9dcdebf2a02c8c"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "d395ee5c59bb4f1ffa4e51bce8eff6d019ea5d2ba665d8ad5a9e4ad644855fe7",
+    "build/m5-relwithdebinfo/AssetTool.exe": "99e3f40479b35b82d1e65a2dad70e8baf851a18541f0db40bd1102398d8b37d1",
+    "build/m5-relwithdebinfo/RoyalCollisionTests.exe": "8cb6843c39d651599557cef72d463e4f40fd1b88ab240ff5b387b4ffe466139a",
+    "build/m5-editor-relwithdebinfo/RoyalCollisionTests.exe": "29ddaec801c1aefa62efd652a3a16d2de0aa0dfbacbb387eaa0d492699fd05be"
   },
   "limitations": [
     "Static solid model profile; tested hut entrances contain closed geometry. Authored door state/interactions and additional collision policies remain future work.",

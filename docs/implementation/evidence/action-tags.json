@@ -1,62 +1,62 @@
 {
   "schema": 1,
-  "base_head": "69e3b6974816fe4dc9311f3681561e17af1ef096",
-  "scope": "Frozen .daability typed interval-tag bindings, action-owned contributor cleanup, owner schema4 provenance and reversible pending replay preserving external overlap",
+  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
+  "scope": "Frozen .daability typed interval-tag bindings, action-owned contributor cleanup, owner schema5 provenance and reversible pending replay preserving external overlap",
   "gates": [
     {
       "name": "action-tags-product",
       "exit": 0,
-      "seconds": 118.159
+      "seconds": 503.485
     },
     {
       "name": "action-tags-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 4.411
+      "seconds": 4.156
     },
     {
       "name": "action-tags-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 4.691
+      "seconds": 4.541
     },
     {
       "name": "action-tags-native",
       "exit": 0,
-      "seconds": 0.111
+      "seconds": 0.129
     },
     {
       "name": "action-tags-editor",
       "exit": 0,
-      "seconds": 0.179
+      "seconds": 0.477
     },
     {
       "name": "action-tags-headless",
       "exit": 0,
-      "seconds": 0.191
+      "seconds": 0.148
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "e72b2c7817c05083ab4827d4d53eaf99e5f15290da29c7d625fe170828ca841b",
-    "engine/runtime/ability.cpp": "1eb79479c852462362a5e737c867b0c6adccb3e54ac9ec55c752e7a385d52ee8",
-    "engine/runtime/ability_state.hpp": "dc8e14f2b03aa61c04121f0b047d74eb00ca4ee745f713f272819877c936959c",
-    "engine/runtime/ability_wire.cpp": "2fd70aece8d658ef8ffc410c268b9281e518a540c4868303796cb1d77839e159",
-    "engine/runtime/ability_prediction.cpp": "06adb60c64b71311bb682f65bafa066b9f31cc604fd4dda72363e2e6298b9586",
+    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
+    "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
+    "engine/runtime/ability_state.hpp": "98e959686a826f8ccde346e50193420255ce7f7a8740c998f17d3527384192c9",
+    "engine/runtime/ability_wire.cpp": "c2b11f12edda8cd7a263404b7836d86debcbf271a37809473ed2f65b1f718b3c",
+    "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
     "engine/runtime/tags.cpp": "62b759a25f7003708798408e3129e0b1ad1d01a84d7e5f67f27ab7cd7e1a82f6",
     "engine/runtime/effects.cpp": "434a495ee51b01b730559cfc9ffee145df6bace60a8b3e2cd95d6fc808d3dabd",
-    "engine/runtime/include/darkangel/ability.hpp": "8957d4db9f3050b18dc4f96cfb213e7239a9965b9666bf1081dc655bf3380722",
+    "engine/runtime/include/darkangel/ability.hpp": "891f39b1387843d0bb35095514f1165ba38dbddf85db36bff2d1a5b4804b432b",
     "engine/runtime/include/darkangel/tags.hpp": "1286492c098028676865857671b950c018dd4babb28044ef2c0eb310dac6789b",
     "engine/runtime/include/darkangel/effects.hpp": "ebf541e9b9056c564ae8faef98245f90dce3abc1f42d935aebee01b1093e0fb6",
-    "engine/assets/ability_cooker.cpp": "7bd1d4764da3aab23c54224dec679aa9f5043bf1964c0163de79f51930102669",
+    "engine/assets/ability_cooker.cpp": "f37694f3404e7309d0efe4d979d1c50f6dbfff22b7b51493b5d529098f0081ad",
     "tests/action_tag_tests.cpp": "a1348cbfaa66084e46a7502a5271a675d8484da4086e99283409d0cea8918444",
     "tests/melee_tests.cpp": "859a52a2801764db771dd1a3f82caa0dc3311414f6fca26eb951187e29992447",
-    "tests/ability_tag_tests.cpp": "6a6655e4b0bac6dd92e21e2384cd9c12078561719a5c7933d5a94191375a5027",
-    "tests/ability_asset_tests.cpp": "44f64781a44fba870f70f02e7f36a1f01651e7845c0166f5cee857316b258d8a",
-    "scripts/verify_action_tags.py": "b4b789745c19f2649a6818ba0ba18aa0878d17756c2304aa495632606a5ccd00",
-    "engine/runtime/world_session.cpp": "d882b45b9b5e499e7df8ba0e66e23b4e1fd5685c73f11004d457353ce420f5ba"
+    "tests/ability_tag_tests.cpp": "5d891fa39f5962140a94fe601abec00facca15c56aa86e4ac787d95d5fca4574",
+    "tests/ability_asset_tests.cpp": "b38fbfd7aa0b94a9ffd8a032e4183e155a668f543d375f07ad4a727de8db9d3b",
+    "scripts/verify_action_tags.py": "da2827623cf6eac5b1d46f1a731af2b2bec6d5af8e4a02257335f43183a7920e",
+    "engine/runtime/world_session.cpp": "b786b11847f2c8a8edf92ccd4eec7ed28c0b81a035a8813c8abad94e6f1bd29b"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/ActionTagTests.exe": "67595bee85ae93b42610418210b63abefe09a9603ad89ef9c0113ab833f65fc2",
-    "build/m5-editor-relwithdebinfo/ActionTagTests.exe": "d584dde273c49aa338ad8c77efa204fc3204329a73261be90262b46b57bd3a42",
-    "build/m1-relwithdebinfo/ActionTagTests.exe": "ff0a0626cb07bcb4b52dddbbc6f605d35b781f3e92c43a288b2792423de766a7"
+    "build/m5-relwithdebinfo/ActionTagTests.exe": "512e53c8065099629508f7cc6e61e1e801d236b341b9d089a124f61e7d123f52",
+    "build/m5-editor-relwithdebinfo/ActionTagTests.exe": "1fa8ad700264e513ad9d1f8ea62ccd8392ef9396a01cab64ccf66c87718286e3",
+    "build/m1-relwithdebinfo/ActionTagTests.exe": "b980a4b459156af4146b434808cd2ebd9c86a35265465ea1aeb36b7d88be9845"
   },
   "related_evidence": [
     "effect-budget.json",
@@ -66,7 +66,7 @@
   ],
   "limitations": [
     "Action tags describe the active half-open interval clock; crossed hit/root intervals retain their existing separate bounded semantics.",
-    "Owner prediction reverses action contributions but holds confirmed external tags and attributes until correction; effect instances/timers/credit and effect-dependent attribute recomputation are not yet predicted.",
+    "Owner prediction reverses action contributions but holds confirmed external tags and attributes until correction; effect-dependent attribute recomputation and periodic executions are not predicted. Current effect-state/cue reconstruction is checked separately.",
     "Server-only action bindings are rejected by the current owner prediction subset. Public observers restore only current public presence and never execute historical damage/cues.",
     "Primary Royal still uses its original light attack; authored dodge/status/motor/combo/projectile, persistent cues, reservations, reflected/Luau/graph/socket and full clock/fault/streaming/performance gates remain open. M4/M5 stay In progress; M6 not started."
   ]

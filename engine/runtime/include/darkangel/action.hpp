@@ -10,7 +10,7 @@
 namespace darkangel {
 // One tick is 1024 action units. Global simulation continues during rate-zero hitstop.
 inline constexpr unsigned action_tick_units=1024;
-enum class ActionBlockKind {Cue,HitWindow,Invulnerability,MovementLock,ComboWindow};
+enum class ActionBlockKind {Cue,HitWindow,Invulnerability,MovementLock,ComboWindow,Commit};
 enum class ActionPhase {Active,Completed,Cancelled};
 enum class ActionEdge {End,Marker,Begin};
 struct ActionBlock {unsigned id{},track{},begin{},end{};ActionBlockKind kind{};std::string key;};

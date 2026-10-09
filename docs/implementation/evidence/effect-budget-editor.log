@@ -1,2 +1,2 @@
-Native effect workload actors=4 active=128 ticks=240 outcomes=512 peak_due=128 mean_ms=0.125542 p99_ms=0.2491 max_ms=0.472 ordinary_cpp_new_calls=332964
+Native effect workload actors=4 active=128 ticks=240 outcomes=512 peak_due=128 mean_ms=0.113715 p99_ms=0.2348 max_ms=0.2833 ordinary_cpp_new_calls=333924
 Global periodic reservation, atomic overflow/removal/refresh and bounded native timing/allocation evidence passed

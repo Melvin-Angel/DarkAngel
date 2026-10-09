@@ -20,6 +20,7 @@ struct OwnerAbilityPrediction::Impl {
         for(const auto& ability:catalogue)if(ability)for(const auto& binding:ability->action_tags){auto tag_definitions=dictionary.definitions();auto d=std::find_if(tag_definitions.begin(),tag_definitions.end(),[&](const auto& value){return value.id==binding.tag;});require(d!=tag_definitions.end()&&d->visibility!=AttributeVisibility::Server,"Owner prediction cannot grant server-only action tags");}
         for(const auto& ability:catalogue)if(ability)for(const auto* list:{&ability->requirements.all,&ability->requirements.any,&ability->requirements.none})for(auto tag:*list)for(const auto& d:dictionary.definitions())require(d.visibility!=AttributeVisibility::Server||!dictionary.descends(d.id,tag),"Owner prediction cannot depend on server-only tag state");
         state.equip(std::move(kit),input,catalogue);state.restore_prediction(baseline);
+        confirmed_action_operation=baseline.active_operation;
         AttributeSet validation(std::move(schema));
         for(const auto& definition:catalogue)definitions.push_back(freeze_ability_definition(*definition,validation,&dictionary));current=state.snapshot();
         if(baseline.active)for(const auto& operation:baseline.operations)if(operation.committed&&operation.activation==baseline.active->activation)confirmed_action_operation=operation.operation;
@@ -39,7 +40,7 @@ struct OwnerAbilityPrediction::Impl {
             require(result.first.failure!=AbilityFailure::HistoryFull&&result.first.failure!=AbilityFailure::OperationConflict&&result.first.failure!=AbilityFailure::StaleOperation,"Prediction operation history unavailable");
             operation.predicted_commit=result.first.committed;
         }
-        auto updates=state.finish_tick(frame.rate,false);auto after=state.snapshot();AbilityPredictionMotion output;output.tick=frame.tick;
+        auto updates=state.finish_tick(frame.rate,false);state.take_commitments();auto after=state.snapshot();AbilityPredictionMotion output;output.tick=frame.tick;
         if(after.active){const auto& definition=action(after);auto from=before.active==after.active?before.action->clock:0;output.activation=after.active->activation;output.local=action_motion_between(definition,from,after.action->clock);}
         else if(before.active)for(const auto& update:updates)if(update.handle==*before.active&&update.phase==ActionPhase::Completed){const auto& definition=action(before);output.activation=before.active->activation;output.local=action_motion_between(definition,before.action->clock,std::uint64_t(definition.duration)*definition.loops);}
         current=std::move(after);return output;
@@ -86,6 +87,7 @@ bool OwnerAbilityPrediction::reconcile(const AbilityOwnerSnapshot& baseline){
         std::erase_if(candidate.operations,[&](const auto& item){return included.contains(item.first);});std::erase_if(candidate.frames,[&](const auto& frame){return frame.tick<=baseline.tick;});
         require(candidate.frames.empty()||candidate.frames.front().tick==baseline.tick+1,"Ability prediction missing tick history");
         if(!baseline.active||!candidate.confirmed.active||baseline.active->activation!=candidate.confirmed.active->activation)candidate.confirmed_action_operation=0;
+        if(baseline.active)candidate.confirmed_action_operation=baseline.active_operation;
         if(baseline.active)for(const auto& operation:baseline.operations)if(operation.committed&&operation.activation==baseline.active->activation)candidate.confirmed_action_operation=operation.operation;
         candidate.confirmed=baseline;candidate.highest_submitted=std::max(candidate.highest_submitted,baseline.highest_operation);candidate.rebuild();*impl_=std::move(candidate);return true;
     }catch(...){impl_->resync=true;throw;}

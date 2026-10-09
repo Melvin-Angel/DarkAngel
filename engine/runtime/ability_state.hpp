@@ -39,10 +39,13 @@ public:
     void cleanse_effects(const TagRequirement&);
     void source_destroyed(std::uint64_t,std::uint64_t);
     const OwnedEffects& effects()const{return effects_;}
+    double available(AttributeId)const;
+    std::vector<AbilityCommitUpdate> take_commitments(){auto result=std::move(commitments_);commitments_.clear();return result;}
 private:
     struct Execution {
         CombatSlot slot;std::uint64_t grant_generation;
         std::shared_ptr<const AbilityDefinition> definition;ActionTimeline timeline;
+        std::uint64_t operation{};AbilityCommitPhase cost_phase{AbilityCommitPhase::Committed};
     };
     struct Record {AbilityRequest request;AbilityReceipt receipt;std::optional<AbilityIntent> intent;};
     struct HeldInput {bool active{};std::uint64_t pressed{},released{},duration{};bool hold_sent{};};
@@ -57,8 +60,11 @@ private:
     std::optional<Execution> active_;
     std::map<std::uint32_t,std::uint64_t> cooldowns_;
     std::map<std::uint64_t,Record> records_;
+    std::vector<AbilityCommitUpdate> commitments_;
     AbilityFailure validate(const AbilityRequest&)const;
     std::vector<AbilityActionUpdate> stop(AbilityActionReason,bool release_tags=true);
     void sync_action_tags();
+    void note_commitment(AbilityCommitPhase,AbilityFailure=AbilityFailure::None);
+    AbilityFailure commit_reserved();
 };
 }
