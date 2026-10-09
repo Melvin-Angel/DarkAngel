@@ -8,6 +8,10 @@ Ability authoring implementation update (9 October): [NATIVE_AUTHORING_REPORT.md
 
 History/Save implementation update (after `3334e56`): [NATIVE_AUTHORING_HISTORY_REPORT.md](NATIVE_AUTHORING_HISTORY_REPORT.md) records session gameplay Undo/Redo, grouped form/kit-composition edits, stale-command rejection and a prepared coordinated native source/dependent kit/scene Save with normal-failure rollback. The next smallest visual increment is a read-only action lane view with isolated compatible clip/character scrubbing; full Composer remains planned.
 
+## Documentation ownership
+
+The [final engine vision](../vision/DarkAngel_Engine_Vision.md) owns the complete product target and all fifteen primary workflow descriptions. The [M0–M9 handoff](../architecture/DarkAngel_Implementation_Handoff.md) owns milestone scope/dependencies/acceptance; this plan owns incremental editor delivery. STATUS owns current state, reports own receipts and ABILITY_AUTHORING_CONTINUE owns immediate work. Historical implementation notes below are checkpoint descriptions, superseded by the current reports where later work is delivered.
+
 ## Product direction
 
 DarkAngel is tailored to making third-person co-op action games, with Ashen Roots as its concrete use case. Its main systems should have native authoring workflows integrated into the engine.
@@ -15,6 +19,8 @@ DarkAngel is tailored to making third-person co-op action games, with Ashen Root
 There is one editor product/build containing all currently implemented editor features. Milestone-named build directories and presets are temporary iteration checkpoints, not separate editor versions or feature editions. Shared-library compatibility checks may disable subsystems, but they do not define a lighter editor product. Integrate every delivered workflow into the same editor; converge temporary build naming and launch paths as the iteration checkpoints are consolidated.
 
 Use top-level workflow tabs that change the main editor layout, following the workspace idea in Blender and the distinct working views in Ableton. Scene / Level Design is the default. Each workflow gets a focused arrangement of its browser, preview, properties and tools. Prefer embedded panels and tabs; routine authoring should not require managing a collection of floating windows. Import and selection dialogs can be focused popups.
+
+Workflows are fixed initially; reusable registered dockable panels can be undocked, resized and rearranged. Persist per-workflow layouts/settings, restore factory layouts, share selection/contextual filters and related-asset navigation, and keep console/diagnostics globally available. Pinned panels are optional when useful. Do not build a general plugin framework or arbitrary workflow creation.
 
 Exact panel placement, tab names, keyboard behavior and visual design will be designed with the user. The layouts below describe intent, not an approved final mockup. Retain the established dark-gray theme, blue primary interactions and restrained orange attention states.
 
@@ -70,29 +76,33 @@ The Unity Ashen Roots combat authoring picker is a design reference to inspect r
 
 Acceptance: find an animation by name/type/tag, inspect it, assign it to a composer; multi-select compatible pieces into a list; edit tags and retain them through save/reopen and catalog rebuild. Invalid assignments reject without mutating the document. Preview work is bounded and releases resources when selection changes.
 
-## Workflow tabs
+## Fixed workflow delivery map
 
-| Workflow | User-facing authoring scope | Delivery |
-|---|---|---|
-| Scene / Level Design (default) | Scene viewport, hierarchy, asset placement, object/system presets, transforms and collision; later terrain, islands, splines, procedural placement and scatter | M4/M5 foundation; M6 world tools |
-| Game | Dedicated game viewport and play controls, profiler, input/session inspection and docked logs; authoring controls remain in menus | M4/M5 working foundation; qualification expands with each subsystem |
-| Player | Character assignment, input/action bindings, free-look/aim/dialog/lock-on camera setup and player-specific lifecycle | M5 foundation; M6 interaction/dialog links; M8 persistent roster |
-| NPC | Behavior-tree and decision-profile editing, shared character/kit, sensing, dialog and SFX-pack links | M6 AI/sensing/tree core; M7 audio packs; later dialog/persistence schemas |
-| Character | Canonical modular character creation and piece swapping; compatible other skinned/unskinned meshes and attachments; combat kit, stats, equipment and component assignments; later NPC behavior, dialog and loot | M5 character/combat core; M6 NPC/world links; M8 persistence links |
-| Ability | Ability data, costs/cooldowns/effects and composer assignment; projectile/cast presets with fire rate, burst, spread, hold-to-charge and AOE settings | M5 |
-| Animation Composer | Animation timeline and preview; hitboxes/slashes, object/VFX/projectile/AOE spawning, motion warping, invincibility/gameplay effects, parry/block windows and combo transition windows | M5 authoritative action core; M7 real VFX/audio authoring and preview |
-| Projectile / AOE | Proposed shared workflow for projectile and area definitions, shapes, timing, delivery and effects; preview and ability references | M5; exact combined layout to design |
-| Item | Proposed item definitions: description, image/icon, effects, equipment/kit links and other typed item data | M5 combat/equipment references; M6 loot/world links; M8 saved state; schema to design |
-| VFX | Integrated effect selection, authoring, preview, dependency inspection and composer bindings | M7 |
-| Texture / Material | Proposed later workflow for materials and lightweight Photoshop-style texture painting, directly on textures or selected objects | M6 terrain-material needs; broader painting deferred pending design and acceptance scope |
+All fifteen destinations are final targets, not current functionality. Main tools and required capabilities are defined once in the [vision](../vision/DarkAngel_Engine_Vision.md#primary-workflows-planned-final-targets). Effects initially remain an Ability section; Materials can remain in Assets. The previous separate Projectile/AOE and Item proposals become typed auxiliary designers within Ability/Assets and related workflows. Their runtime schema/acceptance obligations are preserved.
 
-Character support must respect the locked canonical-human contract and explicit unique nonhuman rigs. The desire to use other meshes does not authorize arbitrary runtime retargeting. Dialog, item and loot schemas require explicit design; capture their intended editor links without claiming those runtime systems already exist.
+| Workflow | Initial delivery / later refinement |
+|---|---|
+| Scene / Level Design | Existing scene shell; M4/M5 placement/import foundation, M6 world/terrain/nav/interactions |
+| Assets | M2 catalog/cook foundation, current explicit import/inventory; M4/M5 shared compatible picker/layouts, later category adapters |
+| Character Designer | M5 shared modular character/rig/kit/stat/animation references; equipment/persistence links as supported |
+| Player Designer | M5 input/movement/cameras/targeting/lifecycle/HUD references; M6 interactions, M8 persistence |
+| NPC / AI Designer | M6 native trees/profiles/sensing/navigation/debugging; M7 sound and M8 progression references |
+| Ability Designer | M5 delivered first forms/kit bindings; extend practical timing/preview before broader targeting |
+| Gameplay Effects / Attributes | M5 current effect forms, later schema/tag designers and simulator; begin inside Ability |
+| Animation | M5 read-only lanes/scrub first, then visual Composer/graphs/layers/masks; M7 cue previews |
+| VFX Designer | M7 Effekseer content tools, trails/decals and native cue integration |
+| Audio | M7 Amplitude event/bank/mixer/spatial/ambient preview and cue tools |
+| Quest / Dialog / World Events | M6 interaction foundations; M8 approved progression/dialog schemas, persistence and debugging |
+| Materials / Shaders | M2-based typed material forms in Assets; M6 terrain needs, M7 presentation diagnostics/refinement |
+| UI / HUD Designer | Required runtime HUD M5; supported RmlUi source/preview and wider menu/content tools expand through M8; optional drag-and-drop later |
+| Scripting | M1 bounded packages/reload; incrementally expose source/API/diagnostics through shared tooling, external IDE remains primary |
+| Game / Testing | Current Game/input foundation, M4/M5 movement/combat inspectors; each later subsystem extends debugging, M9 integrated qualification |
 
-Composer gameplay windows and ability presets compile to native typed assets and execute through the existing authoritative WorldSession/action/ability services. Previewing a slash or spawning a cosmetic VFX cannot cause damage. Motion warping, charge, burst, parry, block and invincibility need defined gameplay rules and focused host/client acceptance, not only visible timeline controls.
+Character definitions are shared by Player/NPC rather than owning their behavior. Preserve canonical-human and explicit unique-rig contracts. Composer windows compile to existing native action assets/WorldSession; preview cues cannot cause damage. New motion warping, charge/burst/parry/block/invulnerability rules require authoritative acceptance, not only visible controls.
 
 ## Level design direction
 
-Build a powerful native suite for fast placement of objects and game systems, terrain/floating-island sculpting, manual and procedural surface painting, splines and focused procedural tools. Optimize the tools for Ashen Roots workflows.
+Prioritize fast placement of Ashen Roots objects/game systems and mesh-first environments. Extend the locked M6 terrain, surface painting, splines and scatter tools as their products become usable. Advanced terrain sculpting is not mandatory for the first productive level-design loop.
 
 M6 develops the required mesh-first terrain path, coherent collision/navigation products, sculpt modifiers, surface/material/biome painting, spline generation and batched scatter under DAE-015/016/017. Stacked surfaces, caves and floating islands must retain their 3D geometry and paint scope. Measure edit/cook responsiveness and runtime cost on representative content.
 
@@ -100,30 +110,19 @@ Advanced volumetric sculpting and a broader texture-painting suite remain later 
 
 ## Milestone integration and acceptance
 
-This workstream extends the roadmap alongside the existing runtime gates. It does not reopen historical M2 evidence or mark later systems Verified. Each workflow must author real data used by the corresponding subsystem.
+The authoritative [roadmap workstream](../architecture/DarkAngel_Implementation_Handoff.md#ashen-roots-editor-workflow-workstream) specifies M1–M9 authoring scope, dependencies and observable extension gates alongside unchanged runtime gates. M1/M2 completion is not reopened. M3 EOS remains separately blocked; M4/M5 remain In progress. Do not infer delivery from a workflow name.
 
-| Milestone | Editor work and observable gate |
-|---|---|
-| M4/M5 shared foundation | Design workspace blueprint; implement workflow-tab shell, Scene default, typed import and shared browser/picker in bounded increments. Tab switching preserves document/selection/Play state and handles pending edits explicitly. Existing undo/save/reload behavior remains passing. |
-| M4/M5 input and Game | Deliver semantic input profiles and single/chord events, focus/lifecycle/device cancellation, and the Game-only play/viewport/profiler layout. Put save/reload in menus; add embedded Tools and Editor/Project Settings placeholders. Verify that workspace switching cancels intent without mutating scene authoring. Player camera/input assignment remains a dedicated authoring task. |
-| M5 animation/combat | Deliver Character, Ability, Composer and Projectile/AOE workflows plus agreed Item core. Create a modular character, assign kit/stats/equipment, author an action/ability and test real accepted/rejected combat. Include compatible selection, timeline preview, native cook validation and shared transactional editing. |
-| M6 world/NPCs | Deliver scene placement presets, terrain/sculpt/paint/spline/scatter tools, region/navigation inspection and NPC profile/behavior authoring. Extend Character/Item workflows with agreed NPC/dialog/loot references. Verify editor changes through cooked geometry, cell cycles and scripted NPC behavior. |
-| M7 VFX/audio | Deliver VFX workflow and integrated audio authoring/preview, real supported imports, and Composer cue bindings. Create/edit actual effect/event content and verify activation, rejection, tails and resource retirement. |
-| M8 saves/campaign | Add coherent save inspection and checkpoint/reset workflows; inspect persistent character/item/loot/world state through existing definitions. Verify persistence and failure recovery; editor inspection is not permission for guests to overwrite host state. |
-| M9 release qualification | Qualify the full authoring loop and tools package: import, find, tag, assign, preview, edit, cook and playtest; validate layout usability, bounded previews and project reopen on clean tooling installs. Game Shipping still excludes authoring endpoints. |
+Each workflow increment must provide a useful layout, relevant create/select, typed editing, compatible picking, bounded preview, visible validation/Save/cook, related-workflow links and testing through fresh Game. Reuse Inspector, Asset Browser, Console, Dependency Viewer, Cook Monitor, Tag Browser, Input Mapper, physics/nav/network/animation/ability/effect/world debuggers, Profiler, Validator, History and Scene Search as needed; optional Git status is lightweight. The vision owns the panel responsibility list.
 
 ## Implementation sequence from the current checkpoint
 
-1. Design a reviewable workspace blueprint and choose the first supported import categories, destination policy and picker interaction. Use the existing native editor as the starting point.
-2. Implement shared tab navigation, typed import and visual selection in coherent increments. Supported models/skins/animations/textures come first; other categories follow their actual adapters. Do not add empty workflows that imply working systems.
-3. Continue the real M5 attack/action/ability authority path, then expose it in Composer and Ability workflows. Build Character and Projectile/AOE authoring around those same native definitions.
-4. Close remaining M4 timing/fault/streaming and precise scene-collision gates alongside M5. M6 still waits for required M4/M5 gates; live EOS remains a separate M3 blocker.
-5. Expand world, NPC, VFX/audio and save workflows at their owning milestones, with scoped receipts and documented remaining gates.
+1. Preserve delivered native source edit/create, Ability/Effect/action forms, typed fields, kit assignment/effect composition, grouped draft history and coordinated Save. Current scope/limits are in NATIVE_AUTHORING_REPORT and NATIVE_AUTHORING_HISTORY_REPORT; no full visual Composer is implied.
+2. Follow [ABILITY_AUTHORING_CONTINUE.md](ABILITY_AUTHORING_CONTINUE.md): read-only native tick ruler/block lanes and scrub selection with isolated compatible frozen clip/character pose preview. Scrubbing never activates gameplay. Keep existing numeric editing/history/Save.
+3. Add focused structural blocks/timeline dragging, graph/layer/mask tools and broader thumbnail/tag picking; extend Character/Player kit assignment and approved modifier/status presets. New tag definitions retain rebuilt-consumer validation; broader formulas/triggers remain separate runtime increments.
+4. Preserve complete Save → Cook → Fresh Play: validate/cook changed consumer closure, rebuild full scene/model/skin/rig/animation/input/kit package, reprepare GPU/CharacterPreviewResources and isolated probe, then start a new WorldSession. Reject dirty drafts, failed publication and stale generations visibly; preserve prior packages. Never only swap a kit or silently patch a live session.
+5. Extend NPC/world, audio/VFX and progression/UI tools with their native milestones. Qualify integrated production usability in M9. Use focused tests per editor increment; full historical matrices belong at actual integration checkpoints or changed shared boundaries.
 
-All authoring uses existing EditorService/EditorDocument validation, prepare/commit, revision checks, undo/redo, save/open and scoped agent commands. Keep source assets authoritative and cooked products derived. Use the locked DAE-007/008/010/011/012/013/014/015 contracts. Exact layouts, proposed schemas and later painting scope remain open design work; this document records direction and acceptance tasks, not a new parallel runtime or finished UI specification.
-
-Implementation update 9 October: native semantic input profiles and chords, mapped Royal movement, docked Game controls/profiler/input monitor, File/Tools menus and Settings placeholders are implemented and scoped separately in [INPUT_WORKFLOW_REPORT.md](INPUT_WORKFLOW_REPORT.md). Player/NPC authoring, camera modes and interactive rebinding remain planned.
-
+Creation/deletion Undo, automatic crash recovery, background preparation, broad picker and production-quality designers remain planned. Source files/SQLite publication is normal-failure recoverable, not crash-atomic. Existing numeric action forms and shared action duplication limits remain explicit.
 
 ## Combat-kit and locomotion direction (9 October 2026)
 

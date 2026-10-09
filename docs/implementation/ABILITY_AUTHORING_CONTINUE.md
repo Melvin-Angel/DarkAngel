@@ -1,3 +1,5 @@
+Documentation planning update (9 October 2026): [Final Vision](../vision/DarkAngel_Engine_Vision.md) owns the product target; [M0–M9 roadmap](../architecture/DarkAngel_Implementation_Handoff.md) owns scope/acceptance; [editor plan](EDITOR_WORKFLOW_PLAN.md) owns delivery. This revision changes no verification receipts or milestone states. The delivered first authoring loop/history remains the checkpoint; visual Composer lanes and isolated clip/character scrubbing remain next.
+
 # Ability/effect authoring continuation
 
 User priority, 9 October 2026: begin making abilities with gameplay effects synced over the network in the engine. Continue this vertical slice before broadening combat features or repeating the complete historical verification chain. M4/M5 remain In progress; this is an early authoring gate rather than M6 acceptance.

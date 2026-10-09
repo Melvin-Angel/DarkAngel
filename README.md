@@ -1,6 +1,8 @@
 # DarkAngel Engine
 
-Native C++20 engine for Ashen Roots. M0 is verified. M1 implements metadata, Flecs-backed worlds, versioned scenes, strict Luau module packages, declared state, staged reloads and bounded tasks. M2 now includes a SQLite asset catalog, static glTF cooker, immutable cooked registry/CAS and a Diligent D3D12/Vulkan editor viewport with native property transactions. M1/M2 handoff gates are verified for the supported profile. M3 has started with the shared transport interface and bounded LocalLoopback adapter. Broader production features and remaining M3 work are tracked in [status](docs/implementation/STATUS.md).
+Native C++20 engine and personal game-development editor for Ashen Roots. M0–M2 have verified initial-profile gates. M3 offline session infrastructure has scoped evidence while live EOS qualification remains externally blocked. M4/M5 are In progress; native combat/effects/status replication and the first Ability/Effect/action authoring and fresh-Play loop have scoped receipts. M6–M9 remain Not started. See [current status](docs/implementation/STATUS.md) for exact boundaries.
+
+[Final engine vision](docs/vision/DarkAngel_Engine_Vision.md) defines the finished product and fifteen workflow targets. The [authoritative M0–M9 roadmap](docs/architecture/DarkAngel_Implementation_Handoff.md) defines delivery/acceptance, [locked architecture](docs/architecture/Decision_Log.txt) defines contracts, and [editor workflow plan](docs/implementation/EDITOR_WORKFLOW_PLAN.md) defines incremental authoring. Start current authoring work with [ability continuation](docs/implementation/ABILITY_AUTHORING_CONTINUE.md). Planned capabilities are not implementation claims.
 
 Start with [bootstrap instructions](docs/implementation/BOOTSTRAP.md), [current status](docs/implementation/STATUS.md) and the [M0 report](docs/implementation/M0_REPORT.md). All dependencies and tools are frozen in checked-in manifests/locks; bootstrap never resolves a moving branch or updates to a newer release.
 
@@ -8,4 +10,4 @@ Targets: static `DarkAngelFoundation`, static `DarkAngelRuntime`, console `DarkA
 
 Run `python scripts/verify_m1.py --profile m1-debug` (also `m1-relwithdebinfo` and `m1-release`) for native configure/build/CTest receipts. Run `python scripts/verify_m2.py` for the asset/device checks; provide `--fbx PATH` to convert one static prop with the installed Blender and test cooked-only graphical viewports. See [M1 report](docs/implementation/M1_REPORT.md), [M2 report](docs/implementation/M2_REPORT.md) and [JSON choice](docs/implementation/M1_JSON_CHOICE.md). Historical M0 presets remain usable and now resolve the Foundation's M1 dependency feature as well.
 
-No remote repository, publishing, gameplay implementation or native plugin ABI is included. Engine source licensing remains a product decision.
+Publishing is outside the current task. Engine source licensing remains a product decision. Shipping and full game-production qualification remain roadmap gates.
