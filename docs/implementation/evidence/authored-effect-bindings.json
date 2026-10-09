@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "base_head": "74717c753ce08a8b57877722e3c8743ebf98524c",
+  "scope": "Kit-authored ability/hit/effect/magnitude binding, strict frozen references, native authoritative identity and game-owned generic composition",
+  "gates": [
+    {
+      "name": "authored-effect-bindings-build-native",
+      "exit": 0,
+      "seconds": 0.075
+    },
+    {
+      "name": "authored-effect-bindings-build-editor",
+      "exit": 0,
+      "seconds": 120.413
+    },
+    {
+      "name": "authored-effect-bindings-native",
+      "exit": 0,
+      "seconds": 3.951
+    },
+    {
+      "name": "authored-effect-bindings-prepare",
+      "exit": 0,
+      "seconds": 3.431
+    },
+    {
+      "name": "authored-effect-bindings-game-30",
+      "exit": 0,
+      "seconds": 0.678
+    },
+    {
+      "name": "authored-effect-bindings-game-210",
+      "exit": 0,
+      "seconds": 1.043
+    },
+    {
+      "name": "authored-effect-bindings-light",
+      "exit": 0,
+      "seconds": 0.958
+    }
+  ],
+  "source_sha256": {
+    "engine/runtime/include/darkangel/combat_kit.hpp": "17798d30504416c8ef87b22930aa42a512b4950d08637d26c600f86f17505965",
+    "engine/runtime/combat_kit.cpp": "bf91853403e85d41331d19878006a757f8ffa75f8c60ecac6ea6485c787e7a58",
+    "engine/runtime/include/darkangel/melee.hpp": "62d9db4df668279e4c044098af1bcd4bca5dc98c9b60cb2ba3dcc7e42abf0e01",
+    "engine/runtime/world_session.cpp": "cd2a548d0d233277b9f49877084867aa8c8e729dcee3df87c010632e05ef9df5",
+    "engine/assets/combat_kit_cooker.cpp": "69876a0366aff52b69e042b7330c00d1f8949f4fa70f44afdb808f149a38d460",
+    "games/AshenRoots/royal_combat.cpp": "4b420a1818fae3885674c91ba49d9f54747d300cdcbc725a1586cc4636f3bb7d",
+    "content/royal_district/combat/player.dakit": "3325999abe90a79d785d3fc95e5de855552a6aa463912c01e0c6ca60810fccb7",
+    "tests/combat_kit_asset_tests.cpp": "457fadb368c13b09c47788bccaa2734bd64a43c6862a2c1e7e9ef682ca7b9ff3",
+    "tests/royal_heavy_scene_tests.cpp": "dbf7fa8525ba66cd1363804cc352301f7e37e56811252d110e8d40a8441a9692",
+    "tests/character_combat_scene_tests.cpp": "9fbe46540d7e634100613fbb8e4ba6723cd28694841d98e8861e1163dfb95688",
+    "scripts/verify_authored_effect_bindings.py": "5010129e2966937c6f331f19f224ec64cc7a6f03de477ff74581d2a87ce226f2"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/RoyalHeavySceneTests.exe": "02c18dbc9d9ad9e533f8f213d363294934018e072061c247c6cf6508dbe9927b",
+    "build/m5-relwithdebinfo/CharacterCombatSceneTests.exe": "6a5a8fdb325b959ccec5fc61987a70ab0a87e8a0e5265cf1d96cabbf45b8176e",
+    "build/m5-relwithdebinfo/CombatKitAssetTests.exe": "55fcab3c5972122a013f88ed2396e2a8e10dfa7b4a0580c740cb9c7bd2dc677d",
+    "build/m5-relwithdebinfo/CombatEffectTests.exe": "0dd0f41fd8057513be5d324674b492904d5b6d5f10a5c2ed6a7480d560b0ece3",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "516a5d9f7e7f1a9e8f322e60e2f0da2a7d25e4f22c6002fb80a420dc5909bff3"
+  },
+  "limitations": [
+    "Focused affected native and primary D3D12 Game checks only; the complete historical 74-test/multi-profile/Vulkan/GNS chain was not rerun for this increment. Prior complete evidence belongs to checkpoint74717c7.",
+    "Bindings currently belong to the CombatKit composition and melee hit blocks, target surviving hit actors, and use authored fixed magnitudes. Self/on-commit/area/projectile triggers and richer capture policies remain open.",
+    "Royal registers game execution evaluator2 as Health damage; modifier-only effects need no evaluator. New custom execution formulas still require a registered game evaluator.",
+    "Native Ability/Effect/Composer designers and validated Save/cook/fresh-Play UI are the next priorities. M4/M5 remain In progress; M6 has not started."
+  ]
+}

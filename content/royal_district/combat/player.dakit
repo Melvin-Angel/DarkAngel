@@ -61,5 +61,13 @@
   },
   "effects": [
     "8a14c506-2141-41e5-9be8-e9e0ee509b59"
+  ],
+  "effect_bindings": [
+    {
+      "ability": "284f1dc7-6510-4a6b-83c3-bd2cf206aba9",
+      "hit_block": 2,
+      "effect": "8a14c506-2141-41e5-9be8-e9e0ee509b59",
+      "power": 5
+    }
   ]
 }

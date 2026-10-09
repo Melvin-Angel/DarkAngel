@@ -398,7 +398,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                 if(motor.tick!=tick||motor.epoch!=target.epoch||!query.matches(target.network,motor)||victim.health().current<=0)continue;
                 if(!source->remember_hit(hit,target.network,target.epoch))continue;
                 auto source_attributes=source->attribute_values(),target_attributes=victim.attribute_values();
-                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_attributes,target_attributes,&source->effects().tags(),&victim.effects().tags()};
+                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_attributes,target_attributes,&source->effects().tags(),&victim.effects().tags(),hit.definition->id};
                 auto evaluation=s.damage_evaluators.at(hit.profile.evaluator)(context);require(std::isfinite(evaluation.damage)&&evaluation.damage>=0&&evaluation.damage<=1e9&&evaluation.effects.size()<=8,"Game combat evaluator output bounds");
                 for(auto& request:evaluation.effects){require(request.definition&&std::isfinite(request.power)&&request.power>=0&&request.power<=1e9&&(!request.definition->evaluator||s.effect_evaluators.contains(request.definition->evaluator)),"Game combat effect request bounds/evaluator");request.definition=victim.prepare_effect(*request.definition);}
                 auto before=victim.health().current;auto death=victim.damage(evaluation.damage);updates.insert(updates.end(),death.begin(),death.end());auto direct_after=victim.health().current;

@@ -1,0 +1,13 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+    Start 15: M5.combat_kit_assets
+1/4 Test #15: M5.combat_kit_assets .............   Passed    1.87 sec
+    Start 19: M5.character_combat_scene
+2/4 Test #19: M5.character_combat_scene ........   Passed    0.85 sec
+    Start 20: M5.royal_heavy_scene
+3/4 Test #20: M5.royal_heavy_scene .............   Passed    1.13 sec
+    Start 58: M5.combat_effects
+4/4 Test #58: M5.combat_effects ................   Passed    0.06 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   3.91 sec

@@ -3,6 +3,9 @@
 #include <limits>
 #include <stdexcept>
 #include <set>
+#include <cmath>
+#include <map>
+#include <tuple>
 namespace darkangel {
 namespace {bool empty(const AssetId& id){return id==AssetId{};}}
 void validate_combat_kit(const CombatKitDefinition& kit,const InputProfile& profile){
@@ -16,6 +19,8 @@ void validate_combat_kit(const CombatKitDefinition& kit,const InputProfile& prof
   // Distinct slots can share an ability but never ambiguously share an input action.
   for(unsigned j=0;j<i;++j)if(kit.slots[j].input_action==slot.input_action)throw std::invalid_argument("Duplicate combat input action");
  }
+ if(kit.effect_bindings.size()>32)throw std::invalid_argument("Combat kit effect binding bound");std::set<std::tuple<AssetId,unsigned,AssetId>> bindings;std::map<std::pair<AssetId,unsigned>,unsigned> counts;
+ for(const auto& binding:kit.effect_bindings)if(empty(binding.ability)||!binding.hit_block||!effects.contains(binding.effect)||!std::isfinite(binding.power)||binding.power<0||binding.power>1e9||std::none_of(kit.slots.begin(),kit.slots.end(),[&](const auto& slot){return slot.ability==binding.ability;})||!bindings.emplace(binding.ability,binding.hit_block,binding.effect).second||++counts[{binding.ability,binding.hit_block}]>8)throw std::invalid_argument("Combat kit effect binding reference/magnitude");
 }
 CombatKitInstance::CombatKitInstance(std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& profile){
  if(!kit)throw std::invalid_argument("Missing combat kit");validate_combat_kit(*kit,profile);

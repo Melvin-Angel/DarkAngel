@@ -19,6 +19,7 @@ struct DamageContext {
     std::uint64_t tick{};unsigned block{},loop{};std::uint32_t damage_type{};double power{};
     std::span<const AbilityAttributeValue> source_attributes,target_attributes;
     const OwnedTags* source_tags{};const OwnedTags* target_tags{};
+    AssetId ability; // Authoritative frozen definition; never a client hit field.
 };
 // Game-owned pure native evaluator: immutable context, finite nonnegative damage.
 // No world mutations, ambient random state or side effects during preparation.

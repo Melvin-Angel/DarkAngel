@@ -9,15 +9,14 @@ void configure_royal_combat(CharacterSceneCombat& combat){
  if(combat.effects.empty())return;
  if(!combat.tags)throw std::invalid_argument("Royal effect rules require a prepared tag dictionary");
  if(!royal_tags::matches(*combat.tags))throw std::invalid_argument("Royal generated tag registry generation mismatch");
- auto invulnerable=royal_tags::Tag_State_Invulnerable_2;std::shared_ptr<const EffectDefinition> burn;
- for(const auto& effect:combat.effects)for(const auto& cue:effect->cues)if(cue.key=="Status.Burn"){if(burn)throw std::invalid_argument("Ambiguous Royal Burn definition");burn=effect;}
- if(!burn||burn->evaluator!=2)throw std::invalid_argument("Royal Burn evaluator binding");
+ auto invulnerable=royal_tags::Tag_State_Invulnerable_2;
+ std::map<std::pair<AssetId,unsigned>,std::vector<DamageEffectRequest>> bindings;
+ for(const auto& effect:combat.effects)if(effect->evaluator!=0&&effect->evaluator!=2)throw std::invalid_argument("Royal effect needs a registered game execution evaluator");
+ for(const auto& binding:combat.kit->effect_bindings){auto effect=std::find_if(combat.effects.begin(),combat.effects.end(),[&](const auto& value){return value->id==binding.effect;});if(effect==combat.effects.end())throw std::invalid_argument("Royal missing prepared bound effect");bindings[{binding.ability,binding.hit_block}].push_back({*effect,binding.power});}
  combat.effect_evaluators.emplace(2,[](const EffectContext& context){return std::vector<ResourceDelta>{{2,-context.credit.power}};});
- combat.combat_damage=[burn,invulnerable](const DamageContext& context){
+ combat.combat_damage=[bindings=std::move(bindings),invulnerable](const DamageContext& context){
   if(context.target_tags&&context.target_tags->has(invulnerable))return CombatEvaluation{};
-  CombatEvaluation result{context.power,{}};double health{};for(const auto& field:context.target_attributes)if(field.id==2)health=field.value;
-  // Initial authored heavy/fire type. Light attacks retain their existing rule.
-  if(context.damage_type==2&&result.damage>0&&health>result.damage)result.effects.push_back({burn,5});return result;
+  CombatEvaluation result{context.power,{}};if(result.damage>0){auto found=bindings.find({context.ability,context.block});if(found!=bindings.end())result.effects=found->second;}return result;
  };
 }
 }
