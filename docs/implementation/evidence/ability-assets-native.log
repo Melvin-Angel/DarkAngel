@@ -1,0 +1,20 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+    Start 16: M5.ability_assets
+1/4 Test #16: M5.ability_assets ................   Passed    0.26 sec
+    Start 18: M5.action_timeline
+2/4 Test #18: M5.action_timeline ...............   Passed    0.14 sec
+    Start 22: M2.asset_pipeline
+3/4 Test #22: M2.asset_pipeline ................   Passed    0.37 sec
+    Start 42: M5.ability_commit
+4/4 Test #42: M5.ability_commit ................   Passed    0.05 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+M2         =   0.37 sec*proc (1 test)
+M5         =   0.05 sec*proc (1 test)
+ability    =   0.05 sec*proc (1 test)
+asset      =   0.37 sec*proc (1 test)
+session    =   0.05 sec*proc (1 test)
+
+Total Test time (real) =   0.83 sec

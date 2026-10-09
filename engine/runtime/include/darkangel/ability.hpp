@@ -17,6 +17,8 @@ struct AbilityDefinition {
     InputEdge activate_on{InputEdge::Pressed};std::uint64_t minimum_held_us{};
     bool cancel_on_release{},interruptible{true};
 };
+// Shared validation/freezing for cooked definitions and runtime grant installation.
+std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&);
 struct AbilityOwnerHandle {
     EntityHandle entity;std::uint64_t session_epoch{},network{};
     auto operator<=>(const AbilityOwnerHandle&)const=default;

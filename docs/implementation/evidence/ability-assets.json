@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "base_head": "4bf7761d8049c6dddeab3d7cf847aa6cb986b69d",
+  "scope": "Versioned Ability/Attribute source, frozen action/schema closure, source-free loader and existing WorldSession commitment",
+  "gates": [
+    {
+      "name": "ability-assets-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 39.491
+    },
+    {
+      "name": "ability-assets-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 92.627
+    },
+    {
+      "name": "ability-assets-build-m2-relwithdebinfo",
+      "exit": 0,
+      "seconds": 72.145
+    },
+    {
+      "name": "ability-assets-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 10.889
+    },
+    {
+      "name": "ability-assets-native",
+      "exit": 0,
+      "seconds": 0.866
+    },
+    {
+      "name": "ability-assets-editor",
+      "exit": 0,
+      "seconds": 0.345
+    },
+    {
+      "name": "ability-assets-no-animation",
+      "exit": 0,
+      "seconds": 0.303
+    },
+    {
+      "name": "ability-assets-headless",
+      "exit": 0,
+      "seconds": 0.198
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "95928acb64a10e8b0e6e7b44f0821aed58919cbbc685fa827fd613a46143bc0b",
+    "engine/assets/ability_cooker.cpp": "460679919a4761c2b9934765d96c7077a59d3dca5a122852eaedf578aa8359f1",
+    "engine/assets/include/darkangel/ability_assets.hpp": "48981d057b97aca432fcbdc204db3546ecaf1eeec4f81c830198f9948caaa3d3",
+    "engine/assets/assets_internal.hpp": "7b82b2647838a0ea82ab96dfee64bef78f143202fc7448a1d73f02c101766d80",
+    "engine/assets/asset_service.cpp": "b1092a4250434c99d7e3353d85482909d052c4c73825e3d3d2b47b3a3c87bad2",
+    "engine/runtime/ability.cpp": "95a76dd3fac382fea79da76cf116d5373d1f8bbf6dc9592a1201a08fea0bfbf0",
+    "engine/runtime/include/darkangel/ability.hpp": "92aeb230757b995490098ebb19e4c7318fa5a6963c08af81fdc65862104bd635",
+    "tests/ability_asset_tests.cpp": "8da0eacd4224ed78146db0322a83322a81ca9f9f0558c6b50267370475c1dac2",
+    "scripts/verify_ability_assets.py": "fc73e4f56cab5f0736a1885954589e28f5fa09c01d8d9be59a3d0e81e6816c70"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "52c1379bdf334295cf93f309d412926ae380ff29082a4444701f7a6edc60ea0c",
+    "build/m5-relwithdebinfo/AbilityAssetTests.exe": "e37da04c25c0d11f6f8300ae02ef4a500a0e8b812664d37293373397a384df86",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "57a52bbf4a1288a1832f12cbef53084c992805fd03b9b0709f957d55b6efb106",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "0fe91de13f9d8d36691a9e6a2a088cdf1315ef80d58c2e38565d5b0e453ad9f9"
+  },
+  "limitations": [
+    "CombatKit/AnimationGraph assets, reflected authoring UI and stance switching remain open.",
+    "No new hit/damage, effect/tag, prediction/operation wire or resource/action snapshot implementation.",
+    "No playable Royal attack, graphics qualification or GNS/EOS acceptance refreshed.",
+    "Attribute visibility metadata is retained but does not change wire visibility."
+  ]
+}

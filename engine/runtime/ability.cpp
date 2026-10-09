@@ -33,6 +33,7 @@ std::vector<ResourceDelta> costs(const AbilityDefinition& definition){
     std::vector<ResourceDelta> result;for(const auto& cost:definition.costs)result.push_back({cost.attribute,-cost.amount});return result;
 }
 }
+std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes){return freeze(source,attributes);}
 AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vector<AttributeDefinition> definitions,AttributeId health,AttributeId maximum_health):
     owner_(owner),tick_(tick),attributes_(std::move(definitions)),health_(health),maximum_health_(maximum_health){
     require(health_&&maximum_health_&&health_!=maximum_health_,"Ability health schema IDs");
@@ -51,7 +52,7 @@ std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const Comba
     require(definition&&definitions.size()<=combat_slot_count,"Ability kit catalogue bound");
     validate_combat_kit(*definition,input);
     std::map<AssetId,std::shared_ptr<const AbilityDefinition>> prepared;
-    for(const auto& ability:definitions){require(bool(ability),"Missing ability definition");auto frozen=freeze(*ability,attributes_);require(prepared.emplace(frozen->id,std::move(frozen)).second,"Duplicate ability definition");}
+    for(const auto& ability:definitions){require(bool(ability),"Missing ability definition");auto frozen=freeze_ability_definition(*ability,attributes_);require(prepared.emplace(frozen->id,std::move(frozen)).second,"Duplicate ability definition");}
     std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants;
     for(unsigned i=0;i<combat_slot_count;++i){const auto& slot=definition->slots[i];if(slot.ability!=AssetId{}){auto it=prepared.find(slot.ability);require(it!=prepared.end(),"Missing assigned ability");grants[i]=it->second;}}
     std::optional<CombatKitInstance> candidate=kit_;

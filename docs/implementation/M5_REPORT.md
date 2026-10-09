@@ -127,3 +127,6 @@ Shared editor import increment after9c8fd2b: native Scene/Assets layout navigati
 9 October combat foundation: native kit routing/replacement and attribute calculation primitives; see COMBAT_FOUNDATION_REPORT.md. No playable ability, damage authority or Character authoring acceptance is implied.
 
 9 October server ability increment: WorldSession checked grants, immediate atomic action/cost/cooldown commitment, receipt deduplication and lifecycle cleanup; see ABILITY_COMMIT_REPORT.md. Existing Health baseline path is tested. Client ability protocol, other resources/actions on the wire, damage/effects, deferred reservations and authoring remain open.
+
+
+9 October asset continuation: Latest asset increment (9 October): [frozen Ability/Attribute assets](ABILITY_ASSET_REPORT.md) adds versioned native sources, atomic action/schema cooking, dependency generation validation and source-free loading into the existing WorldSession grant/commit API. CombatKit/AnimationGraph cooking and reflected editor authoring remain open; Royal still has no playable hit/damage. M4/M5 remain In progress. Reproduce `python scripts/verify_ability_assets.py --build`.

@@ -29,3 +29,6 @@ Synthetic 30/60/144 render schedules produce identical 60Hz action-event and res
 ## Next required work
 
 Versioned/reflected Ability/CombatKit/Attribute assets and frozen cooking; Character/Ability workflow authoring; client intent and operation receipt protocol with resource/action snapshots and predicted inclusion/rejection; native tags/effects and deferred reservations; authoritative target/hit validation and attributed damage; composer slot/layer/mask arbitration and GPU playback; typed Animation Graph parameters/events and locomotion stance switching; Luau checked bindings and failure cleanup. Preserve DAE-007/008/009 and the [editor workflow plan](EDITOR_WORKFLOW_PLAN.md). No game-owned mask/equipment system is implemented.
+
+
+Implementation continuation (9 October): Latest asset increment (9 October): [frozen Ability/Attribute assets](ABILITY_ASSET_REPORT.md) adds versioned native sources, atomic action/schema cooking, dependency generation validation and source-free loading into the existing WorldSession grant/commit API. CombatKit/AnimationGraph cooking and reflected editor authoring remain open; Royal still has no playable hit/damage. M4/M5 remain In progress. Reproduce `python scripts/verify_ability_assets.py --build`.

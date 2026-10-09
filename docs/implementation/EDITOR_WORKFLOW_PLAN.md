@@ -134,3 +134,6 @@ Ability/stat scope includes Health, Stamina and Essence resource values with exp
 Current implementation is limited to tested native combat-kit routing/replacement and attribute calculation primitives. Asset cook/Character authoring, World/WorldSession grant lifecycle, Luau bindings, action cancellation, typed graph parameters/events and gameplay activation are subsequent steps; see [combat foundation report](COMBAT_FOUNDATION_REPORT.md).
 
 Implementation continuation: the server-only WorldSession immediate-commit/action-lifecycle subset now extends these primitives; see [ABILITY_COMMIT_REPORT.md](ABILITY_COMMIT_REPORT.md). It does not implement predicted operations, damage/effects, composer rendering or editor authoring.
+
+
+Implementation continuation (9 October): Latest asset increment (9 October): [frozen Ability/Attribute assets](ABILITY_ASSET_REPORT.md) adds versioned native sources, atomic action/schema cooking, dependency generation validation and source-free loading into the existing WorldSession grant/commit API. CombatKit/AnimationGraph cooking and reflected editor authoring remain open; Royal still has no playable hit/damage. M4/M5 remain In progress. Reproduce `python scripts/verify_ability_assets.py --build`.
