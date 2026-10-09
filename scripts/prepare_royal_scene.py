@@ -28,10 +28,13 @@ def prepare():
     clips = sorted((SOURCE / 'royal_district/clips').glob('*.glb'))
     for clip in clips:
         run('cook', SOURCE, CACHE, clip.relative_to(SOURCE).as_posix())
+    graph_source = 'royal_district/locomotion.dagraph'
+    run('cook', SOURCE, CACHE, graph_source)
+    graph_id = json.loads((SOURCE / graph_source).read_text())['asset']
     input_source = 'input/royal_player.dainput'
     run('cook', SOURCE, CACHE, input_source)
     input_id = json.loads((SOURCE / input_source).read_text())['asset']
-    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips], input_id)
+    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips], input_id, graph_id)
     for relative in chosen:
         run('inspect', CACHE / 'registry.json', CACHE / 'cas', asset(relative))
     root = '492cd837-3bf6-45d7-b640-b0470c5cec82'

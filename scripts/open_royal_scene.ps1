@@ -10,7 +10,7 @@ $taskEditor = Join-Path $taskRoot 'build/m5-editor-relwithdebinfo/DarkAngelEdito
 if (!(Test-Path -LiteralPath $taskEditor)) { throw 'Build the m5-editor-relwithdebinfo DarkAngelEditor target first.' }
 $taskRegistryReady = Test-Path -LiteralPath '.cache/royal-scene/registry.json'
 if ($taskRegistryReady) {
-    $taskRegistryReady = @((Get-Content -LiteralPath '.cache/royal-scene/registry.json' -Raw | ConvertFrom-Json).assets | Where-Object { $_.kind -eq 'input' }).Count -eq 1
+    $taskRegistryReady = @((Get-Content -LiteralPath '.cache/royal-scene/registry.json' -Raw | ConvertFrom-Json).assets | Where-Object { $_.kind -eq 'graph' }).Count -eq 1
 }
 if (!$taskRegistryReady) {
     python scripts/prepare_royal_scene.py
@@ -18,10 +18,8 @@ if (!$taskRegistryReady) {
 }
 $taskModel = (Get-Content -LiteralPath 'content/royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport' -Raw | ConvertFrom-Json).id
 $taskArguments = @('--registry','.cache/royal-scene/registry.json','--cas','.cache/royal-scene/cas','--model',$taskModel,'--scene','content/royal_district/RoyalVillage.dascene','--backend',$Backend,'--sources','content','--asset-cache','.cache/editor-assets')
-$taskClips = @('idle','omni-walk','omni-left','omni-back','omni-right','omni-run','omni-run-left','omni-run-back','omni-run-right') | ForEach-Object {
-    (Get-Content -LiteralPath ("content/royal_district/clips/$_.glb.daimport") -Raw | ConvertFrom-Json).id
-}
-$taskArguments += @('--character-clips',($taskClips -join ','))
+$taskGraph = (Get-Content -LiteralPath 'content/royal_district/locomotion.dagraph' -Raw | ConvertFrom-Json).asset
+$taskArguments += @('--character-graph',$taskGraph)
 if ($CloseView) { $taskArguments += '--camera-close' }
 if ($AttackPose) {
     $taskClip = (Get-Content -LiteralPath 'content/royal_district/clips/attack.glb.daimport' -Raw | ConvertFrom-Json).id

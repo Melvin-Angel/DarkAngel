@@ -1,11 +1,13 @@
 #include "character_preview.hpp"
 #include <darkangel/hash.hpp>
+#include <darkangel/graph_assets.hpp>
 #include <DirectXMath.h>
 #include <stdexcept>
 #include <algorithm>
 namespace darkangel::editor_app {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin){
+    if(references.starts_with("graph:")){auto cooked=load_cooked_graph(registry,cas,AssetId::parse(references.substr(6)));require(cooked.rig.definition.id==skin.rig.definition.id&&cooked.rig.definition.signature==skin.rig.definition.signature,"Character graph/skin canonical rig mismatch");AnimationGraphInstance instance(cooked.plan);RigPose probe(skin.rig.definition,skin.rig.archive);probe.blend(instance.evaluate({}).span());return {skin.id,std::move(cooked.rig),std::move(cooked.plan)};}
     require(references.size()<=512,"Character clip reference limit");std::vector<std::shared_ptr<const AnimationClip>> clips;
     while(!references.empty()){auto comma=references.find(',');auto text=references.substr(0,comma);auto cooked=load_cooked_clip(registry,cas,AssetId::parse(text));clips.push_back(std::make_shared<const AnimationClip>(cooked.definition,cooked.archive));if(comma==references.npos)break;references.remove_prefix(comma+1);}
     require(clips.size()==9,"Character preset requires idle/walk/left/back/right/run/run-left/run-back/run-right");

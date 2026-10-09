@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "base_head": "42139229b97a5c2d369d2ca0b2704dcc763c4c32",
+  "scope": "Versioned native locomotion graph, frozen clip/rig closure and compiled generation fencing; primary Royal editor consumes cooked graph through existing motor-achieved pose path",
+  "gates": [
+    {
+      "name": "graph-assets-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 1.138
+    },
+    {
+      "name": "graph-assets-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.1
+    },
+    {
+      "name": "graph-assets-build-m2-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.089
+    },
+    {
+      "name": "graph-assets-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.057
+    },
+    {
+      "name": "graph-assets-native",
+      "exit": 0,
+      "seconds": 4.84
+    },
+    {
+      "name": "graph-assets-editor",
+      "exit": 0,
+      "seconds": 0.723
+    },
+    {
+      "name": "graph-assets-no-animation",
+      "exit": 0,
+      "seconds": 0.313
+    },
+    {
+      "name": "graph-assets-headless",
+      "exit": 0,
+      "seconds": 0.044
+    },
+    {
+      "name": "graph-assets-royal-prepare",
+      "exit": 0,
+      "seconds": 2.051
+    },
+    {
+      "name": "graph-assets-royal-d3d12",
+      "exit": 0,
+      "seconds": 1.195
+    },
+    {
+      "name": "graph-assets-royal-vulkan",
+      "exit": 0,
+      "seconds": 0.927
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "55c3869ab0b852fbec8082ad3bfe1528fc064f21f59e0175527287a540bdc953",
+    "engine/assets/graph_cooker.cpp": "7ad747037e4ee4a96ce9cd4b4e0f11f81b39a97b80d832654184ad0731ab06f1",
+    "engine/assets/include/darkangel/graph_assets.hpp": "ba3cbfee7c34398e336b94329c869d5e88e29202a0dd089f8d334df6558d64ea",
+    "engine/assets/assets_internal.hpp": "bea917aebc31b4b0e4afbea6c8df0cc2ab7a9f273a9ff5618a61e3b8698bec7f",
+    "engine/assets/asset_service.cpp": "f3684dbd815ba84d3bac9fd3539d1a63baf484d3e815d9c27de74f1ffb74c074",
+    "apps/editor/character_preview.cpp": "f50cd4eaa61e861fee04fc45d87501d58f98370bcf39c232c1d42ada067c181f",
+    "apps/editor/main.cpp": "8ee355cdb418c5aebb430ef4c8c14e2a6a4298161b668513dbc3c6bb309ab2cf",
+    "content/royal_district/locomotion.dagraph": "e5cff7eb138a6a8d28db4f3d04126e2db3b7ad01b9d6ffa9c891257ff23b4e3f",
+    "tests/graph_asset_tests.cpp": "51804d03dd2dd05edffa93ef9e222de198a58a2dfc2baa2343855bd74190a592",
+    "scripts/prepare_royal_scene.py": "32bf3cf4772a8ee54b9ff75f628bb6c72c0d91ad63e94571fd4e8cd8aed5db83",
+    "scripts/open_royal_scene.ps1": "2c6d581ff7280a07ba37d8dac8ffc105b5a2029e2e2fb3c8a79129846083957a",
+    "scripts/verify_graph_assets.py": "62f42637c994c945eb8de010b453d9d4ad538a905560501869aeacdfe959bd26"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "1d3579addfc190079c3124193d8f232d492beac942a6f80d1834881a130dca71",
+    "build/m5-relwithdebinfo/GraphAssetTests.exe": "def2b86eced195edeb9c6c1fe9efd635522ab7707de173c8ebddd10cdaabce1e",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "e94786b5165fd7b4310c6f2ba1c251c61a92a89b1c15874f98092f45c0c05b15",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "e0916711880f08e3c16b06fa7ad4d5f40a81099270a52f5f8e73006bb7deb63e"
+  },
+  "limitations": [
+    "Initial graph profile is clip/1D/2D normalized locomotion, not typed states/events/transitions or layer/action authoring.",
+    "CombatKit assets, reflected character/ability authoring and playable Royal attack remain open.",
+    "Synthetic 120-tick hidden graphics checks are not timing/fault/streaming/network performance qualification.",
+    "M4/M5 remain In progress; live EOS remains blocked."
+  ]
+}

@@ -33,3 +33,6 @@ Dependencies and original assets are unchanged. M3 live EOS remains blocked on t
 
 
 Latest melee increment (9 October): [authoritative motor-relative melee](MELEE_REPORT.md) adds authored HitWindow profiles, a bound native post-physics query, registered game-owned damage evaluators, atomic Health/death/deduplication and existing Loopback baseline integration. Royal input/attack presentation, canonical socket sweeps, ability wire/prediction and the remaining M4/M5 gates are still open. Reproduce `python scripts/verify_melee.py --build`.
+
+
+Latest graph increment (9 October): [frozen native locomotion graph](GRAPH_ASSET_REPORT.md) adds versioned `.dagraph` cooking, a coherent frozen clip/rig closure and source-free generation-fenced loading. Royal now consumes its cooked nine-clip graph in the primary editor; 7/7 affected native checks and 120-tick D3D12/Vulkan checks pass. CombatKit cooking, typed graph states/events/layers/actions, playable Royal ability/damage and full M4/M5 gates remain open. Reproduce `python scripts/verify_graph_assets.py --build`.

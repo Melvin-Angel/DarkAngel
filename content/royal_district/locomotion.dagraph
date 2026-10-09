@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "kind": "graph",
+  "asset": "3177471d-c721-425f-958b-6b03b78c8bcd",
+  "root": 20,
+  "nodes": [
+    {
+      "id": 1,
+      "kind": "clip",
+      "clip": "bdf75cee-78ca-497e-b514-0a2b5e1fcfbe"
+    },
+    {
+      "id": 2,
+      "kind": "clip",
+      "clip": "3ab35112-0539-4feb-aab1-558065c7499f"
+    },
+    {
+      "id": 3,
+      "kind": "clip",
+      "clip": "b2d54f43-d782-4ed6-87e5-41f1103d98ba"
+    },
+    {
+      "id": 4,
+      "kind": "clip",
+      "clip": "7cfb47b2-bb55-4f8f-9018-cf27f97d0570"
+    },
+    {
+      "id": 5,
+      "kind": "clip",
+      "clip": "332455c8-9070-422e-9abc-3f1284ad95c1"
+    },
+    {
+      "id": 6,
+      "kind": "clip",
+      "clip": "a2a41e37-cbd0-44ca-8f56-8524830b5480"
+    },
+    {
+      "id": 7,
+      "kind": "clip",
+      "clip": "49de816b-458d-41df-9fa5-877ee5841095"
+    },
+    {
+      "id": 8,
+      "kind": "clip",
+      "clip": "0a36c23b-067b-40ff-a223-367392c33e7a"
+    },
+    {
+      "id": 9,
+      "kind": "clip",
+      "clip": "13f6acea-1b3c-4ca3-a49a-bce87319047c"
+    },
+    {
+      "id": 20,
+      "kind": "blend2d",
+      "parameter": "speed",
+      "points": [
+        {
+          "input": 1,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "input": 3,
+          "x": 2,
+          "y": 0
+        },
+        {
+          "input": 2,
+          "x": 0,
+          "y": 2
+        },
+        {
+          "input": 5,
+          "x": -2,
+          "y": 0
+        },
+        {
+          "input": 4,
+          "x": 0,
+          "y": -2
+        },
+        {
+          "input": 7,
+          "x": 5,
+          "y": 0
+        },
+        {
+          "input": 6,
+          "x": 0,
+          "y": 5
+        },
+        {
+          "input": 9,
+          "x": -5,
+          "y": 0
+        },
+        {
+          "input": 8,
+          "x": 0,
+          "y": -5
+        }
+      ],
+      "triangles": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          1,
+          5,
+          6
+        ],
+        [
+          1,
+          6,
+          2
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          2,
+          6,
+          7
+        ],
+        [
+          2,
+          7,
+          3
+        ],
+        [
+          0,
+          3,
+          4
+        ],
+        [
+          3,
+          7,
+          8
+        ],
+        [
+          3,
+          8,
+          4
+        ],
+        [
+          0,
+          4,
+          1
+        ],
+        [
+          4,
+          8,
+          5
+        ],
+        [
+          4,
+          5,
+          1
+        ]
+      ]
+    }
+  ],
+  "sources": {
+    "bdf75cee-78ca-497e-b514-0a2b5e1fcfbe": "royal_district/clips/idle.glb",
+    "3ab35112-0539-4feb-aab1-558065c7499f": "royal_district/clips/omni-walk.glb",
+    "b2d54f43-d782-4ed6-87e5-41f1103d98ba": "royal_district/clips/omni-left.glb",
+    "7cfb47b2-bb55-4f8f-9018-cf27f97d0570": "royal_district/clips/omni-back.glb",
+    "332455c8-9070-422e-9abc-3f1284ad95c1": "royal_district/clips/omni-right.glb",
+    "a2a41e37-cbd0-44ca-8f56-8524830b5480": "royal_district/clips/omni-run.glb",
+    "49de816b-458d-41df-9fa5-877ee5841095": "royal_district/clips/omni-run-left.glb",
+    "0a36c23b-067b-40ff-a223-367392c33e7a": "royal_district/clips/omni-run-back.glb",
+    "13f6acea-1b3c-4ca3-a49a-bce87319047c": "royal_district/clips/omni-run-right.glb"
+  }
+}
