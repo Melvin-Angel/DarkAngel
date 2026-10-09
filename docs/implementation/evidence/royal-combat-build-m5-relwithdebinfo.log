@@ -721,43 +721,58 @@ joltphysics provides CMake targets:
   find_package(Jolt CONFIG REQUIRED)
   target_link_libraries(main PRIVATE Jolt::Jolt)
 
-All requested installations completed successfully in: 453 us
+All requested installations completed successfully in: 435 us
 -- Running vcpkg install - done
--- Configuring done (4.7s)
+-- Configuring done (5.2s)
 -- Generating done (0.4s)
 -- Build files have been written to: C:/DarkAngel/build/m5-relwithdebinfo
-[1/130] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[2/124] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[3/99] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
-[4/96] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
-[5/93] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
-[6/90] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[7/74] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
-[8/72] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
-[9/70] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
-[10/68] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
-[11/66] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
-[12/64] Scanning C:\DarkAngel\tools\cooker\main.cpp for CXX dependencies
-[13/64] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
-[14/62] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[15/62] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
-[16/60] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
-[17/58] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
-[18/56] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
-[19/54] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
-[20/52] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
-[21/50] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
-[22/48] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
-[23/46] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
-[24/44] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
-[25/42] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
-[26/40] Building CXX object CMakeFiles\AssetTool.dir\tools\cooker\main.cpp.obj
-[27/40] Linking CXX executable AssetTool.exe
-[28/40] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+[1/129] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/123] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/98] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[4/95] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[5/92] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[6/89] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[7/73] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[8/71] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[9/70] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[10/68] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
+[11/67] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[12/66] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
+[13/65] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
+[14/64] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
+[15/63] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[16/62] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[17/61] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
+[18/60] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
+[19/59] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
+[20/58] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[21/57] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
+[22/56] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
+[23/55] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[24/54] Linking CXX executable AssetTool.exe
+[25/54] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[26/53] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
 Royal generated tag constants prepared: C:\DarkAngel\build\m5-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
-[29/39] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
-[30/37] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
-[31/34] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[27/52] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[28/50] Linking CXX executable AbilityMotorPredictionTests.exe
+[29/50] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
+[30/48] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[31/47] Linking CXX executable MotorActorHistoryTests.exe
+[32/47] Linking CXX executable MeleeTests.exe
+[33/47] Linking CXX executable CombatKitAssetTests.exe
+[34/47] Linking CXX executable GraphAssetTests.exe
+[35/47] Linking CXX executable CharacterCombatSceneTests.exe
+[36/47] Linking CXX executable RoyalCollisionTests.exe
+[37/47] Linking CXX executable CharacterSceneTests.exe
+[38/47] Linking CXX executable AbilityAssetTests.exe
+[39/47] Linking CXX executable ActionClipBindingTests.exe
+[40/47] Linking CXX executable ActionTimelineTests.exe
+[41/47] Linking CXX executable AbilityIntentGnsTests.exe
+[42/47] Linking CXX executable AbilityIntentTests.exe
+[43/47] Linking CXX executable AbilityPredictionTests.exe
+[44/47] Linking CXX executable AbilityObserverTests.exe
+[45/47] Linking CXX executable AbilityCorrectionTests.exe
+[46/47] Linking CXX executable AbilityTests.exe
 Optional program clang-format not found.
 -- ---------------------------------------------------------
 -- Selected options:

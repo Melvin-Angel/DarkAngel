@@ -1,81 +1,81 @@
 {
   "schema": 1,
-  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
+  "base_head": "b903cf62c12df8e1f17c0fa8a692678faddd6cb9",
   "scope": "Primary Royal Game workflow with frozen kit/action/clip, serialized protocol3 input/correction/ACK, native owner pending cost/action/root prediction, authoritative motor-relative melee target damage and Health/Stamina metrics",
   "gates": [
     {
       "name": "royal-combat-build-m5-relwithdebinfo",
       "exit": 0,
-      "seconds": 9.109
+      "seconds": 10.731
     },
     {
       "name": "royal-combat-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 14.562
+      "seconds": 46.596
     },
     {
       "name": "royal-combat-build-m2-relwithdebinfo",
       "exit": 0,
-      "seconds": 16.032
+      "seconds": 14.83
     },
     {
       "name": "royal-combat-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 8.807
+      "seconds": 8.33
     },
     {
       "name": "royal-combat-native",
       "exit": 0,
-      "seconds": 8.92
+      "seconds": 10.067
     },
     {
       "name": "royal-combat-editor",
       "exit": 0,
-      "seconds": 0.74
+      "seconds": 1.05
     },
     {
       "name": "royal-combat-no-animation",
       "exit": 0,
-      "seconds": 0.799
+      "seconds": 0.793
     },
     {
       "name": "royal-combat-headless",
       "exit": 0,
-      "seconds": 0.777
+      "seconds": 0.824
     },
     {
       "name": "royal-combat-prepare",
       "exit": 0,
-      "seconds": 1.863
+      "seconds": 2.142
     },
     {
       "name": "royal-combat-game-d3d12",
       "exit": 0,
-      "seconds": 0.834
+      "seconds": 1.12
     },
     {
       "name": "royal-combat-pose-d3d12",
       "exit": 0,
-      "seconds": 0.714
+      "seconds": 0.892
     },
     {
       "name": "royal-combat-game-vulkan",
       "exit": 0,
-      "seconds": 0.773
+      "seconds": 0.941
     },
     {
       "name": "royal-combat-pose-vulkan",
       "exit": 0,
-      "seconds": 0.688
+      "seconds": 0.835
     },
     {
       "name": "royal-combat-locomotion",
       "exit": 0,
-      "seconds": 0.932
+      "seconds": 0.961
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
+    "CMakeLists.txt": "6cee36c171646738f3df95ea1df882fff1b0a54594919418746a5785a4ea192f",
     "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "bd47bd356665a2c4d50e912e037791e6e25fc49756dbea59f3b7ef46532c30e3",
     "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
@@ -100,10 +100,10 @@
     "content/royal_district/combat/player.dakit": "36205255b6feaaca8f17e1291839282f45f4c8489e8cd1564d1f3aac4e221714"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0bca63b922803ce081176da9130b30e5304d1f39412b2ca0dce1034b733a1f68",
-    "build/m5-relwithdebinfo/CharacterCombatSceneTests.exe": "1436d7c3881c849cd4d581c41f8c2c8ad6db486eb263fb1f87aa5cedffa6297d",
-    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "0aa5acef020e919367d82ce2eabbfb917ed0270d18d2521db2276cd26f17677e",
-    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "f01f4a71d2d14e19dfea552eb65e453fa4acae78d077df9e245e4ae1e6d30fa0"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "c89373e97affd31e59c5417cabf163cb20397bf69b794dc631d072b3959a429a",
+    "build/m5-relwithdebinfo/CharacterCombatSceneTests.exe": "49076145b5c6c6bfd83cd32e4410c84b667b093bd4740727ddb9810438b8e4a0",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "355f5cdc2c54f037fdd697560a0a6d4dde07856855d7fac8acbcdc3e9161e230",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "648bcaa47cca6ca091e6cfb1584fd99c7a3c52ec58ae41da13178c6e04e141d5"
   },
   "limitations": [
     "Pending owner cost/action/root prediction and dependent operation invalidation pass; real authored combo transitions, tags/reservations and predicted cosmetic cues remain open.",

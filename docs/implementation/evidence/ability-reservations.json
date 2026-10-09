@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
+  "base_head": "b903cf62c12df8e1f17c0fa8a692678faddd6cb9",
   "scope": "Frozen typed commit marker, one-execution resource/cooldown/slot claims, native marker revalidation/consumption/lifecycle release, correlated commitment trace and owner schema5 replay",
   "gates": [
     {
       "name": "ability-reservations-product",
       "exit": 0,
-      "seconds": 148.547
+      "seconds": 177.517
     },
     {
       "name": "ability-reservations-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.426
+      "seconds": 0.442
     },
     {
       "name": "ability-reservations-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.404
+      "seconds": 0.395
     },
     {
       "name": "ability-reservations-native",
       "exit": 0,
-      "seconds": 0.144
+      "seconds": 0.146
     },
     {
       "name": "ability-reservations-editor",
@@ -31,11 +31,11 @@
     {
       "name": "ability-reservations-headless",
       "exit": 0,
-      "seconds": 0.206
+      "seconds": 0.282
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
+    "CMakeLists.txt": "6cee36c171646738f3df95ea1df882fff1b0a54594919418746a5785a4ea192f",
     "engine/runtime/action.cpp": "1592fbefb1c5ec255ba4a96b711942a094b6cb11efb6bd950b9b3527b5ab48c8",
     "engine/runtime/include/darkangel/action.hpp": "97f23b108a3d8ae172a4a9b37efddcb1ea83234be986c9f42b0ffea817eb9635",
     "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
@@ -52,9 +52,9 @@
     "scripts/verify_ability_reservations.py": "0d22f2afa86b2e38bff1f9640d2c6d6ea833717d6d6bc1e8b6c4414269b3e4ab"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/AbilityReservationTests.exe": "3e9ce6c27c90c13992833f9e28a316277c7161de696b2263f245855cc6e1ff9e",
-    "build/m5-editor-relwithdebinfo/AbilityReservationTests.exe": "d1aac9a986f4e25b1fb7155c7efa65c2895c98baedb33dbbe628e572782ac141",
-    "build/m1-relwithdebinfo/AbilityReservationTests.exe": "6e99699a1fd15619d8a366348ef404f8c8b29d8f1530b2b231d257bb4f3d5328"
+    "build/m5-relwithdebinfo/AbilityReservationTests.exe": "0f7f5ce9a299910af676ea12afef90289142615e2ff3e7dfd5149e1a0b0f9cb8",
+    "build/m5-editor-relwithdebinfo/AbilityReservationTests.exe": "4c1b8e33bc43dc827f4b713247bb58ae3d9a17fffb515ca4cce7b5acc1c38276",
+    "build/m1-relwithdebinfo/AbilityReservationTests.exe": "a7c502b1835f8e3ed841cf763aec7b9c3e470fb0d8eba74b05d1ab04e21c4952"
   },
   "related_evidence": [
     "effect-replication.json",

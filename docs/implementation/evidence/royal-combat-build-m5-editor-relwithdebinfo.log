@@ -721,7 +721,7 @@ joltphysics provides CMake targets:
   find_package(Jolt CONFIG REQUIRED)
   target_link_libraries(main PRIVATE Jolt::Jolt)
 
-All requested installations completed successfully in: 493 us
+All requested installations completed successfully in: 420 us
 -- Running vcpkg install - done
 -- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
 -- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
@@ -734,28 +734,34 @@ All requested installations completed successfully in: 493 us
 -- Architecture: AMD64
 -- DiligentCore commit hash: 074060cf
 -- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
--- Configuring done (9.5s)
--- Generating done (1.1s)
+-- Configuring done (11.7s)
+-- Generating done (1.4s)
 -- Build files have been written to: C:/DarkAngel/build/m5-editor-relwithdebinfo
-[1/99] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[2/93] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[3/68] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
-[4/65] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
-[5/62] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
-[6/59] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[7/43] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
-[8/41] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
-[9/39] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
-[10/37] Scanning C:\DarkAngel\tools\cooker\main.cpp for CXX dependencies
-[11/37] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[12/37] Building CXX object CMakeFiles\AssetTool.dir\tools\cooker\main.cpp.obj
-[13/37] Linking CXX executable AssetTool.exe
-[14/37] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+[1/99] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[2/74] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[3/71] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[4/68] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[5/68] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[6/65] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[7/61] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[8/45] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[9/43] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[10/42] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
+[11/41] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
+[12/40] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[13/40] Linking CXX static library DarkAngelFoundation.lib
+[14/40] Linking CXX executable AbilityPredictionTests.exe
+[15/40] Linking CXX executable AssetTool.exe
+[16/40] Linking CXX executable AbilityObserverTests.exe
+[17/40] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
 Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
-[15/36] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
-[16/34] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
-[17/31] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
-[18/29] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[18/39] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[19/37] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
+[20/35] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[21/34] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[22/25] Linking CXX executable CharacterCombatSceneTests.exe
+[23/25] Linking CXX executable RoyalCollisionTests.exe
+[24/25] Linking CXX executable DarkAngelEditor.exe
 Optional program clang-format not found.
 -- ---------------------------------------------------------
 -- Selected options:

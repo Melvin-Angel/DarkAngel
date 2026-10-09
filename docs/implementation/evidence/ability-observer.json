@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
+  "base_head": "b903cf62c12df8e1f17c0fa8a692678faddd6cb9",
   "scope": "Protocol3 atomic public motor/action frames, cooked visibility into native audience policies, server-only exclusion from owner corrections, active-action late join, prepared bounded observer interpolation and Royal coordinator; full optimized native integration",
   "gates": [
     {
       "name": "ability-observer-royal",
       "exit": 0,
-      "seconds": 71.761
+      "seconds": 106.012
     },
     {
       "name": "ability-observer-editor",
       "exit": 0,
-      "seconds": 0.153
+      "seconds": 0.196
     },
     {
       "name": "ability-observer-integration-build",
       "exit": 0,
-      "seconds": 16.076
+      "seconds": 12.02
     },
     {
       "name": "ability-observer-integration",
       "exit": 0,
-      "seconds": 21.182
+      "seconds": 25.38
     }
   ],
   "related_evidence": [
@@ -29,7 +29,7 @@
     "ability-prediction.json"
   ],
   "source_sha256": {
-    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
+    "CMakeLists.txt": "6cee36c171646738f3df95ea1df882fff1b0a54594919418746a5785a4ea192f",
     "engine/runtime/include/darkangel/attributes.hpp": "39fa8aff9faad327b3ef619b13403590e398bee7f12fbf2b9f6cb16fa2b882dd",
     "engine/runtime/attributes.cpp": "e28467edfac7baf8b60956ec5734569c4253d955ce2ac9dbfbe3790b1ce1585f",
     "engine/assets/include/darkangel/ability_assets.hpp": "6f4e4d9818fcb786db4231918c1380b183026852e2e37d1906f504dfd772d40d",
@@ -54,10 +54,10 @@
     "scripts/verify_ability_observer.py": "ca443028e7e4b01e3554a11cfff9447a5f6f08b13cecbbcc061b4e1af9fa4ed9"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0bca63b922803ce081176da9130b30e5304d1f39412b2ca0dce1034b733a1f68",
-    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "baabef7efd13cbcb06d51d27b694c7b70d594f98c4573a5210f70b160741c0ca",
-    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "1219840550601b6921082cfeace088a7a03d3bc29809ef7026d6b6844b58c2e8",
-    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "7a1d81ea7b0083406310be386af2f910ff7c7f620dfd5656db6bda2a1fd9bb8c"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "c89373e97affd31e59c5417cabf163cb20397bf69b794dc631d072b3959a429a",
+    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "8f18eb321331ff87984e384c408b9d2bd3ff64913ff4c9fa853a7aada318c6c7",
+    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "f9f68708d90407fb6e63f0da9927e63bfffc8c801fe20e39143e8b7000d778ec",
+    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "b9a563ebc20669ee16b80f5cbab237bf3bc88e771e6f0feffd7b217eda499747"
   },
   "limitations": [
     "Current four-actor arena-wide interest profile; public effects/tags/persistent cues and interest/cell restoration beyond reliable object lifecycle remain open.",

@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "base_head": "b903cf62c12df8e1f17c0fa8a692678faddd6cb9",
+  "scope": "Real offline GNS protocol3 join to warm native effects: dense 63 owner/1 public/1 server-private filtering, timers, destroyed-source activation attribution, periodic/expiry Health and persistent cue lifetime",
+  "gates": [
+    {
+      "name": "effect-gns-product",
+      "exit": 0,
+      "seconds": 197.326
+    },
+    {
+      "name": "effect-gns-build-editor",
+      "exit": 0,
+      "seconds": 7.94
+    },
+    {
+      "name": "effect-gns-native",
+      "exit": 0,
+      "seconds": 1.309
+    },
+    {
+      "name": "effect-gns-editor",
+      "exit": 0,
+      "seconds": 1.41
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "6cee36c171646738f3df95ea1df882fff1b0a54594919418746a5785a4ea192f",
+    "tests/effect_gns_tests.cpp": "a8ea63d8b5c2f9936e7bb64ffcb711d04e1d87f676d3b10756cd92506db58298",
+    "scripts/run_effect_gns.py": "b934a28bafb5061d4f479670141884cd394d1ea03fbca0706cdc36fccb35862a",
+    "scripts/verify_effect_gns.py": "8818db20f33a2c7972b9e4cbfa34f2e1f159273f502ca99926c38d577cb39a0b"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/EffectGnsTests.exe": "3b05fba6737f41eddb1236c272f92cfd0e39879eb2ece2d0f8ecd45e537cd3fb",
+    "build/m5-editor-relwithdebinfo/EffectGnsTests.exe": "6933db1ad626b8283637a42163b189e67adead601c9ea3ab530c5f0cdc8ffada"
+  },
+  "related_evidence": [
+    "tag-constants.json",
+    "effect-replication.json"
+  ],
+  "limitations": [
+    "The provider check uses two native processes over localhost UDP, one owner connection and synthetic stationary motor publication. It does not qualify graphical remote/Jolt play or four simultaneous remote owners.",
+    "No packet loss/latency/jitter matrix or live EOS service is implied. Complete fault/clock/streaming/lifecycle/bandwidth/allocation/frame-performance gates remain required.",
+    "Checked Luau gameplay composition, reflected/typed graph/socket authoring, authored utility dodge/status/motor/equipment/combo/projectile, persistent visual/audio/one-shot cue adapters and RmlUi bars remain open. M4/M5 remain In progress; M6 has not started."
+  ]
+}

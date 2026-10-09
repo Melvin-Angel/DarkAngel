@@ -40,10 +40,10 @@ sqlite3 provides CMake targets:
     find_package(unofficial-sqlite3 CONFIG REQUIRED)
     target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
 
-All requested installations completed successfully in: 417 us
+All requested installations completed successfully in: 371 us
 -- Running vcpkg install - done
--- Configuring done (4.9s)
--- Generating done (0.1s)
+-- Configuring done (4.8s)
+-- Generating done (0.2s)
 -- Build files have been written to: C:/DarkAngel/build/m1-relwithdebinfo
 [1/53] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
 [2/28] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
@@ -57,8 +57,8 @@ All requested installations completed successfully in: 417 us
 [10/18] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
 [11/18] Linking CXX static library DarkAngelFoundation.lib
 [12/18] Linking CXX executable AbilityIntentTests.exe
-[13/18] Linking CXX executable AbilityPredictionTests.exe
-[14/18] Linking CXX executable DarkAngelHeadless.exe
+[13/18] Linking CXX executable DarkAngelHeadless.exe
+[14/18] Linking CXX executable AbilityPredictionTests.exe
 [15/18] Linking CXX executable AbilityObserverTests.exe
 [16/18] Linking CXX executable AbilityCorrectionTests.exe
 [17/18] Linking CXX executable AbilityTests.exe

@@ -1,0 +1,8 @@
+[1/8] Scanning C:\DarkAngel\engine\runtime\gns_transport.cpp for CXX dependencies
+[2/8] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/8] Scanning C:\DarkAngel\tests\effect_gns_tests.cpp for CXX dependencies
+[4/8] Generating CXX dyndep file CMakeFiles\EffectGnsTests.dir\CXX.dd
+[5/8] Building CXX object CMakeFiles\DarkAngelNetwork.dir\engine\runtime\gns_transport.cpp.obj
+[6/8] Linking CXX static library DarkAngelNetwork.lib
+[7/8] Building CXX object CMakeFiles\EffectGnsTests.dir\tests\effect_gns_tests.cpp.obj
+[8/8] Linking CXX executable EffectGnsTests.exe

@@ -703,7 +703,7 @@ meshoptimizer provides CMake targets:
   find_package(meshoptimizer CONFIG REQUIRED)
   target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
 
-All requested installations completed successfully in: 467 us
+All requested installations completed successfully in: 372 us
 -- Running vcpkg install - done
 -- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
 -- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
@@ -716,21 +716,19 @@ All requested installations completed successfully in: 467 us
 -- Architecture: AMD64
 -- DiligentCore commit hash: 074060cf
 -- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
--- Configuring done (9.2s)
--- Generating done (1.0s)
+-- Configuring done (11.6s)
+-- Generating done (0.9s)
 -- Build files have been written to: C:/DarkAngel/build/m2-relwithdebinfo
-[1/54] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[2/49] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[3/24] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
-[4/14] Linking CXX static library DarkAngelFoundation.lib
-[5/14] Scanning C:\DarkAngel\tools\cooker\main.cpp for CXX dependencies
-[6/14] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
-[7/14] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
-[8/13] Building CXX object CMakeFiles\AssetTool.dir\tools\cooker\main.cpp.obj
-[9/13] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\tag_codegen.cpp.obj
-[10/13] Linking CXX static library DarkAngelAssets.lib
-[11/13] Linking CXX executable AbilityAssetTests.exe
-[12/13] Linking CXX executable AssetTool.exe
+[1/54] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[2/29] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[3/17] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[4/16] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[5/16] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[6/15] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[7/11] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[8/11] Linking CXX static library DarkAngelFoundation.lib
+[9/11] Linking CXX executable AssetTool.exe
+[10/11] Linking CXX executable AbilityAssetTests.exe
 Target processor: x86_64
 CMake generator: Ninja
 

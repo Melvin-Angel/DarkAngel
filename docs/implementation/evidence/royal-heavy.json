@@ -1,17 +1,17 @@
 {
   "schema": 1,
-  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
+  "base_head": "b903cf62c12df8e1f17c0fa8a692678faddd6cb9",
   "scope": "Atomic typed on-hit effects and frozen Royal heavy ability with native deferred marker, authoritative Jolt hit/Burn, game-owned formulas, public status/cues and primary Game metrics",
   "gates": [
     {
       "name": "royal-heavy-product",
       "exit": 0,
-      "seconds": 153.215
+      "seconds": 181.473
     },
     {
       "name": "royal-heavy-build-editor",
       "exit": 0,
-      "seconds": 7.705
+      "seconds": 0.576
     },
     {
       "name": "royal-heavy-build-headless",
@@ -21,51 +21,51 @@
     {
       "name": "royal-heavy-effects-native",
       "exit": 0,
-      "seconds": 0.052
+      "seconds": 0.047
     },
     {
       "name": "royal-heavy-effects-editor",
       "exit": 0,
-      "seconds": 0.097
+      "seconds": 0.092
     },
     {
       "name": "royal-heavy-effects-headless",
       "exit": 0,
-      "seconds": 0.122
+      "seconds": 0.079
     },
     {
       "name": "royal-heavy-scene-native",
       "exit": 0,
-      "seconds": 1.216
+      "seconds": 1.107
     },
     {
       "name": "royal-heavy-scene-editor",
       "exit": 0,
-      "seconds": 1.628
+      "seconds": 1.549
     },
     {
       "name": "royal-heavy-game-d3d12-30",
       "exit": 0,
-      "seconds": 1.352
+      "seconds": 0.665
     },
     {
       "name": "royal-heavy-game-d3d12-210",
       "exit": 0,
-      "seconds": 1.583
+      "seconds": 0.982
     },
     {
       "name": "royal-heavy-game-vulkan-30",
       "exit": 0,
-      "seconds": 0.75
+      "seconds": 0.676
     },
     {
       "name": "royal-heavy-game-vulkan-210",
       "exit": 0,
-      "seconds": 0.947
+      "seconds": 0.898
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
+    "CMakeLists.txt": "6cee36c171646738f3df95ea1df882fff1b0a54594919418746a5785a4ea192f",
     "engine/runtime/world_session.cpp": "8dd45b5fde00cb5495ff2923af917aefc63f7969084aa2fa52943cc1c442d42d",
     "engine/runtime/include/darkangel/world_session.hpp": "f9b4d9444dc9bb92b5cccb1f59f4fc006a449f3d3188c2794ddecf5cb89b2f1c",
     "engine/runtime/include/darkangel/melee.hpp": "742ce41ce528f0c3f4b516643ab33171bf89ca52397bfc8c2ce14699916b7395",
@@ -92,12 +92,12 @@
     "content/royal_district/combat/state.datags": "3b165c553ee60ac946bb11372b158ec8a3317f43fd5f407b52447fb22b61f971"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/CombatEffectTests.exe": "28c6a72eccc51df6d17863e0ff71d3f0506fc40f38891e58cc4cbbff8d142060",
-    "build/m5-editor-relwithdebinfo/CombatEffectTests.exe": "ba60f9f434bb36128e4c1c8cdb50b7e23d98061d8f8a9764e828f5746cf2205b",
-    "build/m1-relwithdebinfo/CombatEffectTests.exe": "b98bce91ef0e81c84b46411f31f591ebc4d820055f0266746268c138aa60f258",
-    "build/m5-relwithdebinfo/RoyalHeavySceneTests.exe": "d82f6fbb14e4686a4cda5ebad8260a707eac840a2072f3777b98af629555d9cd",
-    "build/m5-editor-relwithdebinfo/RoyalHeavySceneTests.exe": "9a375ac413d206b425e6e6d0fe6b0d335e63d3888b73380c3acad43aa81efafb",
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0bca63b922803ce081176da9130b30e5304d1f39412b2ca0dce1034b733a1f68"
+    "build/m5-relwithdebinfo/CombatEffectTests.exe": "362d9e035355b31763d614e3dfbeabb5e92d95c0d881196cbe00bbc56f9a8ea4",
+    "build/m5-editor-relwithdebinfo/CombatEffectTests.exe": "f72843f03716618ba57726c1b3ae77b395f73ef6b40fa59bc725156818e603ad",
+    "build/m1-relwithdebinfo/CombatEffectTests.exe": "8746097f70a0bf7f8166eb57c1cb53aea7d93f4e738641a9d81acd2602dd54a3",
+    "build/m5-relwithdebinfo/RoyalHeavySceneTests.exe": "d659a2324895313b43ba90b98251a80f1f834c0eac1f28352e9e04b6c748974e",
+    "build/m5-editor-relwithdebinfo/RoyalHeavySceneTests.exe": "2ccdd2061b8f69ca58426d830d382c4d42b99b7c9a1fa9eaa0f49859cf0ae9f6",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "c89373e97affd31e59c5417cabf163cb20397bf69b794dc631d072b3959a429a"
   },
   "related_evidence": [
     "ability-reservations.json",
