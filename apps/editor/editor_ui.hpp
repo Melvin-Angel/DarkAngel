@@ -31,6 +31,7 @@ public:
     ImTextureID composer_texture{};bool composer_visible{},composer_playing{},composer_loop{};
     double composer_frame_seconds{};float composer_rate{1},composer_yaw{},composer_pitch{.1f},composer_distance{2.7f};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
+    char attribute_name[97]{"NewStatistic"};int attribute_kind{};
     int composer_new_kind{};
     AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};

@@ -1,0 +1,13 @@
+# Native attribute definitions and modifier authoring
+
+10 October 2026, after 3566ad0. M4/M5 remain In progress; live EOS remains externally blocked.
+
+Delivered: Ability includes native `.daattributes` definitions in its shared gameplay browser, with direct links from Ability/Effect forms. Edit names, kind, base/min/max, units, visibility and resource maximum-statistic references; create/remove definitions with stable session IDs and existing Undo/Redo. Existing IDs are read-only. Schema creation/duplication keeps compatible fields under a fresh asset UUID. Pending attribute definitions feed cost/modifier selectors from the shared draft rather than stale saved bytes.
+
+AssetService coordinated Save and native creation now admit the existing Attributes format. Source UUID/type/schema, optimistic hashes, private candidate cooking, consumer validation, normal-failure rollback and frozen generations remain unchanged. A changed schema also selects affected standalone effect roots, in addition to ability/kit consumers. This closes the case where an unassigned effect could retain a broken source attribute reference. The old single-source `edit_native` API remains restricted to its original types; attribute edits use coordinated validation/publication.
+
+Focused verification: `python scripts/verify_composer.py --attributes --build` passes full-editor/AttributeAuthoringTests build, one isolated native source/consumer fixture and a D3D12 definition-form capture (inspected). New AttackPower20 receives an ordinary flat modifier+7 then returns to20 on removal, without an execution evaluator. Checks cover fresh schema asset identity, stable field IDs, create/remove Undo/Redo, duplicate-name rejection, standalone effect consumer failure preserving source/head bytes, explicit reference cleanup, successful frozen native loading and old-generation retention. Initial missing Save-whitelist rejection and the corrected passing log are retained. Receipt: `evidence/attribute-authoring.json`.
+
+This is an isolated native modifier proof and rendered form, not new-stat remote transport, graphical combat qualification or physical input automation. Generated gameplay-tag schema changes still require native generation/rebuilt-consumer validation; final damage/defence/poise/block formulas remain game-owned. Source files plus SQLite are not crash-atomic; asset creation/deletion is outside draft Undo.
+
+Next: shared reference-search/compatible filtering improvements, then ordinary effect preview and Character/Player kit references. Full M4/M5 graph/layer/mask/socket/clock/fault/streaming/performance and graphical RmlUi gates remain open.

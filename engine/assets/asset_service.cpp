@@ -189,7 +189,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     std::set<AssetId> selected(scene_roots.begin(),scene_roots.end());
     for(const auto& edit:edits){
         digest_check(edit.expected_sha256);auto source=p.source(edit.path);auto ext=source.extension();
-        require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit","Coordinated Save supports native gameplay sources");
+        require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit"||ext==".daattributes","Coordinated Save supports native gameplay sources");
         auto relative=source.lexically_relative(p.sources).generic_string();auto original=read(within(snapshot,relative),65536);
         if(sha256(original)!=edit.expected_sha256)throw std::runtime_error("Coordinated Save is stale for "+relative+"; reload the changed source");
         auto before=json(original,65536),after=json(edit.draft,65536);
@@ -217,7 +217,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
         std::function<void(const Json&)> locators=[&](const Json& v){if(v.is_string()){auto path=within(snapshot,v.get<std::string>()).lexically_relative(snapshot).generic_string();changed|=affected(path,visited);}else if(v.is_object()||v.is_array())for(const auto& entry:v)locators(entry);};
         if(value.contains("sources"))locators(value.at("sources"));return changed;
     };
-    for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".dakit"||ext==".daability"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
+    for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".dakit"||ext==".daability"||ext==".daeffect"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
     require(selected.size()<=64,"Coordinated Save root limit");
     for(auto id:selected){
         require(inventory.contains(id),"Native Save scene root missing");auto source=within(snapshot,inventory.at(id));auto metadata=read(metadata_path(source),1024*1024);auto sidecar=source_metadata(source);auto ids=metadata_ids(sidecar);
@@ -269,7 +269,7 @@ std::vector<CookResult> AssetService::commit_native(const PreparedNativeEdit& pr
     return results;
 }
 CookResult AssetService::create_native(std::string_view relative,std::string_view draft){
-    auto& p=*impl_;p.thread();auto source=p.source(relative);auto ext=source.extension();require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit","Create supports owned native gameplay sources");require(!std::filesystem::exists(source),"Choose a new source name; existing files are preserved");
+    auto& p=*impl_;p.thread();auto source=p.source(relative);auto ext=source.extension();require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit"||ext==".daattributes","Create supports owned native gameplay sources");require(!std::filesystem::exists(source),"Choose a new source name; existing files are preserved");
     auto data=json(draft,65536);auto id=AssetId::parse(data.at("asset").get<std::string>());require(id!=AssetId{},"New native source needs a persistent UUID");scan();for(const auto& asset:assets())require(asset.id!=id,"New native source UUID already exists");
     atomic_write(source,draft,false);auto digest=sha256(draft);
     try{return cook(relative);}catch(...){require(file_sha256(source)==digest,"New source changed externally during failed cook; external edit preserved");std::filesystem::remove(source);scan();throw;}

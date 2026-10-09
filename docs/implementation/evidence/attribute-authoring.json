@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "base_head": "3566ad0b06f488f99b7ea43fe292f10dcdaa0d1a",
+  "scope": "Native attribute definition forms/create/remove/history and coordinated standalone effect consumer validation; ordinary modifier authoring without custom evaluator",
+  "gates": [
+    {
+      "name": "attribute-authoring-build",
+      "exit": 0,
+      "seconds": 5.459
+    },
+    {
+      "name": "attribute-authoring-native",
+      "exit": 0,
+      "seconds": 5.133
+    },
+    {
+      "name": "attribute-authoring-panel",
+      "exit": 0,
+      "seconds": 0.614
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_composer.cpp": "27377c7e92ca1783243373bd5214f450bd2663285786c5e4902e9d93a88e7a1f",
+    "apps/editor/editor_authoring.cpp": "2410fbc97c670e1554990aaee8e5598c8939366950912a2fe51d1a73117a38a6",
+    "apps/editor/editor_ui.hpp": "512b1cbd312ab374f059893acae756a8838405f2418718b7f05427abf7ac4a0c",
+    "scripts/verify_composer.py": "9c286127bed760992bb645c282043f94225b2a29328042ab0155857cc2183efc",
+    "apps/editor/native_authoring.cpp": "c19270180843154c5c3610d75ae53b15532bdb2ffc06c270ca262e1ee408564a",
+    "apps/editor/native_authoring.hpp": "8788bbe20d7a96ca1f8358f83eda9ad9f396c148c06623d4a3f6e7930565137a",
+    "engine/assets/asset_service.cpp": "56935d741bd00ce480a4563cfd81bacb1c6cdd5d1b5c9c29df62993d475a8aa1",
+    "tests/attribute_authoring_tests.cpp": "a9f58a4a61337001cae29c64db374d328179c92d97cbe75ce4fa80e80cdf6d64",
+    "CMakeLists.txt": "8e7c3e7ff21388e68c3d9b34f4596c7c75411872299acdce2dbcdba125c09a6c"
+  },
+  "binary_sha256": "d977ce5be46678a969c34df8a1e8249ae3e038769110d5fd83b8bb4d11e4ef38",
+  "limitations": [
+    "Native modifier fixture and one D3D12 rendered definition form; no remote gameplay/new-stat transport or physical input qualification.",
+    "Source/SQLite publication is not crash-atomic; compiled tag definitions and schema compatibility still require native gates.",
+    "Broader Character/Player/graph tools and M4/M5 qualification remain open."
+  ]
+}
