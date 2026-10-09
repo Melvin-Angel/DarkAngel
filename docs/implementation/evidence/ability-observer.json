@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
+  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
   "scope": "Protocol3 atomic public motor/action frames, cooked visibility into native audience policies, server-only exclusion from owner corrections, active-action late join, prepared bounded observer interpolation and Royal coordinator; full optimized native integration",
   "gates": [
     {
       "name": "ability-observer-royal",
       "exit": 0,
-      "seconds": 102.99
+      "seconds": 239.183
     },
     {
       "name": "ability-observer-editor",
       "exit": 0,
-      "seconds": 0.142
+      "seconds": 0.157
     },
     {
       "name": "ability-observer-integration-build",
       "exit": 0,
-      "seconds": 9.005
+      "seconds": 18.467
     },
     {
       "name": "ability-observer-integration",
       "exit": 0,
-      "seconds": 17.504
+      "seconds": 19.486
     }
   ],
   "related_evidence": [
@@ -54,10 +54,10 @@
     "scripts/verify_ability_observer.py": "ca443028e7e4b01e3554a11cfff9447a5f6f08b13cecbbcc061b4e1af9fa4ed9"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "587ee0395e5dcbc8812a85356ef76d371fc948f27557e9a1db6fc07abe3578c2",
-    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "cf05b9899dba9645acf1f82bc781289812293478512e0ddb49af958928473ebb",
-    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "460ee36f5ca154cfe0d3824acad68b6368d18cc0cd8e636f95dccb3db2608e07",
-    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "2a20b2614511a667f954357a212c980ec413efa05c67ee215d3b402a362761ee"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "f83f5cf8a3829d4124f46d7851bd15703bb703349dfdec6b540b409065eab94c",
+    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "0997e1c054d6238797b6e18425c30565ed12aabc168a3978604fda28772d6376",
+    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "1b252c64d2c49f276474700ed7dce59b25b9ec40bc4f694efee5fed453d5aa2a",
+    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "3c315e1a22e84725d9a720eb782acb944ce300c9a2e5df987bb1e5c77315a548"
   },
   "limitations": [
     "Current four-actor arena-wide interest profile; public effects/tags/persistent cues and interest/cell restoration beyond reliable object lifecycle remain open.",

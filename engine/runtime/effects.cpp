@@ -43,7 +43,7 @@ EffectExecution OwnedEffects::execute(const Active& a,std::uint64_t tick,Attribu
  return {a.state.handle,a.state.credit,tick,std::move(applied)};
 }
 std::pair<EffectHandle,std::vector<EffectExecution>> OwnedEffects::apply(const EffectDefinition& source,EffectCredit credit,std::uint64_t tick,AttributeSet& attributes,const EffectEvaluator& evaluator){
- auto definition=freeze(source,attributes,tags_.dictionary());credit_valid(credit);checked(tick>=tick_&&definition->duration_ticks<=std::numeric_limits<std::uint64_t>::max()-tick&&definition->period_ticks<=std::numeric_limits<std::uint64_t>::max()-tick,"Effect application clock");
+ auto definition=freeze(source,attributes,tags_.dictionary());credit_valid(credit);checked(tick==tick_&&definition->duration_ticks<=std::numeric_limits<std::uint64_t>::max()-tick&&definition->period_ticks<=std::numeric_limits<std::uint64_t>::max()-tick,"Effect application clock");
  checked(tags_.matches(definition->application),"Effect application tag requirement");auto candidate=*this;auto prepared=attributes;candidate.tick_=tick;
  auto refreshed=std::find_if(candidate.active_.begin(),candidate.active_.end(),[&](const auto& a){return definition->stacking==EffectStack::RefreshPerSource&&a.definition->id==definition->id&&a.state.credit.session_epoch==credit.session_epoch&&a.state.credit.source_network==credit.source_network;});
  Active active;

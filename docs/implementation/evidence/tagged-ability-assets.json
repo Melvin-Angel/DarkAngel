@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
+  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
   "scope": "Authored optional typed tag registry/requirements on existing .daability, shared TagAsset decoder, frozen complete kit closure and tag preparation for native scene authority/owner/observer",
   "gates": [
     {
       "name": "tagged-ability-assets-product",
       "exit": 0,
-      "seconds": 148.229
+      "seconds": 301.037
     },
     {
       "name": "tagged-ability-assets-editor-build",
       "exit": 0,
-      "seconds": 0.945
+      "seconds": 1.807
     },
     {
       "name": "tagged-ability-assets-editor-AbilityAssetTests",
       "exit": 0,
-      "seconds": 0.777
+      "seconds": 0.585
     },
     {
       "name": "tagged-ability-assets-editor-CombatKitAssetTests",
       "exit": 0,
-      "seconds": 1.19
+      "seconds": 1.368
     }
   ],
   "source_sha256": {
@@ -42,10 +42,10 @@
     "scripts/verify_tagged_ability_assets.py": "c29f2715274f6c9c77205ef8b59623af36732dbab43012846cf6e3eaf0e0872e"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/AbilityAssetTests.exe": "2bbb48e91738bb69dd2f01b0c28327dd4dc3863b3b5d9a5661ee32fa0b7e2daf",
-    "build/m5-editor-relwithdebinfo/CombatKitAssetTests.exe": "3d57a659ed74ad24c03baa0f5cdd3b60dce6c5f251505d2bdb2fa005e6f4fa92",
-    "build/m5-editor-relwithdebinfo/CharacterCombatSceneTests.exe": "4d46ece82b346dac41e4d6b58821aaa521b60cf4ed22ba6b69d81b1115adab00",
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "587ee0395e5dcbc8812a85356ef76d371fc948f27557e9a1db6fc07abe3578c2"
+    "build/m5-editor-relwithdebinfo/AbilityAssetTests.exe": "8da2e4dbff23d77728185b3623e6ce7c386d2cc3af4415532cde4c0d1db30e28",
+    "build/m5-editor-relwithdebinfo/CombatKitAssetTests.exe": "1fae688634c383352ccf42488691e15983c7de621fca40e92f81a3cea5e78fb1",
+    "build/m5-editor-relwithdebinfo/CharacterCombatSceneTests.exe": "d57b8e3311aa91affd52a1d7e7d8f9779d79780ba268e71a536a5517e271f832",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "f83f5cf8a3829d4124f46d7851bd15703bb703349dfdec6b540b409065eab94c"
   },
   "related_evidence": [
     "ability-tags.json",

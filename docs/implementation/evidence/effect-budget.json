@@ -1,37 +1,37 @@
 {
   "schema": 1,
-  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
+  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
   "scope": "Worst simultaneous periodic outcome reservation before effect publication, atomic rejection/removal/refresh and measured native 4-actor/128-effect workload",
   "gates": [
     {
       "name": "effect-budget-product",
       "exit": 0,
-      "seconds": 153.767
+      "seconds": 307.425
     },
     {
       "name": "effect-budget-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 3.626
+      "seconds": 0.563
     },
     {
       "name": "effect-budget-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 3.965
+      "seconds": 0.43
     },
     {
       "name": "effect-budget-native",
       "exit": 0,
-      "seconds": 0.056
+      "seconds": 0.062
     },
     {
       "name": "effect-budget-editor",
       "exit": 0,
-      "seconds": 0.089
+      "seconds": 0.1
     },
     {
       "name": "effect-budget-headless",
       "exit": 0,
-      "seconds": 0.082
+      "seconds": 0.101
     }
   ],
   "measurements": {
@@ -41,9 +41,9 @@
       "ticks": 240,
       "outcomes": 512,
       "peak_due": 128,
-      "mean_ms": 0.120787,
-      "p99_ms": 0.2819,
-      "max_ms": 0.3291,
+      "mean_ms": 0.144547,
+      "p99_ms": 0.4186,
+      "max_ms": 0.5572,
       "ordinary_cpp_new_calls": 332964
     },
     "editor": {
@@ -52,9 +52,9 @@
       "ticks": 240,
       "outcomes": 512,
       "peak_due": 128,
-      "mean_ms": 0.116848,
-      "p99_ms": 0.2738,
-      "max_ms": 0.5808,
+      "mean_ms": 0.122796,
+      "p99_ms": 0.3452,
+      "max_ms": 0.4512,
       "ordinary_cpp_new_calls": 332964
     },
     "headless": {
@@ -63,9 +63,9 @@
       "ticks": 240,
       "outcomes": 512,
       "peak_due": 128,
-      "mean_ms": 0.112468,
-      "p99_ms": 0.2678,
-      "max_ms": 0.3333,
+      "mean_ms": 0.120902,
+      "p99_ms": 0.2509,
+      "max_ms": 0.368,
       "ordinary_cpp_new_calls": 332964
     }
   },
@@ -76,9 +76,9 @@
     "scripts/verify_effect_budget.py": "4fefe8fa49ea92d4cce635e99c59f8173aa3bde0b7c0b35bb8a138df61c35d74"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/EffectBudgetTests.exe": "0147db76004b0bc3912fadf4bbc89c6b553fbdbab75b6e11dabe2eeb39e1b37a",
-    "build/m5-editor-relwithdebinfo/EffectBudgetTests.exe": "24e104bf57103ba85f8e5e232bae87276ac053b1ecf7e763ec8c1cf114595387",
-    "build/m1-relwithdebinfo/EffectBudgetTests.exe": "6319414ac8dd2274b6593ae281184548d2a5c60a4af6c8c9220f31609afd9910"
+    "build/m5-relwithdebinfo/EffectBudgetTests.exe": "eaf6279f114c665f5f2d858f93342f5c5052c3598ab343348b72b24d247d6ae8",
+    "build/m5-editor-relwithdebinfo/EffectBudgetTests.exe": "6f6577bc1c16e1864a8424df800e84220dda14f18b07e281e7efd333a7bf9374",
+    "build/m1-relwithdebinfo/EffectBudgetTests.exe": "0f83e40bc2a57f9454d057003a8b88c027fc73cf0e1fc72804179f94d5d7f9ae"
   },
   "related_evidence": [
     "tagged-ability-assets.json",

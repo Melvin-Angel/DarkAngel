@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
+  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
   "scope": "Native owner pending commitment view, exact operation inclusion/receipt rejection/dependency invalidation, held-state correction schema2, regenerated root policy and atomic disposable Jolt motor replay; Royal full-editor and Headless integration",
   "gates": [
     {
       "name": "ability-prediction-royal",
       "exit": 0,
-      "seconds": 99.443
+      "seconds": 235.99
     },
     {
       "name": "ability-prediction-editor",
       "exit": 0,
-      "seconds": 0.075
+      "seconds": 0.058
     },
     {
       "name": "ability-prediction-gns-client",
       "exit": 0,
-      "seconds": 0.672
+      "seconds": 0.506
     },
     {
       "name": "ability-prediction-gns-host",
       "exit": 0,
-      "seconds": 0.797
+      "seconds": 0.621
     }
   ],
   "royal_evidence": "royal-combat.json",
@@ -46,10 +46,10 @@
     "scripts/verify_royal_combat.py": "b2ba57365860cfc85ebaabfb3d0ae4ebb0eb37db4ae3e0af3990ecc0a8da37bf"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "587ee0395e5dcbc8812a85356ef76d371fc948f27557e9a1db6fc07abe3578c2",
-    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "eea3273184ff6dd4d9fc5937611da5b785f847516784c1d357f9a82a9d222416",
-    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "b575bb62bcaad619d06379c07d1c0ee309d342bc3b4c792876c895611806b986",
-    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "9b4d0788c330b3be73393c57de7096ae551154d00b649b66828d06981888b00b"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "f83f5cf8a3829d4124f46d7851bd15703bb703349dfdec6b540b409065eab94c",
+    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "45a215d2a7eaf96840e60fd7def0a1a08f23403c11c691a217acdea93c1e298c",
+    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "7f69756a8527b1d9b3d28dbbae15f264671023d8829205d56659aef21bdd29c9",
+    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "0d164ce196bf13572b22e5556e30ad9aefd3ca7d37cc614c8d7120e50abf74c0"
   },
   "limitations": [
     "Operation dependencies are local prediction metadata; authored server combo transitions remain open.",

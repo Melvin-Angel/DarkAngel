@@ -1,37 +1,37 @@
 {
   "schema": 1,
-  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
+  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
   "scope": "Protocol-3 owner schema3/public schema2 tag aggregates with frozen registry identity, visibility/generation preparation, native tag activation requirements and confirmed-tag owner pending replay",
   "gates": [
     {
       "name": "ability-tags-product",
       "exit": 0,
-      "seconds": 144.236
+      "seconds": 297.284
     },
     {
       "name": "ability-tags-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.554
+      "seconds": 0.564
     },
     {
       "name": "ability-tags-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.54
+      "seconds": 0.378
     },
     {
       "name": "ability-tags-native",
       "exit": 0,
-      "seconds": 0.064
+      "seconds": 0.052
     },
     {
       "name": "ability-tags-editor",
       "exit": 0,
-      "seconds": 0.101
+      "seconds": 0.097
     },
     {
       "name": "ability-tags-headless",
       "exit": 0,
-      "seconds": 0.108
+      "seconds": 0.115
     }
   ],
   "source_sha256": {
@@ -53,9 +53,9 @@
     "scripts/verify_ability_tags.py": "50219074f7299c210cc1e7c7cfd0b812ceade8ff83352c4bfca7d00dd7249043"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/AbilityTagTests.exe": "ec3dcdcddcc7a95a9cb111b62cd6b275fadd73fde0e332bb25fb1797ba4e77fb",
-    "build/m5-editor-relwithdebinfo/AbilityTagTests.exe": "b94f063a9a9b18140ea589b04e7b4a8f7166788f276c13644f031e2bcfb99035",
-    "build/m1-relwithdebinfo/AbilityTagTests.exe": "4afb5e8b2124fca7d2d3bc91e09a39ad02adfc5be555a299e433a94da95eb898"
+    "build/m5-relwithdebinfo/AbilityTagTests.exe": "c665be77f7f1588cd09563215186805d5d9bf4ba2a5fd7085bc92952dd033cdb",
+    "build/m5-editor-relwithdebinfo/AbilityTagTests.exe": "96148e33b0fd3010feca29248d769f601e909730f95e7c58e6f34f363e80ca00",
+    "build/m1-relwithdebinfo/AbilityTagTests.exe": "7d6f5e89811690ea6ebaba52fc096b909c5a51706d5b754fde9c8802c42a0e7e"
   },
   "related_evidence": [
     "effect-assets.json",
