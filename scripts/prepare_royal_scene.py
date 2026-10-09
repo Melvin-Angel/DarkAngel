@@ -37,7 +37,10 @@ def prepare():
     input_source = 'input/royal_player.dainput'
     run('cook', SOURCE, CACHE, input_source)
     input_id = json.loads((SOURCE / input_source).read_text())['asset']
-    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips], input_id, graph_id, kit_id)
+    collision_source = 'royal_district/collision/environment.dacollision'
+    run('cook', SOURCE, CACHE, collision_source)
+    collision_id = json.loads((SOURCE / collision_source).read_text())['asset']
+    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips], input_id, graph_id, kit_id, collision_id)
     for relative in chosen:
         run('inspect', CACHE / 'registry.json', CACHE / 'cas', asset(relative))
     root = '492cd837-3bf6-45d7-b640-b0470c5cec82'

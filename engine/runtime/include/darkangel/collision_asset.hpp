@@ -2,7 +2,7 @@
 #include <darkangel/asset_id.hpp>
 #include <darkangel/character_motor.hpp>
 namespace darkangel {
-struct CollisionTriangle {std::array<std::uint32_t,3> vertices{};std::uint32_t key{},material{};};
+struct CollisionTriangle {std::array<std::uint32_t,3> vertices{};std::uint32_t key{},material{};auto operator<=>(const CollisionTriangle&)const=default;};
 struct CollisionMeshData {AssetId runtime;std::string signature;std::vector<MotorVec> vertices;std::vector<CollisionTriangle> triangles;std::vector<std::string> materials;};
 struct CollisionMeshDefinition {std::uint64_t id{};std::shared_ptr<const CollisionMeshData> data;};
 // Wire collision state carries asset generation references, never SDK objects.
