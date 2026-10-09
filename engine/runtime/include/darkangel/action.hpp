@@ -1,10 +1,12 @@
 #pragma once
 #include <darkangel/asset_id.hpp>
+#include <darkangel/animation.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
+#include <optional>
 namespace darkangel {
 // One tick is 1024 action units. Global simulation continues during rate-zero hitstop.
 inline constexpr unsigned action_tick_units=1024;
@@ -12,8 +14,13 @@ enum class ActionBlockKind {Cue,HitWindow,Invulnerability,MovementLock,ComboWind
 enum class ActionPhase {Active,Completed,Cancelled};
 enum class ActionEdge {End,Marker,Begin};
 struct ActionBlock {unsigned id{},track{},begin{},end{};ActionBlockKind kind{};std::string key;};
-struct ActionDefinition {AssetId id;std::string generation;unsigned duration{},loops{},priority{};bool upper_body{};std::vector<ActionBlock> blocks;};
+struct ActionClipBinding {ClipDefinition clip;std::string archive_generation;bool motor_root{};};
+struct ActionDefinition {AssetId id;std::string generation;unsigned duration{},loops{},priority{};bool upper_body{};std::vector<ActionBlock> blocks;std::optional<ActionClipBinding> motion;};
 ActionDefinition decode_action_source(std::string_view);
+// Pure timeline-local root request. The owning motor applies collision and
+// publishes achieved motion; neither clip sampling nor this helper moves actors.
+struct ActionMotion {ClipMotion root;bool movement_lock{};};
+ActionMotion action_motion_between(const ActionDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
 struct ActionState {std::uint64_t activation{},tick{},clock{};unsigned rate{action_tick_units};ActionPhase phase{ActionPhase::Active};bool entered{};std::string generation;};
 struct ActionEvent {std::uint64_t activation{},time{};unsigned block{},track{},loop{};ActionEdge edge{};ActionBlockKind kind{};std::string key;auto operator<=>(const ActionEvent&)const=default;};
 struct ActionInterval {unsigned block{},loop{},from{},to{};ActionBlockKind kind{};};

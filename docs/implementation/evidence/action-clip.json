@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "base_head": "ad949c39b48cb5684765bbe7f6d4c9ceebe745ae",
+  "scope": "Native action schema2 clip/rig and root-policy closure, source-free generation-fenced loading through ability/kit, pure timeline root requests consumed by existing Jolt motor, synthetic 30/60/144 traces",
+  "gates": [
+    {
+      "name": "action-clip-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 34.923
+    },
+    {
+      "name": "action-clip-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 97.533
+    },
+    {
+      "name": "action-clip-build-m2-relwithdebinfo",
+      "exit": 0,
+      "seconds": 49.917
+    },
+    {
+      "name": "action-clip-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 18.252
+    },
+    {
+      "name": "action-clip-native",
+      "exit": 0,
+      "seconds": 8.661
+    },
+    {
+      "name": "action-clip-editor",
+      "exit": 0,
+      "seconds": 0.357
+    },
+    {
+      "name": "action-clip-no-animation",
+      "exit": 0,
+      "seconds": 0.361
+    },
+    {
+      "name": "action-clip-headless",
+      "exit": 0,
+      "seconds": 0.469
+    },
+    {
+      "name": "action-clip-disabled",
+      "exit": 0,
+      "expected_rejection": 1,
+      "seconds": 0.086
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "2a329a3a3dad47474133341e3282a13f2530b9db710be55972bc7976b0973b95",
+    "engine/assets/action_cooker.cpp": "74627a59d12666192d15977fc60572ff3eedc18faf3126cb8fe581d2ae1c5c1e",
+    "engine/assets/ability_cooker.cpp": "2f59f6e55036d945c6ffa1383571cf1de61e93601a507f6e1d1670a5913be19b",
+    "engine/assets/asset_service.cpp": "caee7a0d8fea03722c7c91ff85fa1b158ec66dee99efd5a206a4b3f6a3c3f74c",
+    "engine/runtime/action.cpp": "987c761787fb8d87ed2e7e334510f5c8d5705b9d8f217318825bc043a53be111",
+    "engine/runtime/include/darkangel/action.hpp": "07eede41403ccf90bfb490ac58756e9306ddedafcfabecaa89f2df5e78a44c02",
+    "tests/action_clip_binding_tests.cpp": "0348ae0adece11f0b17bdfa3df339665a973e0716e7d71d767b239fa51207d83",
+    "tests/combat_kit_asset_tests.cpp": "589c59ec3af00a590f8cd4942a0e083a374de8a00ed77d0ab18466540db5bf3d",
+    "scripts/verify_action_clip_binding.py": "53ab87f9cd798840284aeccb991344cc75ac4120e608fb95b806276ebaf3dce2"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "d9f083ffa5bd3d2d6ceb1dfd1effac430dc10fb22e616741fa8e8bd5a1f7c50a",
+    "build/m5-relwithdebinfo/ActionClipBindingTests.exe": "a09187c679bd57e3ee1fc96fa0ab2a82d523dfa571473ad55b22dce45b9d003e",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "1fd234cc176f7a635d43199fe41fc6c978eebb99283a0084dc3009b85616ab02",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "38364a2ee2733984f1df6b8eafc54046f4b05d571709cebe4a64d5ff0cf09d62"
+  },
+  "limitations": [
+    "Royal input/attack/target presentation integration and character/kit/ability authoring remain open.",
+    "Upper-body masking/additive pose, typed graph states/events and animated socket sweeps remain open.",
+    "No new owner prediction, observer actions/public visibility or fault/timing/performance qualification.",
+    "M4/M5 remain In progress; live EOS remains blocked."
+  ]
+}

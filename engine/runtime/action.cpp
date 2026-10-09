@@ -3,19 +3,29 @@
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <set>
+#include <cmath>
 #include <tuple>
 #include <stdexcept>
 namespace darkangel {
 namespace {
 void require(bool b,const char* s){if(!b)throw std::runtime_error(s);}
+void validate_motion(const ActionDefinition& definition){
+    if(!definition.motion)return;
+    const auto& motion=*definition.motion;const auto& clip=motion.clip;
+    require(clip.id!=AssetId{}&&clip.runtime!=AssetId{}&&clip.skeleton!=AssetId{}&&clip.id!=clip.runtime&&clip.id!=clip.skeleton&&clip.runtime!=clip.skeleton&&clip.ticks&&clip.ticks<=600&&clip.joints&&clip.joints<=256&&clip.root.size()==clip.ticks+1,"Action clip identity/work bounds");
+    for(auto digest:std::array<std::string_view,2>{clip.signature,motion.archive_generation})require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Action clip generation digest");
+    require(definition.duration==clip.ticks*action_tick_units&&(definition.loops==1||clip.loop)&&!(definition.upper_body&&motion.motor_root),"Action clip duration/loop/root ownership");
+    for(auto value:clip.root.front())require(std::abs(value)<1e-5,"Action clip initial root");
+    for(const auto& key:clip.root)for(auto value:key)require(std::isfinite(value)&&std::abs(value)<=100,"Action clip root scalar bounds");
+}
 bool interval(ActionBlockKind kind){return kind!=ActionBlockKind::Cue;}
 ActionEvent event(const ActionState& state,const ActionBlock& block,unsigned loop,unsigned local,ActionEdge edge,unsigned duration){return {state.activation,std::uint64_t(loop)*duration+local,block.id,block.track,loop,edge,block.kind,block.key};}
 void order(ActionBatch& batch){require(batch.events.size()<=512&&batch.traversed.size()<=256,"Action boundary work limit");std::sort(batch.events.begin(),batch.events.end(),[](const auto& a,const auto& b){return std::tie(a.time,a.loop,a.track,a.block,a.edge)<std::tie(b.time,b.loop,b.track,b.block,b.edge);});}
 }
 ActionDefinition decode_action_source(std::string_view bytes){
     using Json=nlohmann::json;require(bytes.size()<=65536,"Action source byte limit");unsigned work{};std::vector<std::set<std::string>> keys;
-    auto source=Json::parse(bytes,[&](int depth,Json::parse_event_t e,Json& v){require(depth<=8&&++work<=4096,"Action source work limit");if(e==Json::parse_event_t::object_start)keys.emplace_back();if(e==Json::parse_event_t::key)require(keys.back().insert(v.get<std::string>()).second,"Duplicate action field");if(e==Json::parse_event_t::object_end)keys.pop_back();return true;});
-    require(source.is_object()&&source.size()==8&&source.at("schema")==1&&source.at("kind")=="action","Action source schema");ActionDefinition definition;definition.id=AssetId::parse(source.at("asset").get<std::string>());
+    auto source=Json::parse(bytes,[&](int depth,Json::parse_event_t e,Json& v){require(depth<=8&&++work<=8192,"Action source work limit");if(e==Json::parse_event_t::object_start)keys.emplace_back();if(e==Json::parse_event_t::key)require(keys.back().insert(v.get<std::string>()).second,"Duplicate action field");if(e==Json::parse_event_t::object_end)keys.pop_back();return true;});
+    require(source.is_object()&&((source.size()==8&&source.at("schema")==1)||(source.size()==10&&source.at("schema")==2))&&source.at("kind")=="action","Action source schema");ActionDefinition definition;definition.id=AssetId::parse(source.at("asset").get<std::string>());
     auto integer=[&](const Json& value,unsigned maximum){require(value.is_number_unsigned()&&value.get<std::uint64_t>()<=maximum,"Action integer range");return value.get<unsigned>();};
     definition.duration=integer(source.at("duration"),600*action_tick_units);require(definition.duration>=action_tick_units,"Action duration/loop work bound");definition.loops=integer(source.at("loops"),8);require(definition.loops>0,"Action finite loop count");definition.priority=integer(source.at("priority"),255);
     auto slot=source.at("slot").get<std::string>();require(slot=="full-body"||slot=="upper-body","Action pose slot");definition.upper_body=slot=="upper-body";
@@ -25,12 +35,24 @@ ActionDefinition decode_action_source(std::string_view bytes){
         auto kind=record.at("kind").get<std::string>();if(kind=="cue")block.kind=ActionBlockKind::Cue;else if(kind=="hit")block.kind=ActionBlockKind::HitWindow;else if(kind=="invulnerability")block.kind=ActionBlockKind::Invulnerability;else if(kind=="movement-lock")block.kind=ActionBlockKind::MovementLock;else if(kind=="combo")block.kind=ActionBlockKind::ComboWindow;else throw std::runtime_error("Unsupported action block kind");
         require(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition.duration,"Action marker/interval range");definition.blocks.push_back(std::move(block));
     }
+    if(source.at("schema")==2){
+        const auto& binding=source.at("motion");require(binding.is_object()&&binding.size()==3,"Action motion binding fields");ActionClipBinding motion;motion.clip=decode_clip_manifest(binding.at("clip").dump());motion.archive_generation=binding.at("archive_generation").get<std::string>();auto policy=binding.at("policy").get<std::string>();require(policy=="motor"||policy=="none","Action root policy");motion.motor_root=policy=="motor";definition.motion=std::move(motion);
+        const auto& frozen=source.at("frozen");require(frozen.is_object()&&frozen.size()==4,"Action frozen clip/rig closure");for(const auto& [key,value]:frozen.items()){AssetId::parse(key);auto digest=value.get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Action frozen dependency digest");}
+        for(auto dependency:{definition.motion->clip.id,definition.motion->clip.runtime,definition.motion->clip.skeleton})require(frozen.contains(dependency.text()),"Action frozen binding dependency");require(frozen.at(definition.motion->clip.runtime.text())==definition.motion->archive_generation,"Action frozen clip archive generation");validate_motion(definition);
+    }
     std::sort(definition.blocks.begin(),definition.blocks.end(),[](const auto& a,const auto& b){return std::tie(a.track,a.id)<std::tie(b.track,b.id);});definition.generation=sha256(source.dump());return definition;
+}
+ActionMotion action_motion_between(const ActionDefinition& definition,std::uint64_t from,std::uint64_t to){
+    validate_motion(definition);require(from<=to&&to<=std::uint64_t(definition.duration)*definition.loops&&to-from<=8*action_tick_units,"Action root clock interval");ActionMotion result;
+    for(unsigned loop=0;loop<definition.loops;++loop)for(const auto& block:definition.blocks)if(block.kind==ActionBlockKind::MovementLock){auto origin=std::uint64_t(loop)*definition.duration;if(from==to?(from>=origin+block.begin&&from<origin+block.end):(std::max(from,origin+block.begin)<std::min(to,origin+block.end)))result.movement_lock=true;}
+    if(from!=to&&definition.motion&&definition.motion->motor_root){result.root=clip_root_delta(definition.motion->clip,double(from)/action_tick_units,double(to)/action_tick_units);auto& v=result.root.translation;require(std::isfinite(result.root.yaw)&&std::abs(result.root.yaw)<=3.141593&&std::hypot(std::hypot(v[0],v[1]),v[2])<=1,"Action root request motor bounds");}
+    return result;
 }
 ActionTimeline::ActionTimeline(std::shared_ptr<const ActionDefinition> definition,std::uint64_t activation,std::uint64_t tick){
     require(definition&&activation&&definition->duration>=action_tick_units&&definition->duration<=600*action_tick_units&&definition->loops&&definition->loops<=8&&definition->blocks.size()<=32&&definition->generation.size()==64,"Action activation definition bounds");
     require(definition->priority<=255&&definition->generation.find_first_not_of("0123456789abcdef")==definition->generation.npos,"Action definition metadata");
     std::set<unsigned> ids;for(const auto& block:definition->blocks)require(block.id&&ids.insert(block.id).second&&block.track<=31&&block.end<=definition->duration&&block.begin<=definition->duration&&static_cast<unsigned>(block.kind)<=static_cast<unsigned>(ActionBlockKind::ComboWindow)&&(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition->duration)&&!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed definition block");
+    validate_motion(*definition);
     // Definitions are copied so mutable aliases cannot change an active generation.
     definition_=std::make_shared<const ActionDefinition>(*definition);state_.activation=activation;state_.tick=tick;state_.generation=definition_->generation;
 }

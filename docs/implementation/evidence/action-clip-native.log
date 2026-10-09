@@ -1,0 +1,47 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+      Start  1: M4.session
+ 1/16 Test  #1: M4.session .......................   Passed    0.13 sec
+      Start  2: M4.faults
+ 2/16 Test  #2: M4.faults ........................   Passed    0.20 sec
+      Start  3: M4.motor
+ 3/16 Test  #3: M4.motor .........................   Passed    1.36 sec
+      Start  6: M5.authoritative_melee
+ 4/16 Test  #6: M5.authoritative_melee ...........   Passed    0.70 sec
+      Start 11: M5.clips
+ 5/16 Test #11: M5.clips .........................   Passed    1.16 sec
+      Start 12: M5.omni_clips
+ 6/16 Test #12: M5.omni_clips ....................   Passed    0.96 sec
+      Start 13: M5.combat_kit_assets
+ 7/16 Test #13: M5.combat_kit_assets .............   Passed    0.89 sec
+      Start 14: M5.graph_assets
+ 8/16 Test #14: M5.graph_assets ..................   Passed    0.74 sec
+      Start 15: M5.graph_runtime
+ 9/16 Test #15: M5.graph_runtime .................   Passed    0.38 sec
+      Start 16: M5.character_scene
+10/16 Test #16: M5.character_scene ...............   Passed    0.83 sec
+      Start 19: M5.ability_assets
+11/16 Test #19: M5.ability_assets ................   Passed    0.37 sec
+      Start 21: M5.action_clip_binding
+12/16 Test #21: M5.action_clip_binding ...........   Passed    0.37 sec
+      Start 22: M5.action_timeline
+13/16 Test #22: M5.action_timeline ...............   Passed    0.17 sec
+      Start 46: M5.ability_intent
+14/16 Test #46: M5.ability_intent ................   Passed    0.12 sec
+      Start 47: M5.ability_correction
+15/16 Test #47: M5.ability_correction ............   Passed    0.10 sec
+      Start 48: M5.ability_commit
+16/16 Test #48: M5.ability_commit ................   Passed    0.11 sec
+
+100% tests passed out of 16
+
+Label Time Summary:
+M4           =   1.69 sec*proc (3 tests)
+M5           =   2.27 sec*proc (4 tests)
+ability      =   0.11 sec*proc (1 test)
+animation    =   2.16 sec*proc (3 tests)
+asset        =   0.96 sec*proc (1 test)
+network      =   1.16 sec*proc (3 tests)
+physics      =   2.19 sec*proc (2 tests)
+session      =   0.11 sec*proc (1 test)
+
+Total Test time (real) =   8.62 sec

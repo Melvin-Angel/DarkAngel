@@ -71,7 +71,7 @@ std::vector<AttributeDefinition> AttributeAsset::definitions()const{std::vector<
 AttributeAsset load_cooked_attributes(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){return attributes(Registry(registry,cas).load(id,"attributes","attributes.json"));}
 CookedAbility load_cooked_ability(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
     Registry records(registry,cas);auto source=records.load(id,"ability","ability.json");auto schema=attributes(records.load(reference(source.at("attributes")),"attributes","attributes.json"));
-    auto action=std::make_shared<const ActionDefinition>(decode_action_source(records.load(reference(source.at("action")),"action","action.json").dump()));
+    auto action=std::make_shared<const ActionDefinition>(load_cooked_action(registry,cas,reference(source.at("action"))));
     require(source.at("action_generation")==action->generation&&source.at("attributes_generation")==schema.generation,"Combat frozen dependency generation mismatch");
     source.erase("action_generation");source.erase("attributes_generation");
     return {ability(source,schema,action),std::move(schema)};
@@ -88,11 +88,14 @@ Import import_ability(const std::filesystem::path& root,const std::filesystem::p
     auto action_path=within(root,locations.at("action").get<std::string>()),schema_path=within(root,locations.at("attributes").get<std::string>());
     require(action_path.extension()==".daaction"&&schema_path.extension()==".daattributes","Ability source dependency type");
     auto action_bytes=read(action_path,65536),schema_bytes=read(schema_path,65536);
-    auto action=std::make_shared<const ActionDefinition>(decode_action_source(action_bytes));auto schema=attributes(json(schema_bytes,65536));ability(data,schema,action);
+    auto action_import=import_action(root,action_path,{{"$source",reference(data.at("action"))}},inspect);
+    auto action_data=json(action_bytes);if(action_data.at("schema")==2&&inspect){action_data.erase("motion");action_data["schema"]=1;}
+    if(!inspect)for(const auto& product:action_import.products)if(product.id==reference(data.at("action")))action_data=json(product.bytes);
+    auto action=std::make_shared<const ActionDefinition>(decode_action_source(action_data.dump()));auto schema=attributes(json(schema_bytes,65536));ability(data,schema,action);
     require(id!=action->id&&id!=schema.id&&schema.id!=action->id,"Combat closure duplicate UUID");
-    result.inputs[action_path.lexically_relative(root).generic_string()]=sha256(action_bytes);result.inputs[schema_path.lexically_relative(root).generic_string()]=sha256(schema_bytes);result.product_count=3;result.identities.push_back(action->id);result.identities.push_back(schema.id);
+    result.inputs[action_path.lexically_relative(root).generic_string()]=sha256(action_bytes);result.inputs[schema_path.lexically_relative(root).generic_string()]=sha256(schema_bytes);result.inputs.insert(action_import.inputs.begin(),action_import.inputs.end());result.product_count=action_import.product_count+2;result.identities.insert(result.identities.end(),action_import.identities.begin(),action_import.identities.end());result.identities.push_back(schema.id);
     data["action_generation"]=action->generation;data["attributes_generation"]=schema.generation;
-    if(!inspect){result.products.push_back({id,"ability","ability.json",data.dump(),{action->id,schema.id}});result.products.push_back({action->id,"action","action.json",json(action_bytes).dump(),{}});result.products.push_back({schema.id,"attributes","attributes.json",json(schema_bytes).dump(),{}});}
+    if(!inspect){result.products.push_back({id,"ability","ability.json",data.dump(),{action->id,schema.id}});for(auto& product:action_import.products){require(product.id!=id&&product.id!=schema.id,"Ability action closure identity conflict");result.products.push_back(std::move(product));}result.products.push_back({schema.id,"attributes","attributes.json",json(schema_bytes).dump(),{}});}
     return result;
 }
 }

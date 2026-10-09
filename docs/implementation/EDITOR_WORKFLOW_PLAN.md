@@ -146,3 +146,6 @@ Latest graph increment (9 October): [frozen native locomotion graph](GRAPH_ASSET
 
 
 Latest kit increment (9 October): [frozen CombatKit assets](COMBAT_KIT_ASSET_REPORT.md) adds `.dakit` with eight optional ability slots, declared input actions and a coherent frozen input/attribute/ability/graph-stance closure. 9/9 affected native checks, the full-editor fixture and 4/4 ordinary Headless checks pass, including existing WorldSession active-grant replacement without refunds. Royal remains locomotion-only; Action Composer clip/root binding, playable combat, authoring, prediction/observer and full M4/M5 gates remain open. Reproduce `python scripts/verify_combat_kit_assets.py --build`.
+
+
+Latest action increment (9 October): [frozen action clip binding](ACTION_CLIP_BINDING_REPORT.md) adds schema-2 Action Composer clip/rig/root-policy cooking through the Ability/CombatKit closure and a bounded timeline-local root helper for the existing motor. 16/16 affected native checks, full-editor binding fixture, feature-disabled rejection and 4/4 Headless checks pass. Real Jolt wall collision and synthetic 30/60/144 traces are checked. Royal input/attack/target integration, pending prediction/observer state, authoring and full M4/M5 gates remain open. Reproduce `python scripts/verify_action_clip_binding.py --build`.
