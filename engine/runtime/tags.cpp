@@ -4,7 +4,8 @@
 #include <stdexcept>
 namespace darkangel {
 namespace {void checked(bool b,const char* m){if(!b)throw std::invalid_argument(m);}}
-TagDictionary::TagDictionary(std::vector<TagDefinition> source):definitions_(std::move(source)){
+TagDictionary::TagDictionary(std::vector<TagDefinition> source,AssetId registry,std::string generation):definitions_(std::move(source)),registry_(registry),generation_(std::move(generation)){
+ checked((registry_==AssetId{}&&generation_.empty())||(registry_!=AssetId{}&&generation_.size()==64&&generation_.find_first_not_of("0123456789abcdef")==std::string::npos),"Tag registry generation identity");
  checked(definitions_.size()<=128,"Tag dictionary bound");std::set<TagId> ids;std::set<std::string> names;
  for(const auto& d:definitions_)checked(d.id&&!d.name.empty()&&d.name.size()<=96&&static_cast<unsigned>(d.visibility)<=2&&ids.insert(d.id).second&&names.insert(d.name).second,"Tag dictionary identity");
  for(const auto& d:definitions_){auto id=d.id;unsigned depth=0;while(id){checked(++depth<=16,"Tag hierarchy cycle/depth");auto it=std::find_if(definitions_.begin(),definitions_.end(),[&](const auto& x){return x.id==id;});checked(it!=definitions_.end(),"Tag parent missing");id=it->parent;}}
@@ -28,4 +29,10 @@ bool OwnedTags::matches(const TagRequirement& r,std::uint64_t excluded)const{
 std::vector<TagId> OwnedTags::values(AttributeVisibility audience)const{
  checked(static_cast<unsigned>(audience)<=2,"Tag audience");std::set<TagId> result;for(const auto& c:contributions_)for(auto id:c.tags){auto d=std::find_if(dictionary_->definitions().begin(),dictionary_->definitions().end(),[&](const auto& x){return x.id==id;});if(audience==AttributeVisibility::Server||d->visibility==AttributeVisibility::Public||(audience==AttributeVisibility::Owner&&d->visibility==AttributeVisibility::Owner))result.insert(id);}return {result.begin(),result.end()};
 }
+void TagDictionary::validate_snapshot(const ActorTagSnapshot& snapshot,AttributeVisibility audience)const{
+ checked(snapshot.registry==registry_&&snapshot.generation==generation_&&snapshot.values.size()<=128&&static_cast<unsigned>(audience)<=2,"Tag baseline registry generation/bound");std::set<TagId> ids;
+ for(auto id:snapshot.values){auto d=std::find_if(definitions_.begin(),definitions_.end(),[&](const auto& value){return value.id==id;});checked(d!=definitions_.end()&&ids.insert(id).second&&(audience==AttributeVisibility::Server||d->visibility==AttributeVisibility::Public||(audience==AttributeVisibility::Owner&&d->visibility==AttributeVisibility::Owner)),"Tag baseline unknown/private/duplicate ID");}
+}
+ActorTagSnapshot OwnedTags::snapshot(AttributeVisibility audience)const{return {dictionary_->registry(),dictionary_->generation(),values(audience)};}
+void OwnedTags::restore_snapshot(const ActorTagSnapshot& source,AttributeVisibility audience){dictionary_->validate_snapshot(source,audience);auto candidate=*this;candidate.contributions_.clear();for(std::size_t i=0;i<source.values.size();i+=16)candidate.add(UINT64_MAX-i/16,std::span(source.values).subspan(i,std::min<std::size_t>(16,source.values.size()-i)));*this=std::move(candidate);}
 }

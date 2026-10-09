@@ -16,18 +16,18 @@
 [16/93] Generating CXX dyndep file CMakeFiles\AnimationClipTests.dir\CXX.dd
 [17/92] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
 [18/91] Generating CXX dyndep file CMakeFiles\JointMaskTests.dir\CXX.dd
-[19/90] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
-[20/89] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[19/90] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[20/89] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
 [21/88] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
 [22/87] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
 [23/87] Generating CXX dyndep file CMakeFiles\CollisionObserverTests.dir\CXX.dd
 [24/86] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
 [25/85] Generating CXX dyndep file CMakeFiles\ExternalImportTests.dir\CXX.dd
 [26/84] Generating CXX dyndep file CMakeFiles\AttributeTests.dir\CXX.dd
-[27/83] Generating CXX dyndep file CMakeFiles\CombatKitTests.dir\CXX.dd
-[28/82] Generating CXX dyndep file CMakeFiles\InputTests.dir\CXX.dd
-[29/81] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
-[30/80] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[27/83] Generating CXX dyndep file CMakeFiles\InputTests.dir\CXX.dd
+[28/82] Generating CXX dyndep file CMakeFiles\CombatKitTests.dir\CXX.dd
+[29/81] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[30/79] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
 [31/78] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
 [32/76] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
 [33/74] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
@@ -43,29 +43,29 @@
 [43/71] Linking CXX executable MotorTests.exe
 [44/71] Building CXX object CMakeFiles\GnsTests.dir\tests\gns_tests.cpp.obj
 [45/71] Linking CXX executable MotorSessionTests.exe
-[46/71] Linking CXX executable MotorFaultTests.exe
-[47/71] Linking CXX executable MotorDynamicTests.exe
+[46/71] Linking CXX executable MotorDynamicTests.exe
+[47/71] Linking CXX executable MotorFaultTests.exe
 [48/71] Linking CXX executable PhysicsQuerySensorTests.exe
 [49/71] Linking CXX executable MotorBudgetTests.exe
 [50/71] Linking CXX executable PlatformAxesTests.exe
 [51/71] Linking CXX executable DarkAngelHeadless.exe
-[52/71] Linking CXX executable AnimationTests.exe
-[53/71] Linking CXX executable AnimationClipTests.exe
+[52/71] Linking CXX executable AnimationClipTests.exe
+[53/71] Linking CXX executable AnimationTests.exe
 [54/71] Linking CXX executable AnimationGraphTests.exe
 [55/71] Linking CXX executable RenderableHumanTests.exe
 [56/71] Linking CXX executable JointMaskTests.exe
 [57/71] Linking CXX executable CollisionAssetTests.exe
-[58/71] Linking CXX executable CollisionMeshTests.exe
-[59/71] Linking CXX executable CollisionObserverTests.exe
-[60/71] Linking CXX executable CollisionStreamTests.exe
+[58/71] Linking CXX executable CollisionStreamTests.exe
+[59/71] Linking CXX executable CollisionMeshTests.exe
+[60/71] Linking CXX executable CollisionObserverTests.exe
 [61/71] Linking CXX executable AssetTests.exe
-[62/71] Linking CXX executable AttributeTests.exe
-[63/71] Linking CXX executable ExternalImportTests.exe
+[62/71] Linking CXX executable ExternalImportTests.exe
+[63/71] Linking CXX executable AttributeTests.exe
 [64/71] Linking CXX executable CombatKitTests.exe
 [65/71] Linking CXX executable EditorTests.exe
-[66/71] Linking CXX executable InputTests.exe
-[67/71] Linking CXX executable FoundationTests.exe
-[68/71] Linking CXX executable ScriptPackageTests.exe
+[66/71] Linking CXX executable FoundationTests.exe
+[67/71] Linking CXX executable ScriptPackageTests.exe
+[68/71] Linking CXX executable AssemblyTests.exe
 [69/71] Linking CXX executable SessionTests.exe
-[70/71] Linking CXX executable AssemblyTests.exe
+[70/71] Linking CXX executable InputTests.exe
 [71/71] Linking CXX executable GnsTests.exe

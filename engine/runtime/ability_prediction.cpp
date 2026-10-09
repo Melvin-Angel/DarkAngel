@@ -13,12 +13,14 @@ struct OwnerAbilityPrediction::Impl {
     std::map<std::uint64_t,Operation> operations;
     std::vector<Frame> frames;std::vector<AbilityPredictionMotion> motion;
     std::uint64_t highest_submitted{},avatar_epoch{},confirmed_action_operation{};bool resync{};
-    Impl(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue,std::uint64_t epoch)
+    Impl(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue,std::uint64_t epoch,std::shared_ptr<const TagDictionary> tags)
         :state(baseline.owner,baseline.tick,schema,baseline.health_attribute,baseline.maximum_health_attribute),confirmed(baseline),highest_submitted(baseline.highest_operation),avatar_epoch(epoch){
         require(epoch,"Ability prediction avatar epoch");
+        if(tags)state.configure_tags(std::move(tags));const auto& dictionary=state.effects().tags().dictionary();
+        for(const auto& ability:catalogue)if(ability)for(const auto* list:{&ability->requirements.all,&ability->requirements.any,&ability->requirements.none})for(auto tag:*list)for(const auto& d:dictionary.definitions())require(d.visibility!=AttributeVisibility::Server||!dictionary.descends(d.id,tag),"Owner prediction cannot depend on server-only tag state");
         state.equip(std::move(kit),input,catalogue);state.restore_prediction(baseline);
         AttributeSet validation(std::move(schema));
-        for(const auto& definition:catalogue)definitions.push_back(freeze_ability_definition(*definition,validation));current=state.snapshot();
+        for(const auto& definition:catalogue)definitions.push_back(freeze_ability_definition(*definition,validation,&dictionary));current=state.snapshot();
         if(baseline.active)for(const auto& operation:baseline.operations)if(operation.committed&&operation.activation==baseline.active->activation)confirmed_action_operation=operation.operation;
     }
     // Frozen definitions are resolved from the installed state's pinned identity.
@@ -47,8 +49,8 @@ struct OwnerAbilityPrediction::Impl {
     }
     void rebuild(){state.restore_prediction(confirmed);motion.clear();invalidate();for(const auto& frame:frames)motion.push_back(run(frame));current=state.snapshot();}
 };
-OwnerAbilityPrediction::OwnerAbilityPrediction(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions,std::uint64_t epoch)
-    :impl_(std::make_unique<Impl>(baseline,owner_schema(std::move(schema)),std::move(kit),input,definitions,epoch)){}
+OwnerAbilityPrediction::OwnerAbilityPrediction(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions,std::uint64_t epoch,std::shared_ptr<const TagDictionary> tags)
+    :impl_(std::make_unique<Impl>(baseline,owner_schema(std::move(schema)),std::move(kit),input,definitions,epoch,std::move(tags))){}
 OwnerAbilityPrediction::~OwnerAbilityPrediction()=default;
 OwnerAbilityPrediction::OwnerAbilityPrediction(const OwnerAbilityPrediction& other):impl_(std::make_unique<Impl>(*other.impl_)){}
 OwnerAbilityPrediction& OwnerAbilityPrediction::operator=(const OwnerAbilityPrediction& other){if(this!=&other)impl_=std::make_unique<Impl>(*other.impl_);return *this;}

@@ -1,17 +1,58 @@
-[1/17] Linking CXX executable MotorActorHistoryTests.exe
-[2/17] Linking CXX executable AbilityMotorPredictionTests.exe
-[3/17] Linking CXX executable MeleeTests.exe
-[4/17] Linking CXX executable CombatKitAssetTests.exe
-[5/17] Linking CXX executable GraphAssetTests.exe
-[6/17] Linking CXX executable CharacterCombatSceneTests.exe
-[7/17] Linking CXX executable RoyalCollisionTests.exe
-[8/17] Linking CXX executable CharacterSceneTests.exe
-[9/17] Linking CXX executable AbilityAssetTests.exe
-[10/17] Linking CXX executable ActionClipBindingTests.exe
-[11/17] Linking CXX executable ActionTimelineTests.exe
-[12/17] Linking CXX executable AbilityIntentGnsTests.exe
-[13/17] Linking CXX executable AbilityPredictionTests.exe
-[14/17] Linking CXX executable AbilityIntentTests.exe
-[15/17] Linking CXX executable AbilityObserverTests.exe
-[16/17] Linking CXX executable AbilityCorrectionTests.exe
-[17/17] Linking CXX executable AbilityTests.exe
+[1/68] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[2/66] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[3/66] Scanning C:\DarkAngel\tests\ability_motor_prediction_tests.cpp for CXX dependencies
+[4/66] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[5/66] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[6/63] Scanning C:\DarkAngel\tests\melee_tests.cpp for CXX dependencies
+[7/63] Scanning C:\DarkAngel\tests\combat_kit_asset_tests.cpp for CXX dependencies
+[8/63] Scanning C:\DarkAngel\tests\royal_collision_tests.cpp for CXX dependencies
+[9/63] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[10/63] Scanning C:\DarkAngel\tests\character_combat_scene_tests.cpp for CXX dependencies
+[11/63] Scanning C:\DarkAngel\tests\character_scene_tests.cpp for CXX dependencies
+[12/63] Scanning C:\DarkAngel\tests\ability_asset_tests.cpp for CXX dependencies
+[13/63] Scanning C:\DarkAngel\tests\ability_intent_gns_tests.cpp for CXX dependencies
+[14/63] Scanning C:\DarkAngel\tests\ability_intent_tests.cpp for CXX dependencies
+[15/63] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
+[16/63] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[17/62] Scanning C:\DarkAngel\tests\ability_correction_tests.cpp for CXX dependencies
+[18/62] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
+[19/62] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[20/61] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
+[21/61] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
+[22/60] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
+[23/60] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[24/60] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[25/60] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[26/60] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
+[27/59] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
+[28/58] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
+[29/58] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[30/58] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[31/58] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[32/58] Building CXX object CMakeFiles\AbilityMotorPredictionTests.dir\tests\ability_motor_prediction_tests.cpp.obj
+[33/58] Linking CXX static library DarkAngelCharacterScene.lib
+[34/58] Building CXX object CMakeFiles\MeleeTests.dir\tests\melee_tests.cpp.obj
+[35/58] Building CXX object CMakeFiles\CombatKitAssetTests.dir\tests\combat_kit_asset_tests.cpp.obj
+[36/58] Building CXX object CMakeFiles\RoyalCollisionTests.dir\tests\royal_collision_tests.cpp.obj
+[37/58] Building CXX object CMakeFiles\RoyalCollisionTests.dir\apps\editor\character_preview.cpp.obj
+[38/58] Building CXX object CMakeFiles\CharacterCombatSceneTests.dir\tests\character_combat_scene_tests.cpp.obj
+[39/58] Building CXX object CMakeFiles\CharacterSceneTests.dir\tests\character_scene_tests.cpp.obj
+[40/58] Building CXX object CMakeFiles\AbilityIntentGnsTests.dir\tests\ability_intent_gns_tests.cpp.obj
+[41/58] Building CXX object CMakeFiles\AbilityIntentTests.dir\tests\ability_intent_tests.cpp.obj
+[42/58] Building CXX object CMakeFiles\AbilityAssetTests.dir\tests\ability_asset_tests.cpp.obj
+[43/58] Linking CXX executable AbilityMotorPredictionTests.exe
+[44/58] Linking CXX executable MotorActorHistoryTests.exe
+[45/58] Linking CXX executable MeleeTests.exe
+[46/58] Building CXX object CMakeFiles\AbilityCorrectionTests.dir\tests\ability_correction_tests.cpp.obj
+[47/58] Linking CXX executable CombatKitAssetTests.exe
+[48/58] Linking CXX executable AssetTool.exe
+[49/58] Linking CXX executable GraphAssetTests.exe
+[50/58] Linking CXX executable RoyalCollisionTests.exe
+[51/58] Linking CXX executable CharacterCombatSceneTests.exe
+[52/58] Linking CXX executable CharacterSceneTests.exe
+[53/58] Linking CXX executable AbilityAssetTests.exe
+[54/58] Linking CXX executable ActionClipBindingTests.exe
+[55/58] Linking CXX executable ActionTimelineTests.exe
+[56/58] Linking CXX executable AbilityIntentGnsTests.exe
+[57/58] Linking CXX executable AbilityIntentTests.exe
+[58/58] Linking CXX executable AbilityCorrectionTests.exe

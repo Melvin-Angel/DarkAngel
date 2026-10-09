@@ -10,7 +10,7 @@ struct ObserverAbilitySample {
 class ObserverAbility {
 public:
     ObserverAbility(std::vector<AttributeDefinition>,AttributeId health,AttributeId maximum,
-        std::span<const std::shared_ptr<const ActionDefinition>>);
+        std::span<const std::shared_ptr<const ActionDefinition>>,std::shared_ptr<const TagDictionary> tags={});
     void push(const AbilityPublicFrame&);
     void reset(){frames_.clear();}
     ObserverAbilitySample sample(double render_tick)const;
@@ -19,6 +19,7 @@ private:
     std::vector<AttributeDefinition> schema_;AttributeId health_{},maximum_{};
     std::map<AssetId,std::shared_ptr<const ActionDefinition>> actions_;
     std::deque<AbilityPublicFrame> frames_;
+    std::shared_ptr<const TagDictionary> tags_;
     double limit(const AbilityPublicFrame&)const;
 };
 }

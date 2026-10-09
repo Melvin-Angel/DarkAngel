@@ -40,9 +40,9 @@ sqlite3 provides CMake targets:
     find_package(unofficial-sqlite3 CONFIG REQUIRED)
     target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
 
-All requested installations completed successfully in: 250 us
+All requested installations completed successfully in: 346 us
 -- Running vcpkg install - done
--- Configuring done (4.0s)
+-- Configuring done (4.5s)
 -- Generating done (0.1s)
 -- Build files have been written to: C:/DarkAngel/build/m1-relwithdebinfo
 [1/65] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
@@ -77,15 +77,15 @@ All requested installations completed successfully in: 250 us
 [30/45] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
 [31/45] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
 [32/45] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
-[33/45] Building CXX object CMakeFiles\AbilityIntentTests.dir\tests\ability_intent_tests.cpp.obj
-[34/45] Linking CXX static library DarkAngelRuntime.lib
+[33/45] Linking CXX static library DarkAngelRuntime.lib
+[34/45] Building CXX object CMakeFiles\AbilityIntentTests.dir\tests\ability_intent_tests.cpp.obj
 [35/45] Building CXX object CMakeFiles\AbilityPredictionTests.dir\tests\ability_prediction_tests.cpp.obj
 [36/45] Building CXX object CMakeFiles\AbilityObserverTests.dir\tests\ability_observer_tests.cpp.obj
 [37/45] Building CXX object CMakeFiles\AbilityCorrectionTests.dir\tests\ability_correction_tests.cpp.obj
 [38/45] Building CXX object CMakeFiles\AbilityTests.dir\tests\ability_tests.cpp.obj
-[39/45] Linking CXX executable AbilityIntentTests.exe
+[39/45] Linking CXX executable DarkAngelHeadless.exe
 [40/45] Linking CXX executable AbilityPredictionTests.exe
-[41/45] Linking CXX executable AbilityObserverTests.exe
-[42/45] Linking CXX executable AbilityCorrectionTests.exe
-[43/45] Linking CXX executable DarkAngelHeadless.exe
+[41/45] Linking CXX executable AbilityIntentTests.exe
+[42/45] Linking CXX executable AbilityObserverTests.exe
+[43/45] Linking CXX executable AbilityCorrectionTests.exe
 [44/45] Linking CXX executable AbilityTests.exe

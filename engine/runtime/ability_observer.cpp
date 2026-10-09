@@ -5,13 +5,14 @@
 #include <stdexcept>
 namespace darkangel {
 namespace {void require(bool b,const char* error){if(!b)throw std::runtime_error(error);}MotorVec blend(MotorVec a,MotorVec b,double t){return {a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,a.z+(b.z-a.z)*t};}}
-ObserverAbility::ObserverAbility(std::vector<AttributeDefinition> schema,AttributeId health,AttributeId maximum,std::span<const std::shared_ptr<const ActionDefinition>> actions)
-    :schema_(std::move(schema)),health_(health),maximum_(maximum){
+ObserverAbility::ObserverAbility(std::vector<AttributeDefinition> schema,AttributeId health,AttributeId maximum,std::span<const std::shared_ptr<const ActionDefinition>> actions,std::shared_ptr<const TagDictionary> tags)
+    :schema_(std::move(schema)),health_(health),maximum_(maximum),tags_(tags?std::make_shared<const TagDictionary>(*tags):std::make_shared<const TagDictionary>(std::vector<TagDefinition>{})){
     AttributeSet checked(schema_);require(health_&&maximum_&&health_!=maximum_&&actions.size()<=32,"Observer preparation bounds");checked.value(health_);checked.value(maximum_);
     for(const auto& action:actions){require(bool(action),"Observer action resource missing");ActionTimeline prepared(action,1,0);prepared.enter();auto frozen=std::make_shared<const ActionDefinition>(prepared.definition());auto [entry,inserted]=actions_.emplace(frozen->id,frozen);require(inserted||entry->second->generation==frozen->generation,"Observer conflicting action generation");}
 }
 void ObserverAbility::push(const AbilityPublicFrame& frame){
     const auto& state=frame.ability;validate_motor_state(frame.motor);require(frame.network&&frame.session_epoch&&state.owner.network==frame.network&&state.owner.session_epoch==frame.session_epoch&&state.tick==frame.motor.tick&&state.health_attribute==health_&&state.maximum_health_attribute==maximum_&&bool(state.active)==bool(state.action),"Observer frame identity/clock/schema");
+    tags_->validate_snapshot(state.tags,AttributeVisibility::Public);
     std::set<AttributeId> ids;require(state.attributes.size()<=64,"Observer public attribute bound");double health{},maximum{};
     for(auto value:state.attributes){auto definition=std::find_if(schema_.begin(),schema_.end(),[&](const auto& d){return d.id==value.id;});require(definition!=schema_.end()&&(definition->visibility==AttributeVisibility::Public||value.id==health_||value.id==maximum_)&&ids.insert(value.id).second&&std::isfinite(value.value)&&value.value>=definition->minimum&&value.value<=definition->maximum,"Observer private/unknown/invalid attribute");if(value.id==health_)health=value.value;if(value.id==maximum_)maximum=value.value;}
     require(ids.contains(health_)&&ids.contains(maximum_)&&health>=0&&health<=maximum,"Observer Health bounds");

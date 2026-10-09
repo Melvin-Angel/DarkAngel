@@ -2,6 +2,7 @@
 #include <darkangel/ability.hpp>
 #include <darkangel/tags.hpp>
 #include <functional>
+#include <stdexcept>
 namespace darkangel {
 enum class EffectLifetime {Instant,Finite,UntilRemoved};
 enum class EffectStack {Independent,RefreshPerSource};
@@ -35,6 +36,7 @@ public:
  void source_destroyed(std::uint64_t session,std::uint64_t network,AttributeSet&);
  std::vector<EffectSnapshot> snapshot()const;
  const OwnedTags& tags()const{return tags_;}
+ void restore_owner_tags(const ActorTagSnapshot& source){if(!active_.empty())throw std::invalid_argument("Owner tag restore cannot replace live effects");tags_.restore_snapshot(source,AttributeVisibility::Owner);}
 private:
  struct Active {EffectSnapshot state;std::shared_ptr<const EffectDefinition> definition;std::vector<AttributeModifier> modifiers;};
  OwnedTags tags_;std::vector<Active> active_;std::uint64_t next_{1},modifier_sequence_{1},tick_{};

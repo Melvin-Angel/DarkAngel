@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/action.hpp>
 #include <darkangel/attributes.hpp>
+#include <darkangel/tags.hpp>
 #include <darkangel/combat_kit.hpp>
 #include <darkangel/world.hpp>
 #include <optional>
@@ -22,9 +23,10 @@ struct AbilityDefinition {
     std::uint32_t cooldown_group{};std::uint64_t cooldown_ticks{};
     InputEdge activate_on{InputEdge::Pressed};std::uint64_t minimum_held_us{};
     bool cancel_on_release{},interruptible{true};
+    AssetId tag_registry;std::string tag_generation;TagRequirement requirements;
 };
 // Shared validation/freezing for cooked definitions and runtime grant installation.
-std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&);
+std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
 struct AbilityOwnerHandle {
     EntityHandle entity;std::uint64_t session_epoch{},network{};
     auto operator<=>(const AbilityOwnerHandle&)const=default;
@@ -35,7 +37,7 @@ struct AbilityActivationHandle {
 };
 enum class AbilityFailure {
     None,InvalidRequest,StaleGrant,Unassigned,InputIgnored,Dead,Busy,
-    Cooldown,Resources,OperationConflict,StaleOperation,HistoryFull,CancelDenied,InputExpired,AvatarMismatch
+    Cooldown,Resources,OperationConflict,StaleOperation,HistoryFull,CancelDenied,InputExpired,AvatarMismatch,TagRequirements
 };
 struct AbilityIntent {
     std::uint64_t network{},operation{},tick{},avatar_epoch{},grant_generation{};
@@ -67,6 +69,7 @@ struct AbilityPublicSnapshot {
     std::vector<AbilityAttributeValue> attributes;
     std::optional<AbilityActivationHandle> active;std::optional<ActionState> action;
     AssetId action_definition;
+    ActorTagSnapshot tags;
 };
 struct AbilityOwnerSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},grant_generation{},revision{};
@@ -81,5 +84,6 @@ struct AbilityOwnerSnapshot {
     AssetId ability,action_definition;std::string ability_generation;CombatSlot active_slot{};
     std::uint64_t next_activation{1};
     std::array<AbilityInputSnapshot,combat_slot_count> input;
+    ActorTagSnapshot tags;
 };
 }

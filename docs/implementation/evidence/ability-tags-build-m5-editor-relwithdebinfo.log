@@ -1,0 +1,4 @@
+[1/4] Scanning C:\DarkAngel\tests\ability_tag_tests.cpp for CXX dependencies
+[2/4] Generating CXX dyndep file CMakeFiles\AbilityTagTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\AbilityTagTests.dir\tests\ability_tag_tests.cpp.obj
+[4/4] Linking CXX executable AbilityTagTests.exe

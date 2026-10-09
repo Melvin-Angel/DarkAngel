@@ -703,7 +703,7 @@ meshoptimizer provides CMake targets:
   find_package(meshoptimizer CONFIG REQUIRED)
   target_link_libraries(main PRIVATE meshoptimizer::meshoptimizer)
 
-All requested installations completed successfully in: 342 us
+All requested installations completed successfully in: 382 us
 -- Running vcpkg install - done
 -- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
 -- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
@@ -716,12 +716,12 @@ All requested installations completed successfully in: 342 us
 -- Architecture: AMD64
 -- DiligentCore commit hash: 074060cf
 -- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
--- Configuring done (9.6s)
+-- Configuring done (11.0s)
 -- Generating done (0.8s)
 -- Build files have been written to: C:/DarkAngel/build/m2-relwithdebinfo
 [1/71] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
-[2/71] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
-[3/67] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[2/71] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[3/71] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
 [4/67] Scanning C:\DarkAngel\engine\runtime\tags.cpp for CXX dependencies
 [5/67] Scanning C:\DarkAngel\engine\runtime\effects.cpp for CXX dependencies
 [6/67] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies

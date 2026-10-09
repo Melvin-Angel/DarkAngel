@@ -14,7 +14,9 @@ bool same(const AbilityRequest& a,const AbilityRequest& b){
         std::tie(a.input.action,a.input.edge,a.input.time_us,a.input.held_us,a.input.value,a.input.cancelled)==
         std::tie(b.input.action,b.input.edge,b.input.time_us,b.input.held_us,b.input.value,b.input.cancelled);
 }
-std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,const AttributeSet& attributes){
+std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){
+    const bool tagged=source.tag_registry!=AssetId{}||!source.tag_generation.empty()||!source.requirements.all.empty()||!source.requirements.any.empty()||!source.requirements.none.empty();
+    if(tagged){require(tags&&source.tag_registry!=AssetId{}&&source.tag_registry==tags->registry()&&source.tag_generation==tags->generation(),"Ability tag registry generation mismatch");tags->validate(source.requirements);}
     require(source.id!=AssetId{}&&source.generation.size()==64&&source.generation.find_first_not_of("0123456789abcdef")==std::string::npos,"Ability identity/generation");
     require(source.action&&source.action->id!=AssetId{}&&source.costs.size()<=8&&source.cooldown_ticks<=36000&&
         (source.cooldown_ticks==0||source.cooldown_group!=0)&&static_cast<unsigned>(source.activate_on)<=static_cast<unsigned>(InputEdge::Tapped)&&
@@ -39,7 +41,7 @@ std::vector<ResourceDelta> costs(const AbilityDefinition& definition){
     std::vector<ResourceDelta> result;for(const auto& cost:definition.costs)result.push_back({cost.attribute,-cost.amount});return result;
 }
 }
-std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes){return freeze(source,attributes);}
+std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){return freeze(source,attributes,tags);}
 AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vector<AttributeDefinition> definitions,AttributeId health,AttributeId maximum_health):
     owner_(owner),tick_(tick),attributes_(std::move(definitions)),health_(health),maximum_health_(maximum_health),effects_(std::make_shared<const TagDictionary>(std::vector<TagDefinition>{}),tick){
     require(health_&&maximum_health_&&health_!=maximum_health_,"Ability health schema IDs");
@@ -61,7 +63,7 @@ std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const Comba
     require(definition&&definitions.size()<=combat_slot_count,"Ability kit catalogue bound");
     validate_combat_kit(*definition,input);
     std::map<AssetId,std::shared_ptr<const AbilityDefinition>> prepared;
-    for(const auto& ability:definitions){require(bool(ability),"Missing ability definition");auto frozen=freeze_ability_definition(*ability,attributes_);require(prepared.emplace(frozen->id,std::move(frozen)).second,"Duplicate ability definition");}
+    for(const auto& ability:definitions){require(bool(ability),"Missing ability definition");auto frozen=freeze_ability_definition(*ability,attributes_,&effects_.tags().dictionary());require(prepared.emplace(frozen->id,std::move(frozen)).second,"Duplicate ability definition");}
     std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants;
     for(unsigned i=0;i<combat_slot_count;++i){const auto& slot=definition->slots[i];if(slot.ability!=AssetId{}){auto it=prepared.find(slot.ability);require(it!=prepared.end(),"Missing assigned ability");grants[i]=it->second;}}
     std::optional<CombatKitInstance> candidate=kit_;
@@ -83,6 +85,7 @@ AbilityFailure AbilityState::validate(const AbilityRequest& request)const{
         return active_->definition->interruptible?AbilityFailure::None:AbilityFailure::CancelDenied;
     if(request.input.cancelled||request.input.edge!=definition->activate_on||request.input.held_us<definition->minimum_held_us)return AbilityFailure::InputIgnored;
     if(health().current<=0)return AbilityFailure::Dead;
+    if(!effects_.tags().matches(definition->requirements))return AbilityFailure::TagRequirements;
     if(!pending_hits.empty())return AbilityFailure::Busy;
     if(active_&&(!request.replace_active||!active_->definition->interruptible))return AbilityFailure::Busy;
     auto cooldown=cooldowns_.find(definition->cooldown_group);
@@ -210,7 +213,7 @@ void AbilityState::retire(std::uint64_t through){
 std::vector<AbilityAttributeValue> AbilityState::attribute_values()const{std::vector<AbilityAttributeValue> result;result.reserve(attributes_.definitions().size());for(const auto& definition:attributes_.definitions())result.push_back({definition.id,attributes_.value(definition.id)});return result;}
 AbilityOwnerSnapshot AbilityState::snapshot()const{
     AbilityOwnerSnapshot result;result.owner=owner_;result.tick=tick_;result.grant_generation=kit_?kit_->grant_generation():0;result.revision=revision_;
-    result.attributes=attribute_values();
+    result.attributes=attribute_values();result.tags=effects_.tags().snapshot(AttributeVisibility::Server);
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.ability=active_->definition->id;result.ability_generation=active_->definition->generation;result.action_definition=active_->definition->action->id;result.active_slot=active_->slot;}
     for(const auto& cooldown:cooldowns_)result.cooldowns.push_back(cooldown);
     result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;result.retained_operations=records_.size();result.highest_operation=highest_operation_;result.retired_through=retired_through_;
@@ -219,17 +222,19 @@ AbilityOwnerSnapshot AbilityState::snapshot()const{
     for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
 }
 AbilityOwnerSnapshot AbilityState::owner_snapshot()const{
-    auto result=snapshot();std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});return result;
+    auto result=snapshot();result.tags=effects_.tags().snapshot(AttributeVisibility::Owner);std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});return result;
 }
 AbilityPublicSnapshot AbilityState::public_snapshot()const{
     AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
+    result.tags=effects_.tags().snapshot(AttributeVisibility::Public);
     for(const auto& definition:attributes_.definitions())if(definition.visibility==AttributeVisibility::Public||definition.id==health_||definition.id==maximum_health_)result.attributes.push_back({definition.id,attributes_.value(definition.id)});
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.action_definition=active_->definition->action->id;}return result;
 }
 void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
+    auto effects=effects_;effects.restore_owner_tags(source.tags);
     require(source.owner.network==owner_.network&&source.owner.session_epoch==owner_.session_epoch&&source.grant_generation&&kit_&&source.next_activation&&source.health_attribute==health_&&source.maximum_health_attribute==maximum_health_,"Prediction owner/schema identity");
     require(source.attributes.size()==attributes_.definitions().size()&&source.cooldowns.size()<=32&&source.operations.size()<=128&&source.retired_through<=source.highest_operation,"Prediction baseline bounds");
-    std::uint64_t previous=source.retired_through;for(const auto& operation:source.operations){require(operation.operation>previous&&operation.operation<=source.highest_operation&&operation.activation<source.next_activation&&static_cast<unsigned>(operation.failure)<=static_cast<unsigned>(AbilityFailure::AvatarMismatch)&&(!operation.committed||(operation.failure==AbilityFailure::None&&operation.activation)),"Prediction exact operation baseline");previous=operation.operation;}
+    std::uint64_t previous=source.retired_through;for(const auto& operation:source.operations){require(operation.operation>previous&&operation.operation<=source.highest_operation&&operation.activation<source.next_activation&&static_cast<unsigned>(operation.failure)<=static_cast<unsigned>(AbilityFailure::TagRequirements)&&(!operation.committed||(operation.failure==AbilityFailure::None&&operation.activation)),"Prediction exact operation baseline");previous=operation.operation;}
     auto schema=std::vector<AttributeDefinition>(attributes_.definitions().begin(),attributes_.definitions().end());std::set<AttributeId> ids;
     for(const auto& value:source.attributes){auto it=std::find_if(schema.begin(),schema.end(),[&](const auto& d){return d.id==value.id;});require(it!=schema.end()&&ids.insert(value.id).second&&std::isfinite(value.value)&&value.value>=it->minimum&&value.value<=it->maximum,"Prediction attribute schema/value");it->base=value.value;}
     AttributeSet attributes(std::move(schema));for(const auto& value:source.attributes)require(attributes.value(value.id)==value.value,"Prediction resource bound mismatch");
@@ -238,7 +243,7 @@ void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
     if(source.active){require(source.active->owner==source.owner&&source.active->activation<source.next_activation&&static_cast<unsigned>(source.active_slot)<combat_slot_count,"Prediction active identity");auto definition=grants_[static_cast<unsigned>(source.active_slot)];require(definition&&definition->id==source.ability&&definition->generation==source.ability_generation&&definition->action->id==source.action_definition&&definition->action->generation==source.action->generation,"Prediction frozen generation mismatch");ActionTimeline timeline(definition->action,source.active->activation,source.tick);timeline.restore(*source.action);require(source.action->tick==source.tick&&source.action->phase==ActionPhase::Active,"Prediction action clock");execution.emplace(Execution{source.active_slot,source.grant_generation,definition,std::move(timeline)});}
     std::array<HeldInput,combat_slot_count> held;std::array<bool,combat_slot_count> rearm;
     for(unsigned i=0;i<combat_slot_count;++i){const auto& input=source.input[i];require(input.pressed<=source.tick&&input.released<=source.tick&&input.duration<=10000000&&(!input.active||!input.released),"Prediction input baseline");held[i]={input.active,input.pressed,input.released,input.duration,input.hold_sent};rearm[i]=input.rearm;}
-    attributes_=std::move(attributes);active_=std::move(execution);cooldowns_=std::move(cooldowns);held_=held;rearm_=rearm;kit_->generation_=source.grant_generation;held_generation_=source.grant_generation;
+    attributes_=std::move(attributes);effects_=std::move(effects);active_=std::move(execution);cooldowns_=std::move(cooldowns);held_=held;rearm_=rearm;kit_->generation_=source.grant_generation;held_generation_=source.grant_generation;
     owner_=source.owner;tick_=source.tick;revision_=source.revision;highest_operation_=source.highest_operation;retired_through_=source.retired_through;next_activation_=source.next_activation;records_.clear();pending_hits.clear();hits_.clear();
 }
 }

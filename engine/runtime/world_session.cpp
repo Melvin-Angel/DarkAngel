@@ -141,7 +141,7 @@ struct WorldSession::Impl {
         }
         else if(kind==Kind::AbilityReceipt){
             require(role==SessionRole::Client&&hello.protocol>=3&&index&&chunks==0&&total==0,"Ability receipt direction/profile");require(r.u64()==1,"Ability receipt schema");AbilityOperationNotice notice;notice.network=index;auto& receipt=notice.receipt;receipt.operation=r.u64();receipt.tick=r.u64();receipt.inclusion_revision=r.u64();auto activation=r.u64(),failure=r.u64(),flags=r.u64();r.end();
-            require(receipt.operation&&failure<=static_cast<unsigned>(AbilityFailure::AvatarMismatch)&&flags<=7&&(!(flags&1)||(failure==0&&activation)),"Ability receipt bounds");receipt.failure=static_cast<AbilityFailure>(failure);receipt.committed=flags&1;receipt.duplicate=flags&2;notice.terminal=flags&4;
+            require(receipt.operation&&failure<=static_cast<unsigned>(AbilityFailure::TagRequirements)&&flags<=7&&(!(flags&1)||(failure==0&&activation)),"Ability receipt bounds");receipt.failure=static_cast<AbilityFailure>(failure);receipt.committed=flags&1;receipt.duplicate=flags&2;notice.terminal=flags&4;
             require(notice.terminal||receipt.failure==AbilityFailure::HistoryFull,"Nonterminal ability receipt policy");if(!objects.contains(index))return;receipt.handle.owner={view->find(objects.at(index).id),hello.session_epoch,index};receipt.handle.activation=activation;
             require(received_ability_notices.size()<128,"Ability receipt consumer backlog; drain/resynchronize");received_ability_notices.push_back(std::move(notice));if(!received_ability_notices.back().terminal)ability_resync=true;
         }
