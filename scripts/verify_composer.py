@@ -7,6 +7,7 @@ BUILD=ROOT/'build/m5-editor-relwithdebinfo'
 EVIDENCE=ROOT/'docs/implementation/evidence'
 parser=argparse.ArgumentParser()
 parser.add_argument('--build',action='store_true')
+parser.add_argument('--preview',action='store_true',help='Focused frozen pose/isolation and D3D12 scrub checks')
 args=parser.parse_args()
 gates=[]
 def run(name,command,env=None):
@@ -17,14 +18,23 @@ def run(name,command,env=None):
  if result.returncode:raise RuntimeError((result.stdout+result.stderr)[-4000:])
  print(name+' passed',flush=True)
  return result.stdout
-if args.build:run('composer-build',[ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin/cmake.exe','--build',BUILD,'--target','DarkAngelEditor','--parallel','2'],activate())
+if args.build:run('composer-build',[ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin/cmake.exe','--build',BUILD,'--target','DarkAngelEditor',*(['ComposerPreviewTests'] if args.preview else []),'--parallel','2'],activate())
 fixture=json.loads((BUILD/'authoring-fixture.json').read_text())
 source=Path(fixture['source']);cache=Path(fixture['cache'])
 action=json.loads((source/'royal_district/combat/heavy.daaction').read_text())['asset']
 model=json.loads((source/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text())['id']
 collision=json.loads((source/'royal_district/collision/environment.dacollision').read_text())['asset']
 base=[BUILD/'DarkAngelEditor.exe','--registry',fixture['registry'],'--cas',cache/'cas','--model',model,'--scene',source/'royal_district/RoyalCombat.dascene','--character-kit',fixture['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005','--sources',source,'--asset-cache',cache,'--backend','d3d12','--hidden','--capture-workspace']
-run('composer-lanes',base+['--ability-workspace','--authoring-asset',action,'--frames','5','--capture',EVIDENCE/'composer-lanes.png'])
-files=['apps/editor/editor_composer.cpp','apps/editor/editor_authoring.cpp','apps/editor/editor_ui.hpp','scripts/verify_composer.py']
+if not args.preview:run('composer-lanes',base+['--ability-workspace','--authoring-asset',action,'--frames','5','--capture',EVIDENCE/'composer-lanes.png'])
+if args.preview:
+ run('composer-preview-native',[BUILD/'ComposerPreviewTests.exe',BUILD/'authoring-fixture.json'])
+ for tick in [0,20]:
+  output=run('composer-preview-'+str(tick),base+['--exercise-composer','--authoring-asset',action,'--composer-tick',str(tick),'--frames','5','--height','1100','--capture',EVIDENCE/('composer-preview-'+str(tick)+'.png')])
+  if 'gameplay=stopped source=unchanged' not in output:raise RuntimeError('Isolated Composer sampling missing')
+files=['apps/editor/editor_composer.cpp' ,'apps/editor/editor_authoring.cpp','apps/editor/editor_ui.hpp','scripts/verify_composer.py']
 receipt=dict(schema=1,base_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),scope='Read-only native action track lanes, markers and scrub cursor linked to selected numeric block',gates=gates,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in files},binary_sha256=hashlib.sha256((BUILD/'DarkAngelEditor.exe').read_bytes()).hexdigest(),limitations=['D3D12 rendered panel check; no physical input automation or full milestone matrix.','Character pose preview, structural block editing and dragging remain later chunks.','M4/M5 remain In progress; live EOS externally blocked.'])
-(EVIDENCE/'composer-lanes.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8')
+if args.preview:
+ receipt['scope']='Frozen compatible clip/rig sampling in isolated authoring buffers; D3D12 pose preview at tick0/20 with gameplay stopped and sources unchanged'
+ receipt['source_sha256'].update({p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in ['apps/editor/main.cpp','apps/editor/character_preview.cpp','apps/editor/character_preview.hpp','tests/composer_preview_tests.cpp']})
+ receipt['limitations']=['One D3D12 backend and scripted capture, not physical input automation or full milestone matrix.','Preview cooks a selected clip closure independently; native Save/fresh Play still validate the complete scene/action/kit closure.','Structural action editing, full graph/layer/mask/character authoring remain open; M4/M5 In progress, live EOS blocked.']
+(EVIDENCE/('composer-preview.json' if args.preview else 'composer-lanes.json')).write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8')

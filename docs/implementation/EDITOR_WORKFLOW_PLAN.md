@@ -10,6 +10,8 @@ History/Save implementation update (after `3334e56`): [NATIVE_AUTHORING_HISTORY_
 
 Composer update (9 October): [COMPOSER_LANES_REPORT.md](COMPOSER_LANES_REPORT.md) records the delivered read-only action ruler/tracks/markers/scrub cursor and numeric block selection. Isolated character pose scrubbing is next; structural editing/full Composer remain planned.
 
+Composer preview update (9 October): [COMPOSER_PREVIEW_REPORT.md](COMPOSER_PREVIEW_REPORT.md) records frozen compatible character/clip scrubbing beside the lanes. Structural blocks/typed hit/commit references are next; full Composer/graphs/layers/masks remain planned.
+
 ## Documentation ownership
 
 The [final engine vision](../vision/DarkAngel_Engine_Vision.md) owns the complete product target and all fifteen primary workflow descriptions. The [M0–M9 handoff](../architecture/DarkAngel_Implementation_Handoff.md) owns milestone scope/dependencies/acceptance; this plan owns incremental editor delivery. STATUS owns current state, reports own receipts and ABILITY_AUTHORING_CONTINUE owns immediate work. Historical implementation notes below are checkpoint descriptions, superseded by the current reports where later work is delivered.

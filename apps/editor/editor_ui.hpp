@@ -21,6 +21,12 @@ public:
     void draw_assets(Controller&,bool expanded=false);
     void draw_authoring(Controller&,unsigned,unsigned,float);
     void draw_action_lanes(AssetId,const nlohmann::json&);
+    void draw_action_preview(const nlohmann::json&);
+    std::function<void(AssetId,unsigned)> prepare_composer;
+    std::function<void(double)> scrub_composer;
+    std::function<std::string()> composer_info;
+    ImTextureID composer_texture{};bool composer_visible{};
+    AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
     char author_name[65]{"new_ability"};std::string author_diagnostic;

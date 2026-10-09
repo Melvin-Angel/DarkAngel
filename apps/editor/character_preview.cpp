@@ -7,10 +7,24 @@
 #include <DirectXMath.h>
 #include <stdexcept>
 #include <algorithm>
+#include <cmath>
 #include <set>
 #include <sstream>
 namespace darkangel::editor_app {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
+ComposerPosePreview::ComposerPosePreview(const CharacterPreviewResources& resources,CookedClip cooked,unsigned duration){
+    require(cooked.definition.skeleton==resources.rig.definition.id&&cooked.definition.signature==resources.rig.definition.signature&&cooked.definition.joints==resources.rig.definition.joints.size(),"Composer clip/character rig mismatch");
+    require(cooked.definition.ticks&&cooked.definition.ticks*action_tick_units==duration,"Composer clip/action duration mismatch");
+    clip_=std::make_unique<AnimationClip>(cooked.definition,cooked.archive);
+    pose_=std::make_unique<RigPose>(resources.rig.definition,resources.rig.archive);
+    sample(0);
+}
+const std::vector<JointMatrix>& ComposerPosePreview::sample(double tick){
+    require(std::isfinite(tick)&&tick>=0&&tick<=clip_->definition().ticks,"Composer scrub tick outside clip");
+    // Sampling the exact final tick of a looping clip intentionally uses the
+    // existing clip sampler's wrap semantics, identical to native presentation.
+    return pose_->sample(*clip_,tick);
+}
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin,StableId player,StableId target,AssetId collision){
     auto finish=[&](CharacterPreviewResources resources){if(collision!=AssetId{})resources.collision=std::make_shared<const CollisionDefinition>(load_cooked_collision_scene(registry,cas,collision));return resources;};
     if(references.starts_with("kit:")){require(player&&target&&player!=target,"Combat preview requires explicit player and target scene identities");auto cooked=load_cooked_combat_kit(registry,cas,AssetId::parse(references.substr(4)));require(cooked.stance.rig.definition.id==skin.rig.definition.id&&cooked.stance.rig.definition.signature==skin.rig.definition.signature,"Combat kit/skin canonical rig mismatch");CharacterPreviewResources result{skin.id,cooked.stance.rig,cooked.stance.plan};result.player=player;CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=std::move(cooked.input);combat.attributes=cooked.attributes.definitions();combat.health=2;combat.maximum_health=1;combat.abilities=std::move(cooked.abilities);if(cooked.tags)combat.tags=cooked.tags->dictionary();combat.target=target;combat.evaluator=1;combat.effects=std::move(cooked.effects);ashen_roots::configure_royal_combat(combat);for(const auto& ability:combat.abilities){require(ability->action->motion.has_value(),"Combat action needs a frozen clip");auto clip=load_cooked_clip(registry,cas,ability->action->motion->clip.id);combat.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}result.combat=std::move(combat);return finish(std::move(result));}

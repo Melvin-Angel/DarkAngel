@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "base_head": "ac264f8a7ae6b4fe42b063e7ade71374aeb74571",
+  "scope": "Frozen compatible clip/rig sampling in isolated authoring buffers; D3D12 pose preview at tick0/20 with gameplay stopped and sources unchanged",
+  "gates": [
+    {
+      "name": "composer-build",
+      "exit": 0,
+      "seconds": 64.664
+    },
+    {
+      "name": "composer-preview-native",
+      "exit": 0,
+      "seconds": 0.147
+    },
+    {
+      "name": "composer-preview-0",
+      "exit": 0,
+      "seconds": 1.424
+    },
+    {
+      "name": "composer-preview-20",
+      "exit": 0,
+      "seconds": 1.101
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_composer.cpp": "3289237287bedd33b869b10218d6fe64419bed7ff63eda390944994be196bf2a",
+    "apps/editor/editor_authoring.cpp": "c742f463c2523edae2cbc80a8fd6901ff1c71bf5abd16bad1e252ed29651fff4",
+    "apps/editor/editor_ui.hpp": "837f4ee18a3cbf7534515893f3e94fc923d33687731da1b88a1bd7cc15342c8f",
+    "scripts/verify_composer.py": "dd7b638f36ffaebce7d771e505a3ce81081d2a1c1d09d139cb02f14ab003c2b2",
+    "apps/editor/main.cpp": "5133bae2794cfa52ffba862b6dd1c2a390ca80f09e476f7689d8ee5f17e04640",
+    "apps/editor/character_preview.cpp": "91c2b5434c4e618dd867195980135409fceeb05771839d0312bbe0e325dc7754",
+    "apps/editor/character_preview.hpp": "4351b4b8e328477ea9a55fb8e5d1f11cfa97d897d3fc57b517069ff4e6fa76b5",
+    "tests/composer_preview_tests.cpp": "ce6264ca77c2eb53d4f472ce0beb2ea1c54c7df4e002dcb4e9174eae20e18ba9"
+  },
+  "binary_sha256": "83ee8a0353c90975c2403f5e4ee08bc94e884971739034188956ca10d09e592b",
+  "limitations": [
+    "One D3D12 backend and scripted capture, not physical input automation or full milestone matrix.",
+    "Preview cooks a selected clip closure independently; native Save/fresh Play still validate the complete scene/action/kit closure.",
+    "Structural action editing, full graph/layer/mask/character authoring remain open; M4/M5 In progress, live EOS blocked."
+  ]
+}

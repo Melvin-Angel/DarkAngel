@@ -38,7 +38,6 @@ void Shell::draw_action_lanes(AssetId asset,const nlohmann::json& source){
     for(const auto& [track,blocks]:tracks){
         float y=origin.y+ruler_height+row_height*float(row++);
         auto label="Track "+std::to_string(track);draw->AddText({origin.x+5,y+7},IM_COL32(185,188,198,255),label.c_str());
-        draw->PushClipRect({origin.x+label_width,y},{origin.x+width,y+row_height},true);
         for(const auto* block:blocks){
             float begin=x(double(block->begin)/action_tick_units),end=x(double(block->end)/action_tick_units);
             const bool marker=block->begin==block->end;
@@ -46,17 +45,36 @@ void Shell::draw_action_lanes(AssetId asset,const nlohmann::json& source){
             if(marker){draw->AddTriangleFilled({begin,y+3},{begin-5,y+13},{begin+5,y+13},color);draw->AddLine({begin,y+3},{begin,y+row_height-3},color,2);}
             else draw->AddRectFilled({begin,y+4},{end,y+row_height-4},color,3);
             if(composer_block==block->id)draw->AddRect({begin-3,y+2},{std::max(end,begin+3)+3,y+row_height-2},IM_COL32(245,245,250,255),3,0,2);
-            if(!marker&&end-begin>35)draw->AddText({begin+4,y+8},IM_COL32(255,255,255,255),block->key.c_str());
+            if(!marker&&end-begin>35){ImVec4 clip_rect{begin,y,end,y+row_height};draw->AddText(nullptr,0,{begin+4,y+8},IM_COL32(255,255,255,255),block->key.c_str(),nullptr,0,&clip_rect);}
             auto mouse=ImGui::GetMousePos();
             if(ImGui::IsItemHovered()&&mouse.x>=begin-5&&mouse.x<=std::max(end,begin+5)&&mouse.y>=y&&mouse.y<y+row_height){
                 ImGui::SetTooltip("%s | block %u\n%.2f - %.2f ticks",block->key.c_str(),block->id,double(block->begin)/action_tick_units,double(block->end)/action_tick_units);
                 if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)){composer_block=block->id;composer_tick=double(block->begin)/action_tick_units;hit=true;}
             }
         }
-        draw->PopClipRect();
     }
     if(!hit&&ImGui::IsItemHovered()&&ImGui::IsMouseDown(ImGuiMouseButton_Left))composer_tick=std::clamp(double(ImGui::GetMousePos().x-origin.x-label_width)/span*duration,0.,duration);
     float cursor=x(composer_tick);draw->AddLine({cursor,origin.y+20},{cursor,origin.y+height},IM_COL32(235,235,245,255),2);
     ImGui::Text("Cursor %.2f / %.2f ticks | %u loop(s)",composer_tick,duration,action.loops);
 }
+void Shell::draw_action_preview(const nlohmann::json& source){
+    if(!source.contains("motion")){ImGui::TextDisabled("This action has no clip binding.");return;}
+    if(!prepare_composer){ImGui::TextDisabled("Clip preview requires a configured character scene.");return;}
+    auto clip=AssetId::parse(source.at("motion").at("clip").get<std::string>());
+    const auto duration=source.at("duration").get<unsigned>();
+    if(ImGui::Button("Prepare character preview")){
+        try{prepare_composer(clip,duration);composer_clip=clip;composer_duration=duration;composer_error.clear();}
+        catch(const std::exception& error){composer_error=error.what();}
+    }
+    if(!composer_error.empty())ImGui::TextWrapped("Preview needs attention: %s",composer_error.c_str());
+    if(composer_clip!=clip||composer_duration!=duration){ImGui::TextWrapped("Prepare the compatible clip to preview this action. Gameplay stays stopped.");return;}
+    try{
+        scrub_composer(composer_tick);composer_visible=true;
+        auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),190.f);
+        const auto pos=ImGui::GetCursorScreenPos();area={pos.x,pos.y,size.x,size.y};
+        ImGui::Image(composer_texture,size);
+        if(composer_info)ImGui::TextWrapped("%s",composer_info().c_str());
+    }catch(const std::exception& error){composer_error=error.what();ImGui::TextWrapped("Preview needs attention: %s",error.what());}
+}
+
 }

@@ -1,3 +1,5 @@
+Current Composer preview chunk (9 October 2026): [isolated character pose scrubbing](COMPOSER_PREVIEW_REPORT.md) is delivered. Frozen compatible clip/rig buffers sample without gameplay activation; focused native/D3D12 tick0/20 checks and original light smoke pass. Next: bounded structural blocks and typed hit/commit references using existing history/Save. M4/M5 remain In progress; older next-task entries below are superseded at this checkpoint.
+
 Current Composer chunk (9 October 2026): [read-only lanes](COMPOSER_LANES_REPORT.md) are delivered and the focused D3D12 panel check passes. Tick ruler/track bands/markers and selected-block numeric context do not activate gameplay. Next: isolated compatible clip/character pose scrubbing. M4/M5 remain In progress; previous reports/receipts retain their checkpoint boundaries.
 
 # Current authoring history/Save continuation

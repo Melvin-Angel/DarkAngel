@@ -5,6 +5,17 @@
 #include <functional>
 namespace darkangel::editor_app {
 struct CharacterPreviewResources {AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
+// Authoring-only pose sampling. Owns independent Ozz buffers and never creates
+// a WorldSession, action activation, motor request or gameplay event.
+class ComposerPosePreview {
+public:
+    ComposerPosePreview(const CharacterPreviewResources&,CookedClip,unsigned action_duration);
+    const std::vector<JointMatrix>& sample(double tick);
+    const ClipDefinition& clip()const{return clip_->definition();}
+    std::string_view generation()const{return clip_->archive_generation();}
+private:
+    std::unique_ptr<AnimationClip> clip_;std::unique_ptr<RigPose> pose_;
+};
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},StableId target={},AssetId collision={});
 std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&);
 }
