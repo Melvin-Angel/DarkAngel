@@ -10,7 +10,7 @@ void checked(bool b,const char* message){if(!b)throw std::invalid_argument(messa
 std::vector<AbilityAttributeValue> values(const AttributeSet& attributes){std::vector<AbilityAttributeValue> result;for(const auto& d:attributes.definitions())result.push_back({d.id,attributes.value(d.id)});return result;}
 std::shared_ptr<const EffectDefinition> freeze(const EffectDefinition& d,const AttributeSet& attributes,const TagDictionary& dictionary){
  checked(d.id!=AssetId{}&&d.generation.size()==64&&d.generation.find_first_not_of("0123456789abcdef")==std::string::npos,"Effect identity/generation");
- checked(static_cast<unsigned>(d.lifetime)<=2&&static_cast<unsigned>(d.stacking)<=1&&d.duration_ticks<=36000&&d.period_ticks<=36000&&d.modifiers.size()<=16&&d.tags.size()<=16,"Effect policy/work bounds");
+ checked(static_cast<unsigned>(d.lifetime)<=2&&static_cast<unsigned>(d.stacking)<=1&&static_cast<unsigned>(d.ongoing_policy)<=1&&d.duration_ticks<=36000&&d.period_ticks<=36000&&d.modifiers.size()<=16&&d.tags.size()<=16,"Effect policy/work bounds");
  checked((d.lifetime==EffectLifetime::Finite)==(d.duration_ticks>0),"Effect finite duration");
  checked(d.lifetime!=EffectLifetime::Instant||(!d.period_ticks&&d.modifiers.empty()&&d.tags.empty()&&d.execute_on_apply&&d.stacking==EffectStack::Independent),"Instant effect policy");
  checked((d.period_ticks||d.execute_on_apply)==(d.evaluator!=0),"Effect execution evaluator policy");
@@ -23,6 +23,7 @@ void credit_valid(const EffectCredit& c){
 }
 }
 OwnedEffects::OwnedEffects(std::shared_ptr<const TagDictionary> dictionary,std::uint64_t tick):tags_(std::move(dictionary)),tick_(tick){}
+std::shared_ptr<const EffectDefinition> freeze_effect_definition(const EffectDefinition& source,const AttributeSet& attributes,const TagDictionary& tags){return freeze(source,attributes,tags);}
 void OwnedEffects::erase(EffectHandle handle,AttributeSet&){tags_.remove(handle.value);std::erase_if(active_,[&](const auto& a){return a.state.handle==handle;});}
 void OwnedEffects::contributions(AttributeSet& attributes){
  // Evaluate all policies against the same current tag view, excluding each
@@ -30,9 +31,10 @@ void OwnedEffects::contributions(AttributeSet& attributes){
  std::vector<bool> enabled;for(const auto& a:active_)enabled.push_back(tags_.matches(a.definition->ongoing,a.state.handle.value));
  for(const auto& a:active_)tags_.remove(a.state.handle.value);
  std::vector<AttributeModifier> additions;
- for(std::size_t i=0;i<active_.size();++i){auto& a=active_[i];a.state.suppressed=!enabled[i];if(!enabled[i])continue;tags_.add(a.state.handle.value,a.definition->tags);
+ std::vector<EffectHandle> removed;
+ for(std::size_t i=0;i<active_.size();++i){auto& a=active_[i];a.state.suppressed=!enabled[i];if(!enabled[i]){if(a.definition->ongoing_policy==EffectOngoingPolicy::Remove)removed.push_back(a.state.handle);continue;}tags_.add(a.state.handle.value,a.definition->tags);
   additions.insert(additions.end(),a.modifiers.begin(),a.modifiers.end());}
- attributes.replace_owned(modifier_owners_,additions);modifier_owners_.clear();for(const auto& a:active_)modifier_owners_.push_back(a.state.handle.value|(std::uint64_t{1}<<63));
+ attributes.replace_owned(modifier_owners_,additions);for(auto handle:removed)erase(handle,attributes);modifier_owners_.clear();for(const auto& a:active_)modifier_owners_.push_back(a.state.handle.value|(std::uint64_t{1}<<63));
 }
 EffectExecution OwnedEffects::execute(const Active& a,std::uint64_t tick,AttributeSet& attributes,const EffectEvaluator& evaluator)const{
  checked(bool(evaluator),"Missing native effect evaluator");auto target=values(attributes);auto deltas=evaluator({a.state.credit,tick,target,tags_});checked(deltas.size()<=16,"Effect execution work bound");
@@ -55,7 +57,7 @@ std::pair<EffectHandle,std::vector<EffectExecution>> OwnedEffects::apply(const E
  }
  candidate.contributions(prepared);std::vector<EffectExecution> result;
  auto current=std::find_if(candidate.active_.begin(),candidate.active_.end(),[&](const auto& a){return a.state.handle==active.state.handle;});if(current!=candidate.active_.end())active=*current;
- else active.state.suppressed=!candidate.tags_.matches(definition->ongoing);
+ else active.state.suppressed=definition->lifetime!=EffectLifetime::Instant||!candidate.tags_.matches(definition->ongoing);
  if(definition->execute_on_apply&&!active.state.suppressed)result.push_back(candidate.execute(active,tick,prepared,evaluator));
  *this=std::move(candidate);attributes=std::move(prepared);return {active.state.handle,std::move(result)};
 }

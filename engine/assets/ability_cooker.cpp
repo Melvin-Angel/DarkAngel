@@ -69,6 +69,7 @@ struct Registry {
 }
 std::vector<AttributeDefinition> AttributeAsset::definitions()const{std::vector<AttributeDefinition> result;for(const auto& field:fields){auto definition=field.definition;definition.visibility=field.visibility;result.push_back(std::move(definition));}return result;}
 AttributeAsset load_cooked_attributes(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){return attributes(Registry(registry,cas).load(id,"attributes","attributes.json"));}
+AttributeAsset decode_attribute_asset(std::string_view bytes){return attributes(json(bytes,65536));}
 CookedAbility load_cooked_ability(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
     Registry records(registry,cas);auto source=records.load(id,"ability","ability.json");auto schema=attributes(records.load(reference(source.at("attributes")),"attributes","attributes.json"));
     auto action=std::make_shared<const ActionDefinition>(load_cooked_action(registry,cas,reference(source.at("action"))));

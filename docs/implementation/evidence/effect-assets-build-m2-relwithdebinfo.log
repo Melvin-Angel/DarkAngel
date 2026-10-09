@@ -1,0 +1,4 @@
+[1/4] Scanning C:\DarkAngel\tests\effect_asset_tests.cpp for CXX dependencies
+[2/4] Generating CXX dyndep file CMakeFiles\EffectAssetTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\EffectAssetTests.dir\tests\effect_asset_tests.cpp.obj
+[4/4] Linking CXX executable EffectAssetTests.exe

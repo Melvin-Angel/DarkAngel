@@ -13,5 +13,6 @@ struct CookedAbility {
 };
 // Loads only verified registry/CAS products. Source locations never enter runtime.
 AttributeAsset load_cooked_attributes(const std::filesystem::path&,const std::filesystem::path&,AssetId);
+AttributeAsset decode_attribute_asset(std::string_view);
 CookedAbility load_cooked_ability(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 }

@@ -5,12 +5,15 @@
 namespace darkangel {
 enum class EffectLifetime {Instant,Finite,UntilRemoved};
 enum class EffectStack {Independent,RefreshPerSource};
+enum class EffectOngoingPolicy {Suppress,Remove};
 struct EffectDefinition {
  AssetId id;std::string generation;EffectLifetime lifetime{EffectLifetime::Finite};EffectStack stacking{};
  std::uint64_t duration_ticks{},period_ticks{};bool execute_on_apply{},remove_on_death{true},remove_with_source{},interrupt_action{};
  std::uint32_t evaluator{};std::vector<TagId> tags;TagRequirement application,ongoing;
+ EffectOngoingPolicy ongoing_policy{};
  std::vector<AttributeModifier> modifiers;
 };
+std::shared_ptr<const EffectDefinition> freeze_effect_definition(const EffectDefinition&,const AttributeSet&,const TagDictionary&);
 // Captured attribution outlives the source avatar. It contains no live pointer.
 struct EffectCredit {std::uint64_t session_epoch{},source_network{},activation{};double power{};std::vector<AbilityAttributeValue> source_attributes;};
 struct EffectHandle {std::uint64_t value{};AbilityOwnerHandle owner;auto operator<=>(const EffectHandle&)const=default;};

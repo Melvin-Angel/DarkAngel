@@ -14,7 +14,7 @@ bool TagDictionary::contains(TagId id)const{return std::any_of(definitions_.begi
 bool TagDictionary::descends(TagId child,TagId ancestor)const{
  checked(contains(child)&&contains(ancestor),"Unknown tag query");while(child){if(child==ancestor)return true;child=std::find_if(definitions_.begin(),definitions_.end(),[&](const auto& d){return d.id==child;})->parent;}return false;
 }
-void TagDictionary::validate(const TagRequirement& r)const{for(const auto* list:{&r.all,&r.any,&r.none}){checked(list->size()<=16,"Tag requirement bound");std::set<TagId> unique;for(auto id:*list)checked(contains(id)&&unique.insert(id).second,"Tag requirement identity");}}
+void TagDictionary::validate(const TagRequirement& r)const{for(const auto* list:{&r.all,&r.any,&r.none}){checked(list->size()<=16,"Tag requirement bound");std::set<TagId> unique;for(auto id:*list)checked(contains(id)&&unique.insert(id).second,"Tag requirement identity");}auto forbidden=[&](TagId tag){return std::any_of(r.none.begin(),r.none.end(),[&](auto ancestor){return descends(tag,ancestor);});};for(auto tag:r.all)checked(!forbidden(tag),"Contradictory All/None tag requirement");checked(r.any.empty()||std::any_of(r.any.begin(),r.any.end(),[&](auto tag){return !forbidden(tag);}),"Contradictory Any/None tag requirement");}
 OwnedTags::OwnedTags(std::shared_ptr<const TagDictionary> dictionary){checked(bool(dictionary),"Missing tag dictionary");dictionary_=std::make_shared<const TagDictionary>(*dictionary);}
 void OwnedTags::add(std::uint64_t token,std::span<const TagId> tags){
  checked(token&&tags.size()<=16&&contributions_.size()<128&&!std::any_of(contributions_.begin(),contributions_.end(),[&](const auto& c){return c.token==token;}),"Tag token/bound");std::set<TagId> unique;

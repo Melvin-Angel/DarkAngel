@@ -7,7 +7,7 @@ std::pair<EffectHandle,std::vector<EffectExecution>> AbilityState::apply_effect(
  if(health().current<=0)throw std::invalid_argument("Cannot apply effect to dead actor");auto result=effects_.apply(definition,std::move(credit),tick_,attributes_,evaluator);
  auto states=effects_.snapshot();auto applied=std::find_if(states.begin(),states.end(),[&](const auto& e){return e.handle==result.first;});
  if(health().current<=0){effects_.death(attributes_);updates=stop(AbilityActionReason::Death);}
- else if(definition.interrupt_action&&(applied!=states.end()?!applied->suppressed:effects_.tags().matches(definition.ongoing)))updates=stop(AbilityActionReason::Cancelled);
+ else if(definition.interrupt_action&&(applied!=states.end()?!applied->suppressed:definition.lifetime==EffectLifetime::Instant&&effects_.tags().matches(definition.ongoing)))updates=stop(AbilityActionReason::Cancelled);
  result.first.owner=owner_;for(auto& execution:result.second)execution.handle.owner=owner_;++revision_;return result;
 }
 std::vector<EffectExecution> AbilityState::advance_effects(const std::function<EffectEvaluator(std::uint32_t)>& evaluator,std::vector<AbilityActionUpdate>& updates){auto result=effects_.advance(tick_,attributes_,evaluator,health_);if(health().current<=0){auto death=stop(AbilityActionReason::Death);updates.insert(updates.end(),death.begin(),death.end());}for(auto& execution:result)execution.handle.owner=owner_;return result;}
