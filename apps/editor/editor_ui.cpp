@@ -26,6 +26,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     if(workspace!=Workspace::Scene&&docked)ImGui::DockSpace(ImHashStr("DarkAngelSceneDock"),{0,0},ImGuiDockNodeFlags_KeepAliveOnly);
     if(workspace!=Workspace::Game&&game_docked)ImGui::DockSpace(ImHashStr("DarkAngelGameDock"),{0,0},ImGuiDockNodeFlags_KeepAliveOnly);
     if(workspace==Workspace::Assets){controls_focus=false;ImGui::SetNextWindowPos({0,workspace_top});ImGui::SetNextWindowSize({float(width),float(height)-workspace_top});ImGui::Begin("Assets workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);draw_assets(editor,true);ImGui::End();draw_import(editor);return area;}
+    composer_frame_seconds=std::isfinite(seconds)?std::clamp(seconds,0.,.1):0.;
     if(composer_dragging&&workspace!=Workspace::Ability)cancel_composer_drag(editor);
     composer_visible=false;composer_texture=scene_texture;
     if(workspace==Workspace::Ability){controls_focus=false;draw_authoring(editor,width,height,workspace_top);return area;}

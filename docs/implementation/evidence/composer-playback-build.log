@@ -1,0 +1,4 @@
+[1/15] Scanning C:\DarkAngel\apps\editor\editor_composer.cpp for CXX dependencies
+[2/15] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[4/4] Linking CXX executable DarkAngelEditor.exe

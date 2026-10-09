@@ -28,7 +28,8 @@ public:
     std::function<void(AssetId,unsigned)> prepare_composer;
     std::function<void(double)> scrub_composer;
     std::function<std::string()> composer_info;
-    ImTextureID composer_texture{};bool composer_visible{};
+    ImTextureID composer_texture{};bool composer_visible{},composer_playing{},composer_loop{};
+    double composer_frame_seconds{};float composer_rate{1},composer_yaw{},composer_pitch{.1f},composer_distance{2.7f};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
     int composer_new_kind{};
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};

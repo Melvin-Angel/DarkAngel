@@ -8,7 +8,7 @@ namespace {
 template<class F>void perform(Controller& editor,F call){try{call();}catch(const std::exception& error){editor.log(error.what(),ConsoleSeverity::Error);}}
 const char* edge_name(InputEdge edge){switch(edge){case InputEdge::Pressed:return "Pressed";case InputEdge::Hold:return "Hold";case InputEdge::Released:return "Released";case InputEdge::Tapped:return "Tapped";}return "Unknown";}
 }
-void Shell::select_workspace(Workspace target){if(workspace!=target){controls_focus=false;controls_acquired=false;forward=lateral=turn=0;walk=jump=false;workspace=target;}}
+void Shell::select_workspace(Workspace target){if(workspace!=target){composer_playing=false;controls_focus=false;controls_acquired=false;forward=lateral=turn=0;walk=jump=false;workspace=target;}}
 void Shell::open_tool(ToolView selected){if(workspace!=Workspace::Tools&&workspace!=Workspace::Settings)previous_workspace=workspace;tool=selected;select_workspace(Workspace::Tools);}
 void Shell::draw_console(Controller& editor){for(const auto& line:editor.console){bool error=line.severity==ConsoleSeverity::Error,warning=line.severity==ConsoleSeverity::Warning;icon_text(error?Icon::Error:warning?Icon::Warning:Icon::Info,error?"Error":warning?"Warning":"Info");ImGui::SameLine();ImGui::TextWrapped("%s",line.message.c_str());}}
 void Shell::draw_game(Controller& editor,unsigned width,unsigned height,float top,double seconds,ImTextureID image){
