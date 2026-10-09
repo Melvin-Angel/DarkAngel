@@ -76,6 +76,9 @@ public:
     void scan(); // validate complete source identity inventory before updating the index
     std::vector<AssetInfo> assets() const;
     CookResult cook(std::string_view relative_source);
+    // Owned ability/effect/action/kit source edit. Reject stale bytes or identity
+    // changes; failed native validation/cook restores the previous source.
+    CookResult edit_native(std::string_view relative_source,std::string_view expected_source_sha256,std::string_view draft);
     void package(AssetId root,const std::filesystem::path& registry,std::span<const AssetId> additional_roots={}) const;
     std::filesystem::path cas_path() const;
     std::uint64_t conversion_count() const;

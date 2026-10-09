@@ -154,6 +154,12 @@ CookResult AssetService::cook(std::string_view relative){auto& p=*impl_;p.thread
     }catch(...){exec(p.db,"ROLLBACK");throw;}
     return {root,revision+1,true};
 }
+CookResult AssetService::edit_native(std::string_view relative,std::string_view expected,std::string_view draft){
+    auto& p=*impl_;p.thread();digest_check(expected);auto source=p.source(relative);auto extension=source.extension();require(extension==".daability"||extension==".daeffect"||extension==".daaction"||extension==".dakit","Native edit supports owned ability/effect/action/kit sources");
+    auto original=read(source,65536);require(sha256(original)==expected,"Native source edit is stale; reload the current source");auto before=json(original,65536),after=json(draft,65536);require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&before.at("schema")==after.at("schema"),"Native edit preserves asset UUID/type/schema");
+    if(original==draft)return cook(relative);auto written_hash=sha256(draft);atomic_write(source,draft);
+    try{return cook(relative);}catch(...){require(file_sha256(source)==written_hash,"Source changed externally during failed cook; external edit preserved");atomic_write(source,original);throw;}
+}
 void AssetService::package(AssetId root,const std::filesystem::path& output,std::span<const AssetId> additional_roots) const{auto& p=*impl_;p.thread();require(additional_roots.size()<64,"Runtime package root limit");std::vector<AssetId> roots{root};std::set<AssetId> unique{root};for(auto id:additional_roots){require(unique.insert(id).second,"Duplicate runtime package root");roots.push_back(id);}std::map<AssetId,Json> products;std::map<AssetId,std::vector<AssetId>> edges;
     for(auto selected:roots){Statement query(p.db,"SELECT id,kind,hash,extension FROM products WHERE root=?1 ORDER BY id");query.id(1,selected);
         while(query.row()){auto hash=query.text(2),extension=query.text(3);digest_check(hash);require(file_sha256(p.cas/(hash+"."+extension))==hash,"Missing/corrupt required cooked artifact");Json record={{"id",query.id(0).text()},{"kind",query.text(1)},{"sha256",hash},{"extension",extension}};auto [found,inserted]=products.emplace(query.id(0),record);require(inserted||found->second==record,"Conflicting shared cooked product generations");}

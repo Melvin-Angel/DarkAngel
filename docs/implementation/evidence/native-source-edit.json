@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "base_head": "ced11b8a3ad1e4919578ca3ae6ca5d2717fee7cc",
+  "scope": "Owned native source edit command, optimistic source hash, preserved UUID/type/schema, atomic file replacement, failed cook rollback and immutable previous product lease",
+  "gates": [
+    {
+      "name": "native-source-edit-build-native",
+      "exit": 0,
+      "seconds": 0.085
+    },
+    {
+      "name": "native-source-edit-native",
+      "exit": 0,
+      "seconds": 0.105
+    },
+    {
+      "name": "native-source-edit-build-no-animation",
+      "exit": 0,
+      "seconds": 68.805
+    },
+    {
+      "name": "native-source-edit-no-animation",
+      "exit": 0,
+      "seconds": 0.134
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "5b2a9dba356ad8ab56f211cb214298e43720aa290d59463d68f7e7dbf7f82465",
+    "engine/assets/asset_service.cpp": "776e39085eba40bbb068ee0841cf5678ee6795878f26189bd548587f40444608",
+    "engine/assets/include/darkangel/assets.hpp": "b82deb1b0cd3d2d428d66d0c7223a1100a9550f87260a41ddaada10ab8448cb5",
+    "tests/native_source_edit_tests.cpp": "acd3a9d16872e70395e4234288bbe45bb6c8354b2813f5fcad5c239341d04720",
+    "scripts/verify_native_source_edits.py": "175917d042bfffe4de073c3c8eb7de4066bd94b78c06f6d6696c2c7012f5c66e"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/NativeSourceEditTests.exe": "08f9f2be35e901ec8bcbc225ed4fd061982e8f362e9de5a71959d9097e03edd5",
+    "build/m2-relwithdebinfo/NativeSourceEditTests.exe": "5abe406e0619bce9db37e793a4b9ae3a16bf96a0873b1663e68e7fec5d9aeb86"
+  },
+  "limitations": [
+    "Focused native/animation-disabled effect-source transaction checks only. Other supported native formats share the existing cook validators; the full historical integration/backend/provider chain is not rerun.",
+    "Single existing source only; no multi-file create/clone/kit transaction or undo history yet. A draft source is installed while synchronous cook runs and restored on failure; concurrent external edits detected during failure are preserved. This is not cross-process source/catalog atomicity.",
+    "The edited root is cooked; dependent kit/complete scene package rebuild, fresh CharacterPreviewResources and isolated Play remain required before new authored gameplay is visible.",
+    "Native Ability/Effect/Composer designer UI is still missing. M4/M5 remain In progress; M6 has not started."
+  ]
+}
