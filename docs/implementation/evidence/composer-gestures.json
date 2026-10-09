@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "base_head": "fafea6bb07f20f56a3a3b125e2fac602313b8ae5",
+  "scope": "Native-validated action timing gestures, grouped history and cancellation with bounded identity/time handling",
+  "gates": [
+    {
+      "name": "composer-gestures-build",
+      "exit": 0,
+      "seconds": 78.963
+    },
+    {
+      "name": "composer-gestures-native",
+      "exit": 0,
+      "seconds": 4.205
+    },
+    {
+      "name": "composer-gestures-panel",
+      "exit": 0,
+      "seconds": 0.875
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_composer.cpp": "d2e813b43421323386ec22af0658f4754bc185778110b618c54ecbca8e3f3155",
+    "apps/editor/editor_authoring.cpp": "210e2ac4a4e58fffdbd16677104dff69475c0e405abefc33d2a3b05ec1a0a84a",
+    "apps/editor/editor_ui.hpp": "596b43cb2f049a53d662e5638feda17e4f2bd56500ec3784fa4c7afd1bdb4f27",
+    "scripts/verify_composer.py": "6a9464fe18d3c002d302346bd3239a03bf87aa4e4d0cbcbb372ffb3fd76ac51c",
+    "apps/editor/native_authoring.cpp": "79b58a6a51dded3b224b71d54629e4746b7926c5067c2f1f68dd225b1877cea3",
+    "apps/editor/native_authoring.hpp": "8a4b28df762b677416a1ed92f3203447ac6542450e19c43b591e53a72c6ec16d",
+    "tests/composer_structure_tests.cpp": "fc0f912a06a964abb16cf7aef31fdd9fa9f6f7a06830185f913e537a31b236b5"
+  },
+  "binary_sha256": "50b04a803ac94c28d73908367e83185792da2654ef5e67c0f5843463096028a1",
+  "limitations": [
+    "Scripted native command/GUI panel checks, not physical pointer automation.",
+    "Dependent ability/kit semantic rules still validate before coordinated Save publication.",
+    "Graphs/layers/masks and wider designers remain open; M4/M5 In progress, live EOS blocked."
+  ]
+}

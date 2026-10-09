@@ -20,7 +20,10 @@ public:
     void draw_import(Controller&);
     void draw_assets(Controller&,bool expanded=false);
     void draw_authoring(Controller&,unsigned,unsigned,float);
-    void draw_action_lanes(AssetId,const nlohmann::json&);
+    void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
+    void cancel_composer_drag(Controller&);
+    ActionBlock composer_drag_block;AssetId composer_drag_asset;
+    bool composer_dragging{},composer_drag_changed{};int composer_drag_edge{};float composer_drag_x{};std::uint64_t composer_drag_revision{};
     void draw_action_preview(const nlohmann::json&);
     std::function<void(AssetId,unsigned)> prepare_composer;
     std::function<void(double)> scrub_composer;

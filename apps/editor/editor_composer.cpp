@@ -5,7 +5,8 @@
 #include <map>
 
 namespace darkangel::editor_app {
-void Shell::draw_action_lanes(AssetId asset,const nlohmann::json& source){
+void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohmann::json& source){
+    if(composer_dragging&&(composer_drag_asset!=asset||ImGui::GetIO().AppFocusLost||ImGui::IsKeyPressed(ImGuiKey_Escape,false)||!ImGui::IsMousePosValid()))cancel_composer_drag(controller);
     ImGui::SeparatorText("Action Composer");
     // Native core timing validation; clip/rig closure remains a Save gate.
     ActionDefinition action;
@@ -14,7 +15,7 @@ void Shell::draw_action_lanes(AssetId asset,const nlohmann::json& source){
     if(composer_asset!=asset){composer_asset=asset;composer_block=0;composer_tick=0;}
     const double duration=double(action.duration)/action_tick_units;
     composer_tick=std::clamp(std::isfinite(composer_tick)?composer_tick:0.,0.,duration);
-    ImGui::TextDisabled("Read-only lanes. Select a block to inspect its numeric fields.");
+    ImGui::TextDisabled("Drag a block to move; drag its edges to resize. Escape cancels.");
     ImGui::SliderScalar("Scrub tick",ImGuiDataType_Double,&composer_tick,&composer_zero,&duration,"%.2f");
     std::map<unsigned,std::vector<const ActionBlock*>> tracks;
     for(const auto& block:action.blocks)tracks[block.track].push_back(&block);
@@ -46,13 +47,43 @@ void Shell::draw_action_lanes(AssetId asset,const nlohmann::json& source){
             auto mouse=ImGui::GetMousePos();
             if(ImGui::IsItemHovered()&&mouse.x>=begin-5&&mouse.x<=std::max(end,begin+5)&&mouse.y>=y&&mouse.y<y+row_height){
                 ImGui::SetTooltip("%s | block %u\n%.2f - %.2f ticks",block->key.c_str(),block->id,double(block->begin)/action_tick_units,double(block->end)/action_tick_units);
-                if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)){composer_block=block->id;composer_tick=double(block->begin)/action_tick_units;hit=true;}
+                if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)){composer_block=block->id;composer_tick=double(block->begin)/action_tick_units;hit=true;
+                    composer_dragging=true;composer_drag_changed=false;composer_drag_block=*block;composer_drag_asset=asset;composer_drag_x=mouse.x;
+                    composer_drag_edge=marker?0:std::abs(mouse.x-begin)<6?1:std::abs(mouse.x-end)<6?2:0;
+                    composer_drag_revision=controller.authoring.revision();}
             }
         }
     }
-    if(!hit&&ImGui::IsItemHovered()&&ImGui::IsMouseDown(ImGuiMouseButton_Left))composer_tick=std::clamp(double(ImGui::GetMousePos().x-origin.x-label_width)/span*duration,0.,duration);
+    if(composer_dragging){
+        if(!ImGui::IsMouseDown(ImGuiMouseButton_Left)){
+            controller.authoring.record_changes(*controller.assets,"Finish action gesture");composer_dragging=false;
+        }else if(ImGui::IsMouseDragging(ImGuiMouseButton_Left,3.f)){
+            const auto& original=composer_drag_block;
+            const auto delta=std::llround(double(ImGui::GetMousePos().x-composer_drag_x)/span*action.duration);
+            unsigned begin=original.begin,end=original.end;
+            if(composer_drag_edge==1)begin=static_cast<unsigned>(std::clamp<long long>(static_cast<long long>(original.begin)+delta,0,original.end-1));
+            else if(composer_drag_edge==2)end=static_cast<unsigned>(std::clamp<long long>(static_cast<long long>(original.end)+delta,original.begin+1,action.duration));
+            else{
+                const auto length=original.end-original.begin;
+                const auto maximum=original.begin==original.end?action.duration-1:action.duration-length;
+                begin=static_cast<unsigned>(std::clamp<long long>(static_cast<long long>(original.begin)+delta,0,maximum));end=begin+length;
+            }
+            try{
+                if(controller.authoring.revision()!=composer_drag_revision)throw std::runtime_error("Gesture changed elsewhere; start again");
+                const auto before=controller.authoring.revision();
+                controller.authoring.set_action_block_times(*controller.assets,asset,original.id,begin,end,true);
+                composer_drag_revision=controller.authoring.revision();composer_drag_changed|=before!=composer_drag_revision;composer_tick=double(begin)/action_tick_units;
+            }catch(const std::exception& error){composer_dragging=false;author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}
+        }
+    }
+    if(!hit&&!composer_dragging&&ImGui::IsItemHovered()&&ImGui::IsMouseDown(ImGuiMouseButton_Left))composer_tick=std::clamp(double(ImGui::GetMousePos().x-origin.x-label_width)/span*duration,0.,duration);
     float cursor=x(composer_tick);draw->AddLine({cursor,origin.y+20},{cursor,origin.y+height},IM_COL32(235,235,245,255),2);
     ImGui::Text("Cursor %.2f / %.2f ticks | %u loop(s)",composer_tick,duration,action.loops);
+}
+void Shell::cancel_composer_drag(Controller& controller){
+    try{if(composer_drag_changed)controller.authoring.cancel_edit(*controller.assets,composer_drag_revision,"Drag action block "+std::to_string(composer_drag_block.id));}
+    catch(const std::exception& error){author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}
+    composer_dragging=false;composer_drag_changed=false;
 }
 void Shell::draw_action_preview(const nlohmann::json& source){
     if(!source.contains("motion")){ImGui::TextDisabled("This action has no clip binding.");return;}

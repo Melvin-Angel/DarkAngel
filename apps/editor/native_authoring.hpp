@@ -16,9 +16,11 @@ public:
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
     unsigned add_action_block(AssetService&,AssetId,const ActionBlock&);
     void remove_action_block(AssetService&,AssetId,unsigned block);
+    void set_action_block_times(AssetService&,AssetId,unsigned block,unsigned begin,unsigned end,bool continuous=false);
+    void cancel_edit(AssetService&,std::uint64_t expected_revision,std::string_view label);
     bool dirty()const;
     void save_all(AssetService&,std::span<const AssetId> scene_roots={});
-    void apply(AssetService&,AssetId,std::uint64_t expected_revision,nlohmann::json,std::string_view label);
+    void apply(AssetService&,AssetId,std::uint64_t expected_revision,nlohmann::json,std::string_view label,bool continuous=false);
     void record_changes(AssetService&,std::string_view label,bool continuous=false);
     void undo(AssetService&);void redo(AssetService&);
     void reload(AssetService&,AssetId);void revert(AssetService&,AssetId);

@@ -10,12 +10,23 @@ std::string read(const std::filesystem::path& path){std::ifstream f(path);return
 void check(bool b,const char* error){if(!b)throw std::runtime_error(error);}
 template<class F>void rejects(F f){bool rejected=false;try{f();}catch(const std::exception&){rejected=true;}check(rejected,"Expected rejected structural candidate");}
 int main(int argc,char** argv){try{
- check(argc==2,"Pass existing isolated authoring fixture");auto fixture=nlohmann::json::parse(read(argv[1]));
+ check(argc==2||argc==3,"Pass existing isolated authoring fixture");auto fixture=nlohmann::json::parse(read(argv[1]));
  auto root=std::filesystem::path(argv[1]).parent_path()/("cs-"+AssetId::random().text());auto source=root/"s";std::filesystem::create_directories(root);
  std::filesystem::copy(fixture.at("source").get<std::string>(),source,std::filesystem::copy_options::recursive);
  AssetService assets(source,root/"cache");assets.scan();NativeAuthoring author;
  auto path="royal_district/combat/heavy.daaction";auto bytes=read(source/path);auto original=nlohmann::json::parse(bytes);auto id=AssetId::parse(original.at("asset").get<std::string>());
  assets.cook(path);assets.package(id,root/"before.json");auto& value=author.open(assets,id).value;
+ if(argc==3){
+  check(std::string_view(argv[2])=="--gestures","Unknown structural test option");
+  const auto block=original["blocks"][1];auto begin=block["begin"].get<unsigned>(),end=block["end"].get<unsigned>(),block_id=block["id"].get<unsigned>();
+  author.set_action_block_times(assets,id,block_id,begin+256,end+256,true);author.set_action_block_times(assets,id,block_id,begin+1024,end+1024,true);author.record_changes(assets,"Finish gesture");
+  author.undo(assets);check(value==original&&!author.can_undo(),"Gesture was not grouped into one Undo");author.redo(assets);check(value["blocks"][1]["begin"]==begin+1024,"Grouped gesture Redo failed");author.undo(assets);
+  author.set_action_block_times(assets,id,block_id,begin+512,end+512,true);auto revision=author.revision();author.cancel_edit(assets,revision,"Drag action block "+std::to_string(block_id));check(value==original&&!author.can_undo(),"Cancelled gesture retained mutation/history");
+  auto prior=value;revision=author.revision();rejects([&]{author.set_action_block_times(assets,id,block_id,end,end,true);});check(value==prior&&author.revision()==revision,"Invalid interval applied a gesture");
+  author.set_action_block_times(assets,id,block_id,begin+1024,end+1024,true);auto moved=value;auto old_revision=author.revision();author.set_action_block_times(assets,id,4,6144,6144);rejects([&]{author.cancel_edit(assets,old_revision,"Drag action block "+std::to_string(block_id));});check(value["blocks"][1]==moved["blocks"][1],"Stale cancellation changed unrelated edits");author.undo(assets);author.undo(assets);check(value==original,"Independent marker gesture Undo failed");
+  author.set_action_block_times(assets,id,block_id,begin,end-1024,true);author.record_changes(assets,"Finish resize");author.save_all(assets);assets.package(id,root/"resize.json");auto cooked=load_cooked_action(root/"resize.json",assets.cas_path(),id);auto hit=std::find_if(cooked.blocks.begin(),cooked.blocks.end(),[&](const auto& b){return b.id==block_id;});check(hit!=cooked.blocks.end()&&hit->begin==begin&&hit->end==end-1024,"Resize missing from native cooked generation");
+  std::cout<<"Composer gestures: grouped fractional move/resize, Undo/Redo, cancellation, stale/invalid rejection, independent marker edits and native Save/cook passed\n";return 0;
+ }
  unsigned added=author.add_action_block(assets,id,{0,7,1024,1024,ActionBlockKind::Cue,"Test.New"});
  for(const auto& block:original["blocks"])check(std::find(value["blocks"].begin(),value["blocks"].end(),block)!=value["blocks"].end(),"Existing block identity/data changed");
  author.undo(assets);check(value==original,"Create block Undo failed");author.redo(assets);check(authoring_action(value).blocks.size()==original["blocks"].size()+1,"Create block Redo failed");

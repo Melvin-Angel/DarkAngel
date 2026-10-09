@@ -58,8 +58,20 @@ void NativeAuthoring::record_changes(AssetService& assets,std::string_view label
  std::size_t bytes{};for(const auto& entry:undo_){for(const auto& [id,v]:entry.before)bytes+=v.dump().size();for(const auto& [id,v]:entry.after)bytes+=v.dump().size();}
  while(undo_.size()>128||bytes>16*1024*1024){for(const auto& [id,v]:undo_.front().before)bytes-=v.dump().size();for(const auto& [id,v]:undo_.front().after)bytes-=v.dump().size();undo_.erase(undo_.begin());}
 }
-void NativeAuthoring::apply(AssetService& assets,AssetId id,std::uint64_t expected,nlohmann::json value,std::string_view label){
- require(expected==revision_,"Stale authoring command revision");auto& d=open(assets,id);check_sources(assets,{{id,d.value}});auto old=d.value;d.value=std::move(value);try{record_changes(assets,label);}catch(...){d.value=old;throw;}
+void NativeAuthoring::set_action_block_times(AssetService& assets,AssetId asset,unsigned id,unsigned begin,unsigned end,bool continuous){
+ auto value=open(assets,asset).value;auto& blocks=value.at("blocks");
+ auto found=std::find_if(blocks.begin(),blocks.end(),[&](const auto& b){return b.at("id")==id;});require(found!=blocks.end(),"Action block no longer exists");
+ (*found)["begin"]=begin;(*found)["end"]=end;authoring_action(value);
+ apply(assets,asset,revision_,std::move(value),"Drag action block "+std::to_string(id),continuous);
+}
+void NativeAuthoring::cancel_edit(AssetService& assets,std::uint64_t expected,std::string_view label){
+ require(expected==revision_&&!undo_.empty()&&undo_.back().label==label,"Gesture changed elsewhere; cannot cancel a different command");
+ check_sources(assets,undo_.back().before);
+ for(const auto& [id,value]:undo_.back().before){drafts.at(id).value=value;observed_[id]=value;}
+ undo_.pop_back();continuous_=false;++revision_;
+}
+void NativeAuthoring::apply(AssetService& assets,AssetId id,std::uint64_t expected,nlohmann::json value,std::string_view label,bool continuous){
+ require(expected==revision_,"Stale authoring command revision");auto& d=open(assets,id);check_sources(assets,{{id,d.value}});auto old=d.value;d.value=std::move(value);try{record_changes(assets,label,continuous);}catch(...){d.value=old;throw;}
 }
 void NativeAuthoring::travel(AssetService& assets,bool forward){
  record_changes(assets,"Edit gameplay fields");auto& from=forward?redo_:undo_;auto& to=forward?undo_:redo_;require(!from.empty(),"Authoring history is empty");auto command=from.back();const auto& expected=forward?command.before:command.after;const auto& target=forward?command.after:command.before;

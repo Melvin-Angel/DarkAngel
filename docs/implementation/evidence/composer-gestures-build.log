@@ -1,0 +1,42 @@
+[1/28] Scanning C:\DarkAngel\tests\composer_structure_tests.cpp for CXX dependencies
+[2/28] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[3/28] Scanning C:\DarkAngel\apps\editor\editor_controller.cpp for CXX dependencies
+[4/28] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[5/28] Scanning C:\DarkAngel\apps\editor\editor_ui.cpp for CXX dependencies
+[6/28] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[7/28] Scanning C:\DarkAngel\apps\editor\editor_assets.cpp for CXX dependencies
+[8/28] Scanning C:\DarkAngel\apps\editor\editor_composer.cpp for CXX dependencies
+[9/28] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[10/28] Generating CXX dyndep file CMakeFiles\ComposerStructureTests.dir\CXX.dd
+[11/28] Scanning C:\DarkAngel\apps\editor\editor_workspaces.cpp for CXX dependencies
+[12/28] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[13/24] Building CXX object CMakeFiles\ComposerStructureTests.dir\tests\composer_structure_tests.cpp.obj
+[14/24] Building CXX object CMakeFiles\ComposerStructureTests.dir\apps\editor\native_authoring.cpp.obj
+[15/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+[16/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[17/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[18/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_assets.cpp.obj
+[19/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+[20/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[21/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_workspaces.cpp.obj
+[22/24] Linking CXX executable ComposerStructureTests.exe
+[23/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_authoring.cpp.obj
+[24/24] Linking CXX executable DarkAngelEditor.exe
