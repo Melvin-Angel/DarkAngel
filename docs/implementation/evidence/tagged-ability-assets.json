@@ -1,37 +1,37 @@
 {
   "schema": 1,
-  "base_head": "cd94ee18e8aa6fc8aad88904b1e30420792c35cd",
+  "base_head": "69e3b6974816fe4dc9311f3681561e17af1ef096",
   "scope": "Authored optional typed tag registry/requirements on existing .daability, shared TagAsset decoder, frozen complete kit closure and tag preparation for native scene authority/owner/observer",
   "gates": [
     {
       "name": "tagged-ability-assets-product",
       "exit": 0,
-      "seconds": 86.546
+      "seconds": 86.445
     },
     {
       "name": "tagged-ability-assets-editor-build",
       "exit": 0,
-      "seconds": 0.087
+      "seconds": 14.436
     },
     {
       "name": "tagged-ability-assets-editor-AbilityAssetTests",
       "exit": 0,
-      "seconds": 0.631
+      "seconds": 0.673
     },
     {
       "name": "tagged-ability-assets-editor-CombatKitAssetTests",
       "exit": 0,
-      "seconds": 1.092
+      "seconds": 2.384
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "1e032baf88b49f5f3016be08216368c7372755abc5ade8ebec8c4219fb9e0ed3",
+    "CMakeLists.txt": "e72b2c7817c05083ab4827d4d53eaf99e5f15290da29c7d625fe170828ca841b",
     "engine/assets/include/darkangel/tag_assets.hpp": "46c41a2f6af67f17c86751a404570ca71d4f37c0e26c83a3cd695d78354d5059",
     "engine/assets/include/darkangel/ability_assets.hpp": "6f4e4d9818fcb786db4231918c1380b183026852e2e37d1906f504dfd772d40d",
     "engine/assets/include/darkangel/effect_assets.hpp": "259458ab75e4da0f124ddbf5d4e0d1a358f1d2fd03636a7753759ecc81bf1498",
     "engine/assets/include/darkangel/combat_kit_assets.hpp": "e4f2b8e7b62e1b04ae3e98c06ecf51c42c30106575981a6a3cf45b923d08ce6f",
     "engine/assets/ability_cooker.cpp": "7bd1d4764da3aab23c54224dec679aa9f5043bf1964c0163de79f51930102669",
-    "engine/assets/effect_cooker.cpp": "7458599e76a679a3062a434fd8897143e3649b3a37254f302943db53e764e7e2",
+    "engine/assets/effect_cooker.cpp": "43087f0eb14279273fba5690ce6d2067d49677746321df4ae3109584e9063492",
     "engine/assets/combat_kit_cooker.cpp": "fa0ef7e5fc7aee09a7254742211b0f38804dc094c0678d9627f2ef26ea38a757",
     "engine/runtime/include/darkangel/character_scene.hpp": "c891a649ea0ed2fe911d75a90c1345416391427facb71a38d1e5ed62ae37a1fb",
     "engine/runtime/character_scene.cpp": "1a3e270f4909f10aa4e25b0f2ca1a6f3127e725cdc19493fff0961ffc76efc80",
@@ -42,10 +42,10 @@
     "scripts/verify_tagged_ability_assets.py": "70ccf5b8a0d3bbecbb62d69dee74b1803a2bec92d0808f86ace699cf5b82f5e3"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/AbilityAssetTests.exe": "3e67b0ef4ccbbb25b8542a05934061157b12ad4935930a92ca9df4de690f401c",
-    "build/m5-editor-relwithdebinfo/CombatKitAssetTests.exe": "026e69fd4d0395fa51686f1412c79253069a3055f97717b15d5dcc71f85ed6b2",
-    "build/m5-editor-relwithdebinfo/CharacterCombatSceneTests.exe": "1a91e57c41d492364e0a19193685dd35a4a5e91dbcb29c580364d11fc144c611",
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "c96e3626410989f7e0474e2c68264095c107358383f526b290250c69714536fd"
+    "build/m5-editor-relwithdebinfo/AbilityAssetTests.exe": "147aff1d799b3a4ef2ea270fc0e15267692aa02e2fea7e952f745d70b8f0221b",
+    "build/m5-editor-relwithdebinfo/CombatKitAssetTests.exe": "fbeed4b66a2fa6f2d950ce55af0ac1490935a33cfe7b97b7b009da57318035e3",
+    "build/m5-editor-relwithdebinfo/CharacterCombatSceneTests.exe": "697707f736d5f202d47830feeedd5b6244bc34d4a768c8f3c2f90ff5e1f9bce1",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "8d6960d3771a4dac3c72dd73fbd6670ab04557c1f4f87fe320c231b0f2faec8b"
   },
   "related_evidence": [
     "ability-tags.json",

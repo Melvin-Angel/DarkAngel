@@ -1,62 +1,62 @@
 {
   "schema": 1,
-  "base_head": "cd94ee18e8aa6fc8aad88904b1e30420792c35cd",
+  "base_head": "69e3b6974816fe4dc9311f3681561e17af1ef096",
   "scope": "Frozen .daability typed interval-tag bindings, action-owned contributor cleanup, owner schema4 provenance and reversible pending replay preserving external overlap",
   "gates": [
     {
       "name": "action-tags-product",
       "exit": 0,
-      "seconds": 93.394
+      "seconds": 118.159
     },
     {
       "name": "action-tags-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.09
+      "seconds": 4.411
     },
     {
       "name": "action-tags-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.056
+      "seconds": 4.691
     },
     {
       "name": "action-tags-native",
       "exit": 0,
-      "seconds": 0.108
+      "seconds": 0.111
     },
     {
       "name": "action-tags-editor",
       "exit": 0,
-      "seconds": 0.093
+      "seconds": 0.179
     },
     {
       "name": "action-tags-headless",
       "exit": 0,
-      "seconds": 0.093
+      "seconds": 0.191
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "1e032baf88b49f5f3016be08216368c7372755abc5ade8ebec8c4219fb9e0ed3",
+    "CMakeLists.txt": "e72b2c7817c05083ab4827d4d53eaf99e5f15290da29c7d625fe170828ca841b",
     "engine/runtime/ability.cpp": "1eb79479c852462362a5e737c867b0c6adccb3e54ac9ec55c752e7a385d52ee8",
     "engine/runtime/ability_state.hpp": "dc8e14f2b03aa61c04121f0b047d74eb00ca4ee745f713f272819877c936959c",
     "engine/runtime/ability_wire.cpp": "2fd70aece8d658ef8ffc410c268b9281e518a540c4868303796cb1d77839e159",
-    "engine/runtime/ability_prediction.cpp": "aca9a23a5eb644aff693bcf5cd76274c0026bd2cee11cebb50b76b153797b797",
+    "engine/runtime/ability_prediction.cpp": "06adb60c64b71311bb682f65bafa066b9f31cc604fd4dda72363e2e6298b9586",
     "engine/runtime/tags.cpp": "62b759a25f7003708798408e3129e0b1ad1d01a84d7e5f67f27ab7cd7e1a82f6",
-    "engine/runtime/effects.cpp": "1b0dc409e05420d14da2be3fce7f20351958cb31588cc673278059f77840dd91",
+    "engine/runtime/effects.cpp": "434a495ee51b01b730559cfc9ffee145df6bace60a8b3e2cd95d6fc808d3dabd",
     "engine/runtime/include/darkangel/ability.hpp": "8957d4db9f3050b18dc4f96cfb213e7239a9965b9666bf1081dc655bf3380722",
     "engine/runtime/include/darkangel/tags.hpp": "1286492c098028676865857671b950c018dd4babb28044ef2c0eb310dac6789b",
-    "engine/runtime/include/darkangel/effects.hpp": "ed162d6887ce42bf696297d97b9821e17d04a524855ab5856e604185d762c2a8",
+    "engine/runtime/include/darkangel/effects.hpp": "ebf541e9b9056c564ae8faef98245f90dce3abc1f42d935aebee01b1093e0fb6",
     "engine/assets/ability_cooker.cpp": "7bd1d4764da3aab23c54224dec679aa9f5043bf1964c0163de79f51930102669",
     "tests/action_tag_tests.cpp": "a1348cbfaa66084e46a7502a5271a675d8484da4086e99283409d0cea8918444",
     "tests/melee_tests.cpp": "859a52a2801764db771dd1a3f82caa0dc3311414f6fca26eb951187e29992447",
     "tests/ability_tag_tests.cpp": "6a6655e4b0bac6dd92e21e2384cd9c12078561719a5c7933d5a94191375a5027",
     "tests/ability_asset_tests.cpp": "44f64781a44fba870f70f02e7f36a1f01651e7845c0166f5cee857316b258d8a",
     "scripts/verify_action_tags.py": "b4b789745c19f2649a6818ba0ba18aa0878d17756c2304aa495632606a5ccd00",
-    "engine/runtime/world_session.cpp": "a79dba74a2ba3187a4e731979bace5e8b61605b773b6d429b1bbe304e80c71c5"
+    "engine/runtime/world_session.cpp": "d882b45b9b5e499e7df8ba0e66e23b4e1fd5685c73f11004d457353ce420f5ba"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/ActionTagTests.exe": "d8833be10b8833712881e6f9327433f9bdfeead064848a12aab794c7ed51d87f",
-    "build/m5-editor-relwithdebinfo/ActionTagTests.exe": "d4906871585b0f2490303d3eccb570c3f7ba91803fccede26b2fce7bae611d23",
-    "build/m1-relwithdebinfo/ActionTagTests.exe": "0cf8641e5057c1e13da5b15c663b4b2fef3070e3f0b7730ae492530e53cf43c1"
+    "build/m5-relwithdebinfo/ActionTagTests.exe": "67595bee85ae93b42610418210b63abefe09a9603ad89ef9c0113ab833f65fc2",
+    "build/m5-editor-relwithdebinfo/ActionTagTests.exe": "d584dde273c49aa338ad8c77efa204fc3204329a73261be90262b46b57bd3a42",
+    "build/m1-relwithdebinfo/ActionTagTests.exe": "ff0a0626cb07bcb4b52dddbbc6f605d35b781f3e92c43a288b2792423de766a7"
   },
   "related_evidence": [
     "effect-budget.json",

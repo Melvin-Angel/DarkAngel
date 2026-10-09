@@ -1,6 +1,1 @@
-[1/6] Linking CXX executable DarkAngelHeadless.exe
-[2/6] Linking CXX executable AbilityIntentTests.exe
-[3/6] Linking CXX executable AbilityPredictionTests.exe
-[4/6] Linking CXX executable AbilityObserverTests.exe
-[5/6] Linking CXX executable AbilityCorrectionTests.exe
-[6/6] Linking CXX executable AbilityTests.exe
+ninja: no work to do.

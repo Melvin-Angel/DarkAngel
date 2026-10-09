@@ -12,6 +12,8 @@ std::vector<AbilityAttributeValue> values(const AttributeSet& attributes){std::v
 std::shared_ptr<const EffectDefinition> freeze(const EffectDefinition& d,const AttributeSet& attributes,const TagDictionary& dictionary){
  checked(d.id!=AssetId{}&&d.generation.size()==64&&d.generation.find_first_not_of("0123456789abcdef")==std::string::npos,"Effect identity/generation");
  checked(static_cast<unsigned>(d.lifetime)<=2&&static_cast<unsigned>(d.stacking)<=1&&static_cast<unsigned>(d.ongoing_policy)<=1&&d.duration_ticks<=36000&&d.period_ticks<=36000&&d.modifiers.size()<=16&&d.tags.size()<=16,"Effect policy/work bounds");
+ checked(static_cast<unsigned>(d.visibility)<=2,"Effect replication visibility");
+ checked(d.cues.size()<=4&&(d.lifetime!=EffectLifetime::Instant||d.cues.empty()),"Persistent effect cue lifetime/bound");std::set<AssetId> cues;for(const auto& cue:d.cues)checked(cue.id!=AssetId{}&&cue.id!=d.id&&cues.insert(cue.id).second&&!cue.key.empty()&&cue.key.size()<=64&&cue.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==cue.key.npos,"Effect cue identity/key");
  checked((d.lifetime==EffectLifetime::Finite)==(d.duration_ticks>0),"Effect finite duration");
  checked(d.lifetime!=EffectLifetime::Instant||(!d.period_ticks&&d.modifiers.empty()&&d.tags.empty()&&d.execute_on_apply&&d.stacking==EffectStack::Independent),"Instant effect policy");
  checked((d.period_ticks||d.execute_on_apply)==(d.evaluator!=0),"Effect execution evaluator policy");
@@ -89,4 +91,8 @@ void OwnedEffects::cleanse(const TagRequirement& requirement,AttributeSet& attri
 void OwnedEffects::death(AttributeSet& attributes){auto candidate=*this;auto prepared=attributes;std::vector<EffectHandle> removed;for(const auto& a:active_)if(a.definition->remove_on_death)removed.push_back(a.state.handle);for(auto handle:removed)candidate.erase(handle,prepared);candidate.contributions(prepared);*this=std::move(candidate);attributes=std::move(prepared);}
 void OwnedEffects::source_destroyed(std::uint64_t session,std::uint64_t network,AttributeSet& attributes){auto candidate=*this;auto prepared=attributes;std::vector<EffectHandle> removed;for(const auto& a:active_)if(a.definition->remove_with_source&&a.state.credit.session_epoch==session&&a.state.credit.source_network==network)removed.push_back(a.state.handle);for(auto handle:removed)candidate.erase(handle,prepared);candidate.contributions(prepared);*this=std::move(candidate);attributes=std::move(prepared);}
 std::vector<EffectSnapshot> OwnedEffects::snapshot()const{std::vector<EffectSnapshot> result;for(const auto& a:active_)result.push_back(a.state);return result;}
+std::vector<EffectSnapshot> OwnedEffects::snapshot(AttributeVisibility audience)const{
+ checked(audience==AttributeVisibility::Owner||audience==AttributeVisibility::Public,"Effect presentation audience");std::vector<EffectSnapshot> result;
+ for(const auto& active:active_)if(active.definition->visibility==AttributeVisibility::Public||(audience==AttributeVisibility::Owner&&active.definition->visibility==AttributeVisibility::Owner)){const auto& s=active.state;result.push_back({s.handle,s.definition,s.generation,{s.credit.session_epoch,s.credit.source_network,s.credit.activation,0,{}},s.start,s.end,s.next_period,s.suppressed});}return result;
+}
 }

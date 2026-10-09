@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "base_head": "69e3b6974816fe4dc9311f3681561e17af1ef096",
+  "scope": "Existing protocol3 bounded owner/public effect component, authored visibility and persistent cue identities, current timers/durable presentation attribution, frozen read-only preparation and late join",
+  "gates": [
+    {
+      "name": "effect-replication-product",
+      "exit": 0,
+      "seconds": 130.632
+    },
+    {
+      "name": "effect-replication-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 4.37
+    },
+    {
+      "name": "effect-replication-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 4.794
+    },
+    {
+      "name": "effect-replication-native",
+      "exit": 0,
+      "seconds": 0.175
+    },
+    {
+      "name": "effect-replication-editor",
+      "exit": 0,
+      "seconds": 0.179
+    },
+    {
+      "name": "effect-replication-headless",
+      "exit": 0,
+      "seconds": 0.191
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "e72b2c7817c05083ab4827d4d53eaf99e5f15290da29c7d625fe170828ca841b",
+    "engine/runtime/world_session.cpp": "d882b45b9b5e499e7df8ba0e66e23b4e1fd5685c73f11004d457353ce420f5ba",
+    "engine/runtime/include/darkangel/world_session.hpp": "fbb3070d97c90f9dc68741bd03aa79f1509d1b5ad7ea6bb79dac6f50f1f74c17",
+    "engine/runtime/effects.cpp": "434a495ee51b01b730559cfc9ffee145df6bace60a8b3e2cd95d6fc808d3dabd",
+    "engine/runtime/include/darkangel/effects.hpp": "ebf541e9b9056c564ae8faef98245f90dce3abc1f42d935aebee01b1093e0fb6",
+    "engine/runtime/effect_replication.cpp": "77afccbb2bbdb8c9ce119dab4d49b99ed28249c9ece97d4d3886506201f71897",
+    "engine/runtime/effect_wire.hpp": "e2bee2ceed1a073818f1e4533accb38208f7f43b73970090c82fc7c5f6b34be2",
+    "engine/runtime/include/darkangel/effect_replication.hpp": "5f227436801cc1e3756042b398a34c17f307a561a10b4c257b38f08d6dbb9b20",
+    "engine/assets/effect_cooker.cpp": "43087f0eb14279273fba5690ce6d2067d49677746321df4ae3109584e9063492",
+    "tests/effect_replication_tests.cpp": "1813f81c3969b358740bc9fbfe016629981eba8f76113652bc5edb1e4f3097af",
+    "tests/effect_asset_tests.cpp": "105991b185d06037747170ad109f3530f3ebdaa5198ade9ebf223f701824e38d",
+    "scripts/verify_effect_replication.py": "921564c7b6f344e3ead45ff3594494ff1883406e06e8664dd7844ab2e3073c39"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/EffectReplicationTests.exe": "1f6421dfedeee5bd670eec36b5288e52eb48c392d740d2753a79a4aeb6ef9e9a",
+    "build/m5-editor-relwithdebinfo/EffectReplicationTests.exe": "a009357be7ed99b55e49ef383b929f481c83dee689710f310b04da3908ac4293",
+    "build/m1-relwithdebinfo/EffectReplicationTests.exe": "43d26ff65f227fb5163555a0fee01a061922f179cd6c54544d263689aabfb2c5"
+  },
+  "related_evidence": [
+    "action-tags.json",
+    "effect-assets.json",
+    "effect-budget.json",
+    "royal-combat.json"
+  ],
+  "limitations": [
+    "Effect state is a separate timestamped presentation component, not an additional predicted gameplay authority or atomic owner resource correction. It never executes damage, modifiers or historical applications.",
+    "Only durable source session/network/activation attribution is replicated; captured power/source statistics stay native and private. Owner/public effect visibility is explicit, default owner.",
+    "Persistent cue state and bounded Begin/Update/End changes are prepared; visual/audio adapters, one-shot cue confirmation and primary Royal status gameplay remain required.",
+    "Fault checks cover dense bounded fragmentation, duplication/reordering, missing-fragment expiry/recovery and four-actor fairness; full RTT/loss/burst/provider/clock/bandwidth/frame-performance qualification remains open.",
+    "Reservations, reflected/typed graph/socket authoring, generated constants/checked Luau, authored dodge/status/motor/combo/projectile and graphical runtime bars remain open. M4/M5 stay In progress; M6 not started."
+  ],
+  "observed_prior_failure": {
+    "test": "M5.external_import",
+    "observation": "Windows access denial during unchanged directory rename; no cause established",
+    "first_log": "effect-replication-first-native-failure.log",
+    "isolated_retry": "effect-replication-external-import-retry.log",
+    "final_native": "ability-observer-integration.log",
+    "final_native_passed": 69
+  }
+}

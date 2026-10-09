@@ -1,0 +1,170 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+      Start  1: M5.ability_motor_prediction
+ 1/69 Test  #1: M5.ability_motor_prediction ......   Passed    0.02 sec
+      Start  2: M4.session
+ 2/69 Test  #2: M4.session .......................   Passed    0.14 sec
+      Start  3: M4.faults
+ 3/69 Test  #3: M4.faults ........................   Passed    0.20 sec
+      Start  4: M4.motor
+ 4/69 Test  #4: M4.motor .........................   Passed    0.05 sec
+      Start  5: M4.actor_history
+ 5/69 Test  #5: M4.actor_history .................   Passed    0.02 sec
+      Start  6: M4.dynamic_proxies
+ 6/69 Test  #6: M4.dynamic_proxies ...............   Passed    0.05 sec
+      Start  7: M5.authoritative_melee
+ 7/69 Test  #7: M5.authoritative_melee ...........   Passed    0.07 sec
+      Start  8: M4.queries_sensors
+ 8/69 Test  #8: M4.queries_sensors ...............   Passed    0.05 sec
+      Start  9: M4.local_budgets
+ 9/69 Test  #9: M4.local_budgets .................   Passed    0.15 sec
+      Start 10: M4.platform_axes
+10/69 Test #10: M4.platform_axes .................   Passed    0.05 sec
+      Start 11: M5.canonical_rig
+11/69 Test #11: M5.canonical_rig .................   Passed    0.88 sec
+      Start 12: M5.clips
+12/69 Test #12: M5.clips .........................   Passed    1.93 sec
+      Start 13: M5.omni_clips
+13/69 Test #13: M5.omni_clips ....................   Passed    0.98 sec
+      Start 14: M5.combat_kit_assets
+14/69 Test #14: M5.combat_kit_assets .............   Passed    1.04 sec
+      Start 15: M5.graph_assets
+15/69 Test #15: M5.graph_assets ..................   Passed    0.80 sec
+      Start 16: M5.graph_runtime
+16/69 Test #16: M5.graph_runtime .................   Passed    0.42 sec
+      Start 17: M4.royal_mesh_collision
+17/69 Test #17: M4.royal_mesh_collision ..........   Passed    2.18 sec
+      Start 18: M5.character_combat_scene
+18/69 Test #18: M5.character_combat_scene ........   Passed    0.56 sec
+      Start 19: M5.character_scene
+19/69 Test #19: M5.character_scene ...............   Passed    0.89 sec
+      Start 20: M5.joint_masks
+20/69 Test #20: M5.joint_masks ...................   Passed    0.39 sec
+      Start 21: M5.renderable_human
+21/69 Test #21: M5.renderable_human ..............   Passed    0.56 sec
+      Start 22: M5.effect_assets
+22/69 Test #22: M5.effect_assets .................   Passed    0.37 sec
+      Start 23: M5.ability_assets
+23/69 Test #23: M5.ability_assets ................   Passed    0.62 sec
+      Start 24: M4.collision_assets
+24/69 Test #24: M4.collision_assets ..............   Passed    0.55 sec
+      Start 25: M5.action_clip_binding
+25/69 Test #25: M5.action_clip_binding ...........   Passed    0.34 sec
+      Start 26: M5.action_timeline
+26/69 Test #26: M5.action_timeline ...............   Passed    0.14 sec
+      Start 27: M4.collision_meshes
+27/69 Test #27: M4.collision_meshes ..............   Passed    0.16 sec
+      Start 28: M4.collision_stream
+28/69 Test #28: M4.collision_stream ..............   Passed    0.09 sec
+      Start 29: M4.collision_observer
+29/69 Test #29: M4.collision_observer ............   Passed    0.04 sec
+      Start 30: M2.asset_pipeline
+30/69 Test #30: M2.asset_pipeline ................   Passed    0.32 sec
+      Start 31: M5.external_import
+31/69 Test #31: M5.external_import ...............***Failed    0.21 sec
+rename: Adgang n�gtet.: "C:\DarkAngel\build\m5-relwithdebinfo\external-import-179b5abb-f9af-4313-b0e7-d83ad79d4172\project\models\.import-4f29d2a5-1c21-450d-a123-80d85556a312", "C:\DarkAngel\build\m5-relwithdebinfo\external-import-179b5abb-f9af-4313-b0e7-d83ad79d4172\project\models\triangle-eb7b5807"
+
+      Start 32: M5.attributes
+32/69 Test #32: M5.attributes ....................   Passed    0.04 sec
+      Start 33: M5.combat_kit
+33/69 Test #33: M5.combat_kit ....................   Passed    0.04 sec
+      Start 34: M4.input_actions
+34/69 Test #34: M4.input_actions .................   Passed    0.16 sec
+      Start 35: M2.real_prop
+35/69 Test #35: M2.real_prop .....................   Passed    0.28 sec
+      Start 36: M2.editor_transactions
+36/69 Test #36: M2.editor_transactions ...........   Passed    0.13 sec
+      Start 37: FlecsProbe
+37/69 Test #37: FlecsProbe .......................   Passed    0.02 sec
+      Start 38: LuauProbe
+38/69 Test #38: LuauProbe ........................   Passed    0.01 sec
+      Start 39: SQLiteProbe
+39/69 Test #39: SQLiteProbe ......................   Passed    0.02 sec
+      Start 40: HeadlessSmoke
+40/69 Test #40: HeadlessSmoke ....................   Passed    0.07 sec
+      Start 41: M1.identity
+41/69 Test #41: M1.identity ......................   Passed    0.07 sec
+      Start 42: M1.scene
+42/69 Test #42: M1.scene .........................   Passed    0.04 sec
+      Start 43: M1.phases
+43/69 Test #43: M1.phases ........................   Passed    0.02 sec
+      Start 44: M1.scripts
+44/69 Test #44: M1.scripts .......................   Passed    0.07 sec
+      Start 45: M1.reload
+45/69 Test #45: M1.reload ........................   Passed    0.05 sec
+      Start 46: M1.limits
+46/69 Test #46: M1.limits ........................   Passed    0.06 sec
+      Start 47: M2.assemblies
+47/69 Test #47: M2.assemblies ....................   Passed    0.10 sec
+      Start 48: M2.cook_scene_fixture
+48/69 Test #48: M2.cook_scene_fixture ............   Passed    0.05 sec
+      Start 49: M2.cooked_scene_headless
+49/69 Test #49: M2.cooked_scene_headless .........   Passed    0.05 sec
+      Start 50: M5.ability_observer
+50/69 Test #50: M5.ability_observer ..............   Passed    0.11 sec
+      Start 51: M5.ability_prediction
+51/69 Test #51: M5.ability_prediction ............   Passed    0.01 sec
+      Start 52: M5.ability_intent
+52/69 Test #52: M5.ability_intent ................   Passed    0.10 sec
+      Start 53: M5.ability_correction
+53/69 Test #53: M5.ability_correction ............   Passed    0.08 sec
+      Start 54: M5.effect_budget
+54/69 Test #54: M5.effect_budget .................   Passed    0.12 sec
+      Start 55: M5.effect_replication
+55/69 Test #55: M5.effect_replication ............   Passed    0.15 sec
+      Start 56: M5.action_tags
+56/69 Test #56: M5.action_tags ...................   Passed    0.13 sec
+      Start 57: M5.ability_tags
+57/69 Test #57: M5.ability_tags ..................   Passed    0.11 sec
+      Start 58: M5.owned_effects
+58/69 Test #58: M5.owned_effects .................   Passed    0.09 sec
+      Start 59: M5.ability_commit
+59/69 Test #59: M5.ability_commit ................   Passed    0.08 sec
+      Start 60: M3.authority
+60/69 Test #60: M3.authority .....................   Passed    0.10 sec
+      Start 61: M3.loopback
+61/69 Test #61: M3.loopback ......................   Passed    0.01 sec
+      Start 62: M3.gns_lan
+62/69 Test #62: M3.gns_lan .......................   Passed    0.22 sec
+      Start 63: M1.imports
+63/69 Test #63: M1.imports .......................   Passed    0.11 sec
+      Start 64: M1.tasks
+64/69 Test #64: M1.tasks .........................   Passed    0.03 sec
+      Start 65: M1.cooked
+65/69 Test #65: M1.cooked ........................   Passed    0.03 sec
+      Start 66: M1.state
+66/69 Test #66: M1.state .........................   Passed    0.06 sec
+      Start 67: M1.bindings
+67/69 Test #67: M1.bindings ......................   Passed    0.03 sec
+      Start 68: M1.cook_fixture
+68/69 Test #68: M1.cook_fixture ..................   Passed    0.02 sec
+      Start 69: M1.cooked_headless
+69/69 Test #69: M1.cooked_headless ...............   Passed    0.02 sec
+
+99% tests passed, 1 tests failed out of 69
+
+Label Time Summary:
+M0               =   0.06 sec*proc (3 tests)
+M1               =   0.62 sec*proc (13 tests)
+M2               =   0.93 sec*proc (6 tests)
+M3               =   0.33 sec*proc (3 tests)
+M4               =   1.10 sec*proc (5 tests)
+M5               =   4.28 sec*proc (9 tests)
+ability          =   0.08 sec*proc (1 test)
+animation        =   4.12 sec*proc (6 tests)
+asset            =   4.12 sec*proc (8 tests)
+authoring        =   0.39 sec*proc (1 test)
+combat           =   0.08 sec*proc (2 tests)
+dependency       =   0.06 sec*proc (3 tests)
+editor           =   0.16 sec*proc (1 test)
+foundation       =   0.08 sec*proc (2 tests)
+input            =   0.16 sec*proc (1 test)
+local-fixture    =   0.28 sec*proc (1 test)
+network          =   1.45 sec*proc (4 tests)
+physics          =   0.94 sec*proc (2 tests)
+session          =   0.08 sec*proc (1 test)
+
+Total Test time (real) =  17.26 sec
+
+The following tests FAILED:
+	 31 - M5.external_import (Failed)
+Errors while running CTest

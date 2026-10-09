@@ -1,37 +1,37 @@
 {
   "schema": 1,
-  "base_head": "cd94ee18e8aa6fc8aad88904b1e30420792c35cd",
+  "base_head": "69e3b6974816fe4dc9311f3681561e17af1ef096",
   "scope": "Worst simultaneous periodic outcome reservation before effect publication, atomic rejection/removal/refresh and measured native 4-actor/128-effect workload",
   "gates": [
     {
       "name": "effect-budget-product",
       "exit": 0,
-      "seconds": 90.755
+      "seconds": 106.829
     },
     {
       "name": "effect-budget-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.086
+      "seconds": 4.036
     },
     {
       "name": "effect-budget-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.055
+      "seconds": 4.078
     },
     {
       "name": "effect-budget-native",
       "exit": 0,
-      "seconds": 0.058
+      "seconds": 0.067
     },
     {
       "name": "effect-budget-editor",
       "exit": 0,
-      "seconds": 0.065
+      "seconds": 0.097
     },
     {
       "name": "effect-budget-headless",
       "exit": 0,
-      "seconds": 0.057
+      "seconds": 0.104
     }
   ],
   "measurements": {
@@ -41,9 +41,9 @@
       "ticks": 240,
       "outcomes": 512,
       "peak_due": 128,
-      "mean_ms": 0.128731,
-      "p99_ms": 0.2718,
-      "max_ms": 0.2965,
+      "mean_ms": 0.118673,
+      "p99_ms": 0.2281,
+      "max_ms": 0.2912,
       "ordinary_cpp_new_calls": 332964
     },
     "editor": {
@@ -52,9 +52,9 @@
       "ticks": 240,
       "outcomes": 512,
       "peak_due": 128,
-      "mean_ms": 0.125164,
-      "p99_ms": 0.2429,
-      "max_ms": 0.2802,
+      "mean_ms": 0.125542,
+      "p99_ms": 0.2491,
+      "max_ms": 0.472,
       "ordinary_cpp_new_calls": 332964
     },
     "headless": {
@@ -63,22 +63,22 @@
       "ticks": 240,
       "outcomes": 512,
       "peak_due": 128,
-      "mean_ms": 0.109986,
-      "p99_ms": 0.2187,
-      "max_ms": 0.2498,
+      "mean_ms": 0.136343,
+      "p99_ms": 0.2617,
+      "max_ms": 0.3282,
       "ordinary_cpp_new_calls": 332964
     }
   },
   "source_sha256": {
-    "CMakeLists.txt": "1e032baf88b49f5f3016be08216368c7372755abc5ade8ebec8c4219fb9e0ed3",
-    "engine/runtime/world_session.cpp": "a79dba74a2ba3187a4e731979bace5e8b61605b773b6d429b1bbe304e80c71c5",
+    "CMakeLists.txt": "e72b2c7817c05083ab4827d4d53eaf99e5f15290da29c7d625fe170828ca841b",
+    "engine/runtime/world_session.cpp": "d882b45b9b5e499e7df8ba0e66e23b4e1fd5685c73f11004d457353ce420f5ba",
     "tests/effect_budget_tests.cpp": "b1f78e97c223e6ccefd1aee23f67b4038f87346fb626c4a67932cccbabc36c42",
     "scripts/verify_effect_budget.py": "4fefe8fa49ea92d4cce635e99c59f8173aa3bde0b7c0b35bb8a138df61c35d74"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/EffectBudgetTests.exe": "c6b5bee4539c7ec6fce87588fc2a34b0ac787513bd8f7f3d2d43547c26a7cd39",
-    "build/m5-editor-relwithdebinfo/EffectBudgetTests.exe": "76b5788f76fc48273dab09b30a1ff035189687f6cfa26f2ba46251d4ed3489c0",
-    "build/m1-relwithdebinfo/EffectBudgetTests.exe": "ae5073b737761ee7f807d429b1d9ec8cb086f8a1b4e30effcec5d529f50d18ff"
+    "build/m5-relwithdebinfo/EffectBudgetTests.exe": "2af80802ab0121924d8357610f28d780ca7302939dd88cc9909ccc0eb4145658",
+    "build/m5-editor-relwithdebinfo/EffectBudgetTests.exe": "4992dfb6b8cb7f09a5c3cede03a2ea77338e825ac3b3f01f96d6c8dc4a008e71",
+    "build/m1-relwithdebinfo/EffectBudgetTests.exe": "e0fe05a61e5a4eeab6f96c4f949df9ff1e4be288ae3226cbe971bd476b63ed23"
   },
   "related_evidence": [
     "tagged-ability-assets.json",

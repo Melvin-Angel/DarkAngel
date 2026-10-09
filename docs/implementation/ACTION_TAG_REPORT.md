@@ -1,3 +1,5 @@
+Current extension: EFFECT_REPLICATION_REPORT.md verifies current effect-state/lifetime/attribution and persistent cue reconstruction. Deferred claims and the other listed gameplay/authoring/qualification gates remain open.
+
 # Native action-owned tags and correction provenance
 
 9 October 2026, following checkpoint cd94ee1. M4/M5 remain **In progress**.

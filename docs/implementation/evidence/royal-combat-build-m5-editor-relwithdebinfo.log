@@ -1,5 +1,1 @@
-[1/5] Linking CXX executable CharacterCombatSceneTests.exe
-[2/5] Linking CXX executable RoyalCollisionTests.exe
-[3/5] Linking CXX executable AbilityPredictionTests.exe
-[4/5] Linking CXX executable AbilityObserverTests.exe
-[5/5] Linking CXX executable DarkAngelEditor.exe
+ninja: no work to do.

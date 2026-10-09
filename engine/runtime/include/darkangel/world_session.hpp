@@ -6,6 +6,7 @@
 #include <darkangel/ability.hpp>
 #include <darkangel/melee.hpp>
 #include <darkangel/effects.hpp>
+#include <darkangel/effect_replication.hpp>
 #include <deque>
 #include <map>
 #include <memory>
@@ -55,6 +56,8 @@ public:
     const std::map<std::uint64_t,AbilityCorrection>& ability_corrections()const;
     bool ability_correction_needs_resync()const;
     const std::map<std::uint64_t,AbilityPublicFrame>& public_abilities()const;
+    const std::map<std::uint64_t,EffectFrame>& effect_frames(AttributeVisibility)const;
+    bool effect_frame_needs_resync(std::uint64_t,AttributeVisibility)const;
     bool public_ability_needs_resync(std::uint64_t network)const;
     // ACK only after assets and native owner reconciliation have been prepared.
     void acknowledge_ability_correction(std::uint64_t network);

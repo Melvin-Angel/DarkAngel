@@ -7,12 +7,16 @@ namespace darkangel {
 enum class EffectLifetime {Instant,Finite,UntilRemoved};
 enum class EffectStack {Independent,RefreshPerSource};
 enum class EffectOngoingPolicy {Suppress,Remove};
+struct EffectCueBinding {AssetId id;std::string key;};
 struct EffectDefinition {
  AssetId id;std::string generation;EffectLifetime lifetime{EffectLifetime::Finite};EffectStack stacking{};
  std::uint64_t duration_ticks{},period_ticks{};bool execute_on_apply{},remove_on_death{true},remove_with_source{},interrupt_action{};
  std::uint32_t evaluator{};std::vector<TagId> tags;TagRequirement application,ongoing;
  EffectOngoingPolicy ongoing_policy{};
  std::vector<AttributeModifier> modifiers;
+ AttributeVisibility visibility{AttributeVisibility::Owner};
+ // Persistent presentation identities, resolved by the game's cue adapter.
+ std::vector<EffectCueBinding> cues;
 };
 std::shared_ptr<const EffectDefinition> freeze_effect_definition(const EffectDefinition&,const AttributeSet&,const TagDictionary&);
 // Captured attribution outlives the source avatar. It contains no live pointer.
@@ -35,6 +39,7 @@ public:
  void death(AttributeSet&);
  void source_destroyed(std::uint64_t session,std::uint64_t network,AttributeSet&);
  std::vector<EffectSnapshot> snapshot()const;
+ std::vector<EffectSnapshot> snapshot(AttributeVisibility)const;
  const OwnedTags& tags()const{return tags_;}
  // A reserved contributor, disjoint from effect IDs and restored aggregates.
  void set_action_tags(std::span<const TagId>,AttributeSet&);

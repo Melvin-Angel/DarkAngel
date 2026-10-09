@@ -195,3 +195,6 @@ M4/M5 remain In progress; M6 is not ready and has not started. Next coherent inc
 
 
 9 October resumed action-tag increment: ACTION_TAG_REPORT.md records typed frozen interval bindings, exact action-only provenance (owner schema4), overlapping external contributor preservation, lifecycle cleanup and one final replacement modifier view. 68/68 native plus dedicated editor/Headless and complete product compatibility pass. Next effect state/cue reconstruction; all listed M4/M5 remaining gates stay open.
+
+
+9 October effect replication: EFFECT_REPLICATION_REPORT.md records bounded actor/audience effect metadata and durable attribution, prepared persistent cue lifetime state and late join. 69/69 final native and native/editor/Headless fixtures plus complete product compatibility pass. Initial transient external-import failure and successful retries are retained. Next deferred claims and authored gameplay; renderer/audio cues and all stated M4/M5 remaining gates stay open.
