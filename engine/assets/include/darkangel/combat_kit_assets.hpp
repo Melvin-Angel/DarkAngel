@@ -10,6 +10,7 @@ struct CookedCombatKit {
     AttributeAsset attributes;
     CookedGraph stance;
     std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
+    std::optional<TagAsset> tags;
 };
 CookedCombatKit load_cooked_combat_kit(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 }

@@ -34,6 +34,7 @@ struct Registry {
 }
 std::shared_ptr<const TagDictionary> TagAsset::dictionary()const{std::vector<TagDefinition> definitions;for(const auto& field:fields)definitions.push_back(field.definition);return std::make_shared<const TagDictionary>(std::move(definitions),id,generation);}
 TagAsset load_cooked_tags(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){return tags(Registry(registry,cas).load(id,"tags","tags.json"));}
+TagAsset decode_tag_asset(std::string_view bytes){return tags(json(bytes,65536));}
 CookedEffect load_cooked_effect(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
  Registry records(registry,cas);auto source=records.load(id,"effect","effect.json");auto attributes=load_cooked_attributes(registry,cas,reference(source.at("attributes")));auto dictionary=tags(records.load(reference(source.at("tags")),"tags","tags.json"));require(source.at("attributes_generation")==attributes.generation&&source.at("tags_generation")==dictionary.generation,"Effect frozen dependency generation mismatch");source.erase("attributes_generation");source.erase("tags_generation");return {effect(source,attributes,dictionary),std::move(attributes),std::move(dictionary)};
 }

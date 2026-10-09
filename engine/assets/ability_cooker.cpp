@@ -1,4 +1,5 @@
 #include "assets_internal.hpp"
+#include <algorithm>
 #include <darkangel/ability_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <cmath>
@@ -31,8 +32,9 @@ AttributeAsset attributes(const Json& source){
     AttributeSet checked(result.definitions());return result;
 }
 AssetId reference(const Json& value){return AssetId::parse(value.get<std::string>());}
-std::shared_ptr<const AbilityDefinition> ability(const Json& source,const AttributeAsset& schema,const std::shared_ptr<const ActionDefinition>& action){
-    auto base=source;base.erase("melee");fields(base,{"schema","kind","asset","action","attributes","costs","cooldown_group","cooldown_ticks","activate_on","minimum_held_us","cancel_on_release","interruptible"});
+std::shared_ptr<const AbilityDefinition> ability(const Json& source,const AttributeAsset& schema,const std::shared_ptr<const ActionDefinition>& action,const TagAsset* tags=nullptr){
+    auto base=source;base.erase("melee");base.erase("tags");base.erase("requirements");fields(base,{"schema","kind","asset","action","attributes","costs","cooldown_group","cooldown_ticks","activate_on","minimum_held_us","cancel_on_release","interruptible"});
+    require(source.contains("tags")==source.contains("requirements")&&source.contains("tags")==bool(tags),"Ability tag binding/requirements pair");
     require(source.at("schema")==1&&source.at("kind")=="ability","Ability asset schema/type");
     require(reference(source.at("action"))==action->id&&reference(source.at("attributes"))==schema.id,"Ability dependency identity");
     AbilityDefinition result;result.id=reference(source.at("asset"));result.action=action;auto& costs=source.at("costs");require(costs.is_array()&&costs.size()<=8,"Ability asset cost count");
@@ -40,6 +42,7 @@ std::shared_ptr<const AbilityDefinition> ability(const Json& source,const Attrib
     result.cooldown_group=static_cast<std::uint32_t>(integer(source.at("cooldown_group"),UINT32_MAX));result.cooldown_ticks=integer(source.at("cooldown_ticks"),36000);result.minimum_held_us=integer(source.at("minimum_held_us"),10000000);
     auto edge=source.at("activate_on").get<std::string>();require(edge=="pressed"||edge=="hold"||edge=="released"||edge=="tapped","Ability input edge");result.activate_on=edge=="pressed"?InputEdge::Pressed:edge=="hold"?InputEdge::Hold:edge=="released"?InputEdge::Released:InputEdge::Tapped;
     result.cancel_on_release=source.at("cancel_on_release").get<bool>();result.interruptible=source.at("interruptible").get<bool>();
+    if(tags){require(reference(source.at("tags"))==tags->id,"Ability tag registry dependency");result.tag_registry=tags->id;result.tag_generation=tags->generation;auto& requirements=source.at("requirements");fields(requirements,{"all","any","none"});auto list=[&](const char* name){auto& values=requirements.at(name);require(values.is_array()&&values.size()<=16,"Ability tag requirement count");std::vector<TagId> ids;for(auto value:values)ids.push_back(static_cast<TagId>(integer(value,UINT32_MAX)));return ids;};result.requirements={list("all"),list("any"),list("none")};}
     if(source.contains("melee")){
         require(source.at("melee").is_array()&&source.at("melee").size()<=8,"Ability melee source count");
         for(const auto& entry:source.at("melee")){
@@ -50,8 +53,8 @@ std::shared_ptr<const AbilityDefinition> ability(const Json& source,const Attrib
         }
     }
     // Include gameplay dependency generations, not just the parent source hash.
-    result.generation=sha256(source.dump()+schema.generation+action->generation);
-    return freeze_ability_definition(result,AttributeSet(schema.definitions()));
+    result.generation=sha256(source.dump()+schema.generation+action->generation+(tags?tags->generation:""));
+    auto dictionary=tags?tags->dictionary():nullptr;return freeze_ability_definition(result,AttributeSet(schema.definitions()),dictionary.get());
 }
 struct Registry {
     std::map<AssetId,Json> records;std::filesystem::path cas;
@@ -75,7 +78,8 @@ CookedAbility load_cooked_ability(const std::filesystem::path& registry,const st
     auto action=std::make_shared<const ActionDefinition>(load_cooked_action(registry,cas,reference(source.at("action"))));
     require(source.at("action_generation")==action->generation&&source.at("attributes_generation")==schema.generation,"Combat frozen dependency generation mismatch");
     source.erase("action_generation");source.erase("attributes_generation");
-    return {ability(source,schema,action),std::move(schema)};
+    std::optional<TagAsset> tags;if(source.contains("tags")){tags=load_cooked_tags(registry,cas,reference(source.at("tags")));require(source.at("tags_generation")==tags->generation,"Ability frozen tag generation mismatch");source.erase("tags_generation");}else require(!source.contains("tags_generation"),"Unexpected ability tag generation");
+    return {ability(source,schema,action,tags?&*tags:nullptr),std::move(schema),std::move(tags)};
 }
 namespace assets_detail {
 Import import_ability(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
@@ -85,18 +89,19 @@ Import import_ability(const std::filesystem::path& root,const std::filesystem::p
         attributes(data);result.product_count=1;if(!inspect)result.products.push_back({id,"attributes","attributes.json",data.dump(),{}});return result;
     }
     // Source-only locators accompany typed UUIDs; the cooked parent strips paths.
-    require(data.contains("sources"),"Ability source dependency locators");auto locations=data.at("sources");fields(locations,{"action","attributes"});data.erase("sources");
+    require(data.contains("sources"),"Ability source dependency locators");auto locations=data.at("sources");if(data.contains("tags"))fields(locations,{"action","attributes","tags"});else fields(locations,{"action","attributes"});data.erase("sources");
     auto action_path=within(root,locations.at("action").get<std::string>()),schema_path=within(root,locations.at("attributes").get<std::string>());
     require(action_path.extension()==".daaction"&&schema_path.extension()==".daattributes","Ability source dependency type");
     auto action_bytes=read(action_path,65536),schema_bytes=read(schema_path,65536);
     auto action_import=import_action(root,action_path,{{"$source",reference(data.at("action"))}},inspect);
     auto action_data=json(action_bytes);if(action_data.at("schema")==2&&inspect){action_data.erase("motion");action_data["schema"]=1;}
     if(!inspect)for(const auto& product:action_import.products)if(product.id==reference(data.at("action")))action_data=json(product.bytes);
-    auto action=std::make_shared<const ActionDefinition>(decode_action_source(action_data.dump()));auto schema=attributes(json(schema_bytes,65536));ability(data,schema,action);
+    auto action=std::make_shared<const ActionDefinition>(decode_action_source(action_data.dump()));auto schema=attributes(json(schema_bytes,65536));std::optional<TagAsset> tags;Import tag_import;if(data.contains("tags")){auto path=within(root,locations.at("tags").get<std::string>());require(path.extension()==".datags","Ability tag locator type");tags=decode_tag_asset(read(path,65536));require(tags->id==reference(data.at("tags")),"Ability tag locator identity");tag_import=import_effect(root,path,{{"$source",tags->id}},inspect);}ability(data,schema,action,tags?&*tags:nullptr);
     require(id!=action->id&&id!=schema.id&&schema.id!=action->id,"Combat closure duplicate UUID");
     result.inputs[action_path.lexically_relative(root).generic_string()]=sha256(action_bytes);result.inputs[schema_path.lexically_relative(root).generic_string()]=sha256(schema_bytes);result.inputs.insert(action_import.inputs.begin(),action_import.inputs.end());result.product_count=action_import.product_count+2;result.identities.insert(result.identities.end(),action_import.identities.begin(),action_import.identities.end());result.identities.push_back(schema.id);
+    if(tags){require(tags->id!=id&&tags->id!=schema.id&&std::find(action_import.identities.begin(),action_import.identities.end(),tags->id)==action_import.identities.end(),"Ability tag closure identity conflict");result.product_count++;result.identities.push_back(tags->id);result.inputs.insert(tag_import.inputs.begin(),tag_import.inputs.end());data["tags_generation"]=tags->generation;}
     data["action_generation"]=action->generation;data["attributes_generation"]=schema.generation;
-    if(!inspect){result.products.push_back({id,"ability","ability.json",data.dump(),{action->id,schema.id}});for(auto& product:action_import.products){require(product.id!=id&&product.id!=schema.id,"Ability action closure identity conflict");result.products.push_back(std::move(product));}result.products.push_back({schema.id,"attributes","attributes.json",json(schema_bytes).dump(),{}});}
+    if(!inspect){std::vector<AssetId> required{action->id,schema.id};if(tags)required.push_back(tags->id);result.products.push_back({id,"ability","ability.json",data.dump(),std::move(required)});for(auto& product:action_import.products){require(product.id!=id&&product.id!=schema.id,"Ability action closure identity conflict");result.products.push_back(std::move(product));}result.products.push_back({schema.id,"attributes","attributes.json",json(schema_bytes).dump(),{}});for(auto& product:tag_import.products)result.products.push_back(std::move(product));}
     return result;
 }
 }

@@ -1,0 +1,17 @@
+"""Authored tag requirements, frozen kit closure and native scene preparation."""
+import argparse,hashlib,json,subprocess,time
+from pathlib import Path
+from msvc_environment import activate
+ROOT=Path(__file__).resolve().parents[1];EVIDENCE=ROOT/'docs/implementation/evidence';CMAKE=ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin/cmake.exe'
+parser=argparse.ArgumentParser();parser.add_argument('--build',action='store_true');args=parser.parse_args();gates=[]
+def run(name,command,env=None,timeout=3600):
+ start=time.monotonic();result=subprocess.run(list(map(str,command)),cwd=ROOT,capture_output=True,text=True,encoding='utf8',errors='replace',env=env,timeout=timeout)
+ (EVIDENCE/(name+'.log')).write_text(result.stdout+result.stderr,encoding='utf8');gates.append(dict(name=name,exit=result.returncode,seconds=round(time.monotonic()-start,3)))
+ if result.returncode:raise RuntimeError((result.stdout+result.stderr)[-5000:])
+run('tagged-ability-assets-product',['python','scripts/verify_ability_tags.py',*(['--build'] if args.build else [])])
+if args.build:run('tagged-ability-assets-editor-build',[CMAKE,'--build',ROOT/'build/m5-editor-relwithdebinfo','--target','AbilityAssetTests','CombatKitAssetTests','--parallel','2'],activate())
+for name in ('AbilityAssetTests','CombatKitAssetTests'):run('tagged-ability-assets-editor-'+name,[ROOT/'build/m5-editor-relwithdebinfo'/f'{name}.exe'])
+sources=['CMakeLists.txt','engine/assets/include/darkangel/tag_assets.hpp','engine/assets/include/darkangel/ability_assets.hpp','engine/assets/include/darkangel/effect_assets.hpp','engine/assets/include/darkangel/combat_kit_assets.hpp','engine/assets/ability_cooker.cpp','engine/assets/effect_cooker.cpp','engine/assets/combat_kit_cooker.cpp','engine/runtime/include/darkangel/character_scene.hpp','engine/runtime/character_scene.cpp','apps/editor/character_preview.cpp','tests/ability_asset_tests.cpp','tests/combat_kit_asset_tests.cpp','tests/character_combat_scene_tests.cpp','scripts/verify_tagged_ability_assets.py']
+binaries=['build/m5-editor-relwithdebinfo/'+n+'.exe' for n in ('AbilityAssetTests','CombatKitAssetTests','CharacterCombatSceneTests','DarkAngelEditor')]
+receipt=dict(schema=1,base_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),scope='Authored optional typed tag registry/requirements on existing .daability, shared TagAsset decoder, frozen complete kit closure and tag preparation for native scene authority/owner/observer',gates=gates,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},binary_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in binaries},related_evidence=['ability-tags.json','effect-assets.json','royal-combat.json'],limitations=['Reflected designer authoring, generated C++/Luau constants and checked Luau composition remain open.','Primary Royal sources preserve the existing light-attack profile; authored dodge/status/combo/projectile and slow-to-motor application remain required.','Action-owned tag tokens and effect instances/timers/credit/cues on owner/public wire remain required; prediction holds confirmed tags until correction.','Reservations, graph/socket/authoring and full clock/fault/streaming/performance remain open; M4/M5 stay In progress; M6 not started.'])
+(EVIDENCE/'tagged-ability-assets.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8');print('Authored tagged ability/kit closure and native scene/owner/observer preparation passed')

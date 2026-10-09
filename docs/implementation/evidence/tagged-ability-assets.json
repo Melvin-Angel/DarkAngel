@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "base_head": "1f8f0bdd336a3026b031d5ba8943bdbd055f7c30",
+  "scope": "Authored optional typed tag registry/requirements on existing .daability, shared TagAsset decoder, frozen complete kit closure and tag preparation for native scene authority/owner/observer",
+  "gates": [
+    {
+      "name": "tagged-ability-assets-product",
+      "exit": 0,
+      "seconds": 284.486
+    },
+    {
+      "name": "tagged-ability-assets-editor-build",
+      "exit": 0,
+      "seconds": 9.966
+    },
+    {
+      "name": "tagged-ability-assets-editor-AbilityAssetTests",
+      "exit": 0,
+      "seconds": 0.531
+    },
+    {
+      "name": "tagged-ability-assets-editor-CombatKitAssetTests",
+      "exit": 0,
+      "seconds": 1.489
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "742826126a78ba9f3fe7e1984194c5b6cf52b7f83fbc80821724ae20a75462f1",
+    "engine/assets/include/darkangel/tag_assets.hpp": "46c41a2f6af67f17c86751a404570ca71d4f37c0e26c83a3cd695d78354d5059",
+    "engine/assets/include/darkangel/ability_assets.hpp": "6f4e4d9818fcb786db4231918c1380b183026852e2e37d1906f504dfd772d40d",
+    "engine/assets/include/darkangel/effect_assets.hpp": "259458ab75e4da0f124ddbf5d4e0d1a358f1d2fd03636a7753759ecc81bf1498",
+    "engine/assets/include/darkangel/combat_kit_assets.hpp": "e4f2b8e7b62e1b04ae3e98c06ecf51c42c30106575981a6a3cf45b923d08ce6f",
+    "engine/assets/ability_cooker.cpp": "6cf1eccd80369f78ade8a88716cd1c59dece742ba4e3ab9e01d14e75e184be20",
+    "engine/assets/effect_cooker.cpp": "7458599e76a679a3062a434fd8897143e3649b3a37254f302943db53e764e7e2",
+    "engine/assets/combat_kit_cooker.cpp": "fa0ef7e5fc7aee09a7254742211b0f38804dc094c0678d9627f2ef26ea38a757",
+    "engine/runtime/include/darkangel/character_scene.hpp": "c891a649ea0ed2fe911d75a90c1345416391427facb71a38d1e5ed62ae37a1fb",
+    "engine/runtime/character_scene.cpp": "1a3e270f4909f10aa4e25b0f2ca1a6f3127e725cdc19493fff0961ffc76efc80",
+    "apps/editor/character_preview.cpp": "437cc62ddb80ad01972b8017f32472412b27cc41f05fb6e89cc962fc6be04418",
+    "tests/ability_asset_tests.cpp": "ecec0031f5afcf29119d29dafd59ac849d99ad01bf9b32700a05f8d9f6888eb0",
+    "tests/combat_kit_asset_tests.cpp": "f3ffce4741ba7d254e1860208bb50ab66c6176d34d98a6894057354b60311482",
+    "tests/character_combat_scene_tests.cpp": "5c49442fe03ea260625915955d640035c5f067ddfb9e49000f6244df5c872445",
+    "scripts/verify_tagged_ability_assets.py": "c29f2715274f6c9c77205ef8b59623af36732dbab43012846cf6e3eaf0e0872e"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/AbilityAssetTests.exe": "864d64e221c6cce27b4a483b43a1c2e4dc3314e91ca2f553c4ded432b30c960a",
+    "build/m5-editor-relwithdebinfo/CombatKitAssetTests.exe": "a72c34a41b8c7f4ce605f1541d9e5180ff4dee4d8954445843443fc51061a92b",
+    "build/m5-editor-relwithdebinfo/CharacterCombatSceneTests.exe": "81081c9e062bb65801380ff6f1f71c5d75597d5396f70d00ab15760f61487036",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "92197e21330d90d5e98db247a177570069773943eb5b960cc2a261f96507461a"
+  },
+  "related_evidence": [
+    "ability-tags.json",
+    "effect-assets.json",
+    "royal-combat.json"
+  ],
+  "limitations": [
+    "Reflected designer authoring, generated C++/Luau constants and checked Luau composition remain open.",
+    "Primary Royal sources preserve the existing light-attack profile; authored dodge/status/combo/projectile and slow-to-motor application remain required.",
+    "Action-owned tag tokens and effect instances/timers/credit/cues on owner/public wire remain required; prediction holds confirmed tags until correction.",
+    "Reservations, graph/socket/authoring and full clock/fault/streaming/performance remain open; M4/M5 stay In progress; M6 not started."
+  ]
+}

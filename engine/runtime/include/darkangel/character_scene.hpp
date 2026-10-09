@@ -12,6 +12,7 @@ struct CharacterSceneCombat {
     std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
     std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;
     StableId target;std::uint32_t evaluator{};DamageEvaluator damage;
+    std::shared_ptr<const TagDictionary> tags;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
