@@ -88,7 +88,7 @@ DarkAngel editor rendered 120 frames with vulkan
 [39mDiligent Engine: Info: Dynamic descriptor set allocator of immediate context peak descriptor pool count: 1
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
                        Peak used/aligned/allocated size: 132.91 KB / 133.88 KB / 256.00 KB (1 page). Peak efficiency (used/aligned): 99.3%. Peak utilization (used/allocated): 51.9%
-[39m[39mDiligent Engine: Info: Upload heap of immediate context peak used/allocated frame size: 0.02 MB / 1.00 MB (1 page)
+[39m[39mDiligent Engine: Info: Upload heap of immediate context peak used/allocated frame size: 0.03 MB / 1.00 MB (1 page)
 [39m[39mDiligent Engine: Info: Transient command buffer pool manager allocated descriptor pool count: 56
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total size: 8.00 MB. Peak allocated size: 0.75 MB. Peak utilization: 9.4%

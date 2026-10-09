@@ -1,47 +1,47 @@
 {
   "schema": 1,
-  "base_head": "1f8f0bdd336a3026b031d5ba8943bdbd055f7c30",
+  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
   "scope": "Native frozen dictionary and per-token tags, AbilityState-owned timed effects, native game evaluators, Burn/slow/invulnerability/stagger/equipment, source/cleanse/death cleanup, captured credit and atomic preparation",
   "gates": [
     {
       "name": "owned-effects-product",
       "exit": 0,
-      "seconds": 258.103
+      "seconds": 134.906
     },
     {
       "name": "owned-effects-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.486
+      "seconds": 0.605
     },
     {
       "name": "owned-effects-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.392
+      "seconds": 0.571
     },
     {
       "name": "owned-effects-native",
       "exit": 0,
-      "seconds": 0.04
+      "seconds": 0.046
     },
     {
       "name": "owned-effects-editor",
       "exit": 0,
-      "seconds": 0.101
+      "seconds": 0.106
     },
     {
       "name": "owned-effects-headless",
       "exit": 0,
-      "seconds": 0.1
+      "seconds": 0.106
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "742826126a78ba9f3fe7e1984194c5b6cf52b7f83fbc80821724ae20a75462f1",
+    "CMakeLists.txt": "72697e0aa2556b10a6513d197edce56f767a09f0cff7dabdf3f9c56650ae886c",
     "engine/runtime/tags.cpp": "1e793d336d17ec9d4544c625163c9fa113b9e9181992f70dbab0145e72fc73ef",
     "engine/runtime/effects.cpp": "ceb36911e88b83d9773593766b3a2137a882f711f62510aeb9933820cd51fcac",
     "engine/runtime/ability_effects.cpp": "33d8e4f9aba6b4528e13a5dbd5f632d7d4c0d6cd57b93b4390bf406373653979",
     "engine/runtime/ability.cpp": "b9f72d8b54800109ea5f53dcde61e4203a9ef3cb35f26c37c5970417b6c2390d",
     "engine/runtime/ability_state.hpp": "64290bfd0dc56d9ac5d40c1e3f6701d8c9e2b4ea51964b5cfe9c85a1156341c5",
-    "engine/runtime/world_session.cpp": "0f8472722b4f1023a3c8c560adef8c712e4162cbbc18ce7ce2bf4c4ff3a521ab",
+    "engine/runtime/world_session.cpp": "9b1acc059d28ac2eeeb5a6042629e379d0b86ffd5843389b9711b4d64f8c8e43",
     "engine/runtime/attributes.cpp": "e28467edfac7baf8b60956ec5734569c4253d955ce2ac9dbfbe3790b1ce1585f",
     "engine/runtime/include/darkangel/tags.hpp": "446e2d212bdf939af20e530ba99754f8d0ea55f0810ceedc78ed2a730257ffda",
     "engine/runtime/include/darkangel/effects.hpp": "05f4862aeb50f5e2cdbe01c8d99972a0869fa091c715525521aa561fc8669a18",
@@ -52,9 +52,9 @@
     "scripts/verify_owned_effects.py": "f256803274a71825b391381d53260ec20d621d7460e5d1304599a6d6dd12a006"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/EffectTests.exe": "45bcfbe686859e07a2c7a3fd4769c3d95c832a5d87394ff57863cc7c37078c82",
-    "build/m5-editor-relwithdebinfo/EffectTests.exe": "2b052b3f0050941c13ae3eff1d48538a20ecbcfb1475710c3efa2d8a2935e44e",
-    "build/m1-relwithdebinfo/EffectTests.exe": "0c33f1a8c0ea239f1890c62ecf6c34a7cd9f3fcd06e062cee88fc69c36d2598a"
+    "build/m5-relwithdebinfo/EffectTests.exe": "9c656ca30f39481767cafc2433caecd50bc0266de9de539cc4f86fab81c92f1b",
+    "build/m5-editor-relwithdebinfo/EffectTests.exe": "9d794ace55e7d06683ca57cfad3ade5c13f077d942edc3b0e10da38cc03a4bee",
+    "build/m1-relwithdebinfo/EffectTests.exe": "e0774940e542b285622b76e668a485ed2758dcd7b893014d09af56f8dc05a6df"
   },
   "related_evidence": [
     "royal-collision.json",

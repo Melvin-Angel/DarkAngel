@@ -1,41 +1,41 @@
 {
   "schema": 1,
-  "base_head": "1f8f0bdd336a3026b031d5ba8943bdbd055f7c30",
+  "base_head": "308cad8afaeea4e5fc25c725936002801bd173f1",
   "scope": "Native .daeffect/.datags schema validation, frozen attribute/tag closure, registered source/cook/CAS metadata, stable persistent tag keys, mixed-generation rejection and native effect authority",
   "gates": [
     {
       "name": "effect-assets-product",
       "exit": 0,
-      "seconds": 261.955
+      "seconds": 139.082
     },
     {
       "name": "effect-assets-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 7.825
+      "seconds": 0.762
     },
     {
       "name": "effect-assets-build-m2-relwithdebinfo",
       "exit": 0,
-      "seconds": 7.361
+      "seconds": 0.58
     },
     {
       "name": "effect-assets-native",
       "exit": 0,
-      "seconds": 0.354
+      "seconds": 0.373
     },
     {
       "name": "effect-assets-editor",
       "exit": 0,
-      "seconds": 0.407
+      "seconds": 0.366
     },
     {
       "name": "effect-assets-no-animation",
       "exit": 0,
-      "seconds": 0.388
+      "seconds": 0.383
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "742826126a78ba9f3fe7e1984194c5b6cf52b7f83fbc80821724ae20a75462f1",
+    "CMakeLists.txt": "72697e0aa2556b10a6513d197edce56f767a09f0cff7dabdf3f9c56650ae886c",
     "engine/assets/effect_cooker.cpp": "7458599e76a679a3062a434fd8897143e3649b3a37254f302943db53e764e7e2",
     "engine/assets/include/darkangel/effect_assets.hpp": "259458ab75e4da0f124ddbf5d4e0d1a358f1d2fd03636a7753759ecc81bf1498",
     "engine/assets/ability_cooker.cpp": "6cf1eccd80369f78ade8a88716cd1c59dece742ba4e3ab9e01d14e75e184be20",
@@ -51,9 +51,9 @@
     "scripts/verify_effect_assets.py": "861d79ab2eaacb54da0e8c2c2ab8a4e3aa7c32ae45539f17df912e12fd5cb9d6"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/EffectAssetTests.exe": "c1da03accfe8dc20d597015667def2aadb7efb17eb2265fd6ac82b5cb1d42402",
-    "build/m5-editor-relwithdebinfo/EffectAssetTests.exe": "372ca50d550f9bfe79e020968bbeda22193cd08011199700d0b7836deb920057",
-    "build/m2-relwithdebinfo/EffectAssetTests.exe": "dcb030df2be710f301834042e94cf91563bb01003fec254a1e3ec6932df2c690"
+    "build/m5-relwithdebinfo/EffectAssetTests.exe": "a51d926224d1fce50bce562deab26a394f2a726fcc031ac476f9376cef053854",
+    "build/m5-editor-relwithdebinfo/EffectAssetTests.exe": "9cc26b32c358855ffea596b5bdc7b3f1d44b9b5b1d754e3dc0ca63383b6bcff1",
+    "build/m2-relwithdebinfo/EffectAssetTests.exe": "28f896b9c5327498dc40684bafe7290746fa239a1dd2f1b5b4a8d8f373a190bb"
   },
   "related_evidence": [
     "owned-effects.json",

@@ -323,6 +323,9 @@ void WorldSession::register_effect_evaluator(std::uint32_t id,EffectEvaluator ev
 EffectHandle WorldSession::apply_effect(AbilityOwnerHandle target,AbilityOwnerHandle source,const EffectDefinition& definition,double power,std::uint64_t activation){
  auto& s=*impl_;s.authority();const auto& origin=s.ability(source);require(!activation||activation<origin.snapshot().next_activation,"Invalid effect source activation credit");require(!definition.evaluator||s.effect_evaluators.contains(definition.evaluator),"Missing native effect evaluator");
  auto state=std::make_unique<AbilityState>(s.ability(target));std::vector<AbilityActionUpdate> updates;auto result=state->apply_effect(definition,{s.hello.session_epoch,source.network,activation,power,origin.attribute_values()},definition.evaluator?s.effect_evaluators.at(definition.evaluator):EffectEvaluator{},updates);
+ // Reserve the worst simultaneous periodic batch before publishing an effect.
+ // The fixed tick has one atomic outcome queue, so later draining cannot split it.
+ std::size_t periodic{};for(const auto& [id,current]:s.abilities){const auto& actor=id==target.network?*state:*current;for(const auto& active:actor.effects().snapshot())periodic+=active.next_period!=0;}require(periodic<=128,"Global periodic effect reservation exhausted; remove an effect before applying another");
  auto outcomes=s.effect_outcomes;for(auto& execution:result.second){require(outcomes.size()<128,"Effect outcome queue full; drain before application");outcomes.push_back({target,std::move(execution)});}s.commit_ability(target.network,std::move(state),updates);s.effect_outcomes=std::move(outcomes);return result.first;
 }
 void WorldSession::remove_effect(AbilityOwnerHandle target,EffectHandle handle){auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(target));state->remove_effect(handle);auto cleanup=state->damage(0);s.commit_ability(target.network,std::move(state),cleanup);}
