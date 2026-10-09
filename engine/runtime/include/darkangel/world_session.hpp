@@ -32,6 +32,8 @@ public:
     // speculative owner prediction is provided by these methods yet.
     AbilityOwnerHandle configure_abilities(std::uint64_t,std::vector<AttributeDefinition>,AttributeId health,AttributeId maximum_health);
     void equip_combat_kit(AbilityOwnerHandle,std::shared_ptr<const CombatKitDefinition>,const InputProfile&,std::span<const std::shared_ptr<const AbilityDefinition>>);
+    bool submit_ability_intent(const AbilityIntent&);
+    std::vector<AbilityOperationNotice> drain_ability_receipts();
     AbilityFailure can_activate(const AbilityRequest&)const;
     AbilityReceipt request_ability(const AbilityRequest&);
     AbilityFailure cancel_ability(AbilityActivationHandle);

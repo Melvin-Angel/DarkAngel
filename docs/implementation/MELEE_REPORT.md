@@ -31,3 +31,6 @@ Reproduce `python scripts/verify_melee.py --build`; receipt [melee.json](evidenc
 
 
 Latest owner-correction increment (9 October): [atomic ability/motor correction](ABILITY_CORRECTION_REPORT.md) adds protocol-3 owner-only fragmented bundles, exact terminal operation inclusion, lifecycle/Health checks and native-prepared ACK retirement. Client ability intents/receipts, owner prediction, observer actions and playable Royal integration remain open; M4/M5 remain In progress. Reproduce `python scripts/verify_ability_correction.py --build`.
+
+
+Latest intent increment (9 October): [owned fixed-tick ability intents](ABILITY_INTENT_REPORT.md) adds protocol-3 semantic slot/edge requests, server gesture reconstruction, expiry/lead/epoch validation, canonical native receipts/inclusion and connection cleanup. Focused native/editor/Headless and separate GNS cost/correction process checks pass; Royal GUI ability/root/pose, pending prediction and full M4/M5 gates remain open. Reproduce `python scripts/verify_ability_intent.py --build`.

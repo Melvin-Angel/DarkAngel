@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "base_head": "ce301209a7592525dca7a3045ca7b7449f6cdedf",
+  "scope": "Protocol-3 owned semantic intents, authoritative fixed-tick gestures/expiry, canonical native commitment, correlated receipts/inclusion and teardown; separate GNS cost/correction process fixture",
+  "gates": [
+    {
+      "name": "ability-intent-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 8.024
+    },
+    {
+      "name": "ability-intent-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 34.057
+    },
+    {
+      "name": "ability-intent-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 6.572
+    },
+    {
+      "name": "ability-intent-native",
+      "exit": 0,
+      "seconds": 2.46
+    },
+    {
+      "name": "ability-intent-editor",
+      "exit": 0,
+      "seconds": 0.115
+    },
+    {
+      "name": "ability-intent-headless",
+      "exit": 0,
+      "seconds": 0.404
+    },
+    {
+      "name": "ability-intent-gns-client",
+      "exit": 0,
+      "seconds": 0.449
+    },
+    {
+      "name": "ability-intent-gns-host",
+      "exit": 0,
+      "seconds": 0.565
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "9e844215ac459288e8ad144937cbe4c0912560270b08ecb6dbd419bc8f9ac60f",
+    "engine/runtime/include/darkangel/ability.hpp": "b88022402e6b5b37d7d804235967fa54d9b233f457953dcb1c30d3a21b9e60f5",
+    "engine/runtime/include/darkangel/world_session.hpp": "c85b2879921f80746cbade8da56c7b954a0e405aefa991729ae4b5d33f64083f",
+    "engine/runtime/ability.cpp": "d8bd53d7793c05eed6bb13ba8f33676a5adede080c6615d5ee80ea6ff2bf6a00",
+    "engine/runtime/ability_state.hpp": "6a1d01c36c36792aaec135015d2e09b43bbcbd422d4f5f91260452944c077f39",
+    "engine/runtime/ability_wire.cpp": "3ea11fa7d6b90410f699a5b9a12398d9ad41f7b8a0d04989051925b529808222",
+    "engine/runtime/world_session.cpp": "579f9b661d2ea8ea09ddc08240b63310786e5053f2de4d80d60cbe6b725f6999",
+    "tests/ability_intent_tests.cpp": "48293da49e7c6ffc41413600022ff2997518b2ad86b1ef57cf1566db0601d2e2",
+    "tests/ability_intent_gns_tests.cpp": "5fc9298fb0517ca6e5c1224324c5651987a47334bd25b662f10a665c643e6763",
+    "scripts/verify_ability_intent.py": "87f2d8dda51aeaf406a30c9b16f7d90337dc81c05c6db1e1c66acd303a120d8c"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "497c4d44c9dc2a47e503cf6a528de363f5b0c1358f6caba8a832ceadedd9b93d",
+    "build/m5-relwithdebinfo/AbilityIntentTests.exe": "6f3c3aa2ea5dc2ea824601a4b097c1e6e742b0c3fc0a04627b06c1dbd4b6e95d",
+    "build/m5-relwithdebinfo/AbilityIntentGnsTests.exe": "307a73e7ddc6355a7fca8c506b5f66a6f1d6e75b08a44c5e6fd598d05164dd45",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "1f437520992ecfd7e6ceff12ce87c684dbf7e1ceadcc72ef0de6b467e4712f1b"
+  },
+  "limitations": [
+    "No pending owner prediction/resource view or combo dependency replay yet.",
+    "Royal GUI ability/action/root/socket integration and native graph/kit authoring remain open.",
+    "GNS fixture validates protocol/cost/Health/correction with published synthetic motor states; it is not a Jolt melee or realtime performance test.",
+    "Full input-loss/lease/fault/clock and gameplay qualification remain open; EOS live service blocked."
+  ]
+}

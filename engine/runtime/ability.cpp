@@ -51,6 +51,7 @@ AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vect
 Health AbilityState::health()const{return {attributes_.value(maximum_health_),attributes_.value(health_)};}
 std::vector<AbilityActionUpdate> AbilityState::stop(AbilityActionReason reason){
     pending_hits.clear();
+    if(reason==AbilityActionReason::Disconnected||reason==AbilityActionReason::InputLost||reason==AbilityActionReason::Death||reason==AbilityActionReason::Despawned||reason==AbilityActionReason::GrantRemoved)held_.fill({});
     if(!active_)return {};
     AbilityActionUpdate update{{owner_,active_->timeline.state().activation},ActionPhase::Cancelled,reason,tick_,active_->timeline.cancel()};
     active_.reset();return {std::move(update)};
@@ -66,7 +67,8 @@ std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const Comba
     const bool replacing=bool(candidate);
     if(candidate)candidate->replace(definition,input);else candidate.emplace(definition,input);
     auto outgoing=stop(AbilityActionReason::GrantRemoved);
-    kit_=std::move(candidate);grants_=std::move(grants);rearm_.fill(replacing);++revision_;return outgoing;
+    kit_=std::move(candidate);grants_=std::move(grants);rearm_.fill(replacing);held_.fill({});held_generation_=kit_->grant_generation();
+    for(unsigned i=0;i<combat_slot_count;++i)input_[i]=*std::find_if(input.actions.begin(),input.actions.end(),[&](const auto& a){return a.id==kit_->definition().slots[i].input_action;});++revision_;return outgoing;
 }
 AbilityFailure AbilityState::validate(const AbilityRequest& request)const{
     if(request.owner!=owner_||!request.operation||static_cast<unsigned>(request.slot)>=combat_slot_count||
@@ -123,23 +125,64 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
             if(health().current<=0){auto death=stop(AbilityActionReason::Death);updates.insert(updates.end(),std::make_move_iterator(death.begin()),std::make_move_iterator(death.end()));}
         }
     }
-    records_.emplace(request.operation,Record{request,receipt});highest_operation_=request.operation;++revision_;
+    receipt.operation=request.operation;receipt.tick=tick_;receipt.inclusion_revision=revision_+1;
+    records_.emplace(request.operation,Record{request,receipt,{}});highest_operation_=request.operation;++revision_;
     return {receipt,std::move(updates)};
 }
-std::vector<AbilityActionUpdate> AbilityState::advance(std::uint64_t tick,unsigned rate){
-    require(tick_!=std::numeric_limits<std::uint64_t>::max()&&tick==tick_+1&&rate<=4*action_tick_units,"Ability fixed tick/rate");
+void AbilityState::begin_tick(std::uint64_t tick){
+    require(tick_!=std::numeric_limits<std::uint64_t>::max()&&tick==tick_+1,"Ability fixed tick/rate");
     require(pending_hits.empty(),"Unresolved ability hit work; resolve or cancel before advancing");
     tick_=tick;std::erase_if(cooldowns_,[&](const auto& cooldown){return cooldown.second<=tick_;});
+}
+std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate){
+    require(rate<=4*action_tick_units,"Ability action rate bound");
     std::vector<AbilityActionUpdate> updates;
-    if(active_){auto batch=active_->timeline.advance(tick,rate);auto phase=active_->timeline.state().phase;
+    const bool entered_now=active_&&active_->timeline.state().tick==tick_;
+    if(active_&&active_->timeline.state().tick<tick_){auto batch=active_->timeline.advance(tick_,rate);auto phase=active_->timeline.state().phase;
         for(const auto& interval:batch.traversed)if(interval.kind==ActionBlockKind::HitWindow)
             for(const auto& profile:active_->definition->melee)if(profile.block==interval.block)
-                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,profile,interval,tick});
+                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,profile,interval,tick_});
         require(pending_hits.size()<=64,"Ability pending hit interval work bound");
         updates.push_back({{owner_,active_->timeline.state().activation},phase,phase==ActionPhase::Completed?AbilityActionReason::Completed:AbilityActionReason::Advanced,tick_,std::move(batch)});
         if(phase==ActionPhase::Completed)active_.reset();
     }
+    if(entered_now&&active_&&active_->timeline.state().clock==0){
+        // An action entered in this phase exposes its time-zero hit windows once.
+        // Existing rate-zero actions enter the branch above and never repeat this.
+        for(const auto& block:active_->definition->action->blocks)if(block.kind==ActionBlockKind::HitWindow&&block.begin==0)
+            for(const auto& profile:active_->definition->melee)if(profile.block==block.id)
+                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,profile,{block.id,0,0,0,ActionBlockKind::HitWindow},tick_});
+    }
     ++revision_;return updates;
+}
+std::vector<AbilityActionUpdate> AbilityState::advance(std::uint64_t tick,unsigned rate){begin_tick(tick);return finish_tick(rate);}
+std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request_wire(const AbilityIntent& intent,std::optional<AbilityFailure> forced){
+    auto previous=records_.find(intent.operation);
+    if(previous!=records_.end()){
+        if(!previous->second.intent||*previous->second.intent!=intent)return {{AbilityFailure::OperationConflict},{}};
+        auto receipt=previous->second.receipt;receipt.duplicate=true;return {receipt,{}};
+    }
+    if(intent.operation<=highest_operation_)return {{AbilityFailure::StaleOperation,{},false,false,intent.operation,tick_,0},{}};
+    if(records_.size()>=128)return {{AbilityFailure::HistoryFull,{},false,false,intent.operation,tick_,0},{}};
+    require(intent.operation&&intent.network==owner_.network&&static_cast<unsigned>(intent.slot)<combat_slot_count,"Wire ability request identity");
+    const auto i=static_cast<unsigned>(intent.slot);InputEvent input;input.action=kit_?kit_->definition().slots[i].input_action:0;input.edge=intent.edge;input.cancelled=intent.cancelled;input.value=(intent.edge==InputEdge::Pressed||intent.edge==InputEdge::Hold)?1.f:0.f;
+    require(tick_<=std::numeric_limits<std::uint64_t>::max()/1000000,"Wire input clock range");input.time_us=tick_*1000000/60;
+    auto held=held_;auto failure=forced;
+    if(!failure&&(!kit_||intent.grant_generation!=kit_->grant_generation()))failure=AbilityFailure::StaleGrant;
+    if(!failure){auto& key=held[i];auto held_us=[&]{return std::min<std::uint64_t>(10000000,(tick_-key.pressed)*1000000/60);};
+        if(intent.edge==InputEdge::Pressed){if(key.active||intent.cancelled)failure=AbilityFailure::InputIgnored;else key={true,tick_,0,0};}
+        else if(intent.edge==InputEdge::Hold){if(!key.active||key.hold_sent||intent.cancelled)failure=AbilityFailure::InputIgnored;else {input.held_us=held_us();auto threshold=input_[i].hold_us;if(grants_[i]&&grants_[i]->activate_on==InputEdge::Hold)threshold=std::max(threshold,grants_[i]->minimum_held_us);if(input.held_us<threshold)failure=AbilityFailure::InputIgnored;else key.hold_sent=true;}}
+        else if(intent.edge==InputEdge::Released){if(!key.active)failure=AbilityFailure::InputIgnored;else {input.held_us=held_us();key.active=false;key.released=intent.cancelled?0:tick_;key.duration=input.held_us;}}
+        else if(intent.edge==InputEdge::Tapped){if(key.active||key.released!=tick_||intent.cancelled||key.duration>input_[i].tap_us)failure=AbilityFailure::InputIgnored;else {input.held_us=key.duration;key.released=0;}}
+        else failure=AbilityFailure::InvalidRequest;
+    }
+    AbilityRequest request{owner_,intent.operation,intent.grant_generation,intent.slot,input,intent.replace_active};
+    std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> result;
+    if(failure){std::vector<AbilityActionUpdate> cleanup;
+        if(*failure==AbilityFailure::InputExpired&&intent.edge==InputEdge::Released&&held[i].active){held[i]={};if(active_&&active_->slot==intent.slot&&active_->definition->cancel_on_release)cleanup=stop(AbilityActionReason::InputLost);}
+        AbilityReceipt receipt{*failure,{},false,false,intent.operation,tick_,revision_+1};records_.emplace(intent.operation,Record{request,receipt,intent});highest_operation_=intent.operation;++revision_;result={receipt,std::move(cleanup)};}
+    else {result=this->request(request);if(records_.contains(intent.operation))records_.at(intent.operation).intent=intent;}
+    if(records_.contains(intent.operation)){if(health().current>0)held_=std::move(held);else held_.fill({});}return result;
 }
 std::pair<AbilityFailure,std::vector<AbilityActionUpdate>> AbilityState::cancel(AbilityActivationHandle handle,AbilityActionReason reason){
     if(handle.owner!=owner_||!handle.activation||handle.activation>=next_activation_)return {AbilityFailure::InvalidRequest,{}};
@@ -157,6 +200,7 @@ std::vector<AbilityActionUpdate> AbilityState::damage(double amount){
     attributes_.transact(std::array<ResourceDelta,1>{{{health_,-amount}}},false);++revision_;
     return health().current<=0?stop(AbilityActionReason::Death):std::vector<AbilityActionUpdate>{};
 }
+std::vector<AbilityActionUpdate> AbilityState::disconnect(){auto result=stop(AbilityActionReason::Disconnected);held_.fill({});rearm_.fill(true);++revision_;return result;}
 void AbilityState::retire(std::uint64_t through){
     require(through>=retired_through_&&through<=highest_operation_,"Ability operation retirement range");
     std::erase_if(records_,[&](const auto& item){return item.first<=through;});retired_through_=through;++revision_;

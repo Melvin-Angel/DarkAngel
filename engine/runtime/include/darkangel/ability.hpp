@@ -35,7 +35,12 @@ struct AbilityActivationHandle {
 };
 enum class AbilityFailure {
     None,InvalidRequest,StaleGrant,Unassigned,InputIgnored,Dead,Busy,
-    Cooldown,Resources,OperationConflict,StaleOperation,HistoryFull,CancelDenied
+    Cooldown,Resources,OperationConflict,StaleOperation,HistoryFull,CancelDenied,InputExpired,AvatarMismatch
+};
+struct AbilityIntent {
+    std::uint64_t network{},operation{},tick{},avatar_epoch{},grant_generation{};
+    CombatSlot slot{};InputEdge edge{};bool cancelled{},replace_active{};
+    auto operator<=>(const AbilityIntent&)const=default;
 };
 struct AbilityRequest {
     AbilityOwnerHandle owner;std::uint64_t operation{},grant_generation{};
@@ -44,8 +49,10 @@ struct AbilityRequest {
 struct AbilityReceipt {
     AbilityFailure failure{AbilityFailure::None};AbilityActivationHandle handle;
     bool committed{},duplicate{};
+    std::uint64_t operation{},tick{},inclusion_revision{};
 };
-enum class AbilityActionReason {Started,Advanced,Completed,Cancelled,Replaced,GrantRemoved,Despawned,Death};
+struct AbilityOperationNotice {std::uint64_t network{};AbilityReceipt receipt;bool terminal{true};};
+enum class AbilityActionReason {Started,Advanced,Completed,Cancelled,Replaced,GrantRemoved,Despawned,Death,Disconnected,InputLost};
 struct AbilityActionUpdate {
     AbilityActivationHandle handle;ActionPhase phase{};
     AbilityActionReason reason{AbilityActionReason::Completed};std::uint64_t tick{};ActionBatch batch;

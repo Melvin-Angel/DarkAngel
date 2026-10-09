@@ -32,3 +32,6 @@ These are focused receipts, not a new full-suite, GNS/EOS, latency matrix, owner
 - Connect Royal ability/input/action/root/pose and canonical socket sweeps, native graph/kit assets and reflected authoring, effects/tags/reservations/cleanup, native health UI and all remaining M4/M5 qualification. See MELEE_REPORT.md and prior milestone reports.
 
 M3 live EOS remains externally blocked. Dependencies, original content and prior profiles are preserved; M6 remains not started.
+
+
+Latest intent increment (9 October): [owned fixed-tick ability intents](ABILITY_INTENT_REPORT.md) adds protocol-3 semantic slot/edge requests, server gesture reconstruction, expiry/lead/epoch validation, canonical native receipts/inclusion and connection cleanup. Focused native/editor/Headless and separate GNS cost/correction process checks pass; Royal GUI ability/root/pose, pending prediction and full M4/M5 gates remain open. Reproduce `python scripts/verify_ability_intent.py --build`.
