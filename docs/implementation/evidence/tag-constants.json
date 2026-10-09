@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
+  "scope": "Existing prepared tag registry exports native TagId constants and strict/frozen Luau IDs, persistent keys and generation checks; atomic immutable publication and compiled Royal consumer",
+  "gates": [
+    {
+      "name": "tag-constants-product",
+      "exit": 0,
+      "seconds": 172.087
+    },
+    {
+      "name": "tag-constants-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 8.607
+    },
+    {
+      "name": "tag-constants-build-m2-relwithdebinfo",
+      "exit": 0,
+      "seconds": 10.162
+    },
+    {
+      "name": "tag-constants-native",
+      "exit": 0,
+      "seconds": 0.082
+    },
+    {
+      "name": "tag-constants-editor",
+      "exit": 0,
+      "seconds": 0.115
+    },
+    {
+      "name": "tag-constants-no-animation",
+      "exit": 0,
+      "seconds": 0.116
+    },
+    {
+      "name": "tag-constants-cli",
+      "exit": 0,
+      "seconds": 0.03
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
+    "engine/assets/tag_codegen.cpp": "31f33637967cc8eeee07e95500f2cb393fc7563744b93efa58c411d937a8816a",
+    "engine/assets/include/darkangel/tag_codegen.hpp": "b05927e653ba9aa030c0ec78c5dada8070ffe72b20e29eebde33dcd38795f2bd",
+    "tools/cooker/main.cpp": "30a96d2ff7d50064139eb095aa9aa65f49c31aa5bc0fbd1346a5946000954d93",
+    "scripts/generate_royal_tags.py": "f98a6c409c4dd0cd44f8762c6d467a28e31f4860da9cffb00cd4469c9b8cbc79",
+    "scripts/verify_tag_constants.py": "79642e31f9c344d81200e37d0f4b24cf20aeb1ea927ad3d497aad141aaef2c0b",
+    "tests/tag_codegen_tests.cpp": "86b3123d0d098e9a2b7ff1ec2c7a6136ecf68ef7d778b6baf72dc8cab5389180",
+    "tests/royal_heavy_scene_tests.cpp": "86ea05846011b935e8d124edb507d5568b64be30b7a1c504cfb6b43f72ea8361",
+    "games/AshenRoots/royal_combat.cpp": "c3f044a4e537092293cd81a7e42318122a2cd489bff890a9bce2f9a1e8b94e67",
+    "content/royal_district/combat/state.datags": "3b165c553ee60ac946bb11372b158ec8a3317f43fd5f407b52447fb22b61f971"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/TagCodegenTests.exe": "10cca63690720cbd0c1906f3c7af219ef20f9a25129069780ac92036070f3521",
+    "build/m5-editor-relwithdebinfo/TagCodegenTests.exe": "aa607d69097e70108cfaf6865ae8f5384c46ca6572c0a53925ebc2cbb7bb2389",
+    "build/m2-relwithdebinfo/TagCodegenTests.exe": "add166bca60d844fe7c0ab9df2f4340b63c03c32b270aef3284e334d21d0c567",
+    "build/m5-relwithdebinfo/AssetTool.exe": "2a534a9ae75c2d0b40ed65d0d8fda6f0ab05f6ff1f361a1560978123862dcfc0",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0bca63b922803ce081176da9130b30e5304d1f39412b2ca0dce1034b733a1f68"
+  },
+  "generated_sha256": {
+    "tags.hpp": "d108826e49206a1d1ef8c1030dab73f3782efb6aeb824bf8e6cab38e8dfa165d",
+    "tags.luau": "a55d350694c99989d5a6a4541dd3305fb3f7c91cd576198b45b9ac2c834d8358"
+  },
+  "related_evidence": [
+    "royal-heavy.json"
+  ],
+  "limitations": [
+    "Generated Luau TagId is a number alias plus an explicit registry/generation check; this does not provide a new native ability/effect scripting facade. Checked gameplay composition still remains.",
+    "Generated outputs are derived build artifacts. The .datags source and persistent UUID keys remain authoritative; changed registries require compatible rebuilt consumers.",
+    "Reflected designers, utility dodge/status/motor/combo/projectile, typed graph/socket authoring, cue visual/audio/one-shot adapters and full clock/fault/streaming/performance/RmlUi gates remain required. M4/M5 remain In progress; M6 has not started; live EOS is externally blocked."
+  ]
+}

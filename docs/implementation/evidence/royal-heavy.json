@@ -1,71 +1,71 @@
 {
   "schema": 1,
-  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
+  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
   "scope": "Atomic typed on-hit effects and frozen Royal heavy ability with native deferred marker, authoritative Jolt hit/Burn, game-owned formulas, public status/cues and primary Game metrics",
   "gates": [
     {
       "name": "royal-heavy-product",
       "exit": 0,
-      "seconds": 79.89
+      "seconds": 153.215
     },
     {
       "name": "royal-heavy-build-editor",
       "exit": 0,
-      "seconds": 7.398
+      "seconds": 7.705
     },
     {
       "name": "royal-heavy-build-headless",
       "exit": 0,
-      "seconds": 0.044
+      "seconds": 0.394
     },
     {
       "name": "royal-heavy-effects-native",
       "exit": 0,
-      "seconds": 0.047
+      "seconds": 0.052
     },
     {
       "name": "royal-heavy-effects-editor",
       "exit": 0,
-      "seconds": 0.046
+      "seconds": 0.097
     },
     {
       "name": "royal-heavy-effects-headless",
       "exit": 0,
-      "seconds": 0.043
+      "seconds": 0.122
     },
     {
       "name": "royal-heavy-scene-native",
       "exit": 0,
-      "seconds": 1.2
+      "seconds": 1.216
     },
     {
       "name": "royal-heavy-scene-editor",
       "exit": 0,
-      "seconds": 1.128
+      "seconds": 1.628
     },
     {
       "name": "royal-heavy-game-d3d12-30",
       "exit": 0,
-      "seconds": 0.731
+      "seconds": 1.352
     },
     {
       "name": "royal-heavy-game-d3d12-210",
       "exit": 0,
-      "seconds": 0.973
+      "seconds": 1.583
     },
     {
       "name": "royal-heavy-game-vulkan-30",
       "exit": 0,
-      "seconds": 0.71
+      "seconds": 0.75
     },
     {
       "name": "royal-heavy-game-vulkan-210",
       "exit": 0,
-      "seconds": 0.88
+      "seconds": 0.947
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
+    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
     "engine/runtime/world_session.cpp": "8dd45b5fde00cb5495ff2923af917aefc63f7969084aa2fa52943cc1c442d42d",
     "engine/runtime/include/darkangel/world_session.hpp": "f9b4d9444dc9bb92b5cccb1f59f4fc006a449f3d3188c2794ddecf5cb89b2f1c",
     "engine/runtime/include/darkangel/melee.hpp": "742ce41ce528f0c3f4b516643ab33171bf89ca52397bfc8c2ce14699916b7395",
@@ -78,10 +78,10 @@
     "engine/runtime/include/darkangel/character_scene.hpp": "c048710abe878a35db270ab519835e2ec343285ed534df7c0a60859ebf32fcc1",
     "apps/editor/main.cpp": "c58c6e39c4b785ea5c7eb740c6218a0be6dba10e24a58c881a3827f42c7980bd",
     "apps/editor/character_preview.cpp": "a8edfa5dcad4421e3922123cfa0c3cc6837e63d4c6ba5634f33b4fb06cb25eb9",
-    "games/AshenRoots/royal_combat.cpp": "26b5629868faec9eb60b4b620143a6749d0e44f1b35461187264b731e16efdec",
+    "games/AshenRoots/royal_combat.cpp": "c3f044a4e537092293cd81a7e42318122a2cd489bff890a9bce2f9a1e8b94e67",
     "games/AshenRoots/include/ashen_roots/royal_combat.hpp": "564e8e2bc6688adc096d7758f9282bce3bc97421171e7c68073ef945b1a6b21e",
     "tests/combat_effect_tests.cpp": "53fb094814526b4b49beb690d5fbfd1d441c559a1302fe13952677b9d1df8f8d",
-    "tests/royal_heavy_scene_tests.cpp": "74a98ba63fca9de883caf488f7e120db4ddedbed607524f7035127383e8ba88e",
+    "tests/royal_heavy_scene_tests.cpp": "86ea05846011b935e8d124edb507d5568b64be30b7a1c504cfb6b43f72ea8361",
     "tests/combat_kit_asset_tests.cpp": "3c0a4d8df0303da789037c4efe00cf025750527d7685d029664e66e3899e0885",
     "tests/character_combat_scene_tests.cpp": "7cc72a07d3647c0ef40e554ffe1e89c18ec531f2c04c4fd0c4236191c95396be",
     "scripts/verify_royal_heavy.py": "529044bd3f1b84ac5f42c524f240fd84783a32c22a0580786eaccafbdb91ea74",
@@ -92,12 +92,12 @@
     "content/royal_district/combat/state.datags": "3b165c553ee60ac946bb11372b158ec8a3317f43fd5f407b52447fb22b61f971"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/CombatEffectTests.exe": "30aaf46b2fbc877840615b96d4b3b2a9cba0ab2a2c1233381126274762b2c64a",
-    "build/m5-editor-relwithdebinfo/CombatEffectTests.exe": "992843d1ce46a066c0a1846407d2893b0538a1c5698365c391bc76fb35744254",
-    "build/m1-relwithdebinfo/CombatEffectTests.exe": "e1480664641562de5a64ca643a514adf351d70005a1855ff9668b7bf899cc13a",
-    "build/m5-relwithdebinfo/RoyalHeavySceneTests.exe": "0368e8041237feeeba39a301ab4ab2f0b059df6779c75ce8699da0ed2f0a779e",
-    "build/m5-editor-relwithdebinfo/RoyalHeavySceneTests.exe": "4715b5c2532085943755912602ddb9cc4cc1c6330fa4ea0be02c8b7e58efc195",
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0742ffa823303b19908e56c05ff8eb588e7824dd7f542c7f902012f17b5c0130"
+    "build/m5-relwithdebinfo/CombatEffectTests.exe": "28c6a72eccc51df6d17863e0ff71d3f0506fc40f38891e58cc4cbbff8d142060",
+    "build/m5-editor-relwithdebinfo/CombatEffectTests.exe": "ba60f9f434bb36128e4c1c8cdb50b7e23d98061d8f8a9764e828f5746cf2205b",
+    "build/m1-relwithdebinfo/CombatEffectTests.exe": "b98bce91ef0e81c84b46411f31f591ebc4d820055f0266746268c138aa60f258",
+    "build/m5-relwithdebinfo/RoyalHeavySceneTests.exe": "d82f6fbb14e4686a4cda5ebad8260a707eac840a2072f3777b98af629555d9cd",
+    "build/m5-editor-relwithdebinfo/RoyalHeavySceneTests.exe": "9a375ac413d206b425e6e6d0fe6b0d335e63d3888b73380c3acad43aa81efafb",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0bca63b922803ce081176da9130b30e5304d1f39412b2ca0dce1034b733a1f68"
   },
   "related_evidence": [
     "ability-reservations.json",

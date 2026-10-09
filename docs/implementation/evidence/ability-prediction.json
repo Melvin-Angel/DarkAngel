@@ -1,32 +1,32 @@
 {
   "schema": 1,
-  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
+  "base_head": "0c42c433d1999606ef24e64fa18d5fe48ccd3894",
   "scope": "Native owner pending commitment view, exact operation inclusion/receipt rejection/dependency invalidation, held-state correction schema2, regenerated root policy and atomic disposable Jolt motor replay; Royal full-editor and Headless integration",
   "gates": [
     {
       "name": "ability-prediction-royal",
       "exit": 0,
-      "seconds": 17.411
+      "seconds": 67.91
     },
     {
       "name": "ability-prediction-editor",
       "exit": 0,
-      "seconds": 0.017
+      "seconds": 0.069
     },
     {
       "name": "ability-prediction-gns-client",
       "exit": 0,
-      "seconds": 0.429
+      "seconds": 0.542
     },
     {
       "name": "ability-prediction-gns-host",
       "exit": 0,
-      "seconds": 0.437
+      "seconds": 0.689
     }
   ],
   "royal_evidence": "royal-combat.json",
   "source_sha256": {
-    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
+    "CMakeLists.txt": "b1e3e62d386bc3ea93fa1c77e6f8b55db3a2944ce52e7fb4909f54402881e2f4",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "bd47bd356665a2c4d50e912e037791e6e25fc49756dbea59f3b7ef46532c30e3",
     "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
     "engine/runtime/include/darkangel/ability.hpp": "891f39b1387843d0bb35095514f1165ba38dbddf85db36bff2d1a5b4804b432b",
@@ -46,10 +46,10 @@
     "scripts/verify_royal_combat.py": "b2ba57365860cfc85ebaabfb3d0ae4ebb0eb37db4ae3e0af3990ecc0a8da37bf"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0742ffa823303b19908e56c05ff8eb588e7824dd7f542c7f902012f17b5c0130",
-    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "cfe85f3fe95fd929c98360384c83bd9f239b16455fc9029ed0079323eab8fc90",
-    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "1447f83162052757aebb105a7f35bfdb9bf7d190b830d4f0c6f592ae4b647dbb",
-    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "116530d3d0f3585abd2e692c82d5d617dbfbfc79fdb2f8750f9c123ba2666983"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0bca63b922803ce081176da9130b30e5304d1f39412b2ca0dce1034b733a1f68",
+    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "80cc1c5c90dd393e44cc02ad913a2aad8f9fc552d896cf6cb57c6517bad1f8b7",
+    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "c7a93c193afaf15b8e16e82ddff4977c0cdaa887aadd2f23d3bbf3727a115043",
+    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "7aef246c74fd60ce9ede7330168aebabd15f54e53cc3bbb74401e4e9394574a1"
   },
   "limitations": [
     "Operation dependencies are local prediction metadata; authored server combo transitions remain open.",

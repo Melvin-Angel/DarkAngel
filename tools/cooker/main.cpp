@@ -1,4 +1,5 @@
 #include <darkangel/assets.hpp>
+#include <darkangel/tag_codegen.hpp>
 #ifdef DAE_SCENE_COLLISION_BAKE
 #include <darkangel/model_collision.hpp>
 #include <darkangel/editor_document.hpp>
@@ -17,6 +18,7 @@ int main(int argc,char** argv){try{
         throw std::runtime_error("Scene collision bake requires native physics authoring tools");
 #endif
     }
+    if(mode=="tag-constants"){if(argc!=6)throw std::runtime_error("tag-constants registry CAS tag-UUID output-directory");auto registry=darkangel::load_cooked_tags(argv[2],argv[3],darkangel::AssetId::parse(argv[4]));std::cout<<darkangel::publish_tag_constants(registry,argv[5]).generic_string()<<'\n';return 0;}
     if(mode=="inspect"){if(argc!=5)throw std::runtime_error("inspect arguments");auto model=darkangel::load_cooked_model(argv[2],argv[3],darkangel::AssetId::parse(argv[4]));std::size_t vertices{},triangles{};for(const auto& mesh:model.meshes){vertices+=mesh.vertices.size();triangles+=mesh.indices.size()/3;}std::cout<<"Cooked model "<<model.id.text()<<" meshes="<<model.meshes.size()<<" vertices="<<vertices<<" triangles="<<triangles<<" materials="<<model.materials.size()<<" textures="<<model.textures.size()<<'\n';return 0;}
     darkangel::AssetService assets(argv[2],argv[3]);
     if(mode=="scan"){if(argc!=4)throw std::runtime_error("scan arguments");assets.scan();for(const auto& asset:assets.assets())std::cout<<asset.id.text()<<' '<<asset.path<<" generation="<<asset.generation<<'\n';}

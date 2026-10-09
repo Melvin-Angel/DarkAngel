@@ -1,1 +1,4 @@
-ninja: no work to do.
+[1/6] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[2/5] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
+[3/4] Linking CXX executable AbilityAssetTests.exe
+[4/4] Linking CXX executable CombatKitAssetTests.exe
