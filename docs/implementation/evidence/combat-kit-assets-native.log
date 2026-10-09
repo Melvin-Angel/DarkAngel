@@ -1,0 +1,36 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+    Start 13: M5.combat_kit_assets
+1/9 Test #13: M5.combat_kit_assets .............   Passed    0.63 sec
+    Start 14: M5.graph_assets
+2/9 Test #14: M5.graph_assets ..................   Passed    0.69 sec
+    Start 15: M5.graph_runtime
+3/9 Test #15: M5.graph_runtime .................   Passed    0.38 sec
+    Start 19: M5.ability_assets
+4/9 Test #19: M5.ability_assets ................   Passed    0.58 sec
+    Start 25: M2.asset_pipeline
+5/9 Test #25: M2.asset_pipeline ................   Passed    0.27 sec
+    Start 27: M5.attributes
+6/9 Test #27: M5.attributes ....................   Passed    0.04 sec
+    Start 28: M5.combat_kit
+7/9 Test #28: M5.combat_kit ....................   Passed    0.06 sec
+    Start 29: M4.input_actions
+8/9 Test #29: M4.input_actions .................   Passed    0.18 sec
+    Start 47: M5.ability_commit
+9/9 Test #47: M5.ability_commit ................   Passed    0.11 sec
+
+100% tests passed out of 9
+
+Label Time Summary:
+M2            =   0.27 sec*proc (1 test)
+M4            =   0.18 sec*proc (1 test)
+M5            =   0.59 sec*proc (4 tests)
+ability       =   0.11 sec*proc (1 test)
+animation     =   0.38 sec*proc (1 test)
+asset         =   0.45 sec*proc (2 tests)
+combat        =   0.10 sec*proc (2 tests)
+editor        =   0.18 sec*proc (1 test)
+foundation    =   0.10 sec*proc (2 tests)
+input         =   0.18 sec*proc (1 test)
+session       =   0.11 sec*proc (1 test)
+
+Total Test time (real) =   2.95 sec

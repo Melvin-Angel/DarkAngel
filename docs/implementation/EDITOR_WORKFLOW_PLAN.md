@@ -143,3 +143,6 @@ Latest melee increment (9 October): [authoritative motor-relative melee](MELEE_R
 
 
 Latest graph increment (9 October): [frozen native locomotion graph](GRAPH_ASSET_REPORT.md) adds versioned `.dagraph` cooking, a coherent frozen clip/rig closure and source-free generation-fenced loading. Royal now consumes its cooked nine-clip graph in the primary editor; 7/7 affected native checks and 120-tick D3D12/Vulkan checks pass. CombatKit cooking, typed graph states/events/layers/actions, playable Royal ability/damage and full M4/M5 gates remain open. Reproduce `python scripts/verify_graph_assets.py --build`.
+
+
+Latest kit increment (9 October): [frozen CombatKit assets](COMBAT_KIT_ASSET_REPORT.md) adds `.dakit` with eight optional ability slots, declared input actions and a coherent frozen input/attribute/ability/graph-stance closure. 9/9 affected native checks, the full-editor fixture and 4/4 ordinary Headless checks pass, including existing WorldSession active-grant replacement without refunds. Royal remains locomotion-only; Action Composer clip/root binding, playable combat, authoring, prediction/observer and full M4/M5 gates remain open. Reproduce `python scripts/verify_combat_kit_assets.py --build`.

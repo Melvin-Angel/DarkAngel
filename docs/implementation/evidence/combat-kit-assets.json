@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "base_head": "38e6b70b7849ea239d4c2fb005feeb948df10e94",
+  "scope": "Versioned canonical eight-slot CombatKit, atomic input/schema/ability/stance cooking, source-free loading and existing WorldSession active-grant replacement",
+  "gates": [
+    {
+      "name": "combat-kit-assets-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.064
+    },
+    {
+      "name": "combat-kit-assets-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.101
+    },
+    {
+      "name": "combat-kit-assets-build-m2-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.086
+    },
+    {
+      "name": "combat-kit-assets-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 1.757
+    },
+    {
+      "name": "combat-kit-assets-native",
+      "exit": 0,
+      "seconds": 2.986
+    },
+    {
+      "name": "combat-kit-assets-editor",
+      "exit": 0,
+      "seconds": 0.645
+    },
+    {
+      "name": "combat-kit-assets-no-animation",
+      "exit": 0,
+      "seconds": 0.36
+    },
+    {
+      "name": "combat-kit-assets-headless",
+      "exit": 0,
+      "seconds": 0.436
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "50b8b15b75fd69c4dd7a198ba5d6528336155872dd460e912c1a4d2690fcd2c8",
+    "engine/assets/combat_kit_cooker.cpp": "aa7e62a9f4d009a1dab4a7066f761c74d9dd45e81588cdd30763cee7bdfc4c04",
+    "engine/assets/include/darkangel/combat_kit_assets.hpp": "a08a63d8c7b070adcb0c4c4fceff8dcdffbd23d1b1b095cac6e16e1b91548ea8",
+    "engine/assets/graph_cooker.cpp": "a2f10ca5418bf5ef7031abf9028524d3dd3cc7c118d6a230b514308eb268682f",
+    "engine/assets/ability_cooker.cpp": "f4000e165e652b4c9bd6e4377833c35ac589934a1ce9a5f52cb0505201de2eec",
+    "engine/assets/input_cooker.cpp": "e1869126cc13a582714ebaf662b7474f4330185ff347c63ee59ef1d70e702ff0",
+    "engine/assets/assets_internal.hpp": "22e5e774ab8e1393d411360f417af306d701f01ca4b1b464c231d920057ec4b4",
+    "engine/assets/asset_service.cpp": "1cd4922a4195fd552de42cc8120d49747617ca41dd833cbf169d2727de79138f",
+    "tests/combat_kit_asset_tests.cpp": "3a72942692d75a8d7c6fa96662f56dfe4e6e6d04990ec82f6d0d82533e3b3e58",
+    "scripts/verify_combat_kit_assets.py": "5cc6ad4ad858ddf791bf22feba673538af3abe6e2defe3fc09fdd38e65570e48"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "570c93238a9213382a3bfc19aaf387c1b9c9a5587fcab48b78fc921740788d4e",
+    "build/m5-relwithdebinfo/CombatKitAssetTests.exe": "c864f0aa71cb8c6d8d438c9018c562a4d00ae82acd30106eadb8cee9cd20b411",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "cbebdbf9f57a5e2ad224f1ec2a40ace7de5cf1efb07153d009ee41c7951c8e2a",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "05f7ac27064eca06a637f25a686f5f241e8541cb74383efb0953787f8278677d"
+  },
+  "limitations": [
+    "Royal input/attack/target presentation integration and character/kit/ability authoring remain open.",
+    "Graph typed states/events/transitions/layers/actions and animated socket sweeps remain open.",
+    "No new owner prediction, observer actions/public visibility or fault/timing/performance qualification.",
+    "M4/M5 remain In progress; live EOS remains blocked."
+  ]
+}

@@ -14,6 +14,7 @@ struct Import {
     std::vector<Product> products;
     std::map<std::string,std::string> inputs;
     std::vector<std::string> keys;
+    std::vector<AssetId> identities; // frozen transitive identities for composite inspection
     std::size_t product_count{}; // includes frozen transitive products, not extra source identities
 };
 Import import_skeleton(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
@@ -22,6 +23,7 @@ Import import_human(const std::filesystem::path&,const std::filesystem::path&,co
 std::string cook_color_texture(std::string_view);
 Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+Import import_combat_kit(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_graph(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_ability(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_input(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);

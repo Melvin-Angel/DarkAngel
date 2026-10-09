@@ -78,7 +78,7 @@ CookedAbility load_cooked_ability(const std::filesystem::path& registry,const st
 }
 namespace assets_detail {
 Import import_ability(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
-    auto bytes=read(source,65536);auto data=json(bytes,65536);Import result;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);auto id=reference(data.at("asset"));
+    auto bytes=read(source,65536);auto data=json(bytes,65536);Import result;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);auto id=reference(data.at("asset"));result.identities.push_back(id);
     if(!inspect)require(ids.size()==1&&ids.at("$source")==id,"Combat source UUID mismatch");
     if(source.extension()==".daattributes"){
         attributes(data);result.product_count=1;if(!inspect)result.products.push_back({id,"attributes","attributes.json",data.dump(),{}});return result;
@@ -90,7 +90,7 @@ Import import_ability(const std::filesystem::path& root,const std::filesystem::p
     auto action_bytes=read(action_path,65536),schema_bytes=read(schema_path,65536);
     auto action=std::make_shared<const ActionDefinition>(decode_action_source(action_bytes));auto schema=attributes(json(schema_bytes,65536));ability(data,schema,action);
     require(id!=action->id&&id!=schema.id&&schema.id!=action->id,"Combat closure duplicate UUID");
-    result.inputs[action_path.lexically_relative(root).generic_string()]=sha256(action_bytes);result.inputs[schema_path.lexically_relative(root).generic_string()]=sha256(schema_bytes);result.product_count=3;
+    result.inputs[action_path.lexically_relative(root).generic_string()]=sha256(action_bytes);result.inputs[schema_path.lexically_relative(root).generic_string()]=sha256(schema_bytes);result.product_count=3;result.identities.push_back(action->id);result.identities.push_back(schema.id);
     data["action_generation"]=action->generation;data["attributes_generation"]=schema.generation;
     if(!inspect){result.products.push_back({id,"ability","ability.json",data.dump(),{action->id,schema.id}});result.products.push_back({action->id,"action","action.json",json(action_bytes).dump(),{}});result.products.push_back({schema.id,"attributes","attributes.json",json(schema_bytes).dump(),{}});}
     return result;

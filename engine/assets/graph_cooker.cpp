@@ -81,7 +81,7 @@ Import import_graph(const std::filesystem::path& root,const std::filesystem::pat
         for(auto& product:imported.products){auto [found,inserted]=products.emplace(product.id,product);require(inserted||(found->second.kind==product.kind&&found->second.extension==product.extension&&found->second.bytes==product.bytes&&found->second.required==product.required),"Graph conflicting shared dependency generation");}
         auto definition=decode_clip_manifest(products.at(clip).bytes);clips.emplace(clip,std::make_shared<const AnimationClip>(std::move(definition),products.at(runtime).bytes));
     }
-    result.product_count=closure.size()+1;if(inspect)return result;
+    result.product_count=closure.size()+1;result.identities.assign(closure.begin(),closure.end());result.identities.push_back(graph.asset);if(inspect)return result;
     require(products.size()==closure.size(),"Graph closure product count");auto frozen=Json::object();std::vector<AssetId> dependencies;
     for(auto& [asset,product]:products){frozen[asset.text()]=sha256(product.bytes);dependencies.push_back(asset);result.products.push_back(std::move(product));}
     // Compile the actual clips and topology before publishing a catalog head.

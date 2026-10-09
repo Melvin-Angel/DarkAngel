@@ -1,0 +1,13 @@
+[1/40] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[2/21] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[3/20] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[4/19] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[5/19] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[6/18] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[7/14] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[8/13] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[9/13] Linking CXX static library DarkAngelFoundation.lib
+[10/13] Linking CXX executable AbilityIntentTests.exe
+[11/13] Linking CXX executable DarkAngelHeadless.exe
+[12/13] Linking CXX executable AbilityCorrectionTests.exe
+[13/13] Linking CXX executable AbilityTests.exe
