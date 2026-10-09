@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "kind": "tags",
+  "asset": "71455b4a-0142-4e01-ba8f-210057736def",
+  "tags": [
+    {
+      "key": "434339b8-5f80-46dd-a1cb-2ed1a3d58a2d",
+      "id": 1,
+      "parent": 0,
+      "name": "State",
+      "visibility": "public"
+    },
+    {
+      "key": "edcd3754-18d9-42bc-afe3-f67434f34650",
+      "id": 2,
+      "parent": 1,
+      "name": "State.Invulnerable",
+      "visibility": "public"
+    },
+    {
+      "key": "e24f6d9e-0cdd-47f5-a94e-ab90c2c639ba",
+      "id": 3,
+      "parent": 0,
+      "name": "Status.Burn",
+      "visibility": "public"
+    },
+    {
+      "key": "d9259f82-c493-4d68-8d3a-290d93b50957",
+      "id": 4,
+      "parent": 1,
+      "name": "State.Casting",
+      "visibility": "owner"
+    },
+    {
+      "key": "e7473b0a-1768-4d80-9afe-9ea8f1f36aa4",
+      "id": 5,
+      "parent": 1,
+      "name": "State.MovementLocked",
+      "visibility": "owner"
+    },
+    {
+      "key": "cd1dc687-6adc-4b6b-8b47-5559b4307393",
+      "id": 6,
+      "parent": 1,
+      "name": "State.Staggered",
+      "visibility": "public"
+    }
+  ]
+}

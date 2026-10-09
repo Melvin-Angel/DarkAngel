@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/ability.hpp>
 #include <darkangel/tags.hpp>
+#include <darkangel/effects.hpp>
 #include <darkangel/character_motor.hpp>
 #include <functional>
 namespace darkangel {
@@ -22,9 +23,13 @@ struct DamageContext {
 // Game-owned pure native evaluator: immutable context, finite nonnegative damage.
 // No world mutations, ambient random state or side effects during preparation.
 using DamageEvaluator=std::function<double(const DamageContext&)>;
+struct DamageEffectRequest {std::shared_ptr<const EffectDefinition> definition;double power{};};
+struct CombatEvaluation {double damage{};std::vector<DamageEffectRequest> effects;};
+using CombatEvaluator=std::function<CombatEvaluation(const DamageContext&)>;
 struct DamageResult {
     AbilityActivationHandle source;AbilityOwnerHandle target;std::uint64_t tick{};
     unsigned block{},loop{};std::uint32_t damage_type{};double before{},after{},applied{};bool killed{};
+    // applied is direct damage; after/killed include subsequent typed effects.
 };
 class PhysicsMeleeQuery final:public MeleeQuery {
 public:

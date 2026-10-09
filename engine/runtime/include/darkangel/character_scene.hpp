@@ -13,6 +13,9 @@ struct CharacterSceneCombat {
     std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;
     StableId target;std::uint32_t evaluator{};DamageEvaluator damage;
     std::shared_ptr<const TagDictionary> tags;
+    CombatEvaluator combat_damage;
+    std::map<std::uint32_t,EffectEvaluator> effect_evaluators;
+    std::vector<std::shared_ptr<const EffectDefinition>> effects;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
@@ -40,6 +43,9 @@ public:
     std::size_t pending_abilities()const;
     MotorVec prediction_visual_offset()const;
     ObserverAbilitySample observer(StableId,double render_tick)const;
+    std::span<const AbilityCommitUpdate> commitments()const;
+    const EffectPresentation* effects(StableId)const;
+    std::span<const EffectCueUpdate> effect_cues()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

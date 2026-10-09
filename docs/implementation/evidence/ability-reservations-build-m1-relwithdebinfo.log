@@ -1,4 +1,1 @@
-[1/4] Scanning C:\DarkAngel\tests\ability_reservation_tests.cpp for CXX dependencies
-[2/4] Generating CXX dyndep file CMakeFiles\AbilityReservationTests.dir\CXX.dd
-[3/4] Building CXX object CMakeFiles\AbilityReservationTests.dir\tests\ability_reservation_tests.cpp.obj
-[4/4] Linking CXX executable AbilityReservationTests.exe
+ninja: no work to do.

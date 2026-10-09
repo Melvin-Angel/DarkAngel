@@ -64,7 +64,7 @@ struct WorldSession::Impl {
     std::optional<CollisionStreamFrame> latest_collision;std::deque<CollisionStreamFrame> collision_states;
     std::map<std::uint64_t,std::unique_ptr<AbilityState>> abilities;
     std::uint64_t ability_tick{},resolved_hit_tick{};
-    std::map<std::uint32_t,DamageEvaluator> damage_evaluators;
+    std::map<std::uint32_t,CombatEvaluator> damage_evaluators;
     std::map<std::uint32_t,EffectEvaluator> effect_evaluators;std::vector<EffectOutcome> effect_outcomes;
     std::shared_ptr<const MeleeQuery> melee_query;
     std::map<std::uint64_t,AbilityCorrection> ability_corrections;
@@ -377,12 +377,13 @@ std::vector<TagId> WorldSession::ability_tags(AbilityOwnerHandle owner,Attribute
 std::vector<EffectOutcome> WorldSession::drain_effect_outcomes(){auto& s=*impl_;s.authority();auto results=std::move(s.effect_outcomes);s.effect_outcomes.clear();return results;}
 void WorldSession::bind_melee_query(std::shared_ptr<const MeleeQuery> query){auto& s=*impl_;s.authority();require(bool(query)&&!s.melee_query,"Melee query is a single server-owned collision binding");s.melee_query=std::move(query);}
 void WorldSession::register_damage_evaluator(std::uint32_t id,DamageEvaluator evaluator){
-    auto& s=*impl_;s.authority();require(id&&bool(evaluator)&&s.damage_evaluators.size()<16&&!s.damage_evaluators.contains(id),"Damage evaluator registration");s.damage_evaluators.emplace(id,std::move(evaluator));
+    require(bool(evaluator),"Missing damage evaluator");register_combat_evaluator(id,[evaluator=std::move(evaluator)](const DamageContext& context){return CombatEvaluation{evaluator(context),{}};});
 }
+void WorldSession::register_combat_evaluator(std::uint32_t id,CombatEvaluator evaluator){auto& s=*impl_;s.authority();require(id&&bool(evaluator)&&s.damage_evaluators.size()<16&&!s.damage_evaluators.contains(id),"Combat evaluator registration");s.damage_evaluators.emplace(id,std::move(evaluator));}
 std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick){
     auto& s=*impl_;s.authority();require(tick&&tick==s.ability_tick&&bool(s.melee_query),"Ability hit resolution fixed tick/query binding");if(s.resolved_hit_tick==tick)return {};const auto& query=*s.melee_query;
     std::map<std::uint64_t,std::unique_ptr<AbilityState>> prepared;for(const auto& [id,state]:s.abilities)prepared.emplace(id,std::make_unique<AbilityState>(*state));
-    std::vector<AbilityActionUpdate> updates;std::vector<DamageResult> results;std::size_t work{};
+    std::vector<AbilityActionUpdate> updates;std::vector<DamageResult> results;std::size_t work{};auto effects=s.effect_outcomes;
     // Stable owner/activation/block/loop/target order, independent of query insertion.
     for(auto& [id,source]:prepared){auto pending=source->pending_hits;
         std::sort(pending.begin(),pending.end(),[](const auto& a,const auto& b){return std::tie(a.handle.activation,a.interval.block,a.interval.loop,a.interval.from)<std::tie(b.handle.activation,b.interval.block,b.interval.loop,b.interval.from);});
@@ -398,17 +399,22 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                 if(!source->remember_hit(hit,target.network,target.epoch))continue;
                 auto source_attributes=source->attribute_values(),target_attributes=victim.attribute_values();
                 DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_attributes,target_attributes,&source->effects().tags(),&victim.effects().tags()};
-                auto amount=s.damage_evaluators.at(hit.profile.evaluator)(context);require(std::isfinite(amount)&&amount>=0&&amount<=1e9,"Game damage evaluator output bounds");
-                auto before=victim.health().current;auto death=victim.damage(amount);updates.insert(updates.end(),death.begin(),death.end());auto after=victim.health().current;
-                require(results.size()<128,"Damage result batch bound");results.push_back({hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,before,after,before-after,after<=0});
+                auto evaluation=s.damage_evaluators.at(hit.profile.evaluator)(context);require(std::isfinite(evaluation.damage)&&evaluation.damage>=0&&evaluation.damage<=1e9&&evaluation.effects.size()<=8,"Game combat evaluator output bounds");
+                for(auto& request:evaluation.effects){require(request.definition&&std::isfinite(request.power)&&request.power>=0&&request.power<=1e9&&(!request.definition->evaluator||s.effect_evaluators.contains(request.definition->evaluator)),"Game combat effect request bounds/evaluator");request.definition=victim.prepare_effect(*request.definition);}
+                auto before=victim.health().current;auto death=victim.damage(evaluation.damage);updates.insert(updates.end(),death.begin(),death.end());auto direct_after=victim.health().current;
+                // On-hit statuses target surviving actors only. Every request is
+                // prepared in this same batch; no damage or ledger publishes early.
+                for(const auto& request:evaluation.effects){if(victim.health().current<=0)break;std::vector<AbilityActionUpdate> cleanup;auto applied=victim.apply_effect(*request.definition,{s.hello.session_epoch,id,hit.handle.activation,request.power,source_attributes},request.definition->evaluator?s.effect_evaluators.at(request.definition->evaluator):EffectEvaluator{},cleanup);updates.insert(updates.end(),cleanup.begin(),cleanup.end());for(auto& outcome:applied.second){require(effects.size()<128,"Combat effect execution queue full; drain before resolution");effects.push_back({victim.owner(),std::move(outcome)});}}
+                auto after=victim.health().current;require(results.size()<128,"Damage result batch bound");results.push_back({hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,before,after,before-direct_after,after<=0});
             }
         }
         source->pending_hits.clear();
     }
+    std::size_t periodic{};for(const auto& [id,state]:prepared)for(const auto& effect:state->effects().snapshot())periodic+=effect.next_period!=0;require(periodic<=128,"Combat global periodic effect reservation exhausted");
     auto queue=s.queue_actions(updates);auto commitments=s.queue_commitments(prepared);bool changed=false;
     // Preparation, evaluator calls and all bounded queue checks completed first.
     for(const auto& [id,state]:prepared){auto health=state->health();auto& object=s.objects.at(id);if(object.health.current!=health.current||object.health.maximum!=health.maximum){s.view->apply_server_health(state->owner().entity,health);object.health=health;changed=true;}}
-    s.abilities=std::move(prepared);s.ability_actions=std::move(queue);s.ability_commitments=std::move(commitments);s.resolved_hit_tick=tick;if(changed)++s.revision;return results;
+    s.abilities=std::move(prepared);s.ability_actions=std::move(queue);s.ability_commitments=std::move(commitments);s.effect_outcomes=std::move(effects);s.resolved_hit_tick=tick;if(changed)++s.revision;return results;
 }
 }
 

@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "kind": "ability",
+  "asset": "284f1dc7-6510-4a6b-83c3-bd2cf206aba9",
+  "action": "b57665df-3419-4cd6-87c1-94910356aafe",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "sources": {
+    "action": "royal_district/combat/heavy.daaction",
+    "attributes": "royal_district/combat/base.daattributes",
+    "tags": "royal_district/combat/state.datags"
+  },
+  "costs": [
+    {
+      "attribute": 3,
+      "amount": 30
+    }
+  ],
+  "cooldown_group": 2,
+  "cooldown_ticks": 90,
+  "activate_on": "pressed",
+  "minimum_held_us": 0,
+  "cancel_on_release": true,
+  "interruptible": true,
+  "melee": [
+    {
+      "block": 2,
+      "offset": [
+        0,
+        1,
+        0.9
+      ],
+      "radius": 0.7,
+      "power": 35,
+      "evaluator": 1,
+      "damage_type": 2
+    }
+  ],
+  "tags": "71455b4a-0142-4e01-ba8f-210057736def",
+  "requirements": {
+    "all": [],
+    "any": [],
+    "none": [
+      6
+    ]
+  },
+  "action_tags": [
+    {
+      "block": 3,
+      "tag": 5
+    },
+    {
+      "block": 5,
+      "tag": 4
+    }
+  ],
+  "deferred_commit_block": 4
+}

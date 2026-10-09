@@ -1,50 +1,50 @@
 {
   "schema": 1,
-  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
+  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
   "scope": "Frozen typed commit marker, one-execution resource/cooldown/slot claims, native marker revalidation/consumption/lifecycle release, correlated commitment trace and owner schema5 replay",
   "gates": [
     {
       "name": "ability-reservations-product",
       "exit": 0,
-      "seconds": 526.177
+      "seconds": 75.917
     },
     {
       "name": "ability-reservations-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 4.123
+      "seconds": 0.249
     },
     {
       "name": "ability-reservations-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 4.25
+      "seconds": 0.182
     },
     {
       "name": "ability-reservations-native",
       "exit": 0,
-      "seconds": 0.14
+      "seconds": 0.196
     },
     {
       "name": "ability-reservations-editor",
       "exit": 0,
-      "seconds": 0.175
+      "seconds": 0.269
     },
     {
       "name": "ability-reservations-headless",
       "exit": 0,
-      "seconds": 0.178
+      "seconds": 0.351
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
+    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
     "engine/runtime/action.cpp": "1592fbefb1c5ec255ba4a96b711942a094b6cb11efb6bd950b9b3527b5ab48c8",
     "engine/runtime/include/darkangel/action.hpp": "97f23b108a3d8ae172a4a9b37efddcb1ea83234be986c9f42b0ffea817eb9635",
     "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
-    "engine/runtime/ability_state.hpp": "98e959686a826f8ccde346e50193420255ce7f7a8740c998f17d3527384192c9",
+    "engine/runtime/ability_state.hpp": "bb08a4af17cb0bafa3e1d1d4a556477d4c1c929c6c68b5ef61398d95739a9750",
     "engine/runtime/include/darkangel/ability.hpp": "891f39b1387843d0bb35095514f1165ba38dbddf85db36bff2d1a5b4804b432b",
     "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
     "engine/runtime/ability_wire.cpp": "c2b11f12edda8cd7a263404b7836d86debcbf271a37809473ed2f65b1f718b3c",
-    "engine/runtime/world_session.cpp": "b786b11847f2c8a8edf92ccd4eec7ed28c0b81a035a8813c8abad94e6f1bd29b",
-    "engine/runtime/include/darkangel/world_session.hpp": "d3da40c162c085a865c21f947e404cb38a169235de56e39fb9cb12a09247b416",
+    "engine/runtime/world_session.cpp": "8dd45b5fde00cb5495ff2923af917aefc63f7969084aa2fa52943cc1c442d42d",
+    "engine/runtime/include/darkangel/world_session.hpp": "f9b4d9444dc9bb92b5cccb1f59f4fc006a449f3d3188c2794ddecf5cb89b2f1c",
     "engine/assets/ability_cooker.cpp": "f37694f3404e7309d0efe4d979d1c50f6dbfff22b7b51493b5d529098f0081ad",
     "tests/ability_reservation_tests.cpp": "e3b1e74091d905f46ef43c87edc7bd60b9f140a66d2396e1f56802f74c2c72e7",
     "tests/ability_asset_tests.cpp": "b38fbfd7aa0b94a9ffd8a032e4183e155a668f543d375f07ad4a727de8db9d3b",
@@ -52,9 +52,9 @@
     "scripts/verify_ability_reservations.py": "0d22f2afa86b2e38bff1f9640d2c6d6ea833717d6d6bc1e8b6c4414269b3e4ab"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/AbilityReservationTests.exe": "a75a66ba75018e4a6f1e9a1b38bed00ec0b964e467e2678a8c575d1c74e5cb05",
-    "build/m5-editor-relwithdebinfo/AbilityReservationTests.exe": "b9ed0d037d303686d2c845baadb73936b714bb4b9a214d96a316ff7297f6b3d3",
-    "build/m1-relwithdebinfo/AbilityReservationTests.exe": "cbb4cf753e5aa3b6572323e6aca7c13d98815cd6f8d142ac62eb7ecf6c542f36"
+    "build/m5-relwithdebinfo/AbilityReservationTests.exe": "469646edb84dcf417a657cd156f607a6c929c71df027c4a8cb782c9b47277b87",
+    "build/m5-editor-relwithdebinfo/AbilityReservationTests.exe": "8f752431e4963286b348cb5c7a3844e108329b4f5f61a13be088ef09a9a00a6c",
+    "build/m1-relwithdebinfo/AbilityReservationTests.exe": "e201878275bcf98814435af2cfd76612fd86c8a54e6ae0da10996580b4fec028"
   },
   "related_evidence": [
     "effect-replication.json",

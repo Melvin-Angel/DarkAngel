@@ -1,0 +1,39 @@
+#include <ashen_roots/royal_combat.hpp>
+#include <darkangel/assets.hpp>
+#include <darkangel/combat_kit_assets.hpp>
+#include <darkangel/hash.hpp>
+#include <darkangel/collision_asset.hpp>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
+using namespace darkangel;
+namespace {void check(bool value,const char* message){if(!value)throw std::runtime_error(message);}}
+int main(){try{
+ auto content=std::filesystem::path(DAE_SOURCE_DIR)/"content",cache=std::filesystem::path(DAE_BINARY_DIR)/("royal-heavy-"+AssetId::random().text());std::ifstream source(content/"royal_district/combat/player.dakit");auto data=nlohmann::json::parse(source);auto id=AssetId::parse(data.at("asset").get<std::string>());AssetService assets(content,cache);assets.cook("royal_district/combat/player.dakit");assets.package(id,cache/"registry.json");auto cooked=load_cooked_combat_kit(cache/"registry.json",assets.cas_path(),id);
+ CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=cooked.input;combat.attributes=cooked.attributes.definitions();combat.health=2;combat.maximum_health=1;combat.abilities=cooked.abilities;combat.tags=cooked.tags->dictionary();combat.effects=cooked.effects;combat.target={19,2};combat.evaluator=1;ashen_roots::configure_royal_combat(combat);for(const auto& ability:cooked.abilities){auto clip=load_cooked_clip(cache/"registry.json",assets.cas_path(),ability->action->motion->clip.id);combat.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}
+ ObjectData player;player.id={19,1};ObjectData target;target.id=combat.target;target.transform.z=1.2;target.transform.yaw=3.141592653589793;std::array<ObjectData,2> objects{player,target};World authoring(WorldDomain::Authoring);for(auto object:objects)authoring.create(object);auto original=authoring.serialize();CollisionDefinition collision;collision.id=AssetId::random();collision.schema=2;collision.boxes={{100,{0,-.5,0},{16,.5,16}}};SessionHandshake hello{3,sha256("Royal heavy wire3"),sha256(cooked.definition->generation),1703};
+ auto make=[&]{return std::make_unique<CharacterSceneSession>(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);};
+ CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};CharacterSceneInput release;release.combat_events={{9,InputEdge::Released,2000,0,0,false}};
+ auto stamina=[](const CharacterSceneSession& s){for(const auto& attribute:s.ability()->attributes)if(attribute.id==3)return attribute.value;return -1.;};auto health=[&](const CharacterSceneSession& s){return s.presentation().read(s.presentation().find(target.id)).health.current;};
+ {auto cancelled=make();cancelled->step(press);check(cancelled->ability()->reservation&&stamina(*cancelled)==100,"Heavy reserves without charging at start");cancelled->step(release);check(!cancelled->ability()->active&&!cancelled->ability()->reservation&&stamina(*cancelled)==100,"Release before marker releases claims without charge");while(cancelled->motor().tick<210)cancelled->step({});check(health(*cancelled)==100&&cancelled->effects(target.id)->cues().empty(),"Cancelled windup never hits or burns");}
+ {auto cancelled=make();cancelled->step(press);while(cancelled->motor().tick<9)cancelled->step({});check(stamina(*cancelled)==70&&!cancelled->ability()->reservation,"Marker charges once");cancelled->step(release);while(cancelled->motor().tick<210)cancelled->step({});check(stamina(*cancelled)==70&&health(*cancelled)==100,"Release after commitment cancels without refund or future hit");}
+ for(double rate:{30.,60.,144.}){
+  auto session=make();unsigned commits{},begins{},ends{};bool sent=false;std::vector<std::pair<std::uint64_t,double>> changes;double previous=100;
+  // Clip each render step at the next native boundary so evidence observes every
+  // fixed tick while the render scheduler still exercises sub-tick accumulation.
+  while(session->motor().tick<210){CharacterSceneInput input;if(!sent){input=press;sent=true;}auto before=session->motor().tick;session->advance(std::min(1./rate,1./60-session->debt()),std::move(input));if(session->motor().tick==before)continue;
+   for(const auto& commitment:session->commitments())if(commitment.phase==AbilityCommitPhase::Committed)++commits;
+   for(const auto& cue:session->effect_cues()){if(cue.edge==EffectCueEdge::Begin)++begins;if(cue.edge==EffectCueEdge::End)++ends;}
+   double current=health(*session);if(current!=previous){changes.push_back({session->motor().tick,current});previous=current;}
+   if(session->motor().tick==1)check(session->predicted_ability()->reservation&&stamina(*session)==100,"Owner correction preserves active pending claim");
+   if(session->motor().tick==9)check(!session->predicted_ability()->reservation&&stamina(*session)==70,"Owner correction confirms marker consumption");
+   if(session->motor().tick==30){auto status=session->effects(target.id);check(status&&status->current()&&status->cues().size()==1&&status->current()->effects.size()==1&&status->cues()[0].key=="Status.Burn"&&status->cues()[0].start==18&&status->cues()[0].end==198,"Public Burn reconstructs one persistent cue");auto tags=session->observer(target.id,30).frame.ability.tags;check(std::find(tags.values.begin(),tags.values.end(),3)!=tags.values.end(),"Public target includes Burn gameplay tag");}
+  }
+  if(changes!=std::vector<std::pair<std::uint64_t,double>>{{18,65},{78,60},{138,55}})for(auto [tick,value]:changes)std::cerr<<tick<<":"<<value<<" ";
+  check(changes==std::vector<std::pair<std::uint64_t,double>>{{18,65},{78,60},{138,55}},"Achieved motor contact and Burn periods share exact authoritative ticks");check(commits==1&&begins==1&&ends==1,"Commit and persistent cue lifetime publish once");check(stamina(*session)==70&&session->effects(target.id)->cues().empty()&&session->effects(target.id)->current()->effects.empty(),"Burn expires before its end tick and releases public status");check(session->pending_prediction()==0&&session->pending_abilities()==0&&!session->ability()->active&&authoring.serialize()==original,"Owner convergence and authoring isolation");
+ }
+ for(double rate:{30.,60.,144.}){auto session=make();bool sent=false;while(session->motor().tick<210){CharacterSceneInput input;if(!sent){input=press;sent=true;}session->advance(1./rate,std::move(input));}check(health(*session)==55&&stamina(*session)==70&&session->effects(target.id)->cues().empty()&&session->pending_prediction()==0,"Actual render rates preserve damage, claims and status expiry");}
+ {std::ifstream file(content/"royal_district/collision/environment.dacollision",std::ios::binary);std::string bytes((std::istreambuf_iterator<char>(file)),{});collision=decode_collision_source(bytes);objects[0].transform.y=.5;objects[0].transform.z=3;objects[1].transform.y=.5;objects[1].transform.z=4.2;auto session=make();session->step(press);while(session->motor().tick<30)session->step({});check(stamina(*session)==70&&session->motor().tick==30&&session->pending_prediction()==0,"Reserved fragmented correction also waits for current motor/collision snapshots on real Royal meshes");}
+ std::cout<<"Royal heavy: deferred claim, early/late release, native marker/hit/Burn timing, public status/cues, 30/60/144Hz, real Royal meshes and authoring isolation passed\n";return 0;
+}catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}
+

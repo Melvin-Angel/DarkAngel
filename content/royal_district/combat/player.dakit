@@ -14,7 +14,7 @@
     {
       "slot": "heavy",
       "input_action": 9,
-      "ability": null
+      "ability": "284f1dc7-6510-4a6b-83c3-bd2cf206aba9"
     },
     {
       "slot": "ranged_light",
@@ -52,7 +52,14 @@
     "attributes": "royal_district/combat/base.daattributes",
     "locomotion_stance": "royal_district/locomotion.dagraph",
     "abilities": {
-      "b351b004-35c7-407a-b372-30328c95277a": "royal_district/combat/light.daability"
+      "b351b004-35c7-407a-b372-30328c95277a": "royal_district/combat/light.daability",
+      "284f1dc7-6510-4a6b-83c3-bd2cf206aba9": "royal_district/combat/heavy.daability"
+    },
+    "effects": {
+      "8a14c506-2141-41e5-9be8-e9e0ee509b59": "royal_district/combat/burn.daeffect"
     }
-  }
+  },
+  "effects": [
+    "8a14c506-2141-41e5-9be8-e9e0ee509b59"
+  ]
 }

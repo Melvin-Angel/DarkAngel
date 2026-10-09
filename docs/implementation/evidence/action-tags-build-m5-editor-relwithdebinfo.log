@@ -1,4 +1,1 @@
-[1/4] Scanning C:\DarkAngel\tests\action_tag_tests.cpp for CXX dependencies
-[2/4] Generating CXX dyndep file CMakeFiles\ActionTagTests.dir\CXX.dd
-[3/4] Building CXX object CMakeFiles\ActionTagTests.dir\tests\action_tag_tests.cpp.obj
-[4/4] Linking CXX executable ActionTagTests.exe
+ninja: no work to do.

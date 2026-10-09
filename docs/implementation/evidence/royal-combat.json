@@ -1,92 +1,92 @@
 {
   "schema": 1,
-  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
+  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
   "scope": "Primary Royal Game workflow with frozen kit/action/clip, serialized protocol3 input/correction/ACK, native owner pending cost/action/root prediction, authoritative motor-relative melee target damage and Health/Stamina metrics",
   "gates": [
     {
       "name": "royal-combat-build-m5-relwithdebinfo",
       "exit": 0,
-      "seconds": 55.979
+      "seconds": 0.085
     },
     {
       "name": "royal-combat-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 173.616
+      "seconds": 0.107
     },
     {
       "name": "royal-combat-build-m2-relwithdebinfo",
       "exit": 0,
-      "seconds": 76.459
+      "seconds": 0.068
     },
     {
       "name": "royal-combat-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 35.591
+      "seconds": 0.042
     },
     {
       "name": "royal-combat-native",
       "exit": 0,
-      "seconds": 8.748
+      "seconds": 7.079
     },
     {
       "name": "royal-combat-editor",
       "exit": 0,
-      "seconds": 0.626
+      "seconds": 0.678
     },
     {
       "name": "royal-combat-no-animation",
       "exit": 0,
-      "seconds": 0.661
+      "seconds": 0.582
     },
     {
       "name": "royal-combat-headless",
       "exit": 0,
-      "seconds": 0.724
+      "seconds": 0.448
     },
     {
       "name": "royal-combat-prepare",
       "exit": 0,
-      "seconds": 3.033
+      "seconds": 2.279
     },
     {
       "name": "royal-combat-game-d3d12",
       "exit": 0,
-      "seconds": 0.958
+      "seconds": 0.864
     },
     {
       "name": "royal-combat-pose-d3d12",
       "exit": 0,
-      "seconds": 0.637
+      "seconds": 0.619
     },
     {
       "name": "royal-combat-game-vulkan",
       "exit": 0,
-      "seconds": 0.8
+      "seconds": 0.749
     },
     {
       "name": "royal-combat-pose-vulkan",
       "exit": 0,
-      "seconds": 0.67
+      "seconds": 0.649
     },
     {
       "name": "royal-combat-locomotion",
       "exit": 0,
-      "seconds": 0.817
+      "seconds": 0.746
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
+    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
     "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "bd47bd356665a2c4d50e912e037791e6e25fc49756dbea59f3b7ef46532c30e3",
     "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
     "engine/runtime/ability_wire.cpp": "c2b11f12edda8cd7a263404b7836d86debcbf271a37809473ed2f65b1f718b3c",
     "engine/runtime/character_motor.cpp": "844a39ec2ce8e086a2577fc1f357c9d3f58fa1070430db39b06406ef00bc55a5",
-    "engine/runtime/character_scene.cpp": "1a3e270f4909f10aa4e25b0f2ca1a6f3127e725cdc19493fff0961ffc76efc80",
-    "engine/runtime/include/darkangel/character_scene.hpp": "c891a649ea0ed2fe911d75a90c1345416391427facb71a38d1e5ed62ae37a1fb",
-    "apps/editor/main.cpp": "86f0c89eb26da5dd4e5f2d75c78e8294106c7d2a5dfa78f61da9c7041825b68f",
-    "apps/editor/character_preview.cpp": "437cc62ddb80ad01972b8017f32472412b27cc41f05fb6e89cc962fc6be04418",
+    "engine/runtime/character_scene.cpp": "a11c803ecb52c09c6a4d349c6bccc365eeb15bece99a914b1377e453b047c296",
+    "engine/runtime/include/darkangel/character_scene.hpp": "c048710abe878a35db270ab519835e2ec343285ed534df7c0a60859ebf32fcc1",
+    "apps/editor/main.cpp": "c58c6e39c4b785ea5c7eb740c6218a0be6dba10e24a58c881a3827f42c7980bd",
+    "apps/editor/character_preview.cpp": "a8edfa5dcad4421e3922123cfa0c3cc6837e63d4c6ba5634f33b4fb06cb25eb9",
     "apps/editor/character_preview.hpp": "a98c6a932eb46db47e091fa291667215868158bb180192c75a36430ca29dcf88",
-    "tests/character_combat_scene_tests.cpp": "5c49442fe03ea260625915955d640035c5f067ddfb9e49000f6244df5c872445",
+    "tests/character_combat_scene_tests.cpp": "7cc72a07d3647c0ef40e554ffe1e89c18ec531f2c04c4fd0c4236191c95396be",
     "scripts/prepare_royal_scene.py": "a1f50fb48c99e0ada2d4bb12d3168d01d30a6ddb9f15fa85aa56c6f91bce8cae",
     "scripts/open_royal_scene.ps1": "8bd3dc73085a8a279a52df61cc4e031c2c54ea614fdf7b24ea0c829158776932",
     "scripts/verify_royal_combat.py": "b2ba57365860cfc85ebaabfb3d0ae4ebb0eb37db4ae3e0af3990ecc0a8da37bf",
@@ -97,13 +97,13 @@
     "content/royal_district/combat/base.daattributes": "f08e9b72b4f7bf2e2204476e36ef7c4dca268385371d957014e8fda1776e9efc",
     "content/royal_district/combat/light.daaction": "f1694e1b6a0efc5f63009439b7be90eeb417310e7b2efe137a31f6b78b8a9328",
     "content/royal_district/combat/light.daability": "ae2f7e55c24fccf8225578040c1457049db672228a4621c76131520753601b83",
-    "content/royal_district/combat/player.dakit": "216bc17514e6153c9548ffd32019f36a99450da4d6bd4776b1ddc896dd524315"
+    "content/royal_district/combat/player.dakit": "36205255b6feaaca8f17e1291839282f45f4c8489e8cd1564d1f3aac4e221714"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "d395ee5c59bb4f1ffa4e51bce8eff6d019ea5d2ba665d8ad5a9e4ad644855fe7",
-    "build/m5-relwithdebinfo/CharacterCombatSceneTests.exe": "cce57b28272a87f9524fd5a22dd4dbc602c19ccc91f857a0d12f4b05f123b4e4",
-    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "d92312094bbc235806949edeb6294037a54990b509884674b7f677050199fd1f",
-    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "d7d21aea0b0a03a7a60c81c375ffd289ea633899a402429b0512ef5bb2d0acdd"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0742ffa823303b19908e56c05ff8eb588e7824dd7f542c7f902012f17b5c0130",
+    "build/m5-relwithdebinfo/CharacterCombatSceneTests.exe": "aa32b984bb2fbddcc96eadc55e94a295a12b50d71cacd6d2d33992030962b6d4",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "76b68287f26845de5c237e92a3c963c9c1d5c8baed6749f90fa30ec2180233d7",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "1ba48c2793c369eaabca3a7c435bb991d7585f1ca48e97db5ea2cadff74b8d21"
   },
   "limitations": [
     "Pending owner cost/action/root prediction and dependent operation invalidation pass; real authored combo transitions, tags/reservations and predicted cosmetic cues remain open.",

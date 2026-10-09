@@ -2,11 +2,13 @@
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include <set>
 namespace darkangel {
 namespace {bool empty(const AssetId& id){return id==AssetId{};}}
 void validate_combat_kit(const CombatKitDefinition& kit,const InputProfile& profile){
  validate_input_profile(profile);
  if(empty(kit.id)||empty(kit.locomotion_stance)||kit.generation.empty()||kit.generation.size()>128)throw std::invalid_argument("Combat kit requires identity, stance and bounded generation");
+ if(kit.effects.size()>16)throw std::invalid_argument("Combat kit effect catalogue bound");std::set<AssetId> effects;for(auto id:kit.effects)if(empty(id)||id==kit.id||id==kit.locomotion_stance||!effects.insert(id).second)throw std::invalid_argument("Combat kit effect identity");
  for(unsigned i=0;i<combat_slot_count;++i){const auto& slot=kit.slots[i];
   if(static_cast<unsigned>(slot.slot)!=i)throw std::invalid_argument("Combat kit slots must have canonical order");
   auto action=std::find_if(profile.actions.begin(),profile.actions.end(),[&](const auto& a){return a.id==slot.input_action;});

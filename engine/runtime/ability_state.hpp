@@ -39,6 +39,7 @@ public:
     void cleanse_effects(const TagRequirement&);
     void source_destroyed(std::uint64_t,std::uint64_t);
     const OwnedEffects& effects()const{return effects_;}
+    std::shared_ptr<const EffectDefinition> prepare_effect(const EffectDefinition& definition)const{return freeze_effect_definition(definition,attributes_,effects_.tags().dictionary());}
     double available(AttributeId)const;
     std::vector<AbilityCommitUpdate> take_commitments(){auto result=std::move(commitments_);commitments_.clear();return result;}
 private:

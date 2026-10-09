@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
+  "scope": "Atomic typed on-hit effects and frozen Royal heavy ability with native deferred marker, authoritative Jolt hit/Burn, game-owned formulas, public status/cues and primary Game metrics",
+  "gates": [
+    {
+      "name": "royal-heavy-product",
+      "exit": 0,
+      "seconds": 79.89
+    },
+    {
+      "name": "royal-heavy-build-editor",
+      "exit": 0,
+      "seconds": 7.398
+    },
+    {
+      "name": "royal-heavy-build-headless",
+      "exit": 0,
+      "seconds": 0.044
+    },
+    {
+      "name": "royal-heavy-effects-native",
+      "exit": 0,
+      "seconds": 0.047
+    },
+    {
+      "name": "royal-heavy-effects-editor",
+      "exit": 0,
+      "seconds": 0.046
+    },
+    {
+      "name": "royal-heavy-effects-headless",
+      "exit": 0,
+      "seconds": 0.043
+    },
+    {
+      "name": "royal-heavy-scene-native",
+      "exit": 0,
+      "seconds": 1.2
+    },
+    {
+      "name": "royal-heavy-scene-editor",
+      "exit": 0,
+      "seconds": 1.128
+    },
+    {
+      "name": "royal-heavy-game-d3d12-30",
+      "exit": 0,
+      "seconds": 0.731
+    },
+    {
+      "name": "royal-heavy-game-d3d12-210",
+      "exit": 0,
+      "seconds": 0.973
+    },
+    {
+      "name": "royal-heavy-game-vulkan-30",
+      "exit": 0,
+      "seconds": 0.71
+    },
+    {
+      "name": "royal-heavy-game-vulkan-210",
+      "exit": 0,
+      "seconds": 0.88
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
+    "engine/runtime/world_session.cpp": "8dd45b5fde00cb5495ff2923af917aefc63f7969084aa2fa52943cc1c442d42d",
+    "engine/runtime/include/darkangel/world_session.hpp": "f9b4d9444dc9bb92b5cccb1f59f4fc006a449f3d3188c2794ddecf5cb89b2f1c",
+    "engine/runtime/include/darkangel/melee.hpp": "742ce41ce528f0c3f4b516643ab33171bf89ca52397bfc8c2ce14699916b7395",
+    "engine/runtime/ability_state.hpp": "bb08a4af17cb0bafa3e1d1d4a556477d4c1c929c6c68b5ef61398d95739a9750",
+    "engine/runtime/combat_kit.cpp": "d4ff065c7e49bf1d56fcb95c2cafb5c44c06f199cc7ce3ba35a1d6e2fb52f3da",
+    "engine/runtime/include/darkangel/combat_kit.hpp": "49d74f08938ea3fa61099d4b9862ff4f5151e092090a9f814154c24050210ddd",
+    "engine/assets/combat_kit_cooker.cpp": "5aaef458a75395c85b7de1a633449fb86928df56454d4fe1a652bf85f5c8f7ba",
+    "engine/assets/include/darkangel/combat_kit_assets.hpp": "0c2c3965350c8693b435afde3502b8b213dbde25db6a5678756f2514c6d30dd1",
+    "engine/runtime/character_scene.cpp": "a11c803ecb52c09c6a4d349c6bccc365eeb15bece99a914b1377e453b047c296",
+    "engine/runtime/include/darkangel/character_scene.hpp": "c048710abe878a35db270ab519835e2ec343285ed534df7c0a60859ebf32fcc1",
+    "apps/editor/main.cpp": "c58c6e39c4b785ea5c7eb740c6218a0be6dba10e24a58c881a3827f42c7980bd",
+    "apps/editor/character_preview.cpp": "a8edfa5dcad4421e3922123cfa0c3cc6837e63d4c6ba5634f33b4fb06cb25eb9",
+    "games/AshenRoots/royal_combat.cpp": "26b5629868faec9eb60b4b620143a6749d0e44f1b35461187264b731e16efdec",
+    "games/AshenRoots/include/ashen_roots/royal_combat.hpp": "564e8e2bc6688adc096d7758f9282bce3bc97421171e7c68073ef945b1a6b21e",
+    "tests/combat_effect_tests.cpp": "53fb094814526b4b49beb690d5fbfd1d441c559a1302fe13952677b9d1df8f8d",
+    "tests/royal_heavy_scene_tests.cpp": "74a98ba63fca9de883caf488f7e120db4ddedbed607524f7035127383e8ba88e",
+    "tests/combat_kit_asset_tests.cpp": "3c0a4d8df0303da789037c4efe00cf025750527d7685d029664e66e3899e0885",
+    "tests/character_combat_scene_tests.cpp": "7cc72a07d3647c0ef40e554ffe1e89c18ec531f2c04c4fd0c4236191c95396be",
+    "scripts/verify_royal_heavy.py": "529044bd3f1b84ac5f42c524f240fd84783a32c22a0580786eaccafbdb91ea74",
+    "content/royal_district/combat/player.dakit": "36205255b6feaaca8f17e1291839282f45f4c8489e8cd1564d1f3aac4e221714",
+    "content/royal_district/combat/heavy.daaction": "7b078a20560205c02d3f642820df8ba2e12ff667870bed1463f75736e568221a",
+    "content/royal_district/combat/heavy.daability": "814b4ec984ced06bdceb29e69eeca4cecdc7a83b721e98b13fd1ec9e91cf3694",
+    "content/royal_district/combat/burn.daeffect": "74fb5e1daee65565097a24541fb0af6806d636192fdd9ec1c8bec95eaaf76af6",
+    "content/royal_district/combat/state.datags": "3b165c553ee60ac946bb11372b158ec8a3317f43fd5f407b52447fb22b61f971"
+  },
+  "binary_sha256": {
+    "build/m5-relwithdebinfo/CombatEffectTests.exe": "30aaf46b2fbc877840615b96d4b3b2a9cba0ab2a2c1233381126274762b2c64a",
+    "build/m5-editor-relwithdebinfo/CombatEffectTests.exe": "992843d1ce46a066c0a1846407d2893b0538a1c5698365c391bc76fb35744254",
+    "build/m1-relwithdebinfo/CombatEffectTests.exe": "e1480664641562de5a64ca643a514adf351d70005a1855ff9668b7bf899cc13a",
+    "build/m5-relwithdebinfo/RoyalHeavySceneTests.exe": "0368e8041237feeeba39a301ab4ab2f0b059df6779c75ce8699da0ed2f0a779e",
+    "build/m5-editor-relwithdebinfo/RoyalHeavySceneTests.exe": "4715b5c2532085943755912602ddb9cc4cc1c6330fa4ea0be02c8b7e58efc195",
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0742ffa823303b19908e56c05ff8eb588e7824dd7f542c7f902012f17b5c0130"
+  },
+  "related_evidence": [
+    "ability-reservations.json",
+    "effect-replication.json",
+    "royal-combat.json"
+  ],
+  "limitations": [
+    "Heavy uses the existing frozen attack clip with a fixed eight-tick windup; scalable charge/release attacks, combo and projectile rules are not implemented.",
+    "The read-only persistent Burn state appears in the existing ImGui Game metrics; visual/audio flame adapters, one-shot confirmation and RmlUi bars remain open.",
+    "Effects and damage remain native authority; owner prediction only covers the prepared action/resource/claim subset. Effect frames are separately timestamped.",
+    "M4/M5 remain In progress. Authored dodge, motor Slow/Stagger policy, equipment, reflected designers/typed graphs/sockets, generated tags/checked Luau, full fault/clock/streaming/performance gates remain open; M6 not started."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "kind": "effect",
+  "asset": "8a14c506-2141-41e5-9be8-e9e0ee509b59",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "tags": "71455b4a-0142-4e01-ba8f-210057736def",
+  "lifetime": "finite",
+  "stacking": "refresh_per_source",
+  "duration_ticks": 180,
+  "period_ticks": 60,
+  "execute_on_apply": false,
+  "remove_on_death": true,
+  "remove_with_source": false,
+  "interrupt_action": false,
+  "evaluator": 2,
+  "granted_tags": [
+    3
+  ],
+  "application": {
+    "all": [],
+    "any": [],
+    "none": []
+  },
+  "ongoing": {
+    "all": [],
+    "any": [],
+    "none": []
+  },
+  "ongoing_policy": "suppress",
+  "modifiers": [],
+  "visibility": "public",
+  "cues": [
+    {
+      "id": "c09f0b52-de07-4692-8da6-c183e6215146",
+      "key": "Status.Burn"
+    }
+  ],
+  "sources": {
+    "attributes": "royal_district/combat/base.daattributes",
+    "tags": "royal_district/combat/state.datags"
+  }
+}

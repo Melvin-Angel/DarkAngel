@@ -43,6 +43,7 @@ public:
     void advance_abilities(std::uint64_t simulation_tick,unsigned action_rate=action_tick_units);
     void bind_melee_query(std::shared_ptr<const MeleeQuery>);
     void register_damage_evaluator(std::uint32_t,DamageEvaluator);
+    void register_combat_evaluator(std::uint32_t,CombatEvaluator);
     void configure_ability_tags(AbilityOwnerHandle,std::shared_ptr<const TagDictionary>);
     void register_effect_evaluator(std::uint32_t,EffectEvaluator);
     EffectHandle apply_effect(AbilityOwnerHandle target,AbilityOwnerHandle source,const EffectDefinition&,double power,std::uint64_t source_activation=0);

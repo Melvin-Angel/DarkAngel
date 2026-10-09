@@ -1,43 +1,43 @@
 {
   "schema": 1,
-  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
+  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
   "scope": "Existing protocol3 bounded owner/public effect component, authored visibility and persistent cue identities, current timers/durable presentation attribution, frozen read-only preparation and late join",
   "gates": [
     {
       "name": "effect-replication-product",
       "exit": 0,
-      "seconds": 515.464
+      "seconds": 72.373
     },
     {
       "name": "effect-replication-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 3.511
+      "seconds": 0.095
     },
     {
       "name": "effect-replication-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 3.717
+      "seconds": 0.057
     },
     {
       "name": "effect-replication-native",
       "exit": 0,
-      "seconds": 0.14
+      "seconds": 0.233
     },
     {
       "name": "effect-replication-editor",
       "exit": 0,
-      "seconds": 0.186
+      "seconds": 0.326
     },
     {
       "name": "effect-replication-headless",
       "exit": 0,
-      "seconds": 0.211
+      "seconds": 0.222
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
-    "engine/runtime/world_session.cpp": "b786b11847f2c8a8edf92ccd4eec7ed28c0b81a035a8813c8abad94e6f1bd29b",
-    "engine/runtime/include/darkangel/world_session.hpp": "d3da40c162c085a865c21f947e404cb38a169235de56e39fb9cb12a09247b416",
+    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
+    "engine/runtime/world_session.cpp": "8dd45b5fde00cb5495ff2923af917aefc63f7969084aa2fa52943cc1c442d42d",
+    "engine/runtime/include/darkangel/world_session.hpp": "f9b4d9444dc9bb92b5cccb1f59f4fc006a449f3d3188c2794ddecf5cb89b2f1c",
     "engine/runtime/effects.cpp": "434a495ee51b01b730559cfc9ffee145df6bace60a8b3e2cd95d6fc808d3dabd",
     "engine/runtime/include/darkangel/effects.hpp": "ebf541e9b9056c564ae8faef98245f90dce3abc1f42d935aebee01b1093e0fb6",
     "engine/runtime/effect_replication.cpp": "77afccbb2bbdb8c9ce119dab4d49b99ed28249c9ece97d4d3886506201f71897",
@@ -49,9 +49,9 @@
     "scripts/verify_effect_replication.py": "921564c7b6f344e3ead45ff3594494ff1883406e06e8664dd7844ab2e3073c39"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/EffectReplicationTests.exe": "e6b75469882f3fac1af0535652eb6d2671f421563907b1159b272955e286f06e",
-    "build/m5-editor-relwithdebinfo/EffectReplicationTests.exe": "d26db0a2219437cbe169f255caa73369d918300afb54584cf47a9f78004ae280",
-    "build/m1-relwithdebinfo/EffectReplicationTests.exe": "dd9b35a187f6a75aea2ad2725fea5817f1ae44073539c0393519a489b73a1b46"
+    "build/m5-relwithdebinfo/EffectReplicationTests.exe": "db3250c47cd408040be97805847d79229d77daef7c70e4649f252116deffdc82",
+    "build/m5-editor-relwithdebinfo/EffectReplicationTests.exe": "73814fb80e472edd707127753ba1ef6fc963978a193da8629a5b72fb2fe04f2b",
+    "build/m1-relwithdebinfo/EffectReplicationTests.exe": "46666e7744cee8200b0812f30ac21f09ed4676520ce192cb562ab9ef33eb36d2"
   },
   "related_evidence": [
     "action-tags.json",

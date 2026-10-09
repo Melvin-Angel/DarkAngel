@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "73357a18d0340662732a90d8eb7d34989e546f5c",
+  "base_head": "6903cc0132e452245bbd4b7e66797d5d3780d5c2",
   "scope": "Protocol3 atomic public motor/action frames, cooked visibility into native audience policies, server-only exclusion from owner corrections, active-action late join, prepared bounded observer interpolation and Royal coordinator; full optimized native integration",
   "gates": [
     {
       "name": "ability-observer-royal",
       "exit": 0,
-      "seconds": 365.132
+      "seconds": 21.489
     },
     {
       "name": "ability-observer-editor",
       "exit": 0,
-      "seconds": 0.19
+      "seconds": 0.1
     },
     {
       "name": "ability-observer-integration-build",
       "exit": 0,
-      "seconds": 42.676
+      "seconds": 0.144
     },
     {
       "name": "ability-observer-integration",
       "exit": 0,
-      "seconds": 20.258
+      "seconds": 18.779
     }
   ],
   "related_evidence": [
@@ -29,35 +29,35 @@
     "ability-prediction.json"
   ],
   "source_sha256": {
-    "CMakeLists.txt": "4d00dd24c415dda3c1519caf8b5a1d277c2ad76222463f32cc02163ee0bc896e",
+    "CMakeLists.txt": "a06c53b1cadba5f6b9212821ceb6098caf9c27f7443be57721c467ca318dc297",
     "engine/runtime/include/darkangel/attributes.hpp": "39fa8aff9faad327b3ef619b13403590e398bee7f12fbf2b9f6cb16fa2b882dd",
     "engine/runtime/attributes.cpp": "e28467edfac7baf8b60956ec5734569c4253d955ce2ac9dbfbe3790b1ce1585f",
     "engine/assets/include/darkangel/ability_assets.hpp": "6f4e4d9818fcb786db4231918c1380b183026852e2e37d1906f504dfd772d40d",
     "engine/assets/ability_cooker.cpp": "f37694f3404e7309d0efe4d979d1c50f6dbfff22b7b51493b5d529098f0081ad",
     "engine/runtime/include/darkangel/ability.hpp": "891f39b1387843d0bb35095514f1165ba38dbddf85db36bff2d1a5b4804b432b",
     "engine/runtime/ability.cpp": "8ff9bc42143725f9c2b2b96a2a120870b5a9865653eb8ae98f589d75eb019b52",
-    "engine/runtime/ability_state.hpp": "98e959686a826f8ccde346e50193420255ce7f7a8740c998f17d3527384192c9",
+    "engine/runtime/ability_state.hpp": "bb08a4af17cb0bafa3e1d1d4a556477d4c1c929c6c68b5ef61398d95739a9750",
     "engine/runtime/ability_prediction.cpp": "9aadf4fc909d43655f61c7e497c7628487ce3647f7f3a9a05cdfdc27a47dbfbc",
     "engine/runtime/ability_observer.cpp": "dead4bdc557278deef30e3cc0aba7993266271f646ba14acc0c3c9b426c8fb7b",
     "engine/runtime/include/darkangel/ability_observer.hpp": "bb82de354ed0f5cd39e37a487e88781830e595e2edfb1f0b99aec759ca165eb8",
     "engine/runtime/ability_wire.cpp": "c2b11f12edda8cd7a263404b7836d86debcbf271a37809473ed2f65b1f718b3c",
     "engine/runtime/ability_wire.hpp": "ede2252ac96e18e9bb4d62d03084e1c6cef56304424cd04a912d69cff9f6bea5",
-    "engine/runtime/world_session.cpp": "b786b11847f2c8a8edf92ccd4eec7ed28c0b81a035a8813c8abad94e6f1bd29b",
-    "engine/runtime/include/darkangel/world_session.hpp": "d3da40c162c085a865c21f947e404cb38a169235de56e39fb9cb12a09247b416",
-    "engine/runtime/character_scene.cpp": "1a3e270f4909f10aa4e25b0f2ca1a6f3127e725cdc19493fff0961ffc76efc80",
-    "engine/runtime/include/darkangel/character_scene.hpp": "c891a649ea0ed2fe911d75a90c1345416391427facb71a38d1e5ed62ae37a1fb",
+    "engine/runtime/world_session.cpp": "8dd45b5fde00cb5495ff2923af917aefc63f7969084aa2fa52943cc1c442d42d",
+    "engine/runtime/include/darkangel/world_session.hpp": "f9b4d9444dc9bb92b5cccb1f59f4fc006a449f3d3188c2794ddecf5cb89b2f1c",
+    "engine/runtime/character_scene.cpp": "a11c803ecb52c09c6a4d349c6bccc365eeb15bece99a914b1377e453b047c296",
+    "engine/runtime/include/darkangel/character_scene.hpp": "c048710abe878a35db270ab519835e2ec343285ed534df7c0a60859ebf32fcc1",
     "tests/ability_observer_tests.cpp": "d0303f91f8d22822c195a290651c2ce2dfb38206b5acdc7c8218d3558f85993b",
     "tests/ability_intent_gns_tests.cpp": "9cb9deec858db9e8de69b90ac3e3cea79b94fb592d6d1ac65c6e965c8e4d0212",
     "tests/ability_asset_tests.cpp": "b38fbfd7aa0b94a9ffd8a032e4183e155a668f543d375f07ad4a727de8db9d3b",
-    "tests/character_combat_scene_tests.cpp": "5c49442fe03ea260625915955d640035c5f067ddfb9e49000f6244df5c872445",
+    "tests/character_combat_scene_tests.cpp": "7cc72a07d3647c0ef40e554ffe1e89c18ec531f2c04c4fd0c4236191c95396be",
     "scripts/prepare_royal_scene.py": "a1f50fb48c99e0ada2d4bb12d3168d01d30a6ddb9f15fa85aa56c6f91bce8cae",
     "scripts/verify_ability_observer.py": "ca443028e7e4b01e3554a11cfff9447a5f6f08b13cecbbcc061b4e1af9fa4ed9"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "d395ee5c59bb4f1ffa4e51bce8eff6d019ea5d2ba665d8ad5a9e4ad644855fe7",
-    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "92be8cef18b1717221a10ce96dbdd5f3ecce144d3e3a126e9516a9faa78aeced",
-    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "c88dd01198283ec6e2b2c7f2b1ac5c7305f514671cd0375a6c1b1da6f28d3afd",
-    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "250d17a2e600332b2ab54015ebf004d666012525bd23697c8558de720eef1282"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "0742ffa823303b19908e56c05ff8eb588e7824dd7f542c7f902012f17b5c0130",
+    "build/m5-relwithdebinfo/AbilityObserverTests.exe": "b019657167c74d8bfaf1d3f85b68c420be02a49ee0c967d7ccbec7f23d82a1eb",
+    "build/m5-editor-relwithdebinfo/AbilityObserverTests.exe": "bd65ac5901676723c20012ec4331c3bd600383d310390c1d78125645231a0c04",
+    "build/m1-relwithdebinfo/AbilityObserverTests.exe": "713e0c11d97fe52da40e3ffaae9643248db7be6b2ebd91bd327b6d6d66a0425c"
   },
   "limitations": [
     "Current four-actor arena-wide interest profile; public effects/tags/persistent cues and interest/cell restoration beyond reliable object lifecycle remain open.",
