@@ -4,6 +4,8 @@ Captured 8 October 2026 from the user's editor direction. This is planned work, 
 
 Initial implementation update: Scene / Level Design and Assets layouts, a single-file typed import modal with supported model/canonical skin/normalized clip/color texture routing, and a searchable asset inventory are now implemented. See [Editor import report](EDITOR_IMPORT_REPORT.md) for exact profiles, limitations and focused receipts. The visual picker, tags, batch/background import and subsystem workspace designs below remain planned.
 
+Ability authoring implementation update (9 October): [NATIVE_AUTHORING_REPORT.md](NATIVE_AUTHORING_REPORT.md) records the initial embedded Ability/Effect/action forms, typed reference fields, native creation/duplication, kit slot/effect composition and Save/cook/complete scene/fresh Play loop. The numeric action forms are an initial Composer surface; visual timeline/character preview, structural block creation, broad thumbnail/tag picker and the other workflow designers below remain planned. Scene stays the default workspace and all Play controls stay in Game. This does not change M4/M5 or M6 acceptance gates.
+
 ## Product direction
 
 DarkAngel is tailored to making third-person co-op action games, with Ashen Roots as its concrete use case. Its main systems should have native authoring workflows integrated into the engine.

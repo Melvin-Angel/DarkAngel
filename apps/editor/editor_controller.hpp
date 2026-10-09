@@ -2,6 +2,7 @@
 #include <darkangel/editor_document.hpp>
 #include <darkangel/assets.hpp>
 #include <functional>
+#include "native_authoring.hpp"
 namespace darkangel::editor_app {
 enum class ConsoleSeverity {Info,Warning,Error};
 struct ConsoleEntry {std::string message;ConsoleSeverity severity;};
@@ -25,6 +26,8 @@ public:
     double radius;
     std::unique_ptr<AssetService> assets;
     std::vector<AssetInfo> asset_inventory;
+    NativeAuthoring authoring;AssetId authoring_kit;
+    std::function<void()> prepare_play_resources;
     std::function<void(AssetId)> prepare_model;
     std::function<void(const SpawnPlan&,const World&)> prepare_gameplay;
     std::function<void()> stop_gameplay,step_gameplay;

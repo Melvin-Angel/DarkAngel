@@ -160,6 +160,12 @@ CookResult AssetService::edit_native(std::string_view relative,std::string_view 
     if(original==draft)return cook(relative);auto written_hash=sha256(draft);atomic_write(source,draft);
     try{return cook(relative);}catch(...){require(file_sha256(source)==written_hash,"Source changed externally during failed cook; external edit preserved");atomic_write(source,original);throw;}
 }
+CookResult AssetService::create_native(std::string_view relative,std::string_view draft){
+    auto& p=*impl_;p.thread();auto source=p.source(relative);auto ext=source.extension();require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit","Create supports owned native gameplay sources");require(!std::filesystem::exists(source),"Choose a new source name; existing files are preserved");
+    auto data=json(draft,65536);auto id=AssetId::parse(data.at("asset").get<std::string>());require(id!=AssetId{},"New native source needs a persistent UUID");scan();for(const auto& asset:assets())require(asset.id!=id,"New native source UUID already exists");
+    atomic_write(source,draft,false);auto digest=sha256(draft);
+    try{return cook(relative);}catch(...){require(file_sha256(source)==digest,"New source changed externally during failed cook; external edit preserved");std::filesystem::remove(source);scan();throw;}
+}
 void AssetService::package(AssetId root,const std::filesystem::path& output,std::span<const AssetId> additional_roots) const{auto& p=*impl_;p.thread();require(additional_roots.size()<64,"Runtime package root limit");std::vector<AssetId> roots{root};std::set<AssetId> unique{root};for(auto id:additional_roots){require(unique.insert(id).second,"Duplicate runtime package root");roots.push_back(id);}std::map<AssetId,Json> products;std::map<AssetId,std::vector<AssetId>> edges;
     for(auto selected:roots){Statement query(p.db,"SELECT id,kind,hash,extension FROM products WHERE root=?1 ORDER BY id");query.id(1,selected);
         while(query.row()){auto hash=query.text(2),extension=query.text(3);digest_check(hash);require(file_sha256(p.cas/(hash+"."+extension))==hash,"Missing/corrupt required cooked artifact");Json record={{"id",query.id(0).text()},{"kind",query.text(1)},{"sha256",hash},{"extension",extension}};auto [found,inserted]=products.emplace(query.id(0),record);require(inserted||found->second==record,"Conflicting shared cooked product generations");}

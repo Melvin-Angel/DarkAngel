@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "base_head": "c4072bdd40bd82321e1c1fef74fb0916a73a27ba",
+  "scope": "Native Ability/Effect/action forms, compatible pickers, create/duplicate/edit/assign/bind/save and complete scene package/fresh CharacterPreviewResources/isolated Play; edited status owner/public over existing GNS",
+  "gates": [
+    {
+      "name": "native-authoring-build",
+      "exit": 0,
+      "seconds": 0.132
+    },
+    {
+      "name": "native-authoring-no-animation-build",
+      "exit": 0,
+      "seconds": 0.083
+    },
+    {
+      "name": "native-authoring-source-check",
+      "exit": 0,
+      "seconds": 0.166
+    },
+    {
+      "name": "native-authoring-workflow",
+      "exit": 0,
+      "seconds": 5.468
+    },
+    {
+      "name": "native-authoring-game-active",
+      "exit": 0,
+      "seconds": 2.518
+    },
+    {
+      "name": "native-authoring-game-expired",
+      "exit": 0,
+      "seconds": 2.146
+    },
+    {
+      "name": "native-authoring-light",
+      "exit": 0,
+      "seconds": 1.979
+    },
+    {
+      "name": "native-authoring-panel",
+      "exit": 0,
+      "seconds": 0.843
+    },
+    {
+      "name": "native-authoring-effect-panel",
+      "exit": 0,
+      "seconds": 0.699
+    },
+    {
+      "name": "native-authoring-action-panel",
+      "exit": 0,
+      "seconds": 0.819
+    },
+    {
+      "name": "native-authoring-gns-client",
+      "exit": 0,
+      "seconds": 1.9
+    },
+    {
+      "name": "native-authoring-gns-host",
+      "exit": 0
+    },
+    {
+      "name": "native-authoring-no-animation",
+      "exit": 0,
+      "seconds": 0.212
+    }
+  ],
+  "fixture": {
+    "ability": "fd29976c-035e-45e9-b7d4-e2f066491073",
+    "cache": "C:/DarkAngel/build/m5-editor-relwithdebinfo/authoring-fixture-89f8686f-0563-4ed7-a927-3f31c8642e7b/cache",
+    "effect": "eb051081-db64-45a2-92e8-fd323bcc8170",
+    "kit": "eecbc589-b6df-4e48-a4dd-38e3ec629d35",
+    "registry": "C:/DarkAngel/build/m5-editor-relwithdebinfo/authoring-fixture-89f8686f-0563-4ed7-a927-3f31c8642e7b/after.json",
+    "source": "C:/DarkAngel/build/m5-editor-relwithdebinfo/authoring-fixture-89f8686f-0563-4ed7-a927-3f31c8642e7b/sources"
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "538bc1cb97bf5c6fe2f5e9721d94a105dbe4b3e2834b04647051daef1ac83034",
+    "engine/assets/asset_service.cpp": "2d3b39e0588a9c142892db6b8e0343477db4684930f1f6837f8c0850d6a5a84d",
+    "engine/assets/include/darkangel/assets.hpp": "332a4727c8123104f337fc0ad509d486b432b4213ef74e5eef5c35d35729533d",
+    "apps/editor/native_authoring.hpp": "6d771bc33c4b355d8dfa62b3f981795863075a3a262e5e68e5efc7a4d35a9b47",
+    "apps/editor/native_authoring.cpp": "6c66da0828a92df3bd3f997291ea54f4b58d1cf93316d3842680aae6b7c47cf7",
+    "apps/editor/editor_authoring.cpp": "0c915a338d2672938dffd129ee12d6c0d587eeb556d06c5135b1ba86032c135d",
+    "apps/editor/editor_ui.hpp": "711c51870e2c1e5b7acbf2e82515fd9345097330e9710b62ab36a22c2c2c2bd3",
+    "apps/editor/editor_ui.cpp": "cf5c70a0968fd0adb4e9c55222f3997562217747d6decd20f11b50c3dd82a15a",
+    "apps/editor/editor_controller.hpp": "247b07727738a63498574bbb36dfaaa33c7fcdf6b89584670deabddf980132fa",
+    "apps/editor/editor_controller.cpp": "82860d3eed5ec83107693911096ec324ca0598a98a7861148542d7ed99a8bfa3",
+    "apps/editor/main.cpp": "848931c244f3dc1044c874f71f4cd833f2a939102ae5e8ac19c9d6e3de0eda8a",
+    "tests/native_authoring_tests.cpp": "fe586b2e88274be0a3f4387d067ce8005381c2139607c0f96758f0daeef0867c",
+    "tests/authored_effect_gns_tests.cpp": "a72cec2b4ba1eac7cdcd26b5662a98c6ff839f8e8d1dbf322ec7e172ad919fa0",
+    "tests/native_source_edit_tests.cpp": "db7a293dc50d3cea981c6c35cfdee3cd7fe11d7d8288225d12ff9a9a55a73b08",
+    "scripts/verify_native_authoring.py": "c9446143fa6b6f145e7816ae7a33856dba5d8e839528c5a98104b2819c950efa",
+    "scripts/open_royal_scene.ps1": "9012016696cd42d1db4769e8da8bb76d6f26b80aac4fa9fe9f4431a85c397607"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor": "f9c41554bd98961c5057b7099b25af10a78e609e9e06c8df38f3e40a3c2fdfb6",
+    "NativeAuthoringTests": "0f240ddab33e89b5a1a756c690dc5c73bff8a9ec1a1f488d37a5d7c86c5be1d6",
+    "AuthoredEffectGnsTests": "ba95395a382ae9a6ce2d1568b3052b2013842b2aba39c6d03a3c8b9efd7fbccb",
+    "NativeSourceEditTests": "74f296b09102220e1c8b3ce274e0d2ef3fe276d5c097d5481d1a5339d88d73a4"
+  },
+  "limitations": [
+    "Save is ordered per-source validation/cook, not cross-process multi-source atomicity. Previously completed saves remain if a later source fails; previous runtime package/leases remain playable.",
+    "Create uses a compatible native template and retains action/schema references. Full visual Composer/rig-preview/graph authoring and rich thumbnail picker remain open.",
+    "One D3D12 backend; scripted native editor commands and rendered panels, not physical mouse/gamepad automation.",
+    "GNS check loads the same edited frozen kit/effect and proves owner/public status timers and damage on separate localhost processes. It does not qualify remote graphical/Jolt combat or the full multiplayer fault matrix.",
+    "M4/M5 In progress; M6 not started; live EOS externally blocked."
+  ]
+}

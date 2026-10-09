@@ -5,7 +5,7 @@
 #include <optional>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Game,Tools,Settings};
+enum class Workspace {Scene,Assets,Ability,Game,Tools,Settings};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -19,6 +19,9 @@ public:
     void choose_asset_import();
     void draw_import(Controller&);
     void draw_assets(Controller&,bool expanded=false);
+    void draw_authoring(Controller&,unsigned,unsigned,float);
+    AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
+    char author_name[65]{"new_ability"};std::string author_diagnostic;
     Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{};
     void select_workspace(Workspace);
     void open_tool(ToolView);
