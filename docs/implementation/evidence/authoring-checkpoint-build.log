@@ -1,0 +1,12 @@
+[1/14] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[2/14] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[3/14] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[4/14] Generating CXX dyndep file CMakeFiles\NativeSourceEditTests.dir\CXX.dd
+[5/13] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[6/13] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[7/12] Building CXX object CMakeFiles\NativeAuthoringTests.dir\apps\editor\native_authoring.cpp.obj
+[8/12] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[9/12] Linking CXX executable NativeSourceEditTests.exe
+[10/12] Building CXX object CMakeFiles\NativeAuthoringTests.dir\apps\editor\character_preview.cpp.obj
+[11/12] Linking CXX executable AssetTests.exe
+[12/12] Linking CXX executable NativeAuthoringTests.exe
