@@ -161,11 +161,13 @@ void AbilityState::retire(std::uint64_t through){
     require(through>=retired_through_&&through<=highest_operation_,"Ability operation retirement range");
     std::erase_if(records_,[&](const auto& item){return item.first<=through;});retired_through_=through;++revision_;
 }
+std::vector<AbilityAttributeValue> AbilityState::attribute_values()const{std::vector<AbilityAttributeValue> result;result.reserve(attributes_.definitions().size());for(const auto& definition:attributes_.definitions())result.push_back({definition.id,attributes_.value(definition.id)});return result;}
 AbilityOwnerSnapshot AbilityState::snapshot()const{
     AbilityOwnerSnapshot result;result.owner=owner_;result.tick=tick_;result.grant_generation=kit_?kit_->grant_generation():0;result.revision=revision_;
-    for(const auto& d:attributes_.definitions())result.attributes.push_back({d.id,attributes_.value(d.id)});
-    if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();}
+    result.attributes=attribute_values();
+    if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.ability=active_->definition->id;result.ability_generation=active_->definition->generation;result.action_definition=active_->definition->action->id;result.active_slot=active_->slot;}
     for(const auto& cooldown:cooldowns_)result.cooldowns.push_back(cooldown);
-    result.retained_operations=records_.size();return result;
+    result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;result.retained_operations=records_.size();result.highest_operation=highest_operation_;result.retired_through=retired_through_;
+    for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
 }
 }

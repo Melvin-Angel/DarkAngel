@@ -1,0 +1,25 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+    Start  1: M4.session
+1/6 Test  #1: M4.session .......................   Passed    0.14 sec
+    Start  6: M5.authoritative_melee
+2/6 Test  #6: M5.authoritative_melee ...........   Passed    0.12 sec
+    Start 43: M5.ability_correction
+3/6 Test #43: M5.ability_correction ............   Passed    0.09 sec
+    Start 44: M5.ability_commit
+4/6 Test #44: M5.ability_commit ................   Passed    0.09 sec
+    Start 45: M3.authority
+5/6 Test #45: M3.authority .....................   Passed    0.11 sec
+    Start 46: M3.loopback
+6/6 Test #46: M3.loopback ......................   Passed    0.01 sec
+
+100% tests passed out of 6
+
+Label Time Summary:
+M3         =   0.12 sec*proc (2 tests)
+M4         =   0.14 sec*proc (1 test)
+M5         =   0.09 sec*proc (1 test)
+ability    =   0.09 sec*proc (1 test)
+network    =   0.14 sec*proc (1 test)
+session    =   0.09 sec*proc (1 test)
+
+Total Test time (real) =   0.58 sec

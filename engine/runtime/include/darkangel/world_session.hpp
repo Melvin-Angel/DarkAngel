@@ -13,6 +13,7 @@ enum class SessionRole { Server, Client };
 enum class SessionReadiness { Handshake, ContentReady, Bootstrap, CatchUp, Ready };
 struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};};
 struct CollisionStreamDiagnostics {std::uint64_t sent_packets{},sent_bytes{},decoded{},ack_tick{},ack_topology{},expired{},superseded{};std::size_t partial_chunks{};bool has_ack{},needs_resync{};};
+struct AbilityCorrection {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityOwnerSnapshot ability;};
 // All providers carry the same bounded, versioned protocol. Only the server
 // creates identities and publishes state. Client worlds are read-only views.
 class WorldSession {
@@ -39,6 +40,10 @@ public:
     void register_damage_evaluator(std::uint32_t,DamageEvaluator);
     // After authoritative motor post_physics/publication, once per fixed tick.
     std::vector<DamageResult> resolve_ability_hits(std::uint64_t);
+    const std::map<std::uint64_t,AbilityCorrection>& ability_corrections()const;
+    bool ability_correction_needs_resync()const;
+    // ACK only after assets and native owner reconciliation have been prepared.
+    void acknowledge_ability_correction(std::uint64_t network);
     AbilityOwnerSnapshot ability_snapshot(AbilityOwnerHandle)const;
     std::vector<AbilityActionUpdate> drain_ability_actions();
     void retire_ability_operations(AbilityOwnerHandle,std::uint64_t through);

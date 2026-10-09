@@ -16,6 +16,7 @@ public:
     std::pair<AbilityFailure,std::vector<AbilityActionUpdate>> cancel(AbilityActivationHandle,AbilityActionReason);
     void retire(std::uint64_t through);
     AbilityOwnerSnapshot snapshot()const;
+    std::vector<AbilityAttributeValue> attribute_values()const;
     struct PendingHit {AbilityActivationHandle handle;std::shared_ptr<const AbilityDefinition> definition;AbilityMelee profile;ActionInterval interval;std::uint64_t tick{};};
     std::vector<PendingHit> pending_hits;
     bool remember_hit(const PendingHit&,std::uint64_t target,std::uint64_t epoch);

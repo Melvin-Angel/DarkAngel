@@ -133,3 +133,6 @@ Shared editor import increment after9c8fd2b: native Scene/Assets layout navigati
 
 
 Latest melee increment (9 October): [authoritative motor-relative melee](MELEE_REPORT.md) adds authored HitWindow profiles, a bound native post-physics query, registered game-owned damage evaluators, atomic Health/death/deduplication and existing Loopback baseline integration. Royal input/attack presentation, canonical socket sweeps, ability wire/prediction and the remaining M4/M5 gates are still open. Reproduce `python scripts/verify_melee.py --build`.
+
+
+Latest owner-correction increment (9 October): [atomic ability/motor correction](ABILITY_CORRECTION_REPORT.md) adds protocol-3 owner-only fragmented bundles, exact terminal operation inclusion, lifecycle/Health checks and native-prepared ACK retirement. Client ability intents/receipts, owner prediction, observer actions and playable Royal integration remain open; M4/M5 remain In progress. Reproduce `python scripts/verify_ability_correction.py --build`.

@@ -1,5 +1,7 @@
 #include <darkangel/world_session.hpp>
 #include "ability_state.hpp"
+#include "session_wire.hpp"
+#include "ability_wire.hpp"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -11,27 +13,13 @@
 #include <tuple>
 namespace darkangel {
 namespace {
+using namespace session_detail;
 void require(bool ok,const char* error){if(!ok)throw std::runtime_error(error);}
-enum class Kind:std::uint64_t { Hello=1,ContentReady,Baseline,Ack,Ready,Resync,MotorCommand,MotorSnapshot,CollisionSnapshot,CollisionAck };
+enum class Kind:std::uint64_t { Hello=1,ContentReady,Baseline,Ack,Ready,Resync,MotorCommand,MotorSnapshot,CollisionSnapshot,CollisionAck,AbilityCorrection,AbilityCorrectionAck };
 constexpr std::size_t packet_limit=1000,header_size=56,object_size=104,per_chunk=(packet_limit-header_size)/object_size;
-struct Writer {
-    std::vector<std::byte> bytes;
-    void u64(std::uint64_t n){for(unsigned i=0;i<8;++i)bytes.push_back(static_cast<std::byte>((n>>(i*8))&255));}
-    void number(double n){u64(std::bit_cast<std::uint64_t>(n));}
-};
-struct Reader {
-    std::span<const std::byte> bytes;std::size_t at{};
-    std::uint64_t u64(){require(bytes.size()-at>=8,"Truncated session packet");std::uint64_t n{};for(unsigned i=0;i<8;++i)n|=std::uint64_t(std::to_integer<unsigned>(bytes[at++]))<<(i*8);return n;}
-    double number(){return std::bit_cast<double>(u64());}
-    void end(){require(at==bytes.size(),"Trailing session fields");}
-};
 Writer header(Kind kind,const SessionHandshake& h,std::uint64_t revision=0,std::uint64_t index=0,std::uint64_t chunks=0,std::uint64_t total=0){Writer w;w.u64(0x3253454144);w.u64(static_cast<std::uint64_t>(kind));w.u64(h.session_epoch);w.u64(revision);w.u64(index);w.u64(chunks);w.u64(total);return w;}
 void write_object(Writer& w,const ObjectData& o){w.u64(o.network.value);w.u64(o.id.high);w.u64(o.id.low);for(double n:{o.transform.yaw,o.transform.x,o.transform.y,o.transform.z,o.transform.pitch,o.transform.roll,o.transform.scale,o.health.maximum,o.health.current})w.number(n);w.u64(0);}
 ObjectData read_object(Reader& r){ObjectData o;o.network.value=r.u64();o.id={r.u64(),r.u64()};o.transform={r.number(),r.number(),r.number(),r.number(),r.number(),r.number(),r.number()};o.health={r.number(),r.number()};require(r.u64()==0,"Unsupported object wire schema");return o;}
-void write_vector(Writer& w,MotorVec a){w.number(a.x);w.number(a.y);w.number(a.z);}
-MotorVec read_vector(Reader& r){return {r.number(),r.number(),r.number()};}
-void write_motor(Writer& w,const MotorState& s){for(auto n:{s.tick,s.sequence,s.epoch,s.topology,s.support,s.action})w.u64(n);for(auto a:{s.position,s.velocity,s.momentum,s.desired,s.achieved,s.support_local,s.support_velocity})write_vector(w,a);w.number(s.yaw);w.u64(s.coyote);w.u64(s.jump_buffer);w.u64(s.grounded?1:0);w.u64(s.crouched?1:0);}
-MotorState read_motor(Reader& r){MotorState s;s.tick=r.u64();s.sequence=r.u64();s.epoch=r.u64();s.topology=r.u64();s.support=r.u64();s.action=r.u64();s.position=read_vector(r);s.velocity=read_vector(r);s.momentum=read_vector(r);s.desired=read_vector(r);s.achieved=read_vector(r);s.support_local=read_vector(r);s.support_velocity=read_vector(r);s.yaw=r.number();auto c=r.u64(),j=r.u64(),g=r.u64(),low=r.u64();require(c<=6&&j<=6&&g<=1&&low<=1,"Invalid motor flags/timers");s.coyote=static_cast<unsigned>(c);s.jump_buffer=static_cast<unsigned>(j);s.grounded=g!=0;s.crouched=low!=0;validate_motor_state(s);return s;}
 
 constexpr unsigned collision_chunk_items=4;
 std::size_t collision_items(const CollisionStreamFrame& frame){return frame.boxes.size()+frame.actors.size()+frame.meshes.size();}
@@ -49,10 +37,15 @@ void read_collision_item(Reader& r,CollisionStreamFrame& frame){auto kind=r.u64(
 
 }
 struct WorldSession::Impl {
+    static constexpr std::size_t ability_chunk_bytes=896;
+    struct AbilitySending {std::uint64_t world_revision{},ability_revision{},highest_operation{};std::vector<std::byte> bytes;unsigned next{};};
+    struct AbilityPartial {std::uint64_t world_revision{},ability_revision{},birth{},total{},chunks{};std::map<unsigned,std::vector<std::byte>> parts;};
+
     SessionRole role;SessionHandshake hello;SessionLimits limits;std::thread::id owner=std::this_thread::get_id();
     std::unique_ptr<World> view;std::map<std::uint64_t,ObjectData> objects;std::uint64_t revision{},next_id{1},clock{};
     struct Peer {Transport* transport;ConnectionHandle handle;SessionReadiness state{SessionReadiness::Handshake};std::uint64_t progress{},sent_revision{},acked_revision{};bool greeting{},content_sent{},await_ack{},ready_sent{},collision_required{};std::size_t next_chunk{},total{},chunks{};std::vector<ObjectData> sending;std::map<std::uint64_t,ObjectData> receiving;std::uint64_t receiving_revision{};std::map<std::uint64_t,std::pair<std::uint64_t,std::uint64_t>> motor_sent;
         std::optional<CollisionStreamFrame> collision_sending;unsigned collision_next{};std::uint64_t collision_revision{},collision_last_tick{},collision_last_revision{};bool collision_sent{};
+        std::map<std::uint64_t,AbilitySending> ability_sending;std::map<std::uint64_t,std::pair<std::uint64_t,std::uint64_t>> ability_sent;std::map<std::uint64_t,AbilityPartial> ability_parts;std::deque<std::tuple<std::uint64_t,std::uint64_t,std::uint64_t,std::uint64_t>> ability_sent_frames;
         unsigned packet_work{};CollisionStreamDiagnostics collision_stats;std::optional<std::uint64_t> collision_ack_pending;std::deque<std::tuple<std::uint64_t,std::uint64_t,std::uint64_t>> collision_sent_frames;std::uint64_t collision_partial_birth{};
         std::uint64_t collision_receiving_tick{},collision_receiving_topology{},collision_receiving_total{},collision_receiving_chunks{};std::map<unsigned,std::vector<std::byte>> collision_parts;
     };
@@ -64,6 +57,9 @@ struct WorldSession::Impl {
     std::uint64_t ability_tick{},resolved_hit_tick{};
     std::map<std::uint32_t,DamageEvaluator> damage_evaluators;
     std::shared_ptr<const MeleeQuery> melee_query;
+    std::map<std::uint64_t,AbilityCorrection> ability_corrections;
+    std::map<std::uint64_t,std::tuple<std::uint64_t,std::uint64_t,std::uint64_t>> ability_ack_pending;
+    bool ability_resync{};
     std::vector<AbilityActionUpdate> ability_actions;
 
     const AbilityState& ability(AbilityOwnerHandle h)const{
@@ -94,7 +90,7 @@ struct WorldSession::Impl {
     std::unique_ptr<World> build(const std::map<std::uint64_t,ObjectData>& values) const{auto candidate=std::make_unique<World>(role==SessionRole::Server?WorldDomain::Server:WorldDomain::ClientPresentation,limits.objects);std::set<StableId> ids;for(const auto& [id,o]:values){require(id>0 && o.network.value==id && ids.insert(o.id).second,"Invalid/duplicate replicated identity");candidate->create(o);}return candidate;}
     bool send(Peer& p,Writer w,Delivery delivery=Delivery::ReliableOrdered){if(p.packet_work>=limits.packets_per_tick)return false;if(!p.transport->send(p.handle,delivery,w.bytes))return false;++p.packet_work;return true;}
     void receive(Peer& p,const TransportMessage& m){
-        require(m.sender==p.handle && m.bytes.size()<=packet_limit,"Invalid session source/channel/size");Reader r{m.bytes};require(r.u64()==0x3253454144,"Session wire version mismatch");auto kind=static_cast<Kind>(r.u64());require(m.delivery==(kind==Kind::Baseline?Delivery::ReliableBootstrap:((kind==Kind::MotorSnapshot||kind==Kind::CollisionSnapshot)?Delivery::UnreliableState:Delivery::ReliableOrdered)),"Session traffic class mismatch");require(r.u64()==hello.session_epoch,"Stale gameplay session epoch");auto rev=r.u64(),index=r.u64(),chunks=r.u64(),total=r.u64();
+        require(m.sender==p.handle && m.bytes.size()<=packet_limit,"Invalid session source/channel/size");Reader r{m.bytes};require(r.u64()==0x3253454144,"Session wire version mismatch");auto kind=static_cast<Kind>(r.u64());require(m.delivery==(kind==Kind::Baseline?Delivery::ReliableBootstrap:((kind==Kind::MotorSnapshot||kind==Kind::CollisionSnapshot||kind==Kind::AbilityCorrection)?Delivery::UnreliableState:Delivery::ReliableOrdered)),"Session traffic class mismatch");require(r.u64()==hello.session_epoch,"Stale gameplay session epoch");auto rev=r.u64(),index=r.u64(),chunks=r.u64(),total=r.u64();
         if(kind==Kind::Hello){require(rev==0 && index==0 && chunks==0 && total==0 && !p.greeting,"Duplicate/invalid gameplay handshake");require(r.u64()==hello.protocol,"Protocol mismatch");for(const auto* hash:{&hello.schema_hash,&hello.content_hash})for(char c:*hash){require(r.at<r.bytes.size(),"Truncated handshake digest");require(std::to_integer<unsigned char>(r.bytes[r.at++])==static_cast<unsigned char>(c),"Content/schema mismatch");};auto flags=r.u64();require(flags<=1&&(role==SessionRole::Client||flags==0),"Session collision readiness capability");p.collision_required=flags!=0;r.end();p.greeting=true;p.state=SessionReadiness::ContentReady;}
         else if(kind==Kind::ContentReady){require(role==SessionRole::Server && p.greeting && !p.content_sent && rev==0 && index==0 && chunks==0 && total==0,"Unexpected content readiness");r.end();p.content_sent=true;p.state=SessionReadiness::Bootstrap;}
         else if(kind==Kind::Baseline){
@@ -102,7 +98,7 @@ struct WorldSession::Impl {
             require(rev>=revision && (p.next_chunk==0 || (rev==p.receiving_revision && total==p.total && chunks==p.chunks)) && index==p.next_chunk,"Baseline order/revision mismatch");
             if(index==0){p.receiving.clear();p.receiving_revision=rev;p.total=static_cast<std::size_t>(total);p.chunks=static_cast<std::size_t>(chunks);p.state=SessionReadiness::Bootstrap;}
             auto count=std::min<std::uint64_t>(per_chunk,total-index*per_chunk);for(std::size_t i=0;i<count;++i){auto o=read_object(r);require(p.receiving.emplace(o.network.value,o).second,"Duplicate network identity");}r.end();++p.next_chunk;
-            if(p.next_chunk==p.chunks){require(p.receiving.size()==total,"Incomplete baseline");auto candidate=build(p.receiving);view=std::move(candidate);objects=std::move(p.receiving);motor_states.clear();collision_states.clear();p.collision_parts.clear();p.collision_ack_pending.reset();p.collision_stats.needs_resync=p.collision_stats.decoded>0;p.collision_stats.has_ack=false; // A new atomic baseline needs fresh motor state at its revision.
+            if(p.next_chunk==p.chunks){require(p.receiving.size()==total,"Incomplete baseline");auto candidate=build(p.receiving);view=std::move(candidate);objects=std::move(p.receiving);motor_states.clear();collision_states.clear();ability_corrections.clear();ability_ack_pending.clear();p.ability_parts.clear();p.collision_parts.clear();p.collision_ack_pending.reset();p.collision_stats.needs_resync=p.collision_stats.decoded>0;p.collision_stats.has_ack=false; // A new atomic baseline needs fresh motor state at its revision.
                 revision=rev;p.next_chunk=0;p.state=SessionReadiness::CatchUp;p.await_ack=true;}
         }else if(kind==Kind::Ack){require(role==SessionRole::Server && p.await_ack && rev==p.sent_revision && index==0 && chunks==0 && total==0,"Unknown baseline ACK");r.end();p.await_ack=false;p.acked_revision=rev;p.state=SessionReadiness::CatchUp;}
         else if(kind==Kind::Ready){if(role==SessionRole::Client && rev<revision){require(index==0 && chunks==0 && total==0,"Invalid obsolete Ready");r.end();return;}require(role==SessionRole::Client && p.state==SessionReadiness::CatchUp && rev==revision && !p.await_ack && index==0 && chunks==0 && total==0,"Premature Ready");r.end();p.state=SessionReadiness::Ready;}
@@ -122,7 +118,40 @@ struct WorldSession::Impl {
             if(!p.collision_sent_frames.empty()&&index<std::get<0>(p.collision_sent_frames.front()))return;
             auto found=std::find(p.collision_sent_frames.begin(),p.collision_sent_frames.end(),std::tuple{index,rev,topology});require(found!=p.collision_sent_frames.end(),"Collision ACK not sent/retained");if(!p.collision_stats.has_ack||index>p.collision_stats.ack_tick){p.collision_stats.has_ack=true;p.collision_stats.ack_tick=index;p.collision_stats.ack_topology=topology;}
         }
+        else if(kind==Kind::AbilityCorrection){
+            require(role==SessionRole::Client&&hello.protocol>=3&&index&&total>0&&total<=8192&&chunks==(total+ability_chunk_bytes-1)/ability_chunk_bytes&&chunks<=10,"Ability correction envelope bounds/profile");
+            auto ability_revision=r.u64(),part=r.u64();require(part<chunks,"Ability correction part index");auto first=part*ability_chunk_bytes;auto count=std::min<std::uint64_t>(ability_chunk_bytes,total-first);require(r.bytes.size()-r.at==count,"Ability correction part size");
+            if(rev!=revision||!objects.contains(index)||(p.state!=SessionReadiness::Ready&&p.state!=SessionReadiness::CatchUp))return;
+            auto current=ability_corrections.find(index);if(current!=ability_corrections.end()&&ability_revision<=current->second.ability.revision)return;
+            auto found=p.ability_parts.find(index);if(found!=p.ability_parts.end()&&ability_revision<found->second.ability_revision)return;
+            if(found==p.ability_parts.end()||found->second.ability_revision!=ability_revision){require(found!=p.ability_parts.end()||p.ability_parts.size()<4,"Ability correction owner capacity");p.ability_parts[index]={rev,ability_revision,clock,total,chunks,{}};}
+            auto& partial=p.ability_parts.at(index);require(partial.world_revision==rev&&partial.total==total&&partial.chunks==chunks,"Conflicting ability correction fragments");std::vector<std::byte> bytes(r.bytes.begin()+r.at,r.bytes.end());auto [entry,inserted]=partial.parts.emplace(static_cast<unsigned>(part),bytes);require(inserted||entry->second==bytes,"Conflicting duplicate ability correction fragment");
+            if(partial.parts.size()==chunks){std::vector<std::byte> complete;complete.reserve(static_cast<std::size_t>(total));for(unsigned n=0;n<chunks;++n){const auto& piece=partial.parts.at(n);complete.insert(complete.end(),piece.begin(),piece.end());}
+                auto correction=session_detail::decode_ability_correction(complete);require(correction.network==index&&correction.session_epoch==hello.session_epoch&&correction.world_revision==rev&&correction.ability.revision==ability_revision,"Ability correction header/content identity");
+                double health{},maximum{};for(const auto& attribute:correction.ability.attributes){if(attribute.id==correction.ability.health_attribute)health=attribute.value;if(attribute.id==correction.ability.maximum_health_attribute)maximum=attribute.value;}
+                require(health==objects.at(index).health.current&&maximum==objects.at(index).health.maximum,"Ability correction Health/lifecycle baseline mismatch");correction.ability.owner.entity=view->find(objects.at(index).id);if(correction.ability.active)correction.ability.active->owner=correction.ability.owner;
+                require(ability_corrections.contains(index)||ability_corrections.size()<4,"Ability correction publication capacity");ability_corrections[index]=std::move(correction);p.ability_parts.erase(index);
+            }
+        }
+        else if(kind==Kind::AbilityCorrectionAck){
+            require(role==SessionRole::Server&&hello.protocol>=3&&index&&chunks==0&&total==0,"Ability correction ACK direction/profile");auto ability_revision=r.u64(),through=r.u64();r.end();if(rev<revision)return;
+            require(rev==revision&&p.state==SessionReadiness::Ready&&motor_inputs.contains(index)&&motor_inputs.at(index).owner==p.handle,"Ability correction ACK ownership/lifecycle");auto tuple=std::tuple{index,rev,ability_revision,through};
+            auto sent=std::find(p.ability_sent_frames.begin(),p.ability_sent_frames.end(),tuple);if(sent==p.ability_sent_frames.end()){if(!p.ability_sent_frames.empty()&&ability_revision<std::get<2>(p.ability_sent_frames.front()))return;require(false,"Ability correction ACK not sent/retained");}
+            require(abilities.contains(index),"Ability correction ACK owner retired");auto snapshot=abilities.at(index)->snapshot();if(through>snapshot.retired_through){auto candidate=std::make_unique<AbilityState>(*abilities.at(index));candidate->retire(through);commit_ability(index,std::move(candidate),{});}
+        }
         else throw std::runtime_error("Unapproved client operation/session message");p.progress=clock;
+    }
+    void pump_abilities(Peer& p){
+        if(hello.protocol<3||p.state!=SessionReadiness::Ready)return;
+        auto owned=[&](std::uint64_t id){return abilities.contains(id)&&motor_inputs.contains(id)&&motor_inputs.at(id).owner==p.handle;};
+        std::erase_if(p.ability_sent,[&](const auto& item){return !owned(item.first);});std::erase_if(p.ability_sending,[&](const auto& item){return !owned(item.first);});
+        for(const auto& [id,state]:abilities){auto control=motor_inputs.find(id);if(control==motor_inputs.end()||control->second.owner!=p.handle||!motor_states.contains(id))continue;auto snapshot=state->snapshot();if(snapshot.tick!=motor_states.at(id).tick||!state->pending_hits.empty())continue;
+            auto sending=p.ability_sending.find(id);if(sending!=p.ability_sending.end()&&sending->second.world_revision!=revision){p.ability_sending.erase(sending);sending=p.ability_sending.end();}
+            if(sending==p.ability_sending.end()){auto sent=p.ability_sent.find(id);if(sent!=p.ability_sent.end()&&sent->second==std::pair{snapshot.revision,revision}&&clock%30!=0)continue;AbilityCorrection correction{id,hello.session_epoch,revision,motor_states.at(id),snapshot};auto bytes=session_detail::encode_ability_correction(correction);p.ability_sending[id]={revision,snapshot.revision,snapshot.highest_operation,std::move(bytes),0};}
+            auto& frame=p.ability_sending.at(id);auto chunks=(frame.bytes.size()+ability_chunk_bytes-1)/ability_chunk_bytes;
+            for(;frame.next<chunks;++frame.next){auto w=header(Kind::AbilityCorrection,hello,frame.world_revision,id,chunks,frame.bytes.size());w.u64(frame.ability_revision);w.u64(frame.next);auto first=frame.next*ability_chunk_bytes;w.bytes.insert(w.bytes.end(),frame.bytes.begin()+first,frame.bytes.begin()+std::min(frame.bytes.size(),first+ability_chunk_bytes));require(w.bytes.size()<=packet_limit,"Ability correction packet budget");if(!send(p,std::move(w),Delivery::UnreliableState))return;}
+            p.ability_sent[id]={frame.ability_revision,frame.world_revision};auto tuple=std::tuple{id,frame.world_revision,frame.ability_revision,frame.highest_operation};if(p.ability_sent_frames.empty()||p.ability_sent_frames.back()!=tuple)p.ability_sent_frames.push_back(tuple);while(p.ability_sent_frames.size()>64)p.ability_sent_frames.pop_front();p.ability_sending.erase(id);
+        }
     }
     void pump_collision(Peer& p){
         if(!latest_collision||p.state!=SessionReadiness::Ready)return;for(const auto& actor:latest_collision->actors)if(!objects.contains(actor.id))return;
@@ -134,7 +163,7 @@ struct WorldSession::Impl {
     }
     void pump(Peer& p){
         if(!p.ready_sent){auto w=header(Kind::Hello,hello);w.u64(hello.protocol);for(const auto* hash:{&hello.schema_hash,&hello.content_hash})for(char c:*hash)w.bytes.push_back(static_cast<std::byte>(c));w.u64(role==SessionRole::Server&&latest_collision.has_value()?1:0);if(send(p,std::move(w)))p.ready_sent=true;return;}if(!p.greeting)return;
-        if(role==SessionRole::Client){if(p.collision_ack_pending&&p.state==SessionReadiness::Ready){auto frame=std::find_if(collision_states.begin(),collision_states.end(),[&](const auto& value){return value.tick==*p.collision_ack_pending;});require(frame!=collision_states.end(),"Prepared collision ACK expired before send");auto w=header(Kind::CollisionAck,hello,revision,frame->tick);w.u64(frame->topology);if(send(p,std::move(w))){p.collision_stats.has_ack=true;p.collision_stats.ack_tick=frame->tick;p.collision_stats.ack_topology=frame->topology;p.collision_stats.needs_resync=false;p.collision_ack_pending.reset();}}if(!p.content_sent){if(send(p,header(Kind::ContentReady,hello))){p.content_sent=true;p.state=SessionReadiness::Bootstrap;}return;}if(p.await_ack && send(p,header(Kind::Ack,hello,revision)))p.await_ack=false;return;}
+        if(role==SessionRole::Client){if(p.state==SessionReadiness::Ready)for(auto it=ability_ack_pending.begin();it!=ability_ack_pending.end();){auto [world_revision,ability_revision,through]=it->second;if(world_revision!=revision){it=ability_ack_pending.erase(it);continue;}auto w=header(Kind::AbilityCorrectionAck,hello,world_revision,it->first);w.u64(ability_revision);w.u64(through);if(!send(p,std::move(w)))break;it=ability_ack_pending.erase(it);}if(p.collision_ack_pending&&p.state==SessionReadiness::Ready){auto frame=std::find_if(collision_states.begin(),collision_states.end(),[&](const auto& value){return value.tick==*p.collision_ack_pending;});require(frame!=collision_states.end(),"Prepared collision ACK expired before send");auto w=header(Kind::CollisionAck,hello,revision,frame->tick);w.u64(frame->topology);if(send(p,std::move(w))){p.collision_stats.has_ack=true;p.collision_stats.ack_tick=frame->tick;p.collision_stats.ack_topology=frame->topology;p.collision_stats.needs_resync=false;p.collision_ack_pending.reset();}}if(!p.content_sent){if(send(p,header(Kind::ContentReady,hello))){p.content_sent=true;p.state=SessionReadiness::Bootstrap;}return;}if(p.await_ack && send(p,header(Kind::Ack,hello,revision)))p.await_ack=false;return;}
         if(!p.content_sent || p.await_ack)return;
         if(p.sending.empty() && p.next_chunk==0 && p.state!=SessionReadiness::Bootstrap && p.acked_revision==revision){if(p.state!=SessionReadiness::Ready && send(p,header(Kind::Ready,hello,revision)))p.state=SessionReadiness::Ready;return;}
         if(p.next_chunk==0){p.sending.clear();for(const auto& [id,o]:objects)p.sending.push_back(o);if(p.sent_revision!=revision)p.collision_stats.has_ack=false;p.sent_revision=revision;p.chunks=std::max<std::size_t>(1,(p.sending.size()+per_chunk-1)/per_chunk);p.state=SessionReadiness::Bootstrap;}
@@ -145,8 +174,8 @@ struct WorldSession::Impl {
 WorldSession::WorldSession(SessionRole r,SessionHandshake h,SessionLimits l):impl_(std::make_unique<Impl>(r,std::move(h),l)){}
 WorldSession::~WorldSession()=default;
 void WorldSession::attach(Transport& t,ConnectionHandle h){auto& s=*impl_;s.thread();require(t.limits().payload_bytes>=packet_limit && t.limits().queued_bytes>=packet_limit,"Provider payload/queue too small for session protocol");for(const auto& [handle,peer]:s.peers)require(peer.transport!=&t,"Transport already attached to this session");require(t.valid(h) && h.transport && h.epoch && h.peer && !s.peers.contains(h) && s.peers.size()<s.limits.peers && (s.role==SessionRole::Server || s.peers.empty()),"Invalid session peer");s.peers.emplace(h,Impl::Peer{&t,h,SessionReadiness::Handshake,s.clock});}
-void WorldSession::detach(ConnectionHandle h){impl_->thread();for(auto& [id,q]:impl_->motor_inputs)if(q.owner==h){q.pending.clear();q.last={};q.owner={};}require(impl_->peers.erase(h)==1,"Unknown session peer");if(impl_->role==SessionRole::Client){impl_->objects.clear();impl_->motor_states.clear();impl_->collision_states.clear();impl_->view=impl_->build({});impl_->revision=0;}}
-void WorldSession::tick(){auto& s=*impl_;s.thread();++s.clock;for(auto it=s.peers.begin();it!=s.peers.end();){auto& p=it->second;p.packet_work=0;try{require(p.transport->connected(),"Session peer disconnected");if(!p.collision_parts.empty()&&s.clock-p.collision_partial_birth>s.limits.collision_timeout_ticks){p.collision_parts.clear();++p.collision_stats.expired;p.collision_stats.needs_resync=true;}require(p.state==SessionReadiness::Ready || s.clock-p.progress<=s.limits.timeout_ticks,"Bootstrap timeout");for(const auto& m:p.transport->poll(std::min(s.limits.packets_per_tick,p.transport->limits().packets)))s.receive(p,m);s.pump(p);if(s.role==SessionRole::Server&&p.state==SessionReadiness::Ready){for(const auto& [id,state]:s.motor_states){auto sent=p.motor_sent.find(id);if(sent!=p.motor_sent.end()&&sent->second==std::pair{state.tick,s.revision}&&s.clock%30!=0)continue;auto w=header(Kind::MotorSnapshot,s.hello,s.revision,id);write_motor(w,state);if(!s.send(p,std::move(w),Delivery::UnreliableState))break;p.motor_sent[id]={state.tick,s.revision};}s.pump_collision(p);}++it;}catch(...){if(p.transport->valid(p.handle))p.transport->disconnect(p.handle);for(auto& [id,q]:s.motor_inputs)if(q.owner==p.handle){q.pending.clear();q.last={};q.owner={};}it=s.peers.erase(it);if(s.role==SessionRole::Client){s.objects.clear();s.motor_states.clear();s.collision_states.clear();s.view=s.build({});s.revision=0;}throw;}}}
+void WorldSession::detach(ConnectionHandle h){impl_->thread();for(auto& [id,q]:impl_->motor_inputs)if(q.owner==h){q.pending.clear();q.last={};q.owner={};}require(impl_->peers.erase(h)==1,"Unknown session peer");if(impl_->role==SessionRole::Client){impl_->objects.clear();impl_->motor_states.clear();impl_->collision_states.clear();impl_->ability_corrections.clear();impl_->ability_ack_pending.clear();impl_->view=impl_->build({});impl_->revision=0;}}
+void WorldSession::tick(){auto& s=*impl_;s.thread();++s.clock;for(auto it=s.peers.begin();it!=s.peers.end();){auto& p=it->second;p.packet_work=0;try{require(p.transport->connected(),"Session peer disconnected");if(!p.collision_parts.empty()&&s.clock-p.collision_partial_birth>s.limits.collision_timeout_ticks){p.collision_parts.clear();++p.collision_stats.expired;p.collision_stats.needs_resync=true;}for(auto partial=p.ability_parts.begin();partial!=p.ability_parts.end();)if(s.clock-partial->second.birth>s.limits.collision_timeout_ticks){partial=p.ability_parts.erase(partial);s.ability_resync=true;}else ++partial;require(p.state==SessionReadiness::Ready || s.clock-p.progress<=s.limits.timeout_ticks,"Bootstrap timeout");for(const auto& m:p.transport->poll(std::min(s.limits.packets_per_tick,p.transport->limits().packets)))s.receive(p,m);s.pump(p);if(s.role==SessionRole::Server&&p.state==SessionReadiness::Ready){s.pump_abilities(p);for(const auto& [id,state]:s.motor_states){auto sent=p.motor_sent.find(id);if(sent!=p.motor_sent.end()&&sent->second==std::pair{state.tick,s.revision}&&s.clock%30!=0)continue;auto w=header(Kind::MotorSnapshot,s.hello,s.revision,id);write_motor(w,state);if(!s.send(p,std::move(w),Delivery::UnreliableState))break;p.motor_sent[id]={state.tick,s.revision};}s.pump_collision(p);}++it;}catch(...){if(p.transport->valid(p.handle))p.transport->disconnect(p.handle);for(auto& [id,q]:s.motor_inputs)if(q.owner==p.handle){q.pending.clear();q.last={};q.owner={};}it=s.peers.erase(it);if(s.role==SessionRole::Client){s.objects.clear();s.motor_states.clear();s.collision_states.clear();s.ability_corrections.clear();s.ability_ack_pending.clear();s.view=s.build({});s.revision=0;}throw;}}}
 std::uint64_t WorldSession::create(ObjectData o){auto& s=*impl_;s.authority();require(s.objects.size()<s.limits.objects && s.next_id<std::numeric_limits<std::uint64_t>::max(),"Session identity/capacity exhausted");require(!o.network.value && !o.target && o.scripts.records.empty() && o.scripts.count==0 && o.optional_json.empty(),"Unsupported replicated object fields");o.network.value=s.next_id;auto candidate=s.objects;candidate.emplace(s.next_id,o);s.view->create(o);s.objects=std::move(candidate);++s.revision;return s.next_id++;}
 void WorldSession::move(std::uint64_t id,const Transform& t){auto& s=*impl_;s.authority();require(s.objects.contains(id),"Unknown network identity");require(!s.motor_states.contains(id),"Living character movement requires motor publication");auto candidate=s.objects;candidate.at(id).transform=t;s.view->set_transform(s.view->find(candidate.at(id).id),t,Authority::Server);s.objects=std::move(candidate);++s.revision;}
 void WorldSession::destroy(std::uint64_t id){
@@ -244,8 +273,8 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                 auto& victim=*prepared.at(target.network);auto& motor=s.motor_states.at(target.network);
                 if(motor.tick!=tick||motor.epoch!=target.epoch||!query.matches(target.network,motor)||victim.health().current<=0)continue;
                 if(!source->remember_hit(hit,target.network,target.epoch))continue;
-                auto source_snapshot=source->snapshot(),target_snapshot=victim.snapshot();
-                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_snapshot.attributes,target_snapshot.attributes};
+                auto source_attributes=source->attribute_values(),target_attributes=victim.attribute_values();
+                DamageContext context{hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,hit.profile.power,source_attributes,target_attributes};
                 auto amount=s.damage_evaluators.at(hit.profile.evaluator)(context);require(std::isfinite(amount)&&amount>=0&&amount<=1e9,"Game damage evaluator output bounds");
                 auto before=victim.health().current;auto death=victim.damage(amount);updates.insert(updates.end(),death.begin(),death.end());auto after=victim.health().current;
                 require(results.size()<128,"Damage result batch bound");results.push_back({hit.handle,victim.owner(),tick,hit.interval.block,hit.interval.loop,hit.profile.damage_type,before,after,before-after,after<=0});
@@ -257,5 +286,13 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
     // Preparation, evaluator calls and all bounded queue checks completed first.
     for(const auto& [id,state]:prepared){auto health=state->health();auto& object=s.objects.at(id);if(object.health.current!=health.current||object.health.maximum!=health.maximum){s.view->apply_server_health(state->owner().entity,health);object.health=health;changed=true;}}
     s.abilities=std::move(prepared);s.ability_actions=std::move(queue);s.resolved_hit_tick=tick;if(changed)++s.revision;return results;
+}
+}
+
+namespace darkangel {
+const std::map<std::uint64_t,AbilityCorrection>& WorldSession::ability_corrections()const{impl_->thread();return impl_->ability_corrections;}
+bool WorldSession::ability_correction_needs_resync()const{impl_->thread();return impl_->ability_resync;}
+void WorldSession::acknowledge_ability_correction(std::uint64_t network){
+    auto& s=*impl_;s.thread();require(s.role==SessionRole::Client&&s.hello.protocol>=3&&s.ability_corrections.contains(network)&&!s.peers.empty()&&s.peers.begin()->second.state==SessionReadiness::Ready,"Ability correction ACK requires a complete owner bundle");const auto& correction=s.ability_corrections.at(network);require(correction.world_revision==s.revision&&s.view->valid(correction.ability.owner.entity),"Ability correction ACK stale lifecycle");s.ability_ack_pending[network]={correction.world_revision,correction.ability.revision,correction.ability.highest_operation};s.ability_resync=false;
 }
 }

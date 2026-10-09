@@ -51,6 +51,7 @@ struct AbilityActionUpdate {
     AbilityActionReason reason{AbilityActionReason::Completed};std::uint64_t tick{};ActionBatch batch;
 };
 struct AbilityAttributeValue {AttributeId id{};double value{};};
+struct AbilitySnapshotOperation {std::uint64_t operation{};AbilityFailure failure{};std::uint64_t activation{};bool committed{};};
 struct AbilityOwnerSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},grant_generation{},revision{};
     std::vector<AbilityAttributeValue> attributes;
@@ -58,5 +59,9 @@ struct AbilityOwnerSnapshot {
     std::optional<ActionState> action;
     std::vector<std::pair<std::uint32_t,std::uint64_t>> cooldowns;
     std::size_t retained_operations{};
+    std::uint64_t highest_operation{},retired_through{};
+    AttributeId health_attribute{},maximum_health_attribute{};
+    std::vector<AbilitySnapshotOperation> operations;
+    AssetId ability,action_definition;std::string ability_generation;CombatSlot active_slot{};
 };
 }

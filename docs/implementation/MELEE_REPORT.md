@@ -28,3 +28,6 @@ Reproduce `python scripts/verify_melee.py --build`; receipt [melee.json](evidenc
 - Native AnimationGraph/CombatKit frozen assets, typed parameters/events and stance swapping; reflected native source authoring/Character/Ability/Composer workflows and graph/mask/additive/GPU motion qualification.
 - Effects/tags, deferred reservations, immunity/defence/stagger/status/death policies, checked Luau APIs and durable attribution; runtime health UI.
 - All remaining M4 clock/input redundancy/fault matrix, multi-owner stress, precise Royal collision, region/cell lifecycle barriers and performance/bandwidth gates. M3 live EOS remains blocked on external private service inputs; M6 remains not started.
+
+
+Latest owner-correction increment (9 October): [atomic ability/motor correction](ABILITY_CORRECTION_REPORT.md) adds protocol-3 owner-only fragmented bundles, exact terminal operation inclusion, lifecycle/Health checks and native-prepared ACK retirement. Client ability intents/receipts, owner prediction, observer actions and playable Royal integration remain open; M4/M5 remain In progress. Reproduce `python scripts/verify_ability_correction.py --build`.
