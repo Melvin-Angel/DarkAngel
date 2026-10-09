@@ -1,10 +1,6 @@
-[1/32] Scanning C:\DarkAngel\engine\runtime\effects.cpp for CXX dependencies
-[2/32] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
-[3/10] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effects.cpp.obj
-[4/10] Linking CXX static library DarkAngelRuntime.lib
-[5/10] Linking CXX executable AbilityIntentTests.exe
-[6/10] Linking CXX executable DarkAngelHeadless.exe
-[7/10] Linking CXX executable AbilityObserverTests.exe
-[8/10] Linking CXX executable AbilityPredictionTests.exe
-[9/10] Linking CXX executable AbilityCorrectionTests.exe
-[10/10] Linking CXX executable AbilityTests.exe
+[1/6] Linking CXX executable DarkAngelHeadless.exe
+[2/6] Linking CXX executable AbilityIntentTests.exe
+[3/6] Linking CXX executable AbilityPredictionTests.exe
+[4/6] Linking CXX executable AbilityObserverTests.exe
+[5/6] Linking CXX executable AbilityCorrectionTests.exe
+[6/6] Linking CXX executable AbilityTests.exe

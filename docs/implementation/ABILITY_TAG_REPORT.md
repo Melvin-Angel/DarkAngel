@@ -1,3 +1,5 @@
+Current extension: action tags and owner schema4 provenance are verified in ACTION_TAG_REPORT.md. Tagged ability/kit source binding is verified in TAGGED_ABILITY_ASSET_REPORT.md. The schema3/native-only scope below describes this earlier checkpoint.
+
 # Native activation requirements and replicated actor tags
 
 9 October 2026, following effect-asset checkpoint 583d275. M4/M5 remain **In progress**.

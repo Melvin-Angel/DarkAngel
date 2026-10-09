@@ -1,5 +1,6 @@
 #include "ability_wire.hpp"
 #include "session_wire.hpp"
+#include <algorithm>
 #include <cmath>
 #include <set>
 namespace darkangel::session_detail {
@@ -15,7 +16,7 @@ ActorTagSnapshot read_tags(Reader& r){ActorTagSnapshot tags;auto present=r.u64()
 }
 std::vector<std::byte> encode_ability_correction(const AbilityCorrection& correction){
     const auto& state=correction.ability;wire_require(state.attributes.size()<=64&&state.cooldowns.size()<=32&&state.operations.size()<=128,"Ability correction encoding bounds");
-    Writer w;w.u64(3);w.u64(correction.network);w.u64(correction.session_epoch);w.u64(correction.world_revision);write_motor(w,correction.motor);
+    Writer w;w.u64(4);w.u64(correction.network);w.u64(correction.session_epoch);w.u64(correction.world_revision);write_motor(w,correction.motor);
     for(auto value:{state.tick,state.grant_generation,state.revision,state.highest_operation,state.retired_through})w.u64(value);
     w.u64(state.health_attribute);w.u64(state.maximum_health_attribute);
     w.u64(state.next_activation);
@@ -25,10 +26,10 @@ std::vector<std::byte> encode_ability_correction(const AbilityCorrection& correc
     w.u64(state.operations.size());for(const auto& operation:state.operations){w.u64(operation.operation);w.u64(static_cast<unsigned>(operation.failure));w.u64(operation.activation);w.u64(operation.committed);}
     wire_require(bool(state.active)==bool(state.action),"Ability correction active/action pairing");w.u64(state.active?1:0);
     if(state.active){const auto& action=*state.action;w.u64(state.active->activation);write_id(w,state.ability);write_id(w,state.action_definition);generation(w,state.ability_generation);w.u64(static_cast<unsigned>(state.active_slot));for(auto value:{action.tick,action.clock,std::uint64_t(action.rate),std::uint64_t(action.phase),std::uint64_t(action.entered)})w.u64(value);generation(w,action.generation);}
-    write_tags(w,state.tags);wire_require(w.bytes.size()<=8192,"Ability correction byte bound");return std::move(w.bytes);
+    write_tags(w,state.tags);wire_require(state.action_only_tags.size()<=16&&(state.active||state.action_only_tags.empty()),"Action tag provenance bound/pairing");w.u64(state.action_only_tags.size());std::set<TagId> only;for(auto tag:state.action_only_tags){wire_require(only.insert(tag).second&&std::find(state.tags.values.begin(),state.tags.values.end(),tag)!=state.tags.values.end(),"Action tag provenance identity");w.u64(tag);}wire_require(w.bytes.size()<=8192,"Ability correction byte bound");return std::move(w.bytes);
 }
 AbilityCorrection decode_ability_correction(std::span<const std::byte> bytes){
-    wire_require(bytes.size()<=8192,"Ability correction decode byte bound");Reader r{bytes};wire_require(r.u64()==3,"Ability correction schema");AbilityCorrection result;result.network=r.u64();result.session_epoch=r.u64();result.world_revision=r.u64();wire_require(result.network&&result.session_epoch,"Ability correction identity");result.motor=read_motor(r);auto& state=result.ability;state.owner.network=result.network;state.owner.session_epoch=result.session_epoch;
+    wire_require(bytes.size()<=8192,"Ability correction decode byte bound");Reader r{bytes};wire_require(r.u64()==4,"Ability correction schema");AbilityCorrection result;result.network=r.u64();result.session_epoch=r.u64();result.world_revision=r.u64();wire_require(result.network&&result.session_epoch,"Ability correction identity");result.motor=read_motor(r);auto& state=result.ability;state.owner.network=result.network;state.owner.session_epoch=result.session_epoch;
     state.tick=r.u64();state.grant_generation=r.u64();state.revision=r.u64();state.highest_operation=r.u64();state.retired_through=r.u64();wire_require(state.tick==result.motor.tick&&state.retired_through<=state.highest_operation,"Ability correction coherent tick/operation retirement");
     auto health=r.u64(),maximum=r.u64();wire_require(health&&maximum&&health!=maximum&&health<=UINT32_MAX&&maximum<=UINT32_MAX,"Ability correction Health schema IDs");state.health_attribute=static_cast<AttributeId>(health);state.maximum_health_attribute=static_cast<AttributeId>(maximum);
     state.next_activation=r.u64();wire_require(state.next_activation,"Ability correction activation sequence");
@@ -42,7 +43,7 @@ AbilityCorrection decode_ability_correction(std::span<const std::byte> bytes){
     for(std::uint64_t i=0;i<count;++i){AbilitySnapshotOperation operation;operation.operation=r.u64();auto failure=r.u64();operation.activation=r.u64();auto committed=r.u64();wire_require(operation.operation>previous&&operation.operation<=state.highest_operation&&operation.activation<state.next_activation&&failure<=static_cast<unsigned>(AbilityFailure::TagRequirements)&&committed<=1&&(!committed||(failure==0&&operation.activation)),"Ability correction terminal operation");previous=operation.operation;operation.failure=static_cast<AbilityFailure>(failure);operation.committed=committed!=0;state.operations.push_back(operation);}
     state.retained_operations=state.operations.size();auto active=r.u64();wire_require(active<=1,"Ability correction active flag");
     if(active){auto activation=r.u64();state.ability=read_id(r);state.action_definition=read_id(r);state.ability_generation=generation(r);auto slot=r.u64();ActionState action;action.activation=activation;action.tick=r.u64();action.clock=r.u64();auto rate=r.u64(),phase=r.u64(),entered=r.u64();wire_require(activation&&activation<state.next_activation&&slot<combat_slot_count&&action.tick==state.tick&&action.clock<=600*action_tick_units*8&&rate<=4*action_tick_units&&phase==static_cast<unsigned>(ActionPhase::Active)&&entered==1,"Ability correction active action state");action.rate=static_cast<unsigned>(rate);action.phase=ActionPhase::Active;action.entered=true;action.generation=generation(r);state.active_slot=static_cast<CombatSlot>(slot);state.active=AbilityActivationHandle{state.owner,activation};state.action=action;}
-    state.tags=read_tags(r);r.end();return result;
+    state.tags=read_tags(r);count=r.u64();wire_require(count<=16&&(state.active||!count),"Action tag provenance count/pairing");std::set<TagId> only;for(std::uint64_t i=0;i<count;++i){auto tag=r.u64();wire_require(tag&&tag<=UINT32_MAX&&only.insert(static_cast<TagId>(tag)).second&&std::find(state.tags.values.begin(),state.tags.values.end(),static_cast<TagId>(tag))!=state.tags.values.end(),"Action tag provenance identity");state.action_only_tags.push_back(static_cast<TagId>(tag));}r.end();return result;
 }
 std::vector<std::byte> encode_ability_public(const AbilityPublicFrame& frame){
     const auto& state=frame.ability;wire_require(!state.attributes.empty()&&state.attributes.size()<=64&&bool(state.active)==bool(state.action),"Public ability encoding bounds");Writer w;w.u64(2);w.u64(frame.network);w.u64(frame.session_epoch);w.u64(frame.world_revision);write_motor(w,frame.motor);w.u64(state.tick);w.u64(state.revision);w.u64(state.health_attribute);w.u64(state.maximum_health_attribute);

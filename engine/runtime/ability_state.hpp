@@ -58,6 +58,7 @@ private:
     std::map<std::uint32_t,std::uint64_t> cooldowns_;
     std::map<std::uint64_t,Record> records_;
     AbilityFailure validate(const AbilityRequest&)const;
-    std::vector<AbilityActionUpdate> stop(AbilityActionReason);
+    std::vector<AbilityActionUpdate> stop(AbilityActionReason,bool release_tags=true);
+    void sync_action_tags();
 };
 }

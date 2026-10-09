@@ -1,0 +1,23 @@
+# Native action-owned tags and correction provenance
+
+9 October 2026, following checkpoint cd94ee1. M4/M5 remain **In progress**.
+
+The existing AbilityState now owns one reserved action tag contributor. Frozen AbilityDefinition bindings associate numeric tag IDs with existing Invulnerability or MovementLock block IDs. Up to 16 distinct block/tag pairs are accepted; unknown IDs, duplicate pairs, unsupported block kinds and registry-generation mismatches reject before grant publication. Optional `.daability` `action_tags` entries use `{ "block": 4, "tag": 2 }` alongside the existing typed tag registry and requirements. Cooked ability/kit generation closure and source-free loading preserve those bindings.
+
+Current tags follow the active half-open action interval clock. Entry at time zero, hitstop, overlapping windows, finite loops and completion use the same prepared timeline. Cancel, replacement, grant removal, death and disconnect release only the action contributor. Effect IDs, action ownership and synthetic restored aggregates occupy distinct token namespaces. Replacement installs one final contribution view, avoiding transient suppression/removal and resource clamps when an outgoing and incoming action grant the same tag. Disconnect publishes resource clamps and Health with its prepared cleanup.
+
+Ongoing native effect requirements see action tags. Their existing Suppress/Remove and modifier rules recompute when the action contribution changes; a game-owned damage evaluator can inspect authoritative tags without client-provided damage. Existing hit/root traversal retains its separate bounded interval semantics. The active tag snapshot describes the current clock, rather than preserving a tag for a window entirely crossed within one tick.
+
+Owner correction payload schema is now 4; public payload schema remains 2 and transport protocol remains 3. Alongside the existing tag aggregate, the owner receives at most 16 action-only exact IDs. Tags also supplied by effects remain in the external baseline. The disposable owner candidate restores that external aggregate, reconstructs the frozen active action contribution, validates the resulting aggregate and then replays pending operations. Pending cancel or rejected activation releases its own tags without deleting an external contributor. Unknown, duplicate, non-current provenance and generation failures preserve the previous view and require resynchronization. Existing 8192/4096-byte payload, fragment and packet limits remain; the maximum active owner tag/attribute/cooldown/operation/provenance fixture fits them.
+
+Public observers receive only current public tag presence, with no owner provenance or private movement tags. They restore an active phase without executing historical cues or damage. Server-only action bindings are explicitly unsupported by the initial owner prediction subset, like requirements influenced by private server tags.
+
+## Verification
+
+68/68 complete optimized native tests pass, together with the dedicated fixture in native/full-editor/Headless, extended authored ability fixtures, existing tagged-kit/scene/effect/Royal/observer/prediction checks, 16/16 affected Royal, 6/6 ordinary Headless, D3D12/Vulkan combat and GNS compatibility. Final source/binary hashes and linked receipts are recorded in `evidence/action-tags.json`. Reproduce with `python scripts/verify_action_tags.py --build`.
+
+The dedicated fixture exercises entry/hitstop/overlapping windows/loops, completion, idempotent and stale cancellation, replacement, grant/death/disconnect cleanup, frozen binding rejection, exact correction and pending cancellation/rejection, external overlap, schema bounds, observer preparation, native ongoing policies and maximum-resource atomicity. The Jolt melee fixture checks action invulnerability through the existing game-owned damage evaluator and achieved-pose hit path.
+
+## Remaining gates
+
+Prediction reverses the action contribution while holding confirmed external tag and attribute state until a newer correction. It does not predict effect instances/timers, periodic damage or effect-dependent attribute recomputation. Next is replicated effect instance/lifetime/attribution and persistent status-cue state, including late join. Deferred reservations, authored Royal dodge/status/motor/combo/projectile gameplay, typed graph/layer/mask/socket and reflected authoring, generated constants/checked Luau, clock/fault/streaming/bandwidth/allocation/full-frame performance qualification and graphical RmlUi bars remain open. Primary Royal preserves its light attack and original assets. M3 live EOS remains externally blocked; M6 has not started.

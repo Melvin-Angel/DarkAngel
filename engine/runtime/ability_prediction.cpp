@@ -17,6 +17,7 @@ struct OwnerAbilityPrediction::Impl {
         :state(baseline.owner,baseline.tick,schema,baseline.health_attribute,baseline.maximum_health_attribute),confirmed(baseline),highest_submitted(baseline.highest_operation),avatar_epoch(epoch){
         require(epoch,"Ability prediction avatar epoch");
         if(tags)state.configure_tags(std::move(tags));const auto& dictionary=state.effects().tags().dictionary();
+        for(const auto& ability:catalogue)if(ability)for(const auto& binding:ability->action_tags){auto definitions=dictionary.definitions();auto d=std::find_if(definitions.begin(),definitions.end(),[&](const auto& value){return value.id==binding.tag;});require(d!=definitions.end()&&d->visibility!=AttributeVisibility::Server,"Owner prediction cannot grant server-only action tags");}
         for(const auto& ability:catalogue)if(ability)for(const auto* list:{&ability->requirements.all,&ability->requirements.any,&ability->requirements.none})for(auto tag:*list)for(const auto& d:dictionary.definitions())require(d.visibility!=AttributeVisibility::Server||!dictionary.descends(d.id,tag),"Owner prediction cannot depend on server-only tag state");
         state.equip(std::move(kit),input,catalogue);state.restore_prediction(baseline);
         AttributeSet validation(std::move(schema));

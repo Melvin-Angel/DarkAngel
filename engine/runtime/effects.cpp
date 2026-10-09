@@ -6,6 +6,7 @@
 #include <stdexcept>
 namespace darkangel {
 namespace {
+constexpr std::uint64_t action_tag_token=UINT64_MAX-16;
 void checked(bool b,const char* message){if(!b)throw std::invalid_argument(message);}
 std::vector<AbilityAttributeValue> values(const AttributeSet& attributes){std::vector<AbilityAttributeValue> result;for(const auto& d:attributes.definitions())result.push_back({d.id,attributes.value(d.id)});return result;}
 std::shared_ptr<const EffectDefinition> freeze(const EffectDefinition& d,const AttributeSet& attributes,const TagDictionary& dictionary){
@@ -23,6 +24,14 @@ void credit_valid(const EffectCredit& c){
 }
 }
 OwnedEffects::OwnedEffects(std::shared_ptr<const TagDictionary> dictionary,std::uint64_t tick):tags_(std::move(dictionary)),tick_(tick){}
+void OwnedEffects::set_action_tags(std::span<const TagId> tags,AttributeSet& attributes){
+ if(std::equal(tags.begin(),tags.end(),action_tags_.begin(),action_tags_.end()))return;
+ auto candidate=*this;auto prepared=attributes;candidate.tags_.remove(action_tag_token);
+ if(!tags.empty())candidate.tags_.add(action_tag_token,tags);
+ candidate.action_tags_={tags.begin(),tags.end()};
+ candidate.contributions(prepared);*this=std::move(candidate);attributes=std::move(prepared);
+}
+std::vector<TagId> OwnedEffects::external_tags(AttributeVisibility audience)const{return tags_.values(audience,action_tag_token);}
 std::shared_ptr<const EffectDefinition> freeze_effect_definition(const EffectDefinition& source,const AttributeSet& attributes,const TagDictionary& tags){return freeze(source,attributes,tags);}
 void OwnedEffects::erase(EffectHandle handle,AttributeSet&){tags_.remove(handle.value);std::erase_if(active_,[&](const auto& a){return a.state.handle==handle;});}
 void OwnedEffects::contributions(AttributeSet& attributes){

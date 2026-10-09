@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <iterator>
 #include <set>
 #include <stdexcept>
 #include <tuple>
@@ -15,13 +16,18 @@ bool same(const AbilityRequest& a,const AbilityRequest& b){
         std::tie(b.input.action,b.input.edge,b.input.time_us,b.input.held_us,b.input.value,b.input.cancelled);
 }
 std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){
-    const bool tagged=source.tag_registry!=AssetId{}||!source.tag_generation.empty()||!source.requirements.all.empty()||!source.requirements.any.empty()||!source.requirements.none.empty();
+    const bool tagged=source.tag_registry!=AssetId{}||!source.tag_generation.empty()||!source.requirements.all.empty()||!source.requirements.any.empty()||!source.requirements.none.empty()||!source.action_tags.empty();
     if(tagged){require(tags&&source.tag_registry!=AssetId{}&&source.tag_registry==tags->registry()&&source.tag_generation==tags->generation(),"Ability tag registry generation mismatch");tags->validate(source.requirements);}
     require(source.id!=AssetId{}&&source.generation.size()==64&&source.generation.find_first_not_of("0123456789abcdef")==std::string::npos,"Ability identity/generation");
     require(source.action&&source.action->id!=AssetId{}&&source.costs.size()<=8&&source.cooldown_ticks<=36000&&
         (source.cooldown_ticks==0||source.cooldown_group!=0)&&static_cast<unsigned>(source.activate_on)<=static_cast<unsigned>(InputEdge::Tapped)&&
         source.minimum_held_us<=10000000&&!(source.cancel_on_release&&source.activate_on==InputEdge::Released),"Ability definition bounds/policy");
     require(source.melee.size()<=8,"Ability melee profile count");std::set<unsigned> hit_blocks;
+    require(source.action_tags.size()<=16,"Ability action tag binding bound");std::set<std::pair<unsigned,TagId>> bindings;
+    for(const auto& binding:source.action_tags){
+        auto block=std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& b){return b.id==binding.block;});
+        require(block!=source.action->blocks.end()&&(block->kind==ActionBlockKind::Invulnerability||block->kind==ActionBlockKind::MovementLock)&&tags&&tags->contains(binding.tag)&&bindings.emplace(binding.block,binding.tag).second,"Ability action tag block/type/identity");
+    }
     for(const auto& hit:source.melee){
         auto block=std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& b){return b.id==hit.block&&b.kind==ActionBlockKind::HitWindow;});
         require(block!=source.action->blocks.end()&&hit_blocks.insert(hit.block).second&&hit.evaluator&&hit.damage_type&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2,"Ability melee profile identity/bounds");
@@ -52,12 +58,21 @@ AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vect
     require(h.kind==AttributeKind::Resource&&h.maximum_attribute==maximum_health_&&h.minimum==0&&maximum.kind==AttributeKind::Statistic&&maximum.minimum>=0,"Ability health schema relationship");
 }
 Health AbilityState::health()const{return {attributes_.value(maximum_health_),attributes_.value(health_)};}
-std::vector<AbilityActionUpdate> AbilityState::stop(AbilityActionReason reason){
+namespace {
+std::vector<TagId> action_tags(const AbilityDefinition& definition,const ActionState& state){
+    std::set<TagId> tags;if(state.phase!=ActionPhase::Active)return {};
+    auto local=state.clock%definition.action->duration;
+    for(const auto& binding:definition.action_tags){const auto& blocks=definition.action->blocks;auto block=std::find_if(blocks.begin(),blocks.end(),[&](const auto& b){return b.id==binding.block;});if(block->begin<=local&&local<block->end)tags.insert(binding.tag);}
+    return {tags.begin(),tags.end()};
+}
+}
+void AbilityState::sync_action_tags(){effects_.set_action_tags(active_?action_tags(*active_->definition,active_->timeline.state()):std::vector<TagId>{},attributes_);}
+std::vector<AbilityActionUpdate> AbilityState::stop(AbilityActionReason reason,bool release_tags){
     pending_hits.clear();
     if(reason==AbilityActionReason::Disconnected||reason==AbilityActionReason::InputLost||reason==AbilityActionReason::Death||reason==AbilityActionReason::Despawned||reason==AbilityActionReason::GrantRemoved)held_.fill({});
     if(!active_)return {};
     AbilityActionUpdate update{{owner_,active_->timeline.state().activation},ActionPhase::Cancelled,reason,tick_,active_->timeline.cancel()};
-    active_.reset();return {std::move(update)};
+    active_.reset();if(release_tags){sync_action_tags();if(health().current<=0)effects_.death(attributes_);}return {std::move(update)};
 }
 std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const CombatKitDefinition> definition,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions){
     require(definition&&definitions.size()<=combat_slot_count,"Ability kit catalogue bound");
@@ -119,10 +134,13 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
             ActionTimeline prepared(definition->action,next_activation_,tick_);auto entry=prepared.enter();
             auto attributes=attributes_;attributes.transact(costs(*definition),true);
             // All allocations and action validation occur in a session-owned candidate.
-            updates=stop(AbilityActionReason::Replaced);
+            attributes_=std::move(attributes);
+            // Replace the action contributor once, after the new execution is
+            // prepared. A remove/re-add could transiently clamp resources.
+            updates=stop(AbilityActionReason::Replaced,false);
             hits_.clear();
             active_.emplace(Execution{request.slot,request.grant_generation,definition,std::move(prepared)});
-            attributes_=std::move(attributes);
+            sync_action_tags();
             if(definition->cooldown_ticks)cooldowns_[definition->cooldown_group]=tick_+definition->cooldown_ticks;
             receipt.handle={owner_,next_activation_++};receipt.committed=true;
             updates.push_back({receipt.handle,ActionPhase::Active,AbilityActionReason::Started,tick_,std::move(entry)});
@@ -149,6 +167,8 @@ std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate,bool ga
         require(pending_hits.size()<=64,"Ability pending hit interval work bound");
         updates.push_back({{owner_,active_->timeline.state().activation},phase,phase==ActionPhase::Completed?AbilityActionReason::Completed:AbilityActionReason::Advanced,tick_,std::move(batch)});
         if(phase==ActionPhase::Completed)active_.reset();
+        sync_action_tags();
+        if(health().current<=0){effects_.death(attributes_);auto death=stop(AbilityActionReason::Death);updates.insert(updates.end(),std::make_move_iterator(death.begin()),std::make_move_iterator(death.end()));}
     }
     if(gameplay_hits&&entered_now&&active_&&active_->timeline.state().clock==0){
         // An action entered in this phase exposes its time-zero hit windows once.
@@ -214,6 +234,7 @@ std::vector<AbilityAttributeValue> AbilityState::attribute_values()const{std::ve
 AbilityOwnerSnapshot AbilityState::snapshot()const{
     AbilityOwnerSnapshot result;result.owner=owner_;result.tick=tick_;result.grant_generation=kit_?kit_->grant_generation():0;result.revision=revision_;
     result.attributes=attribute_values();result.tags=effects_.tags().snapshot(AttributeVisibility::Server);
+    auto external=effects_.external_tags(AttributeVisibility::Server);std::set_difference(result.tags.values.begin(),result.tags.values.end(),external.begin(),external.end(),std::back_inserter(result.action_only_tags));
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.ability=active_->definition->id;result.ability_generation=active_->definition->generation;result.action_definition=active_->definition->action->id;result.active_slot=active_->slot;}
     for(const auto& cooldown:cooldowns_)result.cooldowns.push_back(cooldown);
     result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;result.retained_operations=records_.size();result.highest_operation=highest_operation_;result.retired_through=retired_through_;
@@ -222,7 +243,7 @@ AbilityOwnerSnapshot AbilityState::snapshot()const{
     for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
 }
 AbilityOwnerSnapshot AbilityState::owner_snapshot()const{
-    auto result=snapshot();result.tags=effects_.tags().snapshot(AttributeVisibility::Owner);std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});return result;
+    auto result=snapshot();result.tags=effects_.tags().snapshot(AttributeVisibility::Owner);auto external=effects_.external_tags(AttributeVisibility::Owner);result.action_only_tags.clear();std::set_difference(result.tags.values.begin(),result.tags.values.end(),external.begin(),external.end(),std::back_inserter(result.action_only_tags));std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});return result;
 }
 AbilityPublicSnapshot AbilityState::public_snapshot()const{
     AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
@@ -231,7 +252,10 @@ AbilityPublicSnapshot AbilityState::public_snapshot()const{
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.action_definition=active_->definition->action->id;}return result;
 }
 void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
-    auto effects=effects_;effects.restore_owner_tags(source.tags);
+    auto effects=effects_;auto external=source.tags;effects.tags().dictionary().validate_snapshot(source.tags,AttributeVisibility::Owner);
+    require(source.action_only_tags.size()<=16,"Prediction action tag provenance bound");std::set<TagId> only;
+    for(auto tag:source.action_only_tags)require(only.insert(tag).second&&std::find(source.tags.values.begin(),source.tags.values.end(),tag)!=source.tags.values.end(),"Prediction action tag provenance identity");
+    std::erase_if(external.values,[&](auto tag){return only.contains(tag);});effects.restore_owner_tags(external);
     require(source.owner.network==owner_.network&&source.owner.session_epoch==owner_.session_epoch&&source.grant_generation&&kit_&&source.next_activation&&source.health_attribute==health_&&source.maximum_health_attribute==maximum_health_,"Prediction owner/schema identity");
     require(source.attributes.size()==attributes_.definitions().size()&&source.cooldowns.size()<=32&&source.operations.size()<=128&&source.retired_through<=source.highest_operation,"Prediction baseline bounds");
     std::uint64_t previous=source.retired_through;for(const auto& operation:source.operations){require(operation.operation>previous&&operation.operation<=source.highest_operation&&operation.activation<source.next_activation&&static_cast<unsigned>(operation.failure)<=static_cast<unsigned>(AbilityFailure::TagRequirements)&&(!operation.committed||(operation.failure==AbilityFailure::None&&operation.activation)),"Prediction exact operation baseline");previous=operation.operation;}
@@ -241,6 +265,10 @@ void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
     std::map<std::uint32_t,std::uint64_t> cooldowns;for(auto [group,until]:source.cooldowns)require(group&&until>source.tick&&cooldowns.emplace(group,until).second,"Prediction cooldown baseline");
     require(bool(source.active)==bool(source.action),"Prediction action pairing");std::optional<Execution> execution;
     if(source.active){require(source.active->owner==source.owner&&source.active->activation<source.next_activation&&static_cast<unsigned>(source.active_slot)<combat_slot_count,"Prediction active identity");auto definition=grants_[static_cast<unsigned>(source.active_slot)];require(definition&&definition->id==source.ability&&definition->generation==source.ability_generation&&definition->action->id==source.action_definition&&definition->action->generation==source.action->generation,"Prediction frozen generation mismatch");ActionTimeline timeline(definition->action,source.active->activation,source.tick);timeline.restore(*source.action);require(source.action->tick==source.tick&&source.action->phase==ActionPhase::Active,"Prediction action clock");execution.emplace(Execution{source.active_slot,source.grant_generation,definition,std::move(timeline)});}
+    auto rebuilt=execution?action_tags(*execution->definition,execution->timeline.state()):std::vector<TagId>{};
+    std::erase_if(rebuilt,[&](auto tag){auto definitions=effects.tags().dictionary().definitions();return std::find_if(definitions.begin(),definitions.end(),[&](const auto& d){return d.id==tag;})->visibility==AttributeVisibility::Server;});
+    for(auto tag:only)require(std::find(rebuilt.begin(),rebuilt.end(),tag)!=rebuilt.end(),"Prediction provenance does not belong to active action");
+    effects.set_action_tags(rebuilt,attributes);auto actual=effects.tags().values(AttributeVisibility::Owner);auto expected=source.tags.values;std::sort(expected.begin(),expected.end());require(actual==expected,"Prediction action/aggregate tag mismatch");
     std::array<HeldInput,combat_slot_count> held;std::array<bool,combat_slot_count> rearm;
     for(unsigned i=0;i<combat_slot_count;++i){const auto& input=source.input[i];require(input.pressed<=source.tick&&input.released<=source.tick&&input.duration<=10000000&&(!input.active||!input.released),"Prediction input baseline");held[i]={input.active,input.pressed,input.released,input.duration,input.hold_sent};rearm[i]=input.rearm;}
     attributes_=std::move(attributes);effects_=std::move(effects);active_=std::move(execution);cooldowns_=std::move(cooldowns);held_=held;rearm_=rearm;kit_->generation_=source.grant_generation;held_generation_=source.grant_generation;

@@ -8,8 +8,9 @@
 
 namespace darkangel {
 // Native immediate-commit subset. Definitions are frozen at grant installation.
-// Deferred reservations, effects/tags and targeting are not implied by this API.
+// Deferred reservations and targeting are not implied by this API.
 struct AbilityCost {AttributeId attribute{};double amount{};};
+struct AbilityActionTag {unsigned block{};TagId tag{};};
 struct AbilityMelee {
     unsigned block{};std::array<double,3> offset{};double radius{},power{};
     std::uint32_t evaluator{},damage_type{};
@@ -24,6 +25,8 @@ struct AbilityDefinition {
     InputEdge activate_on{InputEdge::Pressed};std::uint64_t minimum_held_us{};
     bool cancel_on_release{},interruptible{true};
     AssetId tag_registry;std::string tag_generation;TagRequirement requirements;
+    // Typed interval bindings. Their contribution belongs to this execution.
+    std::vector<AbilityActionTag> action_tags;
 };
 // Shared validation/freezing for cooked definitions and runtime grant installation.
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
@@ -85,5 +88,8 @@ struct AbilityOwnerSnapshot {
     std::uint64_t next_activation{1};
     std::array<AbilityInputSnapshot,combat_slot_count> input;
     ActorTagSnapshot tags;
+    // Owner-only provenance: these exact tags have no external contributor.
+    // The remaining aggregate is restored before the frozen action is rebuilt.
+    std::vector<TagId> action_only_tags;
 };
 }

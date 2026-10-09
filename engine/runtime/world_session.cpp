@@ -94,7 +94,11 @@ struct WorldSession::Impl {
     void release_ability_control(ConnectionHandle peer){
         if(role!=SessionRole::Server)return;std::map<std::uint64_t,std::unique_ptr<AbilityState>> prepared;std::vector<AbilityActionUpdate> updates;
         for(const auto& [id,input]:motor_inputs)if(input.owner==peer&&abilities.contains(id)){auto state=std::make_unique<AbilityState>(*abilities.at(id));auto cleanup=state->disconnect();updates.insert(updates.end(),cleanup.begin(),cleanup.end());prepared.emplace(id,std::move(state));}
-        auto queue=queue_actions(updates);for(auto& [id,state]:prepared)abilities.at(id)=std::move(state);ability_actions=std::move(queue);ability_notices.erase(peer);
+        auto queue=queue_actions(updates);bool changed=false;
+        // Releasing action tags can suppress/remove modifiers and clamp Health.
+        // Publish those resource changes with the prepared disconnect cleanup.
+        for(const auto& [id,state]:prepared){auto health=state->health();auto& object=objects.at(id);if(object.health.maximum!=health.maximum||object.health.current!=health.current){view->apply_server_health(state->owner().entity,health);object.health=health;changed=true;}}
+        for(auto& [id,state]:prepared)abilities.at(id)=std::move(state);ability_actions=std::move(queue);ability_notices.erase(peer);if(changed)++revision;
         for(auto& [id,input]:ability_inputs)std::erase_if(input,[&](const auto& record){return record.second.peer==peer;});
     }
     Impl(SessionRole r,SessionHandshake h,SessionLimits l):role(r),hello(std::move(h)),limits(l),view(std::make_unique<World>(r==SessionRole::Server?WorldDomain::Server:WorldDomain::ClientPresentation,l.objects)){

@@ -29,7 +29,7 @@ public:
  void remove(std::uint64_t token);
  bool has(TagId,std::uint64_t excluded_token=0)const;
  bool matches(const TagRequirement&,std::uint64_t excluded_token=0)const;
- std::vector<TagId> values(AttributeVisibility audience=AttributeVisibility::Server)const;
+ std::vector<TagId> values(AttributeVisibility audience=AttributeVisibility::Server,std::uint64_t excluded_token=0)const;
  ActorTagSnapshot snapshot(AttributeVisibility)const;
  // Disposable owner baseline only; contributor internals never cross the wire.
  void restore_snapshot(const ActorTagSnapshot&,AttributeVisibility);

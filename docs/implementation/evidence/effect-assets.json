@@ -1,59 +1,59 @@
 {
   "schema": 1,
-  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
+  "base_head": "cd94ee18e8aa6fc8aad88904b1e30420792c35cd",
   "scope": "Native .daeffect/.datags schema validation, frozen attribute/tag closure, registered source/cook/CAS metadata, stable persistent tag keys, mixed-generation rejection and native effect authority",
   "gates": [
     {
       "name": "effect-assets-product",
       "exit": 0,
-      "seconds": 291.206
+      "seconds": 80.139
     },
     {
       "name": "effect-assets-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 1.256
+      "seconds": 0.093
     },
     {
       "name": "effect-assets-build-m2-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.895
+      "seconds": 0.079
     },
     {
       "name": "effect-assets-native",
       "exit": 0,
-      "seconds": 0.387
+      "seconds": 0.325
     },
     {
       "name": "effect-assets-editor",
       "exit": 0,
-      "seconds": 0.472
+      "seconds": 0.341
     },
     {
       "name": "effect-assets-no-animation",
       "exit": 0,
-      "seconds": 0.386
+      "seconds": 0.342
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "72697e0aa2556b10a6513d197edce56f767a09f0cff7dabdf3f9c56650ae886c",
+    "CMakeLists.txt": "1e032baf88b49f5f3016be08216368c7372755abc5ade8ebec8c4219fb9e0ed3",
     "engine/assets/effect_cooker.cpp": "7458599e76a679a3062a434fd8897143e3649b3a37254f302943db53e764e7e2",
     "engine/assets/include/darkangel/effect_assets.hpp": "259458ab75e4da0f124ddbf5d4e0d1a358f1d2fd03636a7753759ecc81bf1498",
-    "engine/assets/ability_cooker.cpp": "6cf1eccd80369f78ade8a88716cd1c59dece742ba4e3ab9e01d14e75e184be20",
+    "engine/assets/ability_cooker.cpp": "7bd1d4764da3aab23c54224dec679aa9f5043bf1964c0163de79f51930102669",
     "engine/assets/include/darkangel/ability_assets.hpp": "6f4e4d9818fcb786db4231918c1380b183026852e2e37d1906f504dfd772d40d",
     "engine/assets/assets_internal.hpp": "7933dcdb8de5845f2d776d2529e0acea2a282d29561fb54c7fdee79ecbf0c747",
     "engine/assets/asset_service.cpp": "fd5075c66d82e946e78daba30847d296f3ba8152319ea122ac5b6141931c2fea",
-    "engine/runtime/effects.cpp": "0210114da66664b737736b026e7d43874056145afd75411675ed733321d2d097",
-    "engine/runtime/include/darkangel/effects.hpp": "05f4862aeb50f5e2cdbe01c8d99972a0869fa091c715525521aa561fc8669a18",
-    "engine/runtime/tags.cpp": "1e793d336d17ec9d4544c625163c9fa113b9e9181992f70dbab0145e72fc73ef",
+    "engine/runtime/effects.cpp": "1b0dc409e05420d14da2be3fce7f20351958cb31588cc673278059f77840dd91",
+    "engine/runtime/include/darkangel/effects.hpp": "ed162d6887ce42bf696297d97b9821e17d04a524855ab5856e604185d762c2a8",
+    "engine/runtime/tags.cpp": "62b759a25f7003708798408e3129e0b1ad1d01a84d7e5f67f27ab7cd7e1a82f6",
     "engine/runtime/ability_effects.cpp": "33d8e4f9aba6b4528e13a5dbd5f632d7d4c0d6cd57b93b4390bf406373653979",
     "tests/effect_asset_tests.cpp": "a931bcf9cc0e608c98adfcd248d9c372febb9aad80103388f3ff47520d77d42c",
     "tests/effect_tests.cpp": "d627e3a7992245019ac34281d572e86359620f3fc8f2c220896200ae8b2d02f6",
     "scripts/verify_effect_assets.py": "861d79ab2eaacb54da0e8c2c2ab8a4e3aa7c32ae45539f17df912e12fd5cb9d6"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/EffectAssetTests.exe": "667acc7057e3b4a50598442b0d04f040270283df95f299e6ba34a4df28cc52b9",
-    "build/m5-editor-relwithdebinfo/EffectAssetTests.exe": "e9fc893da4b47d6714446952e5d7c428984be09ad7cd321803a18fd5f4d7a9a3",
-    "build/m2-relwithdebinfo/EffectAssetTests.exe": "ee6726f2a20e8d626b96e5a440a1168791130acde31692c3390b3f9165d7920e"
+    "build/m5-relwithdebinfo/EffectAssetTests.exe": "f7c764c9f9c0ddfe6ba9e6018f4cd0e4dbd30854ab5da9feab307bfa282806ce",
+    "build/m5-editor-relwithdebinfo/EffectAssetTests.exe": "8534a9af17518d9249176489ed9aa4f8d2a0d57eb83a085a9bc48aec9770c14c",
+    "build/m2-relwithdebinfo/EffectAssetTests.exe": "d4a1cb9aa72522818c98afe5a2e6aa4be6c5b6c1ce3485ff249c8c3b48ec4d81"
   },
   "related_evidence": [
     "owned-effects.json",

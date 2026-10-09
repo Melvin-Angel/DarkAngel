@@ -1,38 +1,38 @@
 {
   "schema": 1,
-  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
+  "base_head": "cd94ee18e8aa6fc8aad88904b1e30420792c35cd",
   "scope": "Native owner pending commitment view, exact operation inclusion/receipt rejection/dependency invalidation, held-state correction schema2, regenerated root policy and atomic disposable Jolt motor replay; Royal full-editor and Headless integration",
   "gates": [
     {
       "name": "ability-prediction-royal",
       "exit": 0,
-      "seconds": 235.99
+      "seconds": 52.748
     },
     {
       "name": "ability-prediction-editor",
       "exit": 0,
-      "seconds": 0.058
+      "seconds": 0.055
     },
     {
       "name": "ability-prediction-gns-client",
       "exit": 0,
-      "seconds": 0.506
+      "seconds": 0.982
     },
     {
       "name": "ability-prediction-gns-host",
       "exit": 0,
-      "seconds": 0.621
+      "seconds": 1.096
     }
   ],
   "royal_evidence": "royal-combat.json",
   "source_sha256": {
-    "CMakeLists.txt": "72697e0aa2556b10a6513d197edce56f767a09f0cff7dabdf3f9c56650ae886c",
+    "CMakeLists.txt": "1e032baf88b49f5f3016be08216368c7372755abc5ade8ebec8c4219fb9e0ed3",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "bd47bd356665a2c4d50e912e037791e6e25fc49756dbea59f3b7ef46532c30e3",
-    "engine/runtime/ability_prediction.cpp": "149aa3b48b109975dd849d86a8a53b78d3434e719f6fcb604e886b722739f29a",
-    "engine/runtime/include/darkangel/ability.hpp": "33e070d1a48a3b9bb6122728a1a5e75480cb14ad53d5b33863e425e7fbea61d0",
-    "engine/runtime/ability.cpp": "b9f72d8b54800109ea5f53dcde61e4203a9ef3cb35f26c37c5970417b6c2390d",
-    "engine/runtime/ability_state.hpp": "64290bfd0dc56d9ac5d40c1e3f6701d8c9e2b4ea51964b5cfe9c85a1156341c5",
-    "engine/runtime/ability_wire.cpp": "310efe08dabad49014b95c7c31de9a9cc9bbebfebdebfbac0c563df09ba78f75",
+    "engine/runtime/ability_prediction.cpp": "aca9a23a5eb644aff693bcf5cd76274c0026bd2cee11cebb50b76b153797b797",
+    "engine/runtime/include/darkangel/ability.hpp": "8957d4db9f3050b18dc4f96cfb213e7239a9965b9666bf1081dc655bf3380722",
+    "engine/runtime/ability.cpp": "1eb79479c852462362a5e737c867b0c6adccb3e54ac9ec55c752e7a385d52ee8",
+    "engine/runtime/ability_state.hpp": "dc8e14f2b03aa61c04121f0b047d74eb00ca4ee745f713f272819877c936959c",
+    "engine/runtime/ability_wire.cpp": "2fd70aece8d658ef8ffc410c268b9281e518a540c4868303796cb1d77839e159",
     "engine/runtime/include/darkangel/combat_kit.hpp": "4860317e9682c2267d220c431f21c09d8d1e45832e42ec24fc3ec52bffdf0c27",
     "engine/runtime/character_motor.cpp": "844a39ec2ce8e086a2577fc1f357c9d3f58fa1070430db39b06406ef00bc55a5",
     "engine/runtime/include/darkangel/character_motor.hpp": "0297261cbd88d8c0b9c04b0347818826785f7d6fd4015c0d755b46ba41d04a84",
@@ -46,10 +46,10 @@
     "scripts/verify_royal_combat.py": "b2ba57365860cfc85ebaabfb3d0ae4ebb0eb37db4ae3e0af3990ecc0a8da37bf"
   },
   "binary_sha256": {
-    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "f83f5cf8a3829d4124f46d7851bd15703bb703349dfdec6b540b409065eab94c",
-    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "45a215d2a7eaf96840e60fd7def0a1a08f23403c11c691a217acdea93c1e298c",
-    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "7f69756a8527b1d9b3d28dbbae15f264671023d8829205d56659aef21bdd29c9",
-    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "0d164ce196bf13572b22e5556e30ad9aefd3ca7d37cc614c8d7120e50abf74c0"
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "c96e3626410989f7e0474e2c68264095c107358383f526b290250c69714536fd",
+    "build/m5-relwithdebinfo/AbilityPredictionTests.exe": "b72cecc9d9f46972f60f948ff7bc266d2616b57d6c3a37bc6c5281ac9d67f19a",
+    "build/m5-relwithdebinfo/AbilityMotorPredictionTests.exe": "cf872a830f3d488dec3f2a6c0bba17490ff09b66a4c349335cb8b36bbe76b4ec",
+    "build/m1-relwithdebinfo/AbilityPredictionTests.exe": "3b7893b45f1bcce3723c8d5909bf158c2d9702fb57097efcc5f2967c234fff62"
   },
   "limitations": [
     "Operation dependencies are local prediction metadata; authored server combo transitions remain open.",

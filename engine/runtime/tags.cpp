@@ -26,8 +26,8 @@ bool OwnedTags::has(TagId id,std::uint64_t excluded)const{checked(dictionary_->c
 bool OwnedTags::matches(const TagRequirement& r,std::uint64_t excluded)const{
  dictionary_->validate(r);return std::all_of(r.all.begin(),r.all.end(),[&](auto id){return has(id,excluded);})&&(r.any.empty()||std::any_of(r.any.begin(),r.any.end(),[&](auto id){return has(id,excluded);}))&&std::none_of(r.none.begin(),r.none.end(),[&](auto id){return has(id,excluded);});
 }
-std::vector<TagId> OwnedTags::values(AttributeVisibility audience)const{
- checked(static_cast<unsigned>(audience)<=2,"Tag audience");std::set<TagId> result;for(const auto& c:contributions_)for(auto id:c.tags){auto d=std::find_if(dictionary_->definitions().begin(),dictionary_->definitions().end(),[&](const auto& x){return x.id==id;});if(audience==AttributeVisibility::Server||d->visibility==AttributeVisibility::Public||(audience==AttributeVisibility::Owner&&d->visibility==AttributeVisibility::Owner))result.insert(id);}return {result.begin(),result.end()};
+std::vector<TagId> OwnedTags::values(AttributeVisibility audience,std::uint64_t excluded)const{
+ checked(static_cast<unsigned>(audience)<=2,"Tag audience");std::set<TagId> result;for(const auto& c:contributions_)if(c.token!=excluded)for(auto id:c.tags){auto d=std::find_if(dictionary_->definitions().begin(),dictionary_->definitions().end(),[&](const auto& x){return x.id==id;});if(audience==AttributeVisibility::Server||d->visibility==AttributeVisibility::Public||(audience==AttributeVisibility::Owner&&d->visibility==AttributeVisibility::Owner))result.insert(id);}return {result.begin(),result.end()};
 }
 void TagDictionary::validate_snapshot(const ActorTagSnapshot& snapshot,AttributeVisibility audience)const{
  checked(snapshot.registry==registry_&&snapshot.generation==generation_&&snapshot.values.size()<=128&&static_cast<unsigned>(audience)<=2,"Tag baseline registry generation/bound");std::set<TagId> ids;

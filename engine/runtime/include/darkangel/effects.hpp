@@ -36,11 +36,15 @@ public:
  void source_destroyed(std::uint64_t session,std::uint64_t network,AttributeSet&);
  std::vector<EffectSnapshot> snapshot()const;
  const OwnedTags& tags()const{return tags_;}
- void restore_owner_tags(const ActorTagSnapshot& source){if(!active_.empty())throw std::invalid_argument("Owner tag restore cannot replace live effects");tags_.restore_snapshot(source,AttributeVisibility::Owner);}
+ // A reserved contributor, disjoint from effect IDs and restored aggregates.
+ void set_action_tags(std::span<const TagId>,AttributeSet&);
+ std::vector<TagId> external_tags(AttributeVisibility audience)const;
+ void restore_owner_tags(const ActorTagSnapshot& source){if(!active_.empty())throw std::invalid_argument("Owner tag restore cannot replace live effects");tags_.restore_snapshot(source,AttributeVisibility::Owner);action_tags_.clear();}
 private:
  struct Active {EffectSnapshot state;std::shared_ptr<const EffectDefinition> definition;std::vector<AttributeModifier> modifiers;};
  OwnedTags tags_;std::vector<Active> active_;std::uint64_t next_{1},modifier_sequence_{1},tick_{};
  std::vector<std::uint64_t> modifier_owners_;
+ std::vector<TagId> action_tags_;
  void contributions(AttributeSet&);
  EffectExecution execute(const Active&,std::uint64_t,AttributeSet&,const EffectEvaluator&)const;
  void erase(EffectHandle,AttributeSet&);

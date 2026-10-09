@@ -1,61 +1,61 @@
 {
   "schema": 1,
-  "base_head": "fd50020386278026e2c3755f1469f954c38f5003",
-  "scope": "Protocol-3 owner schema3/public schema2 tag aggregates with frozen registry identity, visibility/generation preparation, native tag activation requirements and confirmed-tag owner pending replay",
+  "base_head": "cd94ee18e8aa6fc8aad88904b1e30420792c35cd",
+  "scope": "Protocol-3 owner schema4/public schema2 tag aggregates with frozen registry identity, visibility/generation preparation, native tag activation requirements and confirmed-tag owner pending replay",
   "gates": [
     {
       "name": "ability-tags-product",
       "exit": 0,
-      "seconds": 297.284
+      "seconds": 83.683
     },
     {
       "name": "ability-tags-build-m5-editor-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.564
+      "seconds": 0.085
     },
     {
       "name": "ability-tags-build-m1-relwithdebinfo",
       "exit": 0,
-      "seconds": 0.378
+      "seconds": 0.048
     },
     {
       "name": "ability-tags-native",
       "exit": 0,
-      "seconds": 0.052
+      "seconds": 0.062
     },
     {
       "name": "ability-tags-editor",
       "exit": 0,
-      "seconds": 0.097
+      "seconds": 0.07
     },
     {
       "name": "ability-tags-headless",
       "exit": 0,
-      "seconds": 0.115
+      "seconds": 0.069
     }
   ],
   "source_sha256": {
-    "CMakeLists.txt": "72697e0aa2556b10a6513d197edce56f767a09f0cff7dabdf3f9c56650ae886c",
-    "engine/runtime/tags.cpp": "1e793d336d17ec9d4544c625163c9fa113b9e9181992f70dbab0145e72fc73ef",
-    "engine/runtime/include/darkangel/tags.hpp": "446e2d212bdf939af20e530ba99754f8d0ea55f0810ceedc78ed2a730257ffda",
-    "engine/runtime/ability.cpp": "b9f72d8b54800109ea5f53dcde61e4203a9ef3cb35f26c37c5970417b6c2390d",
-    "engine/runtime/ability_wire.cpp": "310efe08dabad49014b95c7c31de9a9cc9bbebfebdebfbac0c563df09ba78f75",
-    "engine/runtime/ability_prediction.cpp": "149aa3b48b109975dd849d86a8a53b78d3434e719f6fcb604e886b722739f29a",
+    "CMakeLists.txt": "1e032baf88b49f5f3016be08216368c7372755abc5ade8ebec8c4219fb9e0ed3",
+    "engine/runtime/tags.cpp": "62b759a25f7003708798408e3129e0b1ad1d01a84d7e5f67f27ab7cd7e1a82f6",
+    "engine/runtime/include/darkangel/tags.hpp": "1286492c098028676865857671b950c018dd4babb28044ef2c0eb310dac6789b",
+    "engine/runtime/ability.cpp": "1eb79479c852462362a5e737c867b0c6adccb3e54ac9ec55c752e7a385d52ee8",
+    "engine/runtime/ability_wire.cpp": "2fd70aece8d658ef8ffc410c268b9281e518a540c4868303796cb1d77839e159",
+    "engine/runtime/ability_prediction.cpp": "aca9a23a5eb644aff693bcf5cd76274c0026bd2cee11cebb50b76b153797b797",
     "engine/runtime/ability_observer.cpp": "dead4bdc557278deef30e3cc0aba7993266271f646ba14acc0c3c9b426c8fb7b",
-    "engine/runtime/world_session.cpp": "9b1acc059d28ac2eeeb5a6042629e379d0b86ffd5843389b9711b4d64f8c8e43",
+    "engine/runtime/world_session.cpp": "a79dba74a2ba3187a4e731979bace5e8b61605b773b6d429b1bbe304e80c71c5",
     "engine/runtime/ability_effects.cpp": "33d8e4f9aba6b4528e13a5dbd5f632d7d4c0d6cd57b93b4390bf406373653979",
-    "engine/runtime/include/darkangel/ability.hpp": "33e070d1a48a3b9bb6122728a1a5e75480cb14ad53d5b33863e425e7fbea61d0",
+    "engine/runtime/include/darkangel/ability.hpp": "8957d4db9f3050b18dc4f96cfb213e7239a9965b9666bf1081dc655bf3380722",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "bd47bd356665a2c4d50e912e037791e6e25fc49756dbea59f3b7ef46532c30e3",
     "engine/runtime/include/darkangel/ability_observer.hpp": "bb82de354ed0f5cd39e37a487e88781830e595e2edfb1f0b99aec759ca165eb8",
-    "engine/runtime/include/darkangel/effects.hpp": "05f4862aeb50f5e2cdbe01c8d99972a0869fa091c715525521aa561fc8669a18",
+    "engine/runtime/include/darkangel/effects.hpp": "ed162d6887ce42bf696297d97b9821e17d04a524855ab5856e604185d762c2a8",
     "engine/assets/effect_cooker.cpp": "7458599e76a679a3062a434fd8897143e3649b3a37254f302943db53e764e7e2",
-    "tests/ability_tag_tests.cpp": "c7179a560ca648d64362d9de2840966e37dbf301b05c91113d4a32fdacfa3b2d",
-    "scripts/verify_ability_tags.py": "50219074f7299c210cc1e7c7cfd0b812ceade8ff83352c4bfca7d00dd7249043"
+    "tests/ability_tag_tests.cpp": "6a6655e4b0bac6dd92e21e2384cd9c12078561719a5c7933d5a94191375a5027",
+    "scripts/verify_ability_tags.py": "9d1476cf16bedc9e73a7c9354639f7e3456fcf1cd40da3aba9cdfca32bd4f81d"
   },
   "binary_sha256": {
-    "build/m5-relwithdebinfo/AbilityTagTests.exe": "c665be77f7f1588cd09563215186805d5d9bf4ba2a5fd7085bc92952dd033cdb",
-    "build/m5-editor-relwithdebinfo/AbilityTagTests.exe": "96148e33b0fd3010feca29248d769f601e909730f95e7c58e6f34f363e80ca00",
-    "build/m1-relwithdebinfo/AbilityTagTests.exe": "7d6f5e89811690ea6ebaba52fc096b909c5a51706d5b754fde9c8802c42a0e7e"
+    "build/m5-relwithdebinfo/AbilityTagTests.exe": "f6575192a8a56371d6a54f18f247783b4aff407b2766df9e376270dbc930d78e",
+    "build/m5-editor-relwithdebinfo/AbilityTagTests.exe": "0993b32e81ac5b7d5d35afbea9f41ac8d7da05c5c84a2767da44c366020af1cd",
+    "build/m1-relwithdebinfo/AbilityTagTests.exe": "79c402fbab95dbb5637fb269f4ba6564034b696c16752a3de6d9391e92d08bc0"
   },
   "related_evidence": [
     "effect-assets.json",
@@ -65,7 +65,7 @@
     "royal-combat.json"
   ],
   "limitations": [
-    "Activation requirements are checked native construction; Ability/CombatKit source binding, reflected authoring and Royal tag gameplay remain open.",
+    "Activation requirements and interval tag bindings freeze through Ability/CombatKit source closures; reflected authoring and Royal tag gameplay remain open.",
     "Effect instances/lifetimes/credit/cues are not yet replicated; tag aggregates describe current authoritative state. Prediction holds confirmed tags until a newer bundle and does not execute expiry/periodic damage.",
     "Server-only tag requirements or server-only descendants are explicitly unsupported by the owner prediction subset.",
     "Reservations, authored combo/projectile, graph/socket/authoring/Luau and full clock/fault/streaming/performance remain required. M4/M5 stay In progress; M6 not started."
