@@ -16,6 +16,7 @@ class AttributeSet {
 public:
  explicit AttributeSet(std::vector<AttributeDefinition>);
  double value(AttributeId)const;
+ std::span<const AttributeDefinition> definitions()const{return definitions_;}
  void add(std::span<const AttributeModifier>);
  void remove_owner(std::uint64_t);
  // Costs reject insufficient resources instead of silently clamping. Damage/heal

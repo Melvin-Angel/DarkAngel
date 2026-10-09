@@ -1,0 +1,14 @@
+Test project C:/DarkAngel/build/m1-relwithdebinfo
+    Start  5: HeadlessSmoke
+1/2 Test  #5: HeadlessSmoke ....................   Passed    0.05 sec
+    Start 15: M5.ability_commit
+2/2 Test #15: M5.ability_commit ................   Passed    0.09 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+M5         =   0.09 sec*proc (1 test)
+ability    =   0.09 sec*proc (1 test)
+session    =   0.09 sec*proc (1 test)
+
+Total Test time (real) =   0.14 sec

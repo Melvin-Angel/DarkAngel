@@ -1,0 +1,29 @@
+[1/42] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
+[2/42] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[3/42] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[4/27] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[5/27] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[6/27] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[7/27] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[8/27] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[9/27] Scanning C:\DarkAngel\tests\ability_tests.cpp for CXX dependencies
+[10/27] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[11/27] Linking CXX static library DarkAngelRuntime.lib
+[12/27] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[13/20] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[14/20] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[15/20] Linking CXX static library DarkAngelCharacterScene.lib
+[16/20] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[17/20] Building CXX object CMakeFiles\AbilityTests.dir\tests\ability_tests.cpp.obj
+[18/20] Linking CXX executable AbilityTests.exe
+[19/20] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(253): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[20/20] Linking CXX executable DarkAngelEditor.exe

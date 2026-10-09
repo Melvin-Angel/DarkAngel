@@ -1,4 +1,5 @@
 #include <darkangel/world_session.hpp>
+#include "ability_state.hpp"
 #include <algorithm>
 #include <bit>
 #include <limits>
@@ -58,6 +59,29 @@ struct WorldSession::Impl {
     struct MotorQueue {ConnectionHandle owner;std::map<std::uint64_t,MotorInput> pending;MotorInput last;std::uint64_t consumed_tick{},received_sequence{};};
     std::map<std::uint64_t,MotorQueue> motor_inputs;std::map<std::uint64_t,MotorState> motor_states;
     std::optional<CollisionStreamFrame> latest_collision;std::deque<CollisionStreamFrame> collision_states;
+    std::map<std::uint64_t,std::unique_ptr<AbilityState>> abilities;
+    std::uint64_t ability_tick{};
+    std::vector<AbilityActionUpdate> ability_actions;
+
+    const AbilityState& ability(AbilityOwnerHandle h)const{
+        thread();require(role==SessionRole::Server,"Ability API requires server authority");
+        auto it=abilities.find(h.network);
+        require(h.session_epoch==hello.session_epoch&&view->valid(h.entity)&&it!=abilities.end()&&it->second->owner()==h,"Stale/wrong-domain ability owner");
+        return *it->second;
+    }
+    std::vector<AbilityActionUpdate> queue_actions(std::span<const AbilityActionUpdate> updates)const{
+        auto candidate=ability_actions;candidate.insert(candidate.end(),updates.begin(),updates.end());
+        require(candidate.size()<=128,"Ability lifecycle queue full; drain or resync");
+        std::size_t work{};for(const auto& update:candidate)work+=update.batch.events.size()+update.batch.traversed.size();
+        require(work<=2048,"Ability action work queue full; drain or resync");return candidate;
+    }
+    void commit_ability(std::uint64_t id,std::unique_ptr<AbilityState> candidate,std::span<const AbilityActionUpdate> updates){
+        auto queue=queue_actions(updates);auto health=candidate->health();auto& object=objects.at(id);
+        if(object.health.maximum!=health.maximum||object.health.current!=health.current){
+            view->apply_server_health(candidate->owner().entity,health);object.health=health;++revision;
+        }
+        abilities.at(id)=std::move(candidate);ability_actions=std::move(queue);
+    }
 
     Impl(SessionRole r,SessionHandshake h,SessionLimits l):role(r),hello(std::move(h)),limits(l),view(std::make_unique<World>(r==SessionRole::Server?WorldDomain::Server:WorldDomain::ClientPresentation,l.objects)){
         require((r==SessionRole::Server || r==SessionRole::Client) && l.objects>0 && l.objects<=512 && l.peers>0 && l.peers<=4 && l.packets_per_tick>0 && l.packets_per_tick<=32 && l.timeout_ticks>0 && l.collision_timeout_ticks>0 && l.collision_timeout_ticks<=600,"Invalid session role/bounds");validate_session_handshake(hello);
@@ -122,7 +146,16 @@ void WorldSession::detach(ConnectionHandle h){impl_->thread();for(auto& [id,q]:i
 void WorldSession::tick(){auto& s=*impl_;s.thread();++s.clock;for(auto it=s.peers.begin();it!=s.peers.end();){auto& p=it->second;p.packet_work=0;try{require(p.transport->connected(),"Session peer disconnected");if(!p.collision_parts.empty()&&s.clock-p.collision_partial_birth>s.limits.collision_timeout_ticks){p.collision_parts.clear();++p.collision_stats.expired;p.collision_stats.needs_resync=true;}require(p.state==SessionReadiness::Ready || s.clock-p.progress<=s.limits.timeout_ticks,"Bootstrap timeout");for(const auto& m:p.transport->poll(std::min(s.limits.packets_per_tick,p.transport->limits().packets)))s.receive(p,m);s.pump(p);if(s.role==SessionRole::Server&&p.state==SessionReadiness::Ready){for(const auto& [id,state]:s.motor_states){auto sent=p.motor_sent.find(id);if(sent!=p.motor_sent.end()&&sent->second==std::pair{state.tick,s.revision}&&s.clock%30!=0)continue;auto w=header(Kind::MotorSnapshot,s.hello,s.revision,id);write_motor(w,state);if(!s.send(p,std::move(w),Delivery::UnreliableState))break;p.motor_sent[id]={state.tick,s.revision};}s.pump_collision(p);}++it;}catch(...){if(p.transport->valid(p.handle))p.transport->disconnect(p.handle);for(auto& [id,q]:s.motor_inputs)if(q.owner==p.handle){q.pending.clear();q.last={};q.owner={};}it=s.peers.erase(it);if(s.role==SessionRole::Client){s.objects.clear();s.motor_states.clear();s.collision_states.clear();s.view=s.build({});s.revision=0;}throw;}}}
 std::uint64_t WorldSession::create(ObjectData o){auto& s=*impl_;s.authority();require(s.objects.size()<s.limits.objects && s.next_id<std::numeric_limits<std::uint64_t>::max(),"Session identity/capacity exhausted");require(!o.network.value && !o.target && o.scripts.records.empty() && o.scripts.count==0 && o.optional_json.empty(),"Unsupported replicated object fields");o.network.value=s.next_id;auto candidate=s.objects;candidate.emplace(s.next_id,o);s.view->create(o);s.objects=std::move(candidate);++s.revision;return s.next_id++;}
 void WorldSession::move(std::uint64_t id,const Transform& t){auto& s=*impl_;s.authority();require(s.objects.contains(id),"Unknown network identity");require(!s.motor_states.contains(id),"Living character movement requires motor publication");auto candidate=s.objects;candidate.at(id).transform=t;s.view->set_transform(s.view->find(candidate.at(id).id),t,Authority::Server);s.objects=std::move(candidate);++s.revision;}
-void WorldSession::destroy(std::uint64_t id){auto& s=*impl_;s.authority();auto candidate=s.objects;require(candidate.erase(id)==1,"Unknown network identity");s.view->destroy(s.view->find(s.objects.at(id).id),Authority::Server);s.objects=std::move(candidate);s.motor_inputs.erase(id);s.motor_states.erase(id);++s.revision;}
+void WorldSession::destroy(std::uint64_t id){
+    auto& s=*impl_;s.authority();auto candidate=s.objects;require(candidate.erase(id)==1,"Unknown network identity");
+    auto queue=s.ability_actions;auto ability=s.abilities.find(id);
+    if(ability!=s.abilities.end()){
+        auto state=*ability->second;auto snapshot=state.snapshot();
+        if(snapshot.active){auto cleanup=state.cancel(*snapshot.active,AbilityActionReason::Despawned);queue=s.queue_actions(cleanup.second);}
+    }
+    s.view->destroy(s.view->find(s.objects.at(id).id),Authority::Server);
+    s.objects=std::move(candidate);s.motor_inputs.erase(id);s.motor_states.erase(id);s.abilities.erase(id);s.ability_actions=std::move(queue);++s.revision;
+}
 const World& WorldSession::world() const{impl_->thread();return *impl_->view;}
 const std::map<std::uint64_t,ObjectData>& WorldSession::objects() const{impl_->thread();return impl_->objects;}
 std::uint64_t WorldSession::revision() const{impl_->thread();return impl_->revision;}
@@ -150,4 +183,38 @@ CollisionStreamDiagnostics WorldSession::collision_diagnostics(ConnectionHandle 
 
 namespace darkangel {
 bool WorldSession::collision_control_ready()const{auto& s=*impl_;s.thread();require(s.role==SessionRole::Client&&s.peers.size()==1,"Collision control readiness requires client");const auto& p=s.peers.begin()->second;if(p.state!=SessionReadiness::Ready)return false;if(!p.collision_required)return true;return !s.collision_states.empty()&&p.collision_stats.has_ack&&!p.collision_stats.needs_resync&&p.collision_stats.ack_topology==s.collision_states.back().topology;}
+}
+
+namespace darkangel {
+AbilityOwnerHandle WorldSession::configure_abilities(std::uint64_t id,std::vector<AttributeDefinition> schema,AttributeId health,AttributeId maximum){
+    auto& s=*impl_;s.authority();require(s.objects.contains(id)&&!s.abilities.contains(id)&&s.abilities.size()<4,"Ability owner missing/already configured/capacity");
+    AbilityOwnerHandle handle{s.view->find(s.objects.at(id).id),s.hello.session_epoch,id};
+    auto state=std::make_unique<AbilityState>(handle,s.ability_tick,std::move(schema),health,maximum);auto initial=state->health();
+    require(initial.maximum==s.objects.at(id).health.maximum&&initial.current==s.objects.at(id).health.current,"Ability Health must match existing authoritative object");
+    s.abilities.emplace(id,std::move(state));return handle;
+}
+void WorldSession::equip_combat_kit(AbilityOwnerHandle owner,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue){
+    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));auto updates=state->equip(std::move(kit),input,catalogue);s.commit_ability(owner.network,std::move(state),updates);
+}
+AbilityFailure WorldSession::can_activate(const AbilityRequest& request)const{return impl_->ability(request.owner).can_activate(request);}
+AbilityReceipt WorldSession::request_ability(const AbilityRequest& request){
+    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(request.owner));auto outcome=state->request(request);s.commit_ability(request.owner.network,std::move(state),outcome.second);return outcome.first;
+}
+AbilityFailure WorldSession::cancel_ability(AbilityActivationHandle handle){
+    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(handle.owner));auto outcome=state->cancel(handle,AbilityActionReason::Cancelled);s.commit_ability(handle.owner.network,std::move(state),outcome.second);return outcome.first;
+}
+void WorldSession::advance_abilities(std::uint64_t tick,unsigned rate){
+    auto& s=*impl_;s.authority();require(s.ability_tick!=std::numeric_limits<std::uint64_t>::max()&&tick==s.ability_tick+1&&rate<=4*action_tick_units,"Ability simulation must advance one fixed step");
+    std::map<std::uint64_t,std::unique_ptr<AbilityState>> prepared;std::vector<AbilityActionUpdate> updates;
+    for(const auto& [id,old]:s.abilities){auto state=std::make_unique<AbilityState>(*old);auto batch=state->advance(tick,rate);
+        for(auto& update:batch)if(update.phase!=ActionPhase::Active||!update.batch.events.empty()||!update.batch.traversed.empty())updates.push_back(std::move(update));
+        prepared.emplace(id,std::move(state));
+    }
+    auto queue=s.queue_actions(updates);s.abilities=std::move(prepared);s.ability_actions=std::move(queue);s.ability_tick=tick;
+}
+AbilityOwnerSnapshot WorldSession::ability_snapshot(AbilityOwnerHandle owner)const{return impl_->ability(owner).snapshot();}
+std::vector<AbilityActionUpdate> WorldSession::drain_ability_actions(){auto& s=*impl_;s.authority();auto result=std::move(s.ability_actions);s.ability_actions.clear();return result;}
+void WorldSession::retire_ability_operations(AbilityOwnerHandle owner,std::uint64_t through){
+    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));state->retire(through);s.commit_ability(owner.network,std::move(state),{});
+}
 }

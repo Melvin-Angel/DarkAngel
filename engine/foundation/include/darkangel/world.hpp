@@ -95,6 +95,7 @@ private:
     void rollback_script(std::size_t);
     friend class WorldSession;
     void apply_replica_transform(EntityHandle,const Transform&);
+    void apply_server_health(EntityHandle,const Health&);
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };

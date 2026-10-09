@@ -1,0 +1,31 @@
+# Checked server ability commitment
+
+Implemented 9 October 2026 after 0cfec33. M4/M5 remain In progress. This integrates the native kit/attribute primitives with the existing WorldSession and ActionTimeline; it does not deliver a playable Royal attack or authoring workflow.
+
+## Implemented subset
+
+WorldSession owns bounded per-character AbilityState using the existing checked EntityHandle, network identity and session epoch. Server-only configuration requires Health and MaxHealth IDs with a valid resource/derived-maximum relationship and values matching the existing authoritative object. There is no second combat world or a parallel transport. Configuration cannot be repeated to reset spent resources. Player and NPC server callers use the same API. The initial owner handle identifies the current avatar; persistent gameplay-owner/credit identity across respawn is still pending.
+
+Kit installation prepares and freezes the complete ability/action catalogue, validates costs against resource attributes, resolves optional slot assignments and stages outgoing action cleanup before publishing grants. Mutable source aliases cannot change installed or active generations. Replacement retains spent resources and unexpired cooldown groups; it forces outgoing execution cleanup, advances the grant generation and requires a fresh input press before held/released/tapped input can enter the replacement. The stance reference is retained but not yet connected to runtime graph transitions.
+
+The initial AbilityDefinition chooses an activation input edge, optional minimum held duration, release-cancellation and interruption policy. Abilities may react to taps or holds rather than all casting on Pressed. Immediate activation prepares ActionTimeline time-zero entry and stages multi-resource costs and cooldown state in a candidate. It then publishes together. Insufficient costs, invalid preparation, busy/uninterruptible actions, invalid owner/grant or an exhausted action queue leave the live resources/action intact. Ordinary replacement requires explicit intent and interruption eligibility; outgoing End boundaries publish before the new entry.
+
+CanActivate is read-only and returns typed failure reasons. Exact duplicate operation IDs return the remembered receipt and activation handle without charging or emitting cues again; changed payloads are rejected. Records survive kit replacement. Operation IDs are strictly increasing for new requests per owner. Explicit server-side retirement frees completed receipt storage; retired/older IDs cannot execute again. This is server deduplication, not the DAE-009 accepted/rejected owner prediction protocol or authoritative-inclusion acknowledgement.
+
+Cooldowns use explicit simulation ticks and expire before new commitments at that tick; action hitstop does not freeze them. The caller advances abilities exactly once per fixed step, separately from transport pump ticks. The initial service supports one active action per owner; simultaneous full-body/upper-body channels and composer arbitration remain open. Completion, ordinary cancellation, kit removal and despawn release the native execution and produce balanced ActionTimeline boundaries. Ordinary cancellation honors uninterruptible definitions; grant removal/despawn force cleanup. Post-commit cancellation does not refund costs or reset cooldown. A lethal Health cost immediately ends the newly entered action and blocks further activation.
+
+Committed Health uses the existing private World facade setter and ObjectData baseline, maintaining World/session coherence. Existing Loopback observers and late joins receive that Health. Stamina/Essence, grant state, action state and cooldowns are currently server-local diagnostics and are not replicated. There is no client ability-request RPC, new wire encoding or client-supplied damage amount.
+
+Bounds: four configured owners, eight catalogue abilities/slots, eight cost entries per ability, 32 retained cooldown groups per owner, 128 operation receipts per owner, 128 queued lifecycle updates and 2048 queued events/traversed intervals. Queue exhaustion fails the entire candidate; consumers must drain lifecycle updates and explicitly retire operation receipts. No silent forgetting or event dropping is used. Action updates retain explicit simulation tick plus owner/activation identity for the eventual composer/hit resolver; their hit windows do not inflict damage, and movement/invulnerability windows are not yet wired into motor or effect tokens.
+
+## Verification
+
+Run `python scripts/verify_ability_commit.py --build`. [Receipt](evidence/ability-commit.json) records exact source/binary hashes and focused logs.
+
+Tests exercise read-only eligibility; atomic Stamina/Essence costs and cooldowns; duplicate/conflicting/stale operations; failed action preparation and insufficient replacement preservation; ordered replacement cleanup; repeated cancellation; ability-owned Hold/Tapped and release behavior; fresh-press rearming after kit swaps; immutable action generations; death and uninterruptible cleanup; stale/foreign owner handles; despawn and entity reuse; bounded receipt retirement and lifecycle-queue rollback; fixed-step validation; and coherent Health replication to current and late Loopback clients.
+
+Synthetic 30/60/144 render schedules produce identical 60Hz action-event and resource traces. The full editor rebuild and SDK-free Headless profile are checked alongside 12/12 affected native foundation/session/action/character tests and 2/2 Headless checks. These are scoped receipts, not a refreshed full suite, realtime performance proof, playable graphics qualification or new GNS/EOS acceptance.
+
+## Next required work
+
+Versioned/reflected Ability/CombatKit/Attribute assets and frozen cooking; Character/Ability workflow authoring; client intent and operation receipt protocol with resource/action snapshots and predicted inclusion/rejection; native tags/effects and deferred reservations; authoritative target/hit validation and attributed damage; composer slot/layer/mask arbitration and GPU playback; typed Animation Graph parameters/events and locomotion stance switching; Luau checked bindings and failure cleanup. Preserve DAE-007/008/009 and the [editor workflow plan](EDITOR_WORKFLOW_PLAN.md). No game-owned mask/equipment system is implemented.

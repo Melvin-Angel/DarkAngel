@@ -1,0 +1,30 @@
+[1/45] Scanning C:\DarkAngel\engine\runtime\ability.cpp for CXX dependencies
+[2/45] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[3/45] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[4/30] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[5/30] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[6/30] Scanning C:\DarkAngel\tests\motor_session_tests.cpp for CXX dependencies
+[7/30] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[8/30] Scanning C:\DarkAngel\tests\character_scene_tests.cpp for CXX dependencies
+[9/30] Scanning C:\DarkAngel\tests\ability_tests.cpp for CXX dependencies
+[10/30] Scanning C:\DarkAngel\tests\session_tests.cpp for CXX dependencies
+[11/30] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[12/30] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[13/30] Linking CXX static library DarkAngelRuntime.lib
+[14/30] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[15/30] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[16/30] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[17/30] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[18/30] Linking CXX static library DarkAngelCharacterScene.lib
+[19/30] Building CXX object CMakeFiles\MotorSessionTests.dir\tests\motor_session_tests.cpp.obj
+[20/30] Building CXX object CMakeFiles\CharacterSceneTests.dir\tests\character_scene_tests.cpp.obj
+[21/30] Building CXX object CMakeFiles\AbilityTests.dir\tests\ability_tests.cpp.obj
+[22/30] Building CXX object CMakeFiles\SessionTests.dir\tests\session_tests.cpp.obj
+[23/30] Linking CXX executable CharacterSceneTests.exe
+[24/30] Linking CXX executable MotorSessionTests.exe
+[25/30] Linking CXX executable ActionTimelineTests.exe
+[26/30] Linking CXX executable AttributeTests.exe
+[27/30] Linking CXX executable CombatKitTests.exe
+[28/30] Linking CXX executable FoundationTests.exe
+[29/30] Linking CXX executable AbilityTests.exe
+[30/30] Linking CXX executable SessionTests.exe

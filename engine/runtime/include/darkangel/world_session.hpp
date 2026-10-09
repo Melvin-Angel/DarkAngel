@@ -3,6 +3,7 @@
 #include <darkangel/character_motor.hpp>
 #include <darkangel/world.hpp>
 #include <darkangel/collision_asset.hpp>
+#include <darkangel/ability.hpp>
 #include <deque>
 #include <map>
 #include <memory>
@@ -25,6 +26,17 @@ public:
     std::uint64_t create(ObjectData);
     void move(std::uint64_t,const Transform&);
     void destroy(std::uint64_t);
+    // Checked server-only immediate-commit ability subset. No client RPC or
+    // speculative owner prediction is provided by these methods yet.
+    AbilityOwnerHandle configure_abilities(std::uint64_t,std::vector<AttributeDefinition>,AttributeId health,AttributeId maximum_health);
+    void equip_combat_kit(AbilityOwnerHandle,std::shared_ptr<const CombatKitDefinition>,const InputProfile&,std::span<const std::shared_ptr<const AbilityDefinition>>);
+    AbilityFailure can_activate(const AbilityRequest&)const;
+    AbilityReceipt request_ability(const AbilityRequest&);
+    AbilityFailure cancel_ability(AbilityActivationHandle);
+    void advance_abilities(std::uint64_t simulation_tick,unsigned action_rate=action_tick_units);
+    AbilityOwnerSnapshot ability_snapshot(AbilityOwnerHandle)const;
+    std::vector<AbilityActionUpdate> drain_ability_actions();
+    void retire_ability_operations(AbilityOwnerHandle,std::uint64_t through);
     // Explicit server ownership; movement commands never grant authority.
     void own_motor(std::uint64_t,ConnectionHandle);
     bool submit_motor(std::uint64_t,const MotorInput&);

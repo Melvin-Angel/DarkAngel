@@ -125,3 +125,5 @@ Shared editor import increment after9c8fd2b: native Scene/Assets layout navigati
 9 October 2026 scoped increment: native input profiles/chords and Game editor workflow pass focused checks; see [INPUT_WORKFLOW_REPORT.md](INPUT_WORKFLOW_REPORT.md). Seven affected native tests, four no-animation shared-library checks and mapped 120-tick D3D12/Vulkan fixtures passed. Full integration was not refreshed. Combat intent is not playable ability authority; required milestone gates remain open.
 
 9 October combat foundation: native kit routing/replacement and attribute calculation primitives; see COMBAT_FOUNDATION_REPORT.md. No playable ability, damage authority or Character authoring acceptance is implied.
+
+9 October server ability increment: WorldSession checked grants, immediate atomic action/cost/cooldown commitment, receipt deduplication and lifecycle cleanup; see ABILITY_COMMIT_REPORT.md. Existing Health baseline path is tested. Client ability protocol, other resources/actions on the wire, damage/effects, deferred reservations and authoring remain open.

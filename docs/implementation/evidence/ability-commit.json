@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "base_head": "0cfec33d24f2679d60ff1108ad558e23690251e0",
+  "scope": "Server-only WorldSession immediate ability grants/costs/cooldowns/action lifecycle and existing Health baseline; no ability RPC, damage evaluator or prediction",
+  "gates": [
+    {
+      "name": "ability-commit-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 11.18
+    },
+    {
+      "name": "ability-commit-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 34.269
+    },
+    {
+      "name": "ability-commit-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 5.919
+    },
+    {
+      "name": "ability-commit-native",
+      "exit": 0,
+      "seconds": 1.771
+    },
+    {
+      "name": "ability-commit-editor",
+      "exit": 0,
+      "seconds": 0.09
+    },
+    {
+      "name": "ability-commit-headless",
+      "exit": 0,
+      "seconds": 0.168
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "1fb834e2d2acfaca554352b4753e2eb498772c6a37c353f562f432f76755e218",
+    "engine/runtime/ability.cpp": "0762178c42d384fd0e9da353256190d3c4f305bc898cf3d3a673855c773aa045",
+    "engine/runtime/ability_state.hpp": "5058bf919fe24851384b4b673d20783535ef1f06d9b275f623c9468fd407e592",
+    "engine/runtime/include/darkangel/ability.hpp": "6cf8354b2c6933129d48fe9d2b0291cf4284d401f00e99c210452d7c8ed50bf5",
+    "engine/runtime/world_session.cpp": "b2d26fa8f19f947b117eee00e28f51e1d60c6a5f7372998f300e54d6af3ff99e",
+    "engine/runtime/include/darkangel/world_session.hpp": "b4952f615d14963a97ccdb0f0f1becf7aad083267f99b5ce2681a0f2edf14b1b",
+    "engine/foundation/world.cpp": "20e5188f4fb3931c4796e4628270f197cc09a1f054d36cc79c4358d402691e07",
+    "engine/foundation/include/darkangel/world.hpp": "c614e06e5a833223116514adb37c555a9c46d3b2520672c8f9efc67d27b615b3",
+    "engine/runtime/include/darkangel/attributes.hpp": "54198e2668ee264e6857c11ef2232754011cc0092057bb5e66a1f1dcca51f696",
+    "tests/ability_tests.cpp": "7d9241566eb01bcbfa6f47edc3a5739cdf7abd0c6bb2c460d154cebef5353c31"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "af9cb46370544ffea90c5984def455a3296262e95664de48520ad0508df7d161",
+    "build/m5-relwithdebinfo/AbilityTests.exe": "782bf0d8488cc4bc7d4eaf69878997d4f754e2d8ce722188788f1ce800580897",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "659d854f32da5b5ab348f6bc57db2fabcda8e57e591825a4cfbbaf6f34340f85"
+  },
+  "limitations": [
+    "No playable Royal attack or Character/Ability authoring UI.",
+    "No damage evaluator, effects/tags, deferred reservations or multi-slot composer arbitration.",
+    "No ability wire requests, resource/action replication, predicted operations or GNS/EOS acceptance.",
+    "Synthetic 30/60/144 render schedules compare fixed tick traces, not performance."
+  ]
+}

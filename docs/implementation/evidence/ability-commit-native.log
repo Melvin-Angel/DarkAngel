@@ -1,0 +1,42 @@
+Test project C:/DarkAngel/build/m5-relwithdebinfo
+      Start  1: M4.session
+ 1/12 Test  #1: M4.session .......................   Passed    0.14 sec
+      Start 13: M5.character_scene
+ 2/12 Test #13: M5.character_scene ...............   Passed    0.85 sec
+      Start 17: M5.action_timeline
+ 3/12 Test #17: M5.action_timeline ...............   Passed    0.19 sec
+      Start 23: M5.attributes
+ 4/12 Test #23: M5.attributes ....................   Passed    0.04 sec
+      Start 24: M5.combat_kit
+ 5/12 Test #24: M5.combat_kit ....................   Passed    0.04 sec
+      Start 32: M1.identity
+ 6/12 Test #32: M1.identity ......................   Passed    0.06 sec
+      Start 33: M1.scene
+ 7/12 Test #33: M1.scene .........................   Passed    0.02 sec
+      Start 34: M1.phases
+ 8/12 Test #34: M1.phases ........................   Passed    0.02 sec
+      Start 37: M1.limits
+ 9/12 Test #37: M1.limits ........................   Passed    0.05 sec
+      Start 41: M5.ability_commit
+10/12 Test #41: M5.ability_commit ................   Passed    0.09 sec
+      Start 42: M3.authority
+11/12 Test #42: M3.authority .....................   Passed    0.09 sec
+      Start 43: M3.loopback
+12/12 Test #43: M3.loopback ......................   Passed    0.01 sec
+
+100% tests passed out of 12
+
+Label Time Summary:
+M1            =   0.14 sec*proc (4 tests)
+M3            =   0.10 sec*proc (2 tests)
+M4            =   0.14 sec*proc (1 test)
+M5            =   1.02 sec*proc (4 tests)
+ability       =   0.09 sec*proc (1 test)
+animation     =   0.85 sec*proc (1 test)
+combat        =   0.07 sec*proc (2 tests)
+foundation    =   0.07 sec*proc (2 tests)
+network       =   1.00 sec*proc (2 tests)
+physics       =   0.85 sec*proc (1 test)
+session       =   0.09 sec*proc (1 test)
+
+Total Test time (real) =   1.62 sec

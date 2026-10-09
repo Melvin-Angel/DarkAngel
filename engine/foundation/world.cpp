@@ -175,6 +175,10 @@ void World::set_transform(EntityHandle h,const Transform& value,Authority a){
     require(impl_->domain==WorldDomain::Server,"Transform update requires server world");
     auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);
 }
+void World::apply_server_health(EntityHandle h,const Health& value){
+    impl_->check(h);impl_->authority(Authority::Server);require(impl_->domain==WorldDomain::Server&&impl_->phase==Phase::Idle,"Health update requires idle server world");
+    auto candidate=read(h);candidate.health=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Health>(value);
+}
 void World::apply_replica_transform(EntityHandle h,const Transform& value){impl_->check(h);require(impl_->domain==WorldDomain::ClientPresentation&&impl_->phase==Phase::Idle,"Replica transform requires idle client view");auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);}
 std::string World::serialize() const {
     impl_->thread(); require(impl_->phase==Phase::Idle,"Capture requires safe point");
