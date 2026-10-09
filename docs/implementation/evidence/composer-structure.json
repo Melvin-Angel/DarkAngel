@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "base_head": "8315b0d40d9b4b4331382f702b1827104a375a7d",
+  "scope": "Stable native action block create/remove, grouped history, typed hit/commit fields and failed-consumer publication retention",
+  "gates": [
+    {
+      "name": "composer-build",
+      "exit": 0,
+      "seconds": 6.78
+    },
+    {
+      "name": "composer-structure-native",
+      "exit": 0,
+      "seconds": 6.92
+    },
+    {
+      "name": "composer-structure-action",
+      "exit": 0,
+      "seconds": 1.007
+    },
+    {
+      "name": "composer-structure-ability",
+      "exit": 0,
+      "seconds": 1.004
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_composer.cpp": "7695808e94e679ef11d50a89d388a5e3a7f32da49eb350d6ba16aac067a98fbc",
+    "apps/editor/editor_authoring.cpp": "5de79a9e22e10afa510b8496722b39a4e15debf57b5d631c863a63ac5010f0d4",
+    "apps/editor/editor_ui.hpp": "5aa563d57e90bc806ffc5e5be301b952a7530ebb239fedbd5c7d1f3d2f1f9f3e",
+    "scripts/verify_composer.py": "3e2f4d04df031a5cf00d5d95091c29770854de1e4d32805163aab282efec5279",
+    "apps/editor/native_authoring.cpp": "f0fbc67d86e8747d1bb3253a15354a61d71934c2230e62d88f2005a417126d09",
+    "apps/editor/native_authoring.hpp": "cc06642e09e22733025f584f60bee0398195025e07244253f6650df937f6046b",
+    "tests/composer_structure_tests.cpp": "f49c9a90f0ed508c1152b49a07b60a31246952b055f36ec2e45aed30b5fa4699",
+    "CMakeLists.txt": "6e1fd6307a8212a7f3ce5991c2d13e4b793ae08f659048a91ed0d17a1d5fd943"
+  },
+  "binary_sha256": "42d89f94c79c80096f7124d85ef39d017bf9b752370f8881ec2b7213a4ee625d",
+  "limitations": [
+    "Dependent references are validated on Save; removing/retyping a referenced block requires explicit ability/kit cleanup before publication.",
+    "One D3D12 scripted panel check; no physical UI automation or full milestone matrix.",
+    "Timeline gestures, graphs/layers/masks and full designers remain open. M4/M5 In progress; live EOS blocked."
+  ]
+}

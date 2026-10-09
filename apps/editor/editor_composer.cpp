@@ -7,12 +7,9 @@
 namespace darkangel::editor_app {
 void Shell::draw_action_lanes(AssetId asset,const nlohmann::json& source){
     ImGui::SeparatorText("Action Composer");
-    // Same source-timeline projection as the native action cooker. Clip/rig
-    // closure validation still belongs to Save, not this read-only lane view.
-    auto timeline=source;
-    if(timeline.at("schema")==2){timeline.erase("motion");timeline["schema"]=1;}
+    // Native core timing validation; clip/rig closure remains a Save gate.
     ActionDefinition action;
-    try{action=decode_action_source(timeline.dump());}
+    try{action=authoring_action(source);}
     catch(const std::exception& error){ImGui::TextWrapped("Timeline needs attention: %s",error.what());return;}
     if(composer_asset!=asset){composer_asset=asset;composer_block=0;composer_tick=0;}
     const double duration=double(action.duration)/action_tick_units;

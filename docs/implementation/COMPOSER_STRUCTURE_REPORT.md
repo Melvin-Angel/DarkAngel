@@ -1,0 +1,11 @@
+# Structural Composer and typed ability timing fields
+
+9 October 2026, after 8315b0d. M4/M5 remain In progress; live EOS remains externally blocked.
+
+Delivered: native revisioned action-block creation/removal with the existing draft history. Blocks retain existing IDs; newly assigned IDs advance past known live/removed/undone IDs during the authoring session. The native core decoder validates kinds, track/range/key limits and the 32-block bound before applying a structural command. Cue/hit/invulnerability/movement-lock/combo/commit blocks can be added, inspected and removed. Numeric forms expose key/track/type/timing and reject nonfinite/out-of-range tick conversion before writing. Selected-block inspection avoids scrolling through every block.
+
+Ability forms select commit markers and hit-window references from the current native action draft, add/remove melee profiles and preserve registered game evaluator fields from a compatible profile. No new combat schema or evaluator is introduced. A new profile starts with zero damage. Structural deletion/retyping does not silently rewrite consumer abilities or kit bindings: coordinated Save validates these consumers and rejects broken references while retaining prior sources/heads. Users explicitly update hit/tag/commit/effect bindings before publication. Asset creation/deletion history remains distinct and open; action-block history is delivered.
+
+Focused verification: `python scripts/verify_composer.py --structure --build` passes the editor build, one isolated structural test and two D3D12 form captures. Native checks prove unchanged block identities/data, create/remove Undo/Redo, invalid/stale command rejection, no ID reuse within the session, new hit/commit reference cooking, failed dependent hit validation with exact source/head retention, and successful native action publication. D3D12 action/ability captures were inspected. Receipt: `evidence/composer-structure.json`. No GNS/Vulkan/full historical chain was repeated; there is no protocol/provider/physics change.
+
+Next chunk: native-validated timeline move/resize gestures with grouped Undo/Redo and explicit cancellation, followed by practical preview/picker refinements. Graph/layer/mask designers, broader Character/Player workflows and full M4/M5 qualification remain open.

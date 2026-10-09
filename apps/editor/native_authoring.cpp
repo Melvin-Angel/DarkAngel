@@ -6,6 +6,27 @@
 #include <cctype>
 namespace darkangel::editor_app {
 namespace {void require(bool v,const char* m){if(!v)throw std::runtime_error(m);}std::string read(const std::filesystem::path& p){std::ifstream f(p,std::ios::binary);require(bool(f),"Cannot read native source");std::string s{std::istreambuf_iterator<char>(f),{}};require(s.size()<=65536,"Native draft size limit");return s;}}
+ActionDefinition authoring_action(const nlohmann::json& source){
+ auto core=source;if(core.at("schema")==2){core.erase("motion");core["schema"]=1;}
+ return decode_action_source(core.dump());
+}
+unsigned NativeAuthoring::add_action_block(AssetService& assets,AssetId asset,const ActionBlock& block){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto action=authoring_action(value);
+ require(action.blocks.size()<32,"Action has reached its 32-block limit");
+ auto next=action_ids_[asset];for(const auto& existing:action.blocks)next=std::max(next,existing.id);
+ require(next<UINT32_MAX,"Action block identity exhausted");++next;
+ const char* kind=nullptr;
+ switch(block.kind){case ActionBlockKind::Cue:kind="cue";break;case ActionBlockKind::HitWindow:kind="hit";break;case ActionBlockKind::Invulnerability:kind="invulnerability";break;case ActionBlockKind::MovementLock:kind="movement-lock";break;case ActionBlockKind::ComboWindow:kind="combo";break;case ActionBlockKind::Commit:kind="commit";break;}
+ require(kind!=nullptr,"Unsupported action block kind");
+ value["blocks"].push_back({{"id",next},{"track",block.track},{"begin",block.begin},{"end",block.end},{"kind",kind},{"key",block.key}});
+ authoring_action(value);apply(assets,asset,revision_,std::move(value),"Create action block");action_ids_[asset]=next;return next;
+}
+void NativeAuthoring::remove_action_block(AssetService& assets,AssetId asset,unsigned block){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;require(value.at("kind")=="action","Select an action asset");
+ auto& blocks=value.at("blocks");auto found=std::find_if(blocks.begin(),blocks.end(),[&](const auto& record){return record.at("id")==block;});
+ require(found!=blocks.end(),"Action block no longer exists");unsigned high=action_ids_[asset];for(const auto& entry:blocks)high=std::max(high,entry.at("id").get<unsigned>());blocks.erase(found);authoring_action(value);
+ apply(assets,asset,revision_,std::move(value),"Remove action block");action_ids_[asset]=high;
+}
 NativeDraft& NativeAuthoring::open(AssetService& assets,AssetId id){if(auto i=drafts.find(id);i!=drafts.end())return i->second;auto inventory=assets.assets();auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& a){return a.id==id;});require(found!=inventory.end(),"Native source is missing; refresh assets");auto ext=std::filesystem::path(found->path).extension();require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dakit","Choose a native gameplay asset");auto bytes=read(assets.source_root()/found->path);require(drafts.size()<64,"Native draft limit");auto inserted=drafts.emplace(id,NativeDraft{*found,bytes,nlohmann::json::parse(bytes)}).first;observed_[id]=inserted->second.value;return inserted->second;}
 CookResult NativeAuthoring::save(AssetService& assets,AssetId id){auto& d=open(assets,id);record_changes(assets,"Edit gameplay fields");auto bytes=d.value.dump(2)+"\n";NativeSourceEdit edit{d.asset.path,sha256(d.saved),bytes};auto prepared=assets.prepare_native({&edit,1});auto results=assets.commit_native(prepared);d.saved=bytes;++revision_;for(const auto& r:results)if(r.root==id){d.asset.generation=r.generation;return r;}throw std::runtime_error("Saved source result missing");}
 AssetId NativeAuthoring::duplicate(AssetService& assets,AssetId id,std::string_view name,bool blank){auto& d=open(assets,id);require(!name.empty()&&name.size()<=64&&std::all_of(name.begin(),name.end(),[](unsigned char c){return std::isalnum(c)||c=='_'||c=='-';}),"Use a name with letters, numbers, underscores or hyphens");auto value=d.value;auto fresh=AssetId::random();value["asset"]=fresh.text();if(value.contains("cues"))for(auto& cue:value["cues"])cue["id"]=AssetId::random().text();if(blank&&value["kind"]=="effect"){value["evaluator"]=0;value["period_ticks"]=0;value["granted_tags"]=nlohmann::json::array();value["modifiers"]=nlohmann::json::array();value["cues"]=nlohmann::json::array();}if(blank&&value["kind"]=="ability"){value["costs"]=nlohmann::json::array();value["cooldown_ticks"]=0;for(auto& hit:value["melee"])hit["power"]=0;}

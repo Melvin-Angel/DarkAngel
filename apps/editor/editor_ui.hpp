@@ -27,6 +27,7 @@ public:
     std::function<std::string()> composer_info;
     ImTextureID composer_texture{};bool composer_visible{};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
+    int composer_new_kind{};
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
     char author_name[65]{"new_ability"};std::string author_diagnostic;
