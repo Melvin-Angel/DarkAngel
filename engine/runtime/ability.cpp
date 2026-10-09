@@ -134,19 +134,19 @@ void AbilityState::begin_tick(std::uint64_t tick){
     require(pending_hits.empty(),"Unresolved ability hit work; resolve or cancel before advancing");
     tick_=tick;std::erase_if(cooldowns_,[&](const auto& cooldown){return cooldown.second<=tick_;});
 }
-std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate){
+std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate,bool gameplay_hits){
     require(rate<=4*action_tick_units,"Ability action rate bound");
     std::vector<AbilityActionUpdate> updates;
     const bool entered_now=active_&&active_->timeline.state().tick==tick_;
     if(active_&&active_->timeline.state().tick<tick_){auto batch=active_->timeline.advance(tick_,rate);auto phase=active_->timeline.state().phase;
-        for(const auto& interval:batch.traversed)if(interval.kind==ActionBlockKind::HitWindow)
+        for(const auto& interval:batch.traversed)if(gameplay_hits&&interval.kind==ActionBlockKind::HitWindow)
             for(const auto& profile:active_->definition->melee)if(profile.block==interval.block)
                 pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,profile,interval,tick_});
         require(pending_hits.size()<=64,"Ability pending hit interval work bound");
         updates.push_back({{owner_,active_->timeline.state().activation},phase,phase==ActionPhase::Completed?AbilityActionReason::Completed:AbilityActionReason::Advanced,tick_,std::move(batch)});
         if(phase==ActionPhase::Completed)active_.reset();
     }
-    if(entered_now&&active_&&active_->timeline.state().clock==0){
+    if(gameplay_hits&&entered_now&&active_&&active_->timeline.state().clock==0){
         // An action entered in this phase exposes its time-zero hit windows once.
         // Existing rate-zero actions enter the branch above and never repeat this.
         for(const auto& block:active_->definition->action->blocks)if(block.kind==ActionBlockKind::HitWindow&&block.begin==0)
@@ -156,7 +156,7 @@ std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate){
     ++revision_;return updates;
 }
 std::vector<AbilityActionUpdate> AbilityState::advance(std::uint64_t tick,unsigned rate){begin_tick(tick);return finish_tick(rate);}
-std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request_wire(const AbilityIntent& intent,std::optional<AbilityFailure> forced){
+std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request_wire(const AbilityIntent& intent,std::optional<AbilityFailure> forced,std::optional<AbilityFailure> commitment_failure){
     auto previous=records_.find(intent.operation);
     if(previous!=records_.end()){
         if(!previous->second.intent||*previous->second.intent!=intent)return {{AbilityFailure::OperationConflict},{}};
@@ -176,6 +176,7 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
         else if(intent.edge==InputEdge::Tapped){if(key.active||key.released!=tick_||intent.cancelled||key.duration>input_[i].tap_us)failure=AbilityFailure::InputIgnored;else {input.held_us=key.duration;key.released=0;}}
         else failure=AbilityFailure::InvalidRequest;
     }
+    if(!failure&&commitment_failure){failure=commitment_failure;if(intent.edge==InputEdge::Pressed&&!intent.cancelled)rearm_[i]=false;}
     AbilityRequest request{owner_,intent.operation,intent.grant_generation,intent.slot,input,intent.replace_active};
     std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> result;
     if(failure){std::vector<AbilityActionUpdate> cleanup;
@@ -212,6 +213,23 @@ AbilityOwnerSnapshot AbilityState::snapshot()const{
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.ability=active_->definition->id;result.ability_generation=active_->definition->generation;result.action_definition=active_->definition->action->id;result.active_slot=active_->slot;}
     for(const auto& cooldown:cooldowns_)result.cooldowns.push_back(cooldown);
     result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;result.retained_operations=records_.size();result.highest_operation=highest_operation_;result.retired_through=retired_through_;
+    result.next_activation=next_activation_;
+    for(unsigned i=0;i<combat_slot_count;++i)result.input[i]={held_[i].active,held_[i].hold_sent,rearm_[i],held_[i].pressed,held_[i].released,held_[i].duration};
     for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
+}
+void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
+    require(source.owner.network==owner_.network&&source.owner.session_epoch==owner_.session_epoch&&source.grant_generation&&kit_&&source.next_activation&&source.health_attribute==health_&&source.maximum_health_attribute==maximum_health_,"Prediction owner/schema identity");
+    require(source.attributes.size()==attributes_.definitions().size()&&source.cooldowns.size()<=32&&source.operations.size()<=128&&source.retired_through<=source.highest_operation,"Prediction baseline bounds");
+    std::uint64_t previous=source.retired_through;for(const auto& operation:source.operations){require(operation.operation>previous&&operation.operation<=source.highest_operation&&operation.activation<source.next_activation&&static_cast<unsigned>(operation.failure)<=static_cast<unsigned>(AbilityFailure::AvatarMismatch)&&(!operation.committed||(operation.failure==AbilityFailure::None&&operation.activation)),"Prediction exact operation baseline");previous=operation.operation;}
+    auto schema=std::vector<AttributeDefinition>(attributes_.definitions().begin(),attributes_.definitions().end());std::set<AttributeId> ids;
+    for(const auto& value:source.attributes){auto it=std::find_if(schema.begin(),schema.end(),[&](const auto& d){return d.id==value.id;});require(it!=schema.end()&&ids.insert(value.id).second&&std::isfinite(value.value)&&value.value>=it->minimum&&value.value<=it->maximum,"Prediction attribute schema/value");it->base=value.value;}
+    AttributeSet attributes(std::move(schema));for(const auto& value:source.attributes)require(attributes.value(value.id)==value.value,"Prediction resource bound mismatch");
+    std::map<std::uint32_t,std::uint64_t> cooldowns;for(auto [group,until]:source.cooldowns)require(group&&until>source.tick&&cooldowns.emplace(group,until).second,"Prediction cooldown baseline");
+    require(bool(source.active)==bool(source.action),"Prediction action pairing");std::optional<Execution> execution;
+    if(source.active){require(source.active->owner==source.owner&&source.active->activation<source.next_activation&&static_cast<unsigned>(source.active_slot)<combat_slot_count,"Prediction active identity");auto definition=grants_[static_cast<unsigned>(source.active_slot)];require(definition&&definition->id==source.ability&&definition->generation==source.ability_generation&&definition->action->id==source.action_definition&&definition->action->generation==source.action->generation,"Prediction frozen generation mismatch");ActionTimeline timeline(definition->action,source.active->activation,source.tick);timeline.restore(*source.action);require(source.action->tick==source.tick&&source.action->phase==ActionPhase::Active,"Prediction action clock");execution.emplace(Execution{source.active_slot,source.grant_generation,definition,std::move(timeline)});}
+    std::array<HeldInput,combat_slot_count> held;std::array<bool,combat_slot_count> rearm;
+    for(unsigned i=0;i<combat_slot_count;++i){const auto& input=source.input[i];require(input.pressed<=source.tick&&input.released<=source.tick&&input.duration<=10000000&&(!input.active||!input.released),"Prediction input baseline");held[i]={input.active,input.pressed,input.released,input.duration,input.hold_sent};rearm[i]=input.rearm;}
+    attributes_=std::move(attributes);active_=std::move(execution);cooldowns_=std::move(cooldowns);held_=held;rearm_=rearm;kit_->generation_=source.grant_generation;held_generation_=source.grant_generation;
+    owner_=source.owner;tick_=source.tick;revision_=source.revision;highest_operation_=source.highest_operation;retired_through_=source.retired_through;next_activation_=source.next_activation;records_.clear();pending_hits.clear();hits_.clear();
 }
 }

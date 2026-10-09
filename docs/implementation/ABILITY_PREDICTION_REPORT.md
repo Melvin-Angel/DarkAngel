@@ -1,0 +1,25 @@
+# Native owner ability prediction
+
+9 October 2026, following ab55e4d. M4/M5 remain **In progress**.
+
+Royal now submits each semantic operation to the existing serialized WorldSession path and predicts its action, cost, cooldown and motor movement policy before server execution. The Game panel reads this one native owner view. Target Health and damage remain authoritative. Prediction runs the same immutable AbilityState gesture/commitment/timeline rules in a disposable candidate with gameplay hit collection disabled; it owns no World, transport, damage evaluator or presentation-event sink.
+
+The authoritative bundle and pending operation view are separate. A terminal acceptance remains pending until its exact operation record appears in a correction. Largest IDs, sparse gaps and ACK retirement are never inferred as inclusion. Rejection removes the speculative contribution and invalidates dependent descendants; replay starts from the newest confirmed attributes rather than restoring an earlier absolute Health/Stamina value. Included active-parent correlation survives prepared ACK retirement, so later child prediction can still reference its parent. This is local operation-dependency support; server-authored combo transitions remain open.
+
+Protocol-3 ability corrections use payload schema 2, adding the bounded eight-slot press/release/hold/rearm state and next activation sequence needed for deterministic gesture replay. Schema 1 correction payloads are rejected; all peers must use the matching build/schema handshake. Existing profiles 1/2 and ordinary Headless remain supported. Owner-only corrections retain the existing 8192-byte/ten-fragment bounds. Predicted activation handles are provisional; operation IDs correlate confirmation and authoritative handles replace them at inclusion.
+
+Ability correction prepares a copied prediction candidate and recomputes each retained tick's root delta and movement lock. OwnerPrediction checks regenerated commands against retained semantic input and replays in the existing disposable Jolt collision context. Royal publishes the prepared ability view only after motor reconciliation succeeds, then sends the native-prepared correction ACK. Reliable object-baseline replacement rebinds the local checked entity handle through the current network/session mapping. Avatar, session, grant or frozen-generation discontinuities require resynchronization.
+
+History is bounded to 30 ticks, 128 pending operation records and 32 operations per tick. Batch preparation, receipt processing and reconciliation retain the prior owner view on failure and expose resync. Missing exact inclusion/history, conflicting receipts, changed authoritative execution tick and queue/generation exhaustion fail explicitly. No backdated action, damage or durable event replay is introduced. Synthetic 30/60/144 schedules compare correctness, not frame budgets.
+
+## Verification
+
+Run `python scripts/verify_ability_prediction.py --build`. Evidence is recorded in `evidence/ability-prediction.json` and the refreshed `evidence/royal-combat.json` after successful verification.
+
+Focused tests exercise overlapping costs; acceptance before inclusion; duplicate/out-of-order receipts and baselines; exact sparse inclusion; rejected combo-parent descendants; preservation of newer Health; included-parent receipt retirement; held/release replay and kit rearming; immutable source generations; atomic overflow; and synthetic render schedules. The real Jolt fixture checks delayed acceptance/rejection, collision-achieved roots, regenerated movement and unchanged live authoritative history. Royal native/full-editor/Game D3D12/Vulkan, ordinary Headless and separate GNS schema/commitment compatibility checks are included.
+
+All gates pass: 14/14 affected optimized native tests, full-editor native combat/prediction fixtures, the feature-disabled asset fixture, 5/5 ordinary Headless tests, D3D12/Vulkan 120-tick combat and active-action captures, original-scene locomotion, and separate GNS host/client commitment/correction compatibility. Game results remain target Health 50, Stamina 80 and no pending correction after two attacks. Visual review confirmed the fresh Game capture and the added Ability pending metric. This is scoped verification, not a new full-suite or network/performance acceptance claim.
+
+## Remaining gates
+
+Observer action/public attributes and active-state late join are next. Real authored combos, projectile/ranged actions, effects/tags/reservations, attributed credit and game-owned Luau composition, typed graph states/events/layers/masks, animated socket sweeps and reflected Character/Ability/CombatKit/Action Composer authoring remain open. Prediction emits no cosmetic cues; correlated cue promotion/deduplication is still required with presentation services. Precise Royal mesh collision, clock-offset/jitter/lead/redundancy, the full RTT/loss/fault/streaming/lifecycle matrix and bandwidth/allocation/performance gates remain open. GNS compatibility is not delayed Jolt scene prediction over GNS. M3 live EOS remains externally blocked. M6 has not started.

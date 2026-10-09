@@ -15,7 +15,7 @@ struct CharacterSceneCombat {
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
 // Optional combat uses the same serialized WorldSession path and frozen assets.
-// Pending ability prediction and external-provider scene launch remain separate.
+// Owner ability/action/cost prediction shares the native fixed-tick rules.
 class CharacterSceneSession {
 public:
     CharacterSceneSession(SessionHandshake,std::span<const ObjectData>,StableId player,
@@ -34,6 +34,9 @@ public:
     unsigned resynchronizations() const;
     double debt() const;
     const AbilityOwnerSnapshot* ability()const;
+    const AbilityOwnerSnapshot* predicted_ability()const;
+    std::size_t pending_abilities()const;
+    MotorVec prediction_visual_offset()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

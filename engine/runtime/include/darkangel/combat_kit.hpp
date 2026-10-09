@@ -25,6 +25,7 @@ public:
  const CombatKitDefinition& definition()const{return *definition_;}
  std::uint64_t grant_generation()const{return generation_;}
 private:
+ friend class AbilityState;
  std::shared_ptr<const CombatKitDefinition> definition_;std::uint64_t generation_{1};
  std::array<bool,combat_slot_count> suppressed_{};
 };

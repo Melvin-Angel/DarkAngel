@@ -114,6 +114,9 @@ public:
     MotorState predict(const MotorInput&,const MotionRequest& = {});
     ReplayResult reconcile(const MotorState&);
     ReplayResult reconcile(const MotorState&,const CollisionHistory& authoritative_history);
+    // Recompute root/action requests after coherent ability correction. Inputs must
+    // match retained commands; validation/replay failure publishes no candidate.
+    ReplayResult reconcile(const MotorState&,const CollisionHistory&,std::span<const MotorCommand> regenerated);
     bool needs_resync()const{return resync_||world_.needs_resync()||motor_.needs_resync();}std::size_t pending()const{return commands_.size();}
     MotorVec visual_offset()const{return visual_offset_;}
 private:PhysicsWorld& world_;CharacterMotor& motor_;CollisionHistory history_;std::deque<MotorCommand> commands_;bool resync_{};MotorVec visual_offset_{};

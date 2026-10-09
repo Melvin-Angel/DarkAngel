@@ -13,8 +13,10 @@ public:
     AbilityFailure can_activate(const AbilityRequest&)const;
     std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> request(const AbilityRequest&);
     void begin_tick(std::uint64_t);
-    std::vector<AbilityActionUpdate> finish_tick(unsigned);
-    std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> request_wire(const AbilityIntent&,std::optional<AbilityFailure> forced={});
+    std::vector<AbilityActionUpdate> finish_tick(unsigned,bool gameplay_hits=true);
+    // Only a disposable owner prediction state may restore this prepared bundle.
+    void restore_prediction(const AbilityOwnerSnapshot&);
+    std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> request_wire(const AbilityIntent&,std::optional<AbilityFailure> forced={},std::optional<AbilityFailure> commitment_failure={});
     std::vector<AbilityActionUpdate> advance(std::uint64_t tick,unsigned rate);
     std::pair<AbilityFailure,std::vector<AbilityActionUpdate>> cancel(AbilityActivationHandle,AbilityActionReason);
     std::vector<AbilityActionUpdate> disconnect();

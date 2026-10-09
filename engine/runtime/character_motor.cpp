@@ -900,6 +900,11 @@ namespace darkangel {
         return reconcile(baseline,history_);
     }
     ReplayResult OwnerPrediction::reconcile(const MotorState& baseline,const CollisionHistory& authoritative_history){
+        std::vector<MotorCommand> pending;
+        for(auto command:commands_)if(command.input.tick>baseline.tick)pending.push_back(command);
+        return reconcile(baseline,authoritative_history,pending);
+    }
+    ReplayResult OwnerPrediction::reconcile(const MotorState& baseline,const CollisionHistory& authoritative_history,std::span<const MotorCommand> regenerated){
         auto before=motor_.state();
         if(baseline.epoch!=before.epoch){
             resync_=true;
@@ -910,6 +915,12 @@ namespace darkangel {
         }
         std::vector<MotorCommand> pending;
         for(auto command:commands_)if(command.input.tick>baseline.tick)pending.push_back(command);
+        if(regenerated.size()!=pending.size()){resync_=true;return ReplayResult::MissingHistory;}
+        for(std::size_t i=0;i<pending.size();++i){const auto& old=pending[i].input;const auto& replacement=regenerated[i].input;
+            // Action root yaw may change; original semantic movement stays fixed.
+            if(old.tick!=replacement.tick||old.sequence!=replacement.sequence||old.epoch!=replacement.epoch||old.x!=replacement.x||old.z!=replacement.z||old.jump!=replacement.jump||old.crouch!=replacement.crouch){resync_=true;return ReplayResult::Invalid;}
+        }
+        pending.assign(regenerated.begin(),regenerated.end());
         MotorState output;
         auto result=replay_motor(baseline,pending,authoritative_history,output,motor_.identity());
         if(result!=ReplayResult::Applied){

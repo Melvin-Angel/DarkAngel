@@ -59,6 +59,7 @@ struct AbilityActionUpdate {
 };
 struct AbilityAttributeValue {AttributeId id{};double value{};};
 struct AbilitySnapshotOperation {std::uint64_t operation{};AbilityFailure failure{};std::uint64_t activation{};bool committed{};};
+struct AbilityInputSnapshot {bool active{},hold_sent{},rearm{};std::uint64_t pressed{},released{},duration{};};
 struct AbilityOwnerSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},grant_generation{},revision{};
     std::vector<AbilityAttributeValue> attributes;
@@ -70,5 +71,7 @@ struct AbilityOwnerSnapshot {
     AttributeId health_attribute{},maximum_health_attribute{};
     std::vector<AbilitySnapshotOperation> operations;
     AssetId ability,action_definition;std::string ability_generation;CombatSlot active_slot{};
+    std::uint64_t next_activation{1};
+    std::array<AbilityInputSnapshot,combat_slot_count> input;
 };
 }
