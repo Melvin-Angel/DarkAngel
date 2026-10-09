@@ -18,6 +18,8 @@ Timeline gesture update (9 October): [COMPOSER_GESTURES_REPORT.md](COMPOSER_GEST
 
 Preview usability update (9 October): [COMPOSER_PLAYBACK_REPORT.md](COMPOSER_PLAYBACK_REPORT.md) records presentation-only playback/camera controls and more compact native Composer panels. A focused Animation destination is next; full graph/layer/mask tools remain planned.
 
+Animation destination update (9 October): [ANIMATION_WORKFLOW_REPORT.md](ANIMATION_WORKFLOW_REPORT.md) records the initial shared Composer/clip-preview workflow and Ability navigation. Full animation graph/state/layer/mask designers and persistent configurable layouts remain planned.
+
 ## Documentation ownership
 
 The [final engine vision](../vision/DarkAngel_Engine_Vision.md) owns the complete product target and all fifteen primary workflow descriptions. The [M0–M9 handoff](../architecture/DarkAngel_Implementation_Handoff.md) owns milestone scope/dependencies/acceptance; this plan owns incremental editor delivery. STATUS owns current state, reports own receipts and ABILITY_AUTHORING_CONTINUE owns immediate work. Historical implementation notes below are checkpoint descriptions, superseded by the current reports where later work is delivered.

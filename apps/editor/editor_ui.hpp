@@ -5,7 +5,7 @@
 #include <optional>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Ability,Game,Tools,Settings};
+enum class Workspace {Scene,Assets,Ability,Animation,Game,Tools,Settings};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -32,6 +32,7 @@ public:
     double composer_frame_seconds{};float composer_rate{1},composer_yaw{},composer_pitch{.1f},composer_distance{2.7f};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
     int composer_new_kind{};
+    AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
     char author_name[65]{"new_ability"};std::string author_diagnostic;
