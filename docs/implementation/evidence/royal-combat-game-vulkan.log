@@ -1,0 +1,104 @@
+[39mDiligent Engine: Info: Available Vulkan instance layers: 
+    VK_LAYER_VALVE_steam_overlay 1.3.207
+    VK_LAYER_VALVE_steam_fossilize 1.4.303
+[39m[39mDiligent Engine: Info: Supported Vulkan instance extensions: 
+    VK_KHR_surface 0.0.25
+    VK_KHR_win32_surface 0.0.6
+    VK_KHR_external_memory_capabilities 0.0.1
+    VK_KHR_external_semaphore_capabilities 0.0.1
+    VK_KHR_external_fence_capabilities 0.0.1
+    VK_KHR_get_physical_device_properties2 0.0.2
+    VK_KHR_get_surface_capabilities2 0.0.1
+    VK_KHR_device_group_creation 0.0.1
+    VK_EXT_swapchain_colorspace 0.0.5
+    VK_EXT_debug_utils 0.0.2
+    VK_EXT_debug_report 0.0.10
+    VK_KHR_portability_enumeration 0.0.1
+    VK_LUNARG_direct_driver_loading 0.0.1
+[39m[93mDiligent Engine: Warning: Validation layer VK_LAYER_KHRONOS_validation is not available.
+[39m[39mDiligent Engine: Info: Using physical device 'Intel(R) Iris(R) Xe Graphics', API version 1.4.323, Driver version 0.405.2989.
+[39m[39mDiligent Engine: Info: Extensions supported by device 'Intel(R) Iris(R) Xe Graphics': 
+    VK_EXT_device_address_binding_report 0.0.1       VK_EXT_full_screen_exclusive 0.0.4                   VK_KHR_swapchain 0.0.70
+    VK_KHR_external_memory 0.0.1                     VK_KHR_external_memory_win32 0.0.1                   VK_EXT_external_memory_host 0.0.1
+    VK_KHR_external_semaphore 0.0.1                  VK_KHR_external_semaphore_win32 0.0.1                VK_KHR_external_fence 0.0.1
+    VK_KHR_external_fence_win32 0.0.1                VK_KHR_timeline_semaphore 0.0.2                      VK_KHR_win32_keyed_mutex 0.0.1
+    VK_KHR_get_memory_requirements2 0.0.1            VK_KHR_bind_memory2 0.0.1                            VK_KHR_dedicated_allocation 0.0.3
+    VK_KHR_sampler_mirror_clamp_to_edge 0.0.3        VK_KHR_maintenance1 0.0.2                            VK_KHR_maintenance2 0.0.1
+    VK_KHR_maintenance3 0.0.1                        VK_KHR_maintenance4 0.0.2                            VK_KHR_maintenance5 0.0.1
+    VK_KHR_maintenance6 0.0.1                        VK_KHR_maintenance7 0.0.1                            VK_KHR_synchronization2 0.0.1
+    VK_KHR_shader_draw_parameters 0.0.1              VK_KHR_push_descriptor 0.0.2                         VK_KHR_descriptor_update_template 0.0.1
+    VK_KHR_multiview 0.0.1                           VK_KHR_shader_float16_int8 0.0.1                     VK_KHR_shader_float_controls 0.0.4
+    VK_KHR_16bit_storage 0.0.1                       VK_KHR_8bit_storage 0.0.1                            VK_EXT_shader_subgroup_ballot 0.0.1
+    VK_EXT_shader_subgroup_vote 0.0.1                VK_KHR_storage_buffer_storage_class 0.0.1            VK_KHR_variable_pointers 0.0.1
+    VK_KHR_relaxed_block_layout 0.0.1                VK_EXT_sampler_filter_minmax 0.0.2                   VK_KHR_device_group 0.0.4
+    VK_KHR_sampler_ycbcr_conversion 0.0.14           VK_EXT_ycbcr_2plane_444_formats 0.0.1                VK_EXT_4444_formats 0.0.1
+    VK_EXT_post_depth_coverage 0.0.1                 VK_EXT_shader_viewport_index_layer 0.0.1             VK_EXT_shader_stencil_export 0.0.1
+    VK_EXT_conservative_rasterization 0.0.1          VK_EXT_sample_locations 0.0.1                        VK_KHR_draw_indirect_count 0.0.1
+    VK_EXT_multi_draw 0.0.1                          VK_KHR_image_format_list 0.0.1                       VK_EXT_image_view_min_lod 0.0.1
+    VK_KHR_vertex_attribute_divisor 0.0.1            VK_EXT_vertex_attribute_divisor 0.0.3                VK_EXT_descriptor_indexing 0.0.2
+    VK_EXT_mutable_descriptor_type 0.0.1             VK_EXT_inline_uniform_block 0.0.1                    VK_KHR_create_renderpass2 0.0.1
+    VK_KHR_dynamic_rendering 0.0.1                   VK_KHR_dynamic_rendering_local_read 0.0.1            VK_EXT_dynamic_rendering_unused_attachments 0.0.1
+    VK_KHR_load_store_op_none 0.0.1                  VK_EXT_load_store_op_none 0.0.1                      VK_KHR_swapchain_mutable_format 0.0.1
+    VK_KHR_depth_stencil_resolve 0.0.1               VK_KHR_driver_properties 0.0.1                       VK_KHR_vulkan_memory_model 0.0.3
+    VK_EXT_conditional_rendering 0.0.2               VK_EXT_hdr_metadata 0.0.3                            VK_KHR_fragment_shading_rate 0.0.2
+    VK_EXT_depth_clip_enable 0.0.1                   VK_EXT_depth_clip_control 0.0.1                      VK_EXT_scalar_block_layout 0.0.1
+    VK_KHR_imageless_framebuffer 0.0.1               VK_KHR_buffer_device_address 0.0.1                   VK_EXT_buffer_device_address 0.0.2
+    VK_KHR_pipeline_library 0.0.1                    VK_EXT_host_query_reset 0.0.1                        VK_KHR_performance_query 0.0.1
+    VK_NV_device_diagnostic_checkpoints 0.0.2        VK_KHR_separate_depth_stencil_layouts 0.0.1          VK_KHR_shader_clock 0.0.1
+    VK_KHR_spirv_1_4 0.0.1                           VK_KHR_uniform_buffer_standard_layout 0.0.1          VK_EXT_separate_stencil_usage 0.0.1
+    VK_EXT_fragment_shader_interlock 0.0.1           VK_EXT_index_type_uint8 0.0.1                        VK_KHR_index_type_uint8 0.0.1
+    VK_EXT_primitive_topology_list_restart 0.0.1     VK_KHR_shader_subgroup_extended_types 0.0.1          VK_KHR_line_rasterization 0.0.1
+    VK_EXT_line_rasterization 0.0.1                  VK_EXT_memory_budget 0.0.1                           VK_EXT_memory_priority 0.0.1
+    VK_EXT_pageable_device_local_memory 0.0.1        VK_EXT_texel_buffer_alignment 0.0.1                  VK_INTEL_performance_query 0.0.2
+    VK_EXT_subgroup_size_control 0.0.2               VK_EXT_shader_demote_to_helper_invocation 0.0.1      VK_EXT_pipeline_creation_feedback 0.0.1
+    VK_EXT_pipeline_creation_cache_control 0.0.3     VK_KHR_pipeline_executable_properties 0.0.1          VK_EXT_graphics_pipeline_library 0.0.1
+    VK_EXT_transform_feedback 0.0.1                  VK_EXT_provoking_vertex 0.0.1                        VK_EXT_extended_dynamic_state 0.0.1
+    VK_EXT_extended_dynamic_state2 0.0.1             VK_EXT_extended_dynamic_state3 0.0.2                 VK_EXT_vertex_input_dynamic_state 0.0.2
+    VK_EXT_custom_border_color 0.0.12                VK_EXT_robustness2 0.0.1                             VK_EXT_image_robustness 0.0.1
+    VK_EXT_pipeline_robustness 0.0.1                 VK_KHR_calibrated_timestamps 0.0.1                   VK_EXT_calibrated_timestamps 0.0.2
+    VK_KHR_shader_integer_dot_product 0.0.1          VK_KHR_shader_subgroup_uniform_control_flow 0.0.1    VK_KHR_shader_terminate_invocation 0.0.1
+    VK_KHR_workgroup_memory_explicit_layout 0.0.1    VK_EXT_shader_atomic_float 0.0.1                     VK_KHR_copy_commands2 0.0.1
+    VK_KHR_shader_non_semantic_info 0.0.1            VK_KHR_zero_initialize_workgroup_memory 0.0.1        VK_EXT_shader_atomic_float2 0.0.1
+    VK_EXT_global_priority 0.0.2                     VK_EXT_global_priority_query 0.0.1                   VK_KHR_global_priority 0.0.1
+    VK_KHR_format_feature_flags2 0.0.2               VK_KHR_video_queue 0.0.8                             VK_KHR_video_decode_queue 0.0.7
+    VK_KHR_video_decode_h264 0.0.8                   VK_KHR_video_decode_h265 0.0.7                       VK_KHR_video_decode_av1 0.0.1
+    VK_EXT_color_write_enable 0.0.1                  VK_NV_compute_shader_derivatives 0.0.1               VK_KHR_compute_shader_derivatives 0.0.1
+    VK_EXT_private_data 0.0.1                        VK_EXT_image_2d_view_of_3d 0.0.1                     VK_EXT_primitives_generated_query 0.0.1
+    VK_EXT_shader_module_identifier 0.0.1            VK_EXT_non_seamless_cube_map 0.0.1                   VK_EXT_attachment_feedback_loop_layout 0.0.2
+    VK_KHR_map_memory2 0.0.1                         VK_KHR_shader_maximal_reconvergence 0.0.1            VK_KHR_shader_quad_control 0.0.1
+    VK_EXT_host_image_copy 0.0.1                     VK_KHR_shader_subgroup_rotate 0.0.2                  VK_KHR_shader_expect_assume 0.0.1
+    VK_KHR_shader_float_controls2 0.0.1
+[39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
+[39m[39mDiligent Engine: Info: GPU dynamic heap created. Total buffer size: 8.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new device-local page. (16.00 MB, type idx: 0). Current allocated size: 16.00 MB
+[39m[39mDiligent Engine: Info: Using SURFACE_TRANSFORM_IDENTITY swap chain pretransform
+[39m[39mDiligent Engine: Info: Using VK_PRESENT_MODE_FIFO_KHR swap chain present mode
+[39m[39mDiligent Engine: Info: Allocated new descriptor pool
+[39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 1). Current allocated size: 16.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new device-local page. (16.00 MB, type idx: 0). Current allocated size: 32.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new device-local page. (16.00 MB, type idx: 0). Current allocated size: 48.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 1). Current allocated size: 32.00 MB
+[39m[39mDiligent Engine: Info: Using SURFACE_TRANSFORM_IDENTITY swap chain pretransform
+[39m[39mDiligent Engine: Info: Using VK_PRESENT_MODE_IMMEDIATE_KHR swap chain present mode
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 2). Current allocated size: 48.00 MB
+[39mViewport foreground pixels=861566 capture=C:\DarkAngel\docs\implementation\evidence\royal-combat-game-vulkan.png
+Native combat editor tick=120 target_health=50 stamina=80 pending=0
+DarkAngel editor rendered 120 frames with vulkan
+[39mDiligent Engine: Info: Dynamic descriptor set allocator of immediate context peak descriptor pool count: 1
+[39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
+                       Peak used/aligned/allocated size: 132.91 KB / 133.88 KB / 256.00 KB (1 page). Peak efficiency (used/aligned): 99.3%. Peak utilization (used/allocated): 51.9%
+[39m[39mDiligent Engine: Info: Upload heap of immediate context peak used/allocated frame size: 0.03 MB / 1.00 MB (1 page)
+[39m[39mDiligent Engine: Info: Transient command buffer pool manager allocated descriptor pool count: 56
+[39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
+                       Total size: 8.00 MB. Peak allocated size: 0.75 MB. Peak utilization: 9.4%
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager' stats:
+                       Peak used/allocated device-local memory size: 39.47 MB / 48.00 MB (3 pages)
+                       Peak used/allocated host-visible memory size: 23.37 MB / 48.00 MB (3 pages)
+[39m[39mDiligent Engine: Info: Vulkan query manager peak usage:
+QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
+QUERY_TYPE_TIMESTAMP          :    0/ 512
+QUERY_TYPE_DURATION           :    0/ 512
+[39m[39mDiligent Engine: Info: Dynamic descriptor pool stats: allocated 3 pool(s)
+[39m[39mDiligent Engine: Info: Main descriptor pool stats: allocated 1 pool(s)
+[39m

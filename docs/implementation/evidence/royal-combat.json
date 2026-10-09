@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "base_head": "40d83e3c04439b269a51ccf566534bd07ea8abd5",
+  "scope": "Primary Royal Game workflow with frozen kit/action/clip, serialized protocol3 input/correction/ACK, authoritative motor-relative melee target damage, collision-achieved root/confirmed pose and Health/Stamina metrics",
+  "gates": [
+    {
+      "name": "royal-combat-build-m5-relwithdebinfo",
+      "exit": 0,
+      "seconds": 6.289
+    },
+    {
+      "name": "royal-combat-build-m5-editor-relwithdebinfo",
+      "exit": 0,
+      "seconds": 32.631
+    },
+    {
+      "name": "royal-combat-build-m2-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.233
+    },
+    {
+      "name": "royal-combat-build-m1-relwithdebinfo",
+      "exit": 0,
+      "seconds": 0.043
+    },
+    {
+      "name": "royal-combat-native",
+      "exit": 0,
+      "seconds": 4.102
+    },
+    {
+      "name": "royal-combat-editor",
+      "exit": 0,
+      "seconds": 0.552
+    },
+    {
+      "name": "royal-combat-no-animation",
+      "exit": 0,
+      "seconds": 0.361
+    },
+    {
+      "name": "royal-combat-headless",
+      "exit": 0,
+      "seconds": 0.257
+    },
+    {
+      "name": "royal-combat-prepare",
+      "exit": 0,
+      "seconds": 1.485
+    },
+    {
+      "name": "royal-combat-game-d3d12",
+      "exit": 0,
+      "seconds": 0.945
+    },
+    {
+      "name": "royal-combat-pose-d3d12",
+      "exit": 0,
+      "seconds": 1.1
+    },
+    {
+      "name": "royal-combat-game-vulkan",
+      "exit": 0,
+      "seconds": 0.664
+    },
+    {
+      "name": "royal-combat-pose-vulkan",
+      "exit": 0,
+      "seconds": 0.599
+    },
+    {
+      "name": "royal-combat-locomotion",
+      "exit": 0,
+      "seconds": 1.126
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "edf619f7cc520860af8166bd83634adc8e4bc9281d8abf877e5ea3b602fcbfdd",
+    "engine/runtime/character_scene.cpp": "0edc05de5df8f0d5d4aea66f5a9c719ea37042a8db4705a876c93081fc10d286",
+    "engine/runtime/include/darkangel/character_scene.hpp": "93202b1999a5f54b409a713df5e6fd0eb5ea37492f5dd47a202bd1a5a2ee13a0",
+    "apps/editor/main.cpp": "2cc4c2487add28c82df3d74c59f5d578fd69057e95fbe758c84832c3d4343f49",
+    "apps/editor/character_preview.cpp": "4c140ce163f803dd8c9e70660b835527484f7c4b32c5e9c1a9bdf7b8016717a1",
+    "apps/editor/character_preview.hpp": "f0a27aaff361f11aa2bf6e7b1ba238b4b0f8538e770859daca608e4ea8f53083",
+    "tests/character_combat_scene_tests.cpp": "7a27a86f51e7adae84158efc067f9cd0e0e4aaaa1bccb338b377f9ac375957b0",
+    "scripts/prepare_royal_scene.py": "cb088eeb1708bf2e9b03692efe04e9483947b73848de56c7ec40ead9c60a4b12",
+    "scripts/open_royal_scene.ps1": "dd9d0143fb644e43582065841e801f5c488efe3be2a0e3deab576b638d852c46",
+    "scripts/verify_royal_combat.py": "8d8cfd7b2e20036a096d9fc5c8a8c652d88788effc691d720be49af9f67198ad",
+    "content/royal_district/RoyalCombat.dascene": "49c16d4fb8263adc1c9010f849ec102436d2932da358c2d79679ccbb4b329037",
+    "content/royal_district/combat/base.daattributes": "f08e9b72b4f7bf2e2204476e36ef7c4dca268385371d957014e8fda1776e9efc",
+    "content/royal_district/combat/light.daaction": "f1694e1b6a0efc5f63009439b7be90eeb417310e7b2efe137a31f6b78b8a9328",
+    "content/royal_district/combat/light.daability": "ae2f7e55c24fccf8225578040c1457049db672228a4621c76131520753601b83",
+    "content/royal_district/combat/player.dakit": "216bc17514e6153c9548ffd32019f36a99450da4d6bd4776b1ddc896dd524315"
+  },
+  "binary_sha256": {
+    "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe": "cc9c892e1a103dc15263617c0e6c373c47cadf5574d5df6ad9b4ac5c90e1dac7",
+    "build/m5-relwithdebinfo/CharacterCombatSceneTests.exe": "1063045577ed1e8342e7d74102388513e76f6e867272689173cac2ef796353fd",
+    "build/m2-relwithdebinfo/AbilityAssetTests.exe": "ffb1dbebef00215640ee27a8e3b0547fe6462e5ee18e8821f4379f517352246f",
+    "build/m1-relwithdebinfo/DarkAngelHeadless.exe": "14379c94faeda4bb3f30ae89eaf6b4ac046d7b4802abffe5674e6f554a306947"
+  },
+  "limitations": [
+    "Owner predicts confirmed action root only; pending ability/cost/combo prediction remains open.",
+    "Full character/kit/ability and typed graph/layer/mask/Action Composer authoring and animated socket sweeps remain open.",
+    "No new observer actions/public resources/late-join or full fault/timing/performance qualification.",
+    "Training target is a stationary native actor with an application-owned power evaluator; NPC death animation/despawn and final formulas remain game-owned work.",
+    "M4/M5 remain In progress; live EOS remains blocked."
+  ]
+}

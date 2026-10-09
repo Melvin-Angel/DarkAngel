@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "kind": "ability",
+  "asset": "b351b004-35c7-407a-b372-30328c95277a",
+  "action": "12e2389c-790a-4510-a8ec-4825a2bc9b09",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "sources": {
+    "action": "royal_district/combat/light.daaction",
+    "attributes": "royal_district/combat/base.daattributes"
+  },
+  "costs": [
+    {
+      "attribute": 3,
+      "amount": 10
+    }
+  ],
+  "cooldown_group": 1,
+  "cooldown_ticks": 60,
+  "activate_on": "pressed",
+  "minimum_held_us": 0,
+  "cancel_on_release": false,
+  "interruptible": true,
+  "melee": [
+    {
+      "block": 2,
+      "offset": [
+        0,
+        1,
+        0.9
+      ],
+      "radius": 0.7,
+      "power": 25,
+      "evaluator": 1,
+      "damage_type": 1
+    }
+  ]
+}

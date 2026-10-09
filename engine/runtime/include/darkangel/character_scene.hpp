@@ -4,14 +4,22 @@
 #include <darkangel/world_session.hpp>
 
 namespace darkangel {
-struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};};
+struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;};
+struct CharacterSceneCombat {
+    std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
+    std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};
+    std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
+    std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;
+    StableId target;std::uint32_t evaluator{};DamageEvaluator damage;
+};
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
-// Combat/action replication and external-provider scene launch remain separate.
+// Optional combat uses the same serialized WorldSession path and frozen assets.
+// Pending ability prediction and external-provider scene launch remain separate.
 class CharacterSceneSession {
 public:
     CharacterSceneSession(SessionHandshake,std::span<const ObjectData>,StableId player,
-        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive);
+        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {});
     ~CharacterSceneSession();
     CharacterSceneSession(const CharacterSceneSession&)=delete;
     unsigned advance(double seconds,CharacterSceneInput);
@@ -25,6 +33,7 @@ public:
     std::size_t pending_prediction() const;
     unsigned resynchronizations() const;
     double debt() const;
+    const AbilityOwnerSnapshot* ability()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

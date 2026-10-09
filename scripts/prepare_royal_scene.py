@@ -31,10 +31,13 @@ def prepare():
     graph_source = 'royal_district/locomotion.dagraph'
     run('cook', SOURCE, CACHE, graph_source)
     graph_id = json.loads((SOURCE / graph_source).read_text())['asset']
+    kit_source = 'royal_district/combat/player.dakit'
+    run('cook', SOURCE, CACHE, kit_source)
+    kit_id = json.loads((SOURCE / kit_source).read_text())['asset']
     input_source = 'input/royal_player.dainput'
     run('cook', SOURCE, CACHE, input_source)
     input_id = json.loads((SOURCE / input_source).read_text())['asset']
-    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips], input_id, graph_id)
+    run('package-many', SOURCE, CACHE, asset(ground), CACHE / 'registry.json', *[asset(p) for p in chosen[1:]], asset(human), *[asset(p.relative_to(SOURCE).as_posix()) for p in clips], input_id, graph_id, kit_id)
     for relative in chosen:
         run('inspect', CACHE / 'registry.json', CACHE / 'cas', asset(relative))
     root = '492cd837-3bf6-45d7-b640-b0470c5cec82'
@@ -50,6 +53,10 @@ def prepare():
     graph = dict(schema=1, asset=root, entities=entities, mounts={})
     output = ROOT / 'content/royal_district/RoyalVillage.dascene'
     output.write_text(json.dumps(dict(schema=1, root=root, placement=f'{1:032x}', sources={root: graph}), indent=2) + '\n')
+    combat_root = '6b91b527-31be-4b15-aa9c-2c0b9970457b'
+    place(5, 'Training target', asset(human), 0, .5, 4.2, 3.141592653589793)
+    combat_graph = dict(schema=1, asset=combat_root, entities=entities, mounts={})
+    (SOURCE / 'royal_district/RoyalCombat.dascene').write_text(json.dumps(dict(schema=1, root=combat_root, placement=f'{1:032x}', sources={combat_root: combat_graph}), indent=2) + '\n')
     print('Scene:', output, '\nPrimary model:', asset(ground), flush=True)
 
 if __name__ == '__main__':

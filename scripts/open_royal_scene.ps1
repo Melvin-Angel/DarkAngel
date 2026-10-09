@@ -10,16 +10,16 @@ $taskEditor = Join-Path $taskRoot 'build/m5-editor-relwithdebinfo/DarkAngelEdito
 if (!(Test-Path -LiteralPath $taskEditor)) { throw 'Build the m5-editor-relwithdebinfo DarkAngelEditor target first.' }
 $taskRegistryReady = Test-Path -LiteralPath '.cache/royal-scene/registry.json'
 if ($taskRegistryReady) {
-    $taskRegistryReady = @((Get-Content -LiteralPath '.cache/royal-scene/registry.json' -Raw | ConvertFrom-Json).assets | Where-Object { $_.kind -eq 'graph' }).Count -eq 1
+    $taskRegistryReady = @((Get-Content -LiteralPath '.cache/royal-scene/registry.json' -Raw | ConvertFrom-Json).assets | Where-Object { $_.kind -eq 'combat_kit' }).Count -eq 1
 }
 if (!$taskRegistryReady) {
     python scripts/prepare_royal_scene.py
     if ($LASTEXITCODE -ne 0) { throw 'Royal scene preparation failed.' }
 }
 $taskModel = (Get-Content -LiteralPath 'content/royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport' -Raw | ConvertFrom-Json).id
-$taskArguments = @('--registry','.cache/royal-scene/registry.json','--cas','.cache/royal-scene/cas','--model',$taskModel,'--scene','content/royal_district/RoyalVillage.dascene','--backend',$Backend,'--sources','content','--asset-cache','.cache/editor-assets')
-$taskGraph = (Get-Content -LiteralPath 'content/royal_district/locomotion.dagraph' -Raw | ConvertFrom-Json).asset
-$taskArguments += @('--character-graph',$taskGraph)
+$taskArguments = @('--registry','.cache/royal-scene/registry.json','--cas','.cache/royal-scene/cas','--model',$taskModel,'--scene','content/royal_district/RoyalCombat.dascene','--backend',$Backend,'--sources','content','--asset-cache','.cache/editor-assets')
+$taskKit = (Get-Content -LiteralPath 'content/royal_district/combat/player.dakit' -Raw | ConvertFrom-Json).asset
+$taskArguments += @('--character-kit',$taskKit,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005')
 if ($CloseView) { $taskArguments += '--camera-close' }
 if ($AttackPose) {
     $taskClip = (Get-Content -LiteralPath 'content/royal_district/clips/attack.glb.daimport' -Raw | ConvertFrom-Json).id

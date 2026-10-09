@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "kind": "combat_kit",
+  "asset": "eecbc589-b6df-4e48-a4dd-38e3ec629d35",
+  "input": "efdd846a-9480-448a-85e6-35fca1da43ee",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "locomotion_stance": "3177471d-c721-425f-958b-6b03b78c8bcd",
+  "slots": [
+    {
+      "slot": "light",
+      "input_action": 8,
+      "ability": "b351b004-35c7-407a-b372-30328c95277a"
+    },
+    {
+      "slot": "heavy",
+      "input_action": 9,
+      "ability": null
+    },
+    {
+      "slot": "ranged_light",
+      "input_action": 14,
+      "ability": null
+    },
+    {
+      "slot": "ranged_heavy",
+      "input_action": 15,
+      "ability": null
+    },
+    {
+      "slot": "spell1",
+      "input_action": 12,
+      "ability": null
+    },
+    {
+      "slot": "spell2",
+      "input_action": 13,
+      "ability": null
+    },
+    {
+      "slot": "block",
+      "input_action": 10,
+      "ability": null
+    },
+    {
+      "slot": "parry",
+      "input_action": 11,
+      "ability": null
+    }
+  ],
+  "sources": {
+    "input": "input/royal_player.dainput",
+    "attributes": "royal_district/combat/base.daattributes",
+    "locomotion_stance": "royal_district/locomotion.dagraph",
+    "abilities": {
+      "b351b004-35c7-407a-b372-30328c95277a": "royal_district/combat/light.daability"
+    }
+  }
+}

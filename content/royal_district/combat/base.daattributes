@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "kind": "attributes",
+  "asset": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "attributes": [
+    {
+      "id": 1,
+      "name": "MaxHealth",
+      "kind": "statistic",
+      "base": 100,
+      "minimum": 0,
+      "maximum": 1000,
+      "maximum_attribute": 0,
+      "unit": "points",
+      "visibility": "public"
+    },
+    {
+      "id": 2,
+      "name": "Health",
+      "kind": "resource",
+      "base": 100,
+      "minimum": 0,
+      "maximum": 1000,
+      "maximum_attribute": 1,
+      "unit": "points",
+      "visibility": "public"
+    },
+    {
+      "id": 3,
+      "name": "Stamina",
+      "kind": "resource",
+      "base": 100,
+      "minimum": 0,
+      "maximum": 100,
+      "maximum_attribute": 0,
+      "unit": "points",
+      "visibility": "owner"
+    },
+    {
+      "id": 4,
+      "name": "Essence",
+      "kind": "resource",
+      "base": 50,
+      "minimum": 0,
+      "maximum": 50,
+      "maximum_attribute": 0,
+      "unit": "points",
+      "visibility": "owner"
+    },
+    {
+      "id": 5,
+      "name": "Poise",
+      "kind": "resource",
+      "base": 100,
+      "minimum": 0,
+      "maximum": 100,
+      "maximum_attribute": 0,
+      "unit": "points",
+      "visibility": "owner"
+    },
+    {
+      "id": 6,
+      "name": "ElementalDefence",
+      "kind": "statistic",
+      "base": 0,
+      "minimum": 0,
+      "maximum": 1000,
+      "maximum_attribute": 0,
+      "unit": "points",
+      "visibility": "owner"
+    },
+    {
+      "id": 7,
+      "name": "Block",
+      "kind": "resource",
+      "base": 100,
+      "minimum": 0,
+      "maximum": 100,
+      "maximum_attribute": 0,
+      "unit": "points",
+      "visibility": "owner"
+    }
+  ]
+}

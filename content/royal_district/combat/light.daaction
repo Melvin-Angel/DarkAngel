@@ -1,0 +1,40 @@
+{
+  "schema": 2,
+  "kind": "action",
+  "asset": "12e2389c-790a-4510-a8ec-4825a2bc9b09",
+  "duration": 53248,
+  "loops": 1,
+  "priority": 10,
+  "slot": "full-body",
+  "blocks": [
+    {
+      "id": 1,
+      "track": 0,
+      "begin": 0,
+      "end": 0,
+      "kind": "cue",
+      "key": "Attack.Start"
+    },
+    {
+      "id": 2,
+      "track": 1,
+      "begin": 16384,
+      "end": 27648,
+      "kind": "hit",
+      "key": "Weapon.Right"
+    },
+    {
+      "id": 3,
+      "track": 2,
+      "begin": 0,
+      "end": 53248,
+      "kind": "movement-lock",
+      "key": "Motor.Root"
+    }
+  ],
+  "motion": {
+    "clip": "260f716a-1883-42bc-8ea7-29d53913b79d",
+    "source": "royal_district/clips/attack.glb",
+    "policy": "motor"
+  }
+}

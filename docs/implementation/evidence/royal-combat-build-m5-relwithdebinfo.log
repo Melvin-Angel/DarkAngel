@@ -1,0 +1,12 @@
+[1/12] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[2/12] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[3/12] Scanning C:\DarkAngel\tests\character_combat_scene_tests.cpp for CXX dependencies
+[4/12] Scanning C:\DarkAngel\tests\character_scene_tests.cpp for CXX dependencies
+[5/12] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[6/12] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[7/12] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[8/12] Linking CXX static library DarkAngelCharacterScene.lib
+[9/12] Building CXX object CMakeFiles\CharacterSceneTests.dir\tests\character_scene_tests.cpp.obj
+[10/12] Building CXX object CMakeFiles\CharacterCombatSceneTests.dir\tests\character_combat_scene_tests.cpp.obj
+[11/12] Linking CXX executable CharacterCombatSceneTests.exe
+[12/12] Linking CXX executable CharacterSceneTests.exe
