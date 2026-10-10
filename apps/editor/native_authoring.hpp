@@ -9,12 +9,14 @@
 namespace darkangel::editor_app {
 ActionDefinition authoring_action(const nlohmann::json&);
 struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool pending{};bool dirty()const{return pending||nlohmann::json::parse(saved)!=value;}};
+struct NativeSourceComparison {AssetId asset;std::string path,baseline_sha,disk_sha;std::uint64_t revision{};bool pending{},exists{},matches{};};
 struct NativeValidationSummary {std::uint64_t revision{};std::size_t sources{};AssetId selected;};
 struct NativeHistoryEntry {std::string label;std::vector<AssetId> assets;bool creation{};};
 struct NativeHistoryChange {AssetId asset;std::string operation,path,value;};
 class NativeAuthoring {
 public:
     NativeDraft& open(AssetService&,AssetId);
+    NativeSourceComparison compare_source(AssetService&,AssetId);
     std::vector<AssetInfo> inventory(AssetService&)const;
     CookResult save(AssetService&,AssetId);
     AssetId create_character(AssetService&,AssetId skin,std::string_view name);

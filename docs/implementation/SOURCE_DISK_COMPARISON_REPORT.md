@@ -1,0 +1,9 @@
+# Explicit native source disk comparison — 10 October 2026
+
+Base `19d405d`. NativeAuthoring::compare_source reads at most65537 bytes to enforce the existing65536-byte native source limit before hashing. It reports saved-baseline match/external bytes/missing source or pending creation path absence/collision without changing drafts/history/catalog/CAS. Source identity panel stores the observation with authoring revision, shows disk SHA and explains that comparison is not a lock/reservation; Save performs fresh baseline/consumer checks. Older authoring revisions are visibly stale. A matching pending path must be absent, even if collided bytes equal the creation draft.
+
+`python scripts/verify_binding_navigation.py source-disk-comparison` passed targeted editor/native build, NativeAuthoringTests and one D3D12 fixture exercise. Native case covers exact baseline, whitespace external change, unchanged revision/history/cache baseline, pending absence/equal-byte collision and65537-byte rejection. D3D12 observes a whitespace conflict, restores exact original fixture bytes, verifies a new comparison matches, and renders the captured earlier conflict observation. Capture inspected: identity/catalog/hash details and read-only observation warning visible. Its displayed observation is intentionally historical; source is restored. Scene unchanged, no publication/live Play or runtime/schema/dependency change. No physical button activation claim.
+
+[Receipt](evidence/source-disk-comparison.json), [build](evidence/source-disk-comparison-build.log), [native](evidence/source-disk-comparison-native.log), [D3D12](evidence/source-disk-comparison-d3d12.log), [capture](evidence/source-disk-comparison.png).
+
+M4/M5 In progress; live EOS blocked; M6-M9 not started. Next: shared history source comparison access and diagnostics, reusing this read-only method. Keep source/cook/scene/resources/fresh isolated Play and documented crash-recovery limits.

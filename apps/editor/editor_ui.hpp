@@ -51,7 +51,7 @@ public:
     AssetId character_selection,player_selection,create_skin,create_character;
     AssetId creation_ability_template,creation_effect_template;int creation_gameplay_kind{};bool creation_initialized{};char creation_ability_name[65]{"new_ability"},creation_effect_name[65]{"new_effect"};
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
-    std::optional<NativeValidationSummary> last_validation;
+    std::optional<NativeSourceComparison> last_source_comparison;std::optional<NativeValidationSummary> last_validation;
     char author_name[65]{"new_ability"};std::string author_diagnostic;
     Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{};
     void select_workspace(Workspace);

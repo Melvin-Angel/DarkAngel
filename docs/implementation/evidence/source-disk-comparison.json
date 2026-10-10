@@ -1,0 +1,31 @@
+{
+  "gates": [
+    {
+      "name": "source-disk-comparison-build",
+      "exit": 0
+    },
+    {
+      "name": "source-disk-comparison-native",
+      "exit": 0
+    },
+    {
+      "name": "source-disk-comparison-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "source-disk-comparison",
+  "base_head": "19d405ddf810f1ff3cff9257a6f387d80ce130c9",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "baa6bbd854d9416eea7309402fbea06f78271791e0ac4e95d1594409e5aaaf9c",
+    "apps\\editor\\editor_ui.hpp": "f46aa9a4ada149db1078816d1ca2963fe0cff07111403a10587868671e90d554",
+    "apps\\editor\\main.cpp": "cdd40e0835b56285c5883455cc6bd14c23f218063b336486410945310ef5a2c1",
+    "apps\\editor\\native_authoring.cpp": "ae46279ce95d2815e87725fc9aceff3d4e67abd95a8376960fc05d3bfbedcb73",
+    "apps\\editor\\native_authoring.hpp": "7fb9ecb1f1f742197dec691f991bf8bee163a0fe4842e620fa02b85dd18be72c",
+    "tests\\native_authoring_tests.cpp": "5ea6fd0a4fc3d62220e9f2cd54beefae63492b9334ecd18645fe24d40a03129c",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "Designated Player Kit Play prefix exercises coordinated source publication and full fresh Play in its disposable fixture; other prefixes remain private. M4/M5 In progress."
+  ]
+}
