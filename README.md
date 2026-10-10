@@ -4,6 +4,8 @@ Native C++20 engine and personal game-development editor for Ashen Roots. M0–M
 
 [Final engine vision](docs/vision/DarkAngel_Engine_Vision.md) defines the finished product and fifteen workflow targets. The [authoritative M0–M9 roadmap](docs/architecture/DarkAngel_Implementation_Handoff.md) defines delivery/acceptance, [locked architecture](docs/architecture/Decision_Log.txt) defines contracts, and [editor workflow plan](docs/implementation/EDITOR_WORKFLOW_PLAN.md) defines incremental authoring. Start current authoring work with [ability continuation](docs/implementation/ABILITY_AUTHORING_CONTINUE.md). Planned capabilities are not implementation claims. [Actor gameplay decisions and Ashen Roots traceability](docs/architecture/Actor_Gameplay_Design.md) records Character/Player/NPC ownership, mask grants, graph/reaction direction and unanswered design questions. [Current continuation](docs/implementation/CONTINUE.md) preserves the local checkpoint and next authoring priorities.
 
+[Latest authoring checkpoint and usage handoff](docs/implementation/AUTHORING_USAGE_HANDOFF.md) records native Character/Player/input references, graph authoring and isolated previews, focused receipts and the next increment.
+
 Start with [bootstrap instructions](docs/implementation/BOOTSTRAP.md), [current status](docs/implementation/STATUS.md) and the [M0 report](docs/implementation/M0_REPORT.md). All dependencies and tools are frozen in checked-in manifests/locks; bootstrap never resolves a moving branch or updates to a newer release.
 
 Targets: static `DarkAngelFoundation`, static `DarkAngelRuntime`, console `DarkAngelHeadless`, `FlecsProbe`, `LuauProbe` and `SQLiteProbe`. Headless does not link the acquired renderer, editor, audio or networking SDKs.
