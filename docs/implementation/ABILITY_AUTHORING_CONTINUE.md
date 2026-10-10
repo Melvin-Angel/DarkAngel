@@ -1,3 +1,5 @@
+Current Animation geometry increment: [blend-space view](BLEND_SPACE_REPORT.md). Editor/D3D12 draw passed; selected points focus typed fields, requested preview input is distinct from resolved weights. Next: actual native graph blend-result inspection. History stays MVP; M4/M5 In progress.
+
 Current Animation graph increment: [visual graph canvas](GRAPH_CANVAS_REPORT.md). Native connection/cycle/consumer checks and D3D12 draw passed. Input connections use existing native sources/history. Next: blend-space geometry and selected-point editing. History stays MVP; M4/M5 In progress.
 
 Current independent Ability integration: [fresh Play report](INDEPENDENT_PLAY_REPORT.md). Build/native/D3D12 passed; six-source publication uses the copied Composer, Health83/Stamina88/pending0. Second-source collision leaves no partial creation. Next: visual native Animation graph authoring. History stays MVP; M4/M5 In progress.

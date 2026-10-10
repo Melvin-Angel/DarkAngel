@@ -1,0 +1,30 @@
+{
+  "gates": [
+    {
+      "name": "blend-space-build",
+      "exit": 0
+    },
+    {
+      "name": "blend-space-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "blend-space",
+  "base_head": "be4f36e37af733af328ad2d9748f4744f3b1cc5c",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "6a93cee1978f723047116173ebee39b6f4a5c175bc0aba74bfc2c1a11d6ac401",
+    "apps\\editor\\editor_workspaces.cpp": "75d671f9412aef363e785d2c358956771e85971c4db68cd75144404ee31a97e9",
+    "apps\\editor\\editor_ui.hpp": "c8902be8c9b865f24feca576b0075b5b7b5d83123f9cc9a177e0c8d1ecf7d3aa",
+    "apps\\editor\\main.cpp": "5fa847a412698e7c6ada28e4ae393077815dcb244d3bd3e2190abc8be67278a6",
+    "apps\\editor\\native_authoring.cpp": "c165022f659b20ef3642de61d312c8e029b186d2dd69b3a536f280b933ae43b7",
+    "apps\\editor\\native_authoring.hpp": "86cfc3177ce2b48144c98c240acca758ae2d370821c42caf4090c0241910b096",
+    "tests\\native_authoring_tests.cpp": "4168f56fe9ec96d858806ff7e1e19b99b2e31d3fd34b8dac0bd5778a119343a1",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
+    "apps\\editor\\graph_canvas.hpp": "b0269366fa4de36db181f97066c541238066c422415a0dcbe3dffbc6169b2e45",
+    "apps\\editor\\blend_space.hpp": "283c1972b0da4567398cb7e240af0c78bc93eae8ed4d003a4c6e97489984f978"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "Designated Player Kit Play prefix exercises coordinated source publication and full fresh Play in its disposable fixture; other prefixes remain private. M4/M5 In progress."
+  ]
+}
