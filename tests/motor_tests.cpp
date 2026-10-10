@@ -33,7 +33,21 @@ int hut_jump_probe(const char* path){
  std::ifstream input(path);require(bool(input),"Open hut collision source");std::string bytes{std::istreambuf_iterator<char>(input),{}};auto collision=decode_collision_source(bytes);unsigned failures=0,completed=0;
  const MotorVec starts[]={{-7,.51,2},{-10,.51,2},{-4,.51,2},{7,.51,2},{3,.51,2},{11,.51,2},{-7,.51,-10},{7,.51,-10},{-12,.51,-4},{-2,.51,-4},{1,.51,-4},{13,.51,-4}};
  for(unsigned n=0;n<std::size(starts);++n){PhysicsWorld world;world.load_scene(collision);CharacterMotor motor(world,starts[n],10);auto target=n<9?MotorVec{-7,0,-4}:MotorVec{7,0,-4};if(n>=3&&n<6||n==7)target={7,0,-4};auto delta=MotorVec{target.x-starts[n].x,0,target.z-starts[n].z};auto length=std::hypot(delta.x,delta.z);delta.x/=length;delta.z/=length;
-  for(unsigned frame=0;frame<360;++frame){auto before=motor.state();auto tick=world.tick()+1;try{motor.step({tick,tick,1,delta.x,delta.z,0,frame%3==0,false});world.step();motor.post_physics();}catch(const std::exception& error){if(std::string_view(error.what()).find("Motor collision work overflow")==std::string_view::npos)throw;++failures;std::cout<<"Hut jump overflow case="<<n<<" tick="<<tick<<" previous_foot="<<before.position.x<<","<<before.position.y<<","<<before.position.z<<" jump="<<(frame%3==0)<<" input="<<delta.x<<","<<delta.z<<"\n";break;}if(frame==359)++completed;}
+  CollisionHistory history;std::vector<MotorInput> commands;auto baseline=motor.state();
+  for(unsigned frame=0;frame<360;++frame){
+   auto before=motor.state();auto tick=world.tick()+1;
+   history.retain(world.capture());MotorInput command{tick,tick,1,delta.x,delta.z,0,frame%3==0,false};commands.push_back(command);
+   try{
+    motor.step(command);world.step();motor.post_physics();
+    if(commands.size()==15){
+     auto live=motor.state();MotorState replayed;
+     require(replay_motor(baseline,commands,history,replayed,10)==ReplayResult::Applied,"Hut isolated replay failed");
+     require(std::abs(replayed.position.x-live.position.x)<1e-5&&std::abs(replayed.position.y-live.position.y)<1e-5&&std::abs(replayed.position.z-live.position.z)<1e-5&&replayed.grounded==live.grounded,"Hut live/replay mismatch");
+     require(world.tick()==tick&&motor.state().position==live.position,"Hut replay changed live world");baseline=live;commands.clear();
+    }
+   }catch(const std::exception& error){if(std::string_view(error.what()).find("Motor collision work overflow")==std::string_view::npos)throw;++failures;std::cout<<"Hut jump overflow case="<<n<<" tick="<<tick<<" previous_foot="<<before.position.x<<","<<before.position.y<<","<<before.position.z<<" jump="<<(frame%3==0)<<" input="<<delta.x<<","<<delta.z<<"\n";break;}
+   if(frame==359)++completed;
+  }
  }
  std::cout<<"Hut jump probe completed="<<completed<<" overflow="<<failures<<" cases="<<std::size(starts)<<"\n";return failures?2:0;
 }

@@ -1,0 +1,38 @@
+[1/46] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[2/44] Scanning C:\DarkAngel\tests\motor_tests.cpp for CXX dependencies
+[3/44] Scanning C:\DarkAngel\tests\ability_motor_prediction_tests.cpp for CXX dependencies
+[4/44] Scanning C:\DarkAngel\tests\motor_session_tests.cpp for CXX dependencies
+[5/44] Scanning C:\DarkAngel\tests\motor_fault_tests.cpp for CXX dependencies
+[6/44] Scanning C:\DarkAngel\tests\motor_actor_history_tests.cpp for CXX dependencies
+[7/44] Scanning C:\DarkAngel\tests\motor_dynamic_tests.cpp for CXX dependencies
+[8/44] Scanning C:\DarkAngel\tests\motor_budget_tests.cpp for CXX dependencies
+[9/44] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[10/44] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
+[11/44] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[12/44] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[13/44] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[14/44] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[15/44] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[16/44] Generating CXX dyndep file CMakeFiles\MotorBudgetTests.dir\CXX.dd
+[17/44] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[18/33] Building CXX object CMakeFiles\MotorTests.dir\tests\motor_tests.cpp.obj
+[19/33] Building CXX object CMakeFiles\AbilityMotorPredictionTests.dir\tests\ability_motor_prediction_tests.cpp.obj
+[20/33] Building CXX object CMakeFiles\MotorFaultTests.dir\tests\motor_fault_tests.cpp.obj
+[21/33] Building CXX object CMakeFiles\MotorSessionTests.dir\tests\motor_session_tests.cpp.obj
+[22/33] Building CXX object CMakeFiles\MotorActorHistoryTests.dir\tests\motor_actor_history_tests.cpp.obj
+[23/33] Building CXX object CMakeFiles\MotorDynamicTests.dir\tests\motor_dynamic_tests.cpp.obj
+[24/33] Building CXX object CMakeFiles\MotorBudgetTests.dir\tests\motor_budget_tests.cpp.obj
+[25/33] Linking CXX executable MotorTests.exe
+[26/33] Linking CXX executable AbilityMotorPredictionTests.exe
+[27/33] Linking CXX executable MotorSessionTests.exe
+[28/33] Linking CXX executable MotorFaultTests.exe
+[29/33] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(108): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(106): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(228): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(68): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[30/33] Linking CXX executable MotorActorHistoryTests.exe
+[31/33] Linking CXX executable MotorDynamicTests.exe
+[32/33] Linking CXX executable MotorBudgetTests.exe
+[33/33] Linking CXX executable DarkAngelEditor.exe

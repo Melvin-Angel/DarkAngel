@@ -557,6 +557,9 @@ namespace darkangel {
             settings.mMaxStrength=w.mode==PhysicsWorld::Mode::Authoritative?1000.f:0.f;
             settings.mSupportingVolume=JPH::Plane(JPH::Vec3::sAxisY(),-.3f);
             settings.mMaxNumHits=32;
+            // Filter internal triangle edges before the bounded contact collector.
+            // Keep identical settings in authoritative, predicted and replay worlds.
+            settings.mEnhancedInternalEdgeRemoval=true;
             check(identity<(1ULL<<63),"Invalid character identity");
             if(!identity){while(w.actors.contains(w.next_motor))++w.next_motor;identity=w.next_motor++;}
             check(!w.actors.contains(identity),"Duplicate character identity");

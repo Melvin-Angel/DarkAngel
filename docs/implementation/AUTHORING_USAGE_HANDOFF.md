@@ -1,3 +1,5 @@
+Current hut overflow fix: enhanced internal-edge removal retains cap32 and the overflow guard. All12 real-mesh jump approaches and288 isolated replay batches pass; seven focused physics/session/prediction checks and D3D12 combat pass. Actual editor rebuilt. See [fix report](MOTOR_HUT_OVERFLOW_FIX_REPORT.md). Interactive hut retest remains useful. Next: Ability action-window tag authoring; history stays MVP. M4/M5 In progress.
+
 Current motor bug: [real hut-jump reproduction](MOTOR_HUT_OVERFLOW_REPRO_REPORT.md). Native case1 fails at tick88;11 other approaches complete. Default MotorTests passes. No runtime fix yet; cap32/guard unchanged. Next: bounded mesh-contact investigation, regression/fix, replay/session and one backend. User imported content and scene records preserved; M4/M5 In progress.
 
 Priority override: user-reported repeated Jump while pushing into huts trips the native 32-hit motor guard. [Read-only triage](MOTOR_HUT_OVERFLOW_TRIAGE.md); not reproduced or fixed. First work after reset: focused hut-contact reproduction/regression and bounded motor fix, before action-tag forms. User scene/light source edits and scene records remain untouched. At triage8% five-hour remaining; existing18:15 Copenhagen follow-up retained. M4/M5 In progress.
@@ -48,7 +50,7 @@ M4/M5 In progress; live EOS externally blocked; M6-M9 not started. Creation Undo
 
 ## Earlier handoff observations (historical)
 
-## Usage-stop handoff — 10 October 2026, 08:27 UTC
+## Usage-stop handoff ï¿½ 10 October 2026, 08:27 UTC
 
 Latest native checkpoint: `e4bd0803f4ba7dbbbb0d1fe737032f5ce4a7d3e4` (`e4bd080`). Tree observed clean on master before this handoff;43 commits ahead of the existing local origin/master tracking ref. No fetch/push. This documentation commit follows the native checkpoint. Preserve any later user changes; verify Git rather than assuming this snapshot remains current.
 
@@ -64,13 +66,13 @@ Latest [created vertical receipt](CREATION_VERTICAL_REPORT.md): six new sources 
 
 Improve practical reference/creation usability in focused increments. Good candidates: make existing effect-binding rows navigate directly to their Ability/Effect; fix clipped selector labels with sensible layouts. Read current forms/history and reuse open_native_asset plus native selectors. Choose a coherent chunk, verify minimally and commit owned completed work with status/report/continuation. Do not rerun all prior suites for isolated forms. The integration fixture is appropriate again only after meaningful publication/resource changes or a new failure.
 
-Do not rebuild delivered Character/Player/input/graph tools or start masks/reactions/AI as a monolithic rewrite. Full tag-driven graph states/reactions, masks/equipment and NPC are planned. Canonical final vision and actor decisions remain in docs/vision/DarkAngel_Engine_Vision.md and docs/architecture/Actor_Gameplay_Design.md. M4/M5 remain In progress; original fault/performance/combat/replication acceptance gates are outstanding. EOS externally blocked; M6–M9 not started.
+Do not rebuild delivered Character/Player/input/graph tools or start masks/reactions/AI as a monolithic rewrite. Full tag-driven graph states/reactions, masks/equipment and NPC are planned. Canonical final vision and actor decisions remain in docs/vision/DarkAngel_Engine_Vision.md and docs/architecture/Actor_Gameplay_Design.md. M4/M5 remain In progress; original fault/performance/combat/replication acceptance gates are outstanding. EOS externally blocked; M6ï¿½M9 not started.
 
 Preserve native schemas, AssetService/catalog/CAS, frozen generations, WorldSession authority, eight slots, tag rebuild fences and full Save/cook/scene closure/resource preparation/fresh isolated Play. Validation is private, can warm immutable CAS, and never bypasses Save revalidation or certifies GPU readiness. Creation Undo ends at publication. Close saved source ends affected history without deleting assets; dirty/pending closure rejected. Publication remains non-crash-atomic and not a cross-process multi-file snapshot; manual recovery limitations remain. No subagents, new dependencies, push or reset consumption.
 
 ## Historical handoff snapshots
 
-## Current resumed implementation checkpoint — 10 October 2026
+## Current resumed implementation checkpoint ï¿½ 10 October 2026
 
 Native checkpoint `81d46db`; repository observed clean before this documentation update. All commits are local; no push/fetch was performed. This section supersedes the older usage-stop/topology-next instructions below. Usage was last observed at50% remaining; continue authorized useful chunks toward10%, checking fresh limits before scheduling.
 
@@ -78,7 +80,7 @@ Delivered since `af42b3c`: graph topology/history (`9c8062f`), shared history in
 
 Next: native Asset browser categories and UUID search; then focused source/history usability. Preserve delivered workflows rather than rebuilding them. Source creation Undo is available only before publication; published assets are retained. Full masks/reactions/AI remain planned. Continue complete Save/cook/scene closure/resource preparation/fresh isolated Play; WorldSession authority, native frozen references, eight slots and tag rebuild fences remain required. Publication is not crash-atomic or a cross-process multi-file reader snapshot.
 
-M4/M5 remain In progress, live EOS externally blocked, M6–M9 not started. Minimal meaningful checks, one backend, completed owned local commits; no subagents, dependencies, push or reset-credit consumption. Update this existing follow-up just after the next reported reset when remaining reaches10%.
+M4/M5 remain In progress, live EOS externally blocked, M6ï¿½M9 not started. Minimal meaningful checks, one backend, completed owned local commits; no subagents, dependencies, push or reset-credit consumption. Update this existing follow-up just after the next reported reset when remaining reaches10%.
 
 ## Historical checkpoint material
 

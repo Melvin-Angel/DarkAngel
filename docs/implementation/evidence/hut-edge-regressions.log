@@ -1,0 +1,36 @@
+MotorTests: 0
+M4 motor contracts: obstruction/root, teleport, jump, impulse, stance, steps/slopes, elevator/rotation/removal, isolated replay failures, observer and 30/60/144 Hz passed
+
+MotorSessionTests: 0
+M4 Loopback ownership, duplicates, motor snapshots, missing input and fixed step passed
+
+MotorFaultTests: 0
+M4 trace lag_ticks=0 snapshot_loss=0 corrections=41 drops=0 pending=2
+M4 trace lag_ticks=0 snapshot_loss=2 corrections=41 drops=1 pending=2
+M4 trace lag_ticks=0 snapshot_loss=5 corrections=41 drops=3 pending=2
+M4 trace lag_ticks=2 snapshot_loss=0 corrections=42 drops=0 pending=4
+M4 trace lag_ticks=2 snapshot_loss=2 corrections=42 drops=1 pending=4
+M4 trace lag_ticks=2 snapshot_loss=5 corrections=42 drops=3 pending=4
+M4 trace lag_ticks=5 snapshot_loss=0 corrections=39 drops=0 pending=8
+M4 trace lag_ticks=5 snapshot_loss=2 corrections=39 drops=1 pending=8
+M4 trace lag_ticks=5 snapshot_loss=5 corrections=38 drops=3 pending=8
+M4 trace lag_ticks=8 snapshot_loss=0 corrections=39 drops=0 pending=10
+M4 trace lag_ticks=8 snapshot_loss=2 corrections=39 drops=1 pending=10
+M4 trace lag_ticks=8 snapshot_loss=5 corrections=39 drops=3 pending=10
+
+MotorDynamicTests: 0
+Dynamic live owner_x=1.40046 crate_x=2.02096 replay_result=0 replay_x=1.40046
+Dynamic authority, proxy history, impulse exclusion, completed-tick bounds and full rotation passed
+
+MotorActorHistoryTests: 0
+Actor replay moving=0 crouched=0 live_x=1.25167 replay_x=1.25167
+Actor replay moving=1 crouched=0 live_x=0.999999 replay_x=0.999999
+Actor replay moving=0 crouched=1 live_x=0.96 replay_x=0.96
+Actor replay moving=1 crouched=1 live_x=0.988333 replay_x=0.988333
+Historical actor identity, stance, collision, removal and owner reconciliation passed
+
+MotorBudgetTests: 0
+{"schema":1,"scope":"4 motors, 2 dynamic crates, 1 kinematic platform, 8-triangle cave, 3 queries and retained history","ticks":1200,"replay_runs":64,"replay_commands":30,"live_p50_us":40,"live_p99_us":73,"replay_p50_us":1087.4,"replay_p95_us":1859.3,"grounded_jitter_m":4.38839e-07,"cpp_live_new_calls_per_tick":15.0567,"cpp_live_requested_bytes_per_tick":39083.5,"cpp_replay_new_calls_per_run":1386,"cpp_replay_requested_bytes_per_run":132831,"jolt_live_allocations_per_tick":2,"jolt_live_reallocations_per_tick":0.00416667,"jolt_live_requested_bytes_per_tick":64.1967,"jolt_replay_allocations_per_run":1687,"jolt_replay_reallocations_per_run":6,"jolt_replay_requested_bytes_per_run":9.10294e+06,"allocation_scope":"Separate C++ new and process-global Jolt allocator requests; requested bytes are not resident memory"}
+
+AbilityMotorPredictionTests: 0
+Delayed owner ability acceptance/rejection, collision-achieved roots and atomic disposable Jolt motor replay passed
