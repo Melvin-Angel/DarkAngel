@@ -1,77 +1,91 @@
 {
   "schema": 1,
-  "base_head": "a3704e207db128d947deae4769da9d93f9f6f61a",
-  "scope": "Dodge as an authored ability on the kit utility ingress with dash and facing lock; kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
+  "base_head": "4325299033b57302fcd27f7947f97f8e4279d7bb",
+  "scope": "Mask assets with four Player slots, active-mask kit and worn face-socket visual; dodge as an authored ability on the kit utility ingress with dash and facing lock; kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
   "gates": [
     {
       "name": "effect-reaction-build",
       "exit": 0,
-      "seconds": 52.219
+      "seconds": 34.14
     },
     {
       "name": "effect-reaction-authoring",
       "exit": 0,
-      "seconds": 142.765
+      "seconds": 234.469
     },
     {
       "name": "effect-reaction-presentation",
       "exit": 0,
-      "seconds": 0.203
+      "seconds": 0.281
     },
     {
       "name": "effect-reaction-public-pose",
       "exit": 0,
-      "seconds": 0.188
+      "seconds": 0.344
     },
     {
       "name": "effect-reaction-effect-assets",
       "exit": 0,
-      "seconds": 0.656
+      "seconds": 0.531
     },
     {
       "name": "effect-reaction-kit-assets",
       "exit": 0,
-      "seconds": 2.0
+      "seconds": 2.032
     },
     {
       "name": "effect-reaction-replication",
       "exit": 0,
-      "seconds": 0.156
+      "seconds": 0.421
     },
     {
       "name": "effect-reaction-combat-effects",
       "exit": 0,
-      "seconds": 0.063
+      "seconds": 0.282
     },
     {
       "name": "effect-reaction-form",
       "exit": 0,
-      "seconds": 1.266
+      "seconds": 0.953
     },
     {
       "name": "effect-reaction-d3d12",
       "exit": 0,
-      "seconds": 2.187
+      "seconds": 2.391
     },
     {
       "name": "kit-death-d3d12",
       "exit": 0,
-      "seconds": 2.531
+      "seconds": 2.578
     },
     {
       "name": "dodge-d3d12",
       "exit": 0,
-      "seconds": 2.453
+      "seconds": 2.281
+    },
+    {
+      "name": "mask-worn-d3d12",
+      "exit": 0,
+      "seconds": 1.641
+    },
+    {
+      "name": "mask-placement-d3d12",
+      "exit": 0,
+      "seconds": 1.625
     }
   ],
   "source_sha256": {
-    "apps/editor/character_preview.cpp": "267f3dcb2bfe703e8d4ea3e650da4b33039ca4cf759c789fff59623e227ab66a",
-    "apps/editor/editor_authoring.cpp": "efe3e225ae9f42a76d40aed69d933106282a7627dde1623b623c4ad3be9b16e5",
-    "apps/editor/editor_ui.hpp": "d70bed42cae034eb809d3a4c4b6f3a80a9d7c736f39b3759242cd7b48223adef",
-    "apps/editor/main.cpp": "ed2520e31e2be554f0d8cdffc257bf0e1e2658193b369bc7b6847c202ad3c4a3",
-    "apps/editor/native_authoring.cpp": "9b589b16384b202ba036e75dd844a66c0a9fd996e3af8331687e18f73d1d9252",
-    "apps/editor/native_authoring.hpp": "65d91ae4b9214ee5893c84f65a437d1a8bd079c1d76c4928248806ed003fa1c9",
+    "apps/editor/character_preview.cpp": "4193fb66efcd5a57016c2824cf9070821af992f462813e3cada1e9cacb8e0641",
+    "apps/editor/editor_authoring.cpp": "7b92f5550fff18138e50fcc7bb156f7dcc37a9ba5b6c1e95ac6e92ca38178226",
+    "apps/editor/editor_ui.hpp": "5b796f9f1b81330ee55c348f9db7dbb717142b0d7d941cf47e6e30558025e87a",
+    "apps/editor/main.cpp": "eab17887c69c2ba31425fc31aee18aca8e5c8cbefe5070546e9741692d3a12bf",
+    "apps/editor/native_authoring.cpp": "6c01db8e26ae2065d87377af3ac7431dbec7fb03ca866f618bd5db17916d94f7",
+    "apps/editor/native_authoring.hpp": "8acb0ff9c8b58a41555343badc104a62ab2156fdd668bf79f0988af0a57cb7ba",
     "engine/assets/effect_cooker.cpp": "5001d796cdd6937db3b22d7ab522fbc98fd4d503a7629593e728066c4681409f",
+    "engine/assets/actor_cooker.cpp": "07c45793824b7c682bc43745195f4638a09b0612d2e8372d62534fdd3622e5cf",
+    "engine/assets/asset_service.cpp": "0b11c50d3cf443de6e4173ca34469c3b20dc13d63a2f8580a336aa20667bbf43",
+    "engine/assets/include/darkangel/actor_assets.hpp": "b390e69b7248211422b342ad7f2e2c0ffd3abb3440ee164fda5902733963d4c1",
+    "apps/editor/character_preview.hpp": "6ae4fb4370d1329a446b72e0c8bf121b9ec62cf3d138f3372dc1a77640b9ddb0",
     "engine/assets/combat_kit_cooker.cpp": "bebed4e079e233034458317afd678af4098a6f3a5370de5eae310c87e51e0c9f",
     "engine/runtime/action.cpp": "60ff4d022cca2398fe9c644b5c2284e9672a7fd8716355e422a0aa1014b7f8ac",
     "engine/runtime/ability.cpp": "4082aa10cb8e51b20b3c8b2b3624937c4847096eb640476d73d27906e6eb88c7",
@@ -86,14 +100,14 @@
     "engine/runtime/include/darkangel/effects.hpp": "7a2294e2cf125989eeed572021eae85475521c0dcac6730e7361a082f87d8db6",
     "engine/runtime/include/darkangel/character_presentation.hpp": "5c90570f7149b5badd932d60e4bfe49aef962c84eecba928d0d69a4de48b4868",
     "engine/runtime/include/darkangel/character_scene.hpp": "4a118a64b2cc0e52b34ff34196476c3088ee4db06cc94ecb1b4115a3151e4f17",
-    "tests/native_authoring_tests.cpp": "bd79c4bc4e8b36c796d1412dabcc904fae774c1f354ca92c1595c7ddeb20623a",
+    "tests/native_authoring_tests.cpp": "2dcb41d22a22a69bd620c4ee4a3ae133302c367cbee53a1f297067051f7a50f3",
     "tests/reaction_presentation_tests.cpp": "5c14d7924bbe03b28d6329777d76cdb4fab5f98fd1fce8cd2796e31db731540d",
-    "scripts/verify_effect_reaction.py": "88d7f05c0b103e4bd4c0fed18b8dccdd3282f349ea575a53bed5854b14f63f58"
+    "scripts/verify_effect_reaction.py": "66a6dc8e0acee6a4948cbf00e4708a00c23beea65b0ab4c993a1c578ffd3e905"
   },
   "binary_sha256": {
-    "DarkAngelEditor.exe": "a47e4a3bbb61378dbceb2069b836be60f5da23a65ce86859c424106c8de5150d",
-    "NativeAuthoringTests.exe": "8ca6a3d784a3122b1331783871e30b78a06d2e1d4c17f8fbcf70603b566cb93b",
-    "ReactionPresentationTests.exe": "4bc1ddfa487a2603a123ea5b4cd1bfff91a0754503997a8a30af1f95ecef916d"
+    "DarkAngelEditor.exe": "b5804df26886542620842998ee7f0dd7da35ec32b23159463800382464124143",
+    "NativeAuthoringTests.exe": "779a0cb9ea32b551443548ba263ec75e893312940e86807388db6d61e6d42cc3",
+    "ReactionPresentationTests.exe": "4fe15204b92bcb2dc5d86df1ad603448d625a15ea733ef78358c5f721e1a4036"
   },
   "limitations": [
     "One visible full-body reaction per actor, root policy none; no reaction queue, blend ramps, additive or upper-body reactions.",

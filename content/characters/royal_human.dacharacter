@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "kind": "character",
+  "asset": "dd24e3ea-575b-446a-9e5e-a1f6186b7cdc",
+  "skin": "e87a6c8d-5708-4699-9a67-58249a4a7877",
+  "sources": {
+    "skin": "royal_district/character/canonical-human.glb"
+  }
+}

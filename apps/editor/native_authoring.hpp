@@ -32,6 +32,12 @@ public:
     // Optional kit death timeline; an empty action clears it.
     void bind_kit_death(AssetService&,AssetId kit,AssetId action);
     void assign_player_kit(AssetService&,AssetId player,AssetId kit);
+    // Masks: a Mask owns a kit and its worn visual; a Player equips up to four and selects one.
+    AssetId create_mask(AssetService&,std::string_view name,AssetId kit,AssetId visual={});
+    void equip_mask(AssetService&,AssetId player,unsigned slot,AssetId mask);
+    void select_mask(AssetService&,AssetId player,unsigned slot);
+    // Visual models of a Player's equipped masks; Play packages them as loadable roots.
+    std::vector<AssetId> worn_visuals(AssetService&,AssetId player);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     // Optional utility dodge ability on the input profile's "dodge" action; empty clears it.
     void assign_dodge(AssetService&,AssetId kit,AssetId ability);

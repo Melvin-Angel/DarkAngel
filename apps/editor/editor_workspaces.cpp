@@ -12,8 +12,8 @@ const char* edge_name(InputEdge edge){switch(edge){case InputEdge::Pressed:retur
 }
 void Shell::open_native_asset(Controller& editor,AssetId id){
  if(!editor.assets||id==AssetId{})throw std::runtime_error("Choose a native authoring asset");auto& draft=editor.authoring.open(*editor.assets,id);auto kind=draft.value.at("kind").get<std::string>();
- if(kind!="character"&&kind!="player"&&kind!="input"&&kind!="combat_kit"&&kind!="action"&&kind!="graph"&&kind!="ability"&&kind!="effect"&&kind!="attributes")throw std::runtime_error("No native authoring workflow for this asset type");
- if(kind=="character"){character_selection=id;select_workspace(Workspace::Character);}else if(kind=="player"){player_selection=id;select_workspace(Workspace::Player);}else if(kind=="input"){input_authoring_asset=id;open_tool(ToolView::InputBindings);}else{authored_selection=id;if(kind=="combat_kit")editor.authoring_kit=id;select_workspace(kind=="action"||kind=="graph"?Workspace::Animation:Workspace::Ability);}author_diagnostic.clear();
+ if(kind!="character"&&kind!="player"&&kind!="mask"&&kind!="input"&&kind!="combat_kit"&&kind!="action"&&kind!="graph"&&kind!="ability"&&kind!="effect"&&kind!="attributes")throw std::runtime_error("No native authoring workflow for this asset type");
+ if(kind=="character"){character_selection=id;select_workspace(Workspace::Character);}else if(kind=="player"||kind=="mask"){player_selection=id;select_workspace(Workspace::Player);}else if(kind=="input"){input_authoring_asset=id;open_tool(ToolView::InputBindings);}else{authored_selection=id;if(kind=="combat_kit")editor.authoring_kit=id;select_workspace(kind=="action"||kind=="graph"?Workspace::Animation:Workspace::Ability);}author_diagnostic.clear();
 }
 void Shell::select_workspace(Workspace target){if(workspace!=target){composer_playing=false;controls_focus=false;controls_acquired=false;forward=lateral=turn=0;walk=jump=false;workspace=target;}}
 void Shell::open_tool(ToolView selected){if(workspace!=Workspace::Tools&&workspace!=Workspace::Settings)previous_workspace=workspace;tool=selected;select_workspace(Workspace::Tools);}

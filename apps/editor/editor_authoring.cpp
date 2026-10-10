@@ -85,15 +85,15 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  {
   // One typed, sorted group per native source kind; the catalog stays the only registry.
   struct BrowserGroup {const char* label;const char* extension;};
-  static const BrowserGroup groups[]={{"Abilities",".daability"},{"Effects / statuses",".daeffect"},{"Action timelines",".daaction"},{"Locomotion graphs",".dagraph"},{"Attribute sets",".daattributes"},{"Characters",".dacharacter"},{"Players",".daplayer"}};
+  static const BrowserGroup groups[]={{"Players",".daplayer"},{"Masks",".dafacemask"},{"Abilities",".daability"},{"Effects / statuses",".daeffect"},{"Action timelines",".daaction"},{"Locomotion graphs",".dagraph"},{"Attribute sets",".daattributes"},{"Characters",".dacharacter"}};
   bool any=false;
   for(const auto& group:groups){
    const std::string_view ext=group.extension;
-   if(character?ext!=".dacharacter":player?ext!=".daplayer":animation?(ext!=".daaction"&&ext!=".dagraph"):(ext==".dacharacter"||ext==".daplayer"))continue;
+   if(character?ext!=".dacharacter":player?(ext!=".daplayer"&&ext!=".dafacemask"):animation?(ext!=".daaction"&&ext!=".dagraph"):(ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"))continue;
    std::vector<const AssetInfo*> rows;for(const auto& a:c.asset_inventory)if(std::filesystem::path(a.path).extension()==ext&&(reference_search(a.path,asset_filter)||reference_search(a.id.text(),asset_filter)))rows.push_back(&a);
    if(rows.empty())continue;any=true;
    std::sort(rows.begin(),rows.end(),[](const AssetInfo* a,const AssetInfo* b){auto x=std::filesystem::path(a->path).filename().string(),y=std::filesystem::path(b->path).filename().string();return x==y?a->path<b->path:x<y;});
-   const bool grouped=!character&&!player;
+   const bool grouped=!character;
    if(grouped){ImGui::SetNextItemOpen(true,asset_filter[0]?ImGuiCond_Always:ImGuiCond_Once);if(!ImGui::TreeNodeEx(group.label,ImGuiTreeNodeFlags_SpanAvailWidth|ImGuiTreeNodeFlags_NoTreePushOnOpen,"%s (%u)",group.label,static_cast<unsigned>(rows.size())))continue;}
    for(const auto* row:rows){const auto& a=*row;
     auto name=std::filesystem::path(a.path).stem().string();auto row_draft=c.authoring.drafts.find(a.id);const bool pending=row_draft!=c.authoring.drafts.end()&&row_draft->second.pending,edited=!pending&&row_draft!=c.authoring.drafts.end()&&row_draft->second.dirty();
@@ -159,11 +159,34 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  if(kind=="player"){AssetId character=AssetId::parse(v["character"].get<std::string>()),kit=AssetId::parse(v["loadout"]["kit"].get<std::string>());if(picker("Character definition",character,c,reference_filters,".dacharacter")){v["character"]=character.text();for(const auto& asset:c.asset_inventory)if(asset.id==character)v["sources"]["character"]=asset.path;}if(picker("Loadout kit",kit,c,reference_filters,".dakit"))c.authoring.assign_player_kit(*c.assets,selection,kit);
   if(ImGui::Button("Edit Character")){open_native_asset(c,character);return;}ImGui::SameLine();if(ImGui::Button("Edit kit in Ability")){open_native_asset(c,kit);return;}
   auto& kit_definition=c.authoring.open(*c.assets,kit).value;AssetId input=v.contains("input_profile")?AssetId::parse(v["input_profile"].get<std::string>()):AssetId::parse(kit_definition["input"].get<std::string>());if(picker("Player input profile",input,c,reference_filters,".dainput")){v["input_profile"]=input.text();for(const auto& asset:c.asset_inventory)if(asset.id==input)v["sources"]["input_profile"]=asset.path;}if(v.contains("input_profile")&&ImGui::Button("Use kit input default")){v.erase("input_profile");v["sources"].erase("input_profile");}if(ImGui::Button("Edit input profile")){open_native_asset(c,input);return;}
+   ImGui::SeparatorText("Masks");
+   {auto masks=v["loadout"].value("masks",Json::array({nullptr,nullptr,nullptr,nullptr}));unsigned active=v["loadout"].value("active_mask",0u);const char* slots[]={"Up","Right","Down","Left"};
+    for(unsigned slot=0;slot<4;++slot){ImGui::PushID(static_cast<int>(slot));AssetId mask=masks[slot].is_null()?AssetId{}:AssetId::parse(masks[slot].get<std::string>());
+     if(picker(slots[slot],mask,c,reference_filters,".dafacemask"))perform([&]{c.authoring.equip_mask(*c.assets,selection,slot,mask);});
+     if(mask!=AssetId{}){bool starting=active==slot;if(ImGui::RadioButton("Starts active",starting)&&!starting)perform([&]{c.authoring.select_mask(*c.assets,selection,slot);});ImGui::SameLine();if(ImGui::SmallButton("Edit mask")){open_native_asset(c,mask);ImGui::PopID();return;}ImGui::SameLine();if(ImGui::SmallButton("Unequip"))perform([&]{c.authoring.equip_mask(*c.assets,selection,slot,{});});}
+     ImGui::PopID();}
+    ImGui::TextWrapped(v["loadout"].contains("masks")?"The active mask's kit replaces the base kit at spawn and its model is worn on the Character's face socket. Empty slots are allowed.":"No masks equipped: this Player uses its base kit. Equip a mask to give it that mask's kit and visual.");
+    ImGui::SetNextItemWidth(200);ImGui::InputTextWithHint("##mask-name","new_mask_name",mask_name,sizeof(mask_name));ImGui::SameLine();ImGui::BeginDisabled(!mask_name[0]);if(ImGui::Button("Create mask from base kit"))perform([&]{auto created=c.authoring.create_mask(*c.assets,mask_name,kit);c.refresh_assets();mask_name[0]=0;c.log("Created mask "+c.authoring.drafts.at(created).asset.path+". Choose its kit, visual and tint, then equip it in a slot.");});ImGui::EndDisabled();
+   }
   auto fields=schema(c,kit_definition,"attributes");ImGui::SeparatorText("Starting attributes");
   if(v["loadout"].contains("starting_attributes")){auto& values=v["loadout"]["starting_attributes"];for(unsigned index=0;index<values.size();++index){ImGui::PushID(index);attribute("Attribute",values[index]["attribute"],fields);number("Starting value",values[index]["value"]);if(ImGui::Button("Use schema default")){values.erase(index);ImGui::PopID();break;}ImGui::PopID();}}
   auto available=std::find_if(fields.begin(),fields.end(),[&](const auto& field){if(!v["loadout"].contains("starting_attributes"))return true;for(const auto& value:v["loadout"]["starting_attributes"])if(value["attribute"]==field["id"])return false;return true;});ImGui::BeginDisabled(available==fields.end());if(ImGui::Button("Add starting value")&&available!=fields.end()){if(!v["loadout"].contains("starting_attributes"))v["loadout"]["starting_attributes"]=Json::array();v["loadout"]["starting_attributes"].push_back({{"attribute",(*available)["id"]},{"value",(*available)["base"]}});}ImGui::EndDisabled();
   ImGui::TextWrapped("Values apply to this Player at spawn. Schema defaults are shared; live resources stay in Game.");
   if(ImGui::Button("Use Player for next fresh Play")){c.authoring_player=selection;c.authoring_kit=kit;}if(c.authoring_player==selection)ImGui::TextDisabled("Selected for next fresh Play");ImGui::TextWrapped("Kit supplies shared attribute, input and locomotion defaults. The Character must match the scene placement before Play.");}
+ if(kind=="mask"){
+  ImGui::SeparatorText("Mask");text("Display name",v["name"]);
+  AssetId mask_kit=AssetId::parse(v["kit"].get<std::string>());if(picker("Combat kit (this mask's eight slots, dodge and death)",mask_kit,c,reference_filters,".dakit")){v["kit"]=mask_kit.text();for(const auto& a:c.asset_inventory)if(a.id==mask_kit)v["sources"]["kit"]=a.path;}
+  if(ImGui::Button("Edit kit in Ability")){c.authoring_kit=mask_kit;open_native_asset(c,mask_kit);return;}
+  ImGui::SeparatorText("Worn visual");AssetId visual=v.contains("visual")?AssetId::parse(v["visual"].get<std::string>()):AssetId{};
+  if(picker("Mask model",visual,c,reference_filters,".glb",nullptr,"static-gltf-v1")){v["visual"]=visual.text();for(const auto& a:c.asset_inventory)if(a.id==visual)v["sources"]["visual"]=a.path;}
+  if(visual!=AssetId{}){if(ImGui::Button("Remove visual")){v.erase("visual");v["sources"].erase("visual");}
+   if(!v.contains("tint"))v["tint"]={1.0,1.0,1.0,1.0};float tint[4];for(unsigned i=0;i<4;++i)tint[i]=v["tint"][i].get<float>();if(ImGui::ColorEdit4("Tint",tint))for(unsigned i=0;i<4;++i)v["tint"][i]=tint[i];
+   if(!v.contains("attachment"))v["attachment"]={{"socket","head"},{"position",{0.0,0.0,0.0}},{"rotation",{0.0,0.0,0.0}},{"scale",1.0}};auto& attachment=v["attachment"];
+   text("Character socket",attachment["socket"]);float position[3],rotation[3];for(unsigned i=0;i<3;++i){position[i]=attachment["position"][i].get<float>();rotation[i]=attachment["rotation"][i].get<float>();}
+   if(ImGui::DragFloat3("Offset (m)",position,.005f,-2,2,"%.3f"))for(unsigned i=0;i<3;++i)attachment["position"][i]=position[i];if(ImGui::DragFloat3("Rotation (deg)",rotation,.5f,-360,360,"%.1f"))for(unsigned i=0;i<3;++i)attachment["rotation"][i]=rotation[i];number("Scale",attachment["scale"]);
+   ImGui::TextWrapped("The model follows the named rig socket of the wearing Character. Save, then Play with a Player that has this mask active to see it.");}
+  else ImGui::TextDisabled("No model: the mask still supplies its kit.");
+ }
  if(kind=="attributes"){
   ImGui::SeparatorText("Attribute definitions");
   for(unsigned index=0;index<v["attributes"].size();++index){auto& field=v["attributes"][index];auto id=field["id"].get<AttributeId>();ImGui::PushID(static_cast<int>(id));ImGui::SetNextItemOpen(index==0,ImGuiCond_Once);

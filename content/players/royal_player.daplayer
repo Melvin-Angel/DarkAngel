@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "kind": "player",
+  "asset": "a52ffaac-05d3-4987-a972-7364a1c47f32",
+  "character": "dd24e3ea-575b-446a-9e5e-a1f6186b7cdc",
+  "loadout": {
+    "kit": "eecbc589-b6df-4e48-a4dd-38e3ec629d35",
+    "masks": [
+      "0fa58675-c41b-4fd8-856e-4f367ebe02c2",
+      "1b9e05e4-43a0-46ad-a97b-7fd8417672d5",
+      "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82",
+      "7bcfa11e-f08b-4371-8e47-474d74b98fe1"
+    ],
+    "active_mask": 0
+  },
+  "sources": {
+    "character": "characters/royal_human.dacharacter",
+    "kit": "royal_district/combat/player.dakit",
+    "masks": {
+      "0fa58675-c41b-4fd8-856e-4f367ebe02c2": "masks/ember.dafacemask",
+      "1b9e05e4-43a0-46ad-a97b-7fd8417672d5": "masks/earth.dafacemask",
+      "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82": "masks/water.dafacemask",
+      "7bcfa11e-f08b-4371-8e47-474d74b98fe1": "masks/air.dafacemask"
+    }
+  }
+}
