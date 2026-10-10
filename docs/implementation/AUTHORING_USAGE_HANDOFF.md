@@ -1,3 +1,17 @@
+## Current resumed-window checkpoint - 10 October 2026
+
+Native checkpoint e493caa4f5c530bf04f1b78dc71cf5622b0317f4 (e493caa). Tree observed clean on master, 11 commits ahead of the current local origin/master ref (e4c0555). No fetch/push by this session. Inspect fresh Git status and preserve later user work. This progress header supersedes the older usage-stop header below; work has resumed and is not yet at the next usage threshold.
+
+Fresh usage after these chunks: 22% five-hour used / 78% remaining, reset Unix1791648809. Continue authorized focused chunks toward about10% remaining; check fresh usage before any scheduling. Existing heartbeat remains the one to update at the actual threshold; no reset consumed.
+
+Delivered this window: existing binding Ability/Effect links, stacked labels and readable source filenames; workflow path/UUID search and identity/policy hover inspection; native Kit copy controls and explicit copy-Undo recovery; pending Effect/input selection recovery; focused slot visibility for on-hit binding inspection; pending-source (new) markers. STATUS/CONTINUE/ABILITY_AUTHORING_CONTINUE and per-chunk reports hold scoped build/D3D12 evidence. The binding-links-view inter-frame check preserves clean drafts/history; reference-draft-state retains native cost21 and three commands. No full historical matrices or runtime/schema changes.
+
+Next: focused creation/reference follow-through from these delivered controls. Candidate increments: explicit Player assignment of a created Kit and clear referenced-source status/navigation, using existing native definitions/history. Do not rebuild delivered tools or start masks/reactions/AI. Keep complete Save/cook/scene closure/resource preparation/fresh isolated Play; no live-authoritative patching.
+
+M4/M5 In progress; live EOS externally blocked; M6-M9 not started. Creation Undo ends at publication; published assets retained. Native AssetService/catalog/CAS/frozen references, WorldSession authority, eight slots and generated-tag fences remain required. Publication remains non-crash-atomic and not a cross-process multi-file reader snapshot. No subagents, dependencies, push or reset consumption.
+
+## Earlier handoff observations (historical)
+
 ## Usage-stop handoff — 10 October 2026, 08:27 UTC
 
 Latest native checkpoint: `e4bd0803f4ba7dbbbb0d1fe737032f5ce4a7d3e4` (`e4bd080`). Tree observed clean on master before this handoff;43 commits ahead of the existing local origin/master tracking ref. No fetch/push. This documentation commit follows the native checkpoint. Preserve any later user changes; verify Git rather than assuming this snapshot remains current.
