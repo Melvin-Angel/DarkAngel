@@ -27,7 +27,7 @@ public:
     double radius;
     std::unique_ptr<AssetService> assets;
     std::vector<AssetInfo> asset_inventory;
-    NativeAuthoring authoring;AssetId authoring_kit;
+    NativeAuthoring authoring;AssetId authoring_kit,authoring_player;
     std::function<void()> prepare_play_resources;
     std::function<std::vector<AssetId>()> authoring_roots;
     std::function<void(AssetId)> prepare_model;

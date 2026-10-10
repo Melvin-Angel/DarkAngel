@@ -1,3 +1,5 @@
+Current actor workflow update (10 October2026): [ACTOR_WORKFLOW_REPORT.md](ACTOR_WORKFLOW_REPORT.md) records the initial presentation Character/Player reference tools and fresh Player Play. [REFERENCE_PICKER_REPORT.md](REFERENCE_PICKER_REPORT.md) and [EFFECT_PREVIEW_REPORT.md](EFFECT_PREVIEW_REPORT.md) record shared reference search/resource costs and isolated ordinary effects. These supersede earlier planned descriptions only for their scoped delivered subset; complete designers/docking/masks/reactions/NPC remain planned.
+
 # Ashen Roots editor workflows and delivery plan
 
 Captured 8 October 2026 from the user's editor direction. This is planned work, not implementation evidence. M4/M5 remain In progress; M6-M9 remain Not started. M2's verified initial editor foundation does not imply these workflows are delivered.

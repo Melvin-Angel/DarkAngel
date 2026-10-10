@@ -13,7 +13,7 @@ inline bool selectable_attribute(const nlohmann::json& definition,bool resource_
 }
 struct ReferenceCandidate {AssetInfo asset;std::string diagnostic;};
 // This is a view of the existing catalog, never a second asset registry.
-inline std::vector<ReferenceCandidate> reference_candidates(AssetService& assets,const NativeAuthoring& author,std::span<const AssetInfo> inventory,std::string_view extension,std::string_view query,const nlohmann::json* attributes=nullptr){
+inline std::vector<ReferenceCandidate> reference_candidates(AssetService& assets,const NativeAuthoring& author,std::span<const AssetInfo> inventory,std::string_view extension,std::string_view query,const nlohmann::json* attributes=nullptr,std::string_view importer="clip-gltf-v1"){
  std::vector<ReferenceCandidate> result;
  for(const auto& asset:inventory){
   if(std::filesystem::path(asset.path).extension()!=extension)continue;
@@ -22,7 +22,7 @@ inline std::vector<ReferenceCandidate> reference_candidates(AssetService& assets
   try{
    if(extension==".glb"){
     std::ifstream file(assets.source_root()/(asset.path+".daimport"));
-    if(!file||nlohmann::json::parse(file).value("importer","")!="clip-gltf-v1")continue;
+    if(!file||nlohmann::json::parse(file).value("importer","")!=importer)continue;
    }
    if(attributes){
     nlohmann::json value;

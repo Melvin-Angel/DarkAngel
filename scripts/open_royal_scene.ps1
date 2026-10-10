@@ -2,6 +2,8 @@ param(
     [ValidateSet('d3d12','vulkan')][string]$Backend = 'd3d12',
     [switch]$CloseView,
     [switch]$AbilityWorkflow,
+    [switch]$CharacterWorkflow,
+    [switch]$PlayerWorkflow,
     [switch]$AnimationWorkflow,
     [switch]$AttackPose
 )
@@ -24,6 +26,8 @@ $taskKit = (Get-Content -LiteralPath 'content/royal_district/combat/player.dakit
 $taskCollision = (Get-Content -LiteralPath 'content/royal_district/collision/environment.dacollision' -Raw | ConvertFrom-Json).asset
 $taskArguments += @('--character-collision',$taskCollision)
 $taskArguments += @('--character-kit',$taskKit,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005')
+if ($CharacterWorkflow) { $taskArguments += '--character-workspace' }
+if ($PlayerWorkflow) { $taskArguments += '--player-workspace' }
 if ($AbilityWorkflow) { $taskArguments += '--ability-workspace' }
 if ($AnimationWorkflow) { $taskArguments += '--animation-workspace' }
 if ($CloseView) { $taskArguments += '--camera-close' }

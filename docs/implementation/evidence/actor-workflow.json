@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "base_head": "385204061b3e409da66ea7863ce151f35a584043",
+  "scope": "Initial Character/Player typed creation/reference/history workflows and complete frozen Player fresh Play",
+  "gates": [
+    {
+      "name": "actor-workflow-build",
+      "exit": 0,
+      "seconds": 100.285
+    },
+    {
+      "name": "actor-workflow-native",
+      "exit": 0,
+      "seconds": 18.753
+    },
+    {
+      "name": "actor-workflow-assets",
+      "exit": 0,
+      "seconds": 7.833
+    },
+    {
+      "name": "actor-workflow-fresh-play",
+      "exit": 0,
+      "seconds": 4.736
+    },
+    {
+      "name": "actor-workflow-character",
+      "exit": 0,
+      "seconds": 0.704
+    },
+    {
+      "name": "actor-workflow-player",
+      "exit": 0,
+      "seconds": 1.69
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/native_authoring.cpp": "a25ed678546e068cc7e31ebdee840a54c9626f546c13c7b22b0c2ce6776350dc",
+    "apps/editor/native_authoring.hpp": "3d9acf82e8562a80b9f8785fcf3ce5a9e34608ddf7ed911316684bbadd6a5d9d",
+    "apps/editor/character_preview.cpp": "71d794c0f74d59553edcf33d8983dc047e0c48b1ce323e70d8ceff14fa050b37",
+    "apps/editor/editor_authoring.cpp": "ee9807a3d37411639adc80169b76127d6f01e513306bdba512387ae4a109a382",
+    "apps/editor/editor_ui.cpp": "9c1027d5bf03690f1f5c1389adf54bc17973d574bac3762556d633686d1f5ccd",
+    "apps/editor/editor_ui.hpp": "f08fb9c123845223e96750ea7c9aec27b6f7f06f30024133416735dd8bbfb496",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "43c0fb9a20a769677838c56145f578e5ce2db4132bbd3df45dc342e544b10145",
+    "apps/editor/main.cpp": "e5144ce62360f15d9adddea2da866ff5753a8fdbef85209bbcb1bf23286c5c8b",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_actor_workflow.py": "161aae6fbc8d56c3fda4134db1a72c4abe7b6225cd41ad389ccb57eebf727969",
+    "engine/assets/asset_service.cpp": "8ffce48c8469c50358214fc6cb0c39f47ea850283105d560c3719343401c4708",
+    "tests/actor_asset_tests.cpp": "eb5e0079cc4b1fb67533ea9ba1314e714e16a050070d673dbc2ea3bf9e8dd51f"
+  },
+  "limitations": [
+    "One scripted D3D12 creation/navigation/history/fresh Play and rendered panels; no physical pointer automation.",
+    "Scene placed skin must match Character; modular/socket/material and independent Player stats/input/masks/equipment remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}

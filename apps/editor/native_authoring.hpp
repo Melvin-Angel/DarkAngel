@@ -12,6 +12,8 @@ class NativeAuthoring {
 public:
     NativeDraft& open(AssetService&,AssetId);
     CookResult save(AssetService&,AssetId);
+    AssetId create_character(AssetService&,AssetId skin,std::string_view name);
+    AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);

@@ -2,6 +2,7 @@
 #include <darkangel/hash.hpp>
 #include <darkangel/graph_assets.hpp>
 #include <darkangel/combat_kit_assets.hpp>
+#include <darkangel/actor_assets.hpp>
 #include <darkangel/model_collision.hpp>
 #include <ashen_roots/royal_combat.hpp>
 #include <DirectXMath.h>
@@ -26,6 +27,7 @@ const std::vector<JointMatrix>& ComposerPosePreview::sample(double tick){
     return pose_->sample(*clip_,tick);
 }
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin,StableId player,StableId target,AssetId collision){
+    if(references.starts_with("player:")){auto player_asset=load_cooked_player(registry,cas,AssetId::parse(references.substr(7)));require(player_asset.character.definition.skin==skin.id,"Player Character skin does not match the scene's placed skin; update scene composition before Play");return load_character_preview(registry,cas,"kit:"+player_asset.definition.loadout.kit.text(),skin,player,target,collision);}
     auto finish=[&](CharacterPreviewResources resources){if(collision!=AssetId{})resources.collision=std::make_shared<const CollisionDefinition>(load_cooked_collision_scene(registry,cas,collision));return resources;};
     if(references.starts_with("kit:")){require(player&&target&&player!=target,"Combat preview requires explicit player and target scene identities");auto cooked=load_cooked_combat_kit(registry,cas,AssetId::parse(references.substr(4)));require(cooked.stance.rig.definition.id==skin.rig.definition.id&&cooked.stance.rig.definition.signature==skin.rig.definition.signature,"Combat kit/skin canonical rig mismatch");CharacterPreviewResources result{skin.id,cooked.stance.rig,cooked.stance.plan};result.player=player;CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=std::move(cooked.input);combat.attributes=cooked.attributes.definitions();combat.health=2;combat.maximum_health=1;combat.abilities=std::move(cooked.abilities);if(cooked.tags)combat.tags=cooked.tags->dictionary();combat.target=target;combat.evaluator=1;combat.effects=std::move(cooked.effects);ashen_roots::configure_royal_combat(combat);for(const auto& ability:combat.abilities){require(ability->action->motion.has_value(),"Combat action needs a frozen clip");auto clip=load_cooked_clip(registry,cas,ability->action->motion->clip.id);combat.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}result.combat=std::move(combat);return finish(std::move(result));}
     if(references.starts_with("graph:")){auto cooked=load_cooked_graph(registry,cas,AssetId::parse(references.substr(6)));require(cooked.rig.definition.id==skin.rig.definition.id&&cooked.rig.definition.signature==skin.rig.definition.signature,"Character graph/skin canonical rig mismatch");AnimationGraphInstance instance(cooked.plan);RigPose probe(skin.rig.definition,skin.rig.archive);probe.blend(instance.evaluate({}).span());return finish({skin.id,std::move(cooked.rig),std::move(cooked.plan)});}
