@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "kind": "ability",
+  "asset": "0a875832-a776-44ba-9bd6-3edbcc79fe1e",
+  "action": "bdc6beb8-2b27-4c7a-be22-1d0de2ccf275",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "sources": {
+    "action": "royal_district/combat/dodge.daaction",
+    "attributes": "royal_district/combat/base.daattributes",
+    "tags": "royal_district/combat/state.datags"
+  },
+  "costs": [
+    {
+      "attribute": 3,
+      "amount": 15
+    }
+  ],
+  "cooldown_group": 3,
+  "cooldown_ticks": 30,
+  "activate_on": "pressed",
+  "minimum_held_us": 0,
+  "cancel_on_release": false,
+  "interruptible": true,
+  "tags": "71455b4a-0142-4e01-ba8f-210057736def",
+  "requirements": {
+    "all": [],
+    "any": [],
+    "none": [
+      6
+    ]
+  },
+  "action_tags": [
+    {
+      "block": 2,
+      "tag": 5
+    },
+    {
+      "block": 3,
+      "tag": 2
+    }
+  ],
+  "face_movement": true,
+  "dash": {
+    "distance": 4.0,
+    "begin": 0,
+    "end": 30720
+  }
+}

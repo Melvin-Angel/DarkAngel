@@ -53,7 +53,8 @@
     "locomotion_stance": "royal_district/locomotion.dagraph",
     "abilities": {
       "b351b004-35c7-407a-b372-30328c95277a": "royal_district/combat/light.daability",
-      "284f1dc7-6510-4a6b-83c3-bd2cf206aba9": "royal_district/combat/heavy.daability"
+      "284f1dc7-6510-4a6b-83c3-bd2cf206aba9": "royal_district/combat/heavy.daability",
+      "0a875832-a776-44ba-9bd6-3edbcc79fe1e": "royal_district/combat/dodge.daability"
     },
     "effects": {
       "8a14c506-2141-41e5-9be8-e9e0ee509b59": "royal_district/combat/burn.daeffect"
@@ -69,5 +70,9 @@
       "effect": "8a14c506-2141-41e5-9be8-e9e0ee509b59",
       "power": 5
     }
-  ]
+  ],
+  "dodge": {
+    "input_action": 6,
+    "ability": "0a875832-a776-44ba-9bd6-3edbcc79fe1e"
+  }
 }

@@ -7,7 +7,11 @@
 #include <string>
 #include <vector>
 namespace darkangel {
-enum class CombatSlot {Light,Heavy,RangedLight,RangedHeavy,Spell1,Spell2,Block,Parry,Count};
+// Eight canonical combat slots, then one optional utility ingress: Dodge. Dodge is an
+// ordinary native ability with its own semantic input; it is not a ninth combat slot
+// in authored kit "slots" and a kit without it leaves the entry unassigned.
+enum class CombatSlot {Light,Heavy,RangedLight,RangedHeavy,Spell1,Spell2,Block,Parry,Dodge,Count};
+inline constexpr unsigned canonical_combat_slot_count=8;
 inline constexpr unsigned combat_slot_count=static_cast<unsigned>(CombatSlot::Count);
 struct CombatKitSlot {CombatSlot slot{};std::uint32_t input_action{};AssetId ability;};
 struct CombatKitEffectBinding {AssetId ability;unsigned hit_block{};AssetId effect;double power{};};

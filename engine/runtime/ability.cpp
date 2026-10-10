@@ -51,7 +51,15 @@ std::vector<ResourceDelta> costs(const AbilityDefinition& definition){
 }
 std::vector<AbilityCost> reserved_costs(const AbilityDefinition& definition){std::map<AttributeId,double> totals;for(const auto& cost:definition.costs)totals[cost.attribute]+=cost.amount;std::vector<AbilityCost> result;for(auto [id,amount]:totals)if(amount)result.push_back({id,amount});return result;}
 }
-std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){return freeze(source,attributes,tags);}
+std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){
+    if(source.dash){const auto& dash=*source.dash;require(source.action&&std::isfinite(dash.distance)&&dash.distance>0&&dash.distance<=30&&dash.begin<dash.end&&dash.end<=source.action->duration&&source.action->loops==1&&dash.distance*action_tick_units/(dash.end-dash.begin)<=.5,"Ability dash distance/window/speed bounds");}
+    return freeze(source,attributes,tags);
+}
+ActionMotion ability_motion_between(const AbilityDefinition& ability,std::uint64_t from,std::uint64_t to){
+    auto result=action_motion_between(*ability.action,from,to);
+    if(ability.dash&&from<to){const auto& dash=*ability.dash;auto begin=std::max<std::uint64_t>(from,dash.begin),end=std::min<std::uint64_t>(to,dash.end);if(begin<end)result.root.translation[2]+=dash.distance*double(end-begin)/double(dash.end-dash.begin);}
+    return result;
+}
 AbilityState::AbilityState(AbilityOwnerHandle owner,std::uint64_t tick,std::vector<AttributeDefinition> definitions,AttributeId health,AttributeId maximum_health):
     owner_(owner),tick_(tick),attributes_(std::move(definitions)),health_(health),maximum_health_(maximum_health),effects_(std::make_shared<const TagDictionary>(std::vector<TagDefinition>{}),tick){
     require(health_&&maximum_health_&&health_!=maximum_health_,"Ability health schema IDs");
@@ -110,7 +118,7 @@ std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const Comba
     if(candidate)candidate->replace(definition,input);else candidate.emplace(definition,input);
     auto outgoing=stop(AbilityActionReason::GrantRemoved);
     kit_=std::move(candidate);grants_=std::move(grants);rearm_.fill(replacing);held_.fill({});held_generation_=kit_->grant_generation();
-    for(unsigned i=0;i<combat_slot_count;++i)input_[i]=*std::find_if(input.actions.begin(),input.actions.end(),[&](const auto& a){return a.id==kit_->definition().slots[i].input_action;});++revision_;return outgoing;
+    for(unsigned i=0;i<combat_slot_count;++i){auto action=std::find_if(input.actions.begin(),input.actions.end(),[&](const auto& a){return a.id==kit_->definition().slots[i].input_action;});input_[i]=action!=input.actions.end()?*action:InputActionDefinition{};}++revision_;return outgoing;
 }
 AbilityFailure AbilityState::validate(const AbilityRequest& request)const{
     if(request.owner!=owner_||!request.operation||static_cast<unsigned>(request.slot)>=combat_slot_count||

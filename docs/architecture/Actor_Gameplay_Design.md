@@ -101,3 +101,5 @@ User direction: separate stance assets are being retired; their functionality mo
 | Death presentation owner | First slice: an optional presentation-only death timeline referenced by the Combat Kit beside its locomotion graph, shown from public Health 0 with terminal precedence. Character-level presentation defaults can adopt it later. | Kit already owns the stance graph closure used by both scene actors |
 
 Animation sources: only the Blink Animations Starter Pack shares the canonical human hierarchy and converts without retargeting (see EFFECT_REACTION_REPORT supplement). The stagger, dodge, slash, spell and traversal clips used by other Unity composers live on other rigs and need an offline retarget profile first.
+
+Dodge decision (user, 10 October 2026): dodge is an ability on the ability runtime; the motor only exposes movement. One dodge animation; the actor faces the dodge/movement direction for the duration and normal facing rules resume afterwards. Implemented as the optional kit `dodge` utility ingress with ability `dash` and `face_movement`; see EFFECT_REACTION_REPORT supplement. The Proposed dodge row above is superseded by this.

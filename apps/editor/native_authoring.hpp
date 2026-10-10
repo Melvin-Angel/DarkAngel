@@ -33,6 +33,8 @@ public:
     void bind_kit_death(AssetService&,AssetId kit,AssetId action);
     void assign_player_kit(AssetService&,AssetId player,AssetId kit);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
+    // Optional utility dodge ability on the input profile's "dodge" action; empty clears it.
+    void assign_dodge(AssetService&,AssetId kit,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
     unsigned add_graph_blend(AssetService&,AssetId,bool two_dimensional,unsigned first,unsigned second,unsigned third=0);
     unsigned add_graph_tag_select(AssetService&,AssetId,AssetId registry,TagId,unsigned inactive,unsigned active);

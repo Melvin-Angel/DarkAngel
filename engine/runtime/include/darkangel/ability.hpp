@@ -15,6 +15,10 @@ struct AbilityMelee {
     unsigned block{};std::array<double,3> offset{};double radius{},power{};
     std::uint32_t evaluator{},damage_type{};
 };
+// Authored forward travel in metres over an action-clock window, requested from the
+// motor as ordinary root movement along the actor's facing. Collision, achieved
+// motion and replay stay with the motor; the ability only states intent.
+struct AbilityDash {double distance{};unsigned begin{},end{};};
 struct AbilityDefinition {
     AssetId id;std::string generation;
     std::shared_ptr<const ActionDefinition> action;
@@ -24,6 +28,10 @@ struct AbilityDefinition {
     std::uint32_t cooldown_group{};std::uint64_t cooldown_ticks{};
     InputEdge activate_on{InputEdge::Pressed};std::uint64_t minimum_held_us{};
     bool cancel_on_release{},interruptible{true};
+    // While active the actor faces the movement direction captured at activation;
+    // the owning motor composition applies it and normal facing resumes afterwards.
+    bool face_movement{};
+    std::optional<AbilityDash> dash;
     AssetId tag_registry;std::string tag_generation;TagRequirement requirements;
     // Typed interval bindings. Their contribution belongs to this execution.
     std::vector<AbilityActionTag> action_tags;
@@ -32,6 +40,8 @@ struct AbilityDefinition {
 };
 // Shared validation/freezing for cooked definitions and runtime grant installation.
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
+// The action's own root/lock request plus the ability's authored dash share.
+ActionMotion ability_motion_between(const AbilityDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
 struct AbilityOwnerHandle {
     EntityHandle entity;std::uint64_t session_epoch{},network{};
     auto operator<=>(const AbilityOwnerHandle&)const=default;

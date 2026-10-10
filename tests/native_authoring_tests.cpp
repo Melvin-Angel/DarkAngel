@@ -227,5 +227,44 @@ int main(){try{
   reaction_fixture["death_registry"]=(root/"death.json").generic_string();reaction_fixture["death_action"]=death.text();
   std::cout<<"Authored kit death timeline: creation/binding Undo/Redo/clear, gameplay-block/root rejection without publication, private validation, coordinated Save, frozen closure, fresh Play lethal hits, death clock from the observed transition, terminal precedence, held final pose, late-join hold, attacker untouched and unchanged scene passed\n";
  }
+ {
+  // Dodge is an ordinary authored Ability on the kit's utility ingress: dash distance,
+  // facing lock and invulnerability window, through authority, prediction and public state.
+  NativeAuthoring dodging;auto dodge=id("royal_district/combat/dodge.daability");auto kit_value=dodging.open(assets,kit).value;auto dodge_saved=dodging.open(assets,dodge).saved;
+  check(kit_value["dodge"]["ability"]==dodge.text()&&kit_value["dodge"]["input_action"]==6&&kit_value["slots"].size()==8,"Owned kit lost its utility dodge or changed its eight combat slots");
+  dodging.assign_dodge(assets,kit,{});auto cleared=dodging.open(assets,kit).value;check(!cleared.contains("dodge")&&!cleared["sources"]["abilities"].contains(dodge.text()),"Clearing dodge left its reference or locator");
+  dodging.undo(assets);check(dodging.open(assets,kit).value==kit_value,"Dodge clear Undo changed other kit state");dodging.redo(assets);dodging.assign_dodge(assets,kit,dodge);check(dodging.open(assets,kit).value==kit_value,"Dodge assignment is not coherent with the saved kit");
+  auto tuned=dodging.open(assets,dodge).value;auto original=tuned;tuned["dash"]["distance"]=5.0;dodging.apply(assets,dodge,dodging.revision(),tuned,"Tune dodge distance");dodging.undo(assets);check(dodging.open(assets,dodge).value==original,"Dash Undo lost the authored distance");dodging.redo(assets);
+  auto invalid=tuned;invalid["dash"]["distance"]=100.0;dodging.apply(assets,dodge,dodging.revision(),invalid,"Invalid dash speed");rejects_with([&]{dodging.save_all(assets,roots);},"dash");check(read(source/dodging.open(assets,dodge).asset.path)==dodge_saved,"Rejected dash published the ability");dodging.undo(assets);
+  invalid=tuned;invalid["dash"]["end"]=invalid["dash"]["begin"];dodging.apply(assets,dodge,dodging.revision(),invalid,"Invalid dash window");rejects([&]{dodging.validate(assets,dodge,roots);});dodging.undo(assets);
+  dodging.save_all(assets,roots);package_authoring(assets,roots,root/"dodge.json");
+  auto prior=load_character_preview(root/"death.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),role(5),collision);auto prior_dodge=std::find_if(prior.combat->abilities.begin(),prior.combat->abilities.end(),[&](const auto& a){return a->id==dodge;});check(prior_dodge!=prior.combat->abilities.end()&&(*prior_dodge)->dash&&(*prior_dodge)->dash->distance==4.0,"Previous playable resources changed their dash");
+  auto resources=load_character_preview(root/"dodge.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),role(5),collision);auto frozen=std::find_if(resources.combat->abilities.begin(),resources.combat->abilities.end(),[&](const auto& a){return a->id==dodge;});
+  check(frozen!=resources.combat->abilities.end()&&(*frozen)->face_movement&&(*frozen)->dash&&(*frozen)->dash->distance==5.0&&resources.combat->kit->slots[unsigned(CombatSlot::Dodge)].ability==dodge&&resources.combat->kit->slots[unsigned(CombatSlot::Dodge)].input_action==6,"Frozen kit lacks the dodge ingress, facing or dash");
+  auto make=[&]{return prepare_character_preview(scene->plan(),scene->world(),resources,[&](AssetId asset){return load_cooked_model(root/"dodge.json",assets.cas_path(),asset);}).second;};
+  auto stamina=[](const AbilityOwnerSnapshot& state){for(const auto& attribute:state.attributes)if(attribute.id==3)return attribute.value;return -1.;};
+  auto tagged=[](const ActorTagSnapshot& tags,TagId tag){return std::find(tags.values.begin(),tags.values.end(),tag)!=tags.values.end();};
+  const double pi=3.141592653589793;
+  for(auto [lateral,forward]:{std::pair{1.,0.},std::pair{0.,-1.}}){
+   auto session=make();auto& s=*session;const auto yaw=s.motor().yaw;const auto baseline_resync=s.resynchronizations();const auto origin=s.motor().position;auto target_before=s.observer(role(5),0).frame.motor.position;
+   CharacterSceneInput press;press.yaw=yaw;press.x=lateral;press.z=forward;press.combat_events={{6,InputEdge::Pressed,1000,0,1,false}};s.step(press);CharacterSceneInput idle;idle.yaw=yaw;
+   const auto facing=std::remainder(yaw+std::atan2(lateral,forward),2*pi);
+   check(s.ability()->active&&s.ability()->ability==dodge&&s.predicted_ability()->active&&s.observer(role(4),1).frame.ability.active&&stamina(*s.ability())==85&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9&&std::abs(std::remainder(s.predicted_motor().yaw-facing,2*pi))<1e-9,"Dodge did not activate through authority/prediction/public state, charge Stamina 15 or face its movement direction");
+   while(s.motor().tick<12)s.step(idle);
+   check(tagged(s.ability()->tags,2)&&tagged(s.observer(role(4),12).frame.ability.tags,2)&&tagged(s.ability()->tags,5)&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9,"Dodge invulnerability window or facing lock missing mid-dash");
+   while(s.motor().tick<31)s.step(idle);
+   auto moved=s.motor().position;const double dx=moved.x-origin.x,dz=moved.z-origin.z,along=dx*std::sin(facing)+dz*std::cos(facing),across=dx*std::cos(facing)-dz*std::sin(facing);
+   auto predicted=s.predicted_motor().position;
+   std::cout<<"Dodge lateral="<<lateral<<" travelled="<<along<<" across="<<across<<" predicted_error="<<std::hypot(predicted.x-moved.x,predicted.z-moved.z)<<" resync_delta="<<s.resynchronizations()-baseline_resync<<'\n';
+   check(std::abs(along-5.0)<.05&&std::abs(across)<.05&&std::hypot(predicted.x-moved.x,predicted.z-moved.z)<1e-6&&s.pending_prediction()==0&&s.resynchronizations()==baseline_resync&&!tagged(s.ability()->tags,2)&&s.ability()->active,"Dash distance/direction, prediction agreement or invulnerability expiry failed");
+   while(s.ability()->active&&s.motor().tick<120)s.step(idle);auto rest=s.motor().position;s.step(idle);
+   check(!s.ability()->active&&!s.predicted_ability()->active&&std::abs(std::remainder(s.motor().yaw-yaw,2*pi))<1e-9&&std::hypot(rest.x-moved.x,rest.z-moved.z)<.02&&!tagged(s.ability()->tags,5)&&s.pending_prediction()==0,"After the dodge facing did not return to input rules, the actor kept moving or the lock tag remained");
+   auto target_after=s.observer(role(5),double(s.motor().tick)).frame.motor.position;check(std::hypot(target_after.x-target_before.x,target_after.z-target_before.z)<1e-6&&s.presentation().read(s.presentation().find(role(5))).health.current==100&&scene->world().serialize()==baseline,"Dodge affected the other actor or the authoring scene");
+   // Cooldown and cost gate a second dodge authoritatively; no local bypass.
+   CharacterSceneInput release=idle;release.combat_events={{6,InputEdge::Released,2000000,100000,0,false}};s.step(release);
+  }
+  reaction_fixture["dodge_registry"]=(root/"dodge.json").generic_string();reaction_fixture["dodge_ability"]=dodge.text();
+  std::cout<<"Authored dodge ability: kit utility ingress clear/assign Undo/Redo, dash edit history, speed/window rejection without publication, coordinated Save, frozen closure, fresh Play activation through authority/prediction/public state, Stamina 15, movement-direction facing lock, invulnerability window, 5 m dash with exact prediction agreement, facing restored and other actor untouched passed\n";
+ }
  Json receipt={{"source",source.generic_string()},{"cache",(root/"c").generic_string()},{"registry",(root/"after.json").generic_string()},{"upper_registry",(root/"upper.json").generic_string()},{"upper_action",independent_action.text()},{"kit",kit.text()},{"ability",copy.text()},{"effect",effect.text()}};receipt.update(reaction_fixture);std::ofstream(std::filesystem::path(DAE_BINARY_DIR)/"authoring-fixture.json")<<receipt.dump(2);std::cout<<"Native authoring: edit/Undo/Redo/coordinated Save, grouped kit/action history, multi-source failure/catalog rollback/stale-writer conflict, cost20/damage40/Burn7, kit closure, fresh Play Health60->39, Stamina80, public status/expiry, immutable prior Play and failed candidate preservation passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

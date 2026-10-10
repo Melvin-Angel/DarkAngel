@@ -26,6 +26,8 @@ struct OwnerAbilityPrediction::Impl {
         if(baseline.active)for(const auto& operation:baseline.operations)if(operation.committed&&operation.activation==baseline.active->activation)confirmed_action_operation=operation.operation;
     }
     // Frozen definitions are resolved from the installed state's pinned identity.
+    const AbilityDefinition& ability(const AbilityOwnerSnapshot& snapshot)const{action(snapshot);for(const auto& definition:definitions)if(definition->id==snapshot.ability)return *definition;throw std::runtime_error("Prediction ability generation unavailable");}
+    bool faces_movement(const AbilityOwnerSnapshot& snapshot)const{for(const auto& definition:definitions)if(definition->id==snapshot.ability)return definition->face_movement;return false;}
     const ActionDefinition& action(const AbilityOwnerSnapshot& snapshot)const{
         for(const auto& definition:definitions)if(definition->id==snapshot.ability){require(definition->generation==snapshot.ability_generation&&definition->action->generation==snapshot.action->generation,"Prediction motion generation mismatch");return *definition->action;}
         throw std::runtime_error("Prediction action generation unavailable");
@@ -41,8 +43,8 @@ struct OwnerAbilityPrediction::Impl {
             operation.predicted_commit=result.first.committed;
         }
         auto updates=state.finish_tick(frame.rate,false);state.take_commitments();auto after=state.snapshot();AbilityPredictionMotion output;output.tick=frame.tick;
-        if(after.active){const auto& definition=action(after);auto from=before.active==after.active?before.action->clock:0;output.activation=after.active->activation;output.local=action_motion_between(definition,from,after.action->clock);}
-        else if(before.active)for(const auto& update:updates)if(update.handle==*before.active&&update.phase==ActionPhase::Completed){const auto& definition=action(before);output.activation=before.active->activation;output.local=action_motion_between(definition,before.action->clock,std::uint64_t(definition.duration)*definition.loops);}
+        if(after.active){const auto& definition=ability(after);auto from=before.active==after.active?before.action->clock:0;output.activation=after.active->activation;output.local=ability_motion_between(definition,from,after.action->clock);output.face_movement=faces_movement(after);output.started=!(before.active==after.active);}
+        else if(before.active)for(const auto& update:updates)if(update.handle==*before.active&&update.phase==ActionPhase::Completed){const auto& definition=ability(before);output.activation=before.active->activation;output.local=ability_motion_between(definition,before.action->clock,std::uint64_t(definition.action->duration)*definition.action->loops);output.face_movement=faces_movement(before);}
         current=std::move(after);return output;
     }
     void invalidate(){

@@ -3,7 +3,9 @@
 
 namespace darkangel {
 struct AbilityPredictionInput {AbilityIntent intent;std::uint64_t parent_operation{};};
-struct AbilityPredictionMotion {std::uint64_t tick{},activation{};ActionMotion local;};
+// face_movement/started let the motor composition apply the same facing rule
+// to predicted and replayed ticks as the authoritative path.
+struct AbilityPredictionMotion {std::uint64_t tick{},activation{};ActionMotion local;bool face_movement{},started{};};
 // One owner view rebuilt from an authoritative bundle plus bounded pending input.
 // Uses native commitment/gesture/timeline rules with all hit sinks disabled.
 // Predicted activation identities are provisional; operation IDs correlate receipts.
