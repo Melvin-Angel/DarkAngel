@@ -1,3 +1,15 @@
+## Current resumed implementation checkpoint — 10 October 2026
+
+Native checkpoint `81d46db`; repository observed clean before this documentation update. All commits are local; no push/fetch was performed. This section supersedes the older usage-stop/topology-next instructions below. Usage was last observed at50% remaining; continue authorized useful chunks toward10%, checking fresh limits before scheduling.
+
+Delivered since `af42b3c`: graph topology/history (`9c8062f`), shared history inspection (`e330512`), coordinated new-source candidates/publication (`272cdb3`), pending creation/history/preview/fresh Play (`542c26c`), unrelated history retained on Reload (`70dd344`), missing selection cleanup (`63fbf8b`), typed Ability/Effect creation controls (`9a4564a`), schema-aware statistic modifiers (`a037e44`), reference/evaluator diagnostics (`ab59c83`), shared typed native navigation (`454c0ee`) and valid ordinary Effect template lifecycles (`81d46db`). Reports linked from current STATUS/CONTINUE contain scoped evidence.
+
+Next: native Asset browser categories and UUID search; then focused source/history usability. Preserve delivered workflows rather than rebuilding them. Source creation Undo is available only before publication; published assets are retained. Full masks/reactions/AI remain planned. Continue complete Save/cook/scene closure/resource preparation/fresh isolated Play; WorldSession authority, native frozen references, eight slots and tag rebuild fences remain required. Publication is not crash-atomic or a cross-process multi-file reader snapshot.
+
+M4/M5 remain In progress, live EOS externally blocked, M6–M9 not started. Minimal meaningful checks, one backend, completed owned local commits; no subagents, dependencies, push or reset-credit consumption. Update this existing follow-up just after the next reported reset when remaining reaches10%.
+
+## Historical checkpoint material
+
 Current pending creation increment: [PENDING_CREATION_REPORT.md](PENDING_CREATION_REPORT.md). Seven focused gates pass for staged native creation, shared pending references, pre-publication Undo/Redo, isolated preview and complete fresh Player Play. Published creation is retained and leaves creation history. Next: pending-draft reload/revert and selection usability. M4/M5 In progress; EOS blocked; M6â€“M9 not started. Older continuation entries below are historical.
 
 Resumed after the usage reset from `af42b3c`: graph topology checkpoint `9c8062f` is delivered; current [history inspection report](AUTHORING_HISTORY_VIEW_REPORT.md) and STATUS/CONTINUE describe the next completed increment. Older usage/checkpoint observations below are historical, not the current stop instruction. Continue toward10% remaining with owned local commits.
