@@ -1,3 +1,5 @@
+Current binding prerequisites: [BINDING_PREREQUISITES_REPORT.md](BINDING_PREREQUISITES_REPORT.md). Targeted editor/D3D12 smoke passes; Bind explains missing references, kit assignment, hit-window selection and finite power. Native validation remains required. Next: Kit duplication through existing pending creation/history. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current workflow reference inspection: [WORKFLOW_REFERENCE_SEARCH_REPORT.md](WORKFLOW_REFERENCE_SEARCH_REPORT.md). Targeted editor/D3D12 form passes; workflow lists share path/UUID search, rows and selected references expose full identities on hover. Next: invalid binding selection guidance. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current reference usability: [BINDING_NAVIGATION_REPORT.md](BINDING_NAVIGATION_REPORT.md). Targeted editor build and D3D12 form pass; existing binding links reuse shared routing, selector labels sit above full-width fields. Next: workflow asset-list full-path/UUID search and selected-reference inspection. M4/M5 In progress; EOS blocked; M6-M9 not started. Older usage-stop headers below describe the previous window.
