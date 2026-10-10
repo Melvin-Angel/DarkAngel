@@ -1,0 +1,18 @@
+[1/23] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[2/23] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[3/23] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[4/23] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[5/22] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[6/22] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[7/12] Building CXX object CMakeFiles\NativeAuthoringTests.dir\apps\editor\native_authoring.cpp.obj
+[8/12] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[9/12] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_authoring.cpp.obj
+[10/12] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\editor_authoring.cpp(187): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(63): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[11/12] Linking CXX executable NativeAuthoringTests.exe
+[12/12] Linking CXX executable DarkAngelEditor.exe
+[1/6] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[2/6] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[4/4] Linking CXX executable NativeAuthoringTests.exe
