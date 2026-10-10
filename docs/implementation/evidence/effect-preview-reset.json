@@ -1,0 +1,31 @@
+{
+  "gates": [
+    {
+      "name": "effect-preview-reset-build",
+      "exit": 0
+    },
+    {
+      "name": "effect-preview-reset-native",
+      "exit": 0
+    },
+    {
+      "name": "effect-preview-reset-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "effect-preview-reset",
+  "base_head": "d5a3cfac4ee674e41636a582bc0e7a4fd33c12ff",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "7117aa14343cead4210c9bdd345237cbf4c70acec7f738ff55f0614c5d687cee",
+    "apps\\editor\\editor_ui.hpp": "ce35f6210c0b9c9fbc6604f93f33dc19e96d89e1c67f2918476776a47ed9bfc9",
+    "apps\\editor\\main.cpp": "4ffbd657a55b1a0b3920381e6207a7194ddfc2b1dba55f6243848c7889b13651",
+    "apps\\editor\\native_authoring.cpp": "4ade6b55d2706f9b459a64eeded0085f59e6d5b320c456709fa759254591f722",
+    "apps\\editor\\native_authoring.hpp": "372503d38c5df7adf5da48f06b416d3757ce519b8dfdfca6134027effde5f41d",
+    "tests\\native_authoring_tests.cpp": "6289ca695474fff228df1968d1605acc0adf4dea660d2e7c65d749ccab0e727d",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ]
+}

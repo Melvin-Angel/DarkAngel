@@ -21,6 +21,9 @@ public:
   for(const auto& definition:attributes->definitions())base.push_back(attributes->value(definition.id));
   authoring_revision=author.revision();
  }
+ void reset(){
+  auto fresh_attributes=std::make_unique<AttributeSet>(cooked.attributes.definitions());auto fresh_effects=std::make_unique<OwnedEffects>(cooked.tags.dictionary());attributes=std::move(fresh_attributes);effects=std::move(fresh_effects);tick=0;handle={};activation_=0;last_error.clear();last_operation="Reset frozen simulation; snapshot source/revision unchanged.";
+ }
  void apply(std::uint64_t source=1){
   if(!source||activation_>=4096)throw std::runtime_error("Use a nonzero simulated source; reprepare after 4096 applications");
   auto before=effects->snapshot();auto next=activation_+1;auto result=effects->apply(*cooked.definition,{1,source,next,0,{}},tick,*attributes,{});activation_=next;handle=result.first;bool refreshed=std::any_of(before.begin(),before.end(),[&](const auto& entry){return entry.handle==handle;});last_operation=std::string(refreshed?"Refreshed":"Applied")+" effect "+std::to_string(handle.value)+" from simulated source "+std::to_string(source)+".";
