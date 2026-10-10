@@ -27,3 +27,14 @@ User direction: masks take over what stances did; each mask is worn visibly on a
 - Masks on other actors (the target has no loadout), masks in the Character/Animation previews, Vulkan check.
 - The model still uses the converter's checker test material; only the tint distinguishes elements.
 - The default Royal launcher still starts kit-based Play; choose "Use Player for next fresh Play" on `royal_player` (or pass `--character-clips player:<id> --player-asset <id>`) to play masked.
+
+## Next: switching the active mask during Play (designed, not implemented)
+
+Inspected against the code on 10 October 2026. The input profile already declares `mask.up/right/down/left` (actions 16-19). Recommended shape, chosen so no parallel request path appears:
+
+- `AbilityState` holds up to four prepared loadouts (kit, input, frozen grants) installed by the server through a `configure_loadouts` call next to `equip_combat_kit`. A mask-select request is an ordinary `AbilityIntent` whose slot value lies just past the ability slots, so it travels the existing AbilityCommand wire, operation ledger, duplicate/stale handling and receipts. Accepting it performs the existing kit replacement (cancel with GrantRemoved, new grant generation, rearm) atomically; an empty slot answers Unassigned; an active uninterruptible action answers Busy.
+- `AbilityOwnerSnapshot` and `AbilityPublicSnapshot` gain the active loadout index (wire-shape change inside protocol 3). `restore_prediction` selects that loadout's kit and grants before validating the rest, so `OwnerAbilityPrediction`, configured with the same loadouts, predicts and reconciles the switch like any other request.
+- `CharacterSceneCombat` carries all equipped masks' kits; presentation resources (`ObserverAbility`, `ObservedCharacterPose`, mixers, reaction/death selectors) are prepared from the union of their actions, effects and clips. The worn visual follows the replicated index for owner and observers.
+- Gates: switch accepted/rejected/duplicate/stale, mid-action policy, prediction agreement and correction replay across a switch, cooldown/Stamina continuity across kits, public index on late join, GNS intent suites re-run, D3D12 capture of a tint change.
+
+This touches the authoritative ability state, its snapshot wire and prediction restore together, so it should land as one increment with the full ability/prediction/GNS suite run, not piecemeal.
