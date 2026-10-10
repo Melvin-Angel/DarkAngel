@@ -1,3 +1,5 @@
+Current failed reprepare retention: [EFFECT_PREVIEW_REPREPARE_REPORT.md](EFFECT_PREVIEW_REPREPARE_REPORT.md). Focused editor/D3D12 check passes for invalid duration0, retained duration60 snapshot/effect/modifier and usable tick30 state, with source/cook diagnostics. Next: corrected-source reprepare replacement context. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current frozen preview reset: [EFFECT_PREVIEW_RESET_REPORT.md](EFFECT_PREVIEW_RESET_REPORT.md). Focused build/native/D3D12 gates pass for baseline/clock/activation reset while retaining captured definition/revision. Draft duration120 remains separate from frozen end60. Next: failed-reprepare retention diagnostics. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current local preview failure context: [EFFECT_PREVIEW_FAILURE_REPORT.md](EFFECT_PREVIEW_FAILURE_REPORT.md). Focused build/native/D3D12 gates pass for blocked application retention, contextual frozen source/conditions and unconsumed activation identity. Snapshot error is separate from source-authoring errors. Next: snapshot reset/reprepare context. M4/M5 In progress; EOS blocked; M6-M9 not started.

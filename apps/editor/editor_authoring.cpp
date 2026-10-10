@@ -51,6 +51,10 @@ bool picker(const char* label,AssetId& selected,Controller& c,std::map<std::uint
  }if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::TextWrapped("%s",name.c_str());ImGui::Text("UUID: %s",selected.text().c_str());if(selected_info){auto pending=c.authoring.drafts.find(selected);if(pending!=c.authoring.drafts.end()&&pending->second.pending)ImGui::TextUnformatted("Pending creation; not published");else {ImGui::Text("Catalog generation: %llu",static_cast<unsigned long long>(selected_info->generation));if(pending!=c.authoring.drafts.end()&&pending->second.dirty())ImGui::TextWrapped("Edited draft; frozen gameplay remains unchanged until validated Save and fresh Play.");}auto checked=reference_candidates(*c.assets,c.authoring,std::span<const AssetInfo>(selected_info,1),extension,"",attributes,importer,looping_only);if(checked.empty())ImGui::TextWrapped("Unavailable here: does not match the required asset type, attribute schema or clip policy.");else if(!checked.front().diagnostic.empty())ImGui::TextWrapped("Unavailable: %s",checked.front().diagnostic.c_str());else ImGui::TextUnformatted("Picker policy matches; native Save/preview validation still applies.");}ImGui::EndTooltip();}ImGui::PopID();return changed;
 }
 }
+void Shell::prepare_effect_preview(Controller& c,AssetId id){
+ if(!c.assets)throw std::runtime_error("Open project sources before preparing an effect preview");
+ try{auto prepared=std::make_unique<EffectPreview>(*c.assets,c.authoring,id);effect_preview=std::move(prepared);effect_preview_asset=id;}catch(const std::exception& error){if(effect_preview&&effect_preview_asset==id)effect_preview->record_failure("Reprepare",error.what());throw;}
+}
 void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float top){
  ImGui::SetNextWindowPos({0,top});ImGui::SetNextWindowSize({float(width),float(height)-top});const bool character=workspace==Workspace::Character,player=workspace==Workspace::Player;auto& selection=character?character_selection:player?player_selection:this->authored_selection;const bool animation=workspace==Workspace::Animation;ImGui::Begin(character?"Character workspace":player?"Player workspace":animation?"Animation workspace":"Ability workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
  if(!c.assets){ImGui::TextWrapped("Open a project source mount to author gameplay assets.");ImGui::End();return;}
@@ -139,7 +143,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  if(v.contains("requirements")){auto tags=schema(c,v,"tags");for(const char* key:{"all","any","none"})ids(key,v["requirements"][key],tags);}}
  if(kind=="effect"){
  ImGui::SeparatorText("Isolated modifier / status preview");
- if(ImGui::Button("Prepare preview snapshot")){auto prepared=std::make_unique<EffectPreview>(*c.assets,c.authoring,selection);effect_preview=std::move(prepared);effect_preview_asset=selection;}
+ if(ImGui::Button("Prepare preview snapshot"))perform([&]{prepare_effect_preview(c,selection);});
  if(effect_preview&&effect_preview_asset==selection){
   auto preview_call=[&](const char* operation,auto action,std::uint64_t source=0){try{action();effect_preview->last_error.clear();}catch(const std::exception& error){effect_preview->record_failure(operation,error.what(),source);c.log(effect_preview->last_error,ConsoleSeverity::Error);}};
   if(effect_preview->authoring_revision!=c.authoring.revision())ImGui::TextWrapped("Authoring changed since this frozen snapshot (prepared at revision %llu). Prepare again to test current drafts.",static_cast<unsigned long long>(effect_preview->authoring_revision));
