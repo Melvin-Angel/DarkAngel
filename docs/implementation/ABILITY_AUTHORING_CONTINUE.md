@@ -1,3 +1,5 @@
+Current Effect snapshot increment: [EFFECT_REVISION_REPORT.md](EFFECT_REVISION_REPORT.md). Focused build/native/D3D12 checks pass for visible stale authoring revision and immutable captured duration/expiry after draft edits. Next: shared-history validation access and draft counts. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
 Current diagnostic increment: [CANDIDATE_DIAGNOSTIC_REPORT.md](CANDIDATE_DIAGNOSTIC_REPORT.md). Four focused gates pass; candidate cook errors identify root/consumer path and UUID, retain underlying reason and invalid drafts without publication. Next: frozen Effect preview revision visibility and shared-history validation access. M4/M5 In progress; EOS blocked; M6–M9 not started.
 
 Current private validation increment: [PRIVATE_VALIDATION_REPORT.md](PRIVATE_VALIDATION_REPORT.md). Focused build/native/D3D12 gates pass for non-publishing pending/consumer validation, retained invalid drafts/history and unchanged catalog heads. Save revalidates; GPU/fresh Play remains separate. Next: candidate cook source/consumer diagnostic context. M4/M5 In progress; EOS blocked; M6–M9 not started.

@@ -19,6 +19,7 @@ public:
   attributes=std::make_unique<AttributeSet>(cooked.attributes.definitions());
   effects=std::make_unique<OwnedEffects>(cooked.tags.dictionary());
   for(const auto& definition:attributes->definitions())base.push_back(attributes->value(definition.id));
+  authoring_revision=author.revision();
  }
  void apply(){handle=effects->apply(*cooked.definition,{1,1,++activation_,0,{}},tick,*attributes,{}).first;}
  void advance(unsigned ticks){
@@ -29,6 +30,7 @@ public:
   auto active=effects->snapshot();
   if(std::any_of(active.begin(),active.end(),[&](const auto& entry){return entry.handle==handle;}))effects->remove(handle,*attributes);
  }
+ std::uint64_t authoring_revision{};
  CookedEffect cooked;std::unique_ptr<AttributeSet> attributes;std::unique_ptr<OwnedEffects> effects;
  std::vector<double> base;std::uint64_t tick{};EffectHandle handle;
 private:
