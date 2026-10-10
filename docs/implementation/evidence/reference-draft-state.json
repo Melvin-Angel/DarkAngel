@@ -1,0 +1,23 @@
+{
+  "gates": [
+    {
+      "name": "reference-draft-state-build",
+      "exit": 0
+    },
+    {
+      "name": "reference-draft-state-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "reference-draft-state",
+  "base_head": "b0e82c92abfed9513d01979d84b4da799e759e1f",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "be214087931faca29981ca3bd29162c94ba18f79df85d4a1b36088b60b08a2fd",
+    "apps\\editor\\editor_ui.hpp": "74c1b0f338fc6a896d942348d42e3a52429da3edadb56ee996f39598f0869ce4",
+    "apps\\editor\\main.cpp": "5d22a258402d250fe3edd59a4422908102d62c6a7b358b7a7a38a4471124ba4d"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ]
+}

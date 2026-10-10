@@ -1,3 +1,5 @@
+Current pending-source visibility: [REFERENCE_DRAFT_STATE_REPORT.md](REFERENCE_DRAFT_STATE_REPORT.md). Targeted build/D3D12 native navigation passes; pending Player/Character labels inspected, cost21 and three commands retained. Catalog and edited draft state remain distinct. Next: focused reference/creation follow-through. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current binding view: [BINDING_LINKS_VIEW_REPORT.md](BINDING_LINKS_VIEW_REPORT.md). Focused build/D3D12 inter-frame exercise passes: existing binding Ability/Effect routing, clean drafts/history and inspected visible row. Slot visibility is editor state only. Next: source-draft state details and creation/reference follow-through. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current selected-reference inspection: [SELECTED_REFERENCE_POLICY_REPORT.md](SELECTED_REFERENCE_POLICY_REPORT.md). Targeted editor/D3D12 smoke passes; hover uses existing one-entry native picker policy to explain incompatibility and pending/catalog identity. Save/preview validation remains authoritative. Next: compact Kit slot visibility and binding-row receipt. M4/M5 In progress; EOS blocked; M6-M9 not started.
