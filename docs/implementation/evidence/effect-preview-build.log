@@ -1,0 +1,4 @@
+[1/5] Scanning C:\DarkAngel\tests\attribute_authoring_tests.cpp for CXX dependencies
+[2/5] Generating CXX dyndep file CMakeFiles\AttributeAuthoringTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\AttributeAuthoringTests.dir\tests\attribute_authoring_tests.cpp.obj
+[4/4] Linking CXX executable AttributeAuthoringTests.exe

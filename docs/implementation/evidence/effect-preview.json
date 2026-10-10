@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "base_head": "e0bb295f20c4317f7631d5a0564004200083fc2b",
+  "scope": "Isolated ordinary modifier/status draft preview with no source/head publication",
+  "gates": [
+    {
+      "name": "effect-preview-build",
+      "exit": 0,
+      "seconds": 5.832
+    },
+    {
+      "name": "effect-preview-native",
+      "exit": 0,
+      "seconds": 6.25
+    },
+    {
+      "name": "effect-preview-panel",
+      "exit": 0,
+      "seconds": 1.701
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/effect_preview.hpp": "1fe45ea68f3cc5b2c5cce61f2e8a9b005d3bfbea9e05be635d923850fcb960e1",
+    "apps/editor/editor_authoring.cpp": "2f3855a23b41f830be1e76f8895789ddfda96dca2895cdbab22e925883bbb8e0",
+    "apps/editor/editor_ui.hpp": "ca8f1b10a697c2bd2ca6e242ffd4925d00b32d744bc0845f5e4221ea667e1cc3",
+    "apps/editor/main.cpp": "c145b27aaf1e271752a70cd9c68e72754cf319227f8e45b59a67c914efd39496",
+    "tests/attribute_authoring_tests.cpp": "bb12ead821bfa246d885d0e39a637c61d79c2043895f04dabb893ef7ab29b8e5",
+    "scripts/verify_effect_preview.py": "d48f622ae7c45d4efc4c5871725b78a3026658f2473fb73f02e251b74da798b0"
+  },
+  "limitations": [
+    "Native unsaved modifier/source/head tests and scripted D3D12 Apply/remove/expiry; no physical button input automation.",
+    "Evaluator-free effects only; actor death, multiplayer and custom evaluators remain Game tests.",
+    "M4/M5 In progress; live EOS blocked."
+  ]
+}
