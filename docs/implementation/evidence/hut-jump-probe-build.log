@@ -1,0 +1,4 @@
+[1/4] Scanning C:\DarkAngel\tests\motor_tests.cpp for CXX dependencies
+[2/4] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\MotorTests.dir\tests\motor_tests.cpp.obj
+[4/4] Linking CXX executable MotorTests.exe

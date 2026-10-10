@@ -1,5 +1,7 @@
 #include <darkangel/character_motor.hpp>
 #include <darkangel/world_session.hpp>
+#include <darkangel/collision_asset.hpp>
+#include <fstream>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -27,8 +29,17 @@ MotorState run(PhysicsWorld& w,CharacterMotor& c,unsigned count,double x=0,doubl
         s=c.state();
     }return s;
 }
-int main(){
+int hut_jump_probe(const char* path){
+ std::ifstream input(path);require(bool(input),"Open hut collision source");std::string bytes{std::istreambuf_iterator<char>(input),{}};auto collision=decode_collision_source(bytes);unsigned failures=0,completed=0;
+ const MotorVec starts[]={{-7,.51,2},{-10,.51,2},{-4,.51,2},{7,.51,2},{3,.51,2},{11,.51,2},{-7,.51,-10},{7,.51,-10},{-12,.51,-4},{-2,.51,-4},{1,.51,-4},{13,.51,-4}};
+ for(unsigned n=0;n<std::size(starts);++n){PhysicsWorld world;world.load_scene(collision);CharacterMotor motor(world,starts[n],10);auto target=n<9?MotorVec{-7,0,-4}:MotorVec{7,0,-4};if(n>=3&&n<6||n==7)target={7,0,-4};auto delta=MotorVec{target.x-starts[n].x,0,target.z-starts[n].z};auto length=std::hypot(delta.x,delta.z);delta.x/=length;delta.z/=length;
+  for(unsigned frame=0;frame<360;++frame){auto before=motor.state();auto tick=world.tick()+1;try{motor.step({tick,tick,1,delta.x,delta.z,0,frame%3==0,false});world.step();motor.post_physics();}catch(const std::exception& error){if(std::string_view(error.what()).find("Motor collision work overflow")==std::string_view::npos)throw;++failures;std::cout<<"Hut jump overflow case="<<n<<" tick="<<tick<<" previous_foot="<<before.position.x<<","<<before.position.y<<","<<before.position.z<<" jump="<<(frame%3==0)<<" input="<<delta.x<<","<<delta.z<<"\n";break;}if(frame==359)++completed;}
+ }
+ std::cout<<"Hut jump probe completed="<<completed<<" overflow="<<failures<<" cases="<<std::size(starts)<<"\n";return failures?2:0;
+}
+int main(int argc,char** argv){
     try{
+        if(argc==3&&std::string_view(argv[1])=="--hut-jump")return hut_jump_probe(argv[2]);
         PhysicsWorld w;
         floor(w);
         w.add({

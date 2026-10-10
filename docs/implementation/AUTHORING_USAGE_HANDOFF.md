@@ -1,3 +1,5 @@
+Current motor bug: [real hut-jump reproduction](MOTOR_HUT_OVERFLOW_REPRO_REPORT.md). Native case1 fails at tick88;11 other approaches complete. Default MotorTests passes. No runtime fix yet; cap32/guard unchanged. Next: bounded mesh-contact investigation, regression/fix, replay/session and one backend. User imported content and scene records preserved; M4/M5 In progress.
+
 Priority override: user-reported repeated Jump while pushing into huts trips the native 32-hit motor guard. [Read-only triage](MOTOR_HUT_OVERFLOW_TRIAGE.md); not reproduced or fixed. First work after reset: focused hut-contact reproduction/regression and bounded motor fix, before action-tag forms. User scene/light source edits and scene records remain untouched. At triage8% five-hour remaining; existing18:15 Copenhagen follow-up retained. M4/M5 In progress.
 
 ## Usage-stop handoff - 10 October 2026, resumed authoring window
