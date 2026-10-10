@@ -1,3 +1,5 @@
+Current history MVP: [source filter report](HISTORY_SOURCE_FILTER_REPORT.md). Build/D3D12 passed; roster filtering preserves commands. History polish stops here per user direction. Next: independent Ability/Composer creation, then substantial authoring/combat integration. M4/M5 In progress.
+
 Current shared history comparison: [HISTORY_SOURCE_COMPARISON_REPORT.md](HISTORY_SOURCE_COMPARISON_REPORT.md). Targeted build/D3D12 checks pass for read-only conflict observation in shared history, restored fixture bytes and unchanged revision/history. Next: source/history filtering and navigation readability. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current source disk comparison: [SOURCE_DISK_COMPARISON_REPORT.md](SOURCE_DISK_COMPARISON_REPORT.md). Focused build/native/D3D12 gates pass for baseline/external bytes, pending absence/collision and bounded read without adopting bytes or changing history. Capture shows prior conflict observation; exact fixture source restored. Next: shared history comparison access. M4/M5 In progress; EOS blocked; M6-M9 not started.
