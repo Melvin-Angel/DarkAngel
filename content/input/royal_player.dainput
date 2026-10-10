@@ -162,6 +162,14 @@
       "hold_ms": 200,
       "tap_ms": 200,
       "deadzone": 0
+    },
+    {
+      "id": 21,
+      "name": "look.pitch",
+      "type": "axis",
+      "hold_ms": 200,
+      "tap_ms": 200,
+      "deadzone": 0.15
     }
   ],
   "bindings": [
@@ -717,6 +725,17 @@
       "priority": 40,
       "scale": 1,
       "threshold": 0.5
+    },
+    {
+      "id": 50,
+      "action": 21,
+      "controls": [
+        "Gamepad0.RightY"
+      ],
+      "consume": "none",
+      "priority": 0,
+      "scale": -1,
+      "threshold": 0
     }
   ]
 }
