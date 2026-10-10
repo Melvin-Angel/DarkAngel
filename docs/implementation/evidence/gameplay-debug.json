@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "base_head": "7da60d250e14661aeba6dc9183b23a0ae6934e5e",
+  "scope": "Read-only Game confirmed/predicted attributes, action/outcomes and available source-aware tag/effect attribution",
+  "gates": [
+    {
+      "name": "gameplay-debug-build",
+      "exit": 0,
+      "seconds": 51.539
+    },
+    {
+      "name": "gameplay-debug-native",
+      "exit": 0,
+      "seconds": 18.375
+    },
+    {
+      "name": "gameplay-debug-sources",
+      "exit": 0,
+      "seconds": 0.019
+    },
+    {
+      "name": "gameplay-debug-panel",
+      "exit": 0,
+      "seconds": 4.869
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/gameplay_debug.hpp": "d322b151de86c14002ad1a6073f4bff013e68044278ccae896e69560781f903a",
+    "apps/editor/editor_workspaces.cpp": "4809e24f231f95d777b5435d293668e76bf95a9fbe8a1024b03fd0efd7c88b78",
+    "apps/editor/editor_ui.hpp": "4d4acb26cbc8a14a137f89769aa7dedbf308861573b97d0fffdf1db32491ee23",
+    "apps/editor/main.cpp": "3d7a43dd7965374c0652459aeb99c0a53977a800fbd84666d52de19205bc0509",
+    "tests/gameplay_debug_tests.cpp": "ab5087b632120b66b98a412ae1b5b9e5ee555b64bd7d77a3a0d1d7fda24bdd26",
+    "CMakeLists.txt": "887a0e07250bc90c16fd689f644382233c26ec0b0ffa5a79c1c783c727fdc30f",
+    "scripts/verify_gameplay_debug.py": "9e3e5701f7b7524e9c28fe5c75091f7abedb2a5fac3ec50f8b3af9f8432a54f3"
+  },
+  "limitations": [
+    "Native source attribution tests and one D3D12 active heavy/status capture; no physical input or full multiplayer qualification.",
+    "Aggregate snapshots omit full contributor internals; unavailable values/sources are explicit rather than inferred.",
+    "M4/M5 In progress; live EOS blocked."
+  ]
+}

@@ -57,6 +57,7 @@ public:
     double input_processing_us{};
     bool controls_acquired{},jump{};
     std::function<std::string()> gameplay_metrics;
+    std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     std::optional<Transform> draft;
     bool reload_model{},reload_shader{};
     bool native_controls{},controls_focus{},walk{};float forward{},lateral{},turn{};
