@@ -1,0 +1,69 @@
+[1/31] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[2/31] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[3/31] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[4/31] Scanning C:\DarkAngel\apps\editor\editor_controller.cpp for CXX dependencies
+[5/31] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[6/31] Scanning C:\DarkAngel\apps\editor\editor_ui.cpp for CXX dependencies
+[7/31] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[8/31] Scanning C:\DarkAngel\apps\editor\editor_assets.cpp for CXX dependencies
+[9/31] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[10/31] Scanning C:\DarkAngel\apps\editor\editor_composer.cpp for CXX dependencies
+[11/31] Scanning C:\DarkAngel\apps\editor\editor_workspaces.cpp for CXX dependencies
+[12/31] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[13/31] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[14/31] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[15/28] Building CXX object CMakeFiles\NativeAuthoringTests.dir\apps\editor\native_authoring.cpp.obj
+[16/28] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[17/28] Building CXX object CMakeFiles\NativeAuthoringTests.dir\apps\editor\character_preview.cpp.obj
+[18/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+[19/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(296): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(154): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(316): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(154): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(317): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(154): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(325): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(154): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(327): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(336): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(165): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(405): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(427): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(154): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(427): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(154): note: see declaration of 'id'
+[20/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(50): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[21/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_assets.cpp.obj
+C:\DarkAngel\apps\editor\editor_assets.cpp(61): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(68): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[22/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[23/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\editor_authoring.cpp(197): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(68): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[24/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_workspaces.cpp.obj
+C:\DarkAngel\apps\editor\editor_workspaces.cpp(13): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(68): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\editor_workspaces.cpp(52): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(68): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[25/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_authoring.cpp.obj
+[26/28] Linking CXX executable NativeAuthoringTests.exe
+[27/28] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[28/28] Linking CXX executable DarkAngelEditor.exe

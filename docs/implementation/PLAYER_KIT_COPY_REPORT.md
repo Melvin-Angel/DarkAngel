@@ -1,0 +1,11 @@
+# Explicit Player Kit copy assignment — 10 October 2026
+
+Base `15a4a0a`. NativeAuthoring::assign_player_kit updates a Player's Kit UUID and source locator in one checked history command, retaining Character, starting-attribute and input configuration. It checks Player/Kit native types and existing source identities before applying. The Player selector and Assign copy to Play Player use the same method. Kit copy controls remember the created identity and expose its path; copying alone retains Player assignment. Explicit assignment updates only authored configuration/next-Play selection, never live actor resources/state.
+
+`python scripts/verify_binding_navigation.py player-kit-copy` passed three focused gates: targeted editor/native fixture build, NativeAuthoringTests and one D3D12 inter-frame Player form exercise. New native case rejects an Effect as a Kit without changing Player/history, checks reference/locator/Character retention, Undo/Redo, and privately validates three pending sources without publication or modifying the original Kit source. D3D12 creates Character/Player/Kit, assigns through the shared method, undoes/redoes, validates three-source closure and verifies pending paths absent. Capture inspected: Player references the new Kit and Character; created-Kit assignment control and private validation receipt are visible. No physical button activation or live Play claim. Existing created vertical receipt covers complete coordinated Save/resource/fresh Play, not repeated for this source-reference increment.
+
+[Receipt](evidence/player-kit-copy.json), [build](evidence/player-kit-copy-build.log), [native](evidence/player-kit-copy-native.log), [D3D12](evidence/player-kit-copy-d3d12.log), [capture](evidence/player-kit-copy.png).
+
+M4/M5 In progress; live EOS blocked; M6-M9 not started. Save still performs complete native closure validation; changed Kit schemas must satisfy starting-attribute/input/rig compatibility there. Creation Undo ends at publication; no crash-atomic publication claim. No runtime/schema/dependency change.
+
+Next: make the Play Player's actual authored Kit explicit alongside the inspected Kit, then focused source-reference navigation/validation usability. Keep complete Save/cook/scene/resources/fresh isolated Play and avoid masks/reactions/AI broadening.

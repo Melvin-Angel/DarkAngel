@@ -1,0 +1,30 @@
+{
+  "gates": [
+    {
+      "name": "player-kit-copy-build",
+      "exit": 0
+    },
+    {
+      "name": "player-kit-copy-native",
+      "exit": 0
+    },
+    {
+      "name": "player-kit-copy-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "player-kit-copy",
+  "base_head": "15a4a0ace8d5bfc214684307b26691512538cc9e",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "846760c9c89c8076035b5e542ca98daa3623368aacb001a0900c2a5eecbc5737",
+    "apps\\editor\\editor_ui.hpp": "fdadc70569211b95bb7a5aea771a88e9d926d32290f1b4e2d545ee403c84f608",
+    "apps\\editor\\main.cpp": "299e404181974bcf90011e0419d4bc6745e6724e05c1a077c25a492b9c8a9192",
+    "apps\\editor\\native_authoring.cpp": "4ade6b55d2706f9b459a64eeded0085f59e6d5b320c456709fa759254591f722",
+    "apps\\editor\\native_authoring.hpp": "372503d38c5df7adf5da48f06b416d3757ce519b8dfdfca6134027effde5f41d",
+    "tests\\native_authoring_tests.cpp": "81350818e6d58c58ae905eaf750f66a1a7a2f35803344d7cd6061f0266b05810"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ]
+}
