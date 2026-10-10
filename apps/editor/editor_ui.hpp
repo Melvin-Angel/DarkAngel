@@ -33,6 +33,7 @@ public:
     std::function<void(AssetId,AssetId)> prepare_character_pose;
     AssetId character_preview_asset,character_clip;std::string character_preview_hash;
     std::function<void()> draw_character_info;
+    AssetId kit_copy_origin;
     char kit_duplicate_name[65]{"new_kit"};
     char character_name[65]{"new_character"},player_name[65]{"new_player"};
     std::function<void(AssetId,unsigned)> prepare_composer;

@@ -1,3 +1,5 @@
+Current Kit copy recovery: [KIT_COPY_RECOVERY_REPORT.md](KIT_COPY_RECOVERY_REPORT.md). Focused build/D3D12 inter-frame exercise passes; removed Kit selection remains explicit with a Return to original kit control, clean drafts and unchanged Undo history. Next: selected source names in reference fields. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current pending reference recovery: [PENDING_REFERENCE_SELECTION_REPORT.md](PENDING_REFERENCE_SELECTION_REPORT.md). Focused build/D3D12 inter-frame exercise passes for Effect and Input selection after creation Undo, with clean drafts and empty Undo history. Next: explicit Kit selection return after copy Undo. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current Kit creation controls: [KIT_CREATION_CONTROLS_REPORT.md](KIT_CREATION_CONTROLS_REPORT.md). Targeted editor/D3D12 smoke passes; Kit copy uses existing pending creation/history and retains Player-owned kit assignment. Next: pending reference selection cleanup after creation Undo. M4/M5 In progress; EOS blocked; M6-M9 not started.
