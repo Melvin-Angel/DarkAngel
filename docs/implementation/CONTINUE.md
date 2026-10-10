@@ -1,3 +1,5 @@
+Current independent Ability integration: [fresh Play report](INDEPENDENT_PLAY_REPORT.md). Build/native/D3D12 passed; six-source publication uses the copied Composer, Health83/Stamina88/pending0. Second-source collision leaves no partial creation. Next: visual native Animation graph authoring. History stays MVP; M4/M5 In progress.
+
 Current ability production increment: [independent Ability/Composer](INDEPENDENT_ABILITY_REPORT.md). Native/editor/D3D12 checks passed; new Ability creation defaults to a paired independent timeline. Next: paired-path Save/cook/fresh Play integration, then visual graph authoring. History remains MVP. M4/M5 In progress.
 
 Current history MVP: [source filter report](HISTORY_SOURCE_FILTER_REPORT.md). Build/D3D12 passed; roster filtering preserves commands. History polish stops here per user direction. Next: independent Ability/Composer creation, then substantial authoring/combat integration. M4/M5 In progress.
