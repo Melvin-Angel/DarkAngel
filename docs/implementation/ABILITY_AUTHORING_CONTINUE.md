@@ -1,3 +1,5 @@
+Current Play Player navigation: [PLAY_PLAYER_NAVIGATION_REPORT.md](PLAY_PLAYER_NAVIGATION_REPORT.md). Focused build/D3D12 route/context checks pass for actual next-Play Player and copied Kit with four retained commands. Next: isolated ordinary-effect source ownership through existing lifecycle APIs. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current Player/Kit context: [PLAYER_KIT_CONTEXT_REPORT.md](PLAYER_KIT_CONTEXT_REPORT.md). Focused build/D3D12 inter-frame checks pass for independent inspected Kit and Player copied-Kit ownership with four retained commands. Capture shows actual next-Play references and explicit inspection. Next: actor reference navigation/validation follow-through. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current Player Kit assignment: [PLAYER_KIT_COPY_REPORT.md](PLAYER_KIT_COPY_REPORT.md). Three focused build/native/D3D12 gates pass for checked paired reference/locator edits, retained Character, Undo/Redo and private three-source closure with pending paths absent. Copying alone retains Player assignment. Next: explicit Play Player Kit versus inspected Kit context. M4/M5 In progress; EOS blocked; M6-M9 not started.
