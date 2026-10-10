@@ -1,0 +1,2 @@
+Native tag selector: hierarchy/all/any/none, branch weights/shared clock, replay and stale/private/duplicate/missing snapshot rejection passed
+Native typed graph compile, 1D/2D clamping, isolated sync clocks, correction/replay and 30/60/144/headless tick traces passed

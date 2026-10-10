@@ -1,5 +1,6 @@
 #include "assets_internal.hpp"
 #include <darkangel/graph_assets.hpp>
+#include <darkangel/tag_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <cmath>
 #include <functional>
@@ -17,13 +18,20 @@ float scalar(const Json& value){require(value.is_number(),"Graph scalar type");a
 AssetId id(const Json& value){return AssetId::parse(value.get<std::string>());}
 struct Source {AssetId asset;unsigned root{};std::vector<GraphNode> nodes;std::map<unsigned,AssetId> clips;};
 Source decode(const Json& data){
-    fields(data,{"schema","kind","asset","root","nodes"});require(data.at("schema")==1&&data.at("kind")=="graph","Graph source schema/type");
+    auto base=data;base.erase("tags");fields(base,{"schema","kind","asset","root","nodes"});require(data.at("schema")==1&&data.at("kind")=="graph","Graph source schema/type");
     Source result;result.asset=id(data.at("asset"));result.root=integer(data.at("root"));require(result.root,"Graph root ID");
     const auto& nodes=data.at("nodes");require(nodes.is_array()&&!nodes.empty()&&nodes.size()<=32,"Graph node count");std::set<unsigned> unique;
     for(const auto& entry:nodes){
         GraphNode node;node.id=integer(entry.at("id"));require(node.id&&unique.insert(node.id).second,"Graph node identity");auto kind=entry.at("kind").get<std::string>();
         if(kind=="clip"){fields(entry,{"id","kind","clip"});node.kind=GraphNodeKind::Clip;result.clips.emplace(node.id,id(entry.at("clip")));}
-        else{
+        else if(kind=="tag-select"){
+            fields(entry,{"id","kind","requirements","points"});node.kind=GraphNodeKind::TagSelect;
+            const auto& condition=entry.at("requirements");fields(condition,{"all","any","none"});
+            auto read_tags=[&](const char* key,auto& list){require(condition.at(key).is_array()&&condition.at(key).size()<=16,"Graph tag condition bound");for(const auto& value:condition.at(key))list.push_back(integer(value));};
+            read_tags("all",node.requirements.all);read_tags("any",node.requirements.any);read_tags("none",node.requirements.none);
+            require(entry.at("points").is_array()&&entry.at("points").size()==2,"Graph tag selector branch count");
+            for(const auto& point:entry.at("points")){fields(point,{"input","x","y"});node.points.push_back({integer(point.at("input")),scalar(point.at("x")),scalar(point.at("y"))});}
+        }else{
             fields(entry,{"id","kind","parameter","points","triangles"});require(kind=="blend1d"||kind=="blend2d","Graph node kind");node.kind=kind=="blend1d"?GraphNodeKind::Blend1D:GraphNodeKind::Blend2D;
             auto parameter=entry.at("parameter").get<std::string>();require(parameter=="speed"||parameter=="forward"||parameter=="lateral","Graph parameter");node.parameter=parameter=="speed"?GraphParameter::Speed:parameter=="forward"?GraphParameter::Forward:GraphParameter::Lateral;
             const auto& points=entry.at("points");require(points.is_array()&&points.size()>=2&&points.size()<=32,"Graph points count");
@@ -35,9 +43,9 @@ Source decode(const Json& data){
     }
     require(!result.clips.empty(),"Graph clip catalogue required");return result;
 }
-std::shared_ptr<const AnimationGraphPlan> compile(const Json& data,const std::map<AssetId,std::shared_ptr<const AnimationClip>>& clips){
+std::shared_ptr<const AnimationGraphPlan> compile(const Json& data,const std::map<AssetId,std::shared_ptr<const AnimationClip>>& clips,std::shared_ptr<const TagDictionary> tags){
     auto source=decode(data);for(auto& node:source.nodes)if(node.kind==GraphNodeKind::Clip)node.clip=clips.at(source.clips.at(node.id));
-    return std::make_shared<const AnimationGraphPlan>(sha256(data.dump()),source.root,std::move(source.nodes));
+    return std::make_shared<const AnimationGraphPlan>(sha256(data.dump()),source.root,std::move(source.nodes),std::move(tags));
 }
 struct Registry {
     std::map<AssetId,Json> records;std::filesystem::path cas;
@@ -64,11 +72,13 @@ CookedGraph load_cooked_graph(const std::filesystem::path& registry,const std::f
     }
     // Use the same seed as the cooker, including frozen generations.
     auto plan_data=data;plan_data["frozen"]=frozen;auto graph_source=decode(data);for(auto& node:graph_source.nodes)if(node.kind==GraphNodeKind::Clip)node.clip=clips.at(graph_source.clips.at(node.id));
-    return {asset,std::move(rig),std::make_shared<const AnimationGraphPlan>(sha256(plan_data.dump()),graph_source.root,std::move(graph_source.nodes))};
+    std::shared_ptr<const TagDictionary> tags;
+    if(data.contains("tags")){auto registry_id=id(data.at("tags"));require(frozen.contains(registry_id.text()),"Graph missing frozen tag dictionary");tags=load_cooked_tags(registry,cas,registry_id).dictionary();}
+    return {asset,std::move(rig),std::make_shared<const AnimationGraphPlan>(sha256(plan_data.dump()),graph_source.root,std::move(graph_source.nodes),std::move(tags))};
 }
 namespace assets_detail {
 Import import_graph(const std::filesystem::path& root,const std::filesystem::path& path,const std::map<std::string,AssetId>& ids,bool inspect){
-    auto bytes=read(path,65536);auto data=json(bytes,65536);auto sources=data.at("sources");data.erase("sources");auto graph=decode(data);require(sources.is_object()&&!sources.empty()&&sources.size()<=32,"Graph source clip locators");if(!inspect)require(ids.size()==1&&ids.at("$source")==graph.asset,"Graph source identity mismatch");
+    auto bytes=read(path,65536);auto data=json(bytes,65536);auto sources=data.at("sources");data.erase("sources");require(data.contains("tags")==data.contains("tag_source"),"Graph tag registry/source pair");auto tag_source=data.value("tag_source",std::string{});data.erase("tag_source");auto graph=decode(data);require(sources.is_object()&&!sources.empty()&&sources.size()<=32,"Graph source clip locators");if(!inspect)require(ids.size()==1&&ids.at("$source")==graph.asset,"Graph source identity mismatch");
     Import result;result.inputs[path.lexically_relative(root).generic_string()]=sha256(bytes);std::map<AssetId,Product> products;std::set<AssetId> closure;std::set<AssetId> referenced;std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;
     for(const auto& [node,clip]:graph.clips)referenced.insert(clip);require(referenced.size()==sources.size(),"Graph locator catalogue must match references");
     for(auto clip:referenced){
@@ -81,11 +91,16 @@ Import import_graph(const std::filesystem::path& root,const std::filesystem::pat
         for(auto& product:imported.products){auto [found,inserted]=products.emplace(product.id,product);require(inserted||(found->second.kind==product.kind&&found->second.extension==product.extension&&found->second.bytes==product.bytes&&found->second.required==product.required),"Graph conflicting shared dependency generation");}
         auto definition=decode_clip_manifest(products.at(clip).bytes);clips.emplace(clip,std::make_shared<const AnimationClip>(std::move(definition),products.at(runtime).bytes));
     }
+    std::shared_ptr<const TagDictionary> tags;
+    if(data.contains("tags")){
+        auto tag_path=within(root,tag_source);require(tag_path.extension()==".datags","Graph tag source type");auto tag_id=id(data.at("tags"));auto definition=decode_tag_asset(read(tag_path,65536));require(definition.id==tag_id&&tag_id!=graph.asset&&!closure.contains(tag_id),"Graph tag source identity");
+        tags=definition.dictionary();auto imported=import_effect(root,tag_path,{{"$source",tag_id}},inspect);closure.insert(tag_id);result.inputs.insert(imported.inputs.begin(),imported.inputs.end());for(auto& product:imported.products)products.emplace(product.id,std::move(product));
+    }
     result.product_count=closure.size()+1;result.identities.assign(closure.begin(),closure.end());result.identities.push_back(graph.asset);if(inspect)return result;
     require(products.size()==closure.size(),"Graph closure product count");auto frozen=Json::object();std::vector<AssetId> dependencies;
     for(auto& [asset,product]:products){frozen[asset.text()]=sha256(product.bytes);dependencies.push_back(asset);result.products.push_back(std::move(product));}
     // Compile the actual clips and topology before publishing a catalog head.
-    auto plan=compile(data,clips);data["frozen"]=std::move(frozen);result.products.push_back({graph.asset,"graph","graph.json",data.dump(),std::move(dependencies)});return result;
+    auto plan=compile(data,clips,std::move(tags));data["frozen"]=std::move(frozen);result.products.push_back({graph.asset,"graph","graph.json",data.dump(),std::move(dependencies)});return result;
 }
 }
 }

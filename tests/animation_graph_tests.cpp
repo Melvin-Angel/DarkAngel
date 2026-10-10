@@ -40,6 +40,23 @@ int main(){try{
         auto cooked=load_cooked_clip(registry,assets.cas_path(),id);if(!index)rig=load_cooked_rig(registry,assets.cas_path(),cooked.definition.skeleton);
         clips[index++]=std::make_shared<const AnimationClip>(cooked.definition,cooked.archive);
     }
+    {
+        auto dictionary=std::make_shared<TagDictionary>(std::vector<TagDefinition>{{1,0,"State",AttributeVisibility::Public},{2,1,"State.Moving",AttributeVisibility::Owner},{3,0,"Status.Blocked",AttributeVisibility::Public},{4,0,"Secret",AttributeVisibility::Server}},AssetId::random(),generation);
+        GraphNode selector;selector.id=10;selector.kind=GraphNodeKind::TagSelect;selector.points={{1,0,0},{2,0,0}};selector.requirements={{1},{2,3},{3}};
+        auto nodes=std::vector<GraphNode>{selector,clip_node(1,clips[0]),clip_node(2,clips[1])};
+        auto plan=std::make_shared<const AnimationGraphPlan>(generation,10,nodes,dictionary);AnimationGraphInstance graph(plan);
+        ActorTagSnapshot tags{dictionary->registry(),dictionary->generation(),{}};GraphParameters parameters;parameters.tags=&tags;
+        require(graph.evaluate(parameters).layers[0].clip==clips[0].get(),"Unmatched tag selector branch");
+        tags.values={2};require(graph.advance(1,parameters).layers[0].clip==clips[1].get(),"Matched tag hierarchy/all/any branch");auto saved=graph.state();
+        tags.values={2,3};require(graph.advance(2,parameters).layers[0].clip==clips[0].get()&&graph.state().phase>saved.phase,"None condition returns to shared locomotion clock");
+        auto terminal=graph.state();graph.restore(saved);require(graph.advance(2,parameters).layers[0].clip==clips[0].get()&&graph.state().phase==terminal.phase,"Tag selector correction replay consistency");
+        auto before=graph.state();tags.generation=sha256("stale registry");rejected([&]{graph.advance(3,parameters);});require(graph.state().tick==before.tick&&graph.state().phase==before.phase,"Stale tag snapshot mutated graph clock");
+        {auto fields=std::vector<TagDefinition>(dictionary->definitions().begin(),dictionary->definitions().end());for(TagId id=5;id<=70;++id)fields.push_back({id,id==70?2u:0u,"Extra"+std::to_string(id),AttributeVisibility::Public});auto wide=std::make_shared<const TagDictionary>(fields,dictionary->registry(),sha256("wide tag dictionary"));auto plan=std::make_shared<const AnimationGraphPlan>(generation,10,nodes,wide);ActorTagSnapshot snapshot{wide->registry(),wide->generation(),{70}};GraphParameters input;input.tags=&snapshot;require(AnimationGraphInstance(plan).evaluate(input).layers[0].clip==clips[1].get(),"Tag hierarchy beyond the first 64 dictionary entries");snapshot.values={70,70};rejected([&]{AnimationGraphInstance(plan).evaluate(input);});}
+        tags.generation=dictionary->generation();tags.values={4};rejected([&]{graph.evaluate(parameters);});tags.values={2,2};rejected([&]{graph.evaluate(parameters);});rejected([&]{graph.evaluate({});});
+        nodes[0].requirements={{4},{},{}};rejected([&]{AnimationGraphPlan bad(generation,10,nodes,dictionary);});nodes[0].requirements={{2},{},{1}};rejected([&]{AnimationGraphPlan bad(generation,10,nodes,dictionary);});
+        auto fields=std::vector<TagDefinition>(dictionary->definitions().begin(),dictionary->definitions().end());auto registry=dictionary->registry();*dictionary=TagDictionary(fields,registry,sha256("mutated caller dictionary"));tags={registry,generation,{2}};require(graph.evaluate(parameters).layers[0].clip==clips[1].get(),"Compiled graph borrowed mutable caller tag metadata");
+        std::cout<<"Native tag selector: hierarchy/all/any/none, branch weights/shared clock, replay and stale/private/duplicate/missing snapshot rejection passed\n";
+    }
     auto nodes=linear(clips);auto line=std::make_shared<const AnimationGraphPlan>(generation,10,nodes);nodes[0].points[0].x=-100;
     AnimationGraphInstance first(line),second(line);RigPose pose(rig.definition,rig.archive),oracle(rig.definition,rig.archive);
     auto low=first.evaluate({0,0,0}),high=first.evaluate({10,0,0}),middle=first.evaluate({3,0,0});

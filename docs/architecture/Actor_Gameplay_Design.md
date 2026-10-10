@@ -38,7 +38,7 @@ Plan typed tag-added/removed, effect-applied/removed/stack-changed, ability-acti
 
 ## Graphs and reaction presentation
 
-Existing native graph nodes are Clip/Blend1D/Blend2D with Speed/Forward/Lateral inputs; this is not implemented tag-conditioned transitions or a complete layer/state designer. Plan validated bool/int/float/enum parameters with declared domains and owners: motor speed/local direction, grounded/vertical velocity/movement mode, aim and effective stance/intensity. Graphs consume committed or explicitly predicted/reconciled state; they never decide damage, legal activation or status duration.
+Native graph nodes now include Clip/Blend1D/Blend2D and registered TagSelect conditions; see [tag graph report](../implementation/TAG_GRAPH_REPORT.md). TagSelect performs instantaneous matched/unmatched selection on the shared locomotion phase, not queued state transitions or a complete layer/state designer. Speed/Forward/Lateral remain the measured inputs. Plan validated bool/int/float/enum parameters with declared domains and owners: motor speed/local direction, grounded/vertical velocity/movement mode, aim and effective stance/intensity. Graphs consume committed or explicitly predicted/reconciled state; they never decide damage, legal activation or status duration.
 
 Progressively support tag conditions, stance blend-tree selection, states/transitions, priority/interruption, layers, joint/upper-body masks, additive animation and Composer integration. Fire-to-Earth switching resolves the current stance; exiting stun resolves current locomotion rather than restoring a stale pre-stun stance. Preserve Ozz/rig compatibility, frozen generations, native corrections and motor-achieved root ownership.
 

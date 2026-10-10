@@ -23,6 +23,7 @@ struct CharacterSceneSession::Impl {
     CollisionHistory history;
     std::vector<CollisionMesh> prepared_geometry;
     AnimationGraphInstance graph;
+    GraphPoseInputs graph_inputs;
     RigPose rig;
     std::vector<JointMatrix> matrices;
     SimulationClock clock;
@@ -32,6 +33,7 @@ struct CharacterSceneSession::Impl {
          std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::optional<CharacterSceneCombat> configured)
         :transport(create_loopback(hello)),server(SessionRole::Server,hello),client(SessionRole::Client,hello),graph(std::move(plan)),rig(std::move(definition),archive){
         combat=std::move(configured);require((hello.protocol==2||hello.protocol==3)&&(!combat||hello.protocol==3)&&rig.definition().human,"Character scene requires wire2 and the initial human profile");require(!objects.empty()&&objects.size()<=128&&identity,"Character scene object/player bounds");
+        if(auto tags=graph.tag_dictionary())require(combat&&combat->tags&&combat->tags->registry()==tags->registry()&&combat->tags->generation()==tags->generation(),"Character graph/actor tag registry mismatch");
         host_peer=transport.host->open(hello);client_peer=transport.client->open(hello);
         server.attach(*transport.host,host_peer);client.attach(*transport.client,client_peer);
         for(const auto& box:collision.boxes)require(!box.moving&&!box.dynamic&&!box.sensor,"Character scene initial profile requires static collision");
@@ -49,7 +51,8 @@ struct CharacterSceneSession::Impl {
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags);}
         if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);for(auto id:{player,target}){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(id==player||combat->target_attributes.empty()?combat->attributes:combat->target_attributes,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(id==player||combat->target_attributes.empty()?combat->attributes:combat->target_attributes),combat->tags,combat->effects));}}}
-        matrices=rig.blend(graph.evaluate({}).span());
+        GraphParameters initial_parameters;if(graph.tag_dictionary())initial_parameters.tags=&client.ability_corrections().at(player).ability.tags;
+        graph_inputs=graph.evaluate(initial_parameters);matrices=rig.blend(graph_inputs.span());
     }
     void pump(){server.tick();client.tick();
         if(client.readiness(client_peer)==SessionReadiness::Ready&&!client.collisions().empty()){
@@ -107,10 +110,11 @@ struct CharacterSceneSession::Impl {
         if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(client.public_abilities().at(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
+        if(graph.tag_dictionary())parameters.tags=&client.ability_corrections().at(player).ability.tags;
         auto selected=graph.evaluate(parameters);double stride{};
         for(const auto& layer:selected.span()){const auto& clip=layer.clip->definition();const auto& end=clip.root.back();stride+=layer.weight*std::hypot(end[0],end[2])*60/clip.ticks;}
         if(parameters.speed>.01&&stride>.01)parameters.playback_rate=float(std::clamp(parameters.speed/stride,0.,4.));
-        matrices=rig.blend(graph.advance(tick,parameters).span());
+        graph_inputs=graph.advance(tick,parameters);matrices=rig.blend(graph_inputs.span());
         if(combat){require(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick,"Combat correction delivery bound");const auto& correction=client.ability_corrections().at(player);require(correction.motor.tick==tick,"Combat motor/action atomic clock");if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=rig.sample(*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock)/action_tick_units);}client.acknowledge_ability_correction(player);client.drain_ability_receipts();client.tick();server.tick();}
 
     }
@@ -125,6 +129,7 @@ const World& CharacterSceneSession::presentation()const{return impl_->client.wor
 const MotorState& CharacterSceneSession::motor()const{return impl_->host_motor->state();}
 const MotorState& CharacterSceneSession::predicted_motor()const{return impl_->owner_motor->state();}
 const GraphState& CharacterSceneSession::graph()const{return impl_->graph.state();}
+const GraphPoseInputs& CharacterSceneSession::graph_inputs()const{return impl_->graph_inputs;}
 const std::vector<JointMatrix>& CharacterSceneSession::pose()const{return impl_->matrices;}
 std::size_t CharacterSceneSession::pending_prediction()const{return impl_->owner->pending();}
 unsigned CharacterSceneSession::resynchronizations()const{return impl_->resynchronizations;}

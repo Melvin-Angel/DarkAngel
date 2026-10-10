@@ -27,6 +27,7 @@ public:
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
     unsigned add_graph_blend(AssetService&,AssetId,bool two_dimensional,unsigned first,unsigned second,unsigned third=0);
+    unsigned add_graph_tag_select(AssetService&,AssetId,AssetId registry,TagId,unsigned inactive,unsigned active);
     unsigned duplicate_graph_node(AssetService&,AssetId,unsigned node);
     void connect_graph_input(AssetService&,AssetId,unsigned node,unsigned point,unsigned input);
     void remove_graph_node(AssetService&,AssetId,unsigned node);

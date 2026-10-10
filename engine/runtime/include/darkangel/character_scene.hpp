@@ -35,6 +35,7 @@ public:
     const MotorState& motor() const;
     const MotorState& predicted_motor() const;
     const GraphState& graph() const;
+    const GraphPoseInputs& graph_inputs() const;
     const std::vector<JointMatrix>& pose() const;
     std::size_t pending_prediction() const;
     unsigned resynchronizations() const;

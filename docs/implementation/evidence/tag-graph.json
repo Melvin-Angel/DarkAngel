@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "base_head": "0143057a3b3fd499b682333feddb4a5e5a7d197c",
+  "scope": "Registered native tag-conditioned locomotion selectors; frozen closure, source-free runtime, history/Save/fresh Play and isolated preview",
+  "gates": [
+    {
+      "name": "tag-graph-build",
+      "exit": 0,
+      "seconds": 120.229
+    },
+    {
+      "name": "tag-graph-runtime",
+      "exit": 0,
+      "seconds": 0.41
+    },
+    {
+      "name": "tag-graph-assets",
+      "exit": 0,
+      "seconds": 1.514
+    },
+    {
+      "name": "tag-graph-authoring",
+      "exit": 0,
+      "seconds": 72.837
+    },
+    {
+      "name": "tag-graph-preview-unmatched",
+      "exit": 0,
+      "seconds": 3.499
+    },
+    {
+      "name": "tag-graph-preview-matched",
+      "exit": 0,
+      "seconds": 3.312
+    },
+    {
+      "name": "tag-graph-game",
+      "exit": 0,
+      "seconds": 2.135
+    }
+  ],
+  "source_sha256": {
+    "engine/runtime/include/darkangel/animation_graph.hpp": "be212f30aca2cf34176afef4f1c5856a8c1b1d6ef9fdf2be98ff36766f1a1908",
+    "engine/runtime/animation_graph.cpp": "b7299f6bd69ccfd2c8bfce29db6431e3bc505ff1285da3537ec56ff9b1d9a015",
+    "engine/runtime/character_scene.cpp": "d13075dfd79c395a82ab8d9d16247cb19d7eccc881883d4d10dc9fe76c83e98a",
+    "engine/runtime/include/darkangel/character_scene.hpp": "6c6af51b54490bcf43dd4a6f895bcad9af9a5835cbb9a92292b93c4c36c2fa79",
+    "engine/assets/graph_cooker.cpp": "748b71fc4c565aa04aba4dcf77c06ea1220d6d499ff885fa707b312f35300ec8",
+    "engine/assets/combat_kit_cooker.cpp": "b2751cf854e1a02784b58ac7e974c14e2ff4292706242c72e3c55e04c072e257",
+    "apps/editor/native_authoring.cpp": "dbdb98bcfdf8c95119adb6590f1b735ab443d9ab7575ce3c01e6ea08d37f2215",
+    "apps/editor/native_authoring.hpp": "b2eb2bd1b519f4d0165f1ace546da2a26c0c9bb5c7b6d1c3f1f95f79816bf66a",
+    "apps/editor/editor_authoring.cpp": "2c54707ed00f45a7ad1f555557dfc007471a2f3738e8463cfcdc483b39bad9c7",
+    "apps/editor/editor_ui.hpp": "b20bea6976a601225cb6f62c6714fd2a4cc842fa500a1c667d2a96af336b0a98",
+    "apps/editor/graph_canvas.hpp": "579aec31544bbc3a93fcf6bfef9624fae8eefcee8a86ac633e134c6564d0c8df",
+    "apps/editor/editor_composer.cpp": "7a6cc7e484581c2809bb24b82693f98877a6cacd50b5c765b1a63b8daa6f21b4",
+    "apps/editor/character_preview.cpp": "4cc031cd1f64c6a79a8a17109296590647c140f2580ccedd151b2cdd162edfb1",
+    "apps/editor/character_preview.hpp": "9e156b946c3fcddb948862feaa473489e0a76a9458d8ccf32bc6bb7bc6ab1000",
+    "apps/editor/main.cpp": "37775db74b27360f64881e4562b1687ba9f617a2cc46bcf195e0791604ba406e",
+    "tests/animation_graph_tests.cpp": "8518de85e49e5f098365a695a707f35e9353ffe044199ba09586332097978436",
+    "tests/graph_asset_tests.cpp": "af4fac39528c44eb4c39509efa0a7603e4ee896a32bcdba5b661dfbc77a50efe",
+    "tests/native_authoring_tests.cpp": "d3b3960cd965161d4ce54b96cbfbb3244eb3f8c21c140f47a331b48fbef84289",
+    "scripts/verify_tag_graph.py": "961180092f0da3bcf59ea40f5d2e740f20ee88fc5332876dac51fc758bd42d4a"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor.exe": "b957f56f0bc4851fbd6fedc3bf17871865d2323ff5c4fbb95d27a369c1779f79",
+    "AnimationGraphTests.exe": "8d37b600ea1459b7d99f8f52a7b2ac7629d1b6492dc99b7cb7d81897bf40924b",
+    "GraphAssetTests.exe": "079bc205db5f0fa0a422fad1b53341bea364bf2a3da99157c8fbcf86c2f3783c",
+    "NativeAuthoringTests.exe": "e83f063b6f68e9b1c6f012590e17ffb991bab037f5a84bb570c14c21126c2f04"
+  },
+  "limitations": [
+    "Instant matched/unmatched selection on the existing locomotion clock; no queued state transitions, reaction mapping, additive layers or mask rewrite.",
+    "Live graph uses confirmed owner tags; isolated preview uses explicit manual inputs and never activates gameplay.",
+    "Scripted source/preview/D3D12 evidence, not physical pointer automation.",
+    "M4/M5 In progress; EOS blocked; M6\u2013M9 not started."
+  ]
+}

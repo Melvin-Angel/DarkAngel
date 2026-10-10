@@ -106,18 +106,23 @@ void Shell::draw_action_preview(const nlohmann::json& source){
 void Shell::draw_pose_preview(){
     const auto duration=composer_duration;
     try{
+        auto image=[&]{
+            auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),170.f);
+            const auto pos=ImGui::GetCursorScreenPos();area={pos.x,pos.y,size.x,size.y};
+            ImGui::Image(composer_texture,size);
+            if(ImGui::IsItemHovered()&&ImGui::IsMouseDragging(ImGuiMouseButton_Right)){
+                const auto delta=ImGui::GetIO().MouseDelta;composer_yaw=std::remainder(composer_yaw+delta.x*.01f,6.2831853f);composer_pitch=std::clamp(composer_pitch+delta.y*.01f,-.4f,.6f);
+            }
+            ImGui::TextDisabled("Right-drag preview to orbit.");ImGui::SliderFloat("Preview distance",&composer_distance,1.5f,8.f,"%.1f m");
+            if(composer_info)ImGui::TextWrapped("%s",composer_info().c_str());
+        };
+        const bool graph=graph_preview_asset!=AssetId{}&&graph_preview_asset==authored_selection;
+        if(graph){scrub_composer(composer_tick);composer_visible=true;image();}
         if(ImGui::Button(composer_playing?"Pause preview":"Play preview")){if(composer_tick>=double(duration)/action_tick_units)composer_tick=0;composer_playing=!composer_playing;}
         ImGui::SameLine();if(ImGui::Button("Reset preview")){composer_tick=0;composer_playing=false;}
         ImGui::SameLine();ImGui::Checkbox("Loop preview",&composer_loop);ImGui::SliderFloat("Preview rate",&composer_rate,.1f,2.f,"%.2fx");
-        scrub_composer(composer_tick);composer_visible=true;if(draw_graph_info&&graph_preview_asset==authored_selection)draw_graph_info();
-        auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),170.f);
-        const auto pos=ImGui::GetCursorScreenPos();area={pos.x,pos.y,size.x,size.y};
-        ImGui::Image(composer_texture,size);
-        if(ImGui::IsItemHovered()&&ImGui::IsMouseDragging(ImGuiMouseButton_Right)){
-            const auto delta=ImGui::GetIO().MouseDelta;composer_yaw=std::remainder(composer_yaw+delta.x*.01f,6.2831853f);composer_pitch=std::clamp(composer_pitch+delta.y*.01f,-.4f,.6f);
-        }
-        ImGui::TextDisabled("Right-drag preview to orbit.");ImGui::SliderFloat("Preview distance",&composer_distance,1.5f,8.f,"%.1f m");
-        if(composer_info)ImGui::TextWrapped("%s",composer_info().c_str());
+        if(graph){if(draw_graph_info)draw_graph_info();}
+        else{scrub_composer(composer_tick);composer_visible=true;image();}
     }catch(const std::exception& error){composer_error=error.what();ImGui::TextWrapped("Preview needs attention: %s",error.what());}
 }
 

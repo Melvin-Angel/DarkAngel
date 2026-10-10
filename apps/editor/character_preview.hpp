@@ -28,7 +28,9 @@ public:
     const GraphState& state()const{return graph_.state();}
     const GraphPoseInputs& inputs()const{return inputs_;}
     GraphParameters parameters()const{return parameters_;}
+    const TagDictionary* tag_dictionary()const{return graph_.tag_dictionary();}
 private:AnimationGraphInstance graph_;RigPose pose_;GraphPoseInputs inputs_;GraphParameters parameters_;
+    ActorTagSnapshot tags_;
 };
 struct AuthoredGraphPose {CookedCharacter character;CookedGraph graph;std::unique_ptr<GraphPosePreview> pose;};
 AuthoredGraphPose prepare_authored_graph_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId graph);
