@@ -1,3 +1,5 @@
+Current ability production increment: [independent Ability/Composer](INDEPENDENT_ABILITY_REPORT.md). Native/editor/D3D12 checks passed; new Ability creation defaults to a paired independent timeline. Next: paired-path Save/cook/fresh Play integration, then visual graph authoring. History remains MVP. M4/M5 In progress.
+
 Current history MVP: [source filter report](HISTORY_SOURCE_FILTER_REPORT.md). Build/D3D12 passed; roster filtering preserves commands. History polish stops here per user direction. Next: independent Ability/Composer creation, then substantial authoring/combat integration. M4/M5 In progress.
 
 Current shared history comparison: [HISTORY_SOURCE_COMPARISON_REPORT.md](HISTORY_SOURCE_COMPARISON_REPORT.md). Targeted build/D3D12 checks pass for read-only conflict observation in shared history, restored fixture bytes and unchanged revision/history. Next: source/history filtering and navigation readability. M4/M5 In progress; EOS blocked; M6-M9 not started.

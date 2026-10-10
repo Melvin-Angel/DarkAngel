@@ -1,0 +1,32 @@
+{
+  "gates": [
+    {
+      "name": "independent-ability-build",
+      "exit": 0
+    },
+    {
+      "name": "independent-ability-native",
+      "exit": 0
+    },
+    {
+      "name": "independent-ability-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "independent-ability",
+  "base_head": "00bcfbaa2ec0974f4f89100af2a51acb40de3b0e",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "d42b5708f5d3a84e31e57f916c54e1ee09e5b57a4095f3d0cfb773f0b749bfbf",
+    "apps\\editor\\editor_workspaces.cpp": "75d671f9412aef363e785d2c358956771e85971c4db68cd75144404ee31a97e9",
+    "apps\\editor\\editor_ui.hpp": "70e75fd93c189c0d7219f9ac14a80c855969025bfc41c96a5570e699e33cb506",
+    "apps\\editor\\main.cpp": "80f38cde8e4b642de5ac3e0e06e76dc7568dbf00525c2ec91916a7ed78bf5e17",
+    "apps\\editor\\native_authoring.cpp": "cde679722dce219e3411642ef991402e64879cb3f0ce40d8216b04176b7016e1",
+    "apps\\editor\\native_authoring.hpp": "fd6f491e2b10543fdf7a55062a204f35b5431f4e006f20d8ae8a61207aee3ed6",
+    "tests\\native_authoring_tests.cpp": "c6653970b5b101c14c3304859aaa0b4762231a16af6299ba8a5f7e3bfebb6252",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "Designated Player Kit Play prefix exercises coordinated source publication and full fresh Play in its disposable fixture; other prefixes remain private. M4/M5 In progress."
+  ]
+}

@@ -93,6 +93,20 @@ AssetId NativeAuthoring::create_player(AssetService& assets,AssetId character,As
 }
 AssetId NativeAuthoring::duplicate(AssetService& assets,AssetId id,std::string_view name,bool blank){auto& d=open(assets,id);require(!name.empty()&&name.size()<=64&&std::all_of(name.begin(),name.end(),[](unsigned char c){return std::isalnum(c)||c=='_'||c=='-';}),"Use a name with letters, numbers, underscores or hyphens");auto value=d.value;auto fresh=AssetId::random();value["asset"]=fresh.text();if(value.contains("cues"))for(auto& cue:value["cues"])cue["id"]=AssetId::random().text();if(blank&&value["kind"]=="effect"){value["evaluator"]=0;value["period_ticks"]=0;value["execute_on_apply"]=false;if(value["lifetime"]=="instant"){value["lifetime"]="finite";value["duration_ticks"]=60;}value["granted_tags"]=nlohmann::json::array();value["modifiers"]=nlohmann::json::array();value["cues"]=nlohmann::json::array();}if(blank&&value["kind"]=="ability"){value["costs"]=nlohmann::json::array();value["cooldown_ticks"]=0;for(auto& hit:value["melee"])hit["power"]=0;}
  auto path=std::filesystem::path(d.asset.path).parent_path()/(std::string(name)+std::filesystem::path(d.asset.path).extension().string());return stage_creation(assets,path.generic_string(),std::move(value));}
+AssetId NativeAuthoring::duplicate_ability_with_action(AssetService& assets,AssetId source,std::string_view name,bool blank){
+ // Prepare the two related sources privately; a collision must not leave half a creation.
+ NativeAuthoring candidate=*this;candidate.record_changes(assets,"Edit gameplay fields");
+ auto original=candidate.open(assets,source).value;require(original.at("kind")=="ability","Select a native Ability template");
+ auto action=AssetId::parse(original.at("action").get<std::string>());auto action_source=candidate.open(assets,action).value;
+ require(action_source.at("kind")=="action","Ability requires a native Action Composer");candidate.check_sources(assets,{{source,original},{action,action_source}});
+ auto copied_action=candidate.duplicate(assets,action,name);auto action_command=std::move(candidate.undo_.back());candidate.undo_.pop_back();
+ auto copied_ability=candidate.duplicate(assets,source,name,blank);auto ability_command=std::move(candidate.undo_.back());candidate.undo_.pop_back();
+ auto& draft=candidate.drafts.at(copied_ability);draft.value["action"]=copied_action.text();draft.value["sources"]["action"]=candidate.drafts.at(copied_action).asset.path;
+ draft.saved=draft.value.dump(2)+"\n";candidate.observed_[copied_ability]=draft.value;
+ ability_command.after[copied_ability]=draft.value;ability_command.creations[copied_ability]=draft;
+ action_command.label="Create Ability and independent Composer";action_command.after.insert(ability_command.after.begin(),ability_command.after.end());action_command.creations.insert(ability_command.creations.begin(),ability_command.creations.end());candidate.undo_.push_back(std::move(action_command));candidate.trim_history();
+ *this=std::move(candidate);return copied_ability;
+}
 void NativeAuthoring::assign_player_kit(AssetService& assets,AssetId player,AssetId kit){
  record_changes(assets,"Edit gameplay fields");auto value=open(assets,player).value;auto& target=open(assets,kit);require(value.at("kind")=="player"&&target.value.at("kind")=="combat_kit","Select a Player and native Combat Kit");check_sources(assets,{{player,value},{kit,target.value}});value["loadout"]["kit"]=kit.text();value["sources"]["kit"]=target.asset.path;apply(assets,player,revision_,std::move(value),"Assign Player combat kit");
 }

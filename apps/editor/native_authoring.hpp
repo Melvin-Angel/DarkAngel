@@ -22,6 +22,7 @@ public:
     AssetId create_character(AssetService&,AssetId skin,std::string_view name);
     AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
+    AssetId duplicate_ability_with_action(AssetService&,AssetId,std::string_view name,bool blank=false);
     void assign_player_kit(AssetService&,AssetId player,AssetId kit);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
