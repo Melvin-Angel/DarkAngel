@@ -16,6 +16,7 @@ struct CharacterSceneCombat {
     CombatEvaluator combat_damage;
     std::map<std::uint32_t,EffectEvaluator> effect_evaluators;
     std::vector<std::shared_ptr<const EffectDefinition>> effects;
+    std::vector<AttributeDefinition> target_attributes;std::string actor_generation;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.

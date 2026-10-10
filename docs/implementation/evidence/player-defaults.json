@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "base_head": "82a029c47d19d89f7e7af8bbda0c044f057bf20c",
+  "scope": "Authored Player starting attributes resolved against shared schema and independent target/owner native state",
+  "gates": [
+    {
+      "name": "player-defaults-build",
+      "exit": 0,
+      "seconds": 132.457
+    },
+    {
+      "name": "player-defaults-native",
+      "exit": 0,
+      "seconds": 18.305
+    },
+    {
+      "name": "player-defaults-assets",
+      "exit": 0,
+      "seconds": 9.923
+    },
+    {
+      "name": "player-defaults-fresh-play",
+      "exit": 0,
+      "seconds": 6.815
+    },
+    {
+      "name": "player-defaults-panel",
+      "exit": 0,
+      "seconds": 0.763
+    }
+  ],
+  "source_sha256": {
+    "engine/assets/actor_cooker.cpp": "ce15037c9e000583636a6da0b149fbbcf082d8d8b7e324f096f0d9ec308ae76b",
+    "engine/assets/include/darkangel/actor_assets.hpp": "21de6e2df633b4993fb7464801e067964dd2255c6ce62fd90b9945340a3addd5",
+    "engine/runtime/character_scene.cpp": "ae4ef9f80082bf2e7e9facf5ca7f5a1ec79b31d297fec4b9bea6af24cf537df1",
+    "engine/runtime/include/darkangel/character_scene.hpp": "1aee79fbf719b18b91b39c5a31b9d51a2e5aa5f91ced2d1930b8d393e7a99efc",
+    "engine/assets/asset_service.cpp": "8ffce48c8469c50358214fc6cb0c39f47ea850283105d560c3719343401c4708",
+    "tests/actor_asset_tests.cpp": "125f16608ebf92cdd2a01223a96ef68f07d9777a9def41029bec2b04347e06d9",
+    "apps/editor/native_authoring.cpp": "a25ed678546e068cc7e31ebdee840a54c9626f546c13c7b22b0c2ce6776350dc",
+    "apps/editor/native_authoring.hpp": "3d9acf82e8562a80b9f8785fcf3ce5a9e34608ddf7ed911316684bbadd6a5d9d",
+    "apps/editor/character_preview.cpp": "ac2315ff2f209bb723291d601f2c3f4c8d505d65625bb280f365feea9c567216",
+    "apps/editor/editor_authoring.cpp": "75ce907f2f2bad67a364d009130e3b60290f8acbeedd78bf1b68d85b22bc0082",
+    "apps/editor/editor_ui.cpp": "9c1027d5bf03690f1f5c1389adf54bc17973d574bac3762556d633686d1f5ccd",
+    "apps/editor/editor_ui.hpp": "3d61b653b6c8412957b41353d4265c76c2669efb8fbe122175964044c0456e6b",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "43c0fb9a20a769677838c56145f578e5ce2db4132bbd3df45dc342e544b10145",
+    "apps/editor/main.cpp": "39457fc6bbff9cbd17934a063a10198d7e1e55aaececd37357c37a0d6cfd16ce",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_player_defaults.py": "d6a1e38dfa5b9fdd8b5136e49e86c6d6918e10df90cd04814955e127db1cc13f"
+  },
+  "limitations": [
+    "One scripted D3D12 creation/navigation/history/fresh Play and rendered panels; no physical pointer automation.",
+    "Starting values only; input/movement/camera/masks/equipment and generic NPC configuration remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}
