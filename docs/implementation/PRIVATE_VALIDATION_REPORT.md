@@ -1,0 +1,7 @@
+# Non-publishing native validation — 10 October 2026
+
+Base `6bb71d6`. Validate drafts privately prepares selected source plus dirty/pending drafts and scene/consumer roots through AssetService::prepare_native. Candidate lifetime ends without commit. Sources and catalog heads remain unchanged; immutable CAS products may warm the cache. The form shows a last-validation revision receipt and flags subsequent draft edits. Save always prepares/validates again; this receipt never bypasses publication checks or certifies GPU/Play readiness.
+
+Focused editor/native build, native authoring fixture and D3D12 private validation/routing passed. Native success retains history; negative ability cost rejects without losing its draft, publishing source files or registering pending identities/heads. Undo restores valid content, and subsequent coordinated Save/fresh native gameplay passes. D3D12 validates pending Character/Player and edited ability with native consumer closure while retaining three commands, unchanged sources/scene and stopped gameplay. [Build](evidence/private-validation-build.log), [native](evidence/private-validation-native.log), [D3D12](evidence/private-validation-d3d12.log), [capture](evidence/private-validation.png).
+
+No physical button exercise, crash-atomic publication or multiplayer qualification claimed. M4/M5 In progress; EOS blocked; M6–M9 not started. Next: candidate cook diagnostics identifying the consumer/source context; then focused publication/creation integration as needed.
