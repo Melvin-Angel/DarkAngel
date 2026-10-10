@@ -52,6 +52,7 @@ public:
     char author_name[65]{"new_ability"};std::string author_diagnostic;
     Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{};
     void select_workspace(Workspace);
+    void open_native_asset(Controller&,AssetId);
     void open_tool(ToolView);
     void draw_game(Controller&,unsigned,unsigned,float,double,ImTextureID);
     void draw_auxiliary(Controller&,unsigned,unsigned,float);
