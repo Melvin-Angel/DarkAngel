@@ -1,3 +1,5 @@
+Resumed after the usage reset from `af42b3c`: graph topology checkpoint `9c8062f` is delivered; current [history inspection report](AUTHORING_HISTORY_VIEW_REPORT.md) and STATUS/CONTINUE describe the next completed increment. Older usage/checkpoint observations below are historical, not the current stop instruction. Continue toward10% remaining with owned local commits.
+
 # Current authoring usage handoff — 10 October 2026
 
 Native feature checkpoint: `1ae1a607644e64d759f3feb69669091c13a2fea3` (`1ae1a60`, master). Observed clean tree at 06:04:51 UTC, 23 commits ahead of locally stored origin/master; no fetch or push. This documentation handoff is committed immediately after that feature checkpoint; inspect Git for its own commit and any subsequent local work. Initial session checkpoint was `5c6b52d6690cb3dfbd832fed578ef47b42309412`, clean and 11 ahead. User subsequently explicitly authorized implementation and local commits, stopping near 10% five-hour remaining. The documentation-only design revision was committed as `806010f`; implementation receipts below belong to the later authorization.

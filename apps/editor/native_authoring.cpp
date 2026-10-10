@@ -121,6 +121,14 @@ void NativeAuthoring::cancel_edit(AssetService& assets,std::uint64_t expected,st
 void NativeAuthoring::apply(AssetService& assets,AssetId id,std::uint64_t expected,nlohmann::json value,std::string_view label,bool continuous){
  require(expected==revision_,"Stale authoring command revision");auto& d=open(assets,id);check_sources(assets,{{id,d.value}});auto old=d.value;d.value=std::move(value);try{record_changes(assets,label,continuous);}catch(...){d.value=old;throw;}
 }
+
+std::vector<NativeHistoryEntry> NativeAuthoring::history(bool forward)const{
+ const auto& commands=forward?redo_:undo_;std::vector<NativeHistoryEntry> entries;entries.reserve(commands.size());for(auto it=commands.rbegin();it!=commands.rend();++it){NativeHistoryEntry entry{it->label,{}};for(const auto& [id,value]:it->after)entry.assets.push_back(id);entries.push_back(std::move(entry));}return entries;
+}
+std::vector<NativeHistoryChange> NativeAuthoring::history_changes(bool forward,std::size_t newest)const{
+ const auto& commands=forward?redo_:undo_;require(newest<commands.size(),"History entry no longer exists");const auto& command=commands[commands.size()-1-newest];std::vector<NativeHistoryChange> changes;
+ for(const auto& [id,value]:command.after){auto patch=nlohmann::json::diff(command.before.at(id),value);for(const auto& change:patch){if(changes.size()==128)return changes;auto preview=change.contains("value")?change["value"].dump():std::string("(removed)");if(preview.size()>512)preview=preview.substr(0,512)+"...";changes.push_back({id,change.at("op").get<std::string>(),change.at("path").get<std::string>(),std::move(preview)});}}return changes;
+}
 void NativeAuthoring::travel(AssetService& assets,bool forward){
  record_changes(assets,"Edit gameplay fields");auto& from=forward?redo_:undo_;auto& to=forward?undo_:redo_;require(!from.empty(),"Authoring history is empty");auto command=from.back();const auto& expected=forward?command.before:command.after;const auto& target=forward?command.after:command.before;
  check_sources(assets,expected);for(const auto& [id,value]:expected)require(drafts.at(id).value==value,"Stale history command; draft changed");

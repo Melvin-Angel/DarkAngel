@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "base_head": "9c8062fdc95cbda8955b4fd093cba2e43f4bb8f6",
+  "scope": "Native history command/source snapshots, bounded source change inspection, Undo/Redo navigation and pending-save view",
+  "gates": [
+    {
+      "name": "history-view-build",
+      "exit": 0,
+      "seconds": 34.762
+    },
+    {
+      "name": "history-view-native",
+      "exit": 0,
+      "seconds": 27.682
+    },
+    {
+      "name": "history-view-panel",
+      "exit": 0,
+      "seconds": 1.404
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/native_authoring.cpp": "9032fa3df7129b3cdac7ec0fab1b036ac194c945bff62f7e6e725535f9c0f76c",
+    "apps/editor/native_authoring.hpp": "146a9de638b6b46faa0c1092bf1efba75b55f0839e218614570b2514a41f49a0",
+    "apps/editor/editor_workspaces.cpp": "875de3d06a4449a2145539b00b555d9a455b1eb46c4b773cdb4a425fac4f2fdb",
+    "apps/editor/editor_ui.cpp": "3234548a097f57623f846e75c50336c08016a287d6d04d234fd85dac2aec90f1",
+    "apps/editor/main.cpp": "4e2648d554c364346bce524e1e0e4c7e3c4ed69fba95e4a54c1b3adcd78e88a6",
+    "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
+    "apps/editor/editor_authoring.cpp": "1fc458c5baf5205795d53a03d8b6a5f523e52b2ba0a8b8aa7477164f405a72e4",
+    "apps/editor/editor_ui.hpp": "ad465de50ba0d57f5fcb431c33e55896b028763cb48d4a8e8afb721a0cd26433",
+    "tests/native_authoring_tests.cpp": "e363fa70b45f07730fb0148a1d6a328833be2b2d9e5f081256f5cf47b4a04608",
+    "scripts/verify_authoring_history_view.py": "22a8c24aa463e2cb5eb3517c3acc376cda16ce61e3841999e2f54e900f063de7"
+  },
+  "limitations": [
+    "Native selection/compatibility checks and rendered D3D12 authoring panel; no physical popup typing or pointer automation.",
+    "Native cook/fresh Play remains final compatibility gate; no new runtime schema or generated tags.",
+    "M4/M5 In progress; live EOS blocked."
+  ]
+}

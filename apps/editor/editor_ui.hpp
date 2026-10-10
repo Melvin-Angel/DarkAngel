@@ -8,7 +8,7 @@
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
 enum class Workspace {Scene,Assets,Character,Player,Ability,Animation,Game,Tools,Settings};
-enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases};
+enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
 public:
@@ -21,6 +21,7 @@ public:
     void choose_asset_import();
     void draw_import(Controller&);
     void draw_assets(Controller&,bool expanded=false);
+    void draw_authoring_history(Controller&);
     void draw_authoring(Controller&,unsigned,unsigned,float);
     AssetId graph_preview_asset,graph_character;std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;unsigned graph_node{},graph_new_input{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);

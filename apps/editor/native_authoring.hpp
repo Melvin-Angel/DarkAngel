@@ -9,6 +9,8 @@
 namespace darkangel::editor_app {
 ActionDefinition authoring_action(const nlohmann::json&);
 struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool dirty()const{return nlohmann::json::parse(saved)!=value;}};
+struct NativeHistoryEntry {std::string label;std::vector<AssetId> assets;};
+struct NativeHistoryChange {AssetId asset;std::string operation,path,value;};
 class NativeAuthoring {
 public:
     NativeDraft& open(AssetService&,AssetId);
@@ -37,6 +39,8 @@ public:
     void record_changes(AssetService&,std::string_view label,bool continuous=false);
     void undo(AssetService&);void redo(AssetService&);
     void reload(AssetService&,AssetId);void revert(AssetService&,AssetId);
+    std::vector<NativeHistoryEntry> history(bool redo=false)const;
+    std::vector<NativeHistoryChange> history_changes(bool redo,std::size_t newest_index)const;
     bool can_undo()const{return !undo_.empty();}bool can_redo()const{return !redo_.empty();}
     std::uint64_t revision()const{return revision_;}
     std::map<AssetId,NativeDraft> drafts;
