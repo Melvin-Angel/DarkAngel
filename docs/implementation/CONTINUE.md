@@ -1,3 +1,5 @@
+Current workflow reference inspection: [WORKFLOW_REFERENCE_SEARCH_REPORT.md](WORKFLOW_REFERENCE_SEARCH_REPORT.md). Targeted editor/D3D12 form passes; workflow lists share path/UUID search, rows and selected references expose full identities on hover. Next: invalid binding selection guidance. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current reference usability: [BINDING_NAVIGATION_REPORT.md](BINDING_NAVIGATION_REPORT.md). Targeted editor build and D3D12 form pass; existing binding links reuse shared routing, selector labels sit above full-width fields. Next: workflow asset-list full-path/UUID search and selected-reference inspection. M4/M5 In progress; EOS blocked; M6-M9 not started. Older usage-stop headers below describe the previous window.
 
 Usage stop at9% five-hour remaining (08:27 UTC10 October); native checkpoint `e4bd080`, complete created-authoring slice verified. [Precise handoff](AUTHORING_USAGE_HANDOFF.md) supersedes older next-task instructions. Existing follow-up moved to13:15 Copenhagen after11:13:07 UTC reset. Next: existing binding reference navigation and clipped selector usability. M4/M5 In progress; EOS blocked; M6–M9 not started.
