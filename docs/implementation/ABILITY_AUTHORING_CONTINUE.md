@@ -1,3 +1,5 @@
+Current creation entry increment: [CREATION_ENTRY_REPORT.md](CREATION_ENTRY_REPORT.md). Targeted editor/D3D12 forms pass for direct typed Ability/Effect template controls using staged native creation. Next: schema-derived modifier defaults and related reference navigation. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
 Current selection increment: [CREATION_SELECTION_REPORT.md](CREATION_SELECTION_REPORT.md). Targeted editor/D3D12 checks pass for creation Undo in a visible Player workspace, cleared missing selection, stable Redo and unpublished isolated Character preview. Next: ability/effect creation entry points and typed reference navigation usability. M4/M5 In progress; EOS blocked; M6–M9 not started.
 
 Current reload/history increment: [RELOAD_HISTORY_REPORT.md](RELOAD_HISTORY_REPORT.md). Focused build/native/D3D12 checks pass. Published source reload preserves unrelated pending creation history; pending Revert remains reversible and unpublished Reload is disabled. Next: selection cleanup after creation Undo and focused creation/reference usability. M4/M5 In progress; EOS blocked; M6–M9 not started.
