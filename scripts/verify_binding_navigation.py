@@ -4,7 +4,7 @@ from pathlib import Path
 from msvc_environment import activate
 ROOT=Path(__file__).resolve().parents[1]; B=ROOT/'build/m5-editor-relwithdebinfo'; E=ROOT/'docs/implementation/evidence'
 PREFIX=sys.argv[1] if len(sys.argv)>1 else "binding-navigation"
-EXERCISES={"pending-reference-selection":"--exercise-pending-selection","kit-copy-recovery":"--exercise-kit-copy-undo","binding-links-view":"--exercise-binding-links","reference-draft-state":"--exercise-native-navigation","player-kit-copy":"--exercise-player-kit-copy"}
+EXERCISES={"pending-reference-selection":"--exercise-pending-selection","kit-copy-recovery":"--exercise-kit-copy-undo","binding-links-view":"--exercise-binding-links","reference-draft-state":"--exercise-native-navigation","player-kit-copy":"--exercise-player-kit-copy","player-kit-context":"--exercise-player-kit-context"}
 gates=[]
 def run(name,cmd,env=None):
  name=name.replace('binding-navigation',PREFIX)
