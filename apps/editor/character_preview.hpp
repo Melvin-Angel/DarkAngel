@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/character_scene.hpp>
+#include <darkangel/character_presentation.hpp>
 #include <darkangel/animation_assets.hpp>
 #include <darkangel/actor_assets.hpp>
 #include <darkangel/graph_assets.hpp>
@@ -12,13 +13,16 @@ struct CharacterPreviewResources {AssetId skin;CookedRig rig;std::shared_ptr<con
 // a WorldSession, action activation, motor request or gameplay event.
 class ComposerPosePreview {
 public:
-    ComposerPosePreview(const CharacterPreviewResources&,CookedClip,unsigned action_duration);
+    ComposerPosePreview(const CharacterPreviewResources&,CookedClip,unsigned action_duration,std::shared_ptr<const ActionDefinition> = {});
     const std::vector<JointMatrix>& sample(double tick);
     const ClipDefinition& clip()const{return clip_->definition();}
     std::string_view generation()const{return clip_->archive_generation();}
+    const ActionDefinition* action()const{return action_.get();}
 private:
     std::unique_ptr<AnimationClip> clip_;std::unique_ptr<RigPose> pose_;
+    std::shared_ptr<const ActionDefinition> action_;std::unique_ptr<AnimationGraphInstance> graph_;std::unique_ptr<ActionPoseMixer> mixer_;ActorTagSnapshot tags_;
 };
+std::unique_ptr<ComposerPosePreview> prepare_authored_action_pose(AssetService&,NativeAuthoring&,const CharacterPreviewResources&,AssetId action,AssetId graph);
 struct AuthoredCharacterPose {CookedCharacter character;CookedClip clip;std::unique_ptr<ComposerPosePreview> pose;};
 AuthoredCharacterPose prepare_authored_character_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId clip);
 class GraphPosePreview {

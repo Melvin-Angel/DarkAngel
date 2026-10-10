@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "base_head": "ffcc261712970bebccee17803286a386d8f2f378",
+  "scope": "Native Composer upper-body mask references, complementary locomotion/action presentation, frozen private preview and fresh authoritative Play",
+  "gates": [
+    {
+      "name": "upper-body-build",
+      "exit": 0,
+      "seconds": 60.467
+    },
+    {
+      "name": "upper-body-authoring",
+      "exit": 0,
+      "seconds": 83.785
+    },
+    {
+      "name": "upper-body-public",
+      "exit": 0,
+      "seconds": 0.232
+    },
+    {
+      "name": "upper-body-mask",
+      "exit": 0,
+      "seconds": 0.526
+    },
+    {
+      "name": "upper-body-root",
+      "exit": 0,
+      "seconds": 0.542
+    },
+    {
+      "name": "upper-body-preview",
+      "exit": 0,
+      "seconds": 3.363,
+      "note": "Final control placement and masked preview draw. Native and Game gates retained."
+    },
+    {
+      "name": "upper-body-d3d12",
+      "exit": 0,
+      "seconds": 2.27,
+      "retained_from_editor_sha256": "6202310becb9b27437475f93ca7fc22b4cca3c68f8f1b8ada6fbc567f96a4089"
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/character_preview.cpp": "98976ba5f0112ef3c52dadf50cf52249c7083ec321af5f12465534ea5c474f84",
+    "apps/editor/character_preview.hpp": "b318af5bfb86554316249cf9e340bb8f725a5ea078470e24982190af57af6bfa",
+    "apps/editor/editor_authoring.cpp": "e47a4acc4071f84eb4f34407a37fc25fcd80a31049bd25bff9cd1be194949bf2",
+    "apps/editor/editor_composer.cpp": "5c92623ecfc234c308d8ca47b39bf98211a0b2a52cda7f28eba38518c7d87d1c",
+    "apps/editor/editor_ui.hpp": "a24f8d1f323117240731f8436757c4f82c8814bc64c738577d722af5377d4920",
+    "apps/editor/main.cpp": "29d9df15924bfe14db2f7e532be406c5f682ccc839d59d48d48c5d72962e893a",
+    "apps/editor/native_authoring.cpp": "ac65685ce4bc4a6a6ede1cc99ffddba6165b0a2582295a430d2b4448ebefea0e",
+    "engine/assets/ability_cooker.cpp": "412b3a72b3cc9a248570eb698a2d8e8a8908160c5d026229cd35c9d634d1d6aa",
+    "engine/assets/action_cooker.cpp": "f81324666166ef74152d82c4840ea203102d36613068cb499aa52c6cfb017dae",
+    "engine/assets/assets_internal.hpp": "b4c535c2095517c4aa66a8cd8f0cef34339c182f24d2f339030a96e079fe7dbf",
+    "engine/assets/combat_kit_cooker.cpp": "a1cb247162443bd261017ffec199700df75ac50ab5017b454adfd72b10765b3d",
+    "engine/assets/graph_cooker.cpp": "b3a91afef37f8326bdb8d2de4c1d07d0bbb4e8cd93cf1bae3e24d88204856eb9",
+    "engine/runtime/action.cpp": "e55a15b60a53d2036571c091e1b832d3c30e40edd0b842bdab3794cbca184670",
+    "engine/runtime/animation_graph.cpp": "4f11fa789839891bcab8bf1f2faa75a849dc7e37a9ccef2e73f4930473697833",
+    "engine/runtime/character_presentation.cpp": "03d2b5d3e4efe5f81098b768ace72f6fad8f6f538caf4c753a7c0ccfd4384978",
+    "engine/runtime/character_scene.cpp": "bb0f67f075698a381cf7d5d6703d15ed1858f487d407117652ee90a2b7dc9565",
+    "engine/runtime/include/darkangel/action.hpp": "5ed3b22df6477db6b68c9aaa1e29db13fa8365cea059da1a98da8ea5871560dd",
+    "engine/runtime/include/darkangel/animation_graph.hpp": "a3d57861fce8edf308b04015e21bd41db8857ef8473be3fcea080e70804f62ce",
+    "engine/runtime/include/darkangel/character_presentation.hpp": "b48e8c7552776754efefe029ac094c1ef78e9c1a4144028070ba61154f24559d",
+    "tests/native_authoring_tests.cpp": "ef09b1e2b1563992bfb39efe3fbcbf77dd1e75e2663a8e825caefba56645d1bb",
+    "content/animation/upper_body.damask": "274591039cc1d1c7de4dcf900f71f9838d04cac575202180d331b84840ef3a34",
+    "scripts/verify_upper_body_action.py": "085f55df9eefed0454dda19d7fbd9b897b72c027b5776c15da3bc4f728aca7b7"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor.exe": "15e4d38dcefb86ad6e25fe4f9521bfa07a5fe181f17e3875d203063667623bb1",
+    "NativeAuthoringTests.exe": "b3942a160dfca7a6dbe22d87a7ac67e326e63401d4d2440647013dfbcb158592",
+    "ObservedCharacterPoseTests.exe": "5c0d38a943756ffed89ecc1c9bee63608ff81eea4e95913d49a0a27b8c8befe4"
+  },
+  "limitations": [
+    "One active action plus at most three locomotion layers; masked kit preparation rejects a graph whose bound is four.",
+    "Mask selection reuses existing native weights; no joint painting, gameplay mask/equipment slots, additive reactions or AI.",
+    "Isolated Composer preview samples the frozen locomotion graph at rest with empty simulated tags; reprepare after source edits.",
+    "Scripted native commands and D3D12 form/rendering evidence, not physical pointer input or multiplayer graphical qualification.",
+    "M4/M5 In progress; EOS blocked; M6-M9 not started; publication crash-recovery limits unchanged."
+  ],
+  "final_editor_rebuild": {
+    "exit": 0,
+    "log": "upper-body-form-build.log",
+    "scope": "Mask/root controls placed before timeline; native and Game gates retained."
+  }
+}

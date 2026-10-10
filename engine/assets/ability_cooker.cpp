@@ -95,7 +95,7 @@ Import import_ability(const std::filesystem::path& root,const std::filesystem::p
     require(action_path.extension()==".daaction"&&schema_path.extension()==".daattributes","Ability source dependency type");
     auto action_bytes=read(action_path,65536),schema_bytes=read(schema_path,65536);
     auto action_import=import_action(root,action_path,{{"$source",reference(data.at("action"))}},inspect);
-    auto action_data=json(action_bytes);if(action_data.at("schema")==2&&inspect){action_data.erase("motion");action_data["schema"]=1;}
+    auto action_data=json(action_bytes);if(action_data.at("schema")==2&&inspect){action_data.erase("motion");action_data.erase("mask");action_data["schema"]=1;}
     if(!inspect)for(const auto& product:action_import.products)if(product.id==reference(data.at("action")))action_data=json(product.bytes);
     auto action=std::make_shared<const ActionDefinition>(decode_action_source(action_data.dump()));auto schema=attributes(json(schema_bytes,65536));std::optional<TagAsset> tags;Import tag_import;if(data.contains("tags")){auto path=within(root,locations.at("tags").get<std::string>());require(path.extension()==".datags","Ability tag locator type");tags=decode_tag_asset(read(path,65536));require(tags->id==reference(data.at("tags")),"Ability tag locator identity");tag_import=import_effect(root,path,{{"$source",tags->id}},inspect);}ability(data,schema,action,tags?&*tags:nullptr);
     require(id!=action->id&&id!=schema.id&&schema.id!=action->id,"Combat closure duplicate UUID");

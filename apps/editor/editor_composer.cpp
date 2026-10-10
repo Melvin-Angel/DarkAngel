@@ -96,11 +96,12 @@ void Shell::draw_action_preview(const nlohmann::json& source){
     auto clip=AssetId::parse(source.at("motion").at("clip").get<std::string>());
     const auto duration=source.at("duration").get<unsigned>();
     if(ImGui::Button("Prepare character preview")){
-        try{prepare_composer(clip,duration);composer_clip=clip;composer_duration=duration;composer_error.clear();}
+        try{if(prepare_action_pose)prepare_action_pose(composer_asset);else prepare_composer(clip,duration);composer_clip=clip;composer_duration=duration;composer_error.clear();}
         catch(const std::exception& error){composer_error=error.what();}
     }
     if(!composer_error.empty())ImGui::TextWrapped("Preview needs attention: %s",composer_error.c_str());
     if(composer_clip!=clip||composer_duration!=duration){ImGui::TextWrapped("Prepare the compatible clip to preview this action. Gameplay stays stopped.");return;}
+    if(source.at("slot")=="upper-body")ImGui::TextWrapped("Reprepare after upper-body edits. Preview retains its frozen action and locomotion graph at rest; gameplay stays stopped.");
     draw_pose_preview();
 }
 void Shell::draw_pose_preview(){

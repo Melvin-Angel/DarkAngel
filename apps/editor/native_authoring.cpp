@@ -9,7 +9,7 @@
 namespace darkangel::editor_app {
 namespace {void require(bool v,const char* m){if(!v)throw std::runtime_error(m);}std::string read(const std::filesystem::path& p){std::ifstream f(p,std::ios::binary);require(bool(f),"Cannot read native source");std::string s{std::istreambuf_iterator<char>(f),{}};require(s.size()<=65536,"Native draft size limit");return s;}}
 ActionDefinition authoring_action(const nlohmann::json& source){
- auto core=source;if(core.at("schema")==2){core.erase("motion");core["schema"]=1;}
+ auto core=source;if(core.at("schema")==2){core.erase("motion");core.erase("mask");core["schema"]=1;}
  return decode_action_source(core.dump());
 }
 

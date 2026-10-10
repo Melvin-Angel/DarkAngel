@@ -178,6 +178,7 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
     plan.generation=sha256(identity.str());
 }
 AnimationGraphPlan::~AnimationGraphPlan()=default;
+unsigned AnimationGraphPlan::active_layer_bound()const{return impl_->nodes[impl_->root].active_bound;}
 const TagDictionary* AnimationGraphPlan::tag_dictionary()const{return impl_->tags.get();}
 AnimationGraphInstance::AnimationGraphInstance(std::shared_ptr<const AnimationGraphPlan> plan):plan_(std::move(plan)){
     require(bool(plan_),"Graph plan is required");state_.generation=plan_->impl_->generation;

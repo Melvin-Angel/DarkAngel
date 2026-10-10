@@ -77,6 +77,12 @@ CookedGraph load_cooked_graph(const std::filesystem::path& registry,const std::f
     return {asset,std::move(rig),std::make_shared<const AnimationGraphPlan>(sha256(plan_data.dump()),graph_source.root,std::move(graph_source.nodes),std::move(tags))};
 }
 namespace assets_detail {
+unsigned graph_product_layer_bound(const std::map<AssetId,Product>& products,AssetId graph){
+    auto data=json(products.at(graph).bytes);data.erase("frozen");auto source=decode(data);std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;
+    for(const auto& [node,id]:source.clips)if(!clips.contains(id)){auto clip=decode_clip_manifest(products.at(id).bytes);clips.emplace(id,std::make_shared<const AnimationClip>(clip,products.at(clip.runtime).bytes));}
+    std::shared_ptr<const TagDictionary> tags;if(data.contains("tags"))tags=decode_tag_asset(products.at(id(data.at("tags"))).bytes).dictionary();
+    return compile(data,clips,std::move(tags))->active_layer_bound();
+}
 Import import_graph(const std::filesystem::path& root,const std::filesystem::path& path,const std::map<std::string,AssetId>& ids,bool inspect){
     auto bytes=read(path,65536);auto data=json(bytes,65536);auto sources=data.at("sources");data.erase("sources");require(data.contains("tags")==data.contains("tag_source"),"Graph tag registry/source pair");auto tag_source=data.value("tag_source",std::string{});data.erase("tag_source");auto graph=decode(data);require(sources.is_object()&&!sources.empty()&&sources.size()<=32,"Graph source clip locators");if(!inspect)require(ids.size()==1&&ids.at("$source")==graph.asset,"Graph source identity mismatch");
     Import result;result.inputs[path.lexically_relative(root).generic_string()]=sha256(bytes);std::map<AssetId,Product> products;std::set<AssetId> closure;std::set<AssetId> referenced;std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;

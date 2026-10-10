@@ -13,18 +13,25 @@
 #include <sstream>
 namespace darkangel::editor_app {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
-ComposerPosePreview::ComposerPosePreview(const CharacterPreviewResources& resources,CookedClip cooked,unsigned duration){
+ComposerPosePreview::ComposerPosePreview(const CharacterPreviewResources& resources,CookedClip cooked,unsigned duration,std::shared_ptr<const ActionDefinition> action){
     require(cooked.definition.skeleton==resources.rig.definition.id&&cooked.definition.signature==resources.rig.definition.signature&&cooked.definition.joints==resources.rig.definition.joints.size(),"Composer clip/character rig mismatch");
     require(cooked.definition.ticks&&cooked.definition.ticks*action_tick_units==duration,"Composer clip/action duration mismatch");
     clip_=std::make_unique<AnimationClip>(cooked.definition,cooked.archive);
     pose_=std::make_unique<RigPose>(resources.rig.definition,resources.rig.archive);
+    action_=std::move(action);if(action_){require(action_->motion&&action_->motion->clip.id==clip_->definition().id&&action_->motion->archive_generation==clip_->archive_generation(),"Composer frozen action/clip mismatch");std::array actions{action_};mixer_=std::make_unique<ActionPoseMixer>(*resources.graph,resources.rig.definition,actions);graph_=std::make_unique<AnimationGraphInstance>(resources.graph);if(auto dictionary=graph_->tag_dictionary())tags_={dictionary->registry(),dictionary->generation(),{}};}
     sample(0);
 }
 const std::vector<JointMatrix>& ComposerPosePreview::sample(double tick){
     require(std::isfinite(tick)&&tick>=0&&tick<=clip_->definition().ticks,"Composer scrub tick outside clip");
     // Sampling the exact final tick of a looping clip intentionally uses the
     // existing clip sampler's wrap semantics, identical to native presentation.
-    return pose_->sample(*clip_,tick);
+    if(!action_)return pose_->sample(*clip_,tick);
+    auto state=graph_->state();state.tick=0;state.phase=0;graph_->restore(state);GraphParameters parameters;if(graph_->tag_dictionary())parameters.tags=&tags_;auto inputs=graph_->evaluate(parameters);for(unsigned index=1;index<=unsigned(tick);++index)inputs=graph_->advance(index,parameters);
+    return mixer_->sample(*pose_,inputs,*action_,*clip_,tick);
+}
+std::unique_ptr<ComposerPosePreview> prepare_authored_action_pose(AssetService& assets,NativeAuthoring& author,const CharacterPreviewResources& resources,AssetId action,AssetId graph){
+    author.open(assets,action);author.open(assets,graph);std::vector<NativeSourceEdit> edits;for(const auto& [id,draft]:author.drafts)if(id==action||id==graph||draft.dirty())edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});std::array roots{action,graph};auto candidate=assets.prepare_native(edits,roots);
+    auto frozen=std::make_shared<const ActionDefinition>(load_cooked_action(candidate.registry(),assets.cas_path(),action));require(frozen->motion.has_value(),"Composer action needs a clip");auto prepared=resources;auto cooked_graph=load_cooked_graph(candidate.registry(),assets.cas_path(),graph);require(cooked_graph.rig.definition.id==resources.rig.definition.id&&cooked_graph.rig.definition.signature==resources.rig.definition.signature,"Composer locomotion/character rig mismatch");prepared.graph=cooked_graph.plan;return std::make_unique<ComposerPosePreview>(prepared,load_cooked_clip(candidate.registry(),assets.cas_path(),frozen->motion->clip.id),frozen->duration,frozen);
 }
 AuthoredCharacterPose prepare_authored_character_pose(AssetService& assets,NativeAuthoring& author,AssetId character,AssetId clip){
  auto& draft=author.open(assets,character);require(draft.value.at("kind")=="character","Choose a Character definition");std::vector<NativeSourceEdit> edits;

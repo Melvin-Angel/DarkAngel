@@ -34,6 +34,7 @@ public:
     AnimationGraphPlan(std::string generation, std::uint32_t root, std::vector<GraphNode>,std::shared_ptr<const TagDictionary> = {});
     ~AnimationGraphPlan();
     const TagDictionary* tag_dictionary()const;
+    unsigned active_layer_bound()const;
     AnimationGraphPlan(const AnimationGraphPlan&)=delete;
 private:
     struct Impl;
@@ -46,6 +47,7 @@ public:
     GraphPoseInputs evaluate(GraphParameters) const;
     GraphPoseInputs advance(std::uint64_t tick, GraphParameters);
     const GraphState& state() const { return state_; }
+    unsigned active_layer_bound()const{return plan_->active_layer_bound();}
     const TagDictionary* tag_dictionary()const{return plan_->tag_dictionary();}
     void restore(const GraphState&);
 private:

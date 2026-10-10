@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/asset_id.hpp>
 #include <darkangel/animation.hpp>
+#include <darkangel/joint_mask.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -15,7 +16,7 @@ enum class ActionPhase {Active,Completed,Cancelled};
 enum class ActionEdge {End,Marker,Begin};
 struct ActionBlock {unsigned id{},track{},begin{},end{};ActionBlockKind kind{};std::string key;};
 struct ActionClipBinding {ClipDefinition clip;std::string archive_generation;bool motor_root{};};
-struct ActionDefinition {AssetId id;std::string generation;unsigned duration{},loops{},priority{};bool upper_body{};std::vector<ActionBlock> blocks;std::optional<ActionClipBinding> motion;};
+struct ActionDefinition {AssetId id;std::string generation;unsigned duration{},loops{},priority{};bool upper_body{};std::vector<ActionBlock> blocks;std::optional<ActionClipBinding> motion;std::optional<JointMaskDefinition> mask;};
 ActionDefinition decode_action_source(std::string_view);
 // Pure timeline-local root request. The owning motor applies collision and
 // publishes achieved motion; neither clip sampling nor this helper moves actors.

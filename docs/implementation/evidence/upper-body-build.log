@@ -1,0 +1,15 @@
+[1/22] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[2/22] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[3/22] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[4/20] Scanning C:\DarkAngel\apps\editor\editor_composer.cpp for CXX dependencies
+[5/20] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[6/10] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(116): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(113): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(249): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(69): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[7/10] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[8/10] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[9/10] Linking CXX executable NativeAuthoringTests.exe
+[10/10] Linking CXX executable DarkAngelEditor.exe

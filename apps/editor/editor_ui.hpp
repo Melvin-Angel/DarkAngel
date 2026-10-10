@@ -37,6 +37,7 @@ public:
     char kit_duplicate_name[65]{"new_kit"};
     char character_name[65]{"new_character"},player_name[65]{"new_player"};
     std::function<void(AssetId,unsigned)> prepare_composer;
+    std::function<void(AssetId)> prepare_action_pose;
     std::function<void(double)> scrub_composer;
     std::function<std::string()> composer_info;
     ImTextureID composer_texture{};bool composer_visible{},composer_playing{},composer_loop{};

@@ -25,7 +25,7 @@ void order(ActionBatch& batch){require(batch.events.size()<=512&&batch.traversed
 ActionDefinition decode_action_source(std::string_view bytes){
     using Json=nlohmann::json;require(bytes.size()<=65536,"Action source byte limit");unsigned work{};std::vector<std::set<std::string>> keys;
     auto source=Json::parse(bytes,[&](int depth,Json::parse_event_t e,Json& v){require(depth<=8&&++work<=8192,"Action source work limit");if(e==Json::parse_event_t::object_start)keys.emplace_back();if(e==Json::parse_event_t::key)require(keys.back().insert(v.get<std::string>()).second,"Duplicate action field");if(e==Json::parse_event_t::object_end)keys.pop_back();return true;});
-    require(source.is_object()&&((source.size()==8&&source.at("schema")==1)||(source.size()==10&&source.at("schema")==2))&&source.at("kind")=="action","Action source schema");ActionDefinition definition;definition.id=AssetId::parse(source.at("asset").get<std::string>());
+    require(source.is_object()&&((source.size()==8&&source.at("schema")==1)||(source.size()==10+unsigned(source.contains("mask"))&&source.at("schema")==2))&&source.at("kind")=="action","Action source schema");ActionDefinition definition;definition.id=AssetId::parse(source.at("asset").get<std::string>());
     auto integer=[&](const Json& value,unsigned maximum){require(value.is_number_unsigned()&&value.get<std::uint64_t>()<=maximum,"Action integer range");return value.get<unsigned>();};
     definition.duration=integer(source.at("duration"),600*action_tick_units);require(definition.duration>=action_tick_units,"Action duration/loop work bound");definition.loops=integer(source.at("loops"),8);require(definition.loops>0,"Action finite loop count");definition.priority=integer(source.at("priority"),255);
     auto slot=source.at("slot").get<std::string>();require(slot=="full-body"||slot=="upper-body","Action pose slot");definition.upper_body=slot=="upper-body";
@@ -37,8 +37,14 @@ ActionDefinition decode_action_source(std::string_view bytes){
     }
     if(source.at("schema")==2){
         const auto& binding=source.at("motion");require(binding.is_object()&&binding.size()==3,"Action motion binding fields");ActionClipBinding motion;motion.clip=decode_clip_manifest(binding.at("clip").dump());motion.archive_generation=binding.at("archive_generation").get<std::string>();auto policy=binding.at("policy").get<std::string>();require(policy=="motor"||policy=="none","Action root policy");motion.motor_root=policy=="motor";definition.motion=std::move(motion);
-        const auto& frozen=source.at("frozen");require(frozen.is_object()&&frozen.size()==4,"Action frozen clip/rig closure");for(const auto& [key,value]:frozen.items()){AssetId::parse(key);auto digest=value.get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Action frozen dependency digest");}
+        const auto& frozen=source.at("frozen");require(frozen.is_object()&&frozen.size()==4+unsigned(source.contains("mask")),"Action frozen clip/rig closure");for(const auto& [key,value]:frozen.items()){AssetId::parse(key);auto digest=value.get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Action frozen dependency digest");}
         for(auto dependency:{definition.motion->clip.id,definition.motion->clip.runtime,definition.motion->clip.skeleton})require(frozen.contains(dependency.text()),"Action frozen binding dependency");require(frozen.at(definition.motion->clip.runtime.text())==definition.motion->archive_generation,"Action frozen clip archive generation");validate_motion(definition);
+        if(source.contains("mask")){
+            const auto& mask=source.at("mask");require(mask.is_object()&&mask.size()==7&&mask.at("schema")==1&&mask.at("kind")=="joint_mask"&&definition.upper_body,"Action mask requires upper-body slot");
+            JointMaskDefinition value{AssetId::parse(mask.at("id").get<std::string>()),AssetId::parse(mask.at("skeleton").get<std::string>()),mask.at("signature").get<std::string>(),mask.at("generation").get<std::string>(),mask.at("weights").get<std::vector<float>>()};
+            require(value.skeleton==definition.motion->clip.skeleton&&value.signature==definition.motion->clip.signature&&value.weights.size()==definition.motion->clip.joints&&value.generation.size()==64&&value.generation.find_first_not_of("0123456789abcdef")==value.generation.npos&&frozen.contains(value.id.text())&&frozen.at(value.id.text())==sha256(mask.dump()),"Action mask frozen rig/generation mismatch");
+            for(auto weight:value.weights)require(std::isfinite(weight)&&weight>=0&&weight<=1,"Action mask weight bounds");definition.mask=std::move(value);
+        }
     }
     std::sort(definition.blocks.begin(),definition.blocks.end(),[](const auto& a,const auto& b){return std::tie(a.track,a.id)<std::tie(b.track,b.id);});definition.generation=sha256(source.dump());return definition;
 }
