@@ -246,18 +246,18 @@ int main(){try{
   auto tagged=[](const ActorTagSnapshot& tags,TagId tag){return std::find(tags.values.begin(),tags.values.end(),tag)!=tags.values.end();};
   const double pi=3.141592653589793;
   for(auto [lateral,forward]:{std::pair{1.,0.},std::pair{0.,-1.}}){
-   auto session=make();auto& s=*session;const auto yaw=s.motor().yaw;const auto baseline_resync=s.resynchronizations();const auto origin=s.motor().position;auto target_before=s.observer(role(5),0).frame.motor.position;
+   auto session=make();auto& s=*session;{CharacterSceneInput turn;turn.yaw=.7;for(unsigned n=0;n<3;++n)s.step(turn);}const auto yaw=s.motor().yaw;check(std::abs(yaw-.7)<1e-9,"Fixture look yaw was not applied");const auto baseline_resync=s.resynchronizations();const auto origin=s.motor().position;auto target_before=s.observer(role(5),0).frame.motor.position;
    CharacterSceneInput press;press.yaw=yaw;press.x=lateral;press.z=forward;press.combat_events={{6,InputEdge::Pressed,1000,0,1,false}};s.step(press);CharacterSceneInput idle;idle.yaw=yaw;
-   const auto facing=std::remainder(yaw+std::atan2(lateral,forward),2*pi);
-   check(s.ability()->active&&s.ability()->ability==dodge&&s.predicted_ability()->active&&s.observer(role(4),1).frame.ability.active&&stamina(*s.ability())==85&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9&&std::abs(std::remainder(s.predicted_motor().yaw-facing,2*pi))<1e-9,"Dodge did not activate through authority/prediction/public state, charge Stamina 15 or face its movement direction");
-   while(s.motor().tick<12)s.step(idle);
-   check(tagged(s.ability()->tags,2)&&tagged(s.observer(role(4),12).frame.ability.tags,2)&&tagged(s.ability()->tags,5)&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9,"Dodge invulnerability window or facing lock missing mid-dash");
-   while(s.motor().tick<31)s.step(idle);
+   const auto facing=std::atan2(lateral,forward);
+   check(s.ability()->active&&s.ability()->ability==dodge&&s.predicted_ability()->active&&s.observer(role(4),double(s.motor().tick)).frame.ability.active&&stamina(*s.ability())==85&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9&&std::abs(std::remainder(s.predicted_motor().yaw-facing,2*pi))<1e-9,"Dodge did not activate through authority/prediction/public state, charge Stamina 15 or face its movement direction");
+   const auto started=s.motor().tick-1;while(s.motor().tick<started+12)s.step(idle);
+   check(tagged(s.ability()->tags,2)&&tagged(s.observer(role(4),double(s.motor().tick)).frame.ability.tags,2)&&tagged(s.ability()->tags,5)&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9,"Dodge invulnerability window or facing lock missing mid-dash");
+   while(s.motor().tick<started+31)s.step(idle);
    auto moved=s.motor().position;const double dx=moved.x-origin.x,dz=moved.z-origin.z,along=dx*std::sin(facing)+dz*std::cos(facing),across=dx*std::cos(facing)-dz*std::sin(facing);
    auto predicted=s.predicted_motor().position;
    std::cout<<"Dodge lateral="<<lateral<<" travelled="<<along<<" across="<<across<<" predicted_error="<<std::hypot(predicted.x-moved.x,predicted.z-moved.z)<<" resync_delta="<<s.resynchronizations()-baseline_resync<<'\n';
    check(std::abs(along-5.0)<.05&&std::abs(across)<.05&&std::hypot(predicted.x-moved.x,predicted.z-moved.z)<1e-6&&s.pending_prediction()==0&&s.resynchronizations()==baseline_resync&&!tagged(s.ability()->tags,2)&&s.ability()->active,"Dash distance/direction, prediction agreement or invulnerability expiry failed");
-   while(s.ability()->active&&s.motor().tick<120)s.step(idle);auto rest=s.motor().position;s.step(idle);
+   while(s.ability()->active&&s.motor().tick<started+120)s.step(idle);auto rest=s.motor().position;s.step(idle);
    check(!s.ability()->active&&!s.predicted_ability()->active&&std::abs(std::remainder(s.motor().yaw-yaw,2*pi))<1e-9&&std::hypot(rest.x-moved.x,rest.z-moved.z)<.02&&!tagged(s.ability()->tags,5)&&s.pending_prediction()==0,"After the dodge facing did not return to input rules, the actor kept moving or the lock tag remained");
    auto target_after=s.observer(role(5),double(s.motor().tick)).frame.motor.position;check(std::hypot(target_after.x-target_before.x,target_after.z-target_before.z)<1e-6&&s.presentation().read(s.presentation().find(role(5))).health.current==100&&scene->world().serialize()==baseline,"Dodge affected the other actor or the authoring scene");
    // Cooldown and cost gate a second dodge authoritatively; no local bypass.
@@ -269,7 +269,7 @@ int main(){try{
  {
   // Masks own a kit and a worn visual; a Player equips up to four and starts with one active.
   NativeAuthoring masking;auto character=masking.create_character(assets,human,"masked_character");auto player=masking.create_player(assets,character,kit,"masked_player");
-  auto second_kit=masking.duplicate(assets,kit,"mask_second_kit");auto visual=AssetId::parse(Json::parse(read(source/"masks/horned-mask.glb.daimport"))["id"].get<std::string>());
+  auto second_kit=masking.duplicate(assets,kit,"mask_second_kit");masking.assign_dodge(assets,second_kit,{});auto visual=AssetId::parse(Json::parse(read(source/"masks/horned-mask.glb.daimport"))["id"].get<std::string>());
   auto ember=masking.create_mask(assets,"test_ember",kit,visual),air=masking.create_mask(assets,"test_air",second_kit);auto unmasked=masking.open(assets,player).value;
   masking.equip_mask(assets,player,0,ember);masking.equip_mask(assets,player,2,air);auto first_active=masking.open(assets,player).value;masking.select_mask(assets,player,2);auto equipped=masking.open(assets,player).value;
   check(equipped["loadout"]["masks"]==Json::array({ember.text(),nullptr,air.text(),nullptr})&&equipped["loadout"]["active_mask"]==2&&equipped["sources"]["masks"].size()==2&&first_active["loadout"]["active_mask"]==0,"Mask slots, active slot or locators are wrong");
@@ -283,15 +283,34 @@ int main(){try{
   masking.validate(assets,player,player_roots);check(!std::filesystem::exists(ember_path),"Private mask validation published sources");
   masking.save_all(assets,player_roots);package_authoring(assets,player_roots,root/"mask-air.json");
   auto cooked=load_cooked_player(root/"mask-air.json",assets.cas_path(),player);
-  check(cooked.kit.definition->id==second_kit&&cooked.definition.loadout.kit==kit&&cooked.definition.loadout.active_mask==2&&cooked.masks[0]&&cooked.masks[0]->visual==visual&&cooked.masks[0]->name=="test_ember"&&cooked.masks[2]&&cooked.masks[2]->kit==second_kit&&!cooked.masks[1]&&!cooked.masks[3],"Frozen Player did not resolve its active mask's kit or its four slots");
+  check(cooked.kit.definition->id==second_kit&&cooked.definition.loadout.kit==kit&&cooked.definition.loadout.active_mask==2&&cooked.masks[0]&&cooked.masks[0]->definition.visual==visual&&cooked.masks[0]->definition.name=="test_ember"&&cooked.masks[2]&&cooked.masks[2]->definition.kit==second_kit&&cooked.masks[2]->kit.definition->id==second_kit&&!cooked.masks[1]&&!cooked.masks[3],"Frozen Player did not resolve its active mask's kit or its four slots");
   auto worn_air=load_character_preview(root/"mask-air.json",assets.cas_path(),"player:"+player.text(),skin,role(4),role(5),collision);check(worn_air.combat->kit->id==second_kit&&!worn_air.mask&&worn_air.active_mask==2&&worn_air.mask_names[0]=="test_ember"&&worn_air.mask_names[1].empty(),"Play resources ignored the active mask or invented a visual");
   masking.select_mask(assets,player,0);masking.save_all(assets,player_roots);package_authoring(assets,player_roots,root/"mask.json");
   auto worn=load_character_preview(root/"mask.json",assets.cas_path(),"player:"+player.text(),skin,role(4),role(5),collision);
   check(worn.combat->kit->id==kit&&worn.mask&&worn.mask->model==visual&&worn.mask->mask==ember&&worn.rig.definition.joints[worn.mask->joint].key=="Head_M"&&worn.mask->scale==.01f&&worn.mask->rotation[1]==-90.f&&worn.mask->position[1]==.11f&&worn.mask->tint[1]==.35f&&load_character_preview(root/"mask-air.json",assets.cas_path(),"player:"+player.text(),skin,role(4),role(5),collision).combat->kit->id==second_kit,"Switching the starting mask did not change kit/visual, or the previous package changed");
   auto prepared=prepare_character_preview(scene->plan(),scene->world(),worn,[&](AssetId asset){return load_cooked_model(root/"mask.json",assets.cas_path(),asset);});auto& s=*prepared.second;CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};s.step(press);while(s.motor().tick<30)s.step({});
   check(s.presentation().read(s.presentation().find(role(5))).health.current==60&&s.pending_prediction()==0&&s.pose(role(4))&&worn.mask->joint<s.pose(role(4))->size()&&scene->world().serialize()==baseline,"Masked Player fresh Play failed its authored Heavy or changed the scene");
+  {
+   // Switching the active mask during Play: an ordinary ability intent on the existing wire,
+   // predicted and reconciled, replacing the kit authoritatively.
+   auto dodge=id("royal_district/combat/dodge.daability");auto session=prepare_character_preview(scene->plan(),scene->world(),worn,[&](AssetId asset){return load_cooked_model(root/"mask.json",assets.cas_path(),asset);}).second;auto& w=*session;
+   auto event=[&](unsigned action,InputEdge edge){CharacterSceneInput input;input.yaw=w.motor().yaw;input.combat_events={{action,edge,(w.motor().tick+1)*16667,edge==InputEdge::Released?16667u:0u,edge==InputEdge::Pressed?1.f:0.f,false}};w.step(input);};
+   auto idle=[&](unsigned ticks){for(unsigned n=0;n<ticks;++n){CharacterSceneInput input;input.yaw=w.motor().yaw;w.step(input);}};auto tap=[&](unsigned action){event(action,InputEdge::Pressed);event(action,InputEdge::Released);idle(2);};
+   auto public_loadout=[&]{return w.observer(role(4),double(w.motor().tick)).frame.ability.loadout;};auto settled=[&]{return w.pending_prediction()==0&&w.pending_abilities()==0;};
+   check(worn.combat->loadouts.size()==4&&worn.combat->loadouts[0]&&worn.combat->loadouts[2]&&!worn.combat->loadouts[1]&&!worn.combat->loadouts[3]&&worn.combat->loadout_actions==std::array<std::uint32_t,4>{16,17,18,19}&&worn.masks[0]&&!worn.masks[2]&&worn.combat->loadouts[2]->kit->id==second_kit&&worn.combat->loadouts[2]->kit->slots[unsigned(CombatSlot::Dodge)].ability==AssetId{}&&w.loadout()==0&&public_loadout()==0,"Play resources did not prepare every equipped mask loadout");
+   auto generation=w.ability()->grant_generation;tap(18);
+   check(w.loadout()==2&&w.predicted_loadout()==2&&public_loadout()==2&&w.ability()->grant_generation>generation&&settled(),"Mask switch did not converge through authority, prediction and public state");
+   generation=w.ability()->grant_generation;tap(17);check(w.loadout()==2&&w.ability()->grant_generation==generation&&settled(),"Selecting an empty mask slot changed the loadout");
+   tap(18);check(w.loadout()==2&&w.ability()->grant_generation==generation&&settled(),"Re-selecting the active mask replaced its grants");
+   tap(6);check(!w.ability()->active&&!w.predicted_ability()->active&&settled(),"The second mask's kit has no dodge, yet a dodge started");
+   tap(16);check(w.loadout()==0&&w.predicted_loadout()==0&&public_loadout()==0&&settled(),"Switching back to the first mask failed");
+   double stamina=-1;event(6,InputEdge::Pressed);check(w.ability()->active&&w.ability()->ability==dodge,"The first mask's kit lost its dodge after switching back");for(const auto& attribute:w.ability()->attributes)if(attribute.id==3)stamina=attribute.value;
+   event(6,InputEdge::Released);tap(18);double after=-1;for(const auto& attribute:w.ability()->attributes)if(attribute.id==3)after=attribute.value;
+   check(w.loadout()==2&&!w.ability()->active&&!w.predicted_ability()->active&&after>=stamina&&after<100&&settled()&&w.resynchronizations()<=1&&scene->world().serialize()==baseline,"Switching during an interruptible action did not cancel it cleanly, refunded its cost or changed the scene");
+   std::cout<<"Mask switch: loadout="<<w.loadout()<<" grant_generation="<<w.ability()->grant_generation<<" stamina="<<after<<" pending="<<w.pending_prediction()<<'\n';
+  }
   reaction_fixture["mask_registry"]=(root/"mask.json").generic_string();reaction_fixture["mask_player"]=player.text();
-  std::cout<<"Authored masks: creation, four-slot equip/select/unequip Undo/Redo, duplicate/empty/out-of-range rejection, tint and socket rejection without publication, private validation, coordinated Save, frozen Player resolving the active mask's kit and worn visual on the head socket joint, starting-mask change with previous package retained, and fresh Play passed\n";
+  std::cout<<"Authored masks: creation, four-slot equip/select/unequip Undo/Redo, duplicate/empty/out-of-range rejection, tint and socket rejection without publication, private validation, coordinated Save, frozen Player resolving the active mask's kit and worn visual on the head socket joint, starting-mask change with previous package retained, fresh Play, and in-Play mask switching (accepted, empty slot, re-select, kit-specific dodge, switch back, mid-action cancel) through authority/prediction/public state passed\n";
  }
  Json receipt={{"source",source.generic_string()},{"cache",(root/"c").generic_string()},{"registry",(root/"after.json").generic_string()},{"upper_registry",(root/"upper.json").generic_string()},{"upper_action",independent_action.text()},{"kit",kit.text()},{"ability",copy.text()},{"effect",effect.text()}};receipt.update(reaction_fixture);std::ofstream(std::filesystem::path(DAE_BINARY_DIR)/"authoring-fixture.json")<<receipt.dump(2);std::cout<<"Native authoring: edit/Undo/Redo/coordinated Save, grouped kit/action history, multi-source failure/catalog rollback/stale-writer conflict, cost20/damage40/Burn7, kit closure, fresh Play Health60->39, Stamina80, public status/expiry, immutable prior Play and failed candidate preservation passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

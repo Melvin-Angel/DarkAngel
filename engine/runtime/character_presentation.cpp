@@ -69,7 +69,7 @@ ObservedCharacterPose::ObservedCharacterPose(std::shared_ptr<const AnimationGrap
     std::span<const std::shared_ptr<const ActionDefinition>> actions,
     std::map<AssetId,std::shared_ptr<const AnimationClip>> clips,std::shared_ptr<const TagDictionary> tags,std::span<const std::shared_ptr<const EffectDefinition>> effects,std::shared_ptr<const ActionDefinition> death)
     :graph_(graph),rig_(std::move(rig),archive),clips_(std::move(clips)){
-    require(actions.size()<=8&&clips_.size()<=16,"Observed pose action/clip budget");
+    require(actions.size()<=36&&clips_.size()<=48,"Observed pose action/clip budget");
     tags_=tags?std::make_shared<const TagDictionary>(*tags):std::make_shared<const TagDictionary>(std::vector<TagDefinition>{});
     if(auto dictionary=graph_.tag_dictionary())require(dictionary->registry()==tags_->registry()&&dictionary->generation()==tags_->generation(),"Observed graph/actor tag registry mismatch");
     ActorTagSnapshot empty{tags_->registry(),tags_->generation(),{}};GraphParameters parameters;parameters.tags=&empty;parameters.tag_audience=AttributeVisibility::Public;

@@ -28,7 +28,16 @@ User direction: masks take over what stances did; each mask is worn visibly on a
 - The model still uses the converter's checker test material; only the tint distinguishes elements.
 - The default Royal launcher still starts kit-based Play; choose "Use Player for next fresh Play" on `royal_player` (or pass `--character-clips player:<id> --player-asset <id>`) to play masked.
 
-## Next: switching the active mask during Play (designed, not implemented)
+## Switching the active mask during Play (implemented 11 October 2026)
+
+Implemented as designed below. `AbilityState` holds up to four prepared loadouts (`configure_loadouts`, `WorldSession::configure_ability_loadouts`). A mask-select request is an `AbilityIntent` whose slot value lies just past the ability slots (`loadout_select_slot`), so it uses the existing AbilityCommand wire, operation ledger, duplicate/stale handling and receipts. Accepting it replaces the kit through the existing path (active action cancelled with GrantRemoved, new grant generation, slots re-armed); an empty slot answers Unassigned, the already active slot or a non-press answers InputIgnored, an uninterruptible active action answers Busy, a dead actor Dead. The receipt is accepted but not "committed" (that flag stays reserved for started executions). Owner and public ability snapshots carry the active loadout index (a further wire-shape change inside protocol 3). `restore_prediction` selects the snapshot's loadout before validating, and `OwnerAbilityPrediction` is configured with the same loadouts, so the switch is predicted and reconciled; reconciliation now accepts a newer grant generation from the authoritative baseline. `CharacterSceneCombat` carries the loadouts, the union of their abilities/effects/clips and the `mask.up/right/down/left` input actions; Royal combat rules read effect bindings from every loadout kit. The editor forwards those inputs, draws the worn visual of the confirmed loadout and shows the active mask name in the Game profiler.
+
+Verified: NativeAuthoringTests in-Play block - switch to a second mask whose kit differs (no dodge) converges on authority, prediction and the public snapshot with a new grant generation; selecting an empty slot and re-selecting the active slot change nothing; the second kit's missing dodge cannot start; switching back restores it; switching during an interruptible dodge cancels it without refunding Stamina; prediction pending 0 throughout and the authoring scene unchanged. Full editor-build CTest: 81 of 86, the same five unrelated failures listed in EFFECT_REACTION_REPORT. Also fixed in this change: the dodge facing used look yaw plus the input angle, but movement input is world-space, so it now faces `atan2(x, z)`; the dodge test runs at a non-zero look yaw to cover it.
+
+Not verified or delivered: a D3D12 capture of a switch (tint change), switch over GNS specifically, per-mask death timeline and locomotion graph (the starting mask's stay in use), equipped-versus-selected grants, switch VFX/cooldown, HUD feedback.
+
+### Original design note
+
 
 Inspected against the code on 10 October 2026. The input profile already declares `mask.up/right/down/left` (actions 16-19). Recommended shape, chosen so no parallel request path appears:
 

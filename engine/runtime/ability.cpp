@@ -106,18 +106,43 @@ std::vector<AbilityActionUpdate> AbilityState::stop(AbilityActionReason reason,b
     AbilityActionUpdate update{{owner_,active_->timeline.state().activation},ActionPhase::Cancelled,reason,tick_,active_->timeline.cancel()};
     active_.reset();if(release_tags){sync_action_tags();if(health().current<=0)effects_.death(attributes_);}return {std::move(update)};
 }
-std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const CombatKitDefinition> definition,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions){
+std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const CombatKitDefinition> definition,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions){return install_loadout(prepare_loadout(std::move(definition),input,definitions));}
+std::vector<AbilityActionUpdate> AbilityState::configure_loadouts(std::span<const std::optional<AbilityLoadout>> loadouts,unsigned active){
+    require(loadouts.size()==loadout_slot_count&&active<loadout_slot_count&&loadouts[active],"Ability loadouts need four slots and an equipped active slot");
+    std::array<std::optional<Loadout>,loadout_slot_count> prepared;for(unsigned index=0;index<loadout_slot_count;++index)if(loadouts[index])prepared[index]=prepare_loadout(loadouts[index]->kit,loadouts[index]->input,loadouts[index]->abilities);
+    auto updates=install_loadout(*prepared[active]);loadouts_=std::move(prepared);active_loadout_=active;return updates;
+}
+std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::select_loadout(const AbilityIntent& intent,std::optional<AbilityFailure> failure){
+    const auto index=static_cast<unsigned>(intent.slot)-combat_slot_count;
+    if(!failure){
+        if(!kit_||intent.grant_generation!=kit_->grant_generation())failure=AbilityFailure::StaleGrant;
+        else if(intent.edge!=InputEdge::Pressed||intent.cancelled||index==active_loadout_)failure=AbilityFailure::InputIgnored;
+        else if(!loadouts_[index])failure=AbilityFailure::Unassigned;
+        else if(health().current<=0)failure=AbilityFailure::Dead;
+        else if(active_&&!active_->definition->interruptible)failure=AbilityFailure::Busy;
+    }
+    AbilityRequest request{owner_,intent.operation,intent.grant_generation,intent.slot,InputEvent{},false};std::vector<AbilityActionUpdate> updates;
+    if(!failure){updates=install_loadout(*loadouts_[index]);active_loadout_=index;}
+    // Accepted without an activation: "committed" is reserved for started ability executions.
+    AbilityReceipt receipt{failure?*failure:AbilityFailure::None,{},false,false,intent.operation,tick_,revision_+1};
+    records_.emplace(intent.operation,Record{request,receipt,intent});highest_operation_=intent.operation;++revision_;return {receipt,std::move(updates)};
+}
+AbilityState::Loadout AbilityState::prepare_loadout(std::shared_ptr<const CombatKitDefinition> definition,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions)const{
     require(definition&&definitions.size()<=combat_slot_count,"Ability kit catalogue bound");
     validate_combat_kit(*definition,input);
     std::map<AssetId,std::shared_ptr<const AbilityDefinition>> prepared;
     for(const auto& ability:definitions){require(bool(ability),"Missing ability definition");auto frozen=freeze_ability_definition(*ability,attributes_,&effects_.tags().dictionary());require(prepared.emplace(frozen->id,std::move(frozen)).second,"Duplicate ability definition");}
     std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants;
     for(unsigned i=0;i<combat_slot_count;++i){const auto& slot=definition->slots[i];if(slot.ability!=AssetId{}){auto it=prepared.find(slot.ability);require(it!=prepared.end(),"Missing assigned ability");grants[i]=it->second;}}
+    return {std::move(definition),std::make_shared<const InputProfile>(input),std::move(grants)};
+}
+std::vector<AbilityActionUpdate> AbilityState::install_loadout(const Loadout& loadout){
+    const auto& input=*loadout.input;
     std::optional<CombatKitInstance> candidate=kit_;
     const bool replacing=bool(candidate);
-    if(candidate)candidate->replace(definition,input);else candidate.emplace(definition,input);
+    if(candidate)candidate->replace(loadout.kit,input);else candidate.emplace(loadout.kit,input);
     auto outgoing=stop(AbilityActionReason::GrantRemoved);
-    kit_=std::move(candidate);grants_=std::move(grants);rearm_.fill(replacing);held_.fill({});held_generation_=kit_->grant_generation();
+    kit_=std::move(candidate);grants_=loadout.grants;rearm_.fill(replacing);held_.fill({});held_generation_=kit_->grant_generation();
     for(unsigned i=0;i<combat_slot_count;++i){auto action=std::find_if(input.actions.begin(),input.actions.end(),[&](const auto& a){return a.id==kit_->definition().slots[i].input_action;});input_[i]=action!=input.actions.end()?*action:InputActionDefinition{};}++revision_;return outgoing;
 }
 AbilityFailure AbilityState::validate(const AbilityRequest& request)const{
@@ -232,7 +257,8 @@ std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::request
     }
     if(intent.operation<=highest_operation_)return {{AbilityFailure::StaleOperation,{},false,false,intent.operation,tick_,0},{}};
     if(records_.size()>=128)return {{AbilityFailure::HistoryFull,{},false,false,intent.operation,tick_,0},{}};
-    require(intent.operation&&intent.network==owner_.network&&static_cast<unsigned>(intent.slot)<combat_slot_count,"Wire ability request identity");
+    require(intent.operation&&intent.network==owner_.network&&static_cast<unsigned>(intent.slot)<combat_slot_count+loadout_slot_count,"Wire ability request identity");
+    if(static_cast<unsigned>(intent.slot)>=combat_slot_count)return select_loadout(intent,forced);
     const auto i=static_cast<unsigned>(intent.slot);InputEvent input;input.action=kit_?kit_->definition().slots[i].input_action:0;input.edge=intent.edge;input.cancelled=intent.cancelled;input.value=(intent.edge==InputEdge::Pressed||intent.edge==InputEdge::Hold)?1.f:0.f;
     require(tick_<=std::numeric_limits<std::uint64_t>::max()/1000000,"Wire input clock range");input.time_us=tick_*1000000/60;
     auto held=held_;auto failure=forced;
@@ -283,7 +309,7 @@ AbilityOwnerSnapshot AbilityState::snapshot()const{
     if(active_){result.active_operation=active_->operation;if(active_->cost_phase==AbilityCommitPhase::Reserved)result.reservation=AbilityReservationSnapshot{active_->definition->deferred_commit_block,reserved_costs(*active_->definition),active_->definition->cooldown_group,active_->definition->cooldown_ticks};}
     for(const auto& cooldown:cooldowns_)result.cooldowns.push_back(cooldown);
     result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;result.retained_operations=records_.size();result.highest_operation=highest_operation_;result.retired_through=retired_through_;
-    result.next_activation=next_activation_;
+    result.next_activation=next_activation_;result.loadout=active_loadout_;
     for(unsigned i=0;i<combat_slot_count;++i)result.input[i]={held_[i].active,held_[i].hold_sent,rearm_[i],held_[i].pressed,held_[i].released,held_[i].duration};
     for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
 }
@@ -291,12 +317,14 @@ AbilityOwnerSnapshot AbilityState::owner_snapshot()const{
     auto result=snapshot();result.tags=effects_.tags().snapshot(AttributeVisibility::Owner);auto external=effects_.external_tags(AttributeVisibility::Owner);result.action_only_tags.clear();std::set_difference(result.tags.values.begin(),result.tags.values.end(),external.begin(),external.end(),std::back_inserter(result.action_only_tags));std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});if(result.reservation)std::erase_if(result.reservation->costs,[&](const auto& cost){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& d){return d.id==cost.attribute;})->visibility==AttributeVisibility::Server;});return result;
 }
 AbilityPublicSnapshot AbilityState::public_snapshot()const{
-    AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
+    AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.loadout=active_loadout_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
     result.tags=effects_.tags().snapshot(AttributeVisibility::Public);
     for(const auto& definition:attributes_.definitions())if(definition.visibility==AttributeVisibility::Public||definition.id==health_||definition.id==maximum_health_)result.attributes.push_back({definition.id,attributes_.value(definition.id)});
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.action_definition=active_->definition->action->id;}return result;
 }
 void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
+    // The authoritative loadout decides which prepared kit and grants the rest is checked against.
+    if(source.loadout!=active_loadout_){require(source.loadout<loadout_slot_count&&loadouts_[source.loadout],"Prediction loadout unavailable");const auto& loadout=*loadouts_[source.loadout];kit_.emplace(loadout.kit,*loadout.input);grants_=loadout.grants;for(unsigned i=0;i<combat_slot_count;++i){auto action=std::find_if(loadout.input->actions.begin(),loadout.input->actions.end(),[&](const auto& a){return a.id==loadout.kit->slots[i].input_action;});input_[i]=action!=loadout.input->actions.end()?*action:InputActionDefinition{};}active_loadout_=source.loadout;}
     auto effects=effects_;auto external=source.tags;effects.tags().dictionary().validate_snapshot(source.tags,AttributeVisibility::Owner);
     require(source.action_only_tags.size()<=16,"Prediction action tag provenance bound");std::set<TagId> only;
     for(auto tag:source.action_only_tags)require(only.insert(tag).second&&std::find(source.tags.values.begin(),source.tags.values.end(),tag)!=source.tags.values.end(),"Prediction action tag provenance identity");

@@ -13,13 +13,13 @@ struct OwnerAbilityPrediction::Impl {
     std::map<std::uint64_t,Operation> operations;
     std::vector<Frame> frames;std::vector<AbilityPredictionMotion> motion;
     std::uint64_t highest_submitted{},avatar_epoch{},confirmed_action_operation{};bool resync{};
-    Impl(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue,std::uint64_t epoch,std::shared_ptr<const TagDictionary> tags)
+    Impl(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue,std::uint64_t epoch,std::shared_ptr<const TagDictionary> tags,std::span<const std::optional<AbilityLoadout>> loadouts)
         :state(baseline.owner,baseline.tick,schema,baseline.health_attribute,baseline.maximum_health_attribute),confirmed(baseline),highest_submitted(baseline.highest_operation),avatar_epoch(epoch){
         require(epoch,"Ability prediction avatar epoch");
         if(tags)state.configure_tags(std::move(tags));const auto& dictionary=state.effects().tags().dictionary();
         for(const auto& ability:catalogue)if(ability)for(const auto& binding:ability->action_tags){auto tag_definitions=dictionary.definitions();auto d=std::find_if(tag_definitions.begin(),tag_definitions.end(),[&](const auto& value){return value.id==binding.tag;});require(d!=tag_definitions.end()&&d->visibility!=AttributeVisibility::Server,"Owner prediction cannot grant server-only action tags");}
         for(const auto& ability:catalogue)if(ability)for(const auto* list:{&ability->requirements.all,&ability->requirements.any,&ability->requirements.none})for(auto tag:*list)for(const auto& d:dictionary.definitions())require(d.visibility!=AttributeVisibility::Server||!dictionary.descends(d.id,tag),"Owner prediction cannot depend on server-only tag state");
-        state.equip(std::move(kit),input,catalogue);state.restore_prediction(baseline);
+        if(loadouts.empty())state.equip(std::move(kit),input,catalogue);else state.configure_loadouts(loadouts,baseline.loadout);state.restore_prediction(baseline);
         confirmed_action_operation=baseline.active_operation;
         AttributeSet validation(std::move(schema));
         for(const auto& definition:catalogue)definitions.push_back(freeze_ability_definition(*definition,validation,&dictionary));current=state.snapshot();
@@ -53,8 +53,8 @@ struct OwnerAbilityPrediction::Impl {
     }
     void rebuild(){state.restore_prediction(confirmed);motion.clear();invalidate();for(const auto& frame:frames)motion.push_back(run(frame));current=state.snapshot();}
 };
-OwnerAbilityPrediction::OwnerAbilityPrediction(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions,std::uint64_t epoch,std::shared_ptr<const TagDictionary> tags)
-    :impl_(std::make_unique<Impl>(baseline,owner_schema(std::move(schema)),std::move(kit),input,definitions,epoch,std::move(tags))){}
+OwnerAbilityPrediction::OwnerAbilityPrediction(const AbilityOwnerSnapshot& baseline,std::vector<AttributeDefinition> schema,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> definitions,std::uint64_t epoch,std::shared_ptr<const TagDictionary> tags,std::span<const std::optional<AbilityLoadout>> loadouts)
+    :impl_(std::make_unique<Impl>(baseline,owner_schema(std::move(schema)),std::move(kit),input,definitions,epoch,std::move(tags),loadouts)){}
 OwnerAbilityPrediction::~OwnerAbilityPrediction()=default;
 OwnerAbilityPrediction::OwnerAbilityPrediction(const OwnerAbilityPrediction& other):impl_(std::make_unique<Impl>(*other.impl_)){}
 OwnerAbilityPrediction& OwnerAbilityPrediction::operator=(const OwnerAbilityPrediction& other){if(this!=&other)impl_=std::make_unique<Impl>(*other.impl_);return *this;}
@@ -62,7 +62,7 @@ OwnerAbilityPrediction::OwnerAbilityPrediction(OwnerAbilityPrediction&&)noexcept
 OwnerAbilityPrediction& OwnerAbilityPrediction::operator=(OwnerAbilityPrediction&&)noexcept=default;
 AbilityPredictionMotion OwnerAbilityPrediction::advance(std::uint64_t tick,std::span<const AbilityPredictionInput> input,unsigned rate){
     require(!impl_->resync,"Ability prediction requires resynchronization");try{auto candidate=*impl_;require(candidate.frames.size()<30&&candidate.operations.size()+input.size()<=128&&input.size()<=32,"Ability prediction history overflow");require(tick==candidate.current.tick+1&&rate<=4*action_tick_units,"Ability prediction fixed tick/rate");Impl::Frame frame{tick,rate,{}};
-        for(const auto& value:input){const auto& intent=value.intent;require(intent.tick==tick&&intent.network==candidate.confirmed.owner.network&&intent.avatar_epoch==candidate.avatar_epoch&&intent.grant_generation==candidate.confirmed.grant_generation&&intent.operation>candidate.highest_submitted&&static_cast<unsigned>(intent.slot)<combat_slot_count&&static_cast<unsigned>(intent.edge)<=static_cast<unsigned>(InputEdge::Tapped),"Ability prediction input identity/order");require(!value.parent_operation||(value.parent_operation<intent.operation&&(candidate.operations.contains(value.parent_operation)||value.parent_operation==candidate.confirmed_action_operation)),"Ability prediction parent history unavailable");candidate.highest_submitted=intent.operation;candidate.operations.emplace(intent.operation,Impl::Operation{value});frame.operations.push_back(intent.operation);}
+        for(const auto& value:input){const auto& intent=value.intent;require(intent.tick==tick&&intent.network==candidate.confirmed.owner.network&&intent.avatar_epoch==candidate.avatar_epoch&&intent.grant_generation==candidate.confirmed.grant_generation&&intent.operation>candidate.highest_submitted&&static_cast<unsigned>(intent.slot)<combat_slot_count+loadout_slot_count&&static_cast<unsigned>(intent.edge)<=static_cast<unsigned>(InputEdge::Tapped),"Ability prediction input identity/order");require(!value.parent_operation||(value.parent_operation<intent.operation&&(candidate.operations.contains(value.parent_operation)||value.parent_operation==candidate.confirmed_action_operation)),"Ability prediction parent history unavailable");candidate.highest_submitted=intent.operation;candidate.operations.emplace(intent.operation,Impl::Operation{value});frame.operations.push_back(intent.operation);}
         candidate.invalidate();auto result=candidate.run(frame);candidate.frames.push_back(std::move(frame));candidate.motion.push_back(result);*impl_=std::move(candidate);return result;
     }catch(...){impl_->resync=true;throw;}
 }
@@ -78,7 +78,7 @@ void OwnerAbilityPrediction::receipt(const AbilityOperationNotice& notice){
 }
 bool OwnerAbilityPrediction::reconcile(const AbilityOwnerSnapshot& baseline){
     require(!impl_->resync,"Ability prediction requires resynchronization");if(same_owner(baseline.owner,impl_->confirmed.owner)&&baseline.revision<impl_->confirmed.revision)return false;
-    try{auto candidate=*impl_;require(same_owner(baseline.owner,candidate.confirmed.owner)&&baseline.grant_generation==candidate.confirmed.grant_generation&&baseline.tick>=candidate.confirmed.tick&&baseline.tick<=candidate.current.tick,"Ability prediction baseline continuity");
+    try{auto candidate=*impl_;require(same_owner(baseline.owner,candidate.confirmed.owner)&&baseline.grant_generation>=candidate.confirmed.grant_generation&&baseline.tick>=candidate.confirmed.tick&&baseline.tick<=candidate.current.tick,"Ability prediction baseline continuity");
         if(baseline.revision==candidate.confirmed.revision){require(baseline.tick==candidate.confirmed.tick,"Ability prediction conflicting revision");return false;}
         for(const auto& terminal:baseline.operations){auto found=candidate.operations.find(terminal.operation);if(found==candidate.operations.end())continue;const auto& receipt=found->second.terminal;
             require(found->second.input.intent.tick<=baseline.tick&&(!receipt||(baseline.revision>=receipt->receipt.inclusion_revision&&terminal.failure==receipt->receipt.failure&&terminal.committed==receipt->receipt.committed&&terminal.activation==receipt->receipt.handle.activation)),"Ability prediction conflicting exact inclusion");

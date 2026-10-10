@@ -20,6 +20,11 @@ struct CharacterSceneCombat {
     std::vector<AttributeDefinition> target_attributes;std::string actor_generation;
     // Optional presentation-only death timeline from the frozen kit closure.
     std::shared_ptr<const ActionDefinition> death;
+    // Optional equipped-mask loadouts (empty, or exactly four slots). abilities, effects
+    // and clips above then hold the union so presentation stays prepared across switches.
+    std::vector<std::optional<AbilityLoadout>> loadouts;unsigned active_loadout{};
+    // Semantic input actions that select loadout slots 0-3 (zero = unbound).
+    std::array<std::uint32_t,loadout_slot_count> loadout_actions{};
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
@@ -57,6 +62,8 @@ public:
     const ReactionSample* reaction(StableId)const;
     // Death timeline tick while a prepared actor's checked Health is 0.
     std::optional<double> death(StableId)const;
+    // Confirmed and predicted active loadout (equipped mask slot) of the player.
+    unsigned loadout()const;unsigned predicted_loadout()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

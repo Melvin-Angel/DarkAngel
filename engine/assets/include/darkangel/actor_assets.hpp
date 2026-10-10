@@ -15,7 +15,7 @@ struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
 struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
-struct CookedPlayer {std::array<std::optional<MaskDefinition>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};
+struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};
 std::vector<AttributeDefinition> resolve_actor_attributes(const AttributeAsset&,std::span<const AbilityAttributeValue>);
 CookedCharacter load_cooked_character(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedPlayer load_cooked_player(const std::filesystem::path&,const std::filesystem::path&,AssetId);

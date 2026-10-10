@@ -42,6 +42,12 @@ struct AbilityDefinition {
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
 // The action's own root/lock request plus the ability's authored dash share.
 ActionMotion ability_motion_between(const AbilityDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
+// Up to four prepared loadouts (one per equipped mask). Selecting one is an ordinary
+// ability intent whose slot value lies just past the ability slots, so it shares the
+// operation ledger, receipts, prediction and replay of every other request.
+inline constexpr unsigned loadout_slot_count=4;
+struct AbilityLoadout {std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;std::vector<std::shared_ptr<const AbilityDefinition>> abilities;};
+inline CombatSlot loadout_select_slot(unsigned index){return static_cast<CombatSlot>(combat_slot_count+index);}
 struct AbilityOwnerHandle {
     EntityHandle entity;std::uint64_t session_epoch{},network{};
     auto operator<=>(const AbilityOwnerHandle&)const=default;
@@ -88,6 +94,7 @@ struct AbilityPublicSnapshot {
     std::optional<AbilityActivationHandle> active;std::optional<ActionState> action;
     AssetId action_definition;
     ActorTagSnapshot tags;
+    unsigned loadout{};
 };
 struct AbilityOwnerSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},grant_generation{},revision{};
@@ -108,5 +115,7 @@ struct AbilityOwnerSnapshot {
     std::vector<TagId> action_only_tags;
     std::uint64_t active_operation{};
     std::optional<AbilityReservationSnapshot> reservation;
+    // Index of the active prepared loadout; zero without configured loadouts.
+    unsigned loadout{};
 };
 }

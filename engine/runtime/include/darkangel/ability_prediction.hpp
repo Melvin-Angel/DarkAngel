@@ -14,7 +14,7 @@ class OwnerAbilityPrediction {
 public:
     OwnerAbilityPrediction(const AbilityOwnerSnapshot&,std::vector<AttributeDefinition>,
         std::shared_ptr<const CombatKitDefinition>,const InputProfile&,
-        std::span<const std::shared_ptr<const AbilityDefinition>>,std::uint64_t avatar_epoch=1,std::shared_ptr<const TagDictionary> tags={});
+        std::span<const std::shared_ptr<const AbilityDefinition>>,std::uint64_t avatar_epoch=1,std::shared_ptr<const TagDictionary> tags={},std::span<const std::optional<AbilityLoadout>> loadouts={});
     ~OwnerAbilityPrediction();
     OwnerAbilityPrediction(const OwnerAbilityPrediction&);
     OwnerAbilityPrediction& operator=(const OwnerAbilityPrediction&);

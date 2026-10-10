@@ -12,7 +12,8 @@ void configure_royal_combat(CharacterSceneCombat& combat){
  auto invulnerable=royal_tags::Tag_State_Invulnerable_2;
  std::map<std::pair<AssetId,unsigned>,std::vector<DamageEffectRequest>> bindings;
  for(const auto& effect:combat.effects)if(effect->evaluator!=0&&effect->evaluator!=2)throw std::invalid_argument("Royal effect needs a registered game execution evaluator");
- for(const auto& binding:combat.kit->effect_bindings){auto effect=std::find_if(combat.effects.begin(),combat.effects.end(),[&](const auto& value){return value->id==binding.effect;});if(effect==combat.effects.end())throw std::invalid_argument("Royal missing prepared bound effect");bindings[{binding.ability,binding.hit_block}].push_back({*effect,binding.power});}
+ std::vector<const CombatKitDefinition*> kits{combat.kit.get()};for(const auto& loadout:combat.loadouts)if(loadout&&loadout->kit!=combat.kit)kits.push_back(loadout->kit.get());
+ for(const auto* kit:kits)for(const auto& binding:kit->effect_bindings){auto effect=std::find_if(combat.effects.begin(),combat.effects.end(),[&](const auto& value){return value->id==binding.effect;});if(effect==combat.effects.end())throw std::invalid_argument("Royal missing prepared bound effect");bindings[{binding.ability,binding.hit_block}].push_back({*effect,binding.power});}
  combat.effect_evaluators.emplace(2,[](const EffectContext& context){return std::vector<ResourceDelta>{{2,-context.credit.power}};});
  combat.combat_damage=[bindings=std::move(bindings),invulnerable](const DamageContext& context){
   if(context.target_tags&&context.target_tags->has(invulnerable))return CombatEvaluation{};

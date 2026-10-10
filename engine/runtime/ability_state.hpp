@@ -11,6 +11,8 @@ class AbilityState {
 public:
     AbilityState(AbilityOwnerHandle,std::uint64_t tick,std::vector<AttributeDefinition>,AttributeId health,AttributeId maximum_health);
     std::vector<AbilityActionUpdate> equip(std::shared_ptr<const CombatKitDefinition>,const InputProfile&,std::span<const std::shared_ptr<const AbilityDefinition>>);
+    // Prepares every present loadout, then installs the active one. All-or-nothing.
+    std::vector<AbilityActionUpdate> configure_loadouts(std::span<const std::optional<AbilityLoadout>>,unsigned active);
     AbilityFailure can_activate(const AbilityRequest&)const;
     std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> request(const AbilityRequest&);
     void begin_tick(std::uint64_t);
@@ -62,6 +64,11 @@ private:
     std::map<std::uint32_t,std::uint64_t> cooldowns_;
     std::map<std::uint64_t,Record> records_;
     std::vector<AbilityCommitUpdate> commitments_;
+    struct Loadout {std::shared_ptr<const CombatKitDefinition> kit;std::shared_ptr<const InputProfile> input;std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants;};
+    std::array<std::optional<Loadout>,loadout_slot_count> loadouts_;unsigned active_loadout_{};
+    Loadout prepare_loadout(std::shared_ptr<const CombatKitDefinition>,const InputProfile&,std::span<const std::shared_ptr<const AbilityDefinition>>)const;
+    std::vector<AbilityActionUpdate> install_loadout(const Loadout&);
+    std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> select_loadout(const AbilityIntent&,std::optional<AbilityFailure>);
     AbilityFailure validate(const AbilityRequest&)const;
     std::vector<AbilityActionUpdate> stop(AbilityActionReason,bool release_tags=true);
     void sync_action_tags();

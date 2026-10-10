@@ -150,7 +150,7 @@ struct WorldSession::Impl {
         }
         else if(kind==Kind::AbilityCommand){
             require(role==SessionRole::Server&&hello.protocol>=3&&p.state==SessionReadiness::Ready&&rev==0&&index&&chunks==0&&total==0,"Ability intent direction/profile/readiness");require(r.u64()==1,"Ability intent schema");AbilityIntent intent;intent.network=index;intent.operation=r.u64();intent.tick=r.u64();intent.avatar_epoch=r.u64();intent.grant_generation=r.u64();auto slot=r.u64(),edge=r.u64(),flags=r.u64();r.end();
-            require(intent.operation&&intent.tick&&intent.avatar_epoch&&slot<combat_slot_count&&edge<=static_cast<unsigned>(InputEdge::Tapped)&&flags<=3&&intent.tick<=ability_tick+8,"Ability intent bounded identity/lead/flags");intent.slot=static_cast<CombatSlot>(slot);intent.edge=static_cast<InputEdge>(edge);intent.cancelled=flags&1;intent.replace_active=flags&2;
+            require(intent.operation&&intent.tick&&intent.avatar_epoch&&slot<combat_slot_count+loadout_slot_count&&edge<=static_cast<unsigned>(InputEdge::Tapped)&&flags<=3&&intent.tick<=ability_tick+8,"Ability intent bounded identity/lead/flags");intent.slot=static_cast<CombatSlot>(slot);intent.edge=static_cast<InputEdge>(edge);intent.cancelled=flags&1;intent.replace_active=flags&2;
             require(motor_inputs.contains(index)&&motor_inputs.at(index).owner==p.handle&&abilities.contains(index),"Ability intent ownership denied");if(latest_collision&&(!p.collision_stats.has_ack||p.collision_stats.ack_topology!=latest_collision->topology))return;
             auto& pending=ability_inputs[index];auto found=pending.find(intent.operation);if(found!=pending.end()){require(found->second.intent==intent&&found->second.peer==p.handle,"Conflicting queued ability operation");return;}require(pending.size()<32,"Ability intent queue exhausted; resynchronize");pending.emplace(intent.operation,QueuedAbility{intent,p.handle,false});
         }
@@ -321,6 +321,9 @@ AbilityOwnerHandle WorldSession::configure_abilities(std::uint64_t id,std::vecto
 void WorldSession::equip_combat_kit(AbilityOwnerHandle owner,std::shared_ptr<const CombatKitDefinition> kit,const InputProfile& input,std::span<const std::shared_ptr<const AbilityDefinition>> catalogue){
     auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));for(const auto& ability:catalogue)if(ability)for(const auto& hit:ability->melee)require(bool(s.melee_query)&&s.damage_evaluators.contains(hit.evaluator),"Missing authoritative query binding/game damage evaluator");auto updates=state->equip(std::move(kit),input,catalogue);s.commit_ability(owner.network,std::move(state),updates);
 }
+void WorldSession::configure_ability_loadouts(AbilityOwnerHandle owner,std::span<const std::optional<AbilityLoadout>> loadouts,unsigned active){
+    auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(owner));for(const auto& loadout:loadouts)if(loadout)for(const auto& ability:loadout->abilities)if(ability)for(const auto& hit:ability->melee)require(bool(s.melee_query)&&s.damage_evaluators.contains(hit.evaluator),"Missing authoritative query binding/game damage evaluator");auto updates=state->configure_loadouts(loadouts,active);s.commit_ability(owner.network,std::move(state),updates);
+}
 AbilityFailure WorldSession::can_activate(const AbilityRequest& request)const{return impl_->ability(request.owner).can_activate(request);}
 AbilityReceipt WorldSession::request_ability(const AbilityRequest& request){
     auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(request.owner));auto outcome=state->request(request);s.commit_ability(request.owner.network,std::move(state),outcome.second);return outcome.first;
@@ -433,7 +436,7 @@ void WorldSession::acknowledge_ability_correction(std::uint64_t network){
 namespace darkangel {
 bool WorldSession::submit_ability_intent(const AbilityIntent& intent){
     auto& s=*impl_;s.thread();require(s.role==SessionRole::Client&&s.hello.protocol>=3&&s.peers.size()==1,"Ability intent requires a protocol-3 client");auto& peer=s.peers.begin()->second;
-    require(intent.network&&intent.operation&&intent.tick&&intent.avatar_epoch&&static_cast<unsigned>(intent.slot)<combat_slot_count&&static_cast<unsigned>(intent.edge)<=static_cast<unsigned>(InputEdge::Tapped),"Ability intent identity/edge");
+    require(intent.network&&intent.operation&&intent.tick&&intent.avatar_epoch&&static_cast<unsigned>(intent.slot)<combat_slot_count+loadout_slot_count&&static_cast<unsigned>(intent.edge)<=static_cast<unsigned>(InputEdge::Tapped),"Ability intent identity/edge");
     if(peer.state!=SessionReadiness::Ready||s.ability_resync||!s.ability_corrections.contains(intent.network))return false;const auto& correction=s.ability_corrections.at(intent.network);
     if(correction.world_revision!=s.revision||intent.operation<=correction.ability.retired_through||intent.tick>correction.ability.tick+8)return false;if(!collision_control_ready())return false;
     auto w=header(Kind::AbilityCommand,s.hello,0,intent.network);w.u64(1);for(auto value:{intent.operation,intent.tick,intent.avatar_epoch,intent.grant_generation,std::uint64_t(intent.slot),std::uint64_t(intent.edge),std::uint64_t(intent.cancelled)|std::uint64_t(intent.replace_active)*2})w.u64(value);return s.send(peer,std::move(w));
