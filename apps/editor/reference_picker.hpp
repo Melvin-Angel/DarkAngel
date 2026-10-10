@@ -2,6 +2,7 @@
 #include "native_authoring.hpp"
 #include <fstream>
 #include <algorithm>
+#include <stdexcept>
 
 namespace darkangel::editor_app {
 inline bool reference_search(std::string_view value,std::string_view query){
@@ -13,7 +14,7 @@ inline bool selectable_attribute(const nlohmann::json& definition,bool resource_
 }
 struct ReferenceCandidate {AssetInfo asset;std::string diagnostic;};
 // This is a view of the existing catalog, never a second asset registry.
-inline std::vector<ReferenceCandidate> reference_candidates(AssetService& assets,const NativeAuthoring& author,std::span<const AssetInfo> inventory,std::string_view extension,std::string_view query,const nlohmann::json* attributes=nullptr,std::string_view importer="clip-gltf-v1"){
+inline std::vector<ReferenceCandidate> reference_candidates(AssetService& assets,const NativeAuthoring& author,std::span<const AssetInfo> inventory,std::string_view extension,std::string_view query,const nlohmann::json* attributes=nullptr,std::string_view importer="clip-gltf-v1",bool looping_only=false){
  std::vector<ReferenceCandidate> result;
  for(const auto& asset:inventory){
   if(std::filesystem::path(asset.path).extension()!=extension)continue;
@@ -22,7 +23,7 @@ inline std::vector<ReferenceCandidate> reference_candidates(AssetService& assets
   try{
    if(extension==".glb"){
     std::ifstream file(assets.source_root()/(asset.path+".daimport"));
-    if(!file||nlohmann::json::parse(file).value("importer","")!=importer)continue;
+    if(!file)continue;auto metadata=nlohmann::json::parse(file);if(metadata.value("importer","")!=importer)continue;if(looping_only){if(!metadata.contains("loop")||!metadata.at("loop").is_boolean())throw std::runtime_error("Clip loop metadata is invalid");if(!metadata.at("loop").get<bool>())continue;}
    }
    if(attributes){
     nlohmann::json value;

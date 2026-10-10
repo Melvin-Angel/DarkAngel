@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "base_head": "a0eb75edc477e58fe160f75c4ffc722b3b39a00a",
+  "scope": "Contextual looping-clip filtering in shared native catalog picker, retaining action/Character non-looping selection",
+  "gates": [
+    {
+      "name": "loop-reference-build",
+      "exit": 0,
+      "seconds": 34.214
+    },
+    {
+      "name": "loop-reference-native",
+      "exit": 0,
+      "seconds": 21.844
+    },
+    {
+      "name": "loop-reference-panel",
+      "exit": 0,
+      "seconds": 0.778
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
+    "apps/editor/editor_authoring.cpp": "92f5a17cbcd24944cc6b4eac25e8792dbe113bb56a5d5466155f2af90af79bc9",
+    "apps/editor/editor_ui.hpp": "c7425f8207356b03560e75a86bb7b8f3c08d111ffcf7c038678fccf9ea96e767",
+    "tests/native_authoring_tests.cpp": "e6f8ccff0adae1d966806eb3193a7f6be21a3ac71ccc03e0b0d7b025ddd0e878",
+    "scripts/verify_loop_reference.py": "1e0c626644866abab24895b2f9c3f3a580970520e791b9e19cfd560d64c13c54"
+  },
+  "limitations": [
+    "Native selection/compatibility checks and rendered D3D12 authoring panel; no physical popup typing or pointer automation.",
+    "Native cook/fresh Play remains final compatibility gate; no new runtime schema or generated tags.",
+    "M4/M5 In progress; live EOS blocked."
+  ]
+}

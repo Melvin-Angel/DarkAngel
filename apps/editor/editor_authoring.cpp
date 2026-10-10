@@ -30,13 +30,13 @@ void attribute(const char* label,Json& value,const Json& defs,bool resource_only
   ImGui::EndCombo();
  }
 }
-bool picker(const char* label,AssetId& selected,Controller& c,std::map<std::uint32_t,std::array<char,128>>& filters,const char* extension,const Json* attributes=nullptr,const char* importer="clip-gltf-v1"){
+bool picker(const char* label,AssetId& selected,Controller& c,std::map<std::uint32_t,std::array<char,128>>& filters,const char* extension,const Json* attributes=nullptr,const char* importer="clip-gltf-v1",bool looping_only=false){
  std::string name=selected==AssetId{}?"Choose asset":"Missing asset";
  for(const auto& a:c.asset_inventory)if(a.id==selected)name=a.path;
  bool changed=false;auto& query=filters[ImHashStr((std::string(extension)+"/"+label).c_str())];
  if(ImGui::BeginCombo(label,name.c_str())){
   ImGui::InputTextWithHint("##reference-search","Search path or UUID...",query.data(),query.size());ImGui::SameLine();if(ImGui::SmallButton("Clear"))query.fill(0);
-  auto candidates=reference_candidates(*c.assets,c.authoring,c.asset_inventory,extension,query.data(),attributes,importer);
+  auto candidates=reference_candidates(*c.assets,c.authoring,c.asset_inventory,extension,query.data(),attributes,importer,looping_only);
   if(candidates.empty())ImGui::TextDisabled("No compatible references match.");
   ImGui::BeginChild("##reference-results",{0,240});
   for(const auto& candidate:candidates){const auto& a=candidate.asset;ImGui::PushID(a.id.text().c_str());ImGui::BeginDisabled(!candidate.diagnostic.empty());
@@ -78,7 +78,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  if(graph_preview_asset==selection&&composer_duration){if(graph_preview_hash!=sha256(v.dump()+c.authoring.open(*c.assets,graph_character).value.dump()))ImGui::TextWrapped("Character or graph changed. Prepare again to refresh the frozen preview.");ImGui::SliderFloat("Measured speed",&graph_speed,0,8);ImGui::SliderFloat("Local forward",&graph_forward,-8,8);ImGui::SliderFloat("Local lateral",&graph_lateral,-8,8);double duration=600;if(ImGui::GetIO().AppFocusLost)composer_playing=false;if(composer_playing){composer_tick+=composer_frame_seconds*60*composer_rate;if(composer_tick>=duration){if(composer_loop)composer_tick=std::fmod(composer_tick,duration);else{composer_tick=duration;composer_playing=false;}}}if(ImGui::SliderScalar("Graph preview tick",ImGuiDataType_Double,&composer_tick,&composer_zero,&duration,"%.0f"))composer_playing=false;draw_pose_preview();ImGui::TextWrapped("Measured parameters stay constant across this isolated 600-tick preview. Gameplay remains stopped; no source publication or authoritative action is requested.");}
  node_picker("Root node",v["root"]);if(!graph_node||std::none_of(v["nodes"].begin(),v["nodes"].end(),[&](const auto& node){return node["id"]==graph_node;}))graph_node=v["root"].get<unsigned>();Json inspected=graph_node;node_picker("Inspect node",inspected);graph_node=inspected.get<unsigned>();ImGui::Text("%u native nodes",static_cast<unsigned>(v["nodes"].size()));
  for(auto& node:v["nodes"]){auto id=node["id"].get<unsigned>();if(id!=graph_node)continue;ImGui::PushID(static_cast<int>(id));auto label="Node "+std::to_string(id)+" / "+node["kind"].get<std::string>();if(ImGui::CollapsingHeader(label.c_str(),ImGuiTreeNodeFlags_DefaultOpen)){
- if(node["kind"]=="clip"){auto clip=AssetId::parse(node["clip"].get<std::string>());if(picker("Looping clip",clip,c,reference_filters,".glb")){node["clip"]=clip.text();v["sources"]=Json::object();for(const auto& entry:v["nodes"])if(entry["kind"]=="clip")for(const auto& asset:c.asset_inventory)if(asset.id.text()==entry["clip"].get<std::string>())v["sources"][asset.id.text()]=asset.path;}}
+ if(node["kind"]=="clip"){auto clip=AssetId::parse(node["clip"].get<std::string>());if(picker("Looping clip",clip,c,reference_filters,".glb",nullptr,"clip-gltf-v1",true)){node["clip"]=clip.text();v["sources"]=Json::object();for(const auto& entry:v["nodes"])if(entry["kind"]=="clip")for(const auto& asset:c.asset_inventory)if(asset.id.text()==entry["clip"].get<std::string>())v["sources"][asset.id.text()]=asset.path;}}
  else{if(node["kind"]=="blend1d")choice("Measured parameter",node["parameter"],{"speed","forward","lateral"});else ImGui::TextDisabled("2D coordinates: X = local lateral, Y = local forward");for(unsigned i=0;i<node["points"].size();++i){auto& point=node["points"][i];ImGui::PushID(i);ImGui::Text("Point %u",i);node_picker("Input node",point["input"]);number("X",point["x"]);number("Y",point["y"]);ImGui::PopID();}if(node["kind"]=="blend2d"&&ImGui::TreeNode("Triangle point indices")){for(unsigned i=0;i<node["triangles"].size();++i){ImGui::PushID(i);auto& triangle=node["triangles"][i];integer("A",triangle[0]);integer("B",triangle[1]);integer("C",triangle[2]);ImGui::PopID();}ImGui::TreePop();}}
  }ImGui::PopID();}
  }
