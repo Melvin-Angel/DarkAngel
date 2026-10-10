@@ -1,3 +1,5 @@
+Current native reference-picker increment (10 October 2026): [REFERENCE_PICKER_REPORT.md](REFERENCE_PICKER_REPORT.md) records shared path/UUID query context, draft-aware compatibility, generation diagnostics and resource-only cost choices. Three focused build/native/D3D12 panel gates passed; no physical popup-input or broader milestone claim. Next: isolated ordinary modifier/status preview, then Character presentation/Player common loadout integration. M4/M5 remain In progress; live EOS blocked.
+
 Implementation authorization resumed (10 October 2026): user explicitly authorized native authoring implementation, focused checks and local checkpoint commits, stopping near 10% five-hour remaining. Preserve this design revision and existing checkpoint; no push or subagents. First increment is compatible reference search/filtering and resource-only costs. This header supersedes the documentation-only pause below.
 
 ## Current documentation continuation — 10 October 2026

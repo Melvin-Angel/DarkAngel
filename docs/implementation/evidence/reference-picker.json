@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "base_head": "806010ff868a6ef400a21c0baff8b3384ddefedd",
+  "scope": "Shared draft-aware catalog reference search and resource-only cost choices",
+  "gates": [
+    {
+      "name": "reference-picker-build",
+      "exit": 0,
+      "seconds": 7.976
+    },
+    {
+      "name": "reference-picker-native",
+      "exit": 0,
+      "seconds": 14.98
+    },
+    {
+      "name": "reference-picker-panel",
+      "exit": 0,
+      "seconds": 1.251
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/reference_picker.hpp": "3495152a2f397c30b447ebb42f36c70fd3349cddf53dfd5f6732419b899c8ffe",
+    "apps/editor/editor_authoring.cpp": "d5a338238bdac656305929063e69e78a5fcac6324ce22824ccef3d4a37480ae5",
+    "apps/editor/editor_ui.hpp": "0f61bb96e29c1accc16452a1c8416c4bb7cd9fe4e701aa1919c91020d479a3b0",
+    "tests/native_authoring_tests.cpp": "d1494347c9a1641ad1301ae8bd5f212bb9b44dedb03aae343b183975de1eb850",
+    "scripts/verify_reference_picker.py": "44af520ed7db0a5550262539708accd4b21c3694638ffc74dfe15c1fa6e8b094"
+  },
+  "limitations": [
+    "Native selection/compatibility checks and rendered D3D12 authoring panel; no physical popup typing or pointer automation.",
+    "Native cook/fresh Play remains final compatibility gate; no new runtime schema or generated tags.",
+    "M4/M5 In progress; live EOS blocked."
+  ]
+}

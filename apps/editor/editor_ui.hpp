@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <imgui.h>
 #include <optional>
+#include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
 enum class Workspace {Scene,Assets,Ability,Animation,Game,Tools,Settings};
@@ -31,6 +32,7 @@ public:
     ImTextureID composer_texture{};bool composer_visible{},composer_playing{},composer_loop{};
     double composer_frame_seconds{};float composer_rate{1},composer_yaw{},composer_pitch{.1f},composer_distance{2.7f};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
+    std::map<std::uint32_t,std::array<char,128>> reference_filters;
     char attribute_name[97]{"NewStatistic"};int attribute_kind{};
     int composer_new_kind{};
     AssetId composer_return_ability;

@@ -1,0 +1,9 @@
+# Shared native reference search and resource cost selection
+
+10 October 2026, following design checkpoint `806010f`. Shared Ability/Effect/Composer/kit reference fields now search native catalog paths or UUIDs ignoring ASCII case, retain field query context across workflow changes, show full paths and tooltip catalog generations, and explain unavailable malformed entries. Matching ability/effect attributes use current drafts rather than stale source bytes. Clip fields still admit only normalized clip imports; cook/preparation remains final rig/action compatibility validation.
+
+Ability cost fields list resources only; effect modifier fields retain statistics. Add cost picks an actual resource in the selected schema instead of hardcoded ID3, and disables creation when no resource exists. Invalid existing selections remain visible for correction, not silently rewritten. No runtime schema, source assets, dependencies or protocol changed.
+
+`python scripts/verify_reference_picker.py` passed three focused gates: current editor/native build; NativeAuthoringTests with case-insensitive search, UUID/schema match, unsaved draft compatibility, empty results, malformed source diagnostics and normalized clip exclusion plus existing authoring fixture; one D3D12 Ability panel. Capture was inspected. Receipt `evidence/reference-picker.json`. The malformed-source fixture initially used an already-open draft and correctly did not read broken disk bytes; the fixture was corrected to use a separate empty draft session. Physical popup typing/selection and full network/performance acceptance are not claimed. Normal Save/fresh Play paths are unchanged.
+
+Next: isolated ordinary modifier/status preview, then presentation Character/Player common loadout integration. M4/M5 remain In progress, M6 not started and live EOS blocked. Local checkpoint only; no push.
