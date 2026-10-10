@@ -1,6 +1,6 @@
 # DarkAngel final engine vision
 
-Authoritative final-product target, revised 9 October 2026. All capabilities below are intended targets unless current implementation evidence explicitly establishes otherwise. This document is not a completion receipt.
+Authoritative final-product target, revised 10 October 2026. All capabilities below are intended targets unless current implementation evidence explicitly establishes otherwise. This document is not a completion receipt.
 
 ## Purpose and gameplay
 
@@ -14,6 +14,7 @@ The finished environment enables modular players and NPCs, stance-based eight-sl
 |---|---|
 | This Final Vision | Intended finished capabilities and product boundaries |
 | [Architecture decision log](../architecture/Decision_Log.txt) and its original DOCX | Locked DAE-001–021 contracts and rationale |
+| [Actor gameplay design supplement](../architecture/Actor_Gameplay_Design.md) | Confirmed actor/state ownership, rationale, capability traceability and unresolved design questions |
 | [Implementation handoff / M0–M9 roadmap](../architecture/DarkAngel_Implementation_Handoff.md) | Milestone responsibilities, dependencies and acceptance |
 | [Editor workflow plan](../implementation/EDITOR_WORKFLOW_PLAN.md) | Incremental workflow delivery and focused authoring gates |
 | [STATUS](../implementation/STATUS.md) | Current milestone state and links to current evidence |
@@ -31,6 +32,18 @@ AssetService owns UUID assets, native source formats, import metadata, the rebui
 WorldSession owns server-authoritative gameplay through shared LocalLoopback, GNS and EOS contracts. Identity, epochs, bounded protocol parsing and content compatibility precede activation. Jolt provides collision/queries and the fixed 60 Hz character motor; prediction/reconciliation replays in disposable isolated query state. Camera presentation never validates hits. Native abilities/effects/tags/attributes own atomic commitment, hit validation, cleanup and replication; AI and Luau request approved operations.
 
 Ozz and owned Animation Graph presentation share the canonical human rig; unique nonhuman rigs have explicit compatibility and no arbitrary runtime retargeting. Action Composer owns gameplay timing through the existing native action runtime. Animation/root motion feeds the existing motor-achieved ownership boundary; cosmetic cues do not cause damage. Diligent D3D12/Vulkan and HLSL/DXC own rendering. Recast/Detour and BT.CPP adapters own navigation and native NPC orchestration. Effekseer/VfxService and Amplitude/AudioService own effects and sound. RmlUi supplies runtime UI; ImGui supplies developer tooling. The host SQLite ledger/checkpoint architecture owns persistence. Headless and Shipping retain their dependency and authoring-endpoint exclusions.
+
+## Actor gameplay and extensibility (planned target)
+
+Character supplies reusable presentation; Player/NPC supply common loadout and controller-specific authored configuration. Players and NPCs share Character, Kit, Ability, Effect, Mask and Equipment types and resolve into the same authoritative native actor state. Four equipped masks are distinct from the selected Fire/Earth/Water/Air stance. Masks/equipment may grant owned tags/effects/modifiers, select kits/movement/locomotion and bind cues. Removing one source never removes another source's contribution.
+
+Tags express conditions, attributes quantities, effects changes/lifetimes, typed parameters measured state, and events occurrences. A held tag does not repeatedly trigger commands. Deterministic bounded lifecycle events and existing action/effect cue identities prevent duplicate execution during prediction/replay. Native authority owns consequential state; clients consume replicated or reconciled state for presentation.
+
+Graphs select stance locomotion and reaction states using tags and typed parameters. Composer can present flinch, stagger, stun, knockdown, death, revive, guard break and stance/equipment changes through authored mappings with priorities, interruption, queue/retrigger and termination policies. Stun duration stays in the effect; burning aura can coexist with stun. Native actions/graphs/corrections remain one runtime, and restoration uses current actor state.
+
+Reusable native C++ systems and data-driven assets cover ordinary gameplay. Game-specific bounded Luau and registered C++ extensions cover custom evaluators, special abilities, boss decisions and quest/encounter logic through the same validated APIs. No bypass of costs, hits, effect ownership or networking. Runtime success and practical authoring completeness have separate gates.
+
+The [design supplement and Ashen Roots traceability](../architecture/Actor_Gameplay_Design.md) records source ownership, canonical tag reconciliation, lifecycle cleanup, implementation coverage, milestone dependencies and unanswered schema/event/reaction questions. It retains universal traversal, combos/ranged/defence, cooperative lifecycle, world progression and persistence as intended capabilities even where native coverage is missing.
 
 ## Editor interaction
 
@@ -54,15 +67,15 @@ Manage assets through searchable categories/filters, explicit typed import/reimp
 
 ### 3. Character Designer
 
-Create/duplicate shared character definitions; assemble modular body parts, select skins, inspect skeleton/rig, assign materials, equipment slots/attachments and weapon/effect sockets. Configure base attributes/properties and references to kits and animation/locomotion graphs. Preview animated characters and validate skeletons, sockets and references. Player behavior and NPC decisions remain separate assets referencing shared definitions.
+Create/duplicate shared character definitions; assemble modular body parts, select skins, inspect skeleton/rig, assign materials, equipment slots/attachments and weapon/effect sockets. Configure compatible animation resources and optional presentation defaults. Preview animated characters and validate skeletons, sockets and references. Character owns no starting attributes, Combat Kit, masks, gameplay equipment loadout, player controls or NPC decisions. Player/NPC definitions reference this reusable presentation asset; attachment slots describe physical compatibility.
 
 ### 4. Player Designer
 
-Select shared characters, input profiles, combat kits/stances, movement and targeting settings. Configure free-look, aim, lock-on and dialog cameras, transitions/offsets/limits; spawn/respawn and eventual downed/revive lifecycle; presentation/HUD references. Expose ownership/authority only where legitimately configurable within native rules. Local input/camera preferences remain separate from authoritative gameplay and saves.
+Select shared characters and author a common Actor Loadout: starting attributes, combat kits/stances, four mask slots and equipment. Add input profiles, movement and targeting settings; preview effective source-owned grants/effects and navigate references. Authored configuration is separate from live resources, effects and cooldowns. Configure free-look, aim, lock-on and dialog cameras, transitions/offsets/limits; spawn/respawn and eventual downed/revive lifecycle; presentation/HUD references. Expose ownership/authority only where legitimately configurable within native rules. Local input/camera preferences remain separate from authoritative gameplay and saves.
 
 ### 5. NPC / AI Designer
 
-Create NPCs from shared characters; author native BT.CPP/JSON trees, visualize blackboards, sensing/detection, movement/preferred range and combat decisions. Assign abilities/kits and aggression/recovery/strafe/retreat settings. Test navigation and simulation; inspect decisions and idle/hit/stagger/death behavior; reference dialog/audio. Luau leaves/scorers remain bounded. Do not revive the Unity YAML runtime or merge AI decisions with authoritative ability execution.
+Create NPC definitions referencing shared Characters and the same Actor Loadout structure, with starting attributes/scaling, kits, masks/equipment and faction/targeting. Preview effective grants/effects and navigate references; author native BT.CPP/JSON trees, visualize blackboards, sensing/detection, movement/preferred range and combat decisions. Assign abilities/kits and aggression/recovery/strafe/retreat settings. Test navigation and simulation; inspect decisions and idle/hit/stagger/death behavior; reference dialog/audio. Luau leaves/scorers remain bounded. Do not revive the Unity YAML runtime or merge AI decisions with authoritative ability execution.
 
 ### 6. Ability Designer
 
@@ -74,7 +87,7 @@ Create/duplicate reusable effects and define attributes; browse registered gamep
 
 ### 8. Animation
 
-Preview characters, skeletons and clips; playback and scrub an Action Composer timeline with blocks, cues, hit windows and commit markers. Author graphs/states/transitions/typed parameters, directional locomotion, layers, upper-body/joint masks and additive animation. Visualize root motion and animated sockets; configure motion warping when supported, events/gameplay bindings and character/target previews. Validate and cook through existing graph/action/rig assets. Begin with the minimum useful ability timing/pose preview; retain one action runtime and simulation ownership.
+Preview characters, skeletons and clips; playback and scrub an Action Composer timeline with blocks, cues, hit windows and commit markers. Author graphs with tag conditions and explicitly owned typed bool/int/float/enum parameters, stance blend-tree selection, states/transitions, priority/interruption, directional locomotion, layers, upper-body/joint masks and additive animation. Bind Composer reactions to committed gameplay events/conditions with queue/retrigger/end policies. Preview state changes and restore current locomotion after reactions; animation never owns stun duration or gameplay legality. Visualize root motion and animated sockets; configure motion warping when supported, events/gameplay bindings and character/target previews. Validate and cook through existing graph/action/rig assets. Begin with the minimum useful ability timing/pose preview; retain one action runtime and simulation ownership.
 
 ### 9. VFX Designer
 
@@ -102,7 +115,7 @@ Browse/view/edit Luau sources, validate diagnostics, inspect exposed APIs and as
 
 ### 15. Game / Testing
 
-Run game viewport with Play/Stop/Pause/Step, input monitor/console, CPU/GPU/frame-time profiler, memory/allocation diagnostics, physics/collision/hitboxes and animation/action debugging. Inspect ownership, replication, prediction/corrections, ability grants/costs/cooldowns, active effects/tags/timers and world/encounter state. Configure multiplayer test sessions and supported simulation faults. Always start a fresh isolated session from validated cooked assets; authoring Save never silently patches live authority.
+Run game viewport with Play/Stop/Pause/Step, input monitor/console, CPU/GPU/frame-time profiler, memory/allocation diagnostics, physics/collision/hitboxes and animation/action debugging. Inspect ownership, replication, authoritative versus predicted state/corrections, active mask/loadout, ability grants/costs/cooldowns, attributes/modifier sources, active effects/tags/timers and world/encounter state. Explain tag grant sources, why an ability is blocked, and which condition/event/priority selected a graph state or interrupted a Composer; show relationships rather than raw values alone. Configure multiplayer test sessions and supported simulation faults. Always start a fresh isolated session from validated cooked assets; authoring Save never silently patches live authority.
 
 ## Reusable panels and tools (planned as needed)
 
@@ -150,7 +163,7 @@ The finished tools package supports end-to-end Ashen Roots production and clean 
 | M2 | Asset/catalog/CAS, rendering/editor/transactions/import foundation; later fixed workflows/layouts/material forms extend it incrementally |
 | M3 | Session/identity/transport/protocol compatibility and bounded replication; Game network inspection builds on it; live EOS remains a separate gate |
 | M4 | Jolt motor/collision/streaming, fixed ticks/prediction/reconciliation and movement/network debugging; future traversal requires its own rules |
-| M5 | Initial Character/Player/Ability/Effect/Animation, eight-slot kits, Composer/graphs, native combat/statuses and fresh Play/debugging; cue references precede M7 adapters |
+| M5 | Initial Character/Player/Ability/Effect/Animation, eight-slot kits, common Player loadout, masks/stances/source grants, tag/parameter graphs and Composer reactions, native combat/statuses and fresh Play/debugging; cue references precede M7 adapters |
 | M6 | World cells/ledger, required mesh terrain/splines/scatter, navigation, native NPC AI/authoring, encounter/interaction foundations |
 | M7 | Real VFX/audio adapters/content authoring, cues/lifetimes, materials/presentation refinements |
 | M8 | Host saves/roster/checkpoints/recovery and campaign progression; inventory, quest/dialog/world-state tools and UI expansion depend on approved schemas |

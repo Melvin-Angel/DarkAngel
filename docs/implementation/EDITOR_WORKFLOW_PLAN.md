@@ -98,8 +98,8 @@ All fifteen destinations are final targets, not current functionality. Main tool
 |---|---|
 | Scene / Level Design | Existing scene shell; M4/M5 placement/import foundation, M6 world/terrain/nav/interactions |
 | Assets | M2 catalog/cook foundation, current explicit import/inventory; M4/M5 shared compatible picker/layouts, later category adapters |
-| Character Designer | M5 shared modular character/rig/kit/stat/animation references; equipment/persistence links as supported |
-| Player Designer | M5 input/movement/cameras/targeting/lifecycle/HUD references; M6 interactions, M8 persistence |
+| Character Designer | M5 reusable presentation-only modular character/rig/skin/socket/material/animation references; kits/stats/loadouts belong to Player/NPC |
+| Player Designer | M5 shared Character + common attributes/kit/stance/mask/equipment loadout, input/movement/cameras/targeting/lifecycle/HUD; M6 interactions, M8 persistence |
 | NPC / AI Designer | M6 native trees/profiles/sensing/navigation/debugging; M7 sound and M8 progression references |
 | Ability Designer | M5 delivered first forms/kit bindings; extend practical timing/preview before broader targeting |
 | Gameplay Effects / Attributes | M5 current effect forms, later schema/tag designers and simulator; begin inside Ability |
@@ -130,19 +130,36 @@ Each workflow increment must provide a useful layout, relevant create/select, ty
 
 ## Implementation sequence from the current checkpoint
 
-1. Preserve delivered native source edit/create, Ability/Effect/action forms, typed fields, kit assignment/effect composition, grouped draft history and coordinated Save. Current scope/limits are in NATIVE_AUTHORING_REPORT and NATIVE_AUTHORING_HISTORY_REPORT; no full visual Composer is implied.
-2. Follow [ABILITY_AUTHORING_CONTINUE.md](ABILITY_AUTHORING_CONTINUE.md): read-only native tick ruler/block lanes and scrub selection with isolated compatible frozen clip/character pose preview. Scrubbing never activates gameplay. Keep existing numeric editing/history/Save.
-3. Add focused structural blocks/timeline dragging, graph/layer/mask tools and broader thumbnail/tag picking; extend Character/Player kit assignment and approved modifier/status presets. New tag definitions retain rebuilt-consumer validation; broader formulas/triggers remain separate runtime increments.
-4. Preserve complete Save → Cook → Fresh Play: validate/cook changed consumer closure, rebuild full scene/model/skin/rig/animation/input/kit package, reprepare GPU/CharacterPreviewResources and isolated probe, then start a new WorldSession. Reject dirty drafts, failed publication and stale generations visibly; preserve prior packages. Never only swap a kit or silently patch a live session.
-5. Extend NPC/world, audio/VFX and progression/UI tools with their native milestones. Qualify integrated production usability in M9. Use focused tests per editor increment; full historical matrices belong at actual integration checkpoints or changed shared boundaries.
+At local `5c6b52d`, native source creation/editing, Ability/Effect/action forms, typed references, kit assignment, grouped history/coordinated Save, Composer structure/gestures/playback, isolated compatible pose preview, focused Animation navigation and attribute forms are delivered in their reports. Earlier next-task notes are historical; do not redo these increments.
 
-Creation/deletion Undo, automatic crash recovery, background preparation, broad picker and production-quality designers remain planned. Source files/SQLite publication is normal-failure recoverable, not crash-atomic. Existing numeric action forms and shared action duplication limits remain explicit.
+1. Shared compatible reference search/filter context, readable paths/generations and resource-only ability cost selection.
+2. Isolated ordinary modifier/status preview through current native attributes/effects/tags, with visible ownership and no gameplay activation from preview.
+3. Presentation-only Character references and Player common loadout integration; inspect existing preparation/scene contracts before defining schemas. Preserve unfinished source-protection, attribute and reference validation work.
+4. Keep complete changed-consumer cook, full scene/model/rig/skin/clip/action/input/kit closure validation, GPU/preview preparation and fresh isolated Play. Failed candidates retain old resources; never swap only a kit or patch live authority.
+5. After this foundation, stage the shared Character -> Player/NPC slice across M5/M6, then mask source-grant/graph/reaction integration. Full graphs/layers/masks, NPC/world, M7 cues and M8 progression remain separate milestones.
+
+Use focused changed-behavior checks, normally native fixtures and one backend. Full multiplayer fault/dodge/combo/performance gates remain integration checkpoints. Asset creation/deletion Undo, automatic crash recovery, background preparation and persistent customizable docking remain open. Source/SQLite publication is normal-failure recoverable, not crash-atomic. This task authorizes documentation only; implementation resumes on a later user instruction.
+
+## Confirmed workflow architecture (10 October 2026)
+
+Use the [actor design supplement](../architecture/Actor_Gameplay_Design.md) for ownership/traceability and the vision for all fifteen targets. Fixed customizable dockable workflows and shared typed pickers/reference navigation remain the product direction.
+
+| Workflow | Planned authoring/debugging extension |
+|---|---|
+| Character | Physical/visual assembly, rig/skin/sockets/materials, animation compatibility and presentation defaults; no intrinsic gameplay loadout |
+| Player | Character plus common loadout, four masks/equipment, starting attributes, kits/stances, input/cameras/lifecycle/progression; effective source grants/effects preview |
+| NPC | Same loadout types plus native tree/profile/sensing/navigation/faction/lifecycle; same authoritative combat APIs |
+| Ability / Effect | Requirements/grants, costs/cooldowns, effect bindings/modifiers/duration/period/stacks, hit-window associations and registered evaluators with reference validation |
+| Animation | Tags and typed parameter conditions, blend selection/transitions, layers/masks, event/reaction Composer bindings, priority/interruption and state simulation |
+| Game | Explain source-owned tags/modifiers, effect timers/stacks, blocked ability reasons, graph/reaction selection, Composer interruptions, selected mask and predicted/authoritative differences |
+
+These extensions are planned beyond current forms; a workspace destination alone is not authoring completeness. No new tag schema, mask manager, event bus or action runtime is introduced.
 
 ## Combat-kit and locomotion direction (9 October 2026)
 
 The initial game-facing kit exposes Light Attack, Heavy Attack, Ranged Light, Ranged Heavy, Spell 1, Spell 2, Block and Parry. Each slot binds a distinct stable InputManager action, and may have no ability assigned. The ability owns interpretation of Pressed/Hold/Released/Tapped, charge thresholds and cancellation; the kit does not convert all slots into press-to-cast. Shared ability definitions may occupy multiple slots with separate grant/slot identity. Future game profiles may define fewer/more slots; the initial eight-slot layout is an explicit bounded profile rather than a universal engine constraint.
 
-A kit references its locomotion stance/set. Character authoring assigns a base locomotion set and a combat kit; the equipped kit can select the combat stance. Runtime replacement must prepare outgoing action/grant cleanup and stance transition, publish atomically, preserve attribution of already applied effects/projectiles, and reject stale input/grant events. Replacement does not imply resource refunds or clear unrelated effects. Ashen Roots mask items can reference kits; a future game-owned Luau equipment script requests kit swaps. No mask/equipment mechanism is to be baked into the engine or implemented in this increment.
+A kit references its locomotion stance/set. Character authoring defines compatible animation/presentation defaults; Player/NPC common loadout authoring assigns kits, starting attributes, masks and equipment. Effective selected kit/stance can select combat locomotion. Runtime replacement must prepare outgoing action/grant cleanup and stance transition, publish atomically, preserve attribution of already applied effects/projectiles, and reject stale input/grant events. Replacement does not imply resource refunds or clear unrelated effects. Ashen Roots mask items can reference kits; a future game-owned Luau equipment script requests kit swaps. Reusable native source-owned grant/effect/loadout policies are planned; mask-specific rules are authored data or approved game extensions. None is implemented by this documentation revision.
 
 The locomotion set is a native versioned Animation Graph asset, conceptually serving the animator-controller role. Extend the existing compiled clip/1D/2D blend plan into typed bool/int/float/enum parameters, declared enum domains, validated transitions and state/event inputs. Scripts use checked IDs and typed setters, never string-driven arbitrary mutation or direct pose/root authority. Character state includes IsInAir and typed OnJumped/OnLanded/OnDamaged events, with simulation tick and stable occurrence identity. Graphs consume committed or explicitly predicted character state; replay deduplicates presentation and events. Locomotion, combat layering/masks/additive slots and Action Composer timing must share the canonical rig, immutable generations and existing motor-achieved root ownership.
 

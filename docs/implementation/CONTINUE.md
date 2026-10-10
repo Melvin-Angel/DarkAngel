@@ -1,3 +1,28 @@
+Implementation authorization resumed (10 October 2026): user explicitly authorized native authoring implementation, focused checks and local checkpoint commits, stopping near 10% five-hour remaining. Preserve this design revision and existing checkpoint; no push or subagents. First increment is compatible reference search/filtering and resource-only costs. This header supersedes the documentation-only pause below.
+
+## Current documentation continuation — 10 October 2026
+
+The newer user task is documentation/planning only and supersedes the scheduled implementation prompt. Do not implement or commit these design changes without a subsequent instruction. Read the [final vision](../vision/DarkAngel_Engine_Vision.md), [actor design supplement/traceability](../architecture/Actor_Gameplay_Design.md), [roadmap](../architecture/DarkAngel_Implementation_Handoff.md) and [workflow plan](EDITOR_WORKFLOW_PLAN.md). Older usage-stop and next-task paragraphs below are historical checkpoints.
+
+Observed local HEAD: `5c6b52d6690cb3dfbd832fed578ef47b42309412`, branch `master`, 11 commits ahead of local `origin/master`; tree was clean before this revision. Latest implementation is `08f64e9`; `5c6b52d` records focused integration/handoff evidence. No remote fetch or push was performed. This revision leaves documentation changes uncommitted; inspect `git status --short` before resuming and preserve them. Existing five-gate authoring receipt is not rerun or broadened here. M4/M5 remain In progress, M6–M9 Not started, and live EOS externally blocked.
+
+### Design Decisions Confirmed
+
+1. Character assets are reusable presentation definitions.
+2. Player/NPC own gameplay configuration through a common loadout structure.
+3. Masks/equipment can grant source-owned tags/effects.
+4. Equipped and selected mask states are distinct.
+5. Graphs support planned tag conditions and explicitly typed/owned parameters.
+6. Action Composer can present authored gameplay reactions through its existing runtime.
+7. Animation does not own authoritative status duration.
+8. Gameplay uses authored data and registered native C++ or bounded Luau extensions.
+9. All gameplay consequences follow authoritative native execution paths.
+10. Workflows must expose and explain these authoring/debugging relationships.
+
+When implementation is authorized again: first compatible reference search/filter context and resource-only cost selection, then ordinary modifier/status preview, then presentation-only Character and Player loadout references. Preserve delivered forms, history, Composer editing/playback, Animation navigation, attributes and complete Save/cook/resource preparation/fresh Play. Do not rebuild completed increments or start a monolithic mask/AI rewrite. Stage shared Player/NPC Character and later source-owned mask/graph/reaction acceptance as described in the roadmap. Schema location, source identity namespace, tag vocabulary/Air-versus-Storm migration, event/reaction policy, graph parameter ownership and retained grants remain unresolved in the supplement. Use focused native/one-backend checks at implementation increments, broader matrices at actual integration gates.
+
+---
+
 Final usage recheck after checkpointing: 3% five-hour and69% weekly remaining. New implementation had already stopped at6%; no further feature work was started. Scheduled resumption remains03:11 Europe/Copenhagen after the03:09:43 reset.
 
 Current integration/usage handoff (10 October 2026): [AUTHORING_CHECKPOINT_REPORT.md](AUTHORING_CHECKPOINT_REPORT.md) records implementation08f64e9 and five passing focused shared-path gates, including D3D12 edited fresh Play Health60/Stamina80/pending0. New implementation stopped at6% five-hour remaining; reset reported03:09:43 Copenhagen and active follow-up03:11. Next: compatible reference search/resource filtering, then isolated ordinary effect preview and Character/Player references. M4/M5 remain In progress; previous entries retain checkpoint history.
