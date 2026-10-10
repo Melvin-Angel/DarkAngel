@@ -23,23 +23,23 @@ public:
  }
  void apply(std::uint64_t source=1){
   if(!source||activation_>=4096)throw std::runtime_error("Use a nonzero simulated source; reprepare after 4096 applications");
-  auto next=activation_+1;auto result=effects->apply(*cooked.definition,{1,source,next,0,{}},tick,*attributes,{});activation_=next;handle=result.first;
+  auto before=effects->snapshot();auto next=activation_+1;auto result=effects->apply(*cooked.definition,{1,source,next,0,{}},tick,*attributes,{});activation_=next;handle=result.first;bool refreshed=std::any_of(before.begin(),before.end(),[&](const auto& entry){return entry.handle==handle;});last_operation=std::string(refreshed?"Refreshed":"Applied")+" effect "+std::to_string(handle.value)+" from simulated source "+std::to_string(source)+".";
  }
- void destroy_source(std::uint64_t source){if(!source)throw std::runtime_error("Use a nonzero simulated source");effects->source_destroyed(1,source,*attributes);}
- void death_cleanup(){effects->death(*attributes);}
+ void destroy_source(std::uint64_t source){if(!source)throw std::runtime_error("Use a nonzero simulated source");auto before=effects->snapshot();auto matching=std::count_if(before.begin(),before.end(),[&](const auto& entry){return entry.credit.session_epoch==1&&entry.credit.source_network==source;});effects->source_destroyed(1,source,*attributes);auto removed=before.size()-effects->snapshot().size();last_operation=!matching?"No active effect credited to this simulated source.":removed?"Removed "+std::to_string(removed)+" source-owned effect(s); other sources retained.":"Source effects retained: frozen Remove with source policy is disabled.";}
+ void death_cleanup(){auto before=effects->snapshot().size();effects->death(*attributes);auto removed=before-effects->snapshot().size();last_operation=!before?"No active effects to clean up.":removed?"Death cleanup removed "+std::to_string(removed)+" effect(s).":"Effects retained: frozen Remove on death policy is disabled.";}
  std::vector<EffectSnapshot> contributors(TagId tag)const{
   auto result=effects->snapshot();const auto& dictionary=effects->tags().dictionary();
   std::erase_if(result,[&](const auto& entry){return entry.suppressed||entry.definition!=cooked.definition->id||!std::any_of(cooked.definition->tags.begin(),cooked.definition->tags.end(),[&](auto grant){return dictionary.descends(grant,tag);});});return result;
  }
  void advance(unsigned ticks){
   if(ticks>600||tick+ticks>3600)throw std::runtime_error("Preview advance is bounded to 600 ticks per step and 3600 total; prepare again to reset");
-  for(unsigned step=0;step<ticks;++step){effects->advance(tick+1,*attributes,[](std::uint32_t){return EffectEvaluator{};});++tick;}
+  auto before=effects->snapshot().size();for(unsigned step=0;step<ticks;++step){effects->advance(tick+1,*attributes,[](std::uint32_t){return EffectEvaluator{};});++tick;}last_operation="Advanced "+std::to_string(ticks)+" ticks; "+std::to_string(before-effects->snapshot().size())+" effect(s) ended.";
  }
  void remove(EffectHandle selected={}){
   if(!selected.value)selected=handle;auto active=effects->snapshot();
-  if(std::any_of(active.begin(),active.end(),[&](const auto& entry){return entry.handle==selected;}))effects->remove(selected,*attributes);
+  if(std::any_of(active.begin(),active.end(),[&](const auto& entry){return entry.handle==selected;})){effects->remove(selected,*attributes);last_operation="Removed effect "+std::to_string(selected.value)+".";}else last_operation="No active effect matches the selected handle.";
  }
- std::uint64_t authoring_revision{};
+ std::string last_operation;std::uint64_t authoring_revision{};
  CookedEffect cooked;std::unique_ptr<AttributeSet> attributes;std::unique_ptr<OwnedEffects> effects;
  std::vector<double> base;std::uint64_t tick{};EffectHandle handle;
 private:

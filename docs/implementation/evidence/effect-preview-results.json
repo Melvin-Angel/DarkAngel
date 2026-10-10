@@ -1,0 +1,31 @@
+{
+  "gates": [
+    {
+      "name": "effect-preview-results-build",
+      "exit": 0
+    },
+    {
+      "name": "effect-preview-results-native",
+      "exit": 0
+    },
+    {
+      "name": "effect-preview-results-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "effect-preview-results",
+  "base_head": "2a57c975112cee5fd0c07724a9c8548860b55502",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "bbc825d1e4bf5f8ead094d840f883bb9e19a7407f45ff0897bc057aa654f8cc2",
+    "apps\\editor\\editor_ui.hpp": "ce35f6210c0b9c9fbc6604f93f33dc19e96d89e1c67f2918476776a47ed9bfc9",
+    "apps\\editor\\main.cpp": "6cdd047357da3e8bed0265618946465bf978e600c5036129e117b09ebb80ce4b",
+    "apps\\editor\\native_authoring.cpp": "4ade6b55d2706f9b459a64eeded0085f59e6d5b320c456709fa759254591f722",
+    "apps\\editor\\native_authoring.hpp": "372503d38c5df7adf5da48f06b416d3757ce519b8dfdfca6134027effde5f41d",
+    "tests\\native_authoring_tests.cpp": "031be4e34774ae63fc8ee7b4e3cdd1203aa3d4d4b99c4ba67cc701637b070424",
+    "apps\\editor\\effect_preview.hpp": "a3e19fb95a09ad2cb52e2ddc915e78b7fbda8445027162a50113bc173679bfb2"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ]
+}
