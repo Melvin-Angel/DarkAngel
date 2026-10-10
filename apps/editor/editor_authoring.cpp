@@ -1,6 +1,7 @@
 #include "editor_ui.hpp"
 #include "editor_theme.hpp"
 #include "reference_picker.hpp"
+#include "graph_canvas.hpp"
 #include <darkangel/hash.hpp>
 #include <imgui_internal.h>
 #include <algorithm>
@@ -83,6 +84,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  if(kind=="graph"){
  std::function<void()> topology;
  ImGui::SeparatorText("Native locomotion graph");ImGui::TextWrapped("Clip, 1D and explicit triangle-based 2D blends use measured speed/forward/lateral parameters. Save validates topology, looping clips and frozen rig compatibility. Gameplay tag transitions, reaction mappings and additional layers remain planned.");
+ if(auto connection=draw_graph_canvas(selection,v,graph_node)){auto edit=*connection;topology=[&,edit]{c.authoring.connect_graph_input(*c.assets,selection,edit.node,edit.point,edit.input);};}
  auto node_picker=[&](const char* label,Json& value){auto current=std::to_string(value.get<unsigned>());if(ImGui::BeginCombo(label,current.c_str())){for(const auto& node:v["nodes"]){auto name=std::to_string(node["id"].get<unsigned>())+" / "+node["kind"].get<std::string>();if(ImGui::Selectable(name.c_str(),node["id"]==value))value=node["id"];}ImGui::EndCombo();}};
 
  ImGui::SeparatorText("Graph state preview");if(graph_character==AssetId{}){graph_character=character_selection;if(graph_character==AssetId{})for(const auto& asset:c.asset_inventory)if(std::filesystem::path(asset.path).extension()==".dacharacter"){graph_character=asset.id;break;}}

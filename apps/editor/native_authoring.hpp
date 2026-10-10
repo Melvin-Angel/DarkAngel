@@ -28,6 +28,7 @@ public:
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
     unsigned add_graph_blend(AssetService&,AssetId,bool two_dimensional,unsigned first,unsigned second,unsigned third=0);
     unsigned duplicate_graph_node(AssetService&,AssetId,unsigned node);
+    void connect_graph_input(AssetService&,AssetId,unsigned node,unsigned point,unsigned input);
     void remove_graph_node(AssetService&,AssetId,unsigned node);
     void add_graph_point(AssetService&,AssetId,unsigned node,unsigned input,double x,double y);
     void remove_graph_point(AssetService&,AssetId,unsigned node,unsigned point);

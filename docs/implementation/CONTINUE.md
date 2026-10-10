@@ -1,3 +1,5 @@
+Current Animation graph increment: [visual graph canvas](GRAPH_CANVAS_REPORT.md). Native connection/cycle/consumer checks and D3D12 draw passed. Input connections use existing native sources/history. Next: blend-space geometry and selected-point editing. History stays MVP; M4/M5 In progress.
+
 Current independent Ability integration: [fresh Play report](INDEPENDENT_PLAY_REPORT.md). Build/native/D3D12 passed; six-source publication uses the copied Composer, Health83/Stamina88/pending0. Second-source collision leaves no partial creation. Next: visual native Animation graph authoring. History stays MVP; M4/M5 In progress.
 
 Current ability production increment: [independent Ability/Composer](INDEPENDENT_ABILITY_REPORT.md). Native/editor/D3D12 checks passed; new Ability creation defaults to a paired independent timeline. Next: paired-path Save/cook/fresh Play integration, then visual graph authoring. History remains MVP. M4/M5 In progress.

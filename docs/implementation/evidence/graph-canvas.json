@@ -1,0 +1,36 @@
+{
+  "gates": [
+    {
+      "name": "graph-canvas-build",
+      "exit": 0
+    },
+    {
+      "name": "graph-canvas-native",
+      "exit": 0,
+      "retained": true,
+      "evidence": "graph-canvas-native.log",
+      "reason": "Native source/test unchanged after successful native gate; only main fixture routing was corrected for the renderer rerun."
+    },
+    {
+      "name": "graph-canvas-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "graph-canvas",
+  "base_head": "376a7e5e892b432a5649e8173c2046e2245080c9",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "d9a00006d76924964963d51f2a05a9c26864efb9e83d8c03214d866dd1759b0e",
+    "apps\\editor\\editor_workspaces.cpp": "75d671f9412aef363e785d2c358956771e85971c4db68cd75144404ee31a97e9",
+    "apps\\editor\\editor_ui.hpp": "70e75fd93c189c0d7219f9ac14a80c855969025bfc41c96a5570e699e33cb506",
+    "apps\\editor\\main.cpp": "b709c7ad94fd486444d3a6b8418d73f76b6090bae8ac11af8ee91f6960413e11",
+    "apps\\editor\\native_authoring.cpp": "c165022f659b20ef3642de61d312c8e029b186d2dd69b3a536f280b933ae43b7",
+    "apps\\editor\\native_authoring.hpp": "86cfc3177ce2b48144c98c240acca758ae2d370821c42caf4090c0241910b096",
+    "tests\\native_authoring_tests.cpp": "4168f56fe9ec96d858806ff7e1e19b99b2e31d3fd34b8dac0bd5778a119343a1",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
+    "apps\\editor\\graph_canvas.hpp": "121019642f11d7f9ab94a59a5d25f007fb2d847da058690a9aaaad9c86b649b9"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "Designated Player Kit Play prefix exercises coordinated source publication and full fresh Play in its disposable fixture; other prefixes remain private. M4/M5 In progress."
+  ]
+}
