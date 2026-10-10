@@ -1,3 +1,5 @@
+Current source identity inspection: [SOURCE_IDENTITY_VIEW_REPORT.md](SOURCE_IDENTITY_VIEW_REPORT.md). Targeted build/D3D12 form smoke passes; source path/UUID/catalog state and baseline/draft hashes are inspectable separately from frozen generations. Next: explicit source-on-disk conflict comparison. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current Player Kit fresh Play: [PLAYER_KIT_FRESH_PLAY_REPORT.md](PLAYER_KIT_FRESH_PLAY_REPORT.md). Three focused build/native/D3D12 gates pass for three-source creation, paired assignment/history, coordinated Save and complete fresh Player scene/GPU resources. Native light Health75/Stamina90/pending0; scene unchanged, source clean. Next: focused source/reference usability. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current corrected Effect preparation: [EFFECT_PREVIEW_CORRECTED_REPORT.md](EFFECT_PREVIEW_CORRECTED_REPORT.md). Targeted build/D3D12 checks pass for new duration120/generation/revision, fresh activation1 and scoped diagnostic clearing with unrelated errors retained. Next: authored Player/Kit coordinated Save/fresh Play integration. M4/M5 In progress; EOS blocked; M6-M9 not started.

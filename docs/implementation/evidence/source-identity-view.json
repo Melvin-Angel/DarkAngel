@@ -1,0 +1,27 @@
+{
+  "gates": [
+    {
+      "name": "source-identity-view-build",
+      "exit": 0
+    },
+    {
+      "name": "source-identity-view-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "source-identity-view",
+  "base_head": "da8db7fa44c532d70c57d7bbc323d32f26fba113",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "c09df79fbc324f7ef08ac5df6d5edc61422678b4d6a51b230ea9f68e24f85e26",
+    "apps\\editor\\editor_ui.hpp": "6f54219ef4437ead6248f6d87ecd7d8f7d3fe182b0f034fbd300f04ceff85fba",
+    "apps\\editor\\main.cpp": "0da680372ffe6e55629a114820ef4f1f16a37105420f30f1f507ae6d64ac835b",
+    "apps\\editor\\native_authoring.cpp": "4ade6b55d2706f9b459a64eeded0085f59e6d5b320c456709fa759254591f722",
+    "apps\\editor\\native_authoring.hpp": "372503d38c5df7adf5da48f06b416d3757ce519b8dfdfca6134027effde5f41d",
+    "tests\\native_authoring_tests.cpp": "6289ca695474fff228df1968d1605acc0adf4dea660d2e7c65d749ccab0e727d",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "Designated Player Kit Play prefix exercises coordinated source publication and full fresh Play in its disposable fixture; other prefixes remain private. M4/M5 In progress."
+  ]
+}
