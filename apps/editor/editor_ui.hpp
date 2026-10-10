@@ -45,7 +45,7 @@ public:
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
     std::unique_ptr<EffectPreview> effect_preview;AssetId effect_prepare_failed_asset;std::string effect_prepare_error;AssetId effect_preview_asset;std::uint64_t effect_preview_source{1};
     std::map<std::uint32_t,std::array<char,128>> reference_filters;
-    char attribute_name[97]{"NewStatistic"};int attribute_kind{};
+    char attribute_name[97]{"NewStatistic"};int attribute_kind{};char reaction_name[65]{};
     int composer_new_kind{};
     AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};

@@ -29,6 +29,9 @@ struct CharacterSceneSession::Impl {
     RigPose rig;
     std::vector<JointMatrix> matrices;
     std::unique_ptr<ObservedCharacterPose> target_pose;std::unique_ptr<ActionPoseMixer> action_mixer;
+    // Shared read-only reaction selection for the owner's confirmed pose.
+    std::unique_ptr<ReactionPresentation> reactions;std::optional<ReactionSample> player_reaction;
+    const EffectFrame* effect_frame(std::uint64_t id)const{auto found=effect_views.find(id);return found!=effect_views.end()&&found->second->current()?&*found->second->current():nullptr;}
     StableId player_identity;
     SimulationClock clock;
     std::uint64_t player{};
@@ -55,7 +58,7 @@ struct CharacterSceneSession::Impl {
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags);}
         if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);for(auto id:{player,target}){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(id==player||combat->target_attributes.empty()?combat->attributes:combat->target_attributes,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(id==player||combat->target_attributes.empty()?combat->attributes:combat->target_attributes),combat->tags,combat->effects));}}
-            action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),actions);target_pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),archive,actions,combat->clips,combat->tags);target_pose->sample(observers.at(target)->sample(0).frame);
+            action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),actions);reactions=std::make_unique<ReactionPresentation>(rig.definition(),combat->effects,combat->clips);target_pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),archive,actions,combat->clips,combat->tags,combat->effects);target_pose->sample(observers.at(target)->sample(0).frame,effect_frame(target));
         }
         GraphParameters initial_parameters;if(graph.tag_dictionary())initial_parameters.tags=&client.ability_corrections().at(player).ability.tags;
         graph_inputs=graph.evaluate(initial_parameters);matrices=rig.blend(graph_inputs.span());
@@ -114,7 +117,7 @@ struct CharacterSceneSession::Impl {
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});
         if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(client.public_abilities().at(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
-        if(target_pose)target_pose->sample(observers.at(target)->sample(double(tick)).frame);
+        if(target_pose)target_pose->sample(observers.at(target)->sample(double(tick)).frame,effect_frame(target));
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
         if(graph.tag_dictionary())parameters.tags=&client.ability_corrections().at(player).ability.tags;
@@ -122,7 +125,10 @@ struct CharacterSceneSession::Impl {
         for(const auto& layer:selected.span()){const auto& clip=layer.clip->definition();const auto& end=clip.root.back();stride+=layer.weight*std::hypot(end[0],end[2])*60/clip.ticks;}
         if(parameters.speed>.01&&stride>.01)parameters.playback_rate=float(std::clamp(parameters.speed/stride,0.,4.));
         graph_inputs=graph.advance(tick,parameters);
-        if(combat){require(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick,"Combat correction delivery bound");const auto& correction=client.ability_corrections().at(player);require(correction.motor.tick==tick,"Combat motor/action atomic clock");if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);client.drain_ability_receipts();client.tick();server.tick();}else matrices=rig.blend(graph_inputs.span());
+        if(combat){require(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick,"Combat correction delivery bound");const auto& correction=client.ability_corrections().at(player);require(correction.motor.tick==tick,"Combat motor/action atomic clock");bool alive=true;for(const auto& attribute:correction.ability.attributes)if(attribute.id==correction.ability.health_attribute)alive=attribute.value>0;
+            // Confirmed owner state and the checked public effect instances choose the reaction; gameplay interruption already arrived through the correction.
+            player_reaction=reactions->select(effect_frame(player),player,correction.session_epoch,correction.motor.epoch,tick,alive,bool(correction.ability.active));
+            if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);client.drain_ability_receipts();client.tick();server.tick();}else matrices=rig.blend(graph_inputs.span());
 
     }
 };
@@ -153,5 +159,6 @@ double CharacterSceneSession::debt()const{return impl_->clock.debt();}
 namespace darkangel {
 std::span<const AbilityCommitUpdate> CharacterSceneSession::commitments()const{return impl_->commitment_updates;}
 std::span<const EffectCueUpdate> CharacterSceneSession::effect_cues()const{return impl_->effect_cue_updates;}
+const ReactionSample* CharacterSceneSession::reaction(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_reaction?&*p.player_reaction:nullptr;if(p.combat&&actor==p.combat->target&&p.target_pose&&p.target_pose->reaction())return &*p.target_pose->reaction();return nullptr;}
 const EffectPresentation* CharacterSceneSession::effects(StableId actor)const{for(const auto& [id,view]:impl_->effect_views)if(impl_->client.objects().at(id).id==actor)return view.get();return nullptr;}
 }

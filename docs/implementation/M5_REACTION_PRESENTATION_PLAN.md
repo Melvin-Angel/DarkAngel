@@ -1,5 +1,23 @@
 # Focused M5 reaction presentation plan - 10 October 2026
 
+Implementation supplement - 10 October 2026: the first slice below is now Implemented with scoped verification; see [EFFECT_REACTION_REPORT.md](EFFECT_REACTION_REPORT.md). The original planning text is preserved after this section. Decisions refined against the actual cooker/consumers:
+
+| Question | Decision and reason |
+|---|---|
+| Representation | Optional top-level `reaction` action UUID on the native `.daeffect`, with its locator under the existing `sources` object (`sources.reaction`). The plan proposed an inline locator; `AssetService::prepare_native` discovers changed consumers only by walking `sources`, so the locator lives there and editing a reaction timeline revalidates its effects and kits. No new asset format. |
+| Closure | `import_effect` cooks the referenced `.daaction` through the existing action importer (clip, Ozz archive, rig). The cooked effect records `reaction_generation`; the effect generation includes it. Kits receive the closure through their existing effect catalogue and frozen digest map. |
+| Allowed timeline | Full-body, one loop, bound clip, root policy none, cue blocks only. Hit/commit/lock/combo/invulnerability blocks reject at cook and at `freeze_effect_definition`, because presentation never executes them and silently ignoring them would mislead an author. Cues are not dispatched in this slice. |
+| Allowed effect | Finite or until-removed and public. Instant effects have no checked instance clock; owner/server effects cannot give observers the same presentation. |
+| Clock | Stateless: clip tick = current pose tick - replicated instance `start`. No rising-edge or tag inference and no stored one-shot ledger, so duplicate/stale frames, 30-tick keep-alive resends and late joins cannot restart a finished one-shot. |
+| Refresh / retrigger | `refresh_per_source` keeps handle and `start` (verified against `OwnedEffects::apply`), so a refresh extends the status without replaying. Only a new effect instance (new handle/onset) is a new reaction. |
+| Priority / ties | Highest Composer `priority`, then latest onset, then highest effect handle. At most one reaction per actor; no queue. |
+| Suppression | Authoritatively suppressed instances never present. Health 0 suppresses (no death animation claimed). A remaining active gameplay action on the same actor keeps precedence: the reaction waits and joins at its current clock; presentation never cancels an action. |
+| Completion / removal | The one-shot ends at its clip length while the effect, tags and gameplay gate continue. Expiry or removal of the instance ends presentation immediately; other effects are untouched. Locomotion advances underneath throughout, so completion resolves current state. |
+| Fences | Effect frame actor and session epoch must match (mismatch rejects); a frame from another avatar epoch never presents; frozen effect generation must match (mismatch rejects and retains the previous pose and locomotion clock). |
+| Consumers | One `ReactionPresentation` selector shared by the owner's confirmed pose in `CharacterSceneSession` and `ObservedCharacterPose`. No protocol, authority, motor or prediction change. |
+
+---
+
 Planning only, after upper-body checkpoint `53c9197`. No reaction runtime, profile asset or NPC/controller is implemented by this document. Continue engine game authoring through the existing native assets and WorldSession. M4/M5 remain In progress; M6-M9 not started.
 
 The first concrete scenario should be a short, finite, public effect interrupting an actor's attack and showing a prepared full-body flinch once. The authoritative effect owns interruption and gameplay duration. Finishing the flinch does not remove the effect; removing or suppressing the effect stops its presentation. A burning aura can remain independently active. Use copied/native test sources and existing clips; do not modify external character/animation assets.

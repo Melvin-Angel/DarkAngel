@@ -15,6 +15,12 @@ std::shared_ptr<const EffectDefinition> freeze(const EffectDefinition& d,const A
  checked(static_cast<unsigned>(d.visibility)<=2,"Effect replication visibility");
  checked(d.cues.size()<=4&&(d.lifetime!=EffectLifetime::Instant||d.cues.empty()),"Persistent effect cue lifetime/bound");std::set<AssetId> cues;for(const auto& cue:d.cues)checked(cue.id!=AssetId{}&&cue.id!=d.id&&cues.insert(cue.id).second&&!cue.key.empty()&&cue.key.size()<=64&&cue.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==cue.key.npos,"Effect cue identity/key");
  checked((d.lifetime==EffectLifetime::Finite)==(d.duration_ticks>0),"Effect finite duration");
+ if(d.reaction){const auto& r=*d.reaction;
+  checked(d.lifetime!=EffectLifetime::Instant&&d.visibility==AttributeVisibility::Public,"Effect reaction needs a public finite or until-removed effect");
+  checked(r.id!=AssetId{}&&r.id!=d.id&&r.generation.size()==64&&r.generation.find_first_not_of("0123456789abcdef")==std::string::npos&&r.duration>=action_tick_units,"Effect reaction action identity/generation");
+  checked(!r.upper_body&&!r.mask&&r.loops==1&&r.motion&&!r.motion->motor_root,"Effect reaction needs a one-shot full-body action with a frozen clip and root policy none");
+  checked(std::all_of(r.blocks.begin(),r.blocks.end(),[](const auto& block){return block.kind==ActionBlockKind::Cue;}),"Effect reaction action cannot carry gameplay blocks; presentation never executes them");
+ }
  checked(d.lifetime!=EffectLifetime::Instant||(!d.period_ticks&&d.modifiers.empty()&&d.tags.empty()&&d.execute_on_apply&&d.stacking==EffectStack::Independent),"Instant effect policy");
  checked((d.period_ticks||d.execute_on_apply)==(d.evaluator!=0),"Effect execution evaluator policy");
  dictionary.validate(d.application);dictionary.validate(d.ongoing);std::set<TagId> ids;for(auto tag:d.tags)checked(dictionary.contains(tag)&&ids.insert(tag).second,"Effect granted tag identity");

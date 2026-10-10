@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
+#include <tuple>
 
 namespace darkangel {
 namespace {void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}}
@@ -23,11 +24,40 @@ const std::vector<JointMatrix>& ActionPoseMixer::sample(RigPose& rig,const Graph
     auto layers=locomotion;for(unsigned index=0;index<layers.count;++index)layers.layers[index].mask=found->second.locomotion;
     layers.layers[layers.count++]={&clip,tick,1,found->second.action};return rig.blend(layers.span());
 }
+ReactionPresentation::ReactionPresentation(const RigDefinition& rig,std::span<const std::shared_ptr<const EffectDefinition>> effects,const std::map<AssetId,std::shared_ptr<const AnimationClip>>& clips){
+    for(const auto& effect:effects){
+        require(bool(effect),"Missing prepared reaction effect");if(!effect->reaction)continue;const auto& action=*effect->reaction;
+        require(reactions_.size()<8,"Reaction presentation budget");
+        require(effect->lifetime!=EffectLifetime::Instant&&effect->visibility==AttributeVisibility::Public&&!action.upper_body&&!action.mask&&action.loops==1&&action.motion&&!action.motion->motor_root,"Reaction needs a public persistent effect and a one-shot full-body action without root ownership");
+        for(const auto& block:action.blocks)require(block.kind==ActionBlockKind::Cue,"Reaction action cannot carry gameplay blocks");
+        auto found=clips.find(action.motion->clip.id);require(found!=clips.end()&&found->second,"Reaction clip missing");const auto& clip=found->second->definition();
+        require(clip.skeleton==rig.id&&clip.signature==rig.signature&&clip.joints==rig.joints.size()&&clip.ticks*action_tick_units==action.duration&&found->second->archive_generation()==action.motion->archive_generation,"Reaction clip rig/generation mismatch");
+        ActionTimeline checked(effect->reaction,1,0);
+        require(reactions_.emplace(effect->id,Prepared{effect->generation,std::make_shared<const ActionDefinition>(action),found->second}).second,"Duplicate prepared reaction effect");
+    }
+}
+std::optional<ReactionSample> ReactionPresentation::select(const EffectFrame* frame,std::uint64_t network,std::uint64_t session_epoch,std::uint64_t avatar_epoch,std::uint64_t tick,bool alive,bool acting)const{
+    if(!frame||reactions_.empty())return {};
+    require(network&&session_epoch&&frame->owner.network==network&&frame->owner.session_epoch==session_epoch&&frame->audience==AttributeVisibility::Public&&frame->effects.size()<=64,"Reaction effect frame actor/audience mismatch");
+    // A frame from another avatar lifecycle is never a reason to show a reaction.
+    if(frame->avatar_epoch!=avatar_epoch)return {};
+    std::optional<ReactionSample> best;
+    for(const auto& effect:frame->effects){
+        auto found=reactions_.find(effect.definition);if(found==reactions_.end()||effect.suppressed)continue;const auto& prepared=found->second;
+        require(prepared.generation==effect.generation,"Reaction effect frozen generation unavailable");
+        // Not started on this pose clock, already expired, or a finished one-shot.
+        if(effect.start>tick||(effect.end&&tick>=effect.end))continue;auto elapsed=tick-effect.start;if(elapsed>=prepared.action->duration/action_tick_units)continue;
+        if(!best||std::tuple(prepared.action->priority,effect.start,effect.handle)>std::tuple(best->action->priority,best->start,best->key.handle))
+            best=ReactionSample{{session_epoch,network,avatar_epoch,effect.handle},effect.definition,prepared.action.get(),prepared.clip.get(),effect.start,double(elapsed),{}};
+    }
+    if(best)best->suppressed=!alive?ReactionSuppression::Dead:acting?ReactionSuppression::ActiveAction:ReactionSuppression::None;
+    return best;
+}
 ObservedCharacterPose::ObservedCharacterPose(std::shared_ptr<const AnimationGraphPlan> graph,RigDefinition rig,std::string_view archive,
     std::span<const std::shared_ptr<const ActionDefinition>> actions,
-    std::map<AssetId,std::shared_ptr<const AnimationClip>> clips,std::shared_ptr<const TagDictionary> tags)
+    std::map<AssetId,std::shared_ptr<const AnimationClip>> clips,std::shared_ptr<const TagDictionary> tags,std::span<const std::shared_ptr<const EffectDefinition>> effects)
     :graph_(graph),rig_(std::move(rig),archive),clips_(std::move(clips)){
-    require(actions.size()<=8&&clips_.size()<=8,"Observed pose action/clip budget");
+    require(actions.size()<=8&&clips_.size()<=16,"Observed pose action/clip budget");
     tags_=tags?std::make_shared<const TagDictionary>(*tags):std::make_shared<const TagDictionary>(std::vector<TagDefinition>{});
     if(auto dictionary=graph_.tag_dictionary())require(dictionary->registry()==tags_->registry()&&dictionary->generation()==tags_->generation(),"Observed graph/actor tag registry mismatch");
     ActorTagSnapshot empty{tags_->registry(),tags_->generation(),{}};GraphParameters parameters;parameters.tags=&empty;parameters.tag_audience=AttributeVisibility::Public;
@@ -39,9 +69,9 @@ ObservedCharacterPose::ObservedCharacterPose(std::shared_ptr<const AnimationGrap
         ActionTimeline checked(action,1,0);
         auto [old,inserted]=actions_.emplace(action->id,std::make_shared<const ActionDefinition>(*action));require(inserted||old->second->generation==action->generation,"Conflicting observed action generations");
     }
-    mixer_=std::make_unique<ActionPoseMixer>(*graph,rig_.definition(),actions);matrices_=rig_.rest_pose();
+    mixer_=std::make_unique<ActionPoseMixer>(*graph,rig_.definition(),actions);reactions_=std::make_unique<ReactionPresentation>(rig_.definition(),effects,clips_);matrices_=rig_.rest_pose();
 }
-void ObservedCharacterPose::sample(const AbilityPublicFrame& frame){
+void ObservedCharacterPose::sample(const AbilityPublicFrame& frame,const EffectFrame* effects){
     const auto& ability=frame.ability;const auto& motor=frame.motor;
     require(frame.network&&frame.session_epoch&&ability.owner.network==frame.network&&ability.owner.session_epoch==frame.session_epoch&&ability.tick==motor.tick&&bool(ability.active)==bool(ability.action),"Observed pose actor/clock identity");
     require(!network_||(frame.network==network_&&frame.session_epoch==session_epoch_&&motor.epoch>=motor_epoch_),"Observed pose actor/lifecycle changed; prepare a fresh pose");
@@ -63,8 +93,13 @@ void ObservedCharacterPose::sample(const AbilityPublicFrame& frame){
     if(parameters.speed>.01&&stride>.01)parameters.playback_rate=static_cast<float>(std::clamp(parameters.speed/stride,0.,4.));
     if(baseline){auto state=origin;state.tick=motor.tick;state.phase=0;graph_.restore(state);inputs=graph_.evaluate(parameters);}
     else if(motor.tick!=origin.tick)inputs=graph_.advance(motor.tick,parameters);
-    try{matrices_=action?mixer_->sample(rig_,inputs,*action,*clips_.at(action->motion->clip.id),double(ability.action->clock%action->duration)/action_tick_units):rig_.blend(inputs.span());}
+    std::optional<ReactionSample> reaction;
+    try{
+        bool alive=true;for(const auto& attribute:ability.attributes)if(attribute.id==ability.health_attribute)alive=attribute.value>0;
+        // Locomotion keeps advancing underneath; completion resolves current state.
+        reaction=reactions_->select(effects,frame.network,frame.session_epoch,motor.epoch,ability.tick,alive,action!=nullptr);
+        matrices_=action?mixer_->sample(rig_,inputs,*action,*clips_.at(action->motion->clip.id),double(ability.action->clock%action->duration)/action_tick_units):reaction&&reaction->suppressed==ReactionSuppression::None?rig_.sample(*reaction->clip,reaction->tick):rig_.blend(inputs.span());}
     catch(...){graph_.restore(origin);throw;}
-    inputs_=inputs;network_=frame.network;session_epoch_=frame.session_epoch;motor_epoch_=motor.epoch;
+    reaction_=reaction;inputs_=inputs;network_=frame.network;session_epoch_=frame.session_epoch;motor_epoch_=motor.epoch;
 }
 }

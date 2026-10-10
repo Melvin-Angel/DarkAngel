@@ -23,6 +23,10 @@ public:
     AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
     AssetId duplicate_ability_with_action(AssetService&,AssetId,std::string_view name,bool blank=false);
+    // Copies a Composer action as a presentation-only reaction (cue blocks only,
+    // full-body, one loop, root policy none) and binds it to the effect.
+    AssetId create_reaction_action(AssetService&,AssetId effect,AssetId template_action,std::string_view name);
+    void bind_effect_reaction(AssetService&,AssetId effect,AssetId action);
     void assign_player_kit(AssetService&,AssetId player,AssetId kit);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);

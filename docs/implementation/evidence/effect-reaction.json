@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "base_head": "d164d0e6e02d1a09b1dedab7a746929dd097cccc",
+  "scope": "Optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
+  "gates": [
+    {
+      "name": "effect-reaction-authoring",
+      "exit": 0,
+      "seconds": 112.844
+    },
+    {
+      "name": "effect-reaction-presentation",
+      "exit": 0,
+      "seconds": 0.187
+    },
+    {
+      "name": "effect-reaction-public-pose",
+      "exit": 0,
+      "seconds": 0.188
+    },
+    {
+      "name": "effect-reaction-effect-assets",
+      "exit": 0,
+      "seconds": 0.515
+    },
+    {
+      "name": "effect-reaction-kit-assets",
+      "exit": 0,
+      "seconds": 2.157
+    },
+    {
+      "name": "effect-reaction-replication",
+      "exit": 0,
+      "seconds": 0.187
+    },
+    {
+      "name": "effect-reaction-combat-effects",
+      "exit": 0,
+      "seconds": 0.078
+    },
+    {
+      "name": "effect-reaction-form",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "name": "effect-reaction-d3d12",
+      "exit": 0,
+      "seconds": 2.219
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/character_preview.cpp": "57633224afbf298ba3ac52420b2762a2b028e21e591cc74395363d40beb6f64a",
+    "apps/editor/editor_authoring.cpp": "573627e8c60d1e17922f3554d81880847ebc2759766a07d1ff685ad9f2980f9f",
+    "apps/editor/editor_ui.hpp": "d70bed42cae034eb809d3a4c4b6f3a80a9d7c736f39b3759242cd7b48223adef",
+    "apps/editor/main.cpp": "96bf81c6446ceaa58bf23aa614216b2cc3fd3d16716f546c70bf64f8b039b5e0",
+    "apps/editor/native_authoring.cpp": "78a77568bfb4e09f0677e37d48f16e103f7223320cf722bef6d80537b6b6bcc6",
+    "apps/editor/native_authoring.hpp": "a2d736c386f8e7ebcd10f72f12fc16d560f3395f725dc717a46c777b898f128a",
+    "engine/assets/effect_cooker.cpp": "5001d796cdd6937db3b22d7ab522fbc98fd4d503a7629593e728066c4681409f",
+    "engine/runtime/effects.cpp": "9cfd108317f6abc8d703141caca425283c211a2e9425f286e8a3b1f0b473f56b",
+    "engine/runtime/character_presentation.cpp": "243e916c69067585da4b1f60b48072a4254b57c68d69990b0e893818ba751132",
+    "engine/runtime/character_scene.cpp": "39ce57d378b9140d412d6f1ef9ad65e80b49cd38886f36993d26d35eea0fac20",
+    "engine/runtime/include/darkangel/effects.hpp": "7a2294e2cf125989eeed572021eae85475521c0dcac6730e7361a082f87d8db6",
+    "engine/runtime/include/darkangel/character_presentation.hpp": "0bc7633aa14b8364defb2304093a2c24cf0a9b18aebdc6fac6cc1d01f3913a02",
+    "engine/runtime/include/darkangel/character_scene.hpp": "0dff9fa66031e9b82f13bfa1229ab00e492e2555f3c439e47329379e668bc5dc",
+    "tests/native_authoring_tests.cpp": "a593f700210e0c8780290fd142e7be15e700be7aad9e14b163af558cb440ed5b",
+    "tests/reaction_presentation_tests.cpp": "5c14d7924bbe03b28d6329777d76cdb4fab5f98fd1fce8cd2796e31db731540d",
+    "scripts/verify_effect_reaction.py": "adfe6b8cd3172a18c9883c914db9559bca5bd880e278aaf0a4b3cf288e35476c"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor.exe": "926275be3505d1a481a9da0063b9ed8c4d598597d321564b7f3874d7a5c0e61f",
+    "NativeAuthoringTests.exe": "39108c06475e915e012a2b5cd6356d14c3cb04530c62495559a76bd08b7eda04",
+    "ReactionPresentationTests.exe": "1f6e6980aac90bcac2488f277370b269d352d66a5559c06c3213b9c45817143a"
+  },
+  "limitations": [
+    "One visible full-body reaction per actor, root policy none; no reaction queue, blend ramps, additive or upper-body reactions.",
+    "Reaction timelines carry cue blocks only and no cue is dispatched by presentation in this slice.",
+    "The fixture reuses the existing attack clip as its flinch; no flinch clip or default Royal reaction content is shipped.",
+    "Owner-pose reaction selection shares the verified selector; a positive owner-side flinch in editor Play needs an attacker other than the player and is covered by native WorldSession tests only.",
+    "Scripted native commands and D3D12 form/rendering evidence, not physical pointer input, remote graphical timing/loss or multiplayer qualification.",
+    "M4/M5 In progress; EOS blocked; M6-M9 not started; publication crash-recovery limits unchanged."
+  ]
+}

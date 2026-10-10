@@ -17,6 +17,10 @@ struct EffectDefinition {
  AttributeVisibility visibility{AttributeVisibility::Owner};
  // Persistent presentation identities, resolved by the game's cue adapter.
  std::vector<EffectCueBinding> cues;
+ // Optional presentation-only reaction: one frozen full-body Composer action,
+ // sampled from the checked effect-instance clock. Its blocks never execute and
+ // finishing it never ends the effect; duration and legality stay with the effect.
+ std::shared_ptr<const ActionDefinition> reaction;
 };
 std::shared_ptr<const EffectDefinition> freeze_effect_definition(const EffectDefinition&,const AttributeSet&,const TagDictionary&);
 // Captured attribution outlives the source avatar. It contains no live pointer.

@@ -5,6 +5,7 @@
 #include <darkangel/world_session.hpp>
 
 namespace darkangel {
+struct ReactionSample;
 struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;};
 struct CharacterSceneCombat {
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
@@ -50,6 +51,8 @@ public:
     std::span<const AbilityCommitUpdate> commitments()const;
     const EffectPresentation* effects(StableId)const;
     std::span<const EffectCueUpdate> effect_cues()const;
+    // Current selected reaction for a prepared actor, including a suppressed candidate.
+    const ReactionSample* reaction(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }
