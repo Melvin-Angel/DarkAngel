@@ -1,0 +1,10 @@
+[1/22] Scanning C:\DarkAngel\tests\composer_preview_tests.cpp for CXX dependencies
+[2/22] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[3/22] Generating CXX dyndep file CMakeFiles\ComposerPreviewTests.dir\CXX.dd
+[4/21] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[5/21] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[6/10] Building CXX object CMakeFiles\ComposerPreviewTests.dir\tests\composer_preview_tests.cpp.obj
+[7/10] Building CXX object CMakeFiles\ComposerPreviewTests.dir\apps\editor\character_preview.cpp.obj
+[8/10] Linking CXX executable ComposerPreviewTests.exe
+[9/10] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[10/10] Linking CXX executable DarkAngelEditor.exe

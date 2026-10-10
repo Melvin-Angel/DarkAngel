@@ -1,0 +1,3 @@
+Authored graph preview exact fixed-tick pose, bounded scrub, source and failed-candidate retention passed
+Authored Character preview frozen rig/skin/clip, exact poses and source/failed-candidate retention passed
+Composer: frozen rig/clip compatibility, exact native poses, independent buffers, bounded scrub, failed-candidate retention and endpoints passed

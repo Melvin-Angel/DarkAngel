@@ -22,7 +22,7 @@ public:
     void draw_import(Controller&);
     void draw_assets(Controller&,bool expanded=false);
     void draw_authoring(Controller&,unsigned,unsigned,float);
-    unsigned graph_node{};void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
+    AssetId graph_preview_asset,graph_character;std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;unsigned graph_node{};void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
     void cancel_composer_drag(Controller&);
     ActionBlock composer_drag_block;AssetId composer_drag_asset;
