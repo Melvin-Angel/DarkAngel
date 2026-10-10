@@ -1,3 +1,5 @@
+Current pending reference recovery: [PENDING_REFERENCE_SELECTION_REPORT.md](PENDING_REFERENCE_SELECTION_REPORT.md). Focused build/D3D12 inter-frame exercise passes for Effect and Input selection after creation Undo, with clean drafts and empty Undo history. Next: explicit Kit selection return after copy Undo. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current Kit creation controls: [KIT_CREATION_CONTROLS_REPORT.md](KIT_CREATION_CONTROLS_REPORT.md). Targeted editor/D3D12 smoke passes; Kit copy uses existing pending creation/history and retains Player-owned kit assignment. Next: pending reference selection cleanup after creation Undo. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current binding prerequisites: [BINDING_PREREQUISITES_REPORT.md](BINDING_PREREQUISITES_REPORT.md). Targeted editor/D3D12 smoke passes; Bind explains missing references, kit assignment, hit-window selection and finite power. Native validation remains required. Next: Kit duplication through existing pending creation/history. M4/M5 In progress; EOS blocked; M6-M9 not started.
