@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "base_head": "cd997279b622ef170dbd2c856ef83bf94dcee436",
+  "scope": "Authored Existing native locomotion blend graph source history, consumer closure and fresh native Player Play",
+  "gates": [
+    {
+      "name": "graph-authoring-build",
+      "exit": 0,
+      "seconds": 46.846
+    },
+    {
+      "name": "graph-authoring-native",
+      "exit": 0,
+      "seconds": 23.555
+    },
+    {
+      "name": "graph-authoring-fresh-play",
+      "exit": 0,
+      "seconds": 6.455
+    },
+    {
+      "name": "graph-authoring-panel",
+      "exit": 0,
+      "seconds": 0.701
+    }
+  ],
+  "source_sha256": {
+    "engine/assets/actor_cooker.cpp": "8287c4c4d11e8461053183cb6307333d71b70c8f634ea8eaadc969282c0fac6d",
+    "engine/assets/include/darkangel/actor_assets.hpp": "f07dad54879eb320229b81bc66d45c831419a93a5641098a7edae3820a81e555",
+    "engine/runtime/character_scene.cpp": "ae4ef9f80082bf2e7e9facf5ca7f5a1ec79b31d297fec4b9bea6af24cf537df1",
+    "engine/runtime/include/darkangel/character_scene.hpp": "1aee79fbf719b18b91b39c5a31b9d51a2e5aa5f91ced2d1930b8d393e7a99efc",
+    "engine/assets/asset_service.cpp": "41498f622768c4812a2ea0824834b3831141e177ff6471466d1c1fd0809a635d",
+    "tests/actor_asset_tests.cpp": "b660148e0bd1514768a15d93fe587fba9ec0f5d700d89d17a35616fb329757f4",
+    "apps/editor/native_authoring.cpp": "114c6744f6fb3c28e5e5a1b8fff10c8d9a8ce6d757a88eb19cbb1b2b217d4965",
+    "apps/editor/native_authoring.hpp": "3d9acf82e8562a80b9f8785fcf3ce5a9e34608ddf7ed911316684bbadd6a5d9d",
+    "apps/editor/character_preview.cpp": "fb003d3362d28198e98f37e29b02a26278bc574ec8fc9ca721d23f1028e1c96a",
+    "apps/editor/editor_authoring.cpp": "181f2959af6cbc32211c70ac5004e0fe79675dc06d75fc3aaa03ffda30ea3143",
+    "apps/editor/editor_workspaces.cpp": "af4705a062cc8e9e8bfbafd6f65490e3bbe9037df01e9d911d47cf3a65ff5a7a",
+    "apps/editor/editor_ui.cpp": "9c1027d5bf03690f1f5c1389adf54bc17973d574bac3762556d633686d1f5ccd",
+    "apps/editor/editor_ui.hpp": "bb08d6e28281bf15e8f7e43e09ef33c3fe96208708e9f8aea77769255e43c828",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "43c0fb9a20a769677838c56145f578e5ce2db4132bbd3df45dc342e544b10145",
+    "apps/editor/main.cpp": "5cb664db45d66c2c04437cdef113159835295134e93abe1d44c6061df9ba86a2",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_player_defaults.py": "2053147b349d811ee3965704df7c3b2ce028aec3e492dd80dadf20e017642229"
+  },
+  "limitations": [
+    "One scripted D3D12 creation/navigation/history/fresh Play and rendered panels; no physical pointer automation.",
+    "Initial existing-node typed forms only; node topology creation, graph-state preview, tag conditions, reactions and NPC configuration remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}
