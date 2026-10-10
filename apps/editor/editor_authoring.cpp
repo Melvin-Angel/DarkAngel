@@ -166,7 +166,12 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
     if(!v.contains("cameras")){ImGui::TextWrapped("Using the built-in rig: FreeLook orbit, and an over-shoulder Aim camera while the ranged modifier is held.");if(ImGui::Button("Customize cameras"))v["cameras"]=fallback();}
     else{auto& cameras=v["cameras"];Json actions=Json::array(),tags=Json::array();perform([&]{actions=c.authoring.open(*c.assets,input).value.at("actions");});perform([&]{if(kit_definition.contains("sources")&&kit_definition["sources"].contains("abilities"))for(const auto& asset:c.asset_inventory)if(std::filesystem::path(asset.path).extension()==".datags"){tags=c.authoring.open(*c.assets,asset.id).value.at("tags");break;}});
      ImGui::TextWrapped("The live camera is the eligible one with the highest priority; the view blends to it over its blend time. Look and follow targets are supplied by the game (the player today; lock-on, dialogue and cutscenes later).");
-     for(unsigned index=0;index<cameras.size();++index){auto& camera=cameras[index];ImGui::PushID(static_cast<int>(index));ImGui::SetNextItemOpen(index==0,ImGuiCond_Once);
+     if(v.contains("cameras")&&camera_preview>=0&&camera_preview<static_cast<int>(v["cameras"].size())){
+      try{camera_preview_rig=decode_camera_rig(v["cameras"].dump());camera_preview_visible=true;ImGui::Text("Preview: %s",v["cameras"][camera_preview]["name"].get<std::string>().c_str());ImGui::SameLine();if(ImGui::SmallButton("Close preview")){camera_preview=-1;camera_preview_visible=false;}ImGui::SliderFloat("Preview orbit",&camera_preview_yaw,-180,180,"%.0f deg");ImGui::SliderFloat("Preview pitch",&camera_preview_pitch,-80,80,"%.0f deg");
+       auto width=std::min(ImGui::GetContentRegionAvail().x,520.f);ImGui::Image(composer_texture,{width,width*9.f/16.f});ImGui::TextDisabled("Authoring preview of the draft around the scene's player placement. Not Play; Save and Play to use it.");}
+      catch(const std::exception& error){camera_preview_rig.reset();ImGui::TextColored({1.f,.55f,.3f,1.f},"Camera rig needs attention: %s",error.what());}}
+     else if(v.contains("cameras")){try{decode_camera_rig(v["cameras"].dump());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"Camera rig needs attention: %s. Save will reject it.",error.what());}}
+     for(unsigned index=0;index<cameras.size();++index){auto& camera=cameras[index];ImGui::PushID(static_cast<int>(index));ImGui::SetNextItemOpen(camera_preview<0?index==0:camera_preview==static_cast<int>(index),ImGuiCond_Once);
       if(ImGui::TreeNode("camera","%s (priority %u)",camera["name"].get<std::string>().c_str(),camera["priority"].get<unsigned>())){
        text("Name",camera["name"]);integer("Priority",camera["priority"]);
        auto& when=camera["when"];const int mode=when.contains("input")?1:when.contains("tag")?2:0;const char* modes[]={"Always (default)","While an input is held","While a gameplay tag is present"};
@@ -180,11 +185,6 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
        ImGui::TreePop();}
       ImGui::PopID();}
      ImGui::BeginDisabled(cameras.size()>=8);if(ImGui::Button("Add camera")){auto added=fallback()[1];added["name"]="Camera"+std::to_string(cameras.size()+1);added["when"]=Json::object();added["priority"]=0;cameras.push_back(added);}ImGui::EndDisabled();ImGui::SameLine();if(ImGui::Button("Use built-in rig")){v.erase("cameras");camera_preview=-1;}
-     if(v.contains("cameras")&&camera_preview>=0&&camera_preview<static_cast<int>(v["cameras"].size())){
-      try{camera_preview_rig=decode_camera_rig(v["cameras"].dump());camera_preview_visible=true;ImGui::SliderFloat("Preview orbit",&camera_preview_yaw,-180,180,"%.0f deg");ImGui::SliderFloat("Preview pitch",&camera_preview_pitch,-80,80,"%.0f deg");
-       auto width=std::min(ImGui::GetContentRegionAvail().x,520.f);ImGui::Image(composer_texture,{width,width*9.f/16.f});ImGui::TextDisabled("Authoring preview of the draft around the scene's player placement. Not Play; Save and Play to use it.");}
-      catch(const std::exception& error){camera_preview_rig.reset();ImGui::TextColored({1.f,.55f,.3f,1.f},"Camera rig needs attention: %s",error.what());}}
-     else if(v.contains("cameras")){try{decode_camera_rig(v["cameras"].dump());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"Camera rig needs attention: %s. Save will reject it.",error.what());}}
     }
    }
    ImGui::SeparatorText("Masks");

@@ -1,3 +1,5 @@
+Update 11 October 2026: the camera work in section 4 is finished, verified and merged to master; see CAMERA_REPORT.md. Section 4 below is historical. `VCPKG_MANIFEST_INSTALL=OFF` is now set in the existing build directory's CMake cache at the user's direction, and the machine's PowerShell is 7.6.5 (the ABI record matches it). Start from section 5, item 2 (runtime Health HUD); RmlUi 6.2 and FreeType are pinned and downloaded but not installed, so installing them needs the user's go-ahead and must not rebuild existing packages. The user also asked for fewer rebuild/test cycles: batch edits and verify once per increment.
+
 Continue authorized DarkAngel development in C:\DarkAngel. This prompt was written by the Claude Code session of 10-11 October 2026 when its usage ran out. Read it fully, then read the reports it names before editing. Treat this as a mature native engine, not a greenfield project.
 
 ## 0. Do not trigger a dependency rebuild

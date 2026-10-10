@@ -1,14 +1,9 @@
-[1/24] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
-[2/23] Generating CXX dyndep file CMakeFiles\ObservedCharacterPoseTests.dir\CXX.dd
-[3/22] Generating CXX dyndep file CMakeFiles\ReactionPresentationTests.dir\CXX.dd
-[4/21] Generating CXX dyndep file CMakeFiles\EffectAssetTests.dir\CXX.dd
-[5/20] Generating CXX dyndep file CMakeFiles\EffectReplicationTests.dir\CXX.dd
-[6/18] Generating CXX dyndep file CMakeFiles\CombatEffectTests.dir\CXX.dd
-[7/16] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
-[8/16] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
-[9/14] Linking CXX executable CombatKitAssetTests.exe
-[10/14] Linking CXX executable ObservedCharacterPoseTests.exe
-[11/14] Linking CXX executable ReactionPresentationTests.exe
-[12/14] Linking CXX executable EffectAssetTests.exe
-[13/14] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
-[14/14] Linking CXX executable NativeAuthoringTests.exe
+[1/15] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[2/15] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(143): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(140): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(365): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(73): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[4/4] Linking CXX executable DarkAngelEditor.exe
