@@ -1,0 +1,17 @@
+{
+  "gates": [
+    {
+      "name": "binding-navigation-build",
+      "exit": 0
+    },
+    {
+      "name": "binding-navigation-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "Existing binding navigation controls and stacked native reference labels",
+  "limitations": [
+    "Rendered form only; no physical pointer navigation claim. Shared route was verified separately.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ]
+}

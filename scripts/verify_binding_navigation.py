@@ -1,0 +1,18 @@
+"""Focused reference layout and existing native navigation smoke check."""
+import json,subprocess,hashlib
+from pathlib import Path
+from msvc_environment import activate
+ROOT=Path(__file__).resolve().parents[1]; B=ROOT/'build/m5-editor-relwithdebinfo'; E=ROOT/'docs/implementation/evidence'
+gates=[]
+def run(name,cmd,env=None):
+ r=subprocess.run(list(map(str,cmd)),cwd=ROOT,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=900)
+ (E/(name+'.log')).write_text(r.stdout+r.stderr,encoding='utf-8');gates.append({'name':name,'exit':r.returncode})
+ if r.returncode:raise RuntimeError((r.stdout+r.stderr)[-3000:])
+ print(name+' passed',flush=True)
+run('binding-navigation-build',[ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin/cmake.exe','--build',B,'--target','DarkAngelEditor','--parallel','2'],activate())
+f=json.loads((B/'authoring-fixture.json').read_text());s=Path(f['source']);c=Path(f['cache'])
+scene=s/'royal_district/RoyalCombat.dascene';before=hashlib.sha256(scene.read_bytes()).hexdigest()
+model=json.loads((s/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text())['id'];collision=json.loads((s/'royal_district/collision/environment.dacollision').read_text())['asset']
+run('binding-navigation-d3d12',[B/'DarkAngelEditor.exe','--registry',f['registry'],'--cas',c/'cas','--model',model,'--scene',scene,'--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005','--sources',s,'--asset-cache',c,'--backend','d3d12','--hidden','--ability-workspace','--authoring-asset',f['ability'],'--frames','5','--height','1400','--capture-workspace','--capture',E/'binding-navigation.png'])
+assert hashlib.sha256(scene.read_bytes()).hexdigest()==before
+(E/'binding-navigation.json').write_text(json.dumps({'gates':gates,'scope':'Existing binding navigation controls and stacked native reference labels','limitations':['Rendered form only; no physical pointer navigation claim. Shared route was verified separately.','No cook/publication/runtime change; M4/M5 In progress.']},indent=2)+'\n')
