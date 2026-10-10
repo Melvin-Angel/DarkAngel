@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "base_head": "a57e167b92f1e09502afcfb7e93dfec8d2bfd8aa",
+  "scope": "Isolated authored Character skin/rig/clip preview with exact native sampling and independent GPU resources",
+  "gates": [
+    {
+      "name": "character-preview-build",
+      "exit": 0,
+      "seconds": 5.67
+    },
+    {
+      "name": "character-preview-native",
+      "exit": 0,
+      "seconds": 2.555
+    },
+    {
+      "name": "character-preview-0",
+      "exit": 0,
+      "seconds": 2.128
+    },
+    {
+      "name": "character-preview-20",
+      "exit": 0,
+      "seconds": 2.598
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/character_preview.hpp": "42ec18f2d0ff6037a42ab66ed73806bb2f7952478362a2cef8d11a6e4efc4216",
+    "apps/editor/editor_composer.cpp": "dd4e17053337fddc83696e118725d9e6515f716e1d7eaecc0ef4720fa506f51f",
+    "tests/composer_preview_tests.cpp": "7920925bfedf24b1d2777be3eadbadc8dbbbfd175a71057472e8429e83be4a12",
+    "apps/editor/editor_controller.cpp": "762579d40722c6c85466ca3ae8076b67bcd42d2e3ebe47ffdfe3e5bee766fbd7",
+    "CMakeLists.txt": "2a656f7c9e3c606ea99f259479ad9e7090000f016eeda584894f0019eb687bc0",
+    "engine/assets/asset_service.cpp": "8ffce48c8469c50358214fc6cb0c39f47ea850283105d560c3719343401c4708",
+    "tests/actor_asset_tests.cpp": "eb5e0079cc4b1fb67533ea9ba1314e714e16a050070d673dbc2ea3bf9e8dd51f",
+    "apps/editor/native_authoring.cpp": "a25ed678546e068cc7e31ebdee840a54c9626f546c13c7b22b0c2ce6776350dc",
+    "apps/editor/native_authoring.hpp": "3d9acf82e8562a80b9f8785fcf3ce5a9e34608ddf7ed911316684bbadd6a5d9d",
+    "apps/editor/character_preview.cpp": "ace42283decb56f9909b52867e0fc1f0536891e08cdd020e6360abc83dd86ece",
+    "apps/editor/editor_authoring.cpp": "c28f0741ef377baf2be26cb8dffbe335cc279d77809058274c8ce2675c62d04f",
+    "apps/editor/editor_ui.cpp": "9c1027d5bf03690f1f5c1389adf54bc17973d574bac3762556d633686d1f5ccd",
+    "apps/editor/editor_ui.hpp": "3d61b653b6c8412957b41353d4265c76c2669efb8fbe122175964044c0456e6b",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "43c0fb9a20a769677838c56145f578e5ce2db4132bbd3df45dc342e544b10145",
+    "apps/editor/main.cpp": "8f96e87c5d1aec4feab8f9c36ab58fe7497d072fea8751b3ae79a58e9d393834",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_character_preview.py": "6c8d7c90be813c91870ae45f1b3b07ab55f7f1885739c96e09f2f47cad789b70"
+  },
+  "limitations": [
+    "Native exact pose and rejected-candidate tests plus D3D12 isolated Character captures at ticks0/20; no physical controls or performance qualification.",
+    "Independent selected skin preview; modular editing, material overrides and complete rig/socket designers remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}

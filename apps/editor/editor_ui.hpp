@@ -27,6 +27,11 @@ public:
     ActionBlock composer_drag_block;AssetId composer_drag_asset;
     bool composer_dragging{},composer_drag_changed{};int composer_drag_edge{};float composer_drag_x{};std::uint64_t composer_drag_revision{};
     void draw_action_preview(const nlohmann::json&);
+    void draw_pose_preview();
+    std::function<void(AssetId,AssetId)> prepare_character_pose;
+    AssetId character_preview_asset,character_clip;std::string character_preview_hash;
+    std::function<void()> draw_character_info;
+    char character_name[65]{"new_character"},player_name[65]{"new_player"};
     std::function<void(AssetId,unsigned)> prepare_composer;
     std::function<void(double)> scrub_composer;
     std::function<std::string()> composer_info;

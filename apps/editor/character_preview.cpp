@@ -26,6 +26,12 @@ const std::vector<JointMatrix>& ComposerPosePreview::sample(double tick){
     // existing clip sampler's wrap semantics, identical to native presentation.
     return pose_->sample(*clip_,tick);
 }
+AuthoredCharacterPose prepare_authored_character_pose(AssetService& assets,NativeAuthoring& author,AssetId character,AssetId clip){
+ auto& draft=author.open(assets,character);require(draft.value.at("kind")=="character","Choose a Character definition");std::vector<NativeSourceEdit> edits;
+ for(const auto& [id,value]:author.drafts)if(id==character||value.dirty())edits.push_back({value.asset.path,sha256(value.saved),value.value.dump(2)+"\n"});
+ auto candidate=assets.prepare_native(edits,{&clip,1});auto cooked=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto animation=load_cooked_clip(candidate.registry(),assets.cas_path(),clip);CharacterPreviewResources resources;resources.skin=cooked.definition.skin;resources.rig=cooked.skin.rig;
+ auto pose=std::make_unique<ComposerPosePreview>(resources,animation,animation.definition.ticks*action_tick_units);return {std::move(cooked),std::move(animation),std::move(pose)};
+}
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin,StableId player,StableId target,AssetId collision){
     if(references.starts_with("player:")){auto player_asset=load_cooked_player(registry,cas,AssetId::parse(references.substr(7)));require(player_asset.character.definition.skin==skin.id,"Player Character skin does not match the scene's placed skin; update scene composition before Play");return load_character_preview(registry,cas,"kit:"+player_asset.definition.loadout.kit.text(),skin,player,target,collision);}
     auto finish=[&](CharacterPreviewResources resources){if(collision!=AssetId{})resources.collision=std::make_shared<const CollisionDefinition>(load_cooked_collision_scene(registry,cas,collision));return resources;};

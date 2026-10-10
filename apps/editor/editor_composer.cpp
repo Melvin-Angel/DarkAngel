@@ -101,6 +101,10 @@ void Shell::draw_action_preview(const nlohmann::json& source){
     }
     if(!composer_error.empty())ImGui::TextWrapped("Preview needs attention: %s",composer_error.c_str());
     if(composer_clip!=clip||composer_duration!=duration){ImGui::TextWrapped("Prepare the compatible clip to preview this action. Gameplay stays stopped.");return;}
+    draw_pose_preview();
+}
+void Shell::draw_pose_preview(){
+    const auto duration=composer_duration;
     try{
         if(ImGui::Button(composer_playing?"Pause preview":"Play preview")){if(composer_tick>=double(duration)/action_tick_units)composer_tick=0;composer_playing=!composer_playing;}
         ImGui::SameLine();if(ImGui::Button("Reset preview")){composer_tick=0;composer_playing=false;}

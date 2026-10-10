@@ -1,6 +1,8 @@
 #pragma once
 #include <darkangel/character_scene.hpp>
 #include <darkangel/animation_assets.hpp>
+#include <darkangel/actor_assets.hpp>
+#include "native_authoring.hpp"
 #include <darkangel/assembly.hpp>
 #include <functional>
 namespace darkangel::editor_app {
@@ -16,6 +18,8 @@ public:
 private:
     std::unique_ptr<AnimationClip> clip_;std::unique_ptr<RigPose> pose_;
 };
+struct AuthoredCharacterPose {CookedCharacter character;CookedClip clip;std::unique_ptr<ComposerPosePreview> pose;};
+AuthoredCharacterPose prepare_authored_character_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId clip);
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},StableId target={},AssetId collision={});
 std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&);
 }

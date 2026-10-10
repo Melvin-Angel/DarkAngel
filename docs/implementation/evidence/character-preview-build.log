@@ -1,0 +1,4 @@
+[1/6] Scanning C:\DarkAngel\tests\composer_preview_tests.cpp for CXX dependencies
+[2/6] Generating CXX dyndep file CMakeFiles\ComposerPreviewTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\ComposerPreviewTests.dir\tests\composer_preview_tests.cpp.obj
+[4/4] Linking CXX executable ComposerPreviewTests.exe
