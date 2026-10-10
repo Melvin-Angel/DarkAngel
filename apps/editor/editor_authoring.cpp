@@ -35,7 +35,8 @@ bool picker(const char* label,AssetId& selected,Controller& c,std::map<std::uint
  for(const auto& a:c.asset_inventory)if(a.id==selected)name=a.path;
  bool changed=false;auto& query=filters[ImHashStr((std::string(extension)+"/"+label).c_str())];
  ImGui::PushID(label);ImGui::TextUnformatted(label);ImGui::SetNextItemWidth(-1.f);
- if(ImGui::BeginCombo("##asset-reference",name.c_str())){
+ auto display=selected==AssetId{}||name=="Missing asset"?name:std::filesystem::path(name).filename().string();
+ if(ImGui::BeginCombo("##asset-reference",display.c_str())){
   ImGui::InputTextWithHint("##reference-search","Search path or UUID...",query.data(),query.size());ImGui::SameLine();if(ImGui::SmallButton("Clear"))query.fill(0);
   auto candidates=reference_candidates(*c.assets,c.authoring,c.asset_inventory,extension,query.data(),attributes,importer,looping_only);
   if(candidates.empty())ImGui::TextDisabled("No compatible references match.");
