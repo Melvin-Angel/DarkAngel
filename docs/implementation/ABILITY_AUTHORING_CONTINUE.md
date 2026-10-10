@@ -1,3 +1,5 @@
+Current topology increment: [GRAPH_TOPOLOGY_REPORT.md](GRAPH_TOPOLOGY_REPORT.md). Four focused gates pass for explicit node/point/triangle construction/history, protected removals, incomplete Save retention and completed frozen fresh Player Play. Next: shared history/source-change inspection and creation usability. M4/M5 In progress; EOS blocked; M6–M9 not started. This supersedes the earlier topology-next instruction; older receipts remain historical.
+
 Current committed authoring handoff: [AUTHORING_USAGE_HANDOFF.md](AUTHORING_USAGE_HANDOFF.md). Native checkpoint `1ae1a60`; latest loop-reference checks pass, Character/Player/input/graph/preview tools are delivered in scoped form. Next: native graph topology construction/history, then creation/history usability. M4/M5 In progress; EOS blocked; M6–M9 Not started. Older continuation entries below are historical checkpoints.
 
 ## Earlier authoring checkpoint notes

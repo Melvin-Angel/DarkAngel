@@ -4,11 +4,40 @@
 #include <set>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 namespace darkangel::editor_app {
 namespace {void require(bool v,const char* m){if(!v)throw std::runtime_error(m);}std::string read(const std::filesystem::path& p){std::ifstream f(p,std::ios::binary);require(bool(f),"Cannot read native source");std::string s{std::istreambuf_iterator<char>(f),{}};require(s.size()<=65536,"Native draft size limit");return s;}}
 ActionDefinition authoring_action(const nlohmann::json& source){
  auto core=source;if(core.at("schema")==2){core.erase("motion");core["schema"]=1;}
  return decode_action_source(core.dump());
+}
+
+namespace {
+nlohmann::json& graph_node(nlohmann::json& value,unsigned id){require(value.at("kind")=="graph","Choose a graph asset");auto& nodes=value.at("nodes");auto found=std::find_if(nodes.begin(),nodes.end(),[&](const auto& node){return node.at("id")==id;});require(found!=nodes.end(),"Graph node no longer exists");return *found;}
+}
+
+unsigned NativeAuthoring::add_graph_blend(AssetService& assets,AssetId asset,bool two_dimensional,unsigned first,unsigned second,unsigned third){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;graph_node(value,first);graph_node(value,second);if(two_dimensional)graph_node(value,third);require(value["nodes"].size()<32,"Graph node limit is32");auto next=graph_ids_[asset];for(const auto& node:value["nodes"])next=std::max(next,node["id"].get<unsigned>());require(next<UINT32_MAX,"Graph node identity exhausted");++next;
+ nlohmann::json points=nlohmann::json::array({{{"input",first},{"x",0.0},{"y",0.0}},{{"input",second},{"x",1.0},{"y",0.0}}}),triangles=nlohmann::json::array();if(two_dimensional){points.push_back({{"input",third},{"x",0.0},{"y",1.0}});triangles.push_back({0u,1u,2u});}value["nodes"].push_back({{"id",next},{"kind",two_dimensional?"blend2d":"blend1d"},{"parameter","speed"},{"points",std::move(points)},{"triangles",std::move(triangles)}});apply(assets,asset,revision_,std::move(value),"Create graph blend node");graph_ids_[asset]=next;return next;
+}
+unsigned NativeAuthoring::duplicate_graph_node(AssetService& assets,AssetId asset,unsigned node){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto copy=graph_node(value,node);require(value["nodes"].size()<32,"Graph node limit is 32");auto next=graph_ids_[asset];for(const auto& entry:value["nodes"])next=std::max(next,entry["id"].get<unsigned>());require(next<UINT32_MAX,"Graph node identity exhausted");copy["id"]=++next;value["nodes"].push_back(std::move(copy));apply(assets,asset,revision_,std::move(value),"Duplicate graph node");graph_ids_[asset]=next;return next;
+}
+void NativeAuthoring::remove_graph_node(AssetService& assets,AssetId asset,unsigned id){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;graph_node(value,id);require(value["root"]!=id,"Choose another root before removing this node");auto high=graph_ids_[asset];for(const auto& node:value["nodes"]){high=std::max(high,node["id"].get<unsigned>());if(node.contains("points"))for(const auto& point:node["points"])require(point["input"]!=id,"Disconnect node inputs before removing this node");}
+ auto& nodes=value["nodes"];nodes.erase(std::find_if(nodes.begin(),nodes.end(),[&](const auto& node){return node["id"]==id;}));std::set<std::string> clips;for(const auto& node:nodes)if(node["kind"]=="clip")clips.insert(node["clip"].get<std::string>());auto& sources=value["sources"];for(auto it=sources.begin();it!=sources.end();)if(!clips.contains(it.key()))it=sources.erase(it);else ++it;apply(assets,asset,revision_,std::move(value),"Remove graph node");graph_ids_[asset]=high;
+}
+void NativeAuthoring::add_graph_point(AssetService& assets,AssetId asset,unsigned id,unsigned input,double x,double y){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;graph_node(value,input);auto& node=graph_node(value,id);require(node["kind"]!="clip"&&node["points"].size()<32,"Select a blend node with room for a point");require(std::isfinite(x)&&std::isfinite(y)&&std::abs(x)<=100&&std::abs(y)<=100,"Graph coordinates must be finite within100");if(node["kind"]=="blend1d")require(y==0,"1D points require Y=0");node["points"].push_back({{"input",input},{"x",x},{"y",y}});apply(assets,asset,revision_,std::move(value),"Add graph blend point");
+}
+void NativeAuthoring::remove_graph_point(AssetService& assets,AssetId asset,unsigned id,unsigned point){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto& node=graph_node(value,id);require(node["kind"]!="clip"&&point<node["points"].size(),"Select an existing blend point");node["points"].erase(point);auto& triangles=node["triangles"];for(auto it=triangles.begin();it!=triangles.end();){bool removed=std::any_of(it->begin(),it->end(),[&](const auto& index){return index==point;});if(removed)it=triangles.erase(it);else{for(auto& index:*it)if(index.get<unsigned>()>point)index=index.get<unsigned>()-1;++it;}}apply(assets,asset,revision_,std::move(value),"Remove graph point and repair triangle indices");
+}
+void NativeAuthoring::add_graph_triangle(AssetService& assets,AssetId asset,unsigned id,std::array<unsigned,3> triangle){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto& node=graph_node(value,id);require(node["kind"]=="blend2d"&&node["triangles"].size()<64,"Select a 2D node with room for a triangle");require(triangle[0]!=triangle[1]&&triangle[0]!=triangle[2]&&triangle[1]!=triangle[2],"Triangle requires three distinct points");for(auto index:triangle)require(index<node["points"].size(),"Triangle point is outside the node");node["triangles"].push_back(triangle);apply(assets,asset,revision_,std::move(value),"Add graph triangle");
+}
+void NativeAuthoring::remove_graph_triangle(AssetService& assets,AssetId asset,unsigned id,unsigned triangle){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto& node=graph_node(value,id);require(node["kind"]=="blend2d"&&triangle<node["triangles"].size(),"Select an existing triangle");node["triangles"].erase(triangle);apply(assets,asset,revision_,std::move(value),"Remove graph triangle");
 }
 unsigned NativeAuthoring::add_action_block(AssetService& assets,AssetId asset,const ActionBlock& block){
  record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto action=authoring_action(value);

@@ -2,6 +2,7 @@
 #include <darkangel/assets.hpp>
 #include <nlohmann/json.hpp>
 #include <map>
+#include <array>
 #include <functional>
 #include <darkangel/action.hpp>
 #include <darkangel/ability_assets.hpp>
@@ -17,6 +18,13 @@ public:
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
+    unsigned add_graph_blend(AssetService&,AssetId,bool two_dimensional,unsigned first,unsigned second,unsigned third=0);
+    unsigned duplicate_graph_node(AssetService&,AssetId,unsigned node);
+    void remove_graph_node(AssetService&,AssetId,unsigned node);
+    void add_graph_point(AssetService&,AssetId,unsigned node,unsigned input,double x,double y);
+    void remove_graph_point(AssetService&,AssetId,unsigned node,unsigned point);
+    void add_graph_triangle(AssetService&,AssetId,unsigned node,std::array<unsigned,3>);
+    void remove_graph_triangle(AssetService&,AssetId,unsigned node,unsigned triangle);
     unsigned add_action_block(AssetService&,AssetId,const ActionBlock&);
     AttributeId add_attribute(AssetService&,AssetId,std::string_view name,AttributeKind);
     void remove_attribute(AssetService&,AssetId,AttributeId);
@@ -36,6 +44,7 @@ private:
     using Values=std::map<AssetId,nlohmann::json>;
     struct Command {std::string label;Values before,after;};
     Values observed_;std::vector<Command> undo_,redo_;std::uint64_t revision_{};bool continuous_{};
+    std::map<AssetId,unsigned> graph_ids_;
     std::map<AssetId,unsigned> action_ids_;
     std::map<AssetId,AttributeId> attribute_ids_;
     void check_sources(AssetService&,const Values&)const;

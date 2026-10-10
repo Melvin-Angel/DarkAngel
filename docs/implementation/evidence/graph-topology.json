@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "base_head": "af42b3c081c914acdbcf09f4bb530a63c48eae4a",
+  "scope": "Authored Native graph node/point/triangle construction commands, coherent history, incomplete rejection and completed frozen consumer closure",
+  "gates": [
+    {
+      "name": "graph-topology-build",
+      "exit": 0,
+      "seconds": 31.033
+    },
+    {
+      "name": "graph-topology-native",
+      "exit": 0,
+      "seconds": 26.475
+    },
+    {
+      "name": "graph-topology-fresh-play",
+      "exit": 0,
+      "seconds": 7.357
+    },
+    {
+      "name": "graph-topology-panel",
+      "exit": 0,
+      "seconds": 1.282
+    }
+  ],
+  "source_sha256": {
+    "engine/assets/actor_cooker.cpp": "8287c4c4d11e8461053183cb6307333d71b70c8f634ea8eaadc969282c0fac6d",
+    "engine/assets/include/darkangel/actor_assets.hpp": "f07dad54879eb320229b81bc66d45c831419a93a5641098a7edae3820a81e555",
+    "engine/runtime/character_scene.cpp": "ae4ef9f80082bf2e7e9facf5ca7f5a1ec79b31d297fec4b9bea6af24cf537df1",
+    "engine/runtime/include/darkangel/character_scene.hpp": "1aee79fbf719b18b91b39c5a31b9d51a2e5aa5f91ced2d1930b8d393e7a99efc",
+    "engine/assets/asset_service.cpp": "41498f622768c4812a2ea0824834b3831141e177ff6471466d1c1fd0809a635d",
+    "tests/native_authoring_tests.cpp": "bbcda92bd02e4de94b0f114880be78bfaf474ceb76a8defa3b15bcf0e2b45ae9",
+    "apps/editor/native_authoring.cpp": "2c2ba6fcf1b25aa33028410255bf293dae1ee50485794cf4d465b87cfb177a2b",
+    "apps/editor/native_authoring.hpp": "77b917eaaec58dd46073cee0b17af42cbc2bd82550e067f1f5734c2ed0af5cc9",
+    "apps/editor/character_preview.cpp": "1a1dd7fd6736e337975f902afb71ac126ac688c1e623cfa5ddba3831581e8e33",
+    "apps/editor/editor_authoring.cpp": "1fc458c5baf5205795d53a03d8b6a5f523e52b2ba0a8b8aa7477164f405a72e4",
+    "apps/editor/editor_workspaces.cpp": "af4705a062cc8e9e8bfbafd6f65490e3bbe9037df01e9d911d47cf3a65ff5a7a",
+    "apps/editor/editor_ui.cpp": "9c1027d5bf03690f1f5c1389adf54bc17973d574bac3762556d633686d1f5ccd",
+    "apps/editor/editor_ui.hpp": "2bc8111d97c6a2d902a83e5aca56d7b1f05d969fa627dc69a73cfaad5c25bd25",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
+    "apps/editor/main.cpp": "09de66aad471446835af785c308e86ce16603940f88f53155a7e474815cf59c1",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_player_defaults.py": "2053147b349d811ee3965704df7c3b2ce028aec3e492dd80dadf20e017642229"
+  },
+  "limitations": [
+    "One scripted D3D12 creation/navigation/history/fresh Play and rendered panels; no physical pointer automation.",
+    "Initial existing-node typed forms only; node topology creation, graph-state preview, tag conditions, reactions and NPC configuration remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}
