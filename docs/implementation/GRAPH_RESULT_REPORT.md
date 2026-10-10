@@ -1,0 +1,9 @@
+# Native graph sampling inspection
+
+Prepared isolated graph preview now exposes the exact native root-output clips, weights and clip clocks used to blend the pose. Sampled measured parameters, fixed tick, normalized phase and frozen generation explain the result. This consumes GraphPoseInputs from the existing sampler; it does not recompute weights or decide gameplay. Cached borrowed clip references remain owned by the frozen graph instance.
+
+`python scripts/verify_graph_preview.py --result` passed build and focused ComposerPreviewTests comparing exposed layer pointers/clocks/weights with native evaluation and retaining sampled results after rejected scrub parameters. The old fixture assumed gui_character; it now finds an available published native Character. After moving the result panel above the preview image, `--result --ui-only` passed the editor/backend check without repeating the unchanged native gate. [Receipt](evidence/graph-result.json) identifies retained native evidence.
+
+Tick20 D3D12 capture inspected: one omni-walk.glb layer at weight1, clip tick20, graph phase0.28571 and gameplay stopped/source unchanged. Requested blend-space inputs remain separately labelled. Historical graph-preview receipts are untouched. No physical pointer, multiplayer or performance qualification claim. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
+Next bigger authoring ticket: expose existing Ability tag requirements and native action-window tag bindings. Those primitives already exist but are not editable in the Ability forms. Utility dodge movement remains a later integration: the canonical eight slots are Light/Heavy/RangedLight/RangedHeavy/Spell1/Spell2/Block/Parry, with no Utility slot. Resolve the deliberate utility ingress before implementation; do not invent a ninth slot or hijack one. History stays MVP.

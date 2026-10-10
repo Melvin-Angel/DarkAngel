@@ -23,7 +23,7 @@ public:
     void draw_assets(Controller&,bool expanded=false);
     void draw_authoring_history(Controller&);
     void draw_authoring(Controller&,unsigned,unsigned,float);
-    AssetId graph_preview_asset,graph_character;std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;bool show_graph_connections{true};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
+    AssetId graph_preview_asset,graph_character;std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
     void cancel_composer_drag(Controller&);
     ActionBlock composer_drag_block;AssetId composer_drag_asset;

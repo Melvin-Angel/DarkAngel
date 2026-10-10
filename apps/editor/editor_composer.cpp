@@ -109,7 +109,7 @@ void Shell::draw_pose_preview(){
         if(ImGui::Button(composer_playing?"Pause preview":"Play preview")){if(composer_tick>=double(duration)/action_tick_units)composer_tick=0;composer_playing=!composer_playing;}
         ImGui::SameLine();if(ImGui::Button("Reset preview")){composer_tick=0;composer_playing=false;}
         ImGui::SameLine();ImGui::Checkbox("Loop preview",&composer_loop);ImGui::SliderFloat("Preview rate",&composer_rate,.1f,2.f,"%.2fx");
-        scrub_composer(composer_tick);composer_visible=true;
+        scrub_composer(composer_tick);composer_visible=true;if(draw_graph_info&&graph_preview_asset==authored_selection)draw_graph_info();
         auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),170.f);
         const auto pos=ImGui::GetCursorScreenPos();area={pos.x,pos.y,size.x,size.y};
         ImGui::Image(composer_texture,size);

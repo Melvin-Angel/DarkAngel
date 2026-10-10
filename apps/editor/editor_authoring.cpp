@@ -89,7 +89,8 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  ImGui::Checkbox("Show node connections",&show_graph_connections);
  if(show_graph_connections)if(auto connection=draw_graph_canvas(selection,v,graph_node)){auto edit=*connection;topology=[&,edit]{c.authoring.connect_graph_input(*c.assets,selection,edit.node,edit.point,edit.input);};}
  if(graph_point_node!=graph_node){graph_point_node=graph_node;graph_point=0;}
- for(const auto& node:v.at("nodes"))if(node.at("id")==graph_node&&node.contains("points"))draw_blend_space(node,graph_point,graph_speed,graph_forward,graph_lateral);
+ ImGui::Checkbox("Show blend geometry",&show_blend_geometry);
+ if(show_blend_geometry)for(const auto& node:v.at("nodes"))if(node.at("id")==graph_node&&node.contains("points"))draw_blend_space(node,graph_point,graph_speed,graph_forward,graph_lateral);
  auto node_picker=[&](const char* label,Json& value){auto current=std::to_string(value.get<unsigned>());if(ImGui::BeginCombo(label,current.c_str())){for(const auto& node:v["nodes"]){auto name=std::to_string(node["id"].get<unsigned>())+" / "+node["kind"].get<std::string>();if(ImGui::Selectable(name.c_str(),node["id"]==value))value=node["id"];}ImGui::EndCombo();}};
 
  ImGui::SeparatorText("Graph state preview");if(graph_character==AssetId{}){graph_character=character_selection;if(graph_character==AssetId{})for(const auto& asset:c.asset_inventory)if(std::filesystem::path(asset.path).extension()==".dacharacter"){graph_character=asset.id;break;}}

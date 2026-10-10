@@ -1,3 +1,5 @@
+Current Animation sampling increment: [native graph result](GRAPH_RESULT_REPORT.md). Native exact-layer/retention checks and tick20 D3D12 passed; resolved clips/weights are visible. Next bigger ticket: Ability tag requirements/action-window grants using existing schemas. Utility routing remains unresolved; preserve eight canonical slots. History stays MVP; M4/M5 In progress.
+
 Current Animation geometry increment: [blend-space view](BLEND_SPACE_REPORT.md). Editor/D3D12 draw passed; selected points focus typed fields, requested preview input is distinct from resolved weights. Next: actual native graph blend-result inspection. History stays MVP; M4/M5 In progress.
 
 Current Animation graph increment: [visual graph canvas](GRAPH_CANVAS_REPORT.md). Native connection/cycle/consumer checks and D3D12 draw passed. Input connections use existing native sources/history. Next: blend-space geometry and selected-point editing. History stays MVP; M4/M5 In progress.

@@ -26,7 +26,9 @@ public:
     explicit GraphPosePreview(const CookedGraph&);
     const std::vector<JointMatrix>& sample(unsigned tick,GraphParameters);
     const GraphState& state()const{return graph_.state();}
-private:AnimationGraphInstance graph_;RigPose pose_;
+    const GraphPoseInputs& inputs()const{return inputs_;}
+    GraphParameters parameters()const{return parameters_;}
+private:AnimationGraphInstance graph_;RigPose pose_;GraphPoseInputs inputs_;GraphParameters parameters_;
 };
 struct AuthoredGraphPose {CookedCharacter character;CookedGraph graph;std::unique_ptr<GraphPosePreview> pose;};
 AuthoredGraphPose prepare_authored_graph_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId graph);

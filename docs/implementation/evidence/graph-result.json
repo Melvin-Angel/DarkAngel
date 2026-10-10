@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "base_head": "54905db918f7aeacb4a9c3697682dc434e4a9708",
+  "scope": "Resolved native clip/weight/parameter inspection; Isolated authored graph/Character measured-state preview with exact native graph fixed ticks and independent GPU resources",
+  "gates": [
+    {
+      "name": "graph-result-build",
+      "exit": 0,
+      "seconds": 35.203
+    },
+    {
+      "name": "graph-result-native",
+      "exit": 0,
+      "retained": true,
+      "evidence": "graph-result-native.log",
+      "reason": "Successful native exact-layer gate retained while moving only the result panel before the preview image."
+    },
+    {
+      "name": "graph-result-20",
+      "exit": 0,
+      "seconds": 3.648
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/character_preview.hpp": "96e5665da45ec98b261ee93517e842d31ae197145f1c705d420f51dbafe2e7a6",
+    "apps/editor/editor_composer.cpp": "d6f5315066178d2a0219c9ba38556f2e09a4d4d0503fd667017cc18bd800703b",
+    "tests/composer_preview_tests.cpp": "9763e504f69c762264db9d5b13a9dd11b3d97cf1da332862dd5e93ea4a426b4b",
+    "apps/editor/editor_controller.cpp": "988c40dcfe38b3aa67f72ae82c7f953aa51306366c11743712ff284ac4f9235f",
+    "CMakeLists.txt": "e670b9bbe49512688be7424870991c892dcb19c6426220c18a1c51483fff2064",
+    "engine/assets/asset_service.cpp": "e2cce03bdd74c94a997b1cca0b9436704d74cd3db6a7113735bbd383a22c89ad",
+    "tests/actor_asset_tests.cpp": "b660148e0bd1514768a15d93fe587fba9ec0f5d700d89d17a35616fb329757f4",
+    "apps/editor/native_authoring.cpp": "c165022f659b20ef3642de61d312c8e029b186d2dd69b3a536f280b933ae43b7",
+    "apps/editor/native_authoring.hpp": "86cfc3177ce2b48144c98c240acca758ae2d370821c42caf4090c0241910b096",
+    "apps/editor/character_preview.cpp": "639de9b22b4f56a71af29b557f40fe62d46b4c3e752f2819761ed9c87d99f987",
+    "apps/editor/editor_authoring.cpp": "bd19e7752f09e91c47fa0ee51432e5938772f1703620e80a8d3563336884bac4",
+    "apps/editor/editor_ui.cpp": "3234548a097f57623f846e75c50336c08016a287d6d04d234fd85dac2aec90f1",
+    "apps/editor/editor_ui.hpp": "600c8c7e0414cfbead0849233090a65563985f73decfb4852a2404ff90dbef39",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
+    "apps/editor/main.cpp": "f9bc8e67bb55865aad574e2e08bdba9cb826aafb1ef9b80687373d75b901c6b9",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_graph_preview.py": "ed4df6295826f4b6b693ed4e2d43d84bcf4d48fbc69e1dc10782d4a9e9d4913e"
+  },
+  "limitations": [
+    "Native exact graph poses/layers, retained rejected scrub and one D3D12 capture at tick20; no physical controls or performance qualification.",
+    "Constant measured-state simulation only; tag conditions, transitions, reactions and animation authority changes remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}
