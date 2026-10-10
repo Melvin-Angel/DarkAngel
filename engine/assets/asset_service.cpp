@@ -226,7 +226,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".dagraph"||ext==".dacharacter"||ext==".daplayer"||ext==".dakit"||ext==".daability"||ext==".daeffect"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
     require(selected.size()<=64,"Coordinated Save root limit");
     for(auto id:selected){
-        require(inventory.contains(id),"Native Save scene root missing");auto source=within(snapshot,inventory.at(id));auto metadata=read(metadata_path(source),1024*1024);auto sidecar=source_metadata(source);auto ids=metadata_ids(sidecar);
+        if(!inventory.contains(id))throw std::runtime_error("Native candidate root is missing: "+id.text());const auto& relative=inventory.at(id);try{auto source=within(snapshot,relative);auto metadata=read(metadata_path(source),1024*1024);auto sidecar=source_metadata(source);auto ids=metadata_ids(sidecar);
         auto inspected=import_source(snapshot,source,ids,true);
         Json recipe={{"schema",1},{"importer",sidecar.at("importer")},{"cgltf","1.15"},{"meshoptimizer","1.2"},{"DirectXTex","2026-05-07"},{"profile","Windows-x64-RGBA8-sRGB-CPU-mips"},{"build",DAE_COOKER_BUILD_HASH},{"settings",sha256(metadata)},{"inputs",inspected.inputs},{"mapping",sidecar.at("subassets")},{"id",id.text()}};
         PreparedNativeEdit::State::Root root;root.id=id;root.recipe=sha256(recipe.dump());
@@ -234,7 +234,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
         require(root.revision<0x7fffffffffffffffULL,"Native Save generation limit");
         ++p.conversions;root.imported=import_source(snapshot,source,ids,false);require(root.imported.inputs==inspected.inputs,"Native Save conversion closure changed");
         for(const auto& product:root.imported.products){require(product.bytes.size()<=64*1024*1024,"Native Save product limit");auto hash=sha256(product.bytes);root.hashes.push_back(hash);auto path=p.cas/(hash+"."+product.extension);if(!std::filesystem::exists(path)||file_sha256(path)!=hash)atomic_write(path,product.bytes);require(file_sha256(path)==hash,"Native Save CAS digest mismatch");}
-        state->roots.push_back(std::move(root));
+        state->roots.push_back(std::move(root));}catch(const std::exception& error){throw std::runtime_error("Native candidate for "+relative+" ["+id.text()+"] failed: "+error.what());}
     }
     // Validate a frozen union for every coordinated root. Identical shared
     // products deduplicate; conflicting generations and missing edges reject.
