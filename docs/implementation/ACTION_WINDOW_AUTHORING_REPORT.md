@@ -1,0 +1,9 @@
+# Native Ability action-window tags - 10 October 2026
+
+Ability now exposes its existing action_tags bindings before costs: compatible Invulnerability/MovementLock windows, registered owner/public tags, half-open tick ranges, create/remove and duplicate-pair filtering. Missing references remain visible for repair. Existing activation all/any/none forms are retained. New tag names still require generated native-consumer rebuilds; utility routing and the canonical eight slots are unchanged.
+
+The forms use existing native drafts/history/Save/cook/frozen references. No alternate runtime or tag registry. Native checks author an Invulnerability block and binding, Undo/Redo and removal recovery, reject duplicate and HitWindow bindings without publishing, Save the complete closure, prepare new CharacterPreviewResources and enter fresh WorldSession Play. Authority, owner prediction and public observer see the tag at tick1 and no tag at tick9; early cancellation clears it. Previous frozen playable resources and the authoring scene remain unchanged.
+
+`python scripts/verify_action_window_authoring.py --build` is the focused reproduction. Completed [receipt](evidence/action-window-authoring.json): native authoring/fresh Play, existing action-tag contributor/owner-correction lifecycle and D3D12 panel pass. [Panel](evidence/action-window-authoring-panel.png) visually inspected. Native gates were retained when only form placement was rechecked; no repeated historical suite. This is scripted source/form evidence, not physical pointer automation. The temporary fixture uses short paths to accommodate copied scene-record filenames on Windows; originals remain untouched.
+
+M4/M5 In progress; EOS blocked; M6–M9 not started. History stays MVP; published creation retained and publication recovery limits unchanged. No push, dependencies, external assets or subagents.

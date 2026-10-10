@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "base_head": "fb9f5e015dbaa1ae623c4c3d9461f1d5b7352104",
+  "scope": "Native Ability action-window tag forms, source history/validation, frozen Save and fresh WorldSession lifecycle",
+  "gates": [
+    {
+      "name": "action-window-authoring-native",
+      "exit": 0,
+      "seconds": 54.403
+    },
+    {
+      "name": "action-window-authoring-lifecycle",
+      "exit": 0,
+      "seconds": 0.175
+    },
+    {
+      "name": "action-window-authoring-panel",
+      "exit": 0,
+      "seconds": 1.115
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_authoring.cpp": "46867ff3936f65b1fe78391ea2dd84828118caec4d00fc3152621f6935caa2fa",
+    "tests/native_authoring_tests.cpp": "0533a0e9aee5ab818ed31c4ae6fb2dc78138761740d960e90a77f63174750b9b",
+    "scripts/verify_action_window_authoring.py": "e0723fda557f2aaf7890539be154b249819df629311069c64b43b06c84f7df4f"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor.exe": "5398e54d9caf79a0801f717b0f1737ca821da9fb825f3fbf4bef564f8606dd12",
+    "NativeAuthoringTests.exe": "4eada1e04e10d30736ea77bd5b72c18596595f3a4cc8c79c386060261996d710",
+    "ActionTagTests.exe": "317eff640763b66a7dcefdbea0ca562da4ac039b4838203a351d5d3edbd659d0"
+  },
+  "limitations": [
+    "Scripted source editing and D3D12 form rendering; no physical pointer automation.",
+    "Existing invulnerability/movement-lock windows and registered owner/public tags only; no tag registry edits or utility ingress.",
+    "M4/M5 In progress; EOS blocked; M6\u2013M9 not started."
+  ],
+  "panel_layout_recheck": "Action-window forms moved before costs; native gates retained unchanged"
+}

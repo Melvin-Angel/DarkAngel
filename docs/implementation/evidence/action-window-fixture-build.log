@@ -1,0 +1,4 @@
+[1/6] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[2/6] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[4/4] Linking CXX executable NativeAuthoringTests.exe
