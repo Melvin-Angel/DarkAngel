@@ -1,0 +1,31 @@
+{
+  "gates": [
+    {
+      "name": "effect-preview-failure-build",
+      "exit": 0
+    },
+    {
+      "name": "effect-preview-failure-native",
+      "exit": 0
+    },
+    {
+      "name": "effect-preview-failure-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "effect-preview-failure",
+  "base_head": "8ebd2fd4f733bf037971be55f5e98b1d81af5f50",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "a1d119349f56ca2e1f616db2a86907ac30c8ccde66b605881a87ac87c63fe2fe",
+    "apps\\editor\\editor_ui.hpp": "ce35f6210c0b9c9fbc6604f93f33dc19e96d89e1c67f2918476776a47ed9bfc9",
+    "apps\\editor\\main.cpp": "9df2858dbf77c2ed170d247595bb962b40ce15f04b673bb8679015bb2fe09df7",
+    "apps\\editor\\native_authoring.cpp": "4ade6b55d2706f9b459a64eeded0085f59e6d5b320c456709fa759254591f722",
+    "apps\\editor\\native_authoring.hpp": "372503d38c5df7adf5da48f06b416d3757ce519b8dfdfca6134027effde5f41d",
+    "tests\\native_authoring_tests.cpp": "fcb858d505f3ce3e6749b00469a24b57c1a0792d9232a871f5c9336a8c3d6155",
+    "apps\\editor\\effect_preview.hpp": "36807f01cea0ad99a76ded5ab94204f3018478ac5bb54afaee5df34641f6d53c"
+  },
+  "limitations": [
+    "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ]
+}

@@ -9,7 +9,7 @@ namespace darkangel::editor_app {
 class EffectPreview {
 public:
  EffectPreview(AssetService& assets,NativeAuthoring& author,AssetId id){
-  author.open(assets,id);
+  source_path=author.open(assets,id).asset.path;
   std::vector<NativeSourceEdit> edits;
   for(const auto& [asset,draft]:author.drafts)if(asset==id||draft.dirty())
    edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});
@@ -39,7 +39,8 @@ public:
   if(!selected.value)selected=handle;auto active=effects->snapshot();
   if(std::any_of(active.begin(),active.end(),[&](const auto& entry){return entry.handle==selected;})){effects->remove(selected,*attributes);last_operation="Removed effect "+std::to_string(selected.value)+".";}else last_operation="No active effect matches the selected handle.";
  }
- std::string last_operation;std::uint64_t authoring_revision{};
+ void record_failure(std::string_view operation,std::string_view reason,std::uint64_t source=0){last_error=std::string(operation)+" failed for frozen Effect "+source_path+" ("+cooked.definition->id.text()+", revision "+std::to_string(authoring_revision)+(source?", source "+std::to_string(source):std::string{})+"): "+std::string(reason);}
+ std::string source_path,last_error,last_operation;std::uint64_t authoring_revision{};
  CookedEffect cooked;std::unique_ptr<AttributeSet> attributes;std::unique_ptr<OwnedEffects> effects;
  std::vector<double> base;std::uint64_t tick{};EffectHandle handle;
 private:
