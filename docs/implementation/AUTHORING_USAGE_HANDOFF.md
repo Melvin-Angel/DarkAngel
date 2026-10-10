@@ -1,3 +1,35 @@
+## Usage-stop handoff - 10 October 2026, resumed authoring window
+
+Latest native checkpoint: af2d9ee341543028f1ce3f5a076939d3ee65cc67 (af2d9ee), master. Tree observed clean before this documentation handoff;20 commits ahead of the existing local origin/master ref15a4a0ace8d5bfc214684307b26691512538cc9e. No fetch/push. This handoff is the next local commit; inspect fresh Git rather than treating the historical counts below as current.
+
+Fresh usage reached90% five-hour used /10% remaining. Reset Unix1791648809 =10 October16:13:29 UTC /18:13:29 Copenhagen. Existing heartbeat darkangel-authoring-after-usage-reset updated successfully, ACTIVE, to18:15 Copenhagen today, just after reset. No duplicate automation or reset consumption. Check fresh usage on resumption and move this same follow-up again if necessary.
+
+### User steering and delivered larger increments
+
+Keep authoring history at MVP and move to bigger-ticket content/combat capabilities. History polish stops; do not add more inspection panes or a general transaction framework. Minimal source roster filter finished at00bcfba.
+
+- e2694e5: Create Ability defaults to independent native Composer copy, one paired pre-publication creation command, private candidate/rollback, explicit shared-timing option. [Independent creation](INDEPENDENT_ABILITY_REPORT.md).
+- 376a7e5: Six-source Save/cook/complete fresh Player/Kit/Composer integration through that paired path; deferred cost12/damage17, targetHealth83, ownerStamina88, status source4/activation1 and pending0. Second-source collision leaves no half creation. [Fresh Play](INDEPENDENT_PLAY_REPORT.md).
+- be4f36e: Visual native graph node/input canvas, graph-scoped connection gestures, native port/node/cycle checks, Undo/Redo and private consumer validation. [Canvas](GRAPH_CANVAS_REPORT.md).
+- 54905db: 1D/2D blend geometry, triangle/point view, requested-input marker, focused typed point forms; optional connection visibility. No point dragging or inferred weight evaluator. [Blend spaces](BLEND_SPACE_REPORT.md).
+- af2d9ee: Exact native sampled clip/weight/clock/parameter/phase/frozen-generation inspection. Native layer comparisons/retained rejected inputs plus tick20 D3D12, one omni-walk layer at weight1, phase0.28571, gameplay stopped/source unchanged. [Native sampling](GRAPH_RESULT_REPORT.md).
+
+Earlier chunks this window also delivered shared references/binding navigation, Kit copy/Player assignment, source identity/comparison safeguards and ordinary Effect preview source attribution/cleanup/failure/reset/reprepare. Reports and current STATUS/CONTINUE entries hold scoped receipts. Preserve these; do not reconstruct them.
+
+### Next coherent bigger ticket
+
+Expose native Ability action-window tag bindings. Requirements all/any/none already have Ability forms (editor_authoring.cpp); the earlier next-task wording that included rebuilding requirements was too broad. Native Ability.action_tags, Invulnerability/MovementLock action blocks, OwnedEffects action grants, prediction and frozen tag registry contracts already exist. Reuse those exact fields and source-aware execution paths; show registered tags and compatible blocks, create/remove bindings, native validation/Undo and a bounded authored combat scenario. Preserve generated-tag rebuild fences; no new registry names for an ordinary authoring form.
+
+Utility dodge is still planned, not delivered by these authoring tools. Actual CombatSlot has exactly Light/Heavy/RangedLight/RangedHeavy/Spell1/Spell2/Block/Parry; no Utility slot. Resolve the deliberate utility ingress against the original roadmap/decision contracts before implementing motor movement. Do not invent slot9, repurpose a slot silently, or bypass WorldSession. Full masks/reactions/tag graph states/NPC remain planned, not the next monolithic rewrite.
+
+### Verification and boundaries
+
+Focused native fixture plus one D3D12 backend for substantive native changes; isolated geometry/forms used only editor/backend checks. Native graph-result sampling used ComposerPreviewTests, not the full historical suite. Failed fixture assumptions were corrected: graph renderer now replaces the actual root input; preview selects an available published native Character rather than requiring gui_character. Native gates were explicitly retained when only UI placement/routing was rerun. Receipts state scripted API/form drawing, not physical pointer automation. Historical evidence is not overwritten.
+
+No engine/runtime, physics or protocol source changes this window; changes are editor authoring/preview/tests/scripts/docs. No dependencies, frozen external asset edits, subagents, push or reset consumption. M4/M5 In progress; live EOS externally blocked; M6-M9 not started. AssetService/catalog/CAS/frozen schemas/references, WorldSession authority, eight slots, generated-tag fences and complete Save/cook/scene closure/resource preparation/fresh isolated Play remain required. Creation Undo ends at publication; published assets retained. Publication remains non-crash-atomic and not a cross-process multi-file reader snapshot.
+
+## Earlier handoff observations (historical)
+
 ## Current resumed-window checkpoint - 10 October 2026
 
 Native checkpoint e493caa4f5c530bf04f1b78dc71cf5622b0317f4 (e493caa). Tree observed clean on master, 11 commits ahead of the current local origin/master ref (e4c0555). No fetch/push by this session. Inspect fresh Git status and preserve later user work. This progress header supersedes the older usage-stop header below; work has resumed and is not yet at the next usage threshold.

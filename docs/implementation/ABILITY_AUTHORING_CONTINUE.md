@@ -1,3 +1,5 @@
+Current usage-stop: native checkpoint af2d9ee; five-hour10% remaining, reset18:13:29 Copenhagen10 October; existing follow-up moved to18:15. [Precise handoff](AUTHORING_USAGE_HANDOFF.md). History stays MVP. Next: native Ability action-window tag binding controls; tag requirements already exist. Preserve eight slots, unresolved utility ingress, full fresh Play and M4/M5 In progress.
+
 Current Animation sampling increment: [native graph result](GRAPH_RESULT_REPORT.md). Native exact-layer/retention checks and tick20 D3D12 passed; resolved clips/weights are visible. Next bigger ticket: Ability tag requirements/action-window grants using existing schemas. Utility routing remains unresolved; preserve eight canonical slots. History stays MVP; M4/M5 In progress.
 
 Current Animation geometry increment: [blend-space view](BLEND_SPACE_REPORT.md). Editor/D3D12 draw passed; selected points focus typed fields, requested preview input is distinct from resolved weights. Next: actual native graph blend-result inspection. History stays MVP; M4/M5 In progress.
