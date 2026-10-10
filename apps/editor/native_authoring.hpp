@@ -8,12 +8,13 @@
 #include <darkangel/ability_assets.hpp>
 namespace darkangel::editor_app {
 ActionDefinition authoring_action(const nlohmann::json&);
-struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool dirty()const{return nlohmann::json::parse(saved)!=value;}};
+struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool pending{};bool dirty()const{return pending||nlohmann::json::parse(saved)!=value;}};
 struct NativeHistoryEntry {std::string label;std::vector<AssetId> assets;};
 struct NativeHistoryChange {AssetId asset;std::string operation,path,value;};
 class NativeAuthoring {
 public:
     NativeDraft& open(AssetService&,AssetId);
+    std::vector<AssetInfo> inventory(AssetService&)const;
     CookResult save(AssetService&,AssetId);
     AssetId create_character(AssetService&,AssetId skin,std::string_view name);
     AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
@@ -46,11 +47,13 @@ public:
     std::map<AssetId,NativeDraft> drafts;
 private:
     using Values=std::map<AssetId,nlohmann::json>;
-    struct Command {std::string label;Values before,after;};
+    struct Command {std::string label;Values before,after;std::map<AssetId,NativeDraft> creations;};
     Values observed_;std::vector<Command> undo_,redo_;std::uint64_t revision_{};bool continuous_{};
     std::map<AssetId,unsigned> graph_ids_;
     std::map<AssetId,unsigned> action_ids_;
     std::map<AssetId,AttributeId> attribute_ids_;
+    AssetId stage_creation(AssetService&,std::string,nlohmann::json);
+    void trim_history();
     void check_sources(AssetService&,const Values&)const;
     void travel(AssetService&,bool redo);
 };

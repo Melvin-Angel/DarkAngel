@@ -28,7 +28,7 @@ const std::vector<JointMatrix>& ComposerPosePreview::sample(double tick){
 }
 AuthoredCharacterPose prepare_authored_character_pose(AssetService& assets,NativeAuthoring& author,AssetId character,AssetId clip){
  auto& draft=author.open(assets,character);require(draft.value.at("kind")=="character","Choose a Character definition");std::vector<NativeSourceEdit> edits;
- for(const auto& [id,value]:author.drafts)if(id==character||value.dirty())edits.push_back({value.asset.path,sha256(value.saved),value.value.dump(2)+"\n"});
+ for(const auto& [id,value]:author.drafts)if(id==character||value.dirty())edits.push_back({value.asset.path,value.pending?std::string{}:sha256(value.saved),value.value.dump(2)+"\n",value.pending});
  auto candidate=assets.prepare_native(edits,{&clip,1});auto cooked=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto animation=load_cooked_clip(candidate.registry(),assets.cas_path(),clip);CharacterPreviewResources resources;resources.skin=cooked.definition.skin;resources.rig=cooked.skin.rig;
  auto pose=std::make_unique<ComposerPosePreview>(resources,animation,animation.definition.ticks*action_tick_units);return {std::move(cooked),std::move(animation),std::move(pose)};
 }
@@ -38,7 +38,7 @@ const std::vector<JointMatrix>& GraphPosePreview::sample(unsigned tick,GraphPara
 }
 AuthoredGraphPose prepare_authored_graph_pose(AssetService& assets,NativeAuthoring& author,AssetId character,AssetId graph){
  auto& character_draft=author.open(assets,character);auto& graph_draft=author.open(assets,graph);require(character_draft.value.at("kind")=="character"&&graph_draft.value.at("kind")=="graph","Select Character and locomotion graph");std::vector<NativeSourceEdit> edits;
- for(const auto& [id,value]:author.drafts)if(id==character||id==graph||value.dirty())edits.push_back({value.asset.path,sha256(value.saved),value.value.dump(2)+"\n"});
+ for(const auto& [id,value]:author.drafts)if(id==character||id==graph||value.dirty())edits.push_back({value.asset.path,value.pending?std::string{}:sha256(value.saved),value.value.dump(2)+"\n",value.pending});
  auto candidate=assets.prepare_native(edits);auto cooked_character=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto cooked_graph=load_cooked_graph(candidate.registry(),assets.cas_path(),graph);require(cooked_character.skin.rig.definition.id==cooked_graph.rig.definition.id&&cooked_character.skin.rig.definition.signature==cooked_graph.rig.definition.signature,"Graph preview Character/rig mismatch");auto pose=std::make_unique<GraphPosePreview>(cooked_graph);return {std::move(cooked_character),std::move(cooked_graph),std::move(pose)};
 }
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin,StableId player,StableId target,AssetId collision){

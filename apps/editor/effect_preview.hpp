@@ -12,7 +12,7 @@ public:
   author.open(assets,id);
   std::vector<NativeSourceEdit> edits;
   for(const auto& [asset,draft]:author.drafts)if(asset==id||draft.dirty())
-   edits.push_back({draft.asset.path,sha256(draft.saved),draft.value.dump(2)+"\n"});
+   edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});
   candidate_=assets.prepare_native(edits,{&id,1});
   cooked=load_cooked_effect(candidate_.registry(),assets.cas_path(),id);
   if(cooked.definition->evaluator!=0)throw std::runtime_error("Preview supports ordinary modifiers/statuses only; custom evaluators must be tested in Game");

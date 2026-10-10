@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "base_head": "272cdb31a2f00be707eb3d1eddc75e0ca685baf7",
+  "scope": "Pending native creation drafts/history/selectors, coordinated new-source publication and complete frozen Player fresh Play",
+  "gates": [
+    {
+      "name": "pending-creation-build",
+      "exit": 0,
+      "seconds": 39.949,
+      "note": "Final editor form refresh build; native/actor gates retained from unchanged tested sources."
+    },
+    {
+      "name": "pending-creation-native",
+      "exit": 0,
+      "seconds": 33.867
+    },
+    {
+      "name": "pending-creation-assets",
+      "exit": 0,
+      "seconds": 13.672
+    },
+    {
+      "name": "pending-creation-fresh-play",
+      "exit": 0,
+      "seconds": 5.665
+    },
+    {
+      "name": "pending-creation-character",
+      "exit": 0,
+      "seconds": 0.77
+    },
+    {
+      "name": "pending-creation-player",
+      "exit": 0,
+      "seconds": 1.307
+    },
+    {
+      "name": "pending-creation-drafts",
+      "exit": 0,
+      "seconds": 2.244
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/editor_controller.cpp": "988c40dcfe38b3aa67f72ae82c7f953aa51306366c11743712ff284ac4f9235f",
+    "apps/editor/editor_assets.cpp": "5197baa09445c63b2f3ef7d741adcbbbd1dfbf1885af2096e8bb48914edaba65",
+    "apps/editor/editor_workspaces.cpp": "88ebc96d3b344af0b2ae4424ba00c3d8a3a4c2ca752544a99a1e36184c7a9093",
+    "apps/editor/effect_preview.hpp": "02d7b235c686a55169c25d271af52a774841e7a44a287afee66702b97fc73946",
+    "tests/native_authoring_tests.cpp": "8c6cd98a6e0ed69fdc8907c6a70cac51c65e633c1a765ec0f13eb27ac666e37f",
+    "engine/assets/include/darkangel/assets.hpp": "fd51554eacb2136c17ad0bc82233d5874c5f2e31a77910b373551e3b3c32b408",
+    "engine/assets/asset_service.cpp": "ffa11ace4649237b23cd69721cc111be33f8ecf4537c1ae80ba47b8bf926f7c6",
+    "tests/actor_asset_tests.cpp": "b660148e0bd1514768a15d93fe587fba9ec0f5d700d89d17a35616fb329757f4",
+    "apps/editor/native_authoring.cpp": "49dff55f635cd87315413e23b4ba3b899c86cadc4015ecd5b692d5bf6733e933",
+    "apps/editor/native_authoring.hpp": "7568ffd6763094f74d83907199e97eb82687c99bdefbb3a8ba74f9d6a09fb994",
+    "apps/editor/character_preview.cpp": "18b20026fb6b2b7d0c786fb65a937b21cc50c76df835ed4b4d9f913ad71107e2",
+    "apps/editor/editor_authoring.cpp": "cc0d0c1e14490973ba43565b91b55d8f7bac5ff14b6e4b25414e45986860cafb",
+    "apps/editor/editor_ui.cpp": "3234548a097f57623f846e75c50336c08016a287d6d04d234fd85dac2aec90f1",
+    "apps/editor/editor_ui.hpp": "ad465de50ba0d57f5fcb431c33e55896b028763cb48d4a8e8afb721a0cd26433",
+    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
+    "apps/editor/main.cpp": "0651bbbfe8fd6d1b043f3c6ed99d7979a71547f052afb2eedcdc7b9a241320a5",
+    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
+    "scripts/verify_pending_creation.py": "668988630d033ae047bebfdb4f82caf7caee75c0efaafe3adc9ac5a84fd95627"
+  },
+  "limitations": [
+    "One scripted D3D12 creation/navigation/history/fresh Play and rendered panels; no physical pointer automation.",
+    "Creation Undo is pre-publication only; Save retains published assets and removes creation entries from Undo. Modular/socket/material, masks/equipment and NPC configuration remain planned.",
+    "M4/M5 In progress, NPC M6 not started, live EOS blocked."
+  ]
+}

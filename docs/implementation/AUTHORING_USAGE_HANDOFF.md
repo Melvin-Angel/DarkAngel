@@ -1,3 +1,5 @@
+Current pending creation increment: [PENDING_CREATION_REPORT.md](PENDING_CREATION_REPORT.md). Seven focused gates pass for staged native creation, shared pending references, pre-publication Undo/Redo, isolated preview and complete fresh Player Play. Published creation is retained and leaves creation history. Next: pending-draft reload/revert and selection usability. M4/M5 In progress; EOS blocked; M6–M9 not started. Older continuation entries below are historical.
+
 Resumed after the usage reset from `af42b3c`: graph topology checkpoint `9c8062f` is delivered; current [history inspection report](AUTHORING_HISTORY_VIEW_REPORT.md) and STATUS/CONTINUE describe the next completed increment. Older usage/checkpoint observations below are historical, not the current stop instruction. Continue toward10% remaining with owned local commits.
 
 # Current authoring usage handoff — 10 October 2026
