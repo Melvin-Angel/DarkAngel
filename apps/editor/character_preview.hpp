@@ -10,7 +10,7 @@
 namespace darkangel::editor_app {
 // Presentation of the active equipped mask: a static model on a rig socket joint.
 struct WornMask {AssetId mask,model;std::string name;std::array<float,4> tint{1,1,1,1};unsigned joint{};std::array<float,3> position{},rotation{};float scale{1};};
-struct CharacterPreviewResources {std::array<std::optional<WornMask>,mask_slot_count> masks;std::optional<WornMask> mask;std::array<std::string,mask_slot_count> mask_names;unsigned active_mask{};AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
+struct CharacterPreviewResources {CameraRigDefinition cameras{default_camera_rig()};std::array<std::optional<WornMask>,mask_slot_count> masks;std::optional<WornMask> mask;std::array<std::string,mask_slot_count> mask_names;unsigned active_mask{};AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
 // Authoring-only pose sampling. Owns independent Ozz buffers and never creates
 // a WorldSession, action activation, motor request or gameplay event.
 class ComposerPosePreview {

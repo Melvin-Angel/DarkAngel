@@ -5,6 +5,7 @@
 #include "blend_space.hpp"
 #include <darkangel/hash.hpp>
 #include <darkangel/tag_assets.hpp>
+#include <darkangel/actor_assets.hpp>
 #include <imgui_internal.h>
 #include <algorithm>
 #include <fstream>
@@ -159,6 +160,33 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  if(kind=="player"){AssetId character=AssetId::parse(v["character"].get<std::string>()),kit=AssetId::parse(v["loadout"]["kit"].get<std::string>());if(picker("Character definition",character,c,reference_filters,".dacharacter")){v["character"]=character.text();for(const auto& asset:c.asset_inventory)if(asset.id==character)v["sources"]["character"]=asset.path;}if(picker("Loadout kit",kit,c,reference_filters,".dakit"))c.authoring.assign_player_kit(*c.assets,selection,kit);
   if(ImGui::Button("Edit Character")){open_native_asset(c,character);return;}ImGui::SameLine();if(ImGui::Button("Edit kit in Ability")){open_native_asset(c,kit);return;}
   auto& kit_definition=c.authoring.open(*c.assets,kit).value;AssetId input=v.contains("input_profile")?AssetId::parse(v["input_profile"].get<std::string>()):AssetId::parse(kit_definition["input"].get<std::string>());if(picker("Player input profile",input,c,reference_filters,".dainput")){v["input_profile"]=input.text();for(const auto& asset:c.asset_inventory)if(asset.id==input)v["sources"]["input_profile"]=asset.path;}if(v.contains("input_profile")&&ImGui::Button("Use kit input default")){v.erase("input_profile");v["sources"].erase("input_profile");}if(ImGui::Button("Edit input profile")){open_native_asset(c,input);return;}
+   ImGui::SeparatorText("Cameras");
+   {camera_preview_visible=false;
+    auto fallback=[]{return Json::array({Json{{"name","FreeLook"},{"priority",0},{"when",Json::object()},{"distance",4.5},{"height",1.5},{"shoulder",0.0},{"fov",60.0},{"pitch_min",-35.0},{"pitch_max",60.0},{"blend_seconds",0.25},{"follow_damping",0.08},{"facing","movement"},{"track_look_target",false}},Json{{"name","Aim"},{"priority",10},{"when",{{"input","combat.ranged"}}},{"distance",2.2},{"height",1.55},{"shoulder",0.55},{"fov",48.0},{"pitch_min",-50.0},{"pitch_max",60.0},{"blend_seconds",0.2},{"follow_damping",0.03},{"facing","camera"},{"track_look_target",false}}});};
+    if(!v.contains("cameras")){ImGui::TextWrapped("Using the built-in rig: FreeLook orbit, and an over-shoulder Aim camera while the ranged modifier is held.");if(ImGui::Button("Customize cameras"))v["cameras"]=fallback();}
+    else{auto& cameras=v["cameras"];Json actions=Json::array(),tags=Json::array();perform([&]{actions=c.authoring.open(*c.assets,input).value.at("actions");});perform([&]{if(kit_definition.contains("sources")&&kit_definition["sources"].contains("abilities"))for(const auto& asset:c.asset_inventory)if(std::filesystem::path(asset.path).extension()==".datags"){tags=c.authoring.open(*c.assets,asset.id).value.at("tags");break;}});
+     ImGui::TextWrapped("The live camera is the eligible one with the highest priority; the view blends to it over its blend time. Look and follow targets are supplied by the game (the player today; lock-on, dialogue and cutscenes later).");
+     for(unsigned index=0;index<cameras.size();++index){auto& camera=cameras[index];ImGui::PushID(static_cast<int>(index));ImGui::SetNextItemOpen(index==0,ImGuiCond_Once);
+      if(ImGui::TreeNode("camera","%s (priority %u)",camera["name"].get<std::string>().c_str(),camera["priority"].get<unsigned>())){
+       text("Name",camera["name"]);integer("Priority",camera["priority"]);
+       auto& when=camera["when"];const int mode=when.contains("input")?1:when.contains("tag")?2:0;const char* modes[]={"Always (default)","While an input is held","While a gameplay tag is present"};
+       if(ImGui::BeginCombo("Live when",modes[mode])){if(ImGui::Selectable(modes[0],mode==0))when=Json::object();if(ImGui::Selectable(modes[1],mode==1))when=Json{{"input","combat.ranged"}};if(ImGui::Selectable(modes[2],mode==2)&&!tags.empty())when=Json{{"tag",tags[0]["id"]}};ImGui::EndCombo();}
+       if(when.contains("input")){auto current=when["input"].get<std::string>();if(ImGui::BeginCombo("Held input",current.c_str())){for(const auto& action:actions)if(action["type"]=="button"){auto name=action["name"].get<std::string>();if(ImGui::Selectable(name.c_str(),name==current))when["input"]=name;}ImGui::EndCombo();}}
+       if(when.contains("tag")){std::string current="Missing registered tag";for(const auto& tag:tags)if(tag["id"]==when["tag"])current=tag["name"].get<std::string>();if(ImGui::BeginCombo("Gameplay tag",current.c_str())){for(const auto& tag:tags)if(tag["visibility"]!="server"){ImGui::PushID(tag["id"].get<int>());if(ImGui::Selectable(tag["name"].get<std::string>().c_str(),tag["id"]==when["tag"]))when["tag"]=tag["id"];ImGui::PopID();}ImGui::EndCombo();}}
+       number("Distance (m)",camera["distance"]);number("Pivot height (m)",camera["height"]);number("Shoulder offset, right (m)",camera["shoulder"]);number("Field of view (deg)",camera["fov"]);number("Lowest pitch (deg)",camera["pitch_min"]);number("Highest pitch (deg)",camera["pitch_max"]);number("Blend-in time (s)",camera["blend_seconds"]);number("Follow smoothing (s)",camera["follow_damping"]);
+       choice("Character faces",camera["facing"],{"movement","camera"});flag("Frame the look target when one is supplied",camera["track_look_target"]);
+       bool previewing=camera_preview==static_cast<int>(index);if(ImGui::Checkbox("Preview this camera",&previewing))camera_preview=previewing?static_cast<int>(index):-1;ImGui::SameLine();
+       if(cameras.size()>1&&ImGui::SmallButton("Remove camera")){cameras.erase(index);if(camera_preview==static_cast<int>(index))camera_preview=-1;ImGui::TreePop();ImGui::PopID();break;}
+       ImGui::TreePop();}
+      ImGui::PopID();}
+     ImGui::BeginDisabled(cameras.size()>=8);if(ImGui::Button("Add camera")){auto added=fallback()[1];added["name"]="Camera"+std::to_string(cameras.size()+1);added["when"]=Json::object();added["priority"]=0;cameras.push_back(added);}ImGui::EndDisabled();ImGui::SameLine();if(ImGui::Button("Use built-in rig")){v.erase("cameras");camera_preview=-1;}
+     if(v.contains("cameras")&&camera_preview>=0&&camera_preview<static_cast<int>(v["cameras"].size())){
+      try{camera_preview_rig=decode_camera_rig(v["cameras"].dump());camera_preview_visible=true;ImGui::SliderFloat("Preview orbit",&camera_preview_yaw,-180,180,"%.0f deg");ImGui::SliderFloat("Preview pitch",&camera_preview_pitch,-80,80,"%.0f deg");
+       auto width=std::min(ImGui::GetContentRegionAvail().x,520.f);ImGui::Image(composer_texture,{width,width*9.f/16.f});ImGui::TextDisabled("Authoring preview of the draft around the scene's player placement. Not Play; Save and Play to use it.");}
+      catch(const std::exception& error){camera_preview_rig.reset();ImGui::TextColored({1.f,.55f,.3f,1.f},"Camera rig needs attention: %s",error.what());}}
+     else if(v.contains("cameras")){try{decode_camera_rig(v["cameras"].dump());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"Camera rig needs attention: %s. Save will reject it.",error.what());}}
+    }
+   }
    ImGui::SeparatorText("Masks");
    {auto masks=v["loadout"].value("masks",Json::array({nullptr,nullptr,nullptr,nullptr}));unsigned active=v["loadout"].value("active_mask",0u);const char* slots[]={"Up","Right","Down","Left"};
     for(unsigned slot=0;slot<4;++slot){ImGui::PushID(static_cast<int>(slot));AssetId mask=masks[slot].is_null()?AssetId{}:AssetId::parse(masks[slot].get<std::string>());

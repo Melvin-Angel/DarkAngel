@@ -51,6 +51,7 @@ AuthoredGraphPose prepare_authored_graph_pose(AssetService& assets,NativeAuthori
 }
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin,StableId player,StableId target,AssetId collision){
     if(references.starts_with("player:")){auto player_asset=load_cooked_player(registry,cas,AssetId::parse(references.substr(7)));require(player_asset.character.definition.skin==skin.id,"Player Character skin does not match the scene's placed skin; update scene composition before Play");auto prepared=load_character_preview(registry,cas,"kit:"+player_asset.kit.definition->id.text(),skin,player,target,collision);
+        prepared.cameras=player_asset.definition.cameras;
         struct MaskedState {unsigned active{};std::array<std::optional<CookedMask>,mask_slot_count> masks;bool masked{};} masked{player_asset.definition.loadout.active_mask,std::move(player_asset.masks),player_asset.definition.loadout.masked};
         if(masked.masked){prepared.active_mask=masked.active;const auto& rig=prepared.rig.definition;
             for(unsigned slot=0;slot<mask_slot_count;++slot)if(masked.masks[slot]){const auto& mask=masked.masks[slot]->definition;prepared.mask_names[slot]=mask.name;

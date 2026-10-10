@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/combat_kit_assets.hpp>
+#include <darkangel/camera.hpp>
 namespace darkangel {
 // Initial authored references only; never a live actor or a gameplay inheritance tree.
 struct CharacterDefinition {AssetId id,skin;std::string generation;};
@@ -12,7 +13,10 @@ inline constexpr unsigned mask_slot_count=4;
 // selects the one whose kit the actor starts with. Without masks, kit is used.
 struct ActorLoadoutDefinition {AssetId kit;std::vector<AbilityAttributeValue> starting_attributes;std::array<AssetId,mask_slot_count> masks{};unsigned active_mask{};bool masked{};};
 struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
-struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;};
+// cameras: the Player's virtual camera rig; the built-in FreeLook + Aim rig when not authored.
+struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};};
+// Typed Player "cameras" array (also used by the editor's authoring preview).
+CameraRigDefinition decode_camera_rig(std::string_view json);
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
 struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};

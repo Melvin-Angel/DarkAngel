@@ -1,4 +1,6 @@
 #pragma once
+#include <darkangel/camera.hpp>
+#include <optional>
 #include "editor_controller.hpp"
 #include "effect_preview.hpp"
 #include <DirectXMath.h>
@@ -46,6 +48,8 @@ public:
     std::unique_ptr<EffectPreview> effect_preview;AssetId effect_prepare_failed_asset;std::string effect_prepare_error;AssetId effect_preview_asset;std::uint64_t effect_preview_source{1};
     std::map<std::uint32_t,std::array<char,128>> reference_filters;
     char attribute_name[97]{"NewStatistic"};int attribute_kind{};char reaction_name[65]{};char mask_name[65]{};
+    // Player camera authoring preview: the scene is rendered from one drafted virtual camera.
+    int camera_preview{-1};float camera_preview_yaw{},camera_preview_pitch{12};bool camera_preview_visible{};std::optional<CameraRigDefinition> camera_preview_rig;std::string camera_live;
     int composer_new_kind{};
     AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
