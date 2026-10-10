@@ -138,7 +138,7 @@ void NativeAuthoring::apply(AssetService& assets,AssetId id,std::uint64_t expect
 }
 
 std::vector<NativeHistoryEntry> NativeAuthoring::history(bool forward)const{
- const auto& commands=forward?redo_:undo_;std::vector<NativeHistoryEntry> entries;entries.reserve(commands.size());for(auto it=commands.rbegin();it!=commands.rend();++it){NativeHistoryEntry entry{it->label,{}};for(const auto& [id,value]:it->after)entry.assets.push_back(id);entries.push_back(std::move(entry));}return entries;
+ const auto& commands=forward?redo_:undo_;std::vector<NativeHistoryEntry> entries;entries.reserve(commands.size());for(auto it=commands.rbegin();it!=commands.rend();++it){NativeHistoryEntry entry{it->label,{},!it->creations.empty()};for(const auto& [id,value]:it->after)entry.assets.push_back(id);entries.push_back(std::move(entry));}return entries;
 }
 std::vector<NativeHistoryChange> NativeAuthoring::history_changes(bool forward,std::size_t newest)const{
  const auto& commands=forward?redo_:undo_;require(newest<commands.size(),"History entry no longer exists");const auto& command=commands[commands.size()-1-newest];std::vector<NativeHistoryChange> changes;

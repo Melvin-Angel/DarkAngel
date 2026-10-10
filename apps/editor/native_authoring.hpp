@@ -10,7 +10,7 @@ namespace darkangel::editor_app {
 ActionDefinition authoring_action(const nlohmann::json&);
 struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool pending{};bool dirty()const{return pending||nlohmann::json::parse(saved)!=value;}};
 struct NativeValidationSummary {std::uint64_t revision{};std::size_t sources{};AssetId selected;};
-struct NativeHistoryEntry {std::string label;std::vector<AssetId> assets;};
+struct NativeHistoryEntry {std::string label;std::vector<AssetId> assets;bool creation{};};
 struct NativeHistoryChange {AssetId asset;std::string operation,path,value;};
 class NativeAuthoring {
 public:

@@ -1,0 +1,11 @@
+# Created native authoring vertical — 10 October 2026
+
+Base `f441217`. Six new native sources are created through current editor APIs: Kit, Ability, Composer, ordinary Effect, Character and Player. Composer receives a deferred commit marker; ability costs12 Stamina and hits for17; ordinary status has a statistic modifier and native tag. Shared references/kit bindings, creation Undo/Redo, private six-source validation and coordinated publication use existing schemas/catalog/CAS.
+
+Three focused gates pass via `python scripts/verify_creation_vertical.py --build`: editor/native build, NativeAuthoringTests and D3D12 fresh Play. After Save, source-creation history is pruned and published files retained; ordinary binding Undo/Redo remains. History now exposes an explicit creation flag, distinguishing source creation from timeline/node edits whose labels also start with Create. The initial label-based test rejected a legitimate Create action block command; semantic classification fixed the test and is displayed in history.
+
+Fresh Play rebuilds complete scene/Player/Kit/Composer resources and executes through WorldSession. Deferred cost12, damage17, target Health83, owner Stamina88, prediction pending0 and one ordinary effect with source4/activation1 are verified. Scene authoring stays unchanged. Private target statistic value is not inferred from public replication. [Receipt](evidence/creation-vertical.json), [capture](evidence/creation-vertical.png). Capture inspected. The history-validation final assertion was also moved outside the frame loop.
+
+This is one scripted D3D12 integration, not physical button automation, Vulkan/GNS/fault qualification or original milestone completion. Publication retains documented crash-recovery limitations. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
+Next after usage reset: practical authoring creation/reference usability and bounded targeted validation. Consider displaying existing bindings as navigable sources and fixing remaining clipped selector labels. Preserve delivered topology, source history/creation, actor/input tools, isolated previews, private validation and complete fresh Play; do not rebuild these or begin a monolithic mask/reaction/AI rewrite.

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "base_head": "f441217e801b56309479b1b69a78b34bb3a2b800",
+  "scope": "Six new native authoring sources, deferred Composer commit, ordinary effect binding, coordinated publication and complete fresh Player Play",
+  "gates": [
+    {
+      "name": "creation-vertical-build",
+      "exit": 0,
+      "seconds": 75.766
+    },
+    {
+      "name": "creation-vertical-native",
+      "exit": 0,
+      "seconds": 39.576
+    },
+    {
+      "name": "creation-vertical-d3d12",
+      "exit": 0,
+      "seconds": 9.27
+    }
+  ],
+  "source_sha256": {
+    "apps/editor/main.cpp": "34ec20f117042c09a59fa0f39c40e02bfcbf28b8e90a17db0af53a5d20048219",
+    "apps/editor/native_authoring.cpp": "68772370ab6b6a0a7dc13e6138aa1bbbf1d626d3ae53fae58f9c3e87f578746e",
+    "apps/editor/native_authoring.hpp": "b3f7102f75763288ce00dd418c1e6b4c17e517cc0950656cee2fec2fcc21d02f",
+    "apps/editor/editor_controller.cpp": "988c40dcfe38b3aa67f72ae82c7f953aa51306366c11743712ff284ac4f9235f",
+    "apps/editor/editor_authoring.cpp": "cf7035f4e297436344ebaf9e0f29d5cda83a80a460d69fb177a86bc51aa24a71",
+    "apps/editor/editor_workspaces.cpp": "ab84bfde5abb46039787406f66fac05d2910a00b470f161f8a3710bfd7e7d305",
+    "apps/editor/character_preview.cpp": "18b20026fb6b2b7d0c786fb65a937b21cc50c76df835ed4b4d9f913ad71107e2",
+    "apps/editor/effect_preview.hpp": "1e2700bb1eac54dc842864047d08f078b8c27cc883257e81461b0413b2c222b4",
+    "engine/assets/asset_service.cpp": "e2cce03bdd74c94a997b1cca0b9436704d74cd3db6a7113735bbd383a22c89ad",
+    "tests/native_authoring_tests.cpp": "c2babbf3262b5fcb19e5cabd5201670287840af89dc3cc1903839eb5ffc77e0f",
+    "scripts/verify_creation_vertical.py": "460c6b485070ac11f2bcc9e24f798de3f1be66ba6842392b0e773a4cc37b3763"
+  },
+  "limitations": [
+    "Scripted native API/one D3D12 integration; no physical pointer automation, Vulkan/GNS or multiplayer fault qualification.",
+    "Private target statistic value is not inferred from public replication; ordinary effect definition, application and attribution are checked.",
+    "Published creations cannot be deleted by Undo; publication retains documented crash-recovery limitations.",
+    "M4/M5 In progress; live EOS blocked; M6-M9 not started."
+  ]
+}
