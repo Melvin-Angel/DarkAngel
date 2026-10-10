@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "base_head": "956409707919a92806eaaec8e4f44b1ee8f9183c",
+  "scope": "Typed presentation Character and common Player kit references through native frozen asset closure",
+  "gates": [
+    {
+      "name": "actor-assets-build",
+      "exit": 0,
+      "seconds": 74.919
+    },
+    {
+      "name": "actor-assets-native",
+      "exit": 0,
+      "seconds": 7.408
+    },
+    {
+      "name": "actor-assets-AssetTests",
+      "exit": 0,
+      "seconds": 0.513
+    },
+    {
+      "name": "actor-assets-NativeSourceEditTests",
+      "exit": 0,
+      "seconds": 0.556
+    }
+  ],
+  "source_sha256": {
+    "engine/assets/actor_cooker.cpp": "971a1aadfac2a55310c1a3e3b9be487f3d030c4a26e351c7dcb915b1ad3d1bae",
+    "engine/assets/include/darkangel/actor_assets.hpp": "bb14985cfbdfbd473996642684d81959074f1ea3dc283a3cd1a3170699d8c96d",
+    "engine/assets/asset_service.cpp": "ba96258484fc6dc973ea0bd1a5260882eee7c19930dee75daf3672c98e781451",
+    "engine/assets/assets_internal.hpp": "065f18eb7b5a8486193193fb897ade5c576adcf46fa4c81430b6b6b35bff054d",
+    "tests/actor_asset_tests.cpp": "b6d710b70e78cc73c07e27cf99b3ce04040a09982d7ceaad9c538e7e6b428f78",
+    "CMakeLists.txt": "f02e29f77eb2003380e131f6b53e0c96e26cab8d635e782ac3fa7306db945acd",
+    "scripts/verify_actor_assets.py": "281e80cdfd3d4e7f0d926490baa78cf11a744d9946f365da3667686e6af5733b"
+  },
+  "limitations": [
+    "Native asset slice only; workflow creation, actor instantiation and authored Player fresh Play integration are next.",
+    "Initial Player loadout references existing kit; independent attribute/input/movement/camera/mask/equipment configuration remains planned.",
+    "Canonical renderable human skin profile only; NPC schemas and complete M4/M5 qualification remain open."
+  ]
+}

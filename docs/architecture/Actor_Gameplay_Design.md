@@ -2,6 +2,8 @@
 
 Confirmed product direction, 10 October 2026. This is a planned design supplement to locked DAE-007/008/009/011/012/017, not a replacement decision log or implementation receipt. The [final vision](../vision/DarkAngel_Engine_Vision.md) owns product intent; the [roadmap](DarkAngel_Implementation_Handoff.md) owns milestone acceptance; [STATUS](../implementation/STATUS.md) owns current evidence. Original DOCX, extracted decision log and historical acceptance receipts remain unchanged.
 
+Implementation supplement (10 October2026): [ACTOR_ASSET_REPORT.md](../implementation/ACTOR_ASSET_REPORT.md) records the initial native Character skin reference and Player embedded `{kit}` loadout. This resolves the first schema placement only; full loadout fields, editor workflow/actor integration and other unresolved policies remain planned. The traceability table below describes its stated earlier checkpoint and is not a new completion table.
+
 ## Authored ownership and runtime resolution
 
 Character is a reusable presentation definition: meshes/modular parts, skeleton/rig/skin, sockets and equipment attachment locations, default materials/appearance, compatible animation resources and optional presentation defaults. It does not own starting attributes, kits, masks, equipped items, input, cameras or AI. Attachment locations describe compatibility, not gameplay equipment ownership.
