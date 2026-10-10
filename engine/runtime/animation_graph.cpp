@@ -40,9 +40,9 @@ struct AnimationGraphPlan::Impl {
         TagMask present{};
         if(tags){
             require(parameters.tags,"Tagged graph requires an explicit actor tag snapshot");const auto& snapshot=*parameters.tags;
-            require(snapshot.registry==tags->registry()&&snapshot.generation==tags->generation()&&snapshot.values.size()<=128,"Graph tag snapshot registry generation/bound");
+            require(snapshot.registry==tags->registry()&&snapshot.generation==tags->generation()&&snapshot.values.size()<=128&&(parameters.tag_audience==AttributeVisibility::Public||parameters.tag_audience==AttributeVisibility::Owner),"Graph tag snapshot registry generation/bound");
             auto definitions=tags->definitions();
-            for(auto id:snapshot.values){auto found=std::lower_bound(definitions.begin(),definitions.end(),id,[](const auto& field,TagId value){return field.id<value;});require(found!=definitions.end()&&found->id==id&&found->visibility!=AttributeVisibility::Server,"Graph tag snapshot unknown/private ID");auto index=static_cast<unsigned>(found-definitions.begin());auto bit=std::uint64_t{1}<<(index%64);require(!(present[index/64]&bit),"Graph tag snapshot duplicate ID");present[index/64]|=bit;}
+            for(auto id:snapshot.values){auto found=std::lower_bound(definitions.begin(),definitions.end(),id,[](const auto& field,TagId value){return field.id<value;});require(found!=definitions.end()&&found->id==id&&(found->visibility==AttributeVisibility::Public||(parameters.tag_audience==AttributeVisibility::Owner&&found->visibility==AttributeVisibility::Owner)),"Graph tag snapshot unknown/private ID");auto index=static_cast<unsigned>(found-definitions.begin());auto bit=std::uint64_t{1}<<(index%64);require(!(present[index/64]&bit),"Graph tag snapshot duplicate ID");present[index/64]|=bit;}
         }
         std::array<std::array<double,32>,32> outputs{};
         for(unsigned index=0;index<nodes.size();++index){

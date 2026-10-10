@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "base_head": "e73a1a24a6e92fc61f7014454ce4da702d25f9b6",
+  "scope": "Prepared public actor locomotion/action sampling and native target GPU pose routing",
+  "gates": [
+    {
+      "name": "observed-pose-build",
+      "exit": 0,
+      "retained": true
+    },
+    {
+      "name": "observed-pose-graph-role",
+      "exit": 0,
+      "retained": true
+    },
+    {
+      "name": "observed-pose-authoring",
+      "exit": 0,
+      "retained": true
+    },
+    {
+      "name": "observed-pose-public",
+      "exit": 0,
+      "seconds": 0.192
+    },
+    {
+      "name": "observed-pose-combat",
+      "exit": 0,
+      "seconds": 0.678
+    },
+    {
+      "name": "observed-pose-heavy",
+      "exit": 0,
+      "seconds": 1.454
+    },
+    {
+      "name": "observed-pose-d3d12",
+      "exit": 0,
+      "seconds": 2.664
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "1823763169707bec06dcc917e6103ce2026f9100eb3bf912ea22200c07bd1c48",
+    "engine/runtime/include/darkangel/character_presentation.hpp": "9cc7931c800dd367b17e080b2c0a8b21b4ee8f431cde65a2f753607d76995dac",
+    "engine/runtime/character_presentation.cpp": "11fa2499797d504b5ece96acfcd3535ddd80a9827a4f93620347185db5132826",
+    "engine/runtime/include/darkangel/character_scene.hpp": "1fd849676cabc664b6b84370b08bc4c50c25db3d553aebd6852b21d73c9d3b02",
+    "engine/runtime/character_scene.cpp": "bdc7ae3fd6c11f4e6829024d7c5dcbafd89ffe88382edcd6ae6a19b5c4bd7cbe",
+    "engine/runtime/include/darkangel/animation_graph.hpp": "1dea6652ce171b9c34c9b4471867e060fba64d87072124d27f03fb43c0f411c6",
+    "engine/runtime/animation_graph.cpp": "e495e5954c32b22302ecee0a2e1bb96022ad9d534888faec0c88d2c34af50f5b",
+    "apps/editor/main.cpp": "506f620d1601ee2efafea22ec81bfdc2fda4c9cb313aaa9410fd127c9e32ce07",
+    "tests/animation_graph_tests.cpp": "4b86ac672ea9256f3910354cb039800589b5727efb22c24ef4b64df77bffe73b",
+    "tests/native_authoring_tests.cpp": "bf9150a5a2c8cfb74e47582899b7288a9e29af248f341fe61859a962e4587396",
+    "tests/observed_character_pose_tests.cpp": "0bb6857b59383f7427f4dc86fbfb7a9bed2562403a21ebc415b1820a3f1a0096",
+    "scripts/verify_observed_character_pose.py": "1b754e7b3e968961880b7647818149bdecca365adbc60ddac4e10fc5664521ab"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor.exe": "6cf38ce9ccf628dcb39d06be67bd32a26bd93fbe9fe253ffccdafa951cfae11d",
+    "ObservedCharacterPoseTests.exe": "07f35003393902066d71d68d076fb602bf12ed267dd8540a62c5d9f0444ae29a",
+    "NativeAuthoringTests.exe": "f1ac7a0ed995edfd161d0ef38e7d80293c53e2672c52d1165024c4884b5971ab"
+  },
+  "limitations": [
+    "Training target shares the prepared Character rig/kit presentation; no NPC definition, AI controller, navigation or independent target loadout.",
+    "Current public action clocks restore native loop-local pose without gameplay/cue replay. Exact network late-join locomotion phase and remote graphical timing/loss qualification remain open.",
+    "Public graph inputs cannot include owner/server-only tag values; private conditions see only available public state.",
+    "M4/M5 In progress; EOS blocked; M6\u00e2\u20ac\u201cM9 not started."
+  ],
+  "fixture_repair": "Synthetic loop sample now uses a cooked looping graph clip; native authoring and graph gates retained, only pose test rebuilt"
+}

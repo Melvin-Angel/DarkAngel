@@ -17,7 +17,7 @@ struct GraphNode {
     std::vector<std::array<unsigned,3>> triangles;
     TagRequirement requirements;
 };
-struct GraphParameters { float speed{}, forward{}, lateral{},playback_rate{1};const ActorTagSnapshot* tags{}; };
+struct GraphParameters { float speed{}, forward{}, lateral{},playback_rate{1};const ActorTagSnapshot* tags{};AttributeVisibility tag_audience{AttributeVisibility::Owner}; };
 struct GraphState { std::uint64_t tick{}; double phase{}; std::string generation; };
 struct GraphPoseInputs {
     // Descriptors borrow the frozen clips; keep the instance/plan alive while

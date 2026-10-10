@@ -414,7 +414,7 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
 #endif
             auto* drawn_ptr=selected_skin?&selected_skin->gpu:nullptr;if(drawn_ptr&&!args.skin_reference){const std::vector<JointMatrix>* gameplay_pose=nullptr;
 #ifdef DAE_CHARACTER_SCENE
-                if(composer_render)gameplay_pose=&composer_matrices;else if(character&&object_id==character_player)gameplay_pose=&character->pose();
+                if(composer_render)gameplay_pose=&composer_matrices;else if(character&&selected_skin->model.rig.definition.id==character_resources->rig.definition.id&&selected_skin->model.rig.definition.signature==character_resources->rig.definition.signature)gameplay_pose=character->pose(object_id);
 #endif
                 upload_palette(context,bone_buffer,*selected_skin,diagnostic_clip.get(),args.pose_tick,gameplay_pose);}
 #else

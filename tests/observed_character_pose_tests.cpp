@@ -1,0 +1,38 @@
+#include <darkangel/character_presentation.hpp>
+#include <darkangel/character_scene.hpp>
+#include <darkangel/combat_kit_assets.hpp>
+#include <darkangel/hash.hpp>
+#include <ashen_roots/royal_combat.hpp>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+using namespace darkangel;
+namespace {
+void check(bool value,const char* message){if(!value)throw std::runtime_error(message);}
+template<class F>void rejects(F operation){bool failed=false;try{operation();}catch(const std::exception&){failed=true;}check(failed,"Expected observed pose rejection");}
+void same(const std::vector<JointMatrix>& a,const std::vector<JointMatrix>& b){check(a.size()==b.size(),"Observed pose joint count");for(unsigned joint=0;joint<a.size();++joint)for(unsigned i=0;i<16;++i)check(std::abs(a[joint].values[i]-b[joint].values[i])<2e-5,"Observed pose differs from native clip oracle");}
+}
+int main(){try{
+ std::ifstream input(std::filesystem::path(DAE_BINARY_DIR)/"authoring-fixture.json");auto fixture=nlohmann::json::parse(input);auto registry=fixture.at("registry").get<std::string>();auto cas=std::filesystem::path(fixture.at("cache").get<std::string>())/"cas";
+ auto cooked=load_cooked_combat_kit(registry,cas,AssetId::parse(fixture.at("kit").get<std::string>()));
+ CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=cooked.input;combat.attributes=cooked.attributes.definitions();combat.health=2;combat.maximum_health=1;combat.abilities=cooked.abilities;combat.tags=cooked.tags->dictionary();combat.effects=cooked.effects;combat.target={31,2};combat.evaluator=1;ashen_roots::configure_royal_combat(combat);
+ std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat.abilities){actions.push_back(ability->action);auto clip=load_cooked_clip(registry,cas,ability->action->motion->clip.id);combat.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}
+ ObjectData player;player.id={31,1};ObjectData target;target.id=combat.target;target.transform.z=1.2;target.transform.yaw=3.141592653589793;std::array<ObjectData,2> objects{player,target};CollisionDefinition collision;collision.id=AssetId::random();collision.schema=2;collision.boxes={{100,{0,-.5,0},{16,.5,16}}};SessionHandshake hello{3,sha256("Observed native pose fixture"),sha256(cooked.definition->generation),1709};
+ CharacterSceneSession session(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);
+ ObservedCharacterPose pose(cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,actions,combat.clips,combat.tags);pose.sample(session.observer(player.id,0).frame);
+ check(session.pose(target.id)&&session.pose(target.id)->size()==81&&!session.pose(StableId{99,99}),"Prepared target pose missing or unknown actor pose invented");
+ CharacterSceneInput press;press.combat_events={{cooked.definition->slots[1].input_action,InputEdge::Pressed,1000,0,1,false}};session.step(press);auto active=session.observer(player.id,1).frame;check(active.ability.active&&active.ability.action,"Missing public action fixture");
+ auto before=session.presentation().serialize();pose.sample(active);pose.sample(active);check(pose.graph_state().tick==1&&session.presentation().serialize()==before,"Repeated observed sampling changed clock or gameplay");
+ auto definition=std::find_if(actions.begin(),actions.end(),[&](const auto& action){return action->id==active.ability.action_definition;});check(definition!=actions.end(),"Public action not prepared");RigPose oracle(cooked.stance.rig.definition,cooked.stance.rig.archive);same(pose.matrices(),oracle.sample(*combat.clips.at((*definition)->motion->clip.id),double(active.ability.action->clock%(*definition)->duration)/action_tick_units));
+ auto matrices=pose.matrices();auto state=pose.graph_state();auto invalid=active;invalid.ability.tags.values={4};rejects([&]{pose.sample(invalid);});invalid=active;invalid.ability.action->generation=sha256("stale action");rejects([&]{pose.sample(invalid);});invalid=active;invalid.ability.action_definition=AssetId::random();rejects([&]{pose.sample(invalid);});
+ invalid=active;invalid.motor.tick=3;invalid.ability.tick=3;invalid.ability.action->tick=3;rejects([&]{pose.sample(invalid);});check(pose.graph_state().tick==state.tick&&pose.graph_state().phase==state.phase,"Rejected public frame changed pose clock");same(pose.matrices(),matrices);
+ ActorTagSnapshot visible{combat.tags->registry(),combat.tags->generation(),{2}};GraphParameters graph_parameters;graph_parameters.tags=&visible;auto graph_clip=AnimationGraphInstance(cooked.stance.plan).evaluate(graph_parameters).layers[0].clip->definition().id;auto looping_clip=load_cooked_clip(registry,cas,graph_clip);auto clip=std::make_shared<const AnimationClip>(looping_clip.definition,looping_clip.archive);auto loop=std::make_shared<ActionDefinition>(**definition);loop->loops=2;loop->duration=clip->definition().ticks*action_tick_units;loop->blocks.clear();loop->motion=ActionClipBinding{clip->definition(),std::string(clip->archive_generation()),false};loop->generation=sha256("Observed two-cycle action");std::array<std::shared_ptr<const ActionDefinition>,1> looping{loop};auto loop_clips=combat.clips;loop_clips.emplace(graph_clip,clip);ObservedCharacterPose joined(cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,looping,loop_clips,combat.tags);
+ auto current=active;current.motor.tick=100;current.ability.tick=100;current.ability.action->tick=100;current.ability.action->generation=loop->generation;current.ability.action->clock=loop->duration+20*action_tick_units;joined.sample(current);same(joined.matrices(),oracle.sample(*clip,20));check(joined.graph_state().tick==100,"Current public baseline replayed historical ticks");
+ auto foreign=active;foreign.network+=10;foreign.ability.owner.network=foreign.network;foreign.ability.active->owner=foreign.ability.owner;rejects([&]{pose.sample(foreign);});
+ auto discontinuity=active;discontinuity.motor.epoch=2;discontinuity.motor.tick=400;discontinuity.ability.tick=400;discontinuity.ability.action->tick=400;pose.sample(discontinuity);check(pose.graph_state().tick==400&&pose.graph_state().phase==0,"Public discontinuity did not reset locomotion baseline");
+ while(session.motor().tick<30)session.step({});auto target_frame=session.observer(target.id,30).frame;check(std::find(target_frame.ability.tags.values.begin(),target_frame.ability.tags.values.end(),3)!=target_frame.ability.tags.values.end(),"Observed target missing authoritative Burn");
+ auto target_inputs=session.graph_inputs(target.id);check(target_inputs&&target_inputs->count==1&&session.pose(target.id)->size()==81,"Public status did not select a prepared observed pose");auto target_health=session.presentation().read(session.presentation().find(target.id)).health.current;check(target_health==60&&session.pending_prediction()==0,"Observed presentation changed authoritative damage/correction");
+ std::cout<<"Observed actor poses: checked public action sampling, duplicate-frame stability, stale/private/unknown/missing-tick retention, current-state loop restoration, actor/epoch fencing, public Burn target graph and unchanged authoritative Health60/pending0 passed\n";return 0;
+}catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

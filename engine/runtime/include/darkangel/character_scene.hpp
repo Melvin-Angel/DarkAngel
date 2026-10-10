@@ -37,6 +37,8 @@ public:
     const GraphState& graph() const;
     const GraphPoseInputs& graph_inputs() const;
     const std::vector<JointMatrix>& pose() const;
+    const std::vector<JointMatrix>* pose(StableId actor) const;
+    const GraphPoseInputs* graph_inputs(StableId actor) const;
     std::size_t pending_prediction() const;
     unsigned resynchronizations() const;
     double debt() const;
