@@ -1,0 +1,11 @@
+# Player input-profile authoring
+
+10 October 2026, based on `928dea5`. Native `.dainput` sources now use shared authoring drafts, history, creation/duplication and coordinated Save. Input Mapper edits existing semantic action timing/deadzones and physical binding controls, chords, consumption, priority, scale and threshold. Action-name filtering brings relevant bindings forward; timing is collapsible. Actions retain their canonical IDs, names and types. New/remove binding controls are available; profile duplication preserves semantic identities with a fresh asset UUID.
+
+Player optionally references its own input profile and source locator. Missing override uses the kit default. Cooking and frozen loading validate the override against every kit semantic action without changing the shared kit. Fresh Play replaces input resources alongside complete scene/Character/kit preparation. Startup selects the explicitly referenced Player/kit profile when both profiles are packaged. Player navigation opens the shared Input Mapper. Edits are disabled during Play.
+
+Verification is recorded in `evidence/player-input.json` by `python scripts/verify_player_input.py`: focused build, native authoring/history fixture, actor input/default/consumer fixtures, D3D12 Keyboard.K light attack, Player form and Input Mapper captures. See the receipt for actual completed gates; no broad acceptance claim. The first test attempt used single-source edit instead of coordinated Save for consumer semantics and was corrected before this checkpoint.
+
+Limitations: initial typed forms use validated native control names; no device-capture/rebinding wizard, action-schema creation, per-device UI or controller hardware qualification. Creation remains outside Undo; coordinated source/CAS/catalog publication retains documented crash-recovery limitations. Masks/equipment, movement/camera configuration, graph tag conditions and NPC definitions remain future work. M4/M5 remain In progress; EOS qualification blocked; M6 not started.
+
+Next: author existing native locomotion graph references/parameters and blend points through Animation, with focused frozen Save/fresh-Play validation; do not introduce graph tags/reactions or a competing timeline runtime in that increment.

@@ -4,9 +4,9 @@ namespace darkangel {
 // Initial authored references only; never a live actor or a gameplay inheritance tree.
 struct CharacterDefinition {AssetId id,skin;std::string generation;};
 struct ActorLoadoutDefinition {AssetId kit;std::vector<AbilityAttributeValue> starting_attributes;};
-struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;};
+struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
-struct CookedPlayer {PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;};
+struct CookedPlayer {PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};
 std::vector<AttributeDefinition> resolve_actor_attributes(const AttributeAsset&,std::span<const AbilityAttributeValue>);
 CookedCharacter load_cooked_character(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedPlayer load_cooked_player(const std::filesystem::path&,const std::filesystem::path&,AssetId);

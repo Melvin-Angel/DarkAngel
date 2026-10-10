@@ -105,7 +105,7 @@ struct AssetService::Impl {
 AssetService::AssetService(std::filesystem::path source,std::filesystem::path cache):impl_(std::make_unique<Impl>(std::move(source),std::move(cache))){}
 AssetService::~AssetService()=default;
 AssetId AssetService::adopt(std::string_view relative){auto& p=*impl_;p.thread();auto source=p.source(relative),sidecar_path=metadata_path(source);
-    if(source.extension()==".dacharacter"||source.extension()==".daplayer"||source.extension()==".dakit"||source.extension()==".dagraph"||source.extension()==".daability"||(source.extension()==".daattributes"||source.extension()==".datags"||source.extension()==".daeffect")||source.extension()==".dainput"||source.extension()==".dacollision"||source.extension()==".daskeleton"||source.extension()==".daaction"||source.extension()==".damask"||source.extension()==".dainput"){import_source(p.sources,source,{},true);auto id=AssetId::parse(source_metadata(source).at("id").get<std::string>());return id;}
+    if(source.extension()==".dacharacter"||source.extension()==".daplayer"||source.extension()==".dakit"||source.extension()==".dagraph"||source.extension()==".daability"||(source.extension()==".daattributes"||source.extension()==".datags"||source.extension()==".daeffect")||source.extension()==".dainput"||source.extension()==".dacollision"||source.extension()==".daskeleton"||source.extension()==".daaction"||source.extension()==".damask"){import_source(p.sources,source,{},true);auto id=AssetId::parse(source_metadata(source).at("id").get<std::string>());return id;}
     require(!std::filesystem::exists(sidecar_path),"Asset already has metadata; preserve its identity");auto imported=import_source(p.sources,source,{},true);auto id=AssetId::random();Json sidecar={{"schema",1},{"id",id.text()},{"importer",source.extension()==".png"||source.extension()==".jpg"||source.extension()==".jpeg"?"texture-color-v1":"static-gltf-v1"},{"tags",Json::array()},{"subassets",Json::object()}};
     for(const auto& key:imported.keys)sidecar["subassets"][key]=AssetId::random().text();for(const auto& [path,hash]:imported.inputs)require(file_sha256(within(p.sources,path))==hash,"Source changed during adoption");atomic_write(sidecar_path,sidecar.dump(2)+"\n",false);return id;
 }
@@ -167,7 +167,7 @@ CookResult AssetService::cook(std::string_view relative){auto& p=*impl_;p.thread
     return {root,revision+1,true};
 }
 CookResult AssetService::edit_native(std::string_view relative,std::string_view expected,std::string_view draft){
-    auto& p=*impl_;p.thread();digest_check(expected);auto source=p.source(relative);auto extension=source.extension();require(extension==".daability"||extension==".daeffect"||extension==".daaction"||extension==".dacharacter"||extension==".daplayer"||extension==".dakit","Native edit supports owned ability/effect/action/kit sources");
+    auto& p=*impl_;p.thread();digest_check(expected);auto source=p.source(relative);auto extension=source.extension();require(extension==".dainput"||extension==".daability"||extension==".daeffect"||extension==".daaction"||extension==".dacharacter"||extension==".daplayer"||extension==".dakit","Native edit supports owned ability/effect/action/kit sources");
     auto original=read(source,65536);require(sha256(original)==expected,"Native source edit is stale; reload the current source");auto before=json(original,65536),after=json(draft,65536);require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&before.at("schema")==after.at("schema"),"Native edit preserves asset UUID/type/schema");
     if(original==draft)return cook(relative);auto written_hash=sha256(draft);atomic_write(source,draft);
     try{return cook(relative);}catch(...){require(file_sha256(source)==written_hash,"Source changed externally during failed cook; external edit preserved");atomic_write(source,original);throw;}
@@ -196,7 +196,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     std::set<AssetId> selected(scene_roots.begin(),scene_roots.end());
     for(const auto& edit:edits){
         digest_check(edit.expected_sha256);auto source=p.source(edit.path);auto ext=source.extension();
-        require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dakit"||ext==".daattributes","Coordinated Save supports native gameplay sources");
+        require(ext==".dainput"||ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dakit"||ext==".daattributes","Coordinated Save supports native gameplay sources");
         auto relative=source.lexically_relative(p.sources).generic_string();auto original=read(within(snapshot,relative),65536);
         if(sha256(original)!=edit.expected_sha256)throw std::runtime_error("Coordinated Save is stale for "+relative+"; reload the changed source");
         auto before=json(original,65536),after=json(edit.draft,65536);
@@ -276,7 +276,7 @@ std::vector<CookResult> AssetService::commit_native(const PreparedNativeEdit& pr
     return results;
 }
 CookResult AssetService::create_native(std::string_view relative,std::string_view draft){
-    auto& p=*impl_;p.thread();auto source=p.source(relative);auto ext=source.extension();require(ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dakit"||ext==".daattributes","Create supports owned native gameplay sources");require(!std::filesystem::exists(source),"Choose a new source name; existing files are preserved");
+    auto& p=*impl_;p.thread();auto source=p.source(relative);auto ext=source.extension();require(ext==".dainput"||ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dakit"||ext==".daattributes","Create supports owned native gameplay sources");require(!std::filesystem::exists(source),"Choose a new source name; existing files are preserved");
     auto data=json(draft,65536);auto id=AssetId::parse(data.at("asset").get<std::string>());require(id!=AssetId{},"New native source needs a persistent UUID");scan();for(const auto& asset:assets())require(asset.id!=id,"New native source UUID already exists");
     atomic_write(source,draft,false);auto digest=sha256(draft);
     try{return cook(relative);}catch(...){require(file_sha256(source)==digest,"New source changed externally during failed cook; external edit preserved");std::filesystem::remove(source);scan();throw;}

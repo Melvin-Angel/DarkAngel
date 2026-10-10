@@ -1,3 +1,5 @@
+Current Player/input authoring increment: [PLAYER_INPUT_REPORT.md](PLAYER_INPUT_REPORT.md). Native Input Mapper edits typed physical bindings and timing; optional Player profiles retain Combat Kit action semantics through frozen Save/fresh Play. Initial forms only; device capture, movement/camera/mask/NPC tools remain planned. Historical workflow targets below are not implementation claims.
+
 Current actor workflow update (10 October2026): [ACTOR_WORKFLOW_REPORT.md](ACTOR_WORKFLOW_REPORT.md) records the initial presentation Character/Player reference tools and fresh Player Play. [REFERENCE_PICKER_REPORT.md](REFERENCE_PICKER_REPORT.md) and [EFFECT_PREVIEW_REPORT.md](EFFECT_PREVIEW_REPORT.md) record shared reference search/resource costs and isolated ordinary effects. These supersede earlier planned descriptions only for their scoped delivered subset; complete designers/docking/masks/reactions/NPC remain planned.
 
 # Ashen Roots editor workflows and delivery plan
