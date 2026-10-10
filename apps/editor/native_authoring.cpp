@@ -128,16 +128,25 @@ void NativeAuthoring::bind_effect_reaction(AssetService& assets,AssetId effect,A
  auto& timeline=open(assets,action);require(timeline.value.at("kind")=="action","Reaction needs a native Action Composer");check_sources(assets,{{action,timeline.value}});
  value["reaction"]=action.text();value["sources"]["reaction"]=timeline.asset.path;apply(assets,effect,revision_,std::move(value),"Bind effect reaction");
 }
-AssetId NativeAuthoring::create_reaction_action(AssetService& assets,AssetId effect,AssetId template_action,std::string_view name){
- // Prepare privately; a failed binding must not leave an orphan timeline.
- NativeAuthoring candidate=*this;candidate.record_changes(assets,"Edit gameplay fields");
- require(candidate.open(assets,effect).value.at("kind")=="effect","Select a native Effect");auto source=candidate.open(assets,template_action).value;
- require(source.at("kind")=="action"&&source.at("schema")==2&&source.contains("motion"),"Reaction template needs a Composer action with a clip");
+AssetId NativeAuthoring::create_presentation_action(AssetService& assets,AssetId template_action,std::string_view name){
+ NativeAuthoring candidate=*this;candidate.record_changes(assets,"Edit gameplay fields");auto source=candidate.open(assets,template_action).value;
+ require(source.at("kind")=="action"&&source.at("schema")==2&&source.contains("motion"),"Presentation timeline template needs a Composer action with a clip");
  auto copied=candidate.duplicate(assets,template_action,name);auto& draft=candidate.drafts.at(copied);auto& command=candidate.undo_.back();
  auto cues=nlohmann::json::array();for(const auto& block:draft.value.at("blocks"))if(block.at("kind")=="cue")cues.push_back(block);
  draft.value["blocks"]=std::move(cues);draft.value["slot"]="full-body";draft.value.erase("mask");draft.value["loops"]=1;draft.value["motion"]["policy"]="none";authoring_action(draft.value);
- draft.saved=draft.value.dump(2)+"\n";candidate.observed_[copied]=draft.value;command.after[copied]=draft.value;command.creations[copied]=draft;command.label="Create reaction timeline "+draft.asset.path;
- candidate.bind_effect_reaction(assets,effect,copied);*this=std::move(candidate);return copied;
+ draft.saved=draft.value.dump(2)+"\n";candidate.observed_[copied]=draft.value;command.after[copied]=draft.value;command.creations[copied]=draft;command.label="Create presentation timeline "+draft.asset.path;
+ *this=std::move(candidate);return copied;
+}
+AssetId NativeAuthoring::create_reaction_action(AssetService& assets,AssetId effect,AssetId template_action,std::string_view name){
+ // Prepare privately; a failed binding must not leave an orphan timeline.
+ NativeAuthoring candidate=*this;require(candidate.open(assets,effect).value.at("kind")=="effect","Select a native Effect");
+ auto copied=candidate.create_presentation_action(assets,template_action,name);candidate.bind_effect_reaction(assets,effect,copied);*this=std::move(candidate);return copied;
+}
+void NativeAuthoring::bind_kit_death(AssetService& assets,AssetId kit,AssetId action){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,kit).value;require(value.at("kind")=="combat_kit","Select a native Combat Kit");
+ if(action==AssetId{}){value.erase("death");value["sources"].erase("death");apply(assets,kit,revision_,std::move(value),"Clear kit death timeline");return;}
+ auto& timeline=open(assets,action);require(timeline.value.at("kind")=="action","Death presentation needs a native Action Composer");check_sources(assets,{{action,timeline.value}});
+ value["death"]=action.text();value["sources"]["death"]=timeline.asset.path;apply(assets,kit,revision_,std::move(value),"Bind kit death timeline");
 }
 void NativeAuthoring::assign_player_kit(AssetService& assets,AssetId player,AssetId kit){
  record_changes(assets,"Edit gameplay fields");auto value=open(assets,player).value;auto& target=open(assets,kit);require(value.at("kind")=="player"&&target.value.at("kind")=="combat_kit","Select a Player and native Combat Kit");check_sources(assets,{{player,value},{kit,target.value}});value["loadout"]["kit"]=kit.text();value["sources"]["kit"]=target.asset.path;apply(assets,player,revision_,std::move(value),"Assign Player combat kit");

@@ -53,9 +53,21 @@ std::optional<ReactionSample> ReactionPresentation::select(const EffectFrame* fr
     if(best)best->suppressed=!alive?ReactionSuppression::Dead:acting?ReactionSuppression::ActiveAction:ReactionSuppression::None;
     return best;
 }
+DeathPresentation::DeathPresentation(const RigDefinition& rig,std::shared_ptr<const ActionDefinition> action,const std::map<AssetId,std::shared_ptr<const AnimationClip>>& clips){
+    require(action&&presentation_only_action(*action),"Death timeline must be a presentation-only one-shot");auto found=clips.find(action->motion->clip.id);require(found!=clips.end()&&found->second,"Death clip missing");const auto& clip=found->second->definition();
+    require(clip.skeleton==rig.id&&clip.signature==rig.signature&&clip.joints==rig.joints.size()&&clip.ticks*action_tick_units==action->duration&&found->second->archive_generation()==action->motion->archive_generation,"Death clip rig/generation mismatch");
+    ActionTimeline checked(action,1,0);action_=std::make_shared<const ActionDefinition>(*action);clip_=found->second;
+}
+std::optional<double> DeathPresentation::update(bool alive,std::uint64_t tick,std::uint64_t avatar_epoch){
+    if(avatar_epoch!=epoch_){epoch_=avatar_epoch;seen_=dead_=false;onset_.reset();}
+    if(alive){seen_=true;dead_=false;onset_.reset();return {};}
+    // Only an observed transition has an onset; otherwise hold the final pose.
+    if(!dead_){dead_=true;if(seen_)onset_=tick;}seen_=true;
+    const double last=double(clip_->definition().ticks-1);return onset_&&tick>=*onset_?std::min(double(tick-*onset_),last):last;
+}
 ObservedCharacterPose::ObservedCharacterPose(std::shared_ptr<const AnimationGraphPlan> graph,RigDefinition rig,std::string_view archive,
     std::span<const std::shared_ptr<const ActionDefinition>> actions,
-    std::map<AssetId,std::shared_ptr<const AnimationClip>> clips,std::shared_ptr<const TagDictionary> tags,std::span<const std::shared_ptr<const EffectDefinition>> effects)
+    std::map<AssetId,std::shared_ptr<const AnimationClip>> clips,std::shared_ptr<const TagDictionary> tags,std::span<const std::shared_ptr<const EffectDefinition>> effects,std::shared_ptr<const ActionDefinition> death)
     :graph_(graph),rig_(std::move(rig),archive),clips_(std::move(clips)){
     require(actions.size()<=8&&clips_.size()<=16,"Observed pose action/clip budget");
     tags_=tags?std::make_shared<const TagDictionary>(*tags):std::make_shared<const TagDictionary>(std::vector<TagDefinition>{});
@@ -69,7 +81,7 @@ ObservedCharacterPose::ObservedCharacterPose(std::shared_ptr<const AnimationGrap
         ActionTimeline checked(action,1,0);
         auto [old,inserted]=actions_.emplace(action->id,std::make_shared<const ActionDefinition>(*action));require(inserted||old->second->generation==action->generation,"Conflicting observed action generations");
     }
-    mixer_=std::make_unique<ActionPoseMixer>(*graph,rig_.definition(),actions);reactions_=std::make_unique<ReactionPresentation>(rig_.definition(),effects,clips_);matrices_=rig_.rest_pose();
+    mixer_=std::make_unique<ActionPoseMixer>(*graph,rig_.definition(),actions);reactions_=std::make_unique<ReactionPresentation>(rig_.definition(),effects,clips_);if(death)death_=std::make_unique<DeathPresentation>(rig_.definition(),std::move(death),clips_);matrices_=rig_.rest_pose();
 }
 void ObservedCharacterPose::sample(const AbilityPublicFrame& frame,const EffectFrame* effects){
     const auto& ability=frame.ability;const auto& motor=frame.motor;
@@ -93,13 +105,15 @@ void ObservedCharacterPose::sample(const AbilityPublicFrame& frame,const EffectF
     if(parameters.speed>.01&&stride>.01)parameters.playback_rate=static_cast<float>(std::clamp(parameters.speed/stride,0.,4.));
     if(baseline){auto state=origin;state.tick=motor.tick;state.phase=0;graph_.restore(state);inputs=graph_.evaluate(parameters);}
     else if(motor.tick!=origin.tick)inputs=graph_.advance(motor.tick,parameters);
-    std::optional<ReactionSample> reaction;
+    std::optional<ReactionSample> reaction;std::optional<double> death_tick;auto death_origin=death_?std::optional<DeathPresentation>(*death_):std::nullopt;
     try{
         bool alive=true;for(const auto& attribute:ability.attributes)if(attribute.id==ability.health_attribute)alive=attribute.value>0;
         // Locomotion keeps advancing underneath; completion resolves current state.
         reaction=reactions_->select(effects,frame.network,frame.session_epoch,motor.epoch,ability.tick,alive,action!=nullptr);
-        matrices_=action?mixer_->sample(rig_,inputs,*action,*clips_.at(action->motion->clip.id),double(ability.action->clock%action->duration)/action_tick_units):reaction&&reaction->suppressed==ReactionSuppression::None?rig_.sample(*reaction->clip,reaction->tick):rig_.blend(inputs.span());}
-    catch(...){graph_.restore(origin);throw;}
-    reaction_=reaction;inputs_=inputs;network_=frame.network;session_epoch_=frame.session_epoch;motor_epoch_=motor.epoch;
+        // Terminal precedence: public Health 0 outranks any remaining action or reaction.
+        if(death_)death_tick=death_->update(alive,ability.tick,motor.epoch);
+        matrices_=death_tick?rig_.sample(death_->clip(),*death_tick):action?mixer_->sample(rig_,inputs,*action,*clips_.at(action->motion->clip.id),double(ability.action->clock%action->duration)/action_tick_units):reaction&&reaction->suppressed==ReactionSuppression::None?rig_.sample(*reaction->clip,reaction->tick):rig_.blend(inputs.span());}
+    catch(...){graph_.restore(origin);if(death_origin)*death_=std::move(*death_origin);throw;}
+    reaction_=reaction;death_tick_=death_tick;inputs_=inputs;network_=frame.network;session_epoch_=frame.session_epoch;motor_epoch_=motor.epoch;
 }
 }

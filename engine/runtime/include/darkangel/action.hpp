@@ -18,6 +18,9 @@ struct ActionBlock {unsigned id{},track{},begin{},end{};ActionBlockKind kind{};s
 struct ActionClipBinding {ClipDefinition clip;std::string archive_generation;bool motor_root{};};
 struct ActionDefinition {AssetId id;std::string generation;unsigned duration{},loops{},priority{};bool upper_body{};std::vector<ActionBlock> blocks;std::optional<ActionClipBinding> motion;std::optional<JointMaskDefinition> mask;};
 ActionDefinition decode_action_source(std::string_view);
+// A presentation-only one-shot: full-body, one loop, a bound clip without root
+// ownership and cue blocks only. Presentation consumers never execute its blocks.
+bool presentation_only_action(const ActionDefinition&);
 // Pure timeline-local root request. The owning motor applies collision and
 // publishes achieved motion; neither clip sampling nor this helper moves actors.
 struct ActionMotion {ClipMotion root;bool movement_lock{};};

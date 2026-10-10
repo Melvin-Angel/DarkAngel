@@ -18,6 +18,8 @@ struct CharacterSceneCombat {
     std::map<std::uint32_t,EffectEvaluator> effect_evaluators;
     std::vector<std::shared_ptr<const EffectDefinition>> effects;
     std::vector<AttributeDefinition> target_attributes;std::string actor_generation;
+    // Optional presentation-only death timeline from the frozen kit closure.
+    std::shared_ptr<const ActionDefinition> death;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
@@ -53,6 +55,8 @@ public:
     std::span<const EffectCueUpdate> effect_cues()const;
     // Current selected reaction for a prepared actor, including a suppressed candidate.
     const ReactionSample* reaction(StableId)const;
+    // Death timeline tick while a prepared actor's checked Health is 0.
+    std::optional<double> death(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

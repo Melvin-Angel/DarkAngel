@@ -1,81 +1,83 @@
 {
   "schema": 1,
-  "base_head": "221e208564c2cd0fec9c91ff434adb853e3fa3fd",
-  "scope": "Optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
+  "base_head": "68387daade141a18b91ed0ec5d7ff0f5d17d60ff",
+  "scope": "Kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
   "gates": [
-    {
-      "name": "effect-reaction-build",
-      "exit": 0,
-      "seconds": 27.563
-    },
     {
       "name": "effect-reaction-authoring",
       "exit": 0,
-      "seconds": 137.375
+      "seconds": 123.563
     },
     {
       "name": "effect-reaction-presentation",
       "exit": 0,
-      "seconds": 0.312
+      "seconds": 0.187
     },
     {
       "name": "effect-reaction-public-pose",
       "exit": 0,
-      "seconds": 0.235
+      "seconds": 0.203
     },
     {
       "name": "effect-reaction-effect-assets",
       "exit": 0,
-      "seconds": 0.859
+      "seconds": 0.454
     },
     {
       "name": "effect-reaction-kit-assets",
       "exit": 0,
-      "seconds": 3.656
+      "seconds": 2.25
     },
     {
       "name": "effect-reaction-replication",
       "exit": 0,
-      "seconds": 0.391
+      "seconds": 0.296
     },
     {
       "name": "effect-reaction-combat-effects",
       "exit": 0,
-      "seconds": 0.234
+      "seconds": 0.079
     },
     {
       "name": "effect-reaction-form",
       "exit": 0,
-      "seconds": 2.485
+      "seconds": 0.921
     },
     {
       "name": "effect-reaction-d3d12",
       "exit": 0,
-      "seconds": 4.265
+      "seconds": 2.125
+    },
+    {
+      "name": "kit-death-d3d12",
+      "exit": 0,
+      "seconds": 2.454
     }
   ],
   "source_sha256": {
-    "apps/editor/character_preview.cpp": "57633224afbf298ba3ac52420b2762a2b028e21e591cc74395363d40beb6f64a",
-    "apps/editor/editor_authoring.cpp": "573627e8c60d1e17922f3554d81880847ebc2759766a07d1ff685ad9f2980f9f",
+    "apps/editor/character_preview.cpp": "267f3dcb2bfe703e8d4ea3e650da4b33039ca4cf759c789fff59623e227ab66a",
+    "apps/editor/editor_authoring.cpp": "41eb04b07d81470378572a2411638d1bf65348709e8db81a5ed26010ab0ca1f7",
     "apps/editor/editor_ui.hpp": "d70bed42cae034eb809d3a4c4b6f3a80a9d7c736f39b3759242cd7b48223adef",
-    "apps/editor/main.cpp": "96bf81c6446ceaa58bf23aa614216b2cc3fd3d16716f546c70bf64f8b039b5e0",
-    "apps/editor/native_authoring.cpp": "78a77568bfb4e09f0677e37d48f16e103f7223320cf722bef6d80537b6b6bcc6",
-    "apps/editor/native_authoring.hpp": "a2d736c386f8e7ebcd10f72f12fc16d560f3395f725dc717a46c777b898f128a",
+    "apps/editor/main.cpp": "5f508868d68a60cd8cb568b02344efb26305d9ecff5797adce233354a1dc2b24",
+    "apps/editor/native_authoring.cpp": "2dd4b493015ebaa7fb937e11669abdb9b88162c424134540cfdfdb118c76fe8d",
+    "apps/editor/native_authoring.hpp": "866ba4d9d0204e7c0ee7d14a71c7f010fc41d877cbf67d55e3a93de26a0628c6",
     "engine/assets/effect_cooker.cpp": "5001d796cdd6937db3b22d7ab522fbc98fd4d503a7629593e728066c4681409f",
+    "engine/assets/combat_kit_cooker.cpp": "e1dd1cdbdbd614b1ec216a47c6ce9c5e81a6aa264a2aa742d952e8236c0ff8c1",
+    "engine/runtime/action.cpp": "60ff4d022cca2398fe9c644b5c2284e9672a7fd8716355e422a0aa1014b7f8ac",
     "engine/runtime/effects.cpp": "9cfd108317f6abc8d703141caca425283c211a2e9425f286e8a3b1f0b473f56b",
-    "engine/runtime/character_presentation.cpp": "243e916c69067585da4b1f60b48072a4254b57c68d69990b0e893818ba751132",
-    "engine/runtime/character_scene.cpp": "39ce57d378b9140d412d6f1ef9ad65e80b49cd38886f36993d26d35eea0fac20",
+    "engine/runtime/character_presentation.cpp": "79f20eec486fcd5b70d7da4decfb61ae8a1014f49e3032f33f657dad9c04a975",
+    "engine/runtime/character_scene.cpp": "88cb857070392889bea9bb864238a9778b4ffe6a797fd267e5c69dbd0b4ee54e",
     "engine/runtime/include/darkangel/effects.hpp": "7a2294e2cf125989eeed572021eae85475521c0dcac6730e7361a082f87d8db6",
-    "engine/runtime/include/darkangel/character_presentation.hpp": "0bc7633aa14b8364defb2304093a2c24cf0a9b18aebdc6fac6cc1d01f3913a02",
-    "engine/runtime/include/darkangel/character_scene.hpp": "0dff9fa66031e9b82f13bfa1229ab00e492e2555f3c439e47329379e668bc5dc",
-    "tests/native_authoring_tests.cpp": "24d4ccad87c913fdcad71f63c2727933c7b3388927d56c459a1240947a2f8c96",
+    "engine/runtime/include/darkangel/character_presentation.hpp": "5c90570f7149b5badd932d60e4bfe49aef962c84eecba928d0d69a4de48b4868",
+    "engine/runtime/include/darkangel/character_scene.hpp": "4a118a64b2cc0e52b34ff34196476c3088ee4db06cc94ecb1b4115a3151e4f17",
+    "tests/native_authoring_tests.cpp": "c2a2147ce66a8e0e51c7485ad999a944a8a45d398d057f2d9410d574b23c669b",
     "tests/reaction_presentation_tests.cpp": "5c14d7924bbe03b28d6329777d76cdb4fab5f98fd1fce8cd2796e31db731540d",
-    "scripts/verify_effect_reaction.py": "adfe6b8cd3172a18c9883c914db9559bca5bd880e278aaf0a4b3cf288e35476c"
+    "scripts/verify_effect_reaction.py": "040dd64f12f26d94ac4033f4a2501d3231404d207f9fa0fce05b05008c2e522e"
   },
   "binary_sha256": {
-    "DarkAngelEditor.exe": "926275be3505d1a481a9da0063b9ed8c4d598597d321564b7f3874d7a5c0e61f",
-    "NativeAuthoringTests.exe": "f545ff539c95bf693fd97a14e6845eb8df0fc465cb98dcb3bee0cbb8fc81a65b",
-    "ReactionPresentationTests.exe": "1f6e6980aac90bcac2488f277370b269d352d66a5559c06c3213b9c45817143a"
+    "DarkAngelEditor.exe": "3687a2e51a634acc874c898b3fa88c75005bf0a79c704ed9ae9afbee30a78e07",
+    "NativeAuthoringTests.exe": "41b8e70d411a204a2f17b95cccdb7270e4f6901778cf7d8c51cad136efe2bad8",
+    "ReactionPresentationTests.exe": "b298fedd7889e8cac5d2dac95eef390052e248a5fd2e3990c560e9b83ec914cb"
   },
   "limitations": [
     "One visible full-body reaction per actor, root policy none; no reaction queue, blend ramps, additive or upper-body reactions.",

@@ -22,6 +22,9 @@ bool interval(ActionBlockKind kind){return kind!=ActionBlockKind::Cue&&kind!=Act
 ActionEvent event(const ActionState& state,const ActionBlock& block,unsigned loop,unsigned local,ActionEdge edge,unsigned duration){return {state.activation,std::uint64_t(loop)*duration+local,block.id,block.track,loop,edge,block.kind,block.key};}
 void order(ActionBatch& batch){require(batch.events.size()<=512&&batch.traversed.size()<=256,"Action boundary work limit");std::sort(batch.events.begin(),batch.events.end(),[](const auto& a,const auto& b){return std::tie(a.time,a.loop,a.track,a.block,a.edge)<std::tie(b.time,b.loop,b.track,b.block,b.edge);});}
 }
+bool presentation_only_action(const ActionDefinition& action){
+    return action.id!=AssetId{}&&!action.upper_body&&!action.mask&&action.loops==1&&action.duration>=action_tick_units&&action.motion&&!action.motion->motor_root&&std::all_of(action.blocks.begin(),action.blocks.end(),[](const auto& block){return block.kind==ActionBlockKind::Cue;});
+}
 ActionDefinition decode_action_source(std::string_view bytes){
     using Json=nlohmann::json;require(bytes.size()<=65536,"Action source byte limit");unsigned work{};std::vector<std::set<std::string>> keys;
     auto source=Json::parse(bytes,[&](int depth,Json::parse_event_t e,Json& v){require(depth<=8&&++work<=8192,"Action source work limit");if(e==Json::parse_event_t::object_start)keys.emplace_back();if(e==Json::parse_event_t::key)require(keys.back().insert(v.get<std::string>()).second,"Duplicate action field");if(e==Json::parse_event_t::object_end)keys.pop_back();return true;});

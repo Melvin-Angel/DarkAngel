@@ -13,6 +13,7 @@ struct CookedCombatKit {
     std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
     std::optional<TagAsset> tags;
     std::vector<std::shared_ptr<const EffectDefinition>> effects;
+    std::shared_ptr<const ActionDefinition> death;
 };
 CookedCombatKit load_cooked_combat_kit(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 }

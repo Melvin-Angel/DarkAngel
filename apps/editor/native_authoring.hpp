@@ -27,6 +27,10 @@ public:
     // full-body, one loop, root policy none) and binds it to the effect.
     AssetId create_reaction_action(AssetService&,AssetId effect,AssetId template_action,std::string_view name);
     void bind_effect_reaction(AssetService&,AssetId effect,AssetId action);
+    // Presentation-only copy of a Composer timeline, not yet referenced by anything.
+    AssetId create_presentation_action(AssetService&,AssetId template_action,std::string_view name);
+    // Optional kit death timeline; an empty action clears it.
+    void bind_kit_death(AssetService&,AssetId kit,AssetId action);
     void assign_player_kit(AssetService&,AssetId player,AssetId kit);
     void assign(AssetService&,AssetId kit,std::size_t slot,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
