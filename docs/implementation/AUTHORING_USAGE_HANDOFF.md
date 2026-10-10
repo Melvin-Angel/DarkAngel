@@ -1,3 +1,25 @@
+## Usage-stop handoff — 10 October 2026, 08:27 UTC
+
+Latest native checkpoint: `e4bd0803f4ba7dbbbb0d1fe737032f5ce4a7d3e4` (`e4bd080`). Tree observed clean on master before this handoff;43 commits ahead of the existing local origin/master tracking ref. No fetch/push. This documentation commit follows the native checkpoint. Preserve any later user changes; verify Git rather than assuming this snapshot remains current.
+
+At08:27:24 UTC, Codex reported91% five-hour used /9% remaining, reset Unix1791630787 =10 October11:13:07 UTC /13:13:07 Copenhagen. Feature work stopped around the requested10%. Existing heartbeat darkangel-authoring-after-usage-reset was updated successfully, ACTIVE, to13:15 Copenhagen today (11:15 UTC), just after reset. No duplicate automation or reset credit consumed. Check fresh usage on resumption and reschedule this same follow-up if needed.
+
+### Delivered during this resumed window
+
+From `af42b3c`,19 local commits delivered native graph topology/history, shared history/source diffs, coordinated new-source private preparation/publication, pre-publication creation Undo/Redo and selectors/previews, reload/selection safeguards, direct creation controls, statistic-schema modifier defaults, shared typed navigation and categories/UUID search, ordinary Effect templates, saved-source closure/identity validation, private validation/diagnostic context, frozen preview revision visibility and history validation controls. Current STATUS and individual reports contain receipts. Earlier topology-next and creation-outside-Undo statements below are historical and superseded.
+
+Latest [created vertical receipt](CREATION_VERTICAL_REPORT.md): six new sources (Kit/Ability/Composer/Effect/Character/Player), deferred commit, private validation, coordinated Save, complete fresh scene/resource preparation and WorldSession Play. Health83/Stamina88/pending0; ordinary effect source4/activation1. Reproduce with `python scripts/verify_creation_vertical.py --build`; three focused gates pass. Source-creation commands are explicitly classified; published assets retained, ordinary timeline/edit Undo remains. Screenshot inspected. No private target statistic value inferred from public replication.
+
+### First work after reset
+
+Improve practical reference/creation usability in focused increments. Good candidates: make existing effect-binding rows navigate directly to their Ability/Effect; fix clipped selector labels with sensible layouts. Read current forms/history and reuse open_native_asset plus native selectors. Choose a coherent chunk, verify minimally and commit owned completed work with status/report/continuation. Do not rerun all prior suites for isolated forms. The integration fixture is appropriate again only after meaningful publication/resource changes or a new failure.
+
+Do not rebuild delivered Character/Player/input/graph tools or start masks/reactions/AI as a monolithic rewrite. Full tag-driven graph states/reactions, masks/equipment and NPC are planned. Canonical final vision and actor decisions remain in docs/vision/DarkAngel_Engine_Vision.md and docs/architecture/Actor_Gameplay_Design.md. M4/M5 remain In progress; original fault/performance/combat/replication acceptance gates are outstanding. EOS externally blocked; M6–M9 not started.
+
+Preserve native schemas, AssetService/catalog/CAS, frozen generations, WorldSession authority, eight slots, tag rebuild fences and full Save/cook/scene closure/resource preparation/fresh isolated Play. Validation is private, can warm immutable CAS, and never bypasses Save revalidation or certifies GPU readiness. Creation Undo ends at publication. Close saved source ends affected history without deleting assets; dirty/pending closure rejected. Publication remains non-crash-atomic and not a cross-process multi-file snapshot; manual recovery limitations remain. No subagents, new dependencies, push or reset consumption.
+
+## Historical handoff snapshots
+
 ## Current resumed implementation checkpoint — 10 October 2026
 
 Native checkpoint `81d46db`; repository observed clean before this documentation update. All commits are local; no push/fetch was performed. This section supersedes the older usage-stop/topology-next instructions below. Usage was last observed at50% remaining; continue authorized useful chunks toward10%, checking fresh limits before scheduling.
