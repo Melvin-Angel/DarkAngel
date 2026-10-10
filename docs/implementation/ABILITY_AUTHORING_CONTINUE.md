@@ -1,3 +1,5 @@
+Current Kit creation controls: [KIT_CREATION_CONTROLS_REPORT.md](KIT_CREATION_CONTROLS_REPORT.md). Targeted editor/D3D12 smoke passes; Kit copy uses existing pending creation/history and retains Player-owned kit assignment. Next: pending reference selection cleanup after creation Undo. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current binding prerequisites: [BINDING_PREREQUISITES_REPORT.md](BINDING_PREREQUISITES_REPORT.md). Targeted editor/D3D12 smoke passes; Bind explains missing references, kit assignment, hit-window selection and finite power. Native validation remains required. Next: Kit duplication through existing pending creation/history. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current workflow reference inspection: [WORKFLOW_REFERENCE_SEARCH_REPORT.md](WORKFLOW_REFERENCE_SEARCH_REPORT.md). Targeted editor/D3D12 form passes; workflow lists share path/UUID search, rows and selected references expose full identities on hover. Next: invalid binding selection guidance. M4/M5 In progress; EOS blocked; M6-M9 not started.
