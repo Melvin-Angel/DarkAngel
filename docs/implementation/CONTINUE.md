@@ -1,3 +1,5 @@
+Current selected-reference inspection: [SELECTED_REFERENCE_POLICY_REPORT.md](SELECTED_REFERENCE_POLICY_REPORT.md). Targeted editor/D3D12 smoke passes; hover uses existing one-entry native picker policy to explain incompatibility and pending/catalog identity. Save/preview validation remains authoritative. Next: compact Kit slot visibility and binding-row receipt. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current reference display names: [REFERENCE_DISPLAY_NAMES_REPORT.md](REFERENCE_DISPLAY_NAMES_REPORT.md). Targeted editor/D3D12 form passes; selected filenames remain readable while full path/UUID inspection and native filtering are retained. Next: selected-reference compatibility inspection on hover. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current Kit copy recovery: [KIT_COPY_RECOVERY_REPORT.md](KIT_COPY_RECOVERY_REPORT.md). Focused build/D3D12 inter-frame exercise passes; removed Kit selection remains explicit with a Return to original kit control, clean drafts and unchanged Undo history. Next: selected source names in reference fields. M4/M5 In progress; EOS blocked; M6-M9 not started.

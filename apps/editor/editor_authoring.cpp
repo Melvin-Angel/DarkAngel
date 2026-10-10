@@ -32,7 +32,7 @@ void attribute(const char* label,Json& value,const Json& defs,bool resource_only
 }
 bool picker(const char* label,AssetId& selected,Controller& c,std::map<std::uint32_t,std::array<char,128>>& filters,const char* extension,const Json* attributes=nullptr,const char* importer="clip-gltf-v1",bool looping_only=false){
  std::string name=selected==AssetId{}?"Choose asset":"Missing asset";
- for(const auto& a:c.asset_inventory)if(a.id==selected)name=a.path;
+ const AssetInfo* selected_info=nullptr;for(const auto& a:c.asset_inventory)if(a.id==selected){name=a.path;selected_info=&a;}
  bool changed=false;auto& query=filters[ImHashStr((std::string(extension)+"/"+label).c_str())];
  ImGui::PushID(label);ImGui::TextUnformatted(label);ImGui::SetNextItemWidth(-1.f);
  auto display=selected==AssetId{}||name=="Missing asset"?name:std::filesystem::path(name).filename().string();
@@ -47,7 +47,7 @@ bool picker(const char* label,AssetId& selected,Controller& c,std::map<std::uint
    if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)){ImGui::BeginTooltip();ImGui::TextUnformatted(a.path.c_str());ImGui::Text("UUID: %s",a.id.text().c_str());auto pending=c.authoring.drafts.find(a.id);if(pending!=c.authoring.drafts.end()&&pending->second.pending)ImGui::TextUnformatted("Pending creation; not published");else ImGui::Text("Catalog generation: %llu",static_cast<unsigned long long>(a.generation));if(!candidate.diagnostic.empty())ImGui::TextWrapped("Unavailable: %s",candidate.diagnostic.c_str());else ImGui::TextUnformatted("Final compatibility is validated by native cook/preparation.");ImGui::EndTooltip();}
    ImGui::PopID();
   }ImGui::EndChild();ImGui::EndCombo();
- }if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::TextWrapped("%s",name.c_str());ImGui::Text("UUID: %s",selected.text().c_str());ImGui::EndTooltip();}ImGui::PopID();return changed;
+ }if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::TextWrapped("%s",name.c_str());ImGui::Text("UUID: %s",selected.text().c_str());if(selected_info){auto pending=c.authoring.drafts.find(selected);if(pending!=c.authoring.drafts.end()&&pending->second.pending)ImGui::TextUnformatted("Pending creation; not published");else ImGui::Text("Catalog generation: %llu",static_cast<unsigned long long>(selected_info->generation));auto checked=reference_candidates(*c.assets,c.authoring,std::span<const AssetInfo>(selected_info,1),extension,"",attributes,importer,looping_only);if(checked.empty())ImGui::TextWrapped("Unavailable here: does not match the required asset type, attribute schema or clip policy.");else if(!checked.front().diagnostic.empty())ImGui::TextWrapped("Unavailable: %s",checked.front().diagnostic.c_str());else ImGui::TextUnformatted("Picker policy matches; native Save/preview validation still applies.");}ImGui::EndTooltip();}ImGui::PopID();return changed;
 }
 }
 void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float top){
