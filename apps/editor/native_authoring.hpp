@@ -29,6 +29,7 @@ public:
     void add_graph_triangle(AssetService&,AssetId,unsigned node,std::array<unsigned,3>);
     void remove_graph_triangle(AssetService&,AssetId,unsigned node,unsigned triangle);
     unsigned add_action_block(AssetService&,AssetId,const ActionBlock&);
+    void add_effect_modifier(AssetService&,AssetId,AttributeId);
     AttributeId add_attribute(AssetService&,AssetId,std::string_view name,AttributeKind);
     void remove_attribute(AssetService&,AssetId,AttributeId);
     void remove_action_block(AssetService&,AssetId,unsigned block);

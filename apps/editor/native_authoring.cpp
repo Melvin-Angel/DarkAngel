@@ -56,6 +56,9 @@ void NativeAuthoring::remove_action_block(AssetService& assets,AssetId asset,uns
  require(found!=blocks.end(),"Action block no longer exists");unsigned high=action_ids_[asset];for(const auto& entry:blocks)high=std::max(high,entry.at("id").get<unsigned>());blocks.erase(found);authoring_action(value);
  apply(assets,asset,revision_,std::move(value),"Remove action block");action_ids_[asset]=high;
 }
+void NativeAuthoring::add_effect_modifier(AssetService& assets,AssetId asset,AttributeId attribute){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;require(value.at("kind")=="effect","Choose an effect asset");auto schema=AssetId::parse(value.at("attributes").get<std::string>());auto fields=open(assets,schema).value;require(fields.at("kind")=="attributes","Effect requires an attribute schema");auto& definitions=fields.at("attributes");require(std::any_of(definitions.begin(),definitions.end(),[&](const auto& field){return field.at("id")==attribute&&field.at("kind")=="statistic";}),"Choose a statistic from the effect schema");require(value.at("modifiers").size()<16,"Effect modifier limit is16");check_sources(assets,{{asset,value},{schema,fields}});value["modifiers"].push_back({{"attribute",attribute},{"kind","flat"},{"magnitude",0},{"channel",""},{"priority",0}});apply(assets,asset,revision_,std::move(value),"Add effect modifier");
+}
 AttributeId NativeAuthoring::add_attribute(AssetService& assets,AssetId asset,std::string_view name,AttributeKind kind){
  record_changes(assets,"Edit gameplay fields");auto value=open(assets,asset).value;auto schema=decode_attribute_asset(value.dump());
  require(schema.fields.size()<64&&static_cast<unsigned>(kind)<=1,"Attribute count/kind limit");
