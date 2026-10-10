@@ -1,3 +1,5 @@
+Current source-cache increment: [DRAFT_CLOSE_REPORT.md](DRAFT_CLOSE_REPORT.md). Focused build/native/D3D12 checks pass for protected saved-source closure, affected history pruning,64-draft slot reuse and UUID/kind validation on first open. Next: non-publishing validation diagnostics/usability. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
 Current Assets increment: [NATIVE_CATEGORY_REPORT.md](NATIVE_CATEGORY_REPORT.md). Targeted editor/D3D12 browser checks pass; delivered native source categories and shared path/UUID search are exposed. Next: draft/history usability and validation diagnostics. M4/M5 In progress; EOS blocked; M6–M9 not started.
 
 Current ordinary template increment: [EFFECT_TEMPLATE_REPORT.md](EFFECT_TEMPLATE_REPORT.md). Focused build/native/D3D12 gates pass. Instant templates become valid evaluator-free finite statuses; private cook/native Apply/expiry preserves source/catalog. Next: native asset categories and UUID search. M4/M5 In progress; EOS blocked; M6–M9 not started.

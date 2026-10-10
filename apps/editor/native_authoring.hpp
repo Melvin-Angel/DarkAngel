@@ -40,6 +40,7 @@ public:
     void apply(AssetService&,AssetId,std::uint64_t expected_revision,nlohmann::json,std::string_view label,bool continuous=false);
     void record_changes(AssetService&,std::string_view label,bool continuous=false);
     void undo(AssetService&);void redo(AssetService&);
+    void close(AssetService&,AssetId);
     void reload(AssetService&,AssetId);void revert(AssetService&,AssetId);
     std::vector<NativeHistoryEntry> history(bool redo=false)const;
     std::vector<NativeHistoryChange> history_changes(bool redo,std::size_t newest_index)const;
