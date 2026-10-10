@@ -1,3 +1,5 @@
+Current ordinary template increment: [EFFECT_TEMPLATE_REPORT.md](EFFECT_TEMPLATE_REPORT.md). Focused build/native/D3D12 gates pass. Instant templates become valid evaluator-free finite statuses; private cook/native Apply/expiry preserves source/catalog. Next: native asset categories and UUID search. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
 Current typed navigation increment: [TYPED_NAVIGATION_REPORT.md](TYPED_NAVIGATION_REPORT.md). Targeted editor/D3D12 native routing check passes for pending actors, combat/action/graph/input/schema references, retained history and rejected unsupported routes; no source publication. Next: ordinary Effect template lifecycle defaults and focused private validation. M4/M5 In progress; EOS blocked; M6–M9 not started.
 
 Current reference navigation increment: [REFERENCE_NAVIGATION_REPORT.md](REFERENCE_NAVIGATION_REPORT.md). Targeted editor/D3D12 checks pass for slot/effect edit links and accurate preserved unlisted uint32 evaluator labels. Next: shared typed native navigation across forms/history/Assets. M4/M5 In progress; EOS blocked; M6–M9 not started.
