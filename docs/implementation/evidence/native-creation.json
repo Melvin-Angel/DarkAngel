@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "base_head": "e330512c804bef6451d324816c8d90de4d17f5ea",
+  "scope": "Coordinated new-source private preparation, exclusive creation, mixed catalog/source rollback/retry and frozen generation preservation",
+  "gates": [
+    {
+      "name": "native-creation-build",
+      "exit": 0,
+      "seconds": 6.186
+    },
+    {
+      "name": "native-creation-tests",
+      "exit": 0,
+      "seconds": 0.751
+    }
+  ],
+  "source_sha256": {
+    "engine/assets/asset_service.cpp": "ffa11ace4649237b23cd69721cc111be33f8ecf4537c1ae80ba47b8bf926f7c6",
+    "engine/assets/include/darkangel/assets.hpp": "fd51554eacb2136c17ad0bc82233d5874c5f2e31a77910b373551e3b3c32b408",
+    "tests/native_source_edit_tests.cpp": "bc7de1848dce13f7b891add57f730eec12567fc5dd653a6f91e3de4a58cab8cd",
+    "CMakeLists.txt": "e670b9bbe49512688be7424870991c892dcb19c6426220c18a1c51483fff2064",
+    "scripts/verify_native_creation.py": "2edc76a3b9a31c38395a800b7771b97fbc95b3068adeefa48a0085385acc60d5"
+  },
+  "limitations": [
+    "Native AssetService preparation/publication fixture only; editor pending-creation/history integration follows.",
+    "Source/CAS/catalog coordination remains non-crash-atomic and is not a cross-process multi-file snapshot; journals require manual recovery.",
+    "No renderer, physical editor interaction or broader M4/M5/multiplayer qualification claim."
+  ]
+}

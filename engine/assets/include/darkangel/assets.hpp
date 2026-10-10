@@ -40,7 +40,8 @@ private:
 };
 struct AssetInfo {AssetId id;std::string path;std::uint64_t generation{};};
 struct CookResult {AssetId root;std::uint64_t generation;bool changed;};
-struct NativeSourceEdit {std::string path,expected_sha256,draft;};
+// create=true requires an absent owned path and empty expected hash; preparation never writes the real source.
+struct NativeSourceEdit {std::string path,expected_sha256,draft;bool create{};};
 class PreparedNativeEdit {
 public:
     PreparedNativeEdit()=default;

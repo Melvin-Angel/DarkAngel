@@ -1,0 +1,4 @@
+[1/4] Scanning C:\DarkAngel\tests\native_source_edit_tests.cpp for CXX dependencies
+[2/4] Generating CXX dyndep file CMakeFiles\NativeSourceEditTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\NativeSourceEditTests.dir\tests\native_source_edit_tests.cpp.obj
+[4/4] Linking CXX executable NativeSourceEditTests.exe

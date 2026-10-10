@@ -1,0 +1,3 @@
+Prepared new sources: private cook, mixed catalog-fault rollback/deletion/retry, atomic catalog identity, frozen leases, UUID/path/type validation and external creation conflicts passed
+Linked staged creation resolves new attribute/effect references before publication and preserves typed/frozen closure; flag/type/path fences passed
+Native source editing: optimistic hash, UUID/type/schema preservation, native cook rollback, coordinated candidates/stale writer and immutable generations passed
