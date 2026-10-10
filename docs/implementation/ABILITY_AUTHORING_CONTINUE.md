@@ -1,3 +1,5 @@
+Current shared history comparison: [HISTORY_SOURCE_COMPARISON_REPORT.md](HISTORY_SOURCE_COMPARISON_REPORT.md). Targeted build/D3D12 checks pass for read-only conflict observation in shared history, restored fixture bytes and unchanged revision/history. Next: source/history filtering and navigation readability. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current source disk comparison: [SOURCE_DISK_COMPARISON_REPORT.md](SOURCE_DISK_COMPARISON_REPORT.md). Focused build/native/D3D12 gates pass for baseline/external bytes, pending absence/collision and bounded read without adopting bytes or changing history. Capture shows prior conflict observation; exact fixture source restored. Next: shared history comparison access. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current source identity inspection: [SOURCE_IDENTITY_VIEW_REPORT.md](SOURCE_IDENTITY_VIEW_REPORT.md). Targeted build/D3D12 form smoke passes; source path/UUID/catalog state and baseline/draft hashes are inspectable separately from frozen generations. Next: explicit source-on-disk conflict comparison. M4/M5 In progress; EOS blocked; M6-M9 not started.
