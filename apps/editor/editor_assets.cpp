@@ -3,6 +3,7 @@
 #include <commdlg.h>
 #include "editor_ui.hpp"
 #include "editor_theme.hpp"
+#include "reference_picker.hpp"
 #include <algorithm>
 #include <cctype>
 
@@ -45,16 +46,17 @@ void Shell::draw_assets(Controller& editor,bool expanded){
     if(!editor.assets){ImGui::TextWrapped("No project source mount. Launch with --sources content --asset-cache .cache/editor-assets to browse and import.");return;}
     ImGui::BeginDisabled(editor.preview.active()!=nullptr);if(ImGui::Button("Import...")){auto file=choose_import();if(!file.empty())open_import(file);}ImGui::EndDisabled();ImGui::SameLine();if(ImGui::Button("Refresh")){try{editor.refresh_assets();}catch(const std::exception& error){editor.log(error.what(),ConsoleSeverity::Error);}}
     auto selected=std::find_if(editor.asset_inventory.begin(),editor.asset_inventory.end(),[&](const auto& asset){return asset.id==selected_asset;});bool native=false;if(selected!=editor.asset_inventory.end()){auto ext=std::filesystem::path(selected->path).extension().string();native=ext==".dacharacter"||ext==".daplayer"||ext==".dakit"||ext==".dainput"||ext==".dagraph"||ext==".daaction"||ext==".daability"||ext==".daeffect"||ext==".daattributes";}ImGui::SameLine();ImGui::BeginDisabled(!native);if(ImGui::Button("Open authoring")){try{open_native_asset(editor,selected_asset);}catch(const std::exception& error){editor.log(error.what(),ConsoleSeverity::Error);}}ImGui::EndDisabled();
-    ImGui::SetNextItemWidth(expanded?320.f:-1.f);ImGui::InputTextWithHint("##assetsearch","Search assets...",asset_filter,sizeof(asset_filter));
-    const char* kinds[]={"All assets","Models","Characters","Animations","Textures"};ImGui::SetNextItemWidth(expanded?200.f:-1.f);ImGui::Combo("##assetkind",&asset_kind,kinds,5);
+    ImGui::SetNextItemWidth(expanded?320.f:-1.f);ImGui::InputTextWithHint("##assetsearch","Search path or UUID...",asset_filter,sizeof(asset_filter));
+    const char* kinds[]={"All assets","Models","Characters","Animations","Textures","Players","Abilities","Effects","Action timelines","Animation graphs","Combat kits","Attribute schemas","Input profiles"};ImGui::SetNextItemWidth(expanded?200.f:-1.f);ImGui::Combo("##assetkind",&asset_kind,kinds,static_cast<int>(std::size(kinds)));
     ImGui::TextDisabled("%u assets and drafts",static_cast<unsigned>(editor.asset_inventory.size()));
     if(ImGui::BeginTable("Asset inventory",expanded?3:1,ImGuiTableFlags_RowBg|ImGuiTableFlags_ScrollY|ImGuiTableFlags_BordersInnerH,{0,expanded?ImGui::GetContentRegionAvail().y:180.f})){
         ImGui::TableSetupColumn("Asset");if(expanded){ImGui::TableSetupColumn("Project path");ImGui::TableSetupColumn("Cook generation",ImGuiTableColumnFlags_WidthFixed,130);}ImGui::TableHeadersRow();
-        for(const auto& asset:editor.asset_inventory){auto path=lowercase(asset.path);if(asset_filter[0]&&path.find(lowercase(asset_filter))==path.npos)continue;
+        for(const auto& asset:editor.asset_inventory){auto path=lowercase(asset.path);if(asset_filter[0]&&!reference_search(asset.path,asset_filter)&&!reference_search(asset.id.text(),asset_filter))continue;
             if(asset_kind==1&&!(path.starts_with("models/")||path.find("/static/")!=path.npos))continue;
             if(asset_kind==2&&!(path.starts_with("characters/")||path.find("/character/")!=path.npos))continue;
             if(asset_kind==3&&!(path.starts_with("animation/")||path.find("/clips/")!=path.npos))continue;
             if(asset_kind==4&&!(path.starts_with("textures/")))continue;
+            if(asset_kind>=5){constexpr const char* extensions[]={".daplayer",".daability",".daeffect",".daaction",".dagraph",".dakit",".daattributes",".dainput"};if(asset_kind>=5+static_cast<int>(std::size(extensions))||std::filesystem::path(path).extension()!=extensions[asset_kind-5])continue;}
             ImGui::TableNextRow();ImGui::TableNextColumn();ImGui::PushID(asset.id.text().c_str());auto name=std::filesystem::path(asset.path).filename().string();if(ImGui::Selectable(name.c_str(),selected_asset==asset.id,ImGuiSelectableFlags_SpanAllColumns))selected_asset=asset.id;
             if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::TextWrapped("%s",asset.path.c_str());ImGui::TextUnformatted(asset.id.text().c_str());ImGui::EndTooltip();}if(expanded){ImGui::TableNextColumn();ImGui::TextUnformatted(asset.path.c_str());ImGui::TableNextColumn();if(asset.generation)ImGui::Text("%llu",static_cast<unsigned long long>(asset.generation));else{auto draft=editor.authoring.drafts.find(asset.id);ImGui::TextDisabled(draft!=editor.authoring.drafts.end()&&draft->second.pending?"Pending creation":"Not cooked here");}}ImGui::PopID();
         }ImGui::EndTable();

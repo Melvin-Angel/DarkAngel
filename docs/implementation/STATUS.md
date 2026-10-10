@@ -1,3 +1,5 @@
+Current Assets increment: [NATIVE_CATEGORY_REPORT.md](NATIVE_CATEGORY_REPORT.md). Targeted editor/D3D12 browser checks pass; delivered native source categories and shared path/UUID search are exposed. Next: draft/history usability and validation diagnostics. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
 Current ordinary template increment: [EFFECT_TEMPLATE_REPORT.md](EFFECT_TEMPLATE_REPORT.md). Focused build/native/D3D12 gates pass. Instant templates become valid evaluator-free finite statuses; private cook/native Apply/expiry preserves source/catalog. Next: native asset categories and UUID search. M4/M5 In progress; EOS blocked; M6–M9 not started.
 
 Current typed navigation increment: [TYPED_NAVIGATION_REPORT.md](TYPED_NAVIGATION_REPORT.md). Targeted editor/D3D12 native routing check passes for pending actors, combat/action/graph/input/schema references, retained history and rejected unsupported routes; no source publication. Next: ordinary Effect template lifecycle defaults and focused private validation. M4/M5 In progress; EOS blocked; M6–M9 not started.
