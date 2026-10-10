@@ -1,3 +1,5 @@
+Current reference navigation increment: [REFERENCE_NAVIGATION_REPORT.md](REFERENCE_NAVIGATION_REPORT.md). Targeted editor/D3D12 checks pass for slot/effect edit links and accurate preserved unlisted uint32 evaluator labels. Next: shared typed native navigation across forms/history/Assets. M4/M5 In progress; EOS blocked; M6–M9 not started.
+
 Current modifier increment: [MODIFIER_SCHEMA_REPORT.md](MODIFIER_SCHEMA_REPORT.md). Focused build/native/D3D12 checks pass for schema-derived statistic defaults, resource/missing-ID rejection and reversible modifier creation. Next: evaluator selection diagnostics and direct related-asset navigation. M4/M5 In progress; EOS blocked; M6–M9 not started.
 
 Current creation entry increment: [CREATION_ENTRY_REPORT.md](CREATION_ENTRY_REPORT.md). Targeted editor/D3D12 forms pass for direct typed Ability/Effect template controls using staged native creation. Next: schema-derived modifier defaults and related reference navigation. M4/M5 In progress; EOS blocked; M6–M9 not started.
