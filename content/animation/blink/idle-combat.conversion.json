@@ -1,0 +1,44 @@
+{
+  "blender": "4.5.1 LTS",
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Combat\\IdleCombat.fbx",
+  "source_sha256": "d43dc973954a350c2d892c7d57e049eccfaf3b81f5c210703a2c4d19358bbdbc",
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "66dd551c471f60959133bcc8cd9906a562fc5e55b8dbd71398dbdfb00f46aa45",
+  "action": "Armature|human_male_idlecombat_01|BaseLayer",
+  "reference": "Armature|tpose|BaseLayer",
+  "source_fps": 30.0,
+  "source_frames": [
+    3.0,
+    55.0
+  ],
+  "ticks": 104,
+  "joints": 81,
+  "omitted_helpers": [
+    "jnt_eyelidDOWNEnd_L",
+    "jnt_eyelidDOWNEnd_R",
+    "jnt_eyelidDOWN_L",
+    "jnt_eyelidDOWN_R",
+    "jnt_eyelidUPEnd_L",
+    "jnt_eyelidUPEnd_R",
+    "jnt_eyelidUP_L",
+    "jnt_eyelidUP_R",
+    "jnt_shoulderEnd_L",
+    "jnt_shoulderEnd_R",
+    "jnt_shoulder_L",
+    "jnt_shoulder_R"
+  ],
+  "rest_only_face_joints": [
+    "jnt_eyeBrow_L",
+    "jnt_eyeBrow_LEnd_L",
+    "jnt_eyeBrow_R",
+    "jnt_eyeBrowEnd_R",
+    "jnt_eyelid_L",
+    "jnt_eyelid_LEnd_L",
+    "jnt_eyelid_R",
+    "jnt_eyelidEnd_R"
+  ],
+  "normalized_rest": true,
+  "max_rest_basis_matrix_difference": 0.44448160380125046,
+  "max_rest_length_difference_metres": 0.07756647601551903,
+  "profile": "Mapped canonical hierarchy validated; explicit offline authored-tpose rest normalization and missing brow/eyelid rest fill; rigid metre/Y-up transforms sampled at 60 Hz; no runtime retarget; visual motion quality still requires acceptance"
+}

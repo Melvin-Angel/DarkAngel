@@ -9,6 +9,6 @@ Authored action-window tags: history, removal, duplicate/type rejection, Save/fr
 Authored tag graph: selector history, branch/cycle/type fences, frozen tag closure, preview retention, Save/fresh authoritative Play and registry mismatch rejection passed
 Masked tick150 health=39 stamina=80 active=0 pending=0 scene=1
 Upper-body authored mask: Undo/Redo, root policy/root mask rejection, complete Save/source-free frozen closure/fresh Play, lower-body retention, upper replacement, public duplicate/stale retention, unchanged authority and completion passed
-Reaction tick150 health=39 stamina=80 active=0 pending=0 onset=18 length=52
+Reaction tick150 health=39 stamina=80 active=0 pending=0 onset=18 length=40
 Authored effect reaction: creation/binding Undo/Redo, gameplay-block/root/loop/private rejection without publication, private validation, coordinated Save, frozen action/clip closure, fresh Play public flinch on the effect clock, attacker untouched, Burn coexistence, one-shot completion with status retained, expiry with unrelated source retained, unchanged authority and failed-Save retention passed
 Native authoring: edit/Undo/Redo/coordinated Save, grouped kit/action history, multi-source failure/catalog rollback/stale-writer conflict, cost20/damage40/Burn7, kit closure, fresh Play Health60->39, Stamina80, public status/expiry, immutable prior Play and failed candidate preservation passed

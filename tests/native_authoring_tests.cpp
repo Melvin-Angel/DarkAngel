@@ -147,11 +147,14 @@ int main(){try{
   status["duration_ticks"]=90;status["stacking"]="refresh_per_source";status["interrupt_action"]=true;status["granted_tags"]={6};status["visibility"]="public";
   reacting.apply(assets,flinch,reacting.revision(),status,"Author flinch status");
   auto reaction=reacting.create_reaction_action(assets,flinch,light_action,"authored_flinch_reaction");
+  check(reacting.open(assets,light_action).value["motion"]["policy"]=="motor"&&!reacting.open(assets,light_action).dirty()&&reacting.open(assets,reaction).value["motion"]["policy"]=="none","Reaction creation changed its template action or kept root ownership");
+  // Choose the owned converted GetHit clip in the new timeline, as the Composer would.
+  auto retimed=reacting.open(assets,reaction).value;retimed["motion"]["clip"]=Json::parse(read(source/"animation/blink/get-hit.glb.daimport"))["id"];retimed["motion"]["source"]="animation/blink/get-hit.glb";retimed["duration"]=40*action_tick_units;reacting.apply(assets,reaction,reacting.revision(),retimed,"Choose flinch clip");
   auto bound=reacting.open(assets,flinch).value;auto timeline=reacting.open(assets,reaction).value;auto reaction_path=source/reacting.open(assets,reaction).asset.path,flinch_path=source/reacting.open(assets,flinch).asset.path;
   check(bound["reaction"]==reaction.text()&&bound["sources"]["reaction"]==reacting.open(assets,reaction).asset.path&&timeline["motion"]["policy"]=="none"&&timeline["loops"]==1&&timeline["slot"]=="full-body"&&!timeline["blocks"].empty()&&std::all_of(timeline["blocks"].begin(),timeline["blocks"].end(),[](const auto& b){return b["kind"]=="cue";}),"Reaction timeline creation kept gameplay blocks, root ownership or lost its binding");
-  check(reacting.open(assets,light_action).value["motion"]["policy"]=="motor"&&!reacting.open(assets,light_action).dirty(),"Reaction creation changed its template action");
+  reacting.undo(assets);check(reacting.open(assets,reaction).value["duration"]!=40*action_tick_units,"Clip choice Undo kept the new duration");
   reacting.undo(assets);check(reacting.open(assets,flinch).value==status&&reacting.drafts.contains(reaction),"Reaction binding Undo lost status or removed timeline early");reacting.undo(assets);check(!reacting.drafts.contains(reaction),"Reaction timeline creation Undo retained pending source");
-  reacting.redo(assets);reacting.redo(assets);check(reacting.open(assets,flinch).value==bound&&reacting.open(assets,reaction).value==timeline,"Reaction Redo is coherent");
+  reacting.redo(assets);reacting.redo(assets);reacting.redo(assets);check(reacting.open(assets,flinch).value==bound&&reacting.open(assets,reaction).value==timeline,"Reaction Redo is coherent");
   reacting.bind_effect_reaction(assets,flinch,{});check(reacting.open(assets,flinch).value==status,"Clearing a reaction left its reference or locator");reacting.undo(assets);
   auto kit_saved=reacting.open(assets,kit).saved;reacting.bind(assets,kit,copy,2,flinch,0);
   auto unpublished=[&](const char* message){check(!std::filesystem::exists(reaction_path)&&!std::filesystem::exists(flinch_path)&&read(source/reacting.open(assets,kit).asset.path)==kit_saved,message);};

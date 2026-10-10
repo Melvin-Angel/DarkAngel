@@ -1,0 +1,44 @@
+{
+  "blender": "4.5.1 LTS",
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RollRight.fbx",
+  "source_sha256": "7d8d46db4f340bfcc777b2e6c58889570320111dabc0327d5d551caf2de8cb54",
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "caec6f8897f1e06f35dfd03ed9d0d37cca2c1c750af3c68a29d585cbe50ed028",
+  "action": "Armature|human_male_roll_right_01|BaseLayer",
+  "reference": "Armature|tpose|BaseLayer",
+  "source_fps": 30.0,
+  "source_frames": [
+    3.0,
+    47.0
+  ],
+  "ticks": 88,
+  "joints": 81,
+  "omitted_helpers": [
+    "jnt_eyelidDOWNEnd_L",
+    "jnt_eyelidDOWNEnd_R",
+    "jnt_eyelidDOWN_L",
+    "jnt_eyelidDOWN_R",
+    "jnt_eyelidUPEnd_L",
+    "jnt_eyelidUPEnd_R",
+    "jnt_eyelidUP_L",
+    "jnt_eyelidUP_R",
+    "jnt_shoulderEnd_L",
+    "jnt_shoulderEnd_R",
+    "jnt_shoulder_L",
+    "jnt_shoulder_R"
+  ],
+  "rest_only_face_joints": [
+    "jnt_eyeBrow_L",
+    "jnt_eyeBrow_LEnd_L",
+    "jnt_eyeBrow_R",
+    "jnt_eyeBrowEnd_R",
+    "jnt_eyelid_L",
+    "jnt_eyelid_LEnd_L",
+    "jnt_eyelid_R",
+    "jnt_eyelidEnd_R"
+  ],
+  "normalized_rest": true,
+  "max_rest_basis_matrix_difference": 0.4444818049669266,
+  "max_rest_length_difference_metres": 0.0775663836685953,
+  "profile": "Mapped canonical hierarchy validated; explicit offline authored-tpose rest normalization and missing brow/eyelid rest fill; rigid metre/Y-up transforms sampled at 60 Hz; no runtime retarget; visual motion quality still requires acceptance"
+}

@@ -1,52 +1,57 @@
 {
   "schema": 1,
-  "base_head": "d164d0e6e02d1a09b1dedab7a746929dd097cccc",
+  "base_head": "221e208564c2cd0fec9c91ff434adb853e3fa3fd",
   "scope": "Optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
   "gates": [
     {
+      "name": "effect-reaction-build",
+      "exit": 0,
+      "seconds": 27.563
+    },
+    {
       "name": "effect-reaction-authoring",
       "exit": 0,
-      "seconds": 112.844
+      "seconds": 137.375
     },
     {
       "name": "effect-reaction-presentation",
       "exit": 0,
-      "seconds": 0.187
+      "seconds": 0.312
     },
     {
       "name": "effect-reaction-public-pose",
       "exit": 0,
-      "seconds": 0.188
+      "seconds": 0.235
     },
     {
       "name": "effect-reaction-effect-assets",
       "exit": 0,
-      "seconds": 0.515
+      "seconds": 0.859
     },
     {
       "name": "effect-reaction-kit-assets",
       "exit": 0,
-      "seconds": 2.157
+      "seconds": 3.656
     },
     {
       "name": "effect-reaction-replication",
       "exit": 0,
-      "seconds": 0.187
+      "seconds": 0.391
     },
     {
       "name": "effect-reaction-combat-effects",
       "exit": 0,
-      "seconds": 0.078
+      "seconds": 0.234
     },
     {
       "name": "effect-reaction-form",
       "exit": 0,
-      "seconds": 1.0
+      "seconds": 2.485
     },
     {
       "name": "effect-reaction-d3d12",
       "exit": 0,
-      "seconds": 2.219
+      "seconds": 4.265
     }
   ],
   "source_sha256": {
@@ -63,13 +68,13 @@
     "engine/runtime/include/darkangel/effects.hpp": "7a2294e2cf125989eeed572021eae85475521c0dcac6730e7361a082f87d8db6",
     "engine/runtime/include/darkangel/character_presentation.hpp": "0bc7633aa14b8364defb2304093a2c24cf0a9b18aebdc6fac6cc1d01f3913a02",
     "engine/runtime/include/darkangel/character_scene.hpp": "0dff9fa66031e9b82f13bfa1229ab00e492e2555f3c439e47329379e668bc5dc",
-    "tests/native_authoring_tests.cpp": "a593f700210e0c8780290fd142e7be15e700be7aad9e14b163af558cb440ed5b",
+    "tests/native_authoring_tests.cpp": "24d4ccad87c913fdcad71f63c2727933c7b3388927d56c459a1240947a2f8c96",
     "tests/reaction_presentation_tests.cpp": "5c14d7924bbe03b28d6329777d76cdb4fab5f98fd1fce8cd2796e31db731540d",
     "scripts/verify_effect_reaction.py": "adfe6b8cd3172a18c9883c914db9559bca5bd880e278aaf0a4b3cf288e35476c"
   },
   "binary_sha256": {
     "DarkAngelEditor.exe": "926275be3505d1a481a9da0063b9ed8c4d598597d321564b7f3874d7a5c0e61f",
-    "NativeAuthoringTests.exe": "39108c06475e915e012a2b5cd6356d14c3cb04530c62495559a76bd08b7eda04",
+    "NativeAuthoringTests.exe": "f545ff539c95bf693fd97a14e6845eb8df0fc465cb98dcb3bee0cbb8fc81a65b",
     "ReactionPresentationTests.exe": "1f6e6980aac90bcac2488f277370b269d352d66a5559c06c3213b9c45817143a"
   },
   "limitations": [

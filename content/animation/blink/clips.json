@@ -1,0 +1,102 @@
+{
+  "pack": "Blink Animations Starter Pack (canonical rig)",
+  "clips": {
+    "get-hit": {
+      "source": "Combat/GetHit.fbx",
+      "loop": false,
+      "ticks": 40,
+      "id": "8de7516f-da59-4e1e-8318-62ea56beefd0"
+    },
+    "stunned": {
+      "source": "Combat/StunnedLoop.fbx",
+      "loop": true,
+      "ticks": 120,
+      "id": "3db9e987-6b3c-43a0-af03-bbe4fac8f689"
+    },
+    "death": {
+      "source": "Combat/Death.fbx",
+      "loop": false,
+      "ticks": 100,
+      "id": "5908ac28-fe2a-44fd-910a-4c203326b27e"
+    },
+    "blocking": {
+      "source": "Combat/BlockingLoop.fbx",
+      "loop": true,
+      "ticks": 40,
+      "id": "63e72453-f505-48b8-a3f6-ebaf69da8ab5"
+    },
+    "idle-combat": {
+      "source": "Combat/IdleCombat.fbx",
+      "loop": true,
+      "ticks": 104,
+      "id": "4f0b594c-ede1-42a6-8133-0afe3ba7905f"
+    },
+    "punch-left": {
+      "source": "Combat/PunchLeft.fbx",
+      "loop": false,
+      "ticks": 60,
+      "id": "13d7f1c5-a7ef-47f1-a8ab-7d0d85707b90"
+    },
+    "punch-right": {
+      "source": "Combat/PunchRight.fbx",
+      "loop": false,
+      "ticks": 60,
+      "id": "8f4a0497-8e47-40ca-be64-6664d498c301"
+    },
+    "casting": {
+      "source": "Combat/CastingLoop.fbx",
+      "loop": true,
+      "ticks": 64,
+      "id": "27cc37d0-c832-4daf-92c1-b74e76fd0741"
+    },
+    "bow-shot": {
+      "source": "Combat/BowShot.fbx",
+      "loop": false,
+      "ticks": 58,
+      "id": "7271fb88-ef0f-4aca-82bc-aab016829579"
+    },
+    "buff": {
+      "source": "Combat/Buff.fbx",
+      "loop": false,
+      "ticks": 92,
+      "id": "efce0303-b8ff-4c3d-b8ed-2701a383edaa"
+    },
+    "roll-forward": {
+      "source": "Movement/RollForward.fbx",
+      "loop": false,
+      "ticks": 92,
+      "id": "49a3430f-8f5c-4fa9-b606-32a8ba88cf8b"
+    },
+    "roll-left": {
+      "source": "Movement/RollLeft.fbx",
+      "loop": false,
+      "ticks": 88,
+      "id": "67b8eba3-4ccc-48c9-8056-1b92f899a14e"
+    },
+    "roll-right": {
+      "source": "Movement/RollRight.fbx",
+      "loop": false,
+      "ticks": 88,
+      "id": "831ec71e-d4ff-4833-bdbd-a9aeac99be95"
+    },
+    "falling": {
+      "source": "Movement/FallingLoop.fbx",
+      "loop": true,
+      "ticks": 62,
+      "id": "24aafbf2-d5bc-4d80-bea9-903675a66bf9"
+    },
+    "jump-running": {
+      "source": "Movement/JumpWhileRunning.fbx",
+      "loop": false,
+      "ticks": 50,
+      "id": "bfc8a083-775d-4c8e-b46c-b71a31f4e158"
+    }
+  },
+  "failed": {},
+  "omitted": {
+    "spell-cast": "missing canonical jointItemL",
+    "roll-backward": "missing canonical jointItemL",
+    "sprint": "missing canonical jointItemL",
+    "jump": "multiple takes in one FBX"
+  }
+}

@@ -1,5 +1,4 @@
-[1/5] Building CXX object CMakeFiles\CombatEffectTests.dir\tests\combat_effect_tests.cpp.obj
-[2/5] Building CXX object CMakeFiles\EffectReplicationTests.dir\tests\effect_replication_tests.cpp.obj
-[3/5] Linking CXX executable EffectReplicationTests.exe
-[4/5] Linking CXX executable CombatKitAssetTests.exe
-[5/5] Linking CXX executable CombatEffectTests.exe
+[1/6] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[2/6] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[4/4] Linking CXX executable NativeAuthoringTests.exe

@@ -47,7 +47,15 @@ Build environment note: the first build in this Claude Code session re-ran the p
 
 - One full-body reaction; no blend in/out, additive or upper-body reactions, queues, or per-binding priority separate from the timeline's.
 - Reaction cue blocks are allowed but not dispatched yet.
-- No flinch clip exists in owned content: the fixture reuses the attack clip, and no default Royal reaction is shipped. Default Royal content is unchanged.
+- Owned `royal_district/combat/flinch.daeffect` + `flinch.daaction` (Blink GetHit, 40 ticks, 30-tick public status granting State.Staggered, interrupts) are shipped but deliberately not bound in `player.dakit`: bind Flinch to a hit window in the Combat kit panel, Save and Play to see it in the Royal scene. Existing Royal behaviour and historical receipts are unchanged.
 - The editor Play scene has a single attacker (the player), so a positive flinch on the owner's own pose is covered by native WorldSession/selector tests, not by a Play capture.
 - No stagger motor restriction, knockback, death/revive presentation, reaction profile asset, NPC/AI.
 - History stays MVP; creation Undo ends at publication; publication is not crash-atomic. Eight combat slots unchanged; utility dodge ingress unresolved. Live EOS externally blocked. M6-M9 not started.
+
+## Supplement: real animation sources (same day)
+
+At the user's direction the Unity Ashen Roots project is now the animation source. Its Animation Composers were traced through their clip GUIDs to 86 source files across several third-party packs. Only the Blink Animations Starter Pack shares DarkAngel's canonical human hierarchy, so those convert with the existing strict offline converter and no retargeting. `python scripts/prepare_blink_clips.py` converts, adopts and cooks 15 clips into `content/animation/blink/` (get-hit, stunned, death, blocking, idle-combat, punch-left/right, casting, bow-shot, buff, roll-forward/left/right, falling, jump-running), each with its conversion record and `clips.json` index. Originals are read-only and hash-fenced. Omitted for now: SpellCast, RollBackward and Sprint (no canonical `jointItemL`), Jumps (several takes in one file). The other packs the Unity composers use (Hand-to-Hand staggers, Kevin Iglesias spell casts, Universal Animation Library dodges/death, EEJANAI slashes, Mixamo) are on different rigs and need an offline retarget profile like the existing Omni one before they can be imported; that is not done.
+
+The reaction fixture and D3D12 capture now use the real GetHit clip: fresh Play onset 18, clip length 40, tick 150 Health 39 / Stamina 80 / pending 0; editor Game tick 30 shows clip tick 12 of 40. All ten gates re-passed after the change. A CTest sweep of the editor build directory also passed every suite that is currently built from current sources (including native authoring, reaction, observed pose, effect/kit/ability suites). Five older binaries in that directory (actor assets, attribute authoring, composer structure/preview, Royal mesh collision) fail there, but they were last built on 9-10 October before later schema changes and were not rebuilt in this session; they were not investigated further.
+
+Converted third-party clips are committed to this local repository like the existing Blink attack/idle clips. Check the packs' licences before pushing the repository anywhere public.
