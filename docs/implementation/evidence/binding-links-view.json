@@ -1,0 +1,23 @@
+{
+  "gates": [
+    {
+      "name": "binding-navigation-build",
+      "exit": 0
+    },
+    {
+      "name": "binding-navigation-d3d12",
+      "exit": 0
+    }
+  ],
+  "scope": "binding-links-view",
+  "limitations": [
+    "Shared routing and normal form draw exercised; no physical pointer activation claim.",
+    "No cook/publication/runtime change; M4/M5 In progress."
+  ],
+  "base_head": "9eeff663b7d08967985fe7c3d55ed5d3c27ad0fb",
+  "source_sha256": {
+    "apps\\editor\\editor_authoring.cpp": "4d09cf355686d0493f91079a7faec5c0aa8f3a78596ac3ab2638ec5de960dac6",
+    "apps\\editor\\editor_ui.hpp": "74c1b0f338fc6a896d942348d42e3a52429da3edadb56ee996f39598f0869ce4",
+    "apps\\editor\\main.cpp": "5d22a258402d250fe3edd59a4422908102d62c6a7b358b7a7a38a4471124ba4d"
+  }
+}

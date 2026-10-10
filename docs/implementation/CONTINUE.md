@@ -1,3 +1,5 @@
+Current binding view: [BINDING_LINKS_VIEW_REPORT.md](BINDING_LINKS_VIEW_REPORT.md). Focused build/D3D12 inter-frame exercise passes: existing binding Ability/Effect routing, clean drafts/history and inspected visible row. Slot visibility is editor state only. Next: source-draft state details and creation/reference follow-through. M4/M5 In progress; EOS blocked; M6-M9 not started.
+
 Current selected-reference inspection: [SELECTED_REFERENCE_POLICY_REPORT.md](SELECTED_REFERENCE_POLICY_REPORT.md). Targeted editor/D3D12 smoke passes; hover uses existing one-entry native picker policy to explain incompatibility and pending/catalog identity. Save/preview validation remains authoritative. Next: compact Kit slot visibility and binding-row receipt. M4/M5 In progress; EOS blocked; M6-M9 not started.
 
 Current reference display names: [REFERENCE_DISPLAY_NAMES_REPORT.md](REFERENCE_DISPLAY_NAMES_REPORT.md). Targeted editor/D3D12 form passes; selected filenames remain readable while full path/UUID inspection and native filtering are retained. Next: selected-reference compatibility inspection on hover. M4/M5 In progress; EOS blocked; M6-M9 not started.
