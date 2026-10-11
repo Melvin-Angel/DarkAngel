@@ -9,7 +9,7 @@ void require(bool value,const char* error){if(!value)throw std::runtime_error(er
 constexpr double radians=3.141592653589793/180;
 }
 void validate_senses(const SensesDefinition& senses){
-    require(std::isfinite(senses.eye_height)&&senses.eye_height>=0&&senses.eye_height<=4&&std::isfinite(senses.forget_seconds)&&senses.forget_seconds>=0&&senses.forget_seconds<=120,"NPC senses bounds: eye height 0 to 4 m, time to forget 0 to 120 s");
+    require(std::isfinite(senses.eye_height)&&senses.eye_height>=0&&senses.eye_height<=4&&std::isfinite(senses.forget_seconds)&&senses.forget_seconds>=0&&senses.forget_seconds<=120&&std::isfinite(senses.awareness_seconds)&&senses.awareness_seconds>=0&&senses.awareness_seconds<=30,"NPC senses bounds: eye height 0 to 4 m, time to forget 0 to 120 s, awareness time 0 to 30 s");
     require(senses.sensors.size()<=sensor_limit&&(!senses.everything||senses.sensors.empty()),"NPC senses: at most eight sensors, and none beside \"everything\"");
     for(const auto& sensor:senses.sensors){
         require(sensor.kind==SensorKind::Distance||sensor.kind==SensorKind::Vision||sensor.kind==SensorKind::LineOfSight,"NPC sensor kind");
@@ -28,21 +28,28 @@ void Perception::sense(std::uint64_t tick,const MotorState& self,bool alive,std:
         int clear=-1;auto visible=[&]{if(clear<0)clear=sight&&sight(eye,body)?1:0;return clear==1;};
         const double fx=subject.motor.position.x-self.position.x,fy=subject.motor.position.y-self.position.y,fz=subject.motor.position.z-self.position.z;
         const double dx=body.x-eye.x,dy=body.y-eye.y,dz=body.z-eye.z,level=std::hypot(dx,dz),reach=std::sqrt(dx*dx+dy*dy+dz*dz);
-        bool detected=senses_.everything;
+        bool sensed=senses_.everything;
         for(const auto& sensor:senses_.sensors){
-            if(detected)break;
-            if(sensor.kind==SensorKind::Distance)detected=fx*fx+fy*fy+fz*fz<=sensor.range*sensor.range;
+            if(sensed)break;
+            if(sensor.kind==SensorKind::Distance)sensed=fx*fx+fy*fy+fz*fz<=sensor.range*sensor.range;
             else if(reach<=sensor.range){
                 if(sensor.kind==SensorKind::Vision){
                     const double aside=level>1e-6?std::abs(std::remainder(std::atan2(dx,dz)-self.yaw,6.283185307179586)):0,above=std::abs(std::atan2(dy,level));
                     if(aside>sensor.horizontal*radians+1e-9||above>sensor.vertical*radians+1e-9)continue;
                 }
-                detected=visible();
+                sensed=visible();
             }
         }
-        const auto known=std::find_if(previous_.begin(),previous_.end(),[&](const auto& entry){return entry.id==subject.id;});
-        if(detected)actors_.push_back({subject.id,subject.faction,subject.motor,subject.alive,true,visible(),known!=previous_.end()&&known->detected?known->since:tick,tick});
-        else if(known!=previous_.end()&&tick-known->seen<=forget&&forget){auto lost=*known;lost.detected=false;lost.visible=false;actors_.push_back(lost);}
+        const auto known=std::find_if(previous_.begin(),previous_.end(),[&](const auto& entry){return entry.id==subject.id;});const bool had=known!=previous_.end(),was=had&&known->detected;
+        // The awareness meter: fills while sensed, drains at the same rate while not.
+        const double step=senses_.awareness_seconds>0&&!senses_.everything?1/(senses_.awareness_seconds*60):1;const double awareness=sensed?std::min(1.,(had?known->awareness:0)+step):std::max(0.,(had?known->awareness:0)-step);
+        if(sensed&&(was||awareness>=1))actors_.push_back({subject.id,subject.faction,subject.motor,subject.alive,true,visible(),was?known->since:tick,tick,true,awareness});
+        else{
+            // Not detected: still becoming aware, remembered after a detection, or fading. A remembered state is never refreshed here.
+            const bool remembered=had&&known->seen&&forget&&tick-known->seen<=forget;if(!sensed&&!remembered&&awareness<=0)continue;
+            PerceivedActor entry=had?*known:PerceivedActor{subject.id,subject.faction,subject.motor,subject.alive};if(!had||!known->seen){entry.motor=subject.motor;entry.alive=subject.alive;}
+            entry.detected=false;entry.visible=false;entry.sensed=sensed;entry.awareness=awareness;if(!remembered){entry.since=0;entry.seen=0;}actors_.push_back(entry);
+        }
     }
 }
 }

@@ -41,12 +41,12 @@ CameraRigDefinition camera_rig(const Json& cameras){
  try{validate_camera_rig(rig);}catch(const std::invalid_argument& error){throw std::runtime_error(error.what());}return rig;
 }
 BehaviorTuning npc_tuning(const Json& value){fields(value,{"preferred_range","recovery_scale"});require(value.at("preferred_range").is_number()&&value.at("recovery_scale").is_number(),"NPC tuning number type");BehaviorTuning tuning{value.at("preferred_range").get<double>(),value.at("recovery_scale").get<double>()};validate_behavior_tuning(tuning);return tuning;}
-// NPC senses: {"everything": true}, or an eye height, a time to forget and up to eight sensors.
+// NPC senses: {"everything": true}, or an eye height, a time to forget, an awareness time and up to eight sensors.
 SensesDefinition npc_senses(const Json& value){
  require(value.is_object(),"NPC senses type");SensesDefinition senses;
  if(value.contains("everything")){fields(value,{"everything"});require(value.at("everything").is_boolean()&&value.at("everything").get<bool>(),"NPC senses \"everything\" can only be true");senses.everything=true;return senses;}
- fields(value,{"eye_height","forget_seconds","sensors"});require(value.at("eye_height").is_number()&&value.at("forget_seconds").is_number()&&value.at("sensors").is_array()&&value.at("sensors").size()<=sensor_limit,"NPC senses field types, at most eight sensors");
- senses.eye_height=value.at("eye_height").get<double>();senses.forget_seconds=value.at("forget_seconds").get<double>();
+ fields(value,{"eye_height","forget_seconds","awareness_seconds","sensors"});require(value.at("eye_height").is_number()&&value.at("forget_seconds").is_number()&&value.at("awareness_seconds").is_number()&&value.at("sensors").is_array()&&value.at("sensors").size()<=sensor_limit,"NPC senses field types, at most eight sensors");
+ senses.eye_height=value.at("eye_height").get<double>();senses.forget_seconds=value.at("forget_seconds").get<double>();senses.awareness_seconds=value.at("awareness_seconds").get<double>();
  for(const auto& entry:value.at("sensors")){require(entry.is_object()&&entry.contains("type")&&entry.at("type").is_string(),"NPC sensor type");const auto type=entry.at("type").get<std::string>();SensorDefinition sensor;
   auto read=[&](const char* key){require(entry.at(key).is_number(),"NPC sensor number type");return entry.at(key).get<double>();};
   if(type=="distance"){fields(entry,{"type","radius"});sensor.kind=SensorKind::Distance;sensor.range=read("radius");}

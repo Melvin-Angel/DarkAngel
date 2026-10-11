@@ -17,6 +17,17 @@ struct Blackboard {
     // The opponent is the nearest live hostile the actor detects, chosen once per decision.
     bool opponent()const{return view->alive&&foe;}
     double distance()const{return std::hypot(foe->motor.position.x-view->self.position.x,foe->motor.position.z-view->self.position.z);}
+    // Walk toward a point: along the navigation mesh when there is one, straight otherwise. False when no path exists.
+    bool steer(const MotorVec& goal){
+        const auto& self=view->self.position;MotorVec corner=goal;
+        if(mesh){
+            if(path.size()<2||view->tick>=repath){auto found=mesh->path(self,goal);path=found?std::move(*found):std::vector<MotorVec>{};next=1;repath=view->tick+15;}
+            if(path.size()<2)return false;
+            while(next+1<path.size()&&std::hypot(path[next].x-self.x,path[next].z-self.z)<.3)++next;corner=path[next];
+        }
+        const double x=corner.x-self.x,z=corner.z-self.z,length=std::hypot(x,z);if(length>1e-6){command.move_x=x/length;command.move_z=z/length;command.face=std::atan2(x,z);}
+        return true;
+    }
 };
 class OpponentAlive final:public BT::ConditionNode {
 public:OpponentAlive(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::ConditionNode(name,config),board_(board){}
@@ -69,14 +80,21 @@ public:Approach(const std::string& name,const BT::NodeConfig& config,Blackboard*
     BT::NodeStatus onStart()override{board_->path.clear();board_->repath=0;return onRunning();}
     BT::NodeStatus onRunning()override{
         auto& b=*board_;if(!b.opponent())return BT::NodeStatus::FAILURE;if(b.distance()<=getInput<double>("range").value()&&b.foe->visible)return BT::NodeStatus::SUCCESS;if(b.view->busy)return BT::NodeStatus::RUNNING;
-        const auto& self=b.view->self.position;MotorVec corner=b.foe->motor.position;
-        if(b.mesh){
-            if(b.path.size()<2||b.view->tick>=b.repath){auto found=b.mesh->path(self,b.foe->motor.position);b.path=found?std::move(*found):std::vector<MotorVec>{};b.next=1;b.repath=b.view->tick+15;}
-            if(b.path.size()<2)return BT::NodeStatus::FAILURE;
-            while(b.next+1<b.path.size()&&std::hypot(b.path[b.next].x-self.x,b.path[b.next].z-self.z)<.3)++b.next;corner=b.path[b.next];
-        }
-        const double x=corner.x-self.x,z=corner.z-self.z,length=std::hypot(x,z);if(length>1e-6){b.command.move_x=x/length;b.command.move_z=z/length;b.command.face=std::atan2(x,z);}
+        if(!b.steer(b.foe->motor.position))return BT::NodeStatus::FAILURE;
         b.trace=b.mesh?"Approach along the navigation mesh":"Approach";return BT::NodeStatus::RUNNING;
+    }
+    void onHalted()override{board_->path.clear();}
+private:Blackboard* board_;
+};
+// Go and look: walk to where the hostile the NPC lost most recently was last detected.
+class Investigate final:public BT::StatefulActionNode {
+public:Investigate(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::StatefulActionNode(name,config),board_(board){}
+    static BT::PortsList providedPorts(){return {};}
+    BT::NodeStatus onStart()override{board_->path.clear();board_->repath=0;return onRunning();}
+    BT::NodeStatus onRunning()override{
+        auto& b=*board_;const auto* lost=b.view->alive?last_lost_hostile(*b.view):nullptr;if(!lost)return BT::NodeStatus::FAILURE;
+        const auto& self=b.view->self.position;if(std::hypot(lost->motor.position.x-self.x,lost->motor.position.z-self.z)<=1.)return BT::NodeStatus::SUCCESS;if(b.view->busy)return BT::NodeStatus::RUNNING;
+        if(!b.steer(lost->motor.position))return BT::NodeStatus::FAILURE;b.trace="Investigate the last known position";return BT::NodeStatus::RUNNING;
     }
     void onHalted()override{board_->path.clear();}
 private:Blackboard* board_;
@@ -91,6 +109,7 @@ void write(std::ostringstream& xml,const BehaviorNode& node,const BehaviorTuning
     else if(node.type=="in_range")xml<<"<DaInRange range=\""<<range<<"\"/>";
     else if(node.type=="approach")xml<<"<DaApproach range=\""<<range<<"\"/>";
     else if(node.type=="attack")xml<<"<DaAttack slot=\""<<static_cast<unsigned>(node.slot)<<"\"/>";
+    else if(node.type=="investigate")xml<<"<DaInvestigate/>";
     else if(node.type=="recover")xml<<"<DaRecover ticks=\""<<std::max(1u,unsigned(std::lround(node.ticks*tuning.recovery_scale)))<<"\"/>";
     else throw std::runtime_error("Unknown behavior node type");
 }
@@ -99,7 +118,7 @@ public:
     BehaviorController(const BehaviorDefinition& definition,std::shared_ptr<const NavigationMesh> mesh,const BehaviorTuning& tuning){
         board_.mesh=std::move(mesh);BT::BehaviorTreeFactory factory;
         factory.registerNodeType<OpponentAlive>("DaOpponentAlive",&board_);factory.registerNodeType<OpponentVisible>("DaOpponentVisible",&board_);factory.registerNodeType<Idle>("DaIdle",&board_);factory.registerNodeType<InRange>("DaInRange",&board_);factory.registerNodeType<Face>("DaFace",&board_);
-        factory.registerNodeType<Attack>("DaAttack",&board_);factory.registerNodeType<Recover>("DaRecover",&board_);factory.registerNodeType<Approach>("DaApproach",&board_);
+        factory.registerNodeType<Attack>("DaAttack",&board_);factory.registerNodeType<Recover>("DaRecover",&board_);factory.registerNodeType<Approach>("DaApproach",&board_);factory.registerNodeType<Investigate>("DaInvestigate",&board_);
         std::ostringstream xml;xml.precision(17);xml<<"<root BTCPP_format=\"4\"><BehaviorTree ID=\"Main\">";write(xml,definition.root,tuning);xml<<"</BehaviorTree></root>";
         tree_=factory.createTreeFromText(xml.str());
     }

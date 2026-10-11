@@ -390,6 +390,15 @@ int main(){try{
                 std::cout<<"NPC sensing: player lost at tick "<<lost<<", detected again at tick "<<watcher->last[0].since<<"\n";
             }
             {
+                // The awareness meter: with half a second to fill, a watcher facing the player senses it at once but detects it only after 30 ticks;
+                // one that turns away after 15 ticks never detects it, and the meter drains to nothing.
+                auto aware=sensing({cone});aware.awareness_seconds=.5;
+                auto run=[&](std::uint64_t turn){auto watcher=std::make_shared<Watcher>();if(turn){watcher->turn_from=turn;watcher->turn_until=100000;}auto scene=combat;scene.actors={guard(first,60,watcher)};scene.actors[0].senses=aware;std::array<ObjectData,2> crowd{player,placed(first,0,8,pi,60)};auto session=std::make_unique<CharacterSceneSession>(hello,crowd,player.id,collision,plan,rig.definition,rig.archive,scene);return std::pair{std::move(session),watcher};};
+                {auto [session,watcher]=run(0);while(session->motor().tick<20)session->step({});check(watcher->last.size()==1&&watcher->last[0].sensed&&!watcher->last[0].detected&&watcher->last[0].awareness>.5&&watcher->last[0].awareness<.8&&!session->controller_target(first),"A filling awareness meter detected the player early, or did not fill");
+                    while(session->motor().tick<34)session->step({});check(watcher->last.size()==1&&watcher->last[0].detected&&watcher->last[0].awareness==1&&watcher->last[0].since>=29&&watcher->last[0].since<=32&&session->controller_target(first)==player.id,"A full awareness meter did not detect the player after the authored time");}
+                {auto [session,watcher]=run(15);bool detected=false;double peak=0;while(session->motor().tick<70){session->step({});for(const auto& other:watcher->last){detected|=other.detected;peak=std::max(peak,other.awareness);}}check(!detected&&peak>.3&&peak<1&&watcher->last.empty(),"A watcher that looked away before its meter filled detected the player, or the meter did not drain");}
+            }
+            {
                 // An actor without senses perceives nothing: a controller that would walk up and attack stays where it is.
                 struct Hunter final:ActorController {ControllerCommand decide(const ControllerView& view)override{ControllerCommand command;const auto* foe=view.alive?nearest_hostile(view):nullptr;if(!foe)return command;command.target=foe->id;const double dx=foe->motor.position.x-view.self.position.x,dz=foe->motor.position.z-view.self.position.z,distance=std::hypot(dx,dz);command.face=std::atan2(dx,dz);if(distance>1.4){command.move_x=dx/distance;command.move_z=dz/distance;}else if(!view.busy)command.press=CombatSlot::Light;return command;}};
                 auto hunt=[&](bool sees){auto scene=combat;scene.actors={guard(first,60,std::make_shared<Hunter>())};scene.actors[0].senses={};scene.actors[0].senses.everything=sees;std::array<ObjectData,2> crowd{player,placed(first,0,5,pi,60)};auto session=std::make_unique<CharacterSceneSession>(hello,crowd,player.id,collision,plan,rig.definition,rig.archive,scene);while(session->motor().tick<240)session->step({});
@@ -411,7 +420,7 @@ int main(){try{
                 auto shoot=[&](const CollisionDefinition& ground){auto scene=combat;scene.actors={guard(first,60,std::make_shared<Bowman>())};std::array<ObjectData,2> crowd{player,placed(first,0,8,pi,60)};auto session=std::make_unique<CharacterSceneSession>(hello,crowd,player.id,ground,plan,rig.definition,rig.archive,scene);Volley result;while(session->motor().tick<90){session->step({});result.flown=std::max(result.flown,unsigned(session->projectiles().size()));}result.health=health_of(*session,player.id);result.pressed=session->controller_receipt(first)!=nullptr;return result;};
                 const auto open=shoot(collision),blocked=shoot(walled);check(open.health==80&&open.flown==1&&open.pressed,"An archer with a clear line of sight did not shoot the player");check(blocked.health==100&&blocked.flown==0&&!blocked.pressed,"An archer shot at a target behind a wall");
             }
-            std::cout<<"NPC sensing: distance radius, vision cone (facing, half angles, range, height), line of sight, a wall, losing and forgetting, no senses, actor order, archer line of sight\n";
+            std::cout<<"NPC sensing: distance radius, vision cone (facing, half angles, range, height), line of sight, a wall, losing and forgetting, the awareness meter, no senses, actor order, archer line of sight\n";
         }
         {
             // NPC ranged aim leads a moving target: the player runs across the archer's line, the arrow is loosed ahead of it and lands.

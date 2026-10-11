@@ -301,6 +301,9 @@ const PerceivedActor* nearest_hostile(const ControllerView& view){
     for(const auto& other:view.perceived){if(!other.detected||!other.alive||other.faction==view.faction)continue;const double distance=std::hypot(other.motor.position.x-view.self.position.x,other.motor.position.z-view.self.position.z);if(!best||distance<nearest){best=&other;nearest=distance;}}
     return best;
 }
+const PerceivedActor* last_lost_hostile(const ControllerView& view){
+    const PerceivedActor* best{};for(const auto& other:view.perceived)if(!other.detected&&other.seen&&other.alive&&other.faction!=view.faction&&(!best||other.seen>best->seen))best=&other;return best;
+}
 CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,std::span<const ObjectData> objects,StableId player,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat)
     :impl_(std::make_unique<Impl>(std::move(hello),objects,player,collision,std::move(plan),std::move(rig),archive,std::move(combat))){}
 CharacterSceneSession::~CharacterSceneSession()=default;

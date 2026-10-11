@@ -9,7 +9,9 @@ namespace darkangel {
 // Native behaviour tree topology, authored as JSON. Node kinds are a closed native set:
 //   composites  sequence, selector (one to eight children)
 //   conditions  opponent_alive, opponent_visible, in_range {range}, idle
-//   actions     face, approach {range}, attack {slot}, recover {ticks}
+//   actions     face, approach {range}, attack {slot}, recover {ticks}, investigate
+// investigate walks to the last known position of the hostile the NPC lost most recently and
+// succeeds on arrival; it fails when the NPC remembers none. No owned tree uses it yet.
 // approach walks until the opponent is within range and in line of sight.
 // The tree only decides; every leaf acts through the controller seam (move, face, press),
 // so a behaviour cannot bypass ability validation. Blackboard and sensing stay native: the

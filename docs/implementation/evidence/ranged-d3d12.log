@@ -3,15 +3,76 @@
 [39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
-[39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802051d0000
-[39mViewport foreground pixels=842421 capture=C:\DarkAngel\docs\implementation\evidence\ranged-d3d12.png
+[39m[00001] [imgui-error] (current settings: Assert=1, Log=1, Tooltip=1)
+[00001] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
+[39m[00002] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00003] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00004] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802051d0000
+[39m[00005] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00006] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00007] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00008] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00009] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00010] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00011] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00012] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00013] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00014] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00015] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00016] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00017] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00018] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00019] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00020] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00021] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00022] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00023] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00024] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00025] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00026] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00027] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00028] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00029] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00030] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00031] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00032] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00033] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00034] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00035] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00036] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00037] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00038] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00039] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00040] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00041] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00042] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00043] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00044] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00045] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00046] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00047] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00048] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00049] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00050] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00051] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00052] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00053] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00054] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00055] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00056] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00057] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00058] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00059] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+[00060] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
+Viewport foreground pixels=860892 capture=C:\DarkAngel\docs\implementation\evidence\ranged-d3d12.png
 Editor ranged tick=60 camera=Aim range=20 distance=1.2 target_health=80 aim_pitch=-0.191289 projectile=1 in_flight=0 seen_in_flight=0 pending=0 hud_crosshair=1
 DarkAngel editor rendered 60 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 11/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 219.75 KB / 220.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.9%. Peak utilization (used/allocated): 21.5%
+                       Peak used/aligned/allocated size: 235.75 KB / 236.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.9%. Peak utilization (used/allocated): 23.0%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

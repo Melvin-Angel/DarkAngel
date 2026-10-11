@@ -128,3 +128,26 @@ The owned Royal Guard and Royal Archer no longer know where the player is. A gua
 - The Actors tab perception readout was not captured.
 - Sensing was measured for correctness, not for cost; a full scene's 256 rays a tick were not profiled.
 - Real latency and GNS: unchanged, sensing is server-only and adds nothing to the wire.
+
+## User answers and the awareness meter (11 October 2026, evening)
+
+Answers to the four questions at the top of this file: (1) build an awareness meter, configurable in the editor, set low for now; (2) no stealth modifiers; (3) no sharing between NPCs of a faction; (4) support "go and look" at a last known position, but give up for now.
+
+### Built
+
+- **Awareness meter.** `awareness_seconds` on an NPC's senses (0 to 30; "Awareness time (s)" in the NPC tab's Senses section). A sensed actor's meter fills over that time and drains at the same rate while no sensor senses it. The actor is detected once it is sensed with a full meter, and then stays detected for as long as it is sensed. 0 detects at once, and "sees everything" ignores the meter. The Royal Guard and Royal Archer are set to 0.3 s.
+- `PerceivedActor` gained `sensed` and `awareness`. An actor that is sensed but not yet detected is in the perceived list so debug views can show the meter, but `nearest_hostile` and a controller's target still require `detected`, so nothing acts on it. A remembered (lost) actor's last known state is not refreshed by being sensed again before the meter refills.
+- **Go and look.** A behaviour tree action `investigate` ("Go to last known position" in the tree outline): walk, along the navigation mesh when there is one, to where the hostile the NPC lost most recently was last detected; succeed on arrival; fail when the NPC remembers none. `last_lost_hostile` is the shared helper. No owned tree uses the node, so the Royal Guard and Archer still give up when they lose the player. Turning it on for an NPC is a tree edit, for example a third branch `sequence[investigate]` after the attack and approach branches.
+- Debug: the Actors tab shows "Becoming aware of ...: n%" and the meter of a lost actor; the viewport line to an actor the NPC is becoming aware of is yellow and thickens as the meter fills.
+
+### Verified
+
+- `CharacterCombatSceneTests`: with half a second to fill, a watcher facing the player senses it at once but has no target at tick 20 (meter between 50% and 80%), and detects it between ticks 29 and 32; a watcher that turns away after 15 ticks never detects the player, its meter peaks below full and drains until the entry is gone.
+- `BehaviorTreeTests`: `investigate` walks toward a lost hostile's last known position, stops within a metre of it, and does not move for an actor the NPC never detected.
+- `NativeAuthoringTests`: the frozen NPC carries its awareness time.
+- Full pass on this build: all 44 verify gates and CTest with only the five known unrelated failures. In `npc-senses-d3d12` the guard now notices the player at tick 109 (tick 92 before the meter), with the player at z 6.71.
+
+### Not verified
+
+- `investigate` in a real session or in the editor: it is covered by the tree's unit test only, and no owned NPC uses it.
+- No capture of the meter readout or the yellow line was looked at.

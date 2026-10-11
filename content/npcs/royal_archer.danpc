@@ -27,6 +27,7 @@
   "senses": {
     "eye_height": 1.6,
     "forget_seconds": 5.0,
+    "awareness_seconds": 0.3,
     "sensors": [
       {
         "type": "vision",

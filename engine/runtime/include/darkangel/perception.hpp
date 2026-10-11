@@ -22,7 +22,10 @@ constexpr std::size_t sensor_limit=8;
 constexpr double perception_body_height=1.0;
 // No sensors and not everything: the NPC perceives nothing. everything detects every actor
 // each tick and excludes sensors. A lost actor is remembered for forget_seconds.
-struct SensesDefinition {bool everything{};double eye_height{1.6},forget_seconds{5};std::vector<SensorDefinition> sensors;};
+// awareness_seconds is the awareness meter: how long an actor must stay sensed before it is
+// detected. The meter fills while a sensor senses the actor and drains at the same rate while
+// none does; 0 detects at once.
+struct SensesDefinition {bool everything{};double eye_height{1.6},forget_seconds{5};std::vector<SensorDefinition> sensors;double awareness_seconds{};};
 void validate_senses(const SensesDefinition&);
 // Another actor as sensing is given it. Faction is the session-local number.
 struct SensedSubject {StableId id;std::uint32_t faction{};MotorState motor;bool alive{};};
@@ -30,7 +33,10 @@ struct SensedSubject {StableId id;std::uint32_t faction{};MotorState motor;bool 
 // faction, different numbers are hostile. While detected, motor and alive are current; once
 // lost they are the last state it was detected in. visible is line of sight on this tick.
 // since is the tick the current detection began (kept once lost); seen is the last tick it was detected.
-struct PerceivedActor {StableId id;std::uint32_t faction{};MotorState motor;bool alive{},detected{},visible{};std::uint64_t since{},seen{};};
+// sensed: a sensor senses it on this tick. awareness is the meter, 0 to 1; an actor is detected
+// once it is sensed with a full meter and stays detected while it is sensed. An entry that is
+// sensed but not detected is one the NPC is still becoming aware of: controllers must not act on it.
+struct PerceivedActor {StableId id;std::uint32_t faction{};MotorState motor;bool alive{},detected{},visible{};std::uint64_t since{},seen{};bool sensed{};double awareness{};};
 // True when nothing static lies between the two points.
 using SightQuery=std::function<bool(MotorVec from,MotorVec to)>;
 class Perception {

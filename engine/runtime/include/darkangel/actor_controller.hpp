@@ -26,6 +26,8 @@ struct ControllerView {
 // The nearest live actor of another faction among those detected on this tick; the earlier
 // entry wins an exact tie. Faction decides who is hostile, senses decide who is noticed.
 const PerceivedActor* nearest_hostile(const ControllerView&);
+// The hostile the actor detected and then lost most recently and still remembers, at its last known state.
+const PerceivedActor* last_lost_hostile(const ControllerView&);
 struct ControllerCommand {
     // World-space movement input, length at most 1.
     double move_x{},move_z{};
