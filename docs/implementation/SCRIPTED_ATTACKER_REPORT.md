@@ -18,7 +18,7 @@ The target's attack is shown by the existing observed-pose path from its public 
 
 Game workspace, Gameplay Inspector, **Target effects** tab, **Training attacker**: tick "Target attacks the player" (optionally "Heavy"), stop and press Play again. The target then attacks every 150 ticks while the player is within 2.5 m. The tab shows the last request and why it was refused, if it was. Command line for scripted runs: `--target-attacks light|heavy` (first attack at tick 10, every 120 ticks) and `--exercise-attacked`.
 
-To see the flinch in the Royal scene, bind the owned Flinch effect to a hit window in the Combat kit panel as before (it is still unbound in `player.dakit`; binding it by default is part of the stagger item).
+Update, same day: the Royal kit now binds the owned Flinch to the Light hit by default and stagger, stun and death restrict movement; see [STAGGER_REPORT](STAGGER_REPORT.md).
 
 ## Verification
 
@@ -42,6 +42,5 @@ To see the flinch in the Royal scene, bind the owned Flinch effect to a hit wind
 - It uses the player's scene kit (the active mask's kit under masks). There is no separate enemy kit, Character or attribute set.
 - Nothing regenerates Stamina, so the target stops after its Stamina is spent (ten Lights or five Heavies with the Royal kit); the inspector then reports "not enough Stamina".
 - The toggle is editor session state applied on the next Play; it is not saved in the scene or the Player.
-- A dead player can still walk: death is presentation plus refused abilities; there is no motor rule, respawn or downed state yet.
-- Stagger is still a pose and an ability gate (State.Staggered), not a movement restriction.
+- At the time of this increment a dead or staggered player could still walk; the stagger increment that followed added the movement lock. There is still no respawn or downed state.
 - Not verified: Vulkan, host/client over GNS, physical pointer use of the new checkboxes.

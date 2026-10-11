@@ -33,7 +33,7 @@ ReactionPresentation::ReactionPresentation(const RigDefinition& rig,std::span<co
         auto found=clips.find(action.motion->clip.id);require(found!=clips.end()&&found->second,"Reaction clip missing");const auto& clip=found->second->definition();
         require(clip.skeleton==rig.id&&clip.signature==rig.signature&&clip.joints==rig.joints.size()&&clip.ticks*action_tick_units==action.duration&&found->second->archive_generation()==action.motion->archive_generation,"Reaction clip rig/generation mismatch");
         ActionTimeline checked(effect->reaction,1,0);
-        require(reactions_.emplace(effect->id,Prepared{effect->generation,std::make_shared<const ActionDefinition>(action),found->second}).second,"Duplicate prepared reaction effect");
+        require(reactions_.emplace(effect->id,Prepared{effect->generation,std::make_shared<const ActionDefinition>(action),found->second,effect->reaction_loop}).second,"Duplicate prepared reaction effect");
     }
 }
 std::optional<ReactionSample> ReactionPresentation::select(const EffectFrame* frame,std::uint64_t network,std::uint64_t session_epoch,std::uint64_t avatar_epoch,std::uint64_t tick,bool alive,bool acting)const{
@@ -45,8 +45,9 @@ std::optional<ReactionSample> ReactionPresentation::select(const EffectFrame* fr
     for(const auto& effect:frame->effects){
         auto found=reactions_.find(effect.definition);if(found==reactions_.end()||effect.suppressed)continue;const auto& prepared=found->second;
         require(prepared.generation==effect.generation,"Reaction effect frozen generation unavailable");
-        // Not started on this pose clock, already expired, or a finished one-shot.
-        if(effect.start>tick||(effect.end&&tick>=effect.end))continue;auto elapsed=tick-effect.start;if(elapsed>=prepared.action->duration/action_tick_units)continue;
+        // Not started on this pose clock, already expired, or a finished one-shot. A looping
+        // reaction repeats its clip on the same instance clock until the effect ends.
+        if(effect.start>tick||(effect.end&&tick>=effect.end))continue;auto elapsed=tick-effect.start;const auto length=prepared.action->duration/action_tick_units;if(prepared.loop)elapsed%=length;else if(elapsed>=length)continue;
         if(!best||std::tuple(prepared.action->priority,effect.start,effect.handle)>std::tuple(best->action->priority,best->start,best->key.handle))
             best=ReactionSample{{session_epoch,network,avatar_epoch,effect.handle},effect.definition,prepared.action.get(),prepared.clip.get(),effect.start,double(elapsed),{}};
     }

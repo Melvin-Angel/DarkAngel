@@ -29,7 +29,7 @@ public:
     bool empty()const{return reactions_.empty();}
     std::optional<ReactionSample> select(const EffectFrame*,std::uint64_t network,std::uint64_t session_epoch,std::uint64_t avatar_epoch,std::uint64_t tick,bool alive,bool acting)const;
 private:
-    struct Prepared {std::string generation;std::shared_ptr<const ActionDefinition> action;std::shared_ptr<const AnimationClip> clip;};
+    struct Prepared {std::string generation;std::shared_ptr<const ActionDefinition> action;std::shared_ptr<const AnimationClip> clip;bool loop{};};
     std::map<AssetId,Prepared> reactions_;
 };
 // Terminal presentation from checked Health 0. The onset is bounded local

@@ -6,13 +6,13 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201910000
 [39mViewport foreground pixels=866398 capture=C:\DarkAngel\docs\implementation\evidence\mask-placement-d3d12.png
-Masked action frozen_generation=2e6522edaa2e327fae5bb750f53577ec712a1421df97e389061a15890df9b22b locomotion_bound=3 total_bound=4
+Masked action frozen_generation=22236b756f05067053d82b5d23e13b5ebf8b17426319e9b4d00a1110a4ea34c8 locomotion_bound=3 total_bound=4
 Native heavy editor tick=30 target_health=60 stamina=80 pending=0
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 3/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 142.00 KB / 142.25 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.8%. Peak utilization (used/allocated): 13.9%
+                       Peak used/aligned/allocated size: 139.25 KB / 139.50 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.8%. Peak utilization (used/allocated): 13.6%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

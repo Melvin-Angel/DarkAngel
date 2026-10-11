@@ -1,0 +1,24 @@
+{
+  "schema": 2,
+  "kind": "action",
+  "asset": "1de3c811-0c6a-4610-91a8-db8789ccf222",
+  "duration": 122880,
+  "loops": 1,
+  "priority": 40,
+  "slot": "full-body",
+  "blocks": [
+    {
+      "id": 1,
+      "track": 0,
+      "begin": 0,
+      "end": 0,
+      "kind": "cue",
+      "key": "Stun.Start"
+    }
+  ],
+  "motion": {
+    "clip": "3db9e987-6b3c-43a0-af03-bbe4fac8f689",
+    "source": "animation/blink/stunned.glb",
+    "policy": "none"
+  }
+}

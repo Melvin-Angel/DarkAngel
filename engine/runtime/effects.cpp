@@ -21,6 +21,8 @@ std::shared_ptr<const EffectDefinition> freeze(const EffectDefinition& d,const A
   checked(!r.upper_body&&!r.mask&&r.loops==1&&r.motion&&!r.motion->motor_root,"Effect reaction needs a one-shot full-body action with a frozen clip and root policy none");
   checked(std::all_of(r.blocks.begin(),r.blocks.end(),[](const auto& block){return block.kind==ActionBlockKind::Cue;}),"Effect reaction action cannot carry gameplay blocks; presentation never executes them");
  }
+ checked(!d.reaction_loop||bool(d.reaction),"Effect reaction loop needs a reaction timeline");
+ checked(!d.lock_movement||(d.lifetime!=EffectLifetime::Instant&&d.visibility==AttributeVisibility::Public),"Effect movement lock needs a public finite or until-removed effect");
  checked(d.lifetime!=EffectLifetime::Instant||(!d.period_ticks&&d.modifiers.empty()&&d.tags.empty()&&d.execute_on_apply&&d.stacking==EffectStack::Independent),"Instant effect policy");
  checked((d.period_ticks||d.execute_on_apply)==(d.evaluator!=0),"Effect execution evaluator policy");
  dictionary.validate(d.application);dictionary.validate(d.ongoing);std::set<TagId> ids;for(auto tag:d.tags)checked(dictionary.contains(tag)&&ids.insert(tag).second,"Effect granted tag identity");

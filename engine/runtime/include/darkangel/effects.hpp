@@ -21,6 +21,12 @@ struct EffectDefinition {
  // sampled from the checked effect-instance clock. Its blocks never execute and
  // finishing it never ends the effect; duration and legality stay with the effect.
  std::shared_ptr<const ActionDefinition> reaction;
+ // Repeat the reaction clip for as long as the effect instance lasts (a stun loop).
+ bool reaction_loop{};
+ // While an unsuppressed instance is active the actor's motor ignores movement and jump
+ // input. Root motion, facing and gravity are unaffected. Public persistent effects only,
+ // so the owner can predict the same restriction from its checked public effect frame.
+ bool lock_movement{};
 };
 std::shared_ptr<const EffectDefinition> freeze_effect_definition(const EffectDefinition&,const AttributeSet&,const TagDictionary&);
 // Captured attribution outlives the source avatar. It contains no live pointer.

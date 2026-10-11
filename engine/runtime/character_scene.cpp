@@ -104,6 +104,22 @@ struct CharacterSceneSession::Impl {
         if(before.active)for(const auto& update:updates)if(update.handle==*before.active&&update.phase==ActionPhase::Completed){if(definition(before).face_movement)face(command,motor_yaw,false);auto total=std::uint64_t(definition(before).action->duration)*definition(before).action->loops;return motion(before,before.action->clock,total,command);}
         return {};
     }
+    // Movement restriction from statuses and death: the motor's existing lock request plus
+    // no jump. Authority reads its own state after effects advanced on this tick.
+    bool locks(const EffectDefinition& effect)const{return effect.lock_movement;}
+    bool restricted(AbilityOwnerHandle owner,std::uint64_t id)const{
+        if(server.objects().at(id).health.current<=0)return true;
+        for(const auto& active:server.ability_effects(owner))if(!active.suppressed)for(const auto& effect:combat->effects)if(effect->id==active.definition&&effect->generation==active.generation&&locks(*effect))return true;
+        return false;
+    }
+    // The owner predicts the same restriction for a tick from what it has confirmed: its
+    // corrected Health and the instance clocks of its latest checked public effect frame.
+    bool predicted_restricted(std::uint64_t tick)const{
+        const auto& confirmed=client.ability_corrections().at(player).ability;for(const auto& attribute:confirmed.attributes)if(attribute.id==confirmed.health_attribute&&attribute.value<=0)return true;
+        if(const auto* frame=effect_frame(player))for(const auto& active:frame->effects)if(!active.suppressed&&active.start<tick&&(!active.end||tick<active.end))for(const auto& effect:combat->effects)if(effect->id==active.definition&&effect->generation==active.generation&&locks(*effect))return true;
+        return false;
+    }
+    static void restrict(MotorInput& command,MotionRequest& request){request.lock=true;command.jump=false;}
     // Scripted training attacker: a server-owned press of one kit slot on a fixed schedule.
     // Activation, cost, cooldown, hits and effects are the ordinary authoritative ability path.
     bool drive_attacker(std::uint64_t tick,MotorInput& command){
@@ -133,13 +149,13 @@ struct CharacterSceneSession::Impl {
         if(combat){require(client.ability_corrections().contains(player)&&!client.ability_correction_needs_resync(),"Combat correction unavailable; resynchronize");const auto& current=client.ability_corrections().at(player).ability;auto submit=[&](CombatSlot slot,const InputEvent& event){require(next_operation!=UINT64_MAX,"Combat operation identity exhausted");AbilityIntent intent{player,next_operation++,tick,owner_motor->state().epoch,current.grant_generation,slot,event.edge,event.cancelled,false};require(client.submit_ability_intent(intent),"Combat input delivery unavailable; resynchronize");prediction_input.push_back({intent});};
             for(const auto& event:pending_events){if(auto index=loadout_request(event)){if(event.edge==InputEdge::Pressed&&!event.cancelled)submit(loadout_select_slot(*index),event);continue;}for(const auto& slot:routing_kit().slots)if(slot.input_action&&slot.input_action==event.action)submit(slot.slot,event);}pending_events.clear();}
         MotionRequest authoritative_motion,predicted_request;auto predicted_command=command;
-        if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);}
+        if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);}
         semantic_commands.push_back(command);require(semantic_commands.size()<=30,"Character scene semantic history overflow; resynchronize");
         server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
         auto accepted=server.consume_motor(player,tick,command.epoch);
         MotorInput target_command{tick,tick,target_motor?target_motor->state().epoch:1,0,0,target_motor?target_motor->state().yaw:0};MotionRequest target_motion;
-        if(combat){const bool requested=combat->attacker&&drive_attacker(tick,target_command);auto before=server.ability_snapshot(ability_owner),target_before=server.ability_snapshot(target_owner);server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);
-            if(combat->attacker)target_motion=action_motion(target_before,server.ability_snapshot(target_owner),updates,target_command,target_motor->state().yaw,requested);}
+        if(combat){const bool requested=combat->attacker&&drive_attacker(tick,target_command);auto before=server.ability_snapshot(ability_owner),target_before=server.ability_snapshot(target_owner);server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);
+            if(combat->attacker)target_motion=action_motion(target_before,server.ability_snapshot(target_owner),updates,target_command,target_motor->state().yaw,requested);if(restricted(target_owner,target))restrict(target_command,target_motion);}
         owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
         host_motor->step(accepted,authoritative_motion);if(target_motor)target_motor->step(target_command,target_motion);authoritative.step();host_motor->post_physics();if(target_motor)target_motor->post_physics();authoritative.finish_tick();
         auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());if(target_motor){server.publish_motor(target,target_motor->state());server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}server.publish_collision(collision_stream(frame));pump();
@@ -149,7 +165,7 @@ struct CharacterSceneSession::Impl {
         require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
         if(combat){const auto& correction=client.ability_corrections().at(player);require(correction.ability.tick==tick&&correction.motor.tick==tick,"Atomic combat correction clock");if(correction.ability.active)definition(correction.ability);}
         if(combat){auto prepared=*ability_prediction;for(const auto& receipt:client.drain_ability_receipts())prepared.receipt(receipt);const auto& correction=client.ability_corrections().at(player);prepared.reconcile(correction.ability);std::vector<MotorCommand> regenerated;double replay_yaw=correction.motor.yaw;
-            for(const auto& replay:prepared.replay_motion()){auto found=std::find_if(semantic_commands.begin(),semantic_commands.end(),[&](const auto& value){return value.tick==replay.tick;});require(found!=semantic_commands.end(),"Combat correction missing motor input history");auto replay_input=*found;if(replay.face_movement)face(replay_input,replay_yaw,replay.started);auto request=predicted_motion(replay,replay_input);replay_yaw=replay_input.yaw;regenerated.push_back({replay_input,request});}
+            for(const auto& replay:prepared.replay_motion()){auto found=std::find_if(semantic_commands.begin(),semantic_commands.end(),[&](const auto& value){return value.tick==replay.tick;});require(found!=semantic_commands.end(),"Combat correction missing motor input history");auto replay_input=*found;if(replay.face_movement)face(replay_input,replay_yaw,replay.started);auto request=predicted_motion(replay,replay_input);replay_yaw=replay_input.yaw;if(predicted_restricted(replay.tick))restrict(replay_input,request);regenerated.push_back({replay_input,request});}
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(prepared);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});

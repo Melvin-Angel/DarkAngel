@@ -165,7 +165,7 @@ int main(){try{
   auto inventory_before=assets.assets();reacting.validate(assets,flinch,roots);unpublished("Private reaction validation published sources");check(assets.assets().size()==inventory_before.size(),"Private reaction validation registered pending sources");
   reacting.save_all(assets,roots);package_authoring(assets,roots,root/"reaction.json");
   auto loader=[&](AssetId asset){return load_cooked_model(root/"reaction.json",assets.cas_path(),asset);};
-  auto prior=load_character_preview(root/"upper.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),role(5),collision);check(std::none_of(prior.combat->effects.begin(),prior.combat->effects.end(),[&](const auto& d){return d->id==flinch||d->reaction;}),"Previous playable resources gained a reaction");
+  auto prior=load_character_preview(root/"upper.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),role(5),collision);check(std::none_of(prior.combat->effects.begin(),prior.combat->effects.end(),[&](const auto& d){return d->id==flinch;}),"Previous playable resources gained the authored reaction");
   auto resources=load_character_preview(root/"reaction.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),role(5),collision);
   auto frozen=std::find_if(resources.combat->effects.begin(),resources.combat->effects.end(),[&](const auto& d){return d->id==flinch;});
   check(frozen!=resources.combat->effects.end()&&(*frozen)->reaction&&(*frozen)->reaction->id==reaction&&(*frozen)->reaction->motion&&!(*frozen)->reaction->motion->motor_root&&resources.combat->clips.contains((*frozen)->reaction->motion->clip.id)&&resources.combat->kit->generation!=prior.combat->kit->generation,"Frozen kit closure lacks the reaction action/clip generation");

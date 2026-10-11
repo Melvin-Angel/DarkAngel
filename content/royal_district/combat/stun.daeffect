@@ -1,12 +1,12 @@
 {
   "schema": 1,
   "kind": "effect",
-  "asset": "16811faf-bbad-4a86-8e91-417fe670fbdf",
+  "asset": "c02809cb-e0f6-4e35-bb1e-15d9734140f2",
   "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
   "tags": "71455b4a-0142-4e01-ba8f-210057736def",
   "lifetime": "finite",
   "stacking": "refresh_per_source",
-  "duration_ticks": 30,
+  "duration_ticks": 90,
   "period_ticks": 0,
   "execute_on_apply": false,
   "remove_on_death": true,
@@ -33,8 +33,9 @@
   "sources": {
     "attributes": "royal_district/combat/base.daattributes",
     "tags": "royal_district/combat/state.datags",
-    "reaction": "royal_district/combat/flinch.daaction"
+    "reaction": "royal_district/combat/stun.daaction"
   },
-  "reaction": "e659ecc2-e701-4a3e-93e8-0d39f83b20dd",
-  "lock_movement": true
+  "reaction": "1de3c811-0c6a-4610-91a8-db8789ccf222",
+  "lock_movement": true,
+  "reaction_loop": true
 }

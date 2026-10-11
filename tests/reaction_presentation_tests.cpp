@@ -49,6 +49,15 @@ int main(){try{
   auto foreign=rig.definition;foreign.signature=sha256("foreign rig");rejects([&]{ReactionPresentation mismatch(foreign,one,clips);});
   auto stale=std::make_shared<EffectDefinition>(*flinch);auto stale_action=*flinch->reaction;stale_action.motion->archive_generation=sha256("stale clip archive");stale->reaction=std::make_shared<const ActionDefinition>(stale_action);std::array<std::shared_ptr<const EffectDefinition>,1> stale_one{stale};rejects([&]{ReactionPresentation mismatch(rig.definition,stale_one,clips);});
   std::array<std::shared_ptr<const EffectDefinition>,1> none{burn};check(ReactionPresentation(rig.definition,none,clips).empty(),"Effect without a binding prepared a reaction");
+  // Optional flags: a movement lock needs a public persistent effect; a loop needs a reaction.
+  {auto flagged=*flinch;flagged.lock_movement=true;flagged.reaction_loop=true;freeze_effect_definition(flagged,attributes,*tags);
+   auto bare=*flinch;bare.reaction.reset();bare.reaction_loop=true;rejects([&]{freeze_effect_definition(bare,attributes,*tags);});
+   bare.reaction_loop=false;bare.lock_movement=true;freeze_effect_definition(bare,attributes,*tags);bare.visibility=AttributeVisibility::Owner;rejects([&]{freeze_effect_definition(bare,attributes,*tags);});}
+  // A looping reaction repeats its clip on the same instance clock; a one-shot never replays.
+  {auto looping=std::make_shared<EffectDefinition>(*flinch);looping->id=AssetId::random();looping->reaction_loop=true;std::array<std::shared_ptr<const EffectDefinition>,2> both{flinch,looping};ReactionPresentation prepared(rig.definition,both,clips);
+   AbilityOwnerHandle actor{{},77,5};auto at=[&](const EffectDefinition& effect,std::uint64_t tick){EffectFrame frame{actor,1,1,tick,tick+1,AttributeVisibility::Public,{{9,effect.id,effect.generation,{77,1,1},10,0,0,false}}};return prepared.select(&frame,5,77,1,tick,true,false);};
+   check(!at(*flinch,10+length+3),"Finished one-shot reaction replayed");auto wrapped=at(*looping,10+length+3);check(wrapped&&wrapped->tick==3&&wrapped->start==10,"Looping reaction did not repeat on the instance clock");
+   auto first=at(*looping,10+length-1);check(first&&first->tick==double(length-1),"Looping reaction changed its first pass");}
  }
 
  // Authority: the effect, never its presentation, interrupts through the existing WorldSession path.

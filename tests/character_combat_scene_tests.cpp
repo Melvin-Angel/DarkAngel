@@ -5,6 +5,7 @@
 #include <darkangel/character_presentation.hpp>
 #include <ashen_roots/royal_combat.hpp>
 #include <cmath>
+#include <algorithm>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
@@ -49,11 +50,12 @@ int main(){try{
         {auto blind=attacked;blind.attacker->face_player=false;CharacterSceneSession scene(hello,away,player.id,collision,plan,rig.definition,rig.archive,blind);while(scene.motor().tick<80)scene.step({});check(scene.attacker_receipt()&&scene.attacker_receipt()->failure==AbilityFailure::None&&player_health(scene)==100,"A swing facing away must miss: hits come from the authoritative query only");}
         {auto invalid=attacked;invalid.attacker->slot=CombatSlot::Parry;bool rejected=false;try{CharacterSceneSession scene(hello,away,player.id,collision,plan,rig.definition,rig.archive,invalid);}catch(const std::exception&){rejected=true;}check(rejected,"Scripted attacker accepted an unassigned slot");}
 
-        // Royal game rules with the owned flinch bound to the Light hit: owner reaction, interruption, invulnerability and death.
-        assets.cook("royal_district/combat/flinch.daeffect");std::ifstream flinch_source(content/"royal_district/combat/flinch.daeffect");auto flinch_id=AssetId::parse(nlohmann::json::parse(flinch_source).at("asset").get<std::string>());assets.package(flinch_id,cache/"flinch.json");
-        auto flinch=load_cooked_effect(cache/"flinch.json",assets.cas_path(),flinch_id).definition;check(flinch->reaction&&flinch->interrupt_action,"Owned Royal flinch lost its reaction or interruption");
-        auto royal=combat;royal.effects=cooked.effects;royal.effects.push_back(flinch);{auto clip=load_cooked_clip(cache/"flinch.json",assets.cas_path(),flinch->reaction->motion->clip.id);royal.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}
-        const auto light=cooked.definition->slots[0].ability;auto bound=std::make_shared<CombatKitDefinition>(*cooked.definition);bound->effects.push_back(flinch->id);bound->effect_bindings.push_back({light,2,flinch->id,1});royal.kit=bound;royal.damage={};ashen_roots::configure_royal_combat(royal);
+        // Royal game rules. The kit binds the owned Flinch to the Light hit by default: owner reaction, interruption, stagger, invulnerability and death.
+        std::ifstream flinch_source(content/"royal_district/combat/flinch.daeffect");const auto flinch_id=AssetId::parse(nlohmann::json::parse(flinch_source).at("asset").get<std::string>());
+        auto bound_flinch=std::find_if(cooked.effects.begin(),cooked.effects.end(),[&](const auto& effect){return effect->id==flinch_id;});check(bound_flinch!=cooked.effects.end(),"Royal kit no longer binds the owned Flinch");auto flinch=*bound_flinch;
+        check(flinch->reaction&&flinch->interrupt_action&&flinch->lock_movement&&!flinch->reaction_loop,"Owned Royal flinch lost its reaction, interruption or movement lock");
+        auto royal=combat;royal.effects=cooked.effects;for(const auto& effect:royal.effects)if(effect->reaction&&!royal.clips.contains(effect->reaction->motion->clip.id)){auto clip=load_cooked_clip(cache/"registry.json",assets.cas_path(),effect->reaction->motion->clip.id);royal.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}
+        royal.damage={};ashen_roots::configure_royal_combat(royal);
         royal.death=flinch->reaction;royal.attacker=CharacterSceneAttacker{CombatSlot::Light,10,60,3,true};
         const auto& reaction_clip=*royal.clips.at(flinch->reaction->motion->clip.id);RigPose oracle(rig.definition,rig.archive);
         {
@@ -66,12 +68,32 @@ int main(){try{
             check(same(scene.pose(),oracle.sample(reaction_clip,shown->tick)),"Owner pose is not the flinch clip sample");
             // The status, not the animation, gates the next activation; a refused press settles without a resync.
             scene.step(heavy);scene.step({});scene.step({});check(!scene.ability()->active&&!scene.predicted_ability()->active&&scene.pending_abilities()==0&&target_health(scene)==100,"Staggered player started an attack or the interrupted Heavy still hit");
+            // Stagger restricts movement on authority and in prediction alike; it ends with the status, not the clip.
+            CharacterSceneInput walk;walk.x=1;walk.jump=true;const auto held=scene.motor().position;for(unsigned i=0;i<10;++i)scene.step(walk);
+            auto apart=[](const MotorVec& a,const MotorVec& b){return std::hypot(a.x-b.x,a.z-b.z);};
+            check(apart(scene.motor().position,held)<1e-6&&std::abs(scene.motor().position.y-held.y)<1e-3&&apart(scene.predicted_motor().position,scene.motor().position)<1e-6&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Staggered player walked or jumped, or prediction disagreed with authority");
+            while(scene.motor().tick<hit_tick+30)scene.step({});walk.jump=false;for(unsigned i=0;i<6;++i)scene.step(walk);
+            check(scene.motor().position.x-held.x>.1&&apart(scene.predicted_motor().position,scene.motor().position)<1e-6&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Player could not walk again when the stagger expired");
             while(scene.motor().tick<260)scene.step({});
             auto death=scene.death(player.id);check(player_health(scene)==0&&attribute(scene,2)==0&&death&&*death>0&&!scene.death(target.id),"Four target hits did not kill the player and start the owner death timeline");
             check(same(scene.pose(),oracle.sample(reaction_clip,*death)),"Dead player pose is not the death timeline sample");
-            const auto last=scene.attacker_receipt()->tick;CharacterSceneInput pressed_light;pressed_light.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};scene.step(pressed_light);while(scene.motor().tick<400)scene.step({});
+            const auto last=scene.attacker_receipt()->tick;CharacterSceneInput pressed_light;pressed_light.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};scene.step(pressed_light);const auto corpse=scene.motor().position;walk.jump=true;while(scene.motor().tick<400)scene.step(walk);
+            check(apart(scene.motor().position,corpse)<1e-6&&std::abs(scene.motor().position.y-corpse.y)<1e-3&&apart(scene.predicted_motor().position,corpse)<1e-6,"Dead player walked or jumped");
             check(scene.attacker_receipt()->tick==last&&!scene.ability()->active&&!scene.predicted_ability()->active&&scene.pending_abilities()==0&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline&&target_health(scene)==100,"Dead player acted, or the attacker kept attacking a dead player");
             check(same(scene.pose(),oracle.sample(reaction_clip,*scene.death(player.id))),"Death pose is not held");
+        }
+        // The owned Stun (unbound by default) on the Heavy hit: stun loop on the owner pose and a movement lock for the whole status.
+        {
+            assets.cook("royal_district/combat/stun.daeffect");std::ifstream stun_source(content/"royal_district/combat/stun.daeffect");const auto stun_id=AssetId::parse(nlohmann::json::parse(stun_source).at("asset").get<std::string>());assets.package(stun_id,cache/"stun.json");
+            auto stun=load_cooked_effect(cache/"stun.json",assets.cas_path(),stun_id).definition;check(stun->reaction&&stun->reaction_loop&&stun->lock_movement&&stun->duration_ticks==90,"Owned Royal stun lost its loop, lock or duration");
+            auto stunned=royal;stunned.death={};stunned.effects.push_back(stun);auto clip=load_cooked_clip(cache/"stun.json",assets.cas_path(),stun->reaction->motion->clip.id);stunned.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));
+            const auto heavy_ability=cooked.definition->slots[1].ability;auto bound=std::make_shared<CombatKitDefinition>(*cooked.definition);bound->effects.push_back(stun->id);bound->effect_bindings.push_back({heavy_ability,2,stun->id,1});stunned.kit=bound;stunned.damage={};stunned.combat_damage={};stunned.effect_evaluators.clear();ashen_roots::configure_royal_combat(stunned);
+            stunned.attacker=CharacterSceneAttacker{CombatSlot::Heavy,10,600,3,true};CharacterSceneSession scene(hello,objects,player.id,collision,plan,rig.definition,rig.archive,stunned);
+            while(scene.motor().tick<70&&player_health(scene)==100)scene.step({});const auto stun_tick=scene.motor().tick;check(stun_tick<70,"Target Heavy did not hit the player");
+            CharacterSceneInput walk;walk.z=-1;walk.jump=true;const auto held=scene.motor().position;while(scene.motor().tick<stun_tick+60)scene.step(walk);
+            auto shown=scene.reaction(player.id);check(shown&&shown->effect==stun->id&&shown->suppressed==ReactionSuppression::None&&shown->tick==double(scene.motor().tick-shown->start)&&same(scene.pose(),oracle.sample(*stunned.clips.at(stun->reaction->motion->clip.id),shown->tick)),"Owner pose is not the stun loop on the effect clock");
+            check(std::hypot(scene.motor().position.x-held.x,scene.motor().position.z-held.z)<1e-6&&std::hypot(scene.predicted_motor().position.x-held.x,scene.predicted_motor().position.z-held.z)<1e-6&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Stunned player moved or prediction disagreed");
+            while(scene.motor().tick<stun_tick+100)scene.step(walk);check(scene.motor().position.z<held.z-.2&&!scene.reaction(player.id),"Stun did not end with its status");
         }
         // Dodge invulnerability against a real incoming hit. A wall behind the player stops the dash, so only the tag window differs.
         auto walled=collision;walled.boxes.push_back({101,{0,1,-1.2},{4,1,.5}});royal.death={};royal.attacker=CharacterSceneAttacker{CombatSlot::Light,60,600,3,true};const auto dodge_hit=hit_tick+50;
