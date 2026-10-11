@@ -364,6 +364,7 @@ int main(){try{
    auto royal_guard=id("npcs/royal_guard.danpc"),royal_player=id("players/royal_player.daplayer");std::vector<AssetId> owned_roots=npc_roots;owned_roots.push_back(royal_guard);owned_roots.push_back(royal_player);package_authoring(assets,owned_roots,root/"royal-npc.json");
    auto royal=load_cooked_npc(root/"royal-npc.json",assets.cas_path(),royal_guard);auto hero=load_cooked_player(root/"royal-npc.json",assets.cas_path(),royal_player);
    check(royal.definition.name=="Royal Guard"&&royal.definition.faction=="royal_guard"&&royal.definition.character==hero.definition.character&&royal.character.definition.generation==hero.character.definition.generation&&base(royal.attributes,2)==60&&base(hero.attributes,2)==100&&!royal.definition.loadout.masked&&royal.behavior&&royal.behavior->name=="Guard Melee","Owned Royal Guard is not the Player's Character with its own attributes");
+   reaction_fixture["behavior"]=id("npcs/guard_melee.dabehavior").text();
    reaction_fixture["npc_registry"]=(root/"royal-npc.json").generic_string();reaction_fixture["npc"]=royal_guard.text();
    std::cout<<"Authored NPC: creation, name/faction/starting attributes Undo/Redo, behaviour creation/assignment/clear with history and invalid-tree rejection, shared mask loadout command, faction/name/input/schema rejection without publication, private validation, coordinated Save, frozen NPC sharing the Player Character with separate attributes and active mask kit, kind-checked loading, failed Save retention and the owned Royal Guard passed\n";
   }

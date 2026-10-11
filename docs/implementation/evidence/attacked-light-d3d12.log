@@ -7,7 +7,7 @@
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205270000
 [39mViewport foreground pixels=865949 capture=C:\DarkAngel\docs\implementation\evidence\attacked-light-d3d12.png
-Editor attacked tick=40 player_health=75 reaction_tick=14 death_tick=-1 pending=0 hud_health=75/100 hud_target=100/100 hud_target_name=Target
+Editor attacked tick=40 player_health=75 reaction_tick=14 death_tick=-1 pending=0 decision=Scripted_attack_(last_press_tick_10) hud_health=75/100 hud_target=100/100 hud_target_name=Target
 DarkAngel editor rendered 40 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 11/256

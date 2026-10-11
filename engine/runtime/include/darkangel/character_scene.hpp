@@ -86,6 +86,8 @@ public:
     std::optional<StableId> soft_lock()const;
     // Authoritative receipt of the scripted attacker's latest request, if it has made one.
     const AbilityReceipt* attacker_receipt()const;
+    // The target controller's description of its latest decision; empty without a controller.
+    std::string controller_status()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

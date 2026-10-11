@@ -3,6 +3,7 @@
 #include <darkangel/combat_kit.hpp>
 #include <memory>
 #include <optional>
+#include <string>
 
 namespace darkangel {
 // Server-side controller seam for a non-player actor. A controller only sees a bounded
@@ -27,6 +28,8 @@ class ActorController {
 public:
     virtual ~ActorController()=default;
     virtual ControllerCommand decide(const ControllerView&)=0;
+    // Short description of the latest decision for debug readouts. Presentation only.
+    virtual std::string status()const{return {};}
 };
 // Scripted training attacker: presses one slot on a fixed schedule while both actors are
 // alive, the opponent is within range and its own action is over. The first controller

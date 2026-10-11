@@ -207,15 +207,22 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
   if(ImGui::Button("Use Player for next fresh Play")){c.authoring_player=selection;c.authoring_kit=kit;}if(c.authoring_player==selection)ImGui::TextDisabled("Selected for next fresh Play");ImGui::TextWrapped("Kit supplies shared attribute, input and locomotion defaults. The Character must match the scene placement before Play.");}
  if(kind=="behavior"){
   ImGui::SeparatorText("Behaviour");text("Display name",v["name"]);
-  ImGui::TextWrapped("The tree is ticked once per server tick. A selector tries its children in order until one succeeds or keeps running; a sequence runs its children in order until one fails. Leaves read the NPC's view of its opponent and request move, face or a slot press. Structure is edited in the source for now; parameters are edited here.");
-  std::function<void(Json&,int)> outline=[&](Json& node,int depth){ImGui::PushID(&node);ImGui::Indent(depth?18.f:0.f);const auto type=node["type"].get<std::string>();
-   if(type=="sequence"||type=="selector"){ImGui::Text("%s",type=="sequence"?"Sequence (all in order)":"Selector (first that works)");for(auto& child:node["children"])outline(child,depth+1);}
+  ImGui::TextWrapped("The tree is ticked once per server tick. A selector tries its children in order until one succeeds or keeps running; a sequence runs its children in order until one fails. Leaves read the NPC's view of its opponent and request move, face or a slot press. Reorder, remove and add nodes with the buttons; each change is an ordinary draft edit with Undo.");
+  // Structure edits are collected during the walk and applied after it, as one ordinary draft change.
+  struct TreeEdit {Json* parent{};std::size_t index{};int action{};std::string type;} tree_edit;
+  auto fresh=[](const std::string& type){if(type=="sequence"||type=="selector")return Json{{"type",type},{"children",Json::array({Json{{"type","opponent_alive"}}})}};if(type=="in_range"||type=="approach")return Json{{"type",type},{"range",1.4}};if(type=="attack")return Json{{"type",type},{"slot","light"}};if(type=="recover")return Json{{"type",type},{"ticks",60u}};return Json{{"type",type}};};
+  std::function<void(Json&,Json*,std::size_t,int)> outline=[&](Json& node,Json* parent,std::size_t index,int depth){ImGui::PushID(&node);ImGui::Indent(depth?18.f:0.f);const auto type=node["type"].get<std::string>();const bool composite=type=="sequence"||type=="selector";
+   if(composite)ImGui::Text("%s",type=="sequence"?"Sequence (all in order)":"Selector (first that works)");
    else if(type=="in_range"||type=="approach"){ImGui::Text("%s",type=="in_range"?"Opponent in range?":"Approach opponent");ImGui::SameLine();ImGui::SetNextItemWidth(120);number("m",node["range"]);}
    else if(type=="recover"){ImGui::Text("Recover");ImGui::SameLine();ImGui::SetNextItemWidth(120);integer("ticks",node["ticks"]);}
    else if(type=="attack"){ImGui::Text("Attack");ImGui::SameLine();ImGui::SetNextItemWidth(160);choice("slot",node["slot"],{"light","heavy","ranged_light","ranged_heavy","spell1","spell2","block","parry"});}
    else ImGui::Text("%s",type=="opponent_alive"?"Opponent alive?":type=="idle"?"Own action finished?":type=="face"?"Face opponent":type.c_str());
+   if(parent){const auto siblings=(*parent)["children"].size();ImGui::SameLine();ImGui::BeginDisabled(index==0);if(ImGui::SmallButton("Up"))tree_edit={parent,index,1,{}};ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(index+1>=siblings);if(ImGui::SmallButton("Down"))tree_edit={parent,index,2,{}};ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(siblings<=1);if(ImGui::SmallButton("Remove"))tree_edit={parent,index,3,{}};ImGui::EndDisabled();}
+   if(composite){auto& children=node["children"];for(std::size_t child=0;child<children.size();++child)outline(children[child],&node,child,depth+1);
+    ImGui::Indent(18.f);ImGui::BeginDisabled(children.size()>=8);ImGui::SetNextItemWidth(220);if(ImGui::BeginCombo("##add-child","Add child...")){static const std::pair<const char*,const char*> kinds[]={{"sequence","Sequence"},{"selector","Selector"},{"opponent_alive","Opponent alive?"},{"in_range","Opponent in range?"},{"idle","Own action finished?"},{"face","Face opponent"},{"approach","Approach opponent"},{"attack","Attack"},{"recover","Recover"}};for(const auto& [kind,label]:kinds)if(ImGui::Selectable(label))tree_edit={&node,0,4,kind};ImGui::EndCombo();}ImGui::EndDisabled();ImGui::Unindent(18.f);}
    ImGui::Unindent(depth?18.f:0.f);ImGui::PopID();};
-  outline(v["tree"],0);
+  outline(v["tree"],nullptr,0,0);
+  if(tree_edit.action){auto& children=(*tree_edit.parent)["children"];if(tree_edit.action==1)std::swap(children[tree_edit.index],children[tree_edit.index-1]);else if(tree_edit.action==2)std::swap(children[tree_edit.index],children[tree_edit.index+1]);else if(tree_edit.action==3)children.erase(tree_edit.index);else children.push_back(fresh(tree_edit.type));}
   try{decode_behavior(v.dump());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"Behaviour needs attention: %s. Save will reject it.",error.what());}
  }
  if(kind=="mask"){

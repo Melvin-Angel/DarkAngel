@@ -19,10 +19,10 @@ int main(){try{
 
     // The executor behind the controller seam, without a navigation mesh: approach, face and press, then recover.
     auto controller=make_behavior_controller(definition);ControllerView view;view.alive=view.opponent_alive=true;view.opponent=MotorState{};view.self.position={0,0,6};
-    view.tick=1;auto command=controller->decide(view);check(!command.press&&std::abs(command.move_z+1)<1e-9&&std::abs(command.move_x)<1e-9&&command.face&&std::abs(std::abs(*command.face)-3.141592653589793)<1e-9,"Approach did not ask to walk toward the opponent");
+    view.tick=1;auto command=controller->decide(view);check(!command.press&&std::abs(command.move_z+1)<1e-9&&std::abs(command.move_x)<1e-9&&command.face&&std::abs(std::abs(*command.face)-3.141592653589793)<1e-9,"Approach did not ask to walk toward the opponent");check(controller->status()=="Approach","Decision readout does not name the approach");
     view.self.position={0,0,1.2};view.tick=2;command=controller->decide(view);check(!command.press&&command.move_x==0&&command.move_z==0,"Approach kept moving once in range");
-    view.tick=3;command=controller->decide(view);check(command.press&&*command.press==CombatSlot::Light&&command.face&&command.move_x==0&&command.move_z==0,"In reach and idle did not face and press the attack slot");
-    unsigned presses{};for(view.tick=4;view.tick<92;++view.tick){view.busy=view.tick<40;if(controller->decide(view).press)++presses;}check(presses==0,"The tree attacked again while recovering");
+    view.tick=3;command=controller->decide(view);check(command.press&&*command.press==CombatSlot::Light&&command.face&&command.move_x==0&&command.move_z==0,"In reach and idle did not face and press the attack slot");check(controller->status()=="Attack","Decision readout does not name the attack");
+    unsigned presses{};for(view.tick=4;view.tick<92;++view.tick){view.busy=view.tick<40;if(controller->decide(view).press)++presses;}check(presses==0&&controller->status().starts_with("Recover"),"The tree attacked again while recovering, or the readout does not show recovery");
     view.busy=false;bool again=false;for(view.tick=92;view.tick<100&&!again;++view.tick)again=controller->decide(view).press.has_value();check(again,"The tree did not attack again after recovering");
     {auto fresh=make_behavior_controller(definition);ControllerView idle=view;idle.tick=1;idle.busy=true;check(!fresh->decide(idle).press,"The tree pressed while its own action was running");idle.busy=false;idle.opponent_alive=false;auto none=fresh->decide(idle);check(!none.press&&!none.face&&none.move_x==0&&none.move_z==0,"The tree acted against a dead opponent");}
     check(rejects([&]{make_behavior_controller(BehaviorDefinition{});}),"An undecoded behaviour was given a controller");
@@ -42,7 +42,7 @@ int main(){try{
     auto health=[&]{return scene.presentation().read(scene.presentation().find(player.id)).health.current;};
     double widest{};std::uint64_t first{},second{};while(scene.motor().tick<600&&!second){scene.step({});widest=std::max(widest,std::abs(scene.observer(target.id,double(scene.motor().tick)).frame.motor.position.x));if(!first&&health()<100)first=scene.motor().tick;else if(first&&health()<75)second=scene.motor().tick;}
     check(widest>4&&first&&second&&second-first>=90&&health()==50,"The behaviour tree did not walk the NPC around the wall, attack, recover and attack again through authority");
-    check(scene.presentation().read(scene.presentation().find(target.id)).health.current==60&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"A tree-driven NPC disturbed its own state or owner prediction");
+    check(!scene.controller_status().empty()&&scene.presentation().read(scene.presentation().find(target.id)).health.current==60&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"A tree-driven NPC disturbed its own state or owner prediction");
     std::cout<<"Behaviour tree: around the wall (widest x "<<widest<<" m), first hit tick "<<first<<", second hit tick "<<second<<"\n";
     std::cout<<"Behaviour trees: JSON topology decoding and rejection, BT.CPP executor behind the controller seam (approach, face, attack, recover), frozen behaviour on the owned Royal Guard, and a tree-driven NPC navigating and attacking in a session passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

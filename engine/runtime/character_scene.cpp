@@ -223,9 +223,10 @@ public:
         if(!view.alive||!view.opponent||!view.opponent_alive)return {};
         const double dx=view.opponent->position.x-view.self.position.x,dz=view.opponent->position.z-view.self.position.z,distance=std::hypot(dx,dz);
         if((script_.range>0&&distance>script_.range)||view.busy)return {};
-        ControllerCommand command;command.press=script_.slot;if(script_.face_opponent&&distance>1e-6)command.face=std::atan2(dx,dz);return command;
+        ControllerCommand command;command.press=script_.slot;if(script_.face_opponent&&distance>1e-6)command.face=std::atan2(dx,dz);pressed_=view.tick;return command;
     }
-private:ScriptedAttack script_;
+    std::string status()const override{return pressed_?"Scripted attack (last press tick "+std::to_string(pressed_)+")":"Scripted attack (waiting)";}
+private:ScriptedAttack script_;std::uint64_t pressed_{};
 };
 }
 std::shared_ptr<ActorController> make_scripted_attacker(ScriptedAttack script){require(static_cast<unsigned>(script.slot)<combat_slot_count&&script.first_tick&&script.interval&&std::isfinite(script.range)&&script.range>=0,"Scripted attacker schedule bounds");return std::make_shared<ScriptedAttacker>(script);}
@@ -258,6 +259,7 @@ std::span<const AbilityCommitUpdate> CharacterSceneSession::commitments()const{r
 std::span<const EffectCueUpdate> CharacterSceneSession::effect_cues()const{return impl_->effect_cue_updates;}
 unsigned CharacterSceneSession::loadout()const{auto found=impl_->client.ability_corrections().find(impl_->player);return found==impl_->client.ability_corrections().end()?0:found->second.ability.loadout;}
 std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*impl_;if(p.combat&&p.soft_lock_tick&&p.soft_lock_tick==p.authoritative.tick())return p.combat->target;return std::nullopt;}
+std::string CharacterSceneSession::controller_status()const{return impl_->controller?impl_->controller->status():std::string{};}
 const AbilityReceipt* CharacterSceneSession::attacker_receipt()const{return impl_->attacker_receipt?&*impl_->attacker_receipt:nullptr;}
 unsigned CharacterSceneSession::predicted_loadout()const{return impl_->ability_prediction?impl_->ability_prediction->view().loadout:0;}
 std::optional<double> CharacterSceneSession::death(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_death_tick;if(p.combat&&actor==p.combat->target&&p.target_pose)return p.target_pose->death();return std::nullopt;}

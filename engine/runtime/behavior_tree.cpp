@@ -11,6 +11,8 @@ void require(bool value,const char* error){if(!value)throw std::runtime_error(er
 struct Blackboard {
     const ControllerView* view{};ControllerCommand command;std::shared_ptr<const NavigationMesh> mesh;
     std::vector<MotorVec> path;std::size_t next{1};std::uint64_t repath{};
+    // The leaf that decided this tick, for the debug readout.
+    std::string trace;
     bool opponent()const{return view->alive&&view->opponent&&view->opponent_alive;}
     double distance()const{return std::hypot(view->opponent->position.x-view->self.position.x,view->opponent->position.z-view->self.position.z);}
 };
@@ -42,14 +44,14 @@ class Attack final:public BT::SyncActionNode {
 public:Attack(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::SyncActionNode(name,config),board_(board){}
     static BT::PortsList providedPorts(){return {BT::InputPort<unsigned>("slot")};}
     // The press is a request; authority accepts or refuses it like a player's.
-    BT::NodeStatus tick()override{if(board_->view->busy)return BT::NodeStatus::FAILURE;board_->command.press=static_cast<CombatSlot>(getInput<unsigned>("slot").value());return BT::NodeStatus::SUCCESS;}
+    BT::NodeStatus tick()override{if(board_->view->busy)return BT::NodeStatus::FAILURE;board_->command.press=static_cast<CombatSlot>(getInput<unsigned>("slot").value());board_->trace="Attack";return BT::NodeStatus::SUCCESS;}
 private:Blackboard* board_;
 };
 class Recover final:public BT::StatefulActionNode {
 public:Recover(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::StatefulActionNode(name,config),board_(board){}
     static BT::PortsList providedPorts(){return {BT::InputPort<unsigned>("ticks")};}
     BT::NodeStatus onStart()override{until_=board_->view->tick+getInput<unsigned>("ticks").value();return BT::NodeStatus::RUNNING;}
-    BT::NodeStatus onRunning()override{return board_->view->tick>=until_?BT::NodeStatus::SUCCESS:BT::NodeStatus::RUNNING;}
+    BT::NodeStatus onRunning()override{if(board_->view->tick>=until_)return BT::NodeStatus::SUCCESS;board_->trace="Recover ("+std::to_string(until_-board_->view->tick)+" ticks left)";return BT::NodeStatus::RUNNING;}
     void onHalted()override{}
 private:Blackboard* board_;std::uint64_t until_{};
 };
@@ -66,7 +68,7 @@ public:Approach(const std::string& name,const BT::NodeConfig& config,Blackboard*
             while(b.next+1<b.path.size()&&std::hypot(b.path[b.next].x-self.x,b.path[b.next].z-self.z)<.3)++b.next;corner=b.path[b.next];
         }
         const double x=corner.x-self.x,z=corner.z-self.z,length=std::hypot(x,z);if(length>1e-6){b.command.move_x=x/length;b.command.move_z=z/length;b.command.face=std::atan2(x,z);}
-        return BT::NodeStatus::RUNNING;
+        b.trace=b.mesh?"Approach along the navigation mesh":"Approach";return BT::NodeStatus::RUNNING;
     }
     void onHalted()override{board_->path.clear();}
 private:Blackboard* board_;
@@ -91,7 +93,8 @@ public:
         std::ostringstream xml;xml.precision(17);xml<<"<root BTCPP_format=\"4\"><BehaviorTree ID=\"Main\">";write(xml,definition.root);xml<<"</BehaviorTree></root>";
         tree_=factory.createTreeFromText(xml.str());
     }
-    ControllerCommand decide(const ControllerView& view)override{board_.view=&view;board_.command={};tree_.tickOnce();board_.view=nullptr;return board_.command;}
+    ControllerCommand decide(const ControllerView& view)override{board_.view=&view;board_.command={};board_.trace=view.alive?(view.busy?"Acting":"Idle"):"Defeated";tree_.tickOnce();board_.view=nullptr;return board_.command;}
+    std::string status()const override{return board_.trace;}
 private:Blackboard board_;BT::Tree tree_;
 };
 }

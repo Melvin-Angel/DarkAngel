@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
 [39mViewport foreground pixels=865581 capture=C:\DarkAngel\docs\implementation\evidence\npc-behavior-d3d12.png
-Editor attacked tick=60 player_health=75 reaction_tick=-1 death_tick=-1 pending=0 nav_polygons=52 behavior=Guard_Melee hud_health=75/100 hud_target=60/60 hud_target_name=Royal_Guard
+Editor attacked tick=60 player_health=75 reaction_tick=-1 death_tick=-1 pending=0 nav_polygons=52 behavior=Guard_Melee decision=Recover_(31_ticks_left) hud_health=75/100 hud_target=60/60 hud_target_name=Royal_Guard
 DarkAngel editor rendered 60 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 11/256

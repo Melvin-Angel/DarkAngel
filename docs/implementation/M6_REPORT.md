@@ -146,6 +146,27 @@ Track B item 4, built as one chunk and verified once.
 - No sensing beyond the one opponent in the controller view, no blackboard visualisation, no decision inspection in the Game tab.
 - No Luau leaves; a new node kind still needs a native rebuild, which is what the M6 gate's "new Luau node without a native rebuild" is about.
 
+## Increment 6: NPC workflow in the NPC tab (11 October 2026)
+
+One chunk, verified once.
+
+### What exists
+
+- **Tree structure editing.** The behaviour form in the NPC tab shows the tree as an indented outline. Every node except the root has Up, Down and Remove (disabled where they do not apply: first, last, only child); every composite has an "Add child..." list of the nine node kinds, disabled at eight children. New nodes start with valid defaults. Each change is an ordinary draft edit, so Undo/Redo, private validation and coordinated Save apply, and the form shows the decoder's message when a tree is invalid.
+- **Decision readout.** `ActorController::status()` gives a short description of the latest decision; `CharacterSceneSession::controller_status()` exposes it. The Game tab's Gameplay Inspector shows "Target controller" with the behaviour's name and the current decision (for a tree: Idle, Acting, Approach, Approach along the navigation mesh, Attack, Recover with ticks left, Defeated; the scripted attacker and the path follower report their own states). Presentation only.
+
+### Verified
+
+- `BehaviorTreeTests`: the readout names the approach, the attack and the recovery at the ticks where the controller makes those decisions, and a session reports a non-empty status.
+- Fresh editor Play on D3D12 with the Royal Guard placed: `Editor attacked tick=60 player_health=75 ... behavior=Guard_Melee decision=Recover_(31_ticks_left) ...`.
+- Behaviour form capture `evidence/behavior-form-d3d12.png` inspected: "Guard Melee" with its selector, two sequences, parameters and the Up/Down/Remove and Add child controls, with the first and last items' buttons disabled as intended.
+- `python scripts/verify_effect_reaction.py`: all gates pass (34). CTest: only the five known unrelated failures.
+
+### Not verified
+
+- The structure buttons were not clicked: the capture proves they are drawn with the right enabled state, and the edit logic is a few lines applied to the draft JSON, but no scripted run presses Up, Down, Remove or Add child. A scripted exercise for them is the first thing to add.
+- The Gameplay Inspector readout was checked through the exercise marker, not by looking at the inspector panel.
+
 ### Next step (track B)
 
-Either deepen the NPC workflow the user asked for (tree structure editing in the NPC tab: add, remove and reorder nodes; a decision readout in the Game tab's Gameplay Inspector; preferred range, aggression and recovery settings as NPC-level parameters the tree reads), or start the world side of M6 (regions/cells and the ledger). The NPC workflow is the smaller, user-visible step and should come first unless the user says otherwise.
+A scripted exercise that presses the tree structure controls and checks the draft, then NPC-level tuning the tree reads (preferred range, aggression/recovery) so designers tune an NPC without editing its tree. After that the world side of M6 (regions/cells and the ledger), which is the larger remaining part of the milestone.

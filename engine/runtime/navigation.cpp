@@ -80,21 +80,22 @@ class PathFollower final:public ActorController {
 public:
     PathFollower(std::shared_ptr<const NavigationMesh> mesh,PathFollow follow):mesh_(std::move(mesh)),follow_(follow){}
     ControllerCommand decide(const ControllerView& view)override{
-        ControllerCommand command;if(!view.alive||!view.opponent||!view.opponent_alive)return command;
+        ControllerCommand command;status_="Idle";if(!view.alive||!view.opponent||!view.opponent_alive)return command;
         const auto& self=view.self.position;const auto& goal=view.opponent->position;const double dx=goal.x-self.x,dz=goal.z-self.z,distance=std::hypot(dx,dz);
         if(distance<=follow_.arrive){
             // In reach: the scripted attack, no more often than its interval.
             if(distance>1e-6)command.face=std::atan2(dx,dz);
             if(!view.busy&&view.tick>=follow_.attack.first_tick&&(!pressed_||view.tick-pressed_>=follow_.attack.interval)){command.press=follow_.attack.slot;pressed_=view.tick;}
-            path_.clear();return command;}
+            path_.clear();status_="Attack in reach";return command;}
         if(view.busy)return command;
         if(path_.size()<2||view.tick>=repath_){auto found=mesh_->path(self,goal);path_=found?std::move(*found):std::vector<MotorVec>{};next_=1;repath_=view.tick+follow_.repath_ticks;}
-        if(path_.size()<2)return command;
-        while(next_+1<path_.size()&&std::hypot(path_[next_].x-self.x,path_[next_].z-self.z)<.3)++next_;
+        if(path_.size()<2){status_="No path";return command;}
+        status_="Following path";while(next_+1<path_.size()&&std::hypot(path_[next_].x-self.x,path_[next_].z-self.z)<.3)++next_;
         const double cx=path_[next_].x-self.x,cz=path_[next_].z-self.z,length=std::hypot(cx,cz);if(length<1e-6)return command;
         command.move_x=cx/length;command.move_z=cz/length;command.face=std::atan2(cx,cz);return command;
     }
-private:std::shared_ptr<const NavigationMesh> mesh_;PathFollow follow_;std::vector<MotorVec> path_;std::size_t next_{1};std::uint64_t repath_{},pressed_{};
+    std::string status()const override{return status_;}
+private:std::string status_{"Idle"};std::shared_ptr<const NavigationMesh> mesh_;PathFollow follow_;std::vector<MotorVec> path_;std::size_t next_{1};std::uint64_t repath_{},pressed_{};
 };
 }
 std::shared_ptr<ActorController> make_path_follower(std::shared_ptr<const NavigationMesh> mesh,PathFollow follow){
