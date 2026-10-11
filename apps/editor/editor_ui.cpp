@@ -44,9 +44,10 @@ void Shell::refresh_place_items(Controller& editor){
         auto folder=path.parent_path().filename().string();std::replace(folder.begin(),folder.end(),'_',' ');place_items.push_back({asset.id,path.stem().string(),folder.empty()?"Environment":"Environment: "+folder,false});}
     std::sort(place_items.begin(),place_items.end(),[](const PlaceItem& a,const PlaceItem& b){return a.npc!=b.npc?a.npc:a.category!=b.category?a.category<b.category:a.name<b.name;});
 }
-StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z,double yaw){
+double Shell::surface_height(double x,double z)const{if(place_surface)if(auto hit=place_surface({x,500,z},{x,-500,z}))return (*hit)[1];return place_height;}
+StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z,double yaw,std::optional<double> y){
     if(editor.preview.active())throw std::runtime_error("Stop Play before placing objects");
-    Transform at;at.x=x;at.y=place_height;at.z=z;at.yaw=yaw;StableId placed;
+    Transform at;at.x=x;at.y=y?*y:surface_height(x,z);at.z=z;at.yaw=yaw;StableId placed;
     if(item.npc)placed=add_object(editor,{{"name",item.name+" spawn"},{"spawn",{{"npc",item.id.text()}}}},at,"Placed an NPC spawn point.");
     else{
         // A model outside the loaded resources is cooked and packaged with the scene; a placement that cannot be shown is undone.
@@ -105,11 +106,13 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     if(ImGui::BeginDragDropTarget()){
         if(const auto* payload=ImGui::AcceptDragDropPayload("DA_PLACE");payload&&payload->DataSize==sizeof(int)){int index{};std::memcpy(&index,payload->Data,sizeof(index));
             if(index>=0&&index<static_cast<int>(place_items.size()))action(editor,[&]{
-                // The drop position becomes a ray through the scene camera; the object lands where it meets the ground plane.
-                using namespace DirectX;double x=0,z=0;if(scene_camera){const auto mouse=ImGui::GetMousePos();const float nx=(mouse.x-area.x)/area.width*2-1,ny=1-(mouse.y-area.y)/area.height*2;const auto inverse=XMMatrixInverse(nullptr,XMLoadFloat4x4(&scene_view)*XMLoadFloat4x4(&scene_projection));
+                // The drop position becomes a ray through the scene camera; the object lands where it first meets the scene collision,
+                // or the ground plane where the ray meets none.
+                using namespace DirectX;double x=0,z=0;std::optional<double> y;if(scene_camera){const auto mouse=ImGui::GetMousePos();const float nx=(mouse.x-area.x)/area.width*2-1,ny=1-(mouse.y-area.y)/area.height*2;const auto inverse=XMMatrixInverse(nullptr,XMLoadFloat4x4(&scene_view)*XMLoadFloat4x4(&scene_projection));
                     XMFLOAT3 from,to;XMStoreFloat3(&from,XMVector3TransformCoord(XMVectorSet(nx,ny,0,1),inverse));XMStoreFloat3(&to,XMVector3TransformCoord(XMVectorSet(nx,ny,1,1),inverse));const double fall=double(to.y)-from.y;
-                    if(std::abs(fall)>1e-6){const double along=(place_height-from.y)/fall;if(along>0&&along<=1){x=from.x+(to.x-from.x)*along;z=from.z+(to.z-from.z)*along;}}x=std::clamp(x,-500.,500.);z=std::clamp(z,-500.,500.);}
-                place(editor,place_items[static_cast<std::size_t>(index)],x,z);});}
+                    if(auto hit=place_surface?place_surface({from.x,from.y,from.z},{to.x,to.y,to.z}):std::nullopt){x=(*hit)[0];y=(*hit)[1];z=(*hit)[2];}
+                    else if(std::abs(fall)>1e-6){const double along=(place_height-from.y)/fall;if(along>0&&along<=1){x=from.x+(to.x-from.x)*along;z=from.z+(to.z-from.z)*along;}}x=std::clamp(x,-500.,500.);z=std::clamp(z,-500.,500.);}
+                place(editor,place_items[static_cast<std::size_t>(index)],x,z,0,y);});}
         ImGui::EndDragDropTarget();}
     if(can_edit&&ImGui::IsWindowFocused()&&!ImGui::GetIO().WantTextInput&&ImGui::IsKeyPressed(ImGuiKey_Delete,false))remove_request=editor.selected;
     ImGui::End();

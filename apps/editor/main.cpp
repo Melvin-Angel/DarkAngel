@@ -265,6 +265,13 @@ int main(int argc,char** argv){try{
     // point's NPC, from its draft. In Play: the same for every actor ticked in the Gameplay Inspector (or whose spawn point is
     // selected) at its current place, with a line from its eye to each actor it perceives. Reads the host's own state; draws only.
     std::set<StableId> senses_shown;bool senses_all=false;unsigned senses_drawn=0;std::uint64_t senses_noticed=0;double senses_noticed_z=0;bool senses_early=false;
+    // Placement surface: rays against the scene's cooked static collision, in a query world built when the collision changes.
+    std::unique_ptr<darkangel::PhysicsWorld> place_world;const darkangel::CollisionDefinition* place_collision=nullptr;
+    shell.place_surface=[&](const std::array<double,3>& from,const std::array<double,3>& to)->std::optional<std::array<double,3>>{
+        if(!character_resources||!character_resources->collision)return std::nullopt;
+        if(place_collision!=character_resources->collision.get()){place_world=std::make_unique<darkangel::PhysicsWorld>();place_world->load_scene(*character_resources->collision);place_collision=character_resources->collision.get();}
+        const auto found=place_world->query_ray({from[0],from[1],from[2]},{to[0]-from[0],to[1]-from[1],to[2]-from[2]},{darkangel::StaticCollision,0});const darkangel::CollisionHit* nearest=nullptr;for(const auto& hit:found.hits)if(!nearest||hit.fraction<nearest->fraction)nearest=&hit;
+        if(!nearest)return std::nullopt;return std::array<double,3>{nearest->point.x,nearest->point.y,nearest->point.z};};
     shell.debug_overlay=[&](ImDrawList* draw,darkangel::editor_app::ViewArea area){
         using namespace DirectX;using darkangel::MotorVec;senses_drawn=0;if(!shell.scene_camera||!draw)return;const auto matrix=XMLoadFloat4x4(&shell.scene_view)*XMLoadFloat4x4(&shell.scene_projection);
         auto project=[&](const MotorVec& point,ImVec2& out){XMFLOAT4 clip;XMStoreFloat4(&clip,XMVector4Transform(XMVectorSet(float(point.x),float(point.y),float(point.z),1),matrix));if(clip.w<=.05f)return false;out={area.x+(clip.x/clip.w*.5f+.5f)*area.width,area.y+(.5f-clip.y/clip.w*.5f)*area.height};return true;};
@@ -518,7 +525,10 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
                 require(npc!=shell.place_items.end()&&model!=shell.place_items.end(),"Place exercise needs an NPC definition and a static model in the catalogue");
                 const auto spawn=shell.place(editor,*npc,4,6,3.141592653589793);const auto prop=shell.place(editor,*model,-9,8);
                 require(document.plan().origins.size()==before+2&&document.plan().spawns.size()==spawns+1&&document.plan().spawns.at(spawn)==npc->id&&document.plan().models.size()==models+1&&document.plan().models.at(prop)==model->id&&editor.selected==prop,"Placing an NPC and a model did not add two scene objects");
-                const auto at=document.world().read(document.world().find(spawn)).transform;require(at.x==4&&at.z==6&&at.y==shell.place_height,"Placed object is not at the requested ground position");
+                const auto at=document.world().read(document.world().find(spawn)).transform;const bool surfaced=shell.place_surface&&shell.place_surface({4,500,6},{4,-500,6}).has_value();require(at.x==4&&at.z==6&&at.y==shell.surface_height(4,6)&&(surfaced||at.y==shell.place_height),"Placed object is not on the surface at the requested position");
+                // A ray from above and to the side, as a viewport drop makes it, lands on the same collision.
+                {const auto slanted=shell.place_surface?shell.place_surface({-6,10,-4},{4,at.y-10,6}):std::nullopt;require(!surfaced||(slanted&&std::abs((*slanted)[1]-at.y)<1e-3),"A slanted placement ray did not land on the scene collision");}
+                std::cout<<"Editor placement on_collision="<<surfaced<<" surface_y="<<at.y<<"\n";
                 shell.remove_object(editor,prop);require(document.plan().origins.size()==before+1&&!document.plan().models.contains(prop)&&editor.selected!=prop,"Deleting a placed object did not remove it");
                 document.undo(document.revision());require(document.plan().origins.size()==before+2&&document.plan().models.contains(prop),"Undo did not bring the deleted object back");
                 document.redo(document.revision());require(document.plan().origins.size()==before+1,"Redo did not delete it again");

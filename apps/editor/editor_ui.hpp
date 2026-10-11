@@ -25,7 +25,11 @@ public:
     double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{};bool scene_camera{};
     void refresh_place_items(Controller&);
     // Places one item as a new scene object at a ground position and selects it; one document edit, so Undo removes it.
-    StableId place(Controller&,const PlaceItem&,double x,double z,double yaw=0);
+    // Without a height the object lands on the scene collision below (x, z), or at place_height where there is none.
+    StableId place(Controller&,const PlaceItem&,double x,double z,double yaw=0,std::optional<double> y={});
+    // First point where a segment meets the scene's cooked static collision, if the session can answer. Set by the host.
+    std::function<std::optional<std::array<double,3>>(const std::array<double,3>& from,const std::array<double,3>& to)> place_surface;
+    double surface_height(double x,double z)const;
     // Deletes a placed object of the scene's own source; one document edit, so Undo brings it back.
     void remove_object(Controller&,StableId);
     void open_import(const std::filesystem::path&,std::optional<AssetImportType> type={});

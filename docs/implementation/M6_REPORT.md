@@ -292,3 +292,16 @@ User request of 11 October 2026: place and delete game objects in the Scene tab 
 - The mouse paths: an actual drag from a tile into the viewport, the double-click, the Delete key and the right-click menu were not driven by a run. The gate calls the same `place` and `remove_object` commands those paths call. The drop-position ray was therefore not exercised either.
 - Placing a model that is not already in the loaded resources (the cook-and-package path).
 - Objects are placed on a flat plane at the ground height, not on the collision under the cursor.
+
+## Level design: placing on the collision under the cursor (11 October 2026)
+
+User request of 11 October 2026. Editor-only change; it needed only its own gate, and the full gate script and CTest were not re-run for it.
+
+- A viewport drop from the Place panel casts the ray through the cursor against the scene's cooked static collision and puts the object at the first point it meets (position and height). Where the ray meets no collision it falls back to the ground plane at the Place panel's ground height, as before.
+- Placements that give only a ground position (double-click, "Add NPC spawn point", the exercise) land on the collision below that position (`Shell::surface_height`), or at the ground height where there is none.
+- The editor answers these rays from a query-only `PhysicsWorld` loaded with the scene's cooked collision (`Shell::place_surface`, set in main.cpp), rebuilt when the collision changes. Runtime code is unchanged.
+- Limits: the surface is the cooked collision the session was started with. Models placed since the last cook are not part of it, so one newly placed model cannot be stacked on another until the scene is prepared again. The object's origin goes on the surface; nothing aligns it to the surface normal.
+
+**Verified:** `place-panel-d3d12` passes with the new marker `on_collision=1 surface_y=0.5`: the placed spawn point's height equals the collision under it, and a slanted ray like a viewport drop lands at the same height. The capture was looked at: the placed NPC and hut stand on the ground.
+
+**Not verified:** a real mouse drag (the gate calls the placement command and the surface query, not the drop target); landing on a raised surface such as a roof or a slope (the training scene's ground is flat at 0.5 m where the gate places).
