@@ -1,5 +1,6 @@
 #include <darkangel/behavior_tree.hpp>
 #include <behaviortree_cpp/bt_factory.h>
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
@@ -73,24 +74,25 @@ public:Approach(const std::string& name,const BT::NodeConfig& config,Blackboard*
     void onHalted()override{board_->path.clear();}
 private:Blackboard* board_;
 };
-void write(std::ostringstream& xml,const BehaviorNode& node){
-    if(node.type=="sequence"||node.type=="selector"){const char* tag=node.type=="sequence"?"Sequence":"Fallback";xml<<'<'<<tag<<'>';for(const auto& child:node.children)write(xml,child);xml<<"</"<<tag<<'>';}
+void write(std::ostringstream& xml,const BehaviorNode& node,const BehaviorTuning& tuning){
+    const double range=node.preferred?tuning.preferred_range:node.range;
+    if(node.type=="sequence"||node.type=="selector"){const char* tag=node.type=="sequence"?"Sequence":"Fallback";xml<<'<'<<tag<<'>';for(const auto& child:node.children)write(xml,child,tuning);xml<<"</"<<tag<<'>';}
     else if(node.type=="opponent_alive")xml<<"<DaOpponentAlive/>";
     else if(node.type=="idle")xml<<"<DaIdle/>";
     else if(node.type=="face")xml<<"<DaFace/>";
-    else if(node.type=="in_range")xml<<"<DaInRange range=\""<<node.range<<"\"/>";
-    else if(node.type=="approach")xml<<"<DaApproach range=\""<<node.range<<"\"/>";
+    else if(node.type=="in_range")xml<<"<DaInRange range=\""<<range<<"\"/>";
+    else if(node.type=="approach")xml<<"<DaApproach range=\""<<range<<"\"/>";
     else if(node.type=="attack")xml<<"<DaAttack slot=\""<<static_cast<unsigned>(node.slot)<<"\"/>";
-    else if(node.type=="recover")xml<<"<DaRecover ticks=\""<<node.ticks<<"\"/>";
+    else if(node.type=="recover")xml<<"<DaRecover ticks=\""<<std::max(1u,unsigned(std::lround(node.ticks*tuning.recovery_scale)))<<"\"/>";
     else throw std::runtime_error("Unknown behavior node type");
 }
 class BehaviorController final:public ActorController {
 public:
-    BehaviorController(const BehaviorDefinition& definition,std::shared_ptr<const NavigationMesh> mesh){
+    BehaviorController(const BehaviorDefinition& definition,std::shared_ptr<const NavigationMesh> mesh,const BehaviorTuning& tuning){
         board_.mesh=std::move(mesh);BT::BehaviorTreeFactory factory;
         factory.registerNodeType<OpponentAlive>("DaOpponentAlive",&board_);factory.registerNodeType<Idle>("DaIdle",&board_);factory.registerNodeType<InRange>("DaInRange",&board_);factory.registerNodeType<Face>("DaFace",&board_);
         factory.registerNodeType<Attack>("DaAttack",&board_);factory.registerNodeType<Recover>("DaRecover",&board_);factory.registerNodeType<Approach>("DaApproach",&board_);
-        std::ostringstream xml;xml.precision(17);xml<<"<root BTCPP_format=\"4\"><BehaviorTree ID=\"Main\">";write(xml,definition.root);xml<<"</BehaviorTree></root>";
+        std::ostringstream xml;xml.precision(17);xml<<"<root BTCPP_format=\"4\"><BehaviorTree ID=\"Main\">";write(xml,definition.root,tuning);xml<<"</BehaviorTree></root>";
         tree_=factory.createTreeFromText(xml.str());
     }
     ControllerCommand decide(const ControllerView& view)override{board_.view=&view;board_.command={};board_.trace=view.alive?(view.busy?"Acting":"Idle"):"Defeated";tree_.tickOnce();board_.view=nullptr;return board_.command;}
@@ -98,8 +100,8 @@ public:
 private:Blackboard board_;BT::Tree tree_;
 };
 }
-std::shared_ptr<ActorController> make_behavior_controller(const BehaviorDefinition& definition,std::shared_ptr<const NavigationMesh> mesh){
-    require(!definition.root.type.empty(),"Behavior controller needs a decoded tree");
-    try{return std::make_shared<BehaviorController>(definition,std::move(mesh));}catch(const BT::BehaviorTreeException& error){throw std::runtime_error(std::string("Behavior tree rejected by the executor: ")+error.what());}
+std::shared_ptr<ActorController> make_behavior_controller(const BehaviorDefinition& definition,std::shared_ptr<const NavigationMesh> mesh,BehaviorTuning tuning){
+    require(!definition.root.type.empty(),"Behavior controller needs a decoded tree");validate_behavior_tuning(tuning);
+    try{return std::make_shared<BehaviorController>(definition,std::move(mesh),tuning);}catch(const BT::BehaviorTreeException& error){throw std::runtime_error(std::string("Behavior tree rejected by the executor: ")+error.what());}
 }
 }

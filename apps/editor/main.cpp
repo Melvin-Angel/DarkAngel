@@ -233,7 +233,7 @@ int main(int argc,char** argv){try{
 #endif
 #ifdef DAE_BEHAVIOR
             // A placed NPC with an authored behaviour runs its tree; it takes precedence over the training options.
-            if(character_resources->combat&&character_resources->target_behavior)target_controller=[&](const darkangel::CollisionDefinition& collision){auto mesh=std::make_shared<const darkangel::NavigationMesh>(collision);navigation_polygons=mesh->polygons();behavior_running=character_resources->target_behavior->name;return darkangel::make_behavior_controller(*character_resources->target_behavior,std::move(mesh));};
+            if(character_resources->combat&&character_resources->target_behavior)target_controller=[&](const darkangel::CollisionDefinition& collision){auto mesh=std::make_shared<const darkangel::NavigationMesh>(collision);navigation_polygons=mesh->polygons();behavior_running=character_resources->target_behavior->name;return darkangel::make_behavior_controller(*character_resources->target_behavior,std::move(mesh),character_resources->target_tuning);};
 #endif
             auto prepared=darkangel::editor_app::prepare_character_preview(plan,world,*character_resources,[&](AssetId asset){return load_cooked_model(args.registry,args.cas,asset);},target_controller);character_player=prepared.first;character=std::move(prepared.second);editor.log(character_resources->combat?"Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.":"Native Loopback character Play: locomotion and solid box collision proxies. Use Game to play; click its viewport for input.");};
         shell.draw_gameplay_inspector=[&]{

@@ -8,5 +8,6 @@ namespace darkangel {
 // seam. The tree is ticked once per authoritative tick with a native blackboard (the
 // controller view in, the controller command out). The approach leaf follows the
 // navigation mesh when one is supplied and walks straight otherwise.
-std::shared_ptr<ActorController> make_behavior_controller(const BehaviorDefinition&,std::shared_ptr<const NavigationMesh> = {});
+// The tuning supplies the NPC's preferred range and recovery scale to the nodes that read them.
+std::shared_ptr<ActorController> make_behavior_controller(const BehaviorDefinition&,std::shared_ptr<const NavigationMesh> = {},BehaviorTuning = {});
 }

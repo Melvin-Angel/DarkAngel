@@ -26,17 +26,29 @@ int main(){try{
     view.busy=false;bool again=false;for(view.tick=92;view.tick<100&&!again;++view.tick)again=controller->decide(view).press.has_value();check(again,"The tree did not attack again after recovering");
     {auto fresh=make_behavior_controller(definition);ControllerView idle=view;idle.tick=1;idle.busy=true;check(!fresh->decide(idle).press,"The tree pressed while its own action was running");idle.busy=false;idle.opponent_alive=false;auto none=fresh->decide(idle);check(!none.press&&!none.face&&none.move_x==0&&none.move_z==0,"The tree acted against a dead opponent");}
     check(rejects([&]{make_behavior_controller(BehaviorDefinition{});}),"An undecoded behaviour was given a controller");
+    {
+        // NPC tuning: nodes set to "preferred" read the NPC's range, and recover time scales, without touching the tree.
+        auto shared=source;shared["tree"]["children"][0]["children"][1]["range"]="preferred";shared["tree"]["children"][1]["children"][1]["range"]="preferred";auto tree=decode_behavior(shared.dump());check(tree.root.children[0].children[1].preferred&&tree.root.children[1].children[1].preferred,"Preferred range did not decode");
+        {auto bad=shared;bad["tree"]["children"][0]["children"][1]["range"]="far";check(rejects([&]{decode_behavior(bad.dump());}),"An unknown range keyword was decoded");}
+        ControllerView at;at.alive=at.opponent_alive=true;at.opponent=MotorState{};at.self.position={0,0,2.5};at.tick=1;
+        auto close=make_behavior_controller(tree),reach=make_behavior_controller(tree,{},BehaviorTuning{3.0,1.0});
+        const auto near=close->decide(at),far=reach->decide(at);
+        check(near.move_z<-.9&&!near.press&&far.move_z==0&&far.press.has_value(),"The NPC's preferred range did not decide where the approach stops and the attack starts");
+        auto eager=make_behavior_controller(tree,{},BehaviorTuning{3.0,.5});check(eager->decide(at).press.has_value(),"Tuned NPC did not attack");
+        std::uint64_t next{};for(at.tick=2;at.tick<200&&!next;++at.tick)if(eager->decide(at).press)next=at.tick;check(next>=45&&next<=49,"Recovery scale 0.5 did not halve the 90 tick recovery");
+        check(rejects([&]{make_behavior_controller(tree,{},BehaviorTuning{0,1});})&&rejects([&]{make_behavior_controller(tree,{},BehaviorTuning{1.4,9});}),"Out-of-bounds NPC tuning was accepted");
+    }
 
     // Owned content: the Royal Guard references the Guard Melee behaviour; both are frozen with the NPC.
     auto content=std::filesystem::path(DAE_SOURCE_DIR)/"content",cache=std::filesystem::path(DAE_BINARY_DIR)/("behavior-"+AssetId::random().text());AssetService assets(content,cache);
     std::ifstream npc_source(content/"npcs/royal_guard.danpc");auto npc_id=AssetId::parse(Json::parse(npc_source).at("asset").get<std::string>());assets.cook("npcs/royal_guard.danpc");assets.package(npc_id,cache/"registry.json");
-    auto guard=load_cooked_npc(cache/"registry.json",assets.cas_path(),npc_id);check(guard.behavior&&guard.behavior->name=="Guard Melee"&&guard.definition.behavior==guard.behavior->id&&guard.behavior->generation.size()==64&&guard.behavior->root.children.size()==2,"Owned Royal Guard lost its frozen behaviour tree");
+    auto guard=load_cooked_npc(cache/"registry.json",assets.cas_path(),npc_id);check(guard.behavior&&guard.behavior->name=="Guard Melee"&&guard.definition.behavior==guard.behavior->id&&guard.behavior->generation.size()==64&&guard.behavior->root.children.size()==2&&guard.behavior->root.children[1].children[1].preferred&&guard.definition.tuning.preferred_range==1.4&&guard.definition.tuning.recovery_scale==1,"Owned Royal Guard lost its frozen behaviour tree or tuning");
     check(load_cooked_behavior(cache/"registry.json",assets.cas_path(),guard.behavior->id).generation==guard.behavior->generation&&rejects([&]{load_cooked_behavior(cache/"registry.json",assets.cas_path(),npc_id);}),"Behaviour products are not kind-checked");
 
     // In a session: the NPC's own kit and attributes, its authored tree as the controller, and the navigation mesh for the approach leaf.
     CollisionDefinition collision;collision.id=AssetId::random();collision.schema=2;collision.boxes={{100,{0,-.5,0},{16,.5,16}},{101,{0,1,3},{4,1,.25}}};auto mesh=std::make_shared<const NavigationMesh>(collision);
     const auto& cooked=guard.kit;CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=cooked.input;combat.attributes=cooked.attributes.definitions();combat.health=2;combat.maximum_health=1;combat.abilities=cooked.abilities;if(cooked.tags)combat.tags=cooked.tags->dictionary();combat.target={9,2};combat.evaluator=1;combat.damage=[](const DamageContext& context){return context.power;};for(const auto& ability:cooked.abilities){auto clip=load_cooked_clip(cache/"registry.json",assets.cas_path(),ability->action->motion->clip.id);combat.clips.emplace(clip.definition.id,std::make_shared<const AnimationClip>(clip.definition,clip.archive));}
-    combat.npc=CharacterSceneNpc{cooked.definition,cooked.input,cooked.abilities,guard.attributes,guard.definition.name,guard.definition.faction,guard.definition.generation};combat.controller=make_behavior_controller(*guard.behavior,mesh);
+    combat.npc=CharacterSceneNpc{cooked.definition,cooked.input,cooked.abilities,guard.attributes,guard.definition.name,guard.definition.faction,guard.definition.generation};combat.controller=make_behavior_controller(*guard.behavior,mesh,guard.definition.tuning);
     ObjectData player;player.id={9,1};ObjectData target;target.id=combat.target;target.transform.z=6;target.health={60,60};std::array<ObjectData,2> objects{player,target};SessionHandshake hello{3,sha256("behavior scene wire3"),sha256(cooked.definition->generation),705};
     CharacterSceneSession scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);const auto baseline=scene.resynchronizations();
     auto health=[&]{return scene.presentation().read(scene.presentation().find(player.id)).health.current;};

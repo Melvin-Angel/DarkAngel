@@ -21,7 +21,7 @@ CameraRigDefinition decode_camera_rig(std::string_view json);
 // A server-controlled actor: the same shared Character and Actor Loadout a Player uses,
 // plus a display name and a faction. No input profile, cameras or behaviour live here.
 // behavior: optional authored behaviour tree the NPC runs in Play (a native .dabehavior source).
-struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;};
+struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
 struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};

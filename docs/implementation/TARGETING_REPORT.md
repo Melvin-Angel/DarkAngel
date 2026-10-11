@@ -114,6 +114,6 @@ Not built, not verified:
 
 ## Next slices
 
-1. Pitch on `MotorInput` and the server sweep using it (shared wire code: one full rebuild and CTest).
+1. Vertical aim. Not just a pitch value: in third person the camera sits above and behind the character and looks down by default, so the raw camera pitch would send a shot from the character into the ground at range. The client must first converge the crosshair: cast the camera ray into the world, take the point it meets (or a far point), and derive yaw and pitch from the actor's muzzle to that point. Those two angles then travel in `MotorInput` (pitch is the new field, with its codec in `world_session.cpp`) and the server sweep uses them. Shared wire code: one full rebuild and CTest.
 2. Ground-snapped AOE aim: `mode: "ground"`, the server's own ray against its collision from the same yaw and pitch, clamped to the authored range, with a ground marker on the HUD.
 3. Travelling projectiles if wanted: an authoritative projectile entity advanced by the server with the same sweep per tick.

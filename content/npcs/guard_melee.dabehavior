@@ -14,7 +14,7 @@
           },
           {
             "type": "in_range",
-            "range": 1.4
+            "range": "preferred"
           },
           {
             "type": "idle"
@@ -40,7 +40,7 @@
           },
           {
             "type": "approach",
-            "range": 1.4
+            "range": "preferred"
           }
         ]
       }

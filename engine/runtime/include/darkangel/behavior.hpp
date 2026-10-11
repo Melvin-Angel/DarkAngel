@@ -12,7 +12,12 @@ namespace darkangel {
 //   actions     face, approach {range}, attack {slot}, recover {ticks}
 // The tree only decides; every leaf acts through the controller seam (move, face, press),
 // so a behaviour cannot bypass ability validation. Blackboard and sensing stay native.
-struct BehaviorNode {std::string type;double range{};unsigned ticks{};CombatSlot slot{};std::vector<BehaviorNode> children;};
+// preferred: the range comes from the NPC's tuning ("range": "preferred") instead of the tree.
+struct BehaviorNode {std::string type;double range{};bool preferred{};unsigned ticks{};CombatSlot slot{};std::vector<BehaviorNode> children;};
+// Per-NPC numbers a tree reads, so one tree serves differently tuned NPCs: the range that
+// "preferred" nodes use, and a multiplier on every recover node's ticks.
+struct BehaviorTuning {double preferred_range{1.4},recovery_scale{1};};
+void validate_behavior_tuning(const BehaviorTuning&);
 struct BehaviorDefinition {AssetId id;std::string name,generation;BehaviorNode root;};
 // Validates shape and bounds (depth 8, 64 nodes, known kinds and parameters). The cooked
 // product and the source share this decoder; generation is filled by the loader.

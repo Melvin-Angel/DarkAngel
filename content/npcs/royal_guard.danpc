@@ -23,5 +23,9 @@
     "kit": "royal_district/combat/player.dakit",
     "behavior": "npcs/guard_melee.dabehavior"
   },
-  "behavior": "ac81bd4f-cfce-4658-a5d7-17ac695aae67"
+  "behavior": "ac81bd4f-cfce-4658-a5d7-17ac695aae67",
+  "tuning": {
+    "preferred_range": 1.4,
+    "recovery_scale": 1.0
+  }
 }

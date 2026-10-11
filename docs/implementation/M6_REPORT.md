@@ -167,6 +167,29 @@ One chunk, verified once.
 - Follow-up, same day: the structure edits now go through an authoring command (`NativeAuthoring::edit_behavior_tree`, one history entry per edit) and `NativeAuthoringTests` covers reorder, add, remove, Undo/Redo and six rejected edits (moving or removing the root, moving past either end, adding to a leaf, an unknown node kind, a path that does not exist). The buttons call that command. What remains unverified is only the click itself; after this follow-up the editor and `NativeAuthoringTests` were rebuilt and that test re-run, not the full gate set.
 - The Gameplay Inspector readout was checked through the exercise marker, not by looking at the inspector panel.
 
+## Increment 7: NPC tuning (11 October 2026)
+
+One chunk, verified once.
+
+### What exists
+
+- An NPC definition can carry optional `tuning`: `preferred_range` (metres, up to 60) and `recovery_scale` (0.25 to 4). Defaults are 1.4 m and 1.
+- A tree's `in_range` and `approach` nodes may set `"range": "preferred"` instead of a number; they then use the NPC's preferred range. Every `recover` node's ticks are multiplied by the NPC's recovery scale. One tree therefore serves differently tuned NPCs.
+- NPC tab: "Tune this NPC" with the two fields in the Behaviour section. Behaviour form: each range node switches between a fixed distance and "NPC preferred range".
+- Owned content: Guard Melee uses the preferred range for both of its range nodes; the Royal Guard carries explicit tuning (1.4 m, scale 1), so its behaviour in Play is unchanged.
+
+### Verified
+
+- `BehaviorTreeTests`: "preferred" decodes and an unknown keyword is rejected; with the same tree, an NPC at 2.5 m approaches under the default range and attacks at once with a 3 m preferred range; recovery scale 0.5 halves the 90 tick recovery (next attack 45 to 49 ticks later); out-of-bounds tuning is rejected; the owned Royal Guard freezes with its tuning.
+- `NativeAuthoringTests`: tuning edit with Undo/Redo, out-of-bounds tuning rejected by private validation, frozen NPC carries the tuned values.
+- Editor: NPC tab capture `evidence/npc-form-d3d12.png` inspected (Tune this NPC, Preferred range 1.400, Recovery scale 1.000). Fresh Play with the placed Royal Guard still lands its hit and reports its decision.
+- `python scripts/verify_effect_reaction.py`: all gates pass (34). CTest: only the five known unrelated failures.
+
+### Not verified
+
+- The behaviour form's "Use NPC preferred" / "Use fixed" switch was not captured after this change; the earlier behaviour-form capture predates it.
+- Tuning beyond these two numbers (strafe, retreat, aggression curves from the vision) does not exist.
+
 ### Next step (track B)
 
-NPC-level tuning the tree reads (preferred range, aggression/recovery) so designers tune an NPC without editing its tree. After that the world side of M6 (regions/cells and the ledger), which is the larger remaining part of the milestone.
+The world side of M6: regions/cells and the world ledger, then spawn points so an NPC is placed by the scene rather than by an editor setting. This is the largest remaining part of the milestone and should start with a short design note in this report, as the targeting module did.
