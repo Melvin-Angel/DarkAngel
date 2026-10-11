@@ -20,12 +20,17 @@ Update 11 October 2026: items 1, 2 and 3 below are done (SCRIPTED_ATTACKER_REPOR
 
 M4/M5 are In progress. M6 starts only when the original M5 gate passes: attack, dodge, stagger, damage and death under host/client authority; acceptance/rejection and replay producing one presentation; no damage from predicted ghosts; late join restoring current state; runtime Health UI.
 
-1. Something that attacks the player: a minimal scripted attacker on the existing combat target (it uses the same kit/ability/WorldSession path; this is shared target behaviour, not the M6 NPC controller or AI). It unlocks verifying player-side flinch, death, dodge invulnerability against a real hit, and the owner pose reaction path in Play.
-2. Stagger as gameplay: an effect-driven movement restriction through the motor's existing lock request, a stun loop presentation with the converted Blink `stunned` clip, and the owned Royal flinch bound by default once an attacker exists.
-3. Runtime Health HUD through RmlUi with native view models (needs the dependency step above). If the dependency cannot be installed safely, record it and continue with other items.
-4. Mask depth: distinct kits per element using existing converted clips, per-mask death timeline and locomotion graph following the active mask, switch feedback.
-5. Ranged/projectile abilities (aim camera already exists), block/parry outcomes, combos, lock-on camera using the look target.
-6. Host/client qualification over GNS for dodge, switching and reactions.
+User direction, 11 October 2026 (supersedes the earlier order): items 1-3 of the first list (scripted attacker, stagger as gameplay, runtime Health HUD) are done. Host/client qualification over GNS is postponed for now; do not build the two-session harness yet. A "multiplayer Play" option in the Game tab (Play launches two instances that connect) belongs to a later milestone together with a bootstrapper and a host/join flow; record it, do not build it.
+
+1. Player targeting module. This is the foundation for ranged and projectile abilities and comes first. Three modes, one module, authored per ability:
+   - Soft lock for melee: when a melee ability starts, pick the best target near the player (range and facing cone toward movement/camera intent) and warp the attack motion toward it (turn to face, close or hold distance) during an authored window of the action. No hard lock-on. The motor still owns movement; express the warp as facing plus root request through the existing motor request path, on the authoritative, predicted and replayed ticks alike, as dodge facing and dash already do.
+   - Crosshair aim for ranged mode: while the aim camera is live, a screen-centre crosshair defines an aim ray from the camera; the ability's target or direction comes from that ray. Camera presentation never validates hits: the client sends aim intent, the server validates against its own state.
+   - AOE aim: same crosshair, but the aim point snaps to the ground under the crosshair (ray against collision, clamped to an authored maximum range) with a ground marker.
+   Design it before coding: where targeting mode and its parameters live on the Ability asset, what the intent carries on the wire (target identity and/or aim direction/point, bounded and validated), how the server re-validates, how prediction and replay reproduce the same warp, and what the HUD shows (crosshair, soft-lock indicator, ground marker). Write the design at the top of a TARGETING_REPORT.md first, then implement in vertical slices: soft lock, then crosshair aim, then ground-snapped AOE aim. The scripted attacker and the training target are the test subjects.
+2. Ranged and projectile abilities built on the targeting module (authoritative spawn and hit, effects through the existing bindings), using existing converted clips (bow-shot, casting, punch).
+3. Mask depth: distinct kits per element using existing converted clips, per-mask death timeline and locomotion graph following the active mask.
+4. Block/parry outcomes, combos, lock-on camera using the look target.
+5. Deferred until the user says otherwise: host/client qualification over GNS; multiplayer Play in the Game tab.
 
 Animation: use the clips already converted under `content/animation/blink/` and `content/royal_district/clips/`. Do not build a retargeting pipeline now; the user will decide that later.
 
