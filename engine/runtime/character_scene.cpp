@@ -58,6 +58,7 @@ struct CharacterSceneSession::Impl {
         if(combat){require(actors.size()==combat->actors.size(),"Combat actor has no scene object");std::sort(actors.begin(),actors.end(),[](const auto& a,const auto& b){return a.id<b.id;});
             // Factions become session-local numbers in simulation order; the player's is 1.
             std::map<std::string,std::uint32_t> factions{{combat->faction,player_faction}};for(auto& actor:actors){actor.faction=factions.emplace(actor.config->faction,std::uint32_t(factions.size()+1)).first->second;actor_identities.push_back(actor.identity);}
+            server.assign_team(player,player_faction);for(const auto& actor:actors)server.assign_team(actor.id,actor.faction);
             actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());seen.reserve(actors.size()+1);}
         require(player,"Character scene player missing");authoritative.load_scene(collision);prediction->load_scene(collision);
         host_motor=std::make_unique<CharacterMotor>(authoritative,foot,player);owner_motor=std::make_unique<CharacterMotor>(*prediction,foot,player);

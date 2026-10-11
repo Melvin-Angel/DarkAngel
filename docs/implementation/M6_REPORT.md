@@ -227,7 +227,7 @@ Stage 1 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md), delivered as one ch
 
 ### Runtime
 
-- `CharacterSceneCombat::actors` (at most 3; first written as 16, corrected in stage 2 when the four-character capacity of the session layers was found, see TARGETING_REPORT.md) replaces `target`, `target_attributes`, `npc`, `attacker` and the single `controller`. A `CharacterSceneActor` carries its scene identity, optional kit, input semantics, abilities, resolved attributes, name, faction, generation and optional controller. A training dummy is an actor with no controller. The player keeps its own role because it alone is predicted.
+- `CharacterSceneCombat::actors` (at most 16; that needed the session capacity lifted, which was done the same day, see "Session capacity and no friendly fire" in TARGETING_REPORT.md) replaces `target`, `target_attributes`, `npc`, `attacker` and the single `controller`. A `CharacterSceneActor` carries its scene identity, optional kit, input semantics, abilities, resolved attributes, name, faction, generation and optional controller. A training dummy is an actor with no controller. The player keeps its own role because it alone is predicted.
 - `CharacterSceneSession` keeps one record per actor (motor, ability owner, controller receipt, chosen target, observed pose) in ascending network identity and steps them in that order. The order the caller lists actors in does not change the simulation.
 - `ControllerView` lists every other actor (identity, faction, motor state, alive) instead of one opponent. `nearest_hostile` stands in for target selection until sensing exists; different factions are hostile and the player's faction is `player`. `ControllerCommand::target` records the actor a decision is aimed at; the session checks it names an actor in the view and exposes it as `controller_target`.
 - Soft-lock candidates are every live actor hostile to the player. `soft_lock()` returns the actor it chose.
@@ -263,7 +263,7 @@ Stage 1 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md), delivered as one ch
 
 ### Not verified, and known limits
 
-- Hits do not check faction. In the two-guard capture one guard is at 35/60 without player input: a guard's swing hit the other guard. Whether NPCs of one faction can hurt each other is a product decision.
+- (Fixed the same day: no friendly fire, see TARGETING_REPORT.md.) In this build hits did not check faction. In the two-guard capture one guard is at 35/60 without player input: a guard's swing hit the other guard. Whether NPCs of one faction can hurt each other is a product decision.
 - The Scene tab buttons (add, retarget, remove a spawn point) were not clicked by a gate; only loading, drawing and Play of authored spawn points were exercised.
 - The 26 older `scripts/verify_*.py` were switched to the training scene and lost `--combat-target` mechanically; none was re-run. Those that package their own registry (for example `scripts/verify_royal_combat.py`) will need the Training Dummy NPC in it.
 - A startup registry that lacks a spawn point's NPC (for example `.cache/royal-scene/registry.json` used by `open_royal_scene.ps1`) loads without that actor and logs a warning; Play with a project mount packages it. This path was not run.

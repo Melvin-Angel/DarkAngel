@@ -366,7 +366,7 @@ namespace darkangel {
     void PhysicsWorld::load(const CollisionFrame& f,std::uint64_t replay_owner){
         auto& s=*impl_;
         s.thread();
-        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=4,"Invalid history frame");
+        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=session_character_capacity,"Invalid history frame");
         check(s.motors<=1,"Cannot replace shared live motor topology");
         check(!s.motors||f.actors.empty()||(replay_owner&&s.actors.contains(replay_owner)),"History load requires an explicit matching replay owner");
         std::map<std::uint64_t,bool> identities;
@@ -548,7 +548,7 @@ namespace darkangel {
         bool jumped{
         };
         Impl(PhysicsWorld::Impl& w,MotorVec foot,std::uint64_t identity,bool crouched):world(w){
-            check(valid(foot)&&w.motors<4,"Invalid motor spawn/budget");
+            check(valid(foot)&&w.motors<session_character_capacity,"Invalid motor spawn/budget");
             JPH::CharacterVirtualSettings settings;
             state.crouched=crouched;settings.mShape=crouched?low:standing;
             settings.mInnerBodyShape=settings.mShape;
@@ -800,7 +800,7 @@ namespace darkangel {
         }catch(...){s.failed=true;return false;}
     }
     void CollisionHistory::retain(CollisionFrame f){
-        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=4&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
+        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=session_character_capacity&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
         frames_.push_back(std::move(f));
         while(frames_.size()>31)frames_.pop_front();
     }

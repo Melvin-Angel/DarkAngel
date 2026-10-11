@@ -138,7 +138,7 @@ Stage 2 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md) (user decisions 4 an
 - Editor Play: while an aim camera is live the input yaw and pitch come from `aim` with the muzzle and range of the kit's aimed ability.
 - NPC soft lock: an actor's accepted press latches `ControllerCommand::target`; its action's warp runs through the same `lock` call as the player's with that one candidate.
 - Content: the owned Royal Heavy has the same soft lock as Light (range 4.5 m, cone 75 degrees, stop 1.2 m, 2 m over its first 16 ticks, before its hit window).
-- Capacity correction for stage 1: `character_scene_actor_limit` is 3, not 16. WorldSession (motor snapshots, public ability frames, effect frames, ability owners), the collision stream and the physics history each carry at most four characters, and the loopback queue holds 32 packets a tick, so a scene holds the player and three actors. A scene with more spawn points is refused when Play prepares, with a plain message. Lifting this needs per-tick snapshot batching and is its own piece of work.
+- Capacity correction for stage 1 (superseded the same day by the section "Session capacity and no friendly fire" below, which lifts it to 16): `character_scene_actor_limit` is 3, not 16. WorldSession (motor snapshots, public ability frames, effect frames, ability owners), the collision stream and the physics history each carry at most four characters, and the loopback queue holds 32 packets a tick, so a scene holds the player and three actors. A scene with more spawn points is refused when Play prepares, with a plain message. Lifting this needs per-tick snapshot batching and is its own piece of work.
 
 ### Verified (build of 11 October 2026)
 
@@ -152,5 +152,31 @@ Stage 2 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md) (user decisions 4 an
 - NPCs have no ranged content, so no NPC sets a pitch. A controller can only ask for yaw.
 - The owner does not see other actors' capsules exactly: convergence uses a fixed 0.35 m by 1.8 m capsule at the confirmed position.
 - Still hitscan. Travelling projectiles are stage 3.
-- Hits still ignore faction (open question in CONTINUE.md).
+- Hits ignored faction in this build; fixed in the next section.
 - No run under real latency (GNS deferred).
+
+## Session capacity and no friendly fire (11 October 2026)
+
+Two user decisions of 11 October 2026, taken after stage 2: lift the four-character limit before projectiles, and no friendly fire.
+
+### Capacity
+
+- `session_character_capacity` (17: one owner and sixteen others, in `character_motor.hpp`) replaces the separate literal 4s: motor snapshots, public ability frames, public ability partials, effect frames and ability owners in `WorldSession`; actors in a collision frame (`collision_source.cpp`, the physics history); and the motors one `PhysicsWorld` accepts. Owner-only state (owned motors, ability corrections) stays at 4, the peer limit.
+- `character_scene_actor_limit` is `session_character_capacity - 1`, so 16, as the stage 1 plan intended.
+- No wire layout changed. The existing per-tick packet budget (16 a tick, 32 queued in loopback) is not enough for 17 characters in one send, but every state stream already retries what it could not send, and the scene session already pumps until the tick's snapshots have arrived, so a full scene costs more pump rounds per tick instead of failing. That is acceptable in loopback only: over a real network the per-character snapshot packets should be batched before this capacity is relied on. Recorded as open work, not done.
+
+### No friendly fire
+
+- `WorldSession::assign_team(network id, team)`: server-only state, never replicated. In hit resolution a candidate that shares a nonzero team with the attacker is skipped before any damage or effect is evaluated.
+- `CharacterSceneSession` assigns each character its faction number as its team, so NPCs of one faction cannot hurt each other and the player cannot hurt an ally.
+- A swept shot still stops at the first character in its path, ally or not, and then does nothing to an ally.
+
+### Verified (build of 11 October 2026)
+
+- CharacterCombatSceneTests: a scene of sixteen actors beside the player (four controlled guards, twelve bystanders) runs with every actor replicated on the current tick, no pending prediction and no resynchronisation, and no bystander of the guards' faction is damaged; a guard's swing at the player leaves a guard of its own faction standing in it at full Health and hits a bystander of another faction; the player's swing does not damage an ally.
+- 35 verify gates pass. In `npc-spawn-points-d3d12` the second guard now stays at 60/60 (it was 35/60 before) and both guards defeat the player; capture looked at. CTest shows only the five known unrelated failures.
+
+### Not verified
+
+- Sixteen actors in the editor: the owned combat scene has two spawn points, so the full count is proven in the scene test only. Frame cost with many skinned actors was not measured.
+- Any real transport. The capacity was exercised in loopback only.

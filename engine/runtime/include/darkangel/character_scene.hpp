@@ -27,9 +27,8 @@ struct CharacterSceneActor {
     std::string name,faction,generation;
     std::shared_ptr<ActorController> controller;
 };
-// WorldSession, the collision stream and the physics history each carry at most four characters,
-// so a scene holds the player and three actors until that capacity is lifted.
-constexpr std::size_t character_scene_actor_limit=3;
+// The session carries session_character_capacity characters; one of them is the player.
+constexpr std::size_t character_scene_actor_limit=session_character_capacity-1;
 struct CharacterSceneCombat {
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
     std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};

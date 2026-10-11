@@ -54,6 +54,9 @@ public:
     std::vector<EffectSnapshot> ability_effects(AbilityOwnerHandle)const;
     std::vector<TagId> ability_tags(AbilityOwnerHandle,AttributeVisibility=AttributeVisibility::Server)const;
     std::vector<EffectOutcome> drain_effect_outcomes();
+    // Server-only: actors that share a nonzero team never damage each other. Zero clears it. Team is
+    // authority state and is never replicated; an ally in the path of a swept shot still stops it.
+    void assign_team(std::uint64_t,std::uint32_t team);
     // After authoritative motor post_physics/publication, once per fixed tick.
     std::vector<DamageResult> resolve_ability_hits(std::uint64_t);
     const std::map<std::uint64_t,AbilityCorrection>& ability_corrections()const;
