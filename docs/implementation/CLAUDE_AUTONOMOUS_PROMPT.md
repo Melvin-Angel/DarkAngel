@@ -20,6 +20,8 @@ Autonomous DarkAngel continuation for Claude Code. Written 11 October 2026 at th
 
 ## What to work on (in order; skip an item only for a recorded blocker)
 
+User decisions of 11 October 2026 supersede the lists below where they differ: read docs/implementation/COMBAT_SANDBOX_PLAN.md first. Order: (1) multi-entity combat and NPC spawn points, (2) full 3D targeting and shared soft lock, (3) travelling projectiles, (4) reusable Mask Editor window. Cells and the world ledger are deferred. Compile and validate each stage before the next.
+
 Update 11 October 2026: items 1, 2 and 3 below are done (SCRIPTED_ATTACKER_REPORT.md, STAGGER_REPORT.md, HUD_REPORT.md). Start from the CONTINUE.md header.
 
 M4/M5 are In progress. M6 starts only when the original M5 gate passes: attack, dodge, stagger, damage and death under host/client authority; acceptance/rejection and replay producing one presentation; no damage from predicted ghosts; late join restoring current state; runtime Health UI.
