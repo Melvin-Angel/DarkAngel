@@ -79,7 +79,7 @@ void Shell::draw_mask_editor(Controller& c){
   if(std::any_of(c.asset_inventory.begin(),c.asset_inventory.end(),[&](const auto& asset){return asset.id==mask_editor;})){ImGui::PushItemWidth(-190.f);
    perform([&]{auto& draft=c.authoring.open(*c.assets,mask_editor);auto& v=draft.value;if(v.at("kind")!="mask")throw std::runtime_error("The Mask Editor edits mask definitions only");
     ImGui::TextUnformatted(std::filesystem::path(draft.asset.path).stem().string().c_str());ImGui::SameLine();ImGui::TextDisabled(draft.pending?"new draft, not saved":draft.dirty()?"edited draft":"saved");ImGui::TextDisabled("%s",draft.asset.path.c_str());
-  ImGui::SeparatorText("Mask");text("Display name",v["name"]);
+  ImGui::SeparatorText("Mask");text("Display name",v["name"]);probe("mask-name");
   AssetId mask_kit=AssetId::parse(v["kit"].get<std::string>());if(picker("Combat kit (this mask's eight slots, dodge and death)",mask_kit,c,reference_filters,".dakit")){v["kit"]=mask_kit.text();for(const auto& a:c.asset_inventory)if(a.id==mask_kit)v["sources"]["kit"]=a.path;}
   if(ImGui::Button("Edit kit in Ability"))navigate=mask_kit;
   ImGui::SeparatorText("Worn visual");AssetId visual=v.contains("visual")?AssetId::parse(v["visual"].get<std::string>()):AssetId{};

@@ -96,6 +96,9 @@ if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise Runtime
 # Level design: the Place panel's catalogue and its place, delete, undo and redo commands on the training scene.
 log=run('place-panel-d3d12',common+['--exercise-place','--frames','5','--capture',EVIDENCE/'place-panel-d3d12.png'])
 if 'Place panel items=' not in log or 'delete_undo_redo=1' not in log or 'on_collision=1' not in log:raise RuntimeError('Place panel did not place and delete scene objects: '+log[-400:])
+# The Place panel and outliner driven with real mouse and key events: drag into the viewport, double-click, Delete key, right-click Delete.
+log=run('place-mouse-d3d12',common+['--exercise-place-mouse','--frames','38','--capture',EVIDENCE/'place-mouse-d3d12.png'])
+if 'Editor mouse drag=1' not in log or 'double_click=1 delete_key=1 context_delete=1' not in log:raise RuntimeError('The Place panel mouse paths did not work: '+log[-400:])
 # Mask Editor: one window for a mask definition, opened over the Player tab and over the NPC tab.
 masks=sorted(source.glob('masks/*.dafacemask'));mask_id=json.loads(masks[0].read_text())['asset']
 masked_npc=next((json.loads(p.read_text())['asset'] for p in sorted(source.glob('npcs/*.danpc')) if any(json.loads(p.read_text()).get('loadout',{}).get('masks',[]))),f['npc'])
@@ -103,6 +106,9 @@ log=run('mask-editor-player-d3d12',form+['--player-workspace','--authoring-asset
 if 'Mask Editor open mask=' not in log or 'workspace=player selection_kept=1 dirty=0' not in log:raise RuntimeError('Mask Editor did not open over the Player tab: '+log[-400:])
 log=run('mask-editor-npc-d3d12',form+['--npc-workspace','--authoring-asset',masked_npc,'--mask-editor',mask_id,'--height','1500','--frames','5','--capture',EVIDENCE/'mask-editor-npc-d3d12.png'])
 if 'Mask Editor open mask=' not in log or 'workspace=npc selection_kept=1 dirty=0' not in log:raise RuntimeError('Mask Editor did not open over the NPC tab: '+log[-400:])
+# A real click into the Mask Editor's name field and a typed character edit the mask draft, and Undo restores it.
+log=run('mask-editor-field-d3d12',form+['--player-workspace','--authoring-asset',f['mask_player'],'--mask-editor',mask_id,'--exercise-mask-field','--height','1500','--frames','12','--capture',EVIDENCE/'mask-editor-field-d3d12.png'])
+if 'Editor mask_field typed=1 undo=1' not in log:raise RuntimeError('Typing into the Mask Editor did not edit the mask: '+log[-400:])
 # M6 track: the Guard Melee behaviour opened in the NPC workspace (tree outline with structure controls).
 run('behavior-form-d3d12',common+['--npc-workspace','--authoring-asset',f['behavior'],'--height','1500','--frames','5','--capture',EVIDENCE/'behavior-form-d3d12.png'])
 # M6 track: the owned Royal Guard NPC definition opened in the NPC workspace.

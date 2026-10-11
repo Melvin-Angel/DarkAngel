@@ -305,3 +305,18 @@ User request of 11 October 2026. Editor-only change; it needed only its own gate
 **Verified:** `place-panel-d3d12` passes with the new marker `on_collision=1 surface_y=0.5`: the placed spawn point's height equals the collision under it, and a slanted ray like a viewport drop lands at the same height. The capture was looked at: the placed NPC and hut stand on the ground.
 
 **Not verified:** a real mouse drag (the gate calls the placement command and the surface query, not the drop target); landing on a raised surface such as a roof or a slope (the training scene's ground is flat at 0.5 m where the gate places).
+
+## Level design: a gate that drives the real mouse paths (11 October 2026)
+
+User request of 11 October 2026. Editor-only; it needed only its own gates, and the full gate script and CTest were not re-run for it.
+
+- The hidden editor can now be driven with real input. `Shell::probes` records the screen centre of a few named controls as they are drawn (each Place item, each outliner row, the outliner menu's Delete entry, the viewport drop point, the Mask Editor's Display name field), and an exercise queues ordinary ImGui mouse, key and text events at those points, one step a frame. Nothing calls the commands behind the controls.
+- `place-mouse-d3d12` (`--exercise-place-mouse`): press on an NPC item in the Place panel, drag into the viewport and release (a spawn point appears at 4.94, 0.5, 6.06, on the collision under the cursor, and is selected); double-click the item (a second spawn point appears beside the selection); click the second object's outliner row and press Delete (it is removed, the first stays); right-click the first object's row and click Delete in the menu (it is removed). Object counts are checked after each step.
+- `mask-editor-field-d3d12` (`--exercise-mask-field`): with the Mask Editor open over the Player tab, click into Display name and type one character; the mask draft's name gains it, the edit is an undoable draft edit, and Undo restores the name.
+- Found while building it: an active text field keeps its own copy of the text and writes it back, so an Undo issued while the field still has focus is typed over on the next frame. The exercise releases focus first. In the editor this means Undo (button or shortcut) while a text field is still active may appear not to work for that field; not fixed here.
+
+**Verified:** both gates pass. The `place-mouse-d3d12` capture was looked at: it shows the end state (both placed objects removed again, five objects in the outliner), which matches the markers but cannot show the drag itself.
+
+**Not verified:** the Delete key with the Viewport window focused (the gate presses it with the outliner focused); dragging a model rather than an NPC; the remaining Mask Editor fields (the pickers and numbers); OS-level mouse input (events are queued into ImGui, not sent through Windows).
+
+**Question for the user:** which new placeable kinds come first: encounters, altars or items? None of those asset types exists yet, so each needs a definition before it can be placed.
