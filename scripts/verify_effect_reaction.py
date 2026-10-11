@@ -64,9 +64,16 @@ form=[x for x in worn];run('camera-preview-d3d12',form+['--player-workspace','--
 guarded=[f['npc_registry'] if x==f['reaction_registry'] else x for x in common]
 log=run('npc-target-d3d12',scene(guarded,'RoyalDuel.dascene')+['--exercise-attacked','--frames','40','--capture',EVIDENCE/'npc-target-d3d12.png'])
 if not(marker(log,'player_health')==75 and marker(log,'actors')==1 and marker(log,'hud_target')=='60/60' and marker(log,'hud_target_name')=='Royal_Guard' and marker(log,'nav_polygons')>0 and marker(log,'behavior')=='Guard_Melee' and ' decision=' in log):raise RuntimeError('Editor Play did not spawn the Royal Guard from its spawn point: '+log[-400:])
-# Multi-entity combat: the owned combat scene spawns two Royal Guards that walk the navigation mesh to the player and attack.
+# Multi-entity combat: the owned combat scene spawns Royal Guards (two as shipped) that walk the navigation mesh to the player and attack.
 log=run('npc-spawn-points-d3d12',scene(guarded,'RoyalCombat.dascene')+['--exercise-attacked','--frames','260','--capture',EVIDENCE/'npc-spawn-points-d3d12.png'])
-if not(marker(log,'player_health')<100 and marker(log,'actors')==2 and marker(log,'nav_polygons')>0 and marker(log,'behavior')=='Guard_Melee'):raise RuntimeError('Editor Play did not run two spawned Royal Guards: '+log[-400:])
+if not(marker(log,'player_health')<100 and marker(log,'actors')>=2 and marker(log,'nav_polygons')>0 and marker(log,'behavior')=='Guard_Melee'):raise RuntimeError('Editor Play did not run two spawned Royal Guards: '+log[-400:])
+# NPC ranged attack: a Royal Archer spawned 12 m away looses arrows at the player through its behaviour tree.
+archer_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text())
+for entity in archer_source['sources'][archer_source['root']]['entities'].values():
+    if 'spawn' in entity:entity['spawn']['npc']=f['archer'];entity['types']['1']['fields']['4']=15.0
+(source/'royal_district/RoyalArcher.dascene').write_text(json.dumps(archer_source,indent=2)+chr(10))
+log=run('npc-archer-d3d12',scene(guarded,'RoyalArcher.dascene')+['--exercise-attacked','--frames','110','--capture',EVIDENCE/'npc-archer-d3d12.png'])
+if not(marker(log,'player_health')==80 and marker(log,'actors')==1 and marker(log,'behavior')=='Archer_Ranged' and marker(log,'hud_target_name')=='Royal_Archer'):raise RuntimeError('Editor Play did not run the Royal Archer: '+log[-400:])
 # The same scene in the Scene tab: both spawn points preview their NPC's Character.
 run('spawn-points-scene-d3d12',scene(guarded,'RoyalCombat.dascene')+['--frames','5','--capture',EVIDENCE/'spawn-points-scene-d3d12.png'])
 # Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.

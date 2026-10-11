@@ -180,3 +180,14 @@ Two user decisions of 11 October 2026, taken after stage 2: lift the four-charac
 
 - Sixteen actors in the editor: the owned combat scene has two spawn points, so the full count is proven in the scene test only. Frame cost with many skinned actors was not measured.
 - Any real transport. The capacity was exercised in loopback only.
+
+## Motor snapshot batching and the packet budget (11 October 2026)
+
+User request of 11 October 2026: batch per-character snapshot packets so a full scene holds over a real network. What was done, and what it showed.
+
+- **Done.** Motor states that are due are packed three to a state packet (wire kind `MotorBatch`; three is what fits the 1000-byte packet limit) instead of one packet each. The single-state kind is still accepted. `WorldSession::packets_sent` counts packets per peer.
+- **Measured** (CharacterCombatSceneTests, seventeen characters, loopback): about 30 server packets per tick, down from about 41. The motor share went from 17 packets to 6.
+- **What remains, and why batching is not the answer.** The session's own budget is 16 packets a tick. Most of the remaining 30 is one public ability frame per character per tick (a frame carries the motor state again plus public attributes, action state and tags, roughly half a packet each), plus effect frames and the collision stream. Packing those two to a packet would save perhaps eight more and still leave a full scene over budget, and 30 packets of up to 1000 bytes sixty times a second is far more than a real connection should carry in any case. A full scene works in loopback because every state stream retries what it could not send and the scene session pumps until the tick's state has arrived.
+- **What would fix it** (not built; it changes how the scene session and observers consume state, so it should be designed on its own): send remote characters' public state at a lower rate than the simulation (the observer already buffers and interpolates), send a character's public ability frame only when something other than its clock changed, and stop repeating the motor state inside the public frame. That also means the scene session must stop requiring every character's public frame on the same tick as the owner's correction.
+
+All 40 verify gates pass (the two-guard gate now accepts two or more guards, because the user's own uncommitted combat scene has three); CTest shows only the five known unrelated failures.

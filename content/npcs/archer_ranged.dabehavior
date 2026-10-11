@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "kind": "behavior",
+  "asset": "7d0b6c1e-3a52-4f0b-9a44-2f6f6f0c51a1",
+  "name": "Archer Ranged",
+  "tree": {
+    "type": "selector",
+    "children": [
+      {
+        "type": "sequence",
+        "children": [
+          {
+            "type": "opponent_alive"
+          },
+          {
+            "type": "in_range",
+            "range": 14.0
+          },
+          {
+            "type": "idle"
+          },
+          {
+            "type": "face"
+          },
+          {
+            "type": "attack",
+            "slot": "ranged_light"
+          },
+          {
+            "type": "recover",
+            "ticks": 120
+          }
+        ]
+      },
+      {
+        "type": "sequence",
+        "children": [
+          {
+            "type": "opponent_alive"
+          },
+          {
+            "type": "approach",
+            "range": 14.0
+          }
+        ]
+      }
+    ]
+  }
+}

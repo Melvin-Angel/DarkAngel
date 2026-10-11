@@ -33,3 +33,14 @@ Stage 3 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md) (user decision 5: re
 - A fast projectile is one sphere sweep per tick, so it cannot tunnel, but it resolves against where characters are at the end of the tick.
 - The owner does not predict the projectile, so under latency the arrow will appear late by the round trip. Not measured (GNS deferred).
 - A projectile whose source leaves the session is removed; one whose source died keeps flying and still hits.
+
+## NPC ranged attacks (11 October 2026)
+
+User request of 11 October 2026.
+
+- **Aim belongs to the session, not the controller.** A controller still only names a target and presses a slot. When the pressed ability is an aimed one, `CharacterSceneSession` points the actor from its muzzle at the body of the target latched with that press (the same latch the NPC soft lock uses), adds the drop a projectile will suffer on the way, and writes the yaw and pitch into the actor's motor input. From there the shot is the player's shot: confirmed pitch in the motor state, launch from the hit profile offset, authoritative flight and strike. No controller sets a pitch, so a behaviour tree needs nothing new: its `attack` leaf already accepts `ranged_light`.
+- **Content.** `content/npcs/royal_archer.danpc` (Royal Character and kit, 40 Health, faction `royal_guard`) with `content/npcs/archer_ranged.dabehavior`: within 14 m and idle it faces, presses the ranged slot and recovers 120 ticks; otherwise it approaches to 14 m. It is in the Place panel's NPC category like any other NPC.
+
+Verified: in CharacterCombatSceneTests an archer 10 m away looses exactly one arrow that hits the player for 20; with the player standing on a slab 3 m above it the arrow still hits; with a controller that names no target the shot is level and passes under the raised player. All 40 verify gates pass (the two-guard gate now accepts two or more guards, because the user's own uncommitted combat scene has three); CTest shows only the five known unrelated failures.
+
+Not verified, and limits: the aim is a straight line with a drop correction, with no lead for a moving target and no line-of-sight check before firing, so an archer shoots at walls between it and its target. The archer uses the player's bow animation and kit.

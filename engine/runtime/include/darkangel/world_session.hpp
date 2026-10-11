@@ -92,6 +92,8 @@ public:
     void acknowledge_collision(std::uint64_t tick);
     bool collision_control_ready()const;
     CollisionStreamDiagnostics collision_diagnostics(ConnectionHandle)const;
+    // Packets this session has handed to the transport for a peer, for budget measurements.
+    std::uint64_t packets_sent(ConnectionHandle)const;
     const World& world() const;
     const std::map<std::uint64_t,ObjectData>& objects() const;
     std::uint64_t revision() const;

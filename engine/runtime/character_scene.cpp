@@ -163,6 +163,15 @@ struct CharacterSceneSession::Impl {
         else if(const auto* other=find(*actor.locked))if(server.objects().at(other->id).health.current>0)result.push_back({other->id,other->motor->state().position});
         return result;
     }
+    // Shared aim for NPCs: an aimed ability points from its muzzle at the body of the target the controller chose for this action,
+    // raised by the drop a projectile will suffer on the way. The controller only chooses the target and presses the slot.
+    void aim_actor(const Actor& actor,const AbilityDefinition& ability,MotorInput& command)const{
+        if(!ability.aim||ability.melee.empty())return;const auto candidates=locked_candidates(actor);if(candidates.empty())return;
+        const auto& self=actor.motor->state();const auto& goal=candidates.front().position;MotorState turned=self;turned.yaw=std::atan2(goal.x-self.position.x,goal.z-self.position.z);const auto muzzle=melee_origin(turned,ability.melee.front());
+        const double dx=goal.x-muzzle.x,dz=goal.z-muzzle.z,level=std::hypot(dx,dz);if(level<.3)return;double height=goal.y+1.0-muzzle.y;
+        if(ability.aim->projectile){const double seconds=level/ability.aim->projectile->speed;height+=.5*ability.aim->projectile->gravity*seconds*seconds;}
+        command.yaw=std::atan2(dx,dz);command.pitch=std::clamp(std::atan2(height,level),-1.4,1.4);
+    }
     // Controller seam: an actor's controller sees a bounded view of authoritative state as it stood before this tick and asks for
     // move, face and a slot press. Activation, cost, cooldown, hits and effects are the ordinary authoritative ability path.
     std::shared_ptr<const AbilityDefinition> actor_ability(const Actor& actor,CombatSlot slot)const{if(!actor.config->kit)return {};const auto wanted=actor.config->kit->slots[static_cast<unsigned>(slot)].ability;if(wanted==AssetId{})return {};for(const auto& ability:actor.config->abilities)if(ability->id==wanted)return ability;return {};}
@@ -215,7 +224,7 @@ struct CharacterSceneSession::Impl {
             for(std::size_t index=0;index<actors.size();++index)actor_requested[index]=actors[index].config->controller&&drive_controller(actors[index],tick,actor_commands[index]);
             auto before=server.ability_snapshot(ability_owner);for(std::size_t index=0;index<actors.size();++index)actor_before[index]=server.ability_snapshot(actors[index].owner);
             server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
-            for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];if(actor.config->kit)actor_motions[index]=action_motion(actor_before[index],server.ability_snapshot(actor.owner),updates,actor_commands[index],actor.motor->state().yaw,bool(actor_requested[index]));if(restricted(actor.owner,actor.id))restrict(actor_commands[index],actor_motions[index]);
+            for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];if(actor.config->kit){const auto now=server.ability_snapshot(actor.owner);if(now.active)aim_actor(actor,definition(now),actor_commands[index]);actor_motions[index]=action_motion(actor_before[index],now,updates,actor_commands[index],actor.motor->state().yaw,bool(actor_requested[index]));}if(restricted(actor.owner,actor.id))restrict(actor_commands[index],actor_motions[index]);
                 // Shared soft lock: an NPC's only candidate is the live target its controller chose for this action.
                 if(!server.ability_snapshot(actor.owner).active&&!actor_requested[index])actor.locked.reset();
                 {const auto candidates=locked_candidates(actor);lock(actor_motions[index],actor.motor->state(),actor_commands[index],candidates);}}}
@@ -302,6 +311,7 @@ unsigned CharacterSceneSession::loadout()const{auto found=impl_->client.ability_
 std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*impl_;if(p.combat&&p.soft_lock_tick&&p.soft_lock_tick==p.authoritative.tick())for(const auto& actor:p.actors)if(actor.id==p.soft_lock_actor)return actor.identity;return std::nullopt;}
 std::span<const StableId> CharacterSceneSession::actors()const{return impl_->actor_identities;}
 const std::vector<ProjectileView>& CharacterSceneSession::projectiles()const{return impl_->client.projectiles();}
+std::uint64_t CharacterSceneSession::server_packets()const{return impl_->server.packets_sent(impl_->host_peer);}
 AimSolution CharacterSceneSession::aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const{
     const auto& p=*impl_;const double length=std::sqrt(direction.x*direction.x+direction.y*direction.y+direction.z*direction.z);
     require(std::isfinite(camera.x)&&std::isfinite(camera.y)&&std::isfinite(camera.z)&&std::isfinite(length)&&length>1e-6&&std::isfinite(range)&&range>0&&range<=200&&std::isfinite(muzzle.x)&&std::isfinite(muzzle.y)&&std::isfinite(muzzle.z),"Aim ray bounds");
