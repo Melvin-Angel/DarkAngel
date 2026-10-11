@@ -84,6 +84,18 @@ Not verified, or not built:
 - Vertical separation is a coarse gate (height difference within `range`); no line-of-sight check. Hits still come only from the authoritative melee query, so this affects the assist, not damage.
 - Physical pointer/controller input; the exercise is scripted input through the input profile.
 
-## Next slice: crosshair aim
+## Next slice: crosshair aim (plan revised 11 October 2026 after tracing the code)
 
-Add the aim payload to `AbilityIntent` and `ability_wire.cpp` (bounded direction, protocol bump, rejected when the ability has no aim mode), a server-side ray from server actor state, `mode: "aim"` in the cooker and form, a crosshair on the HUD while an aim camera is live, and a first consumer in item 2 (ranged/projectile). This changes shared wire code, so plan one full rebuild and CTest for it.
+Proposed change to the design above: do not add an aim payload to `AbilityIntent`. The aim direction is continuous look input, and the commanded yaw already travels in `MotorInput` on every tick, is validated by the server, kept in the owner's input history and replayed. With the Aim camera live the character already faces the camera yaw. So:
+
+- Horizontal aim needs no wire change: the server takes the aim direction from the actor's own yaw at the hit tick.
+- Vertical aim adds one bounded `pitch` to `MotorInput` (and its codec in `world_session.cpp`), which gives authority, prediction and replay the same value through the existing motor path. The client never sends a point or a target; ground-snapped AOE is the server's own ray against its own collision from that direction.
+- Known limit to state when it lands: the ray starts at the server's actor (authored eye/muzzle offset), not at the camera, so a third-person crosshair has parallax at close range.
+
+Work for the slice, as one chunk with item 2 (ranged abilities), because aim is not observable without a consumer:
+
+1. `targeting.mode: "aim"` with `range` in the cooker, freeze validation and the Ability form.
+2. A ranged hit profile: `AbilityMelee` gains a sweep length (or a sibling ray profile) and `PhysicsMeleeQuery::query` sweeps the sphere along the facing with `PhysicsWorld::sweep`; damage and effects go through the existing evaluator and bindings.
+3. Owned content: a bow-shot ability from the converted Blink clip on a ranged slot of the Royal kit (check how the ranged slots are routed with the `combat.ranged` modifier before binding).
+4. HUD crosshair while an aim camera is live.
+5. Then `pitch` in `MotorInput` and the server ray using it.

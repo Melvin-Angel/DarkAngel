@@ -21,7 +21,7 @@ div { display: block; }
 </head>
 <body data-model="hud">
 <div id="target" class="panel" data-if="has_target">
-	<div class="caption">Target</div>
+	<div id="target-name" class="caption">{{target_name}}</div>
 	<div id="target-bar" class="bar"><div id="target-fill" class="fill enemy" data-style-width="target_percent + '%'"></div><div id="target-text" class="label">{{target_text}}</div></div>
 	<div id="lock" class="lock" data-if="target_locked">Locked on</div>
 </div>

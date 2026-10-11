@@ -16,6 +16,8 @@ struct HudViewModel {
     std::string mask;
     // The owner is soft-locked onto the target on this tick.
     bool target_locked{};
+    // Display name of the target actor; the HUD shows a generic caption when empty.
+    std::string target_name;
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

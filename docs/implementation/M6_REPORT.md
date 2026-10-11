@@ -44,6 +44,39 @@ Track B item 1, first slice: the source type, its frozen product and its authori
 - No behaviour, sensing, navigation or faction rules.
 - Physical pointer interaction with the form; the capture is a scripted editor run. "Create NPC" in the tab is exercised through the same authoring command in the test, not by clicking.
 
+## Increments 2 and 3: NPC on the combat target and the controller seam (11 October 2026)
+
+Built as one chunk and verified once, per the user's direction on testing.
+
+### What exists
+
+- **NPC on the combat target.** `CharacterSceneCombat::npc` (`CharacterSceneNpc`: kit, input semantics, abilities, resolved starting attributes, name, faction, generation). When set, the target's ability state uses the NPC's attributes and is equipped with the NPC's own kit; its public observer and effect views use the same schema. Its abilities must be in the prepared scene unions, which the session checks.
+- **Play preparation.** `load_character_preview` takes an optional target NPC: it loads the frozen NPC, requires its Character skin to match the scene's placed skin and its kit to share the Play kit's attribute schema and tag registry, adds its abilities, effects and clips to the prepared unions, and the target object starts from the NPC's Health. The NPC generation is part of the session fingerprint.
+- **Editor.** The NPC tab has "Place on the combat target for next fresh Play" (and its removal). The choice is editor state (`Controller::authoring_npc`, CLI `--target-npc <id>`), included in the Play roots. The HUD target panel shows the NPC's display name.
+- **Controller seam.** `actor_controller.hpp`: `ActorController::decide(ControllerView) -> ControllerCommand`. The view is a bounded copy of authoritative state (tick, own motor state, alive, busy, the opponent's motor state and alive). The command can ask for exactly what a player intent carries: a movement input, a facing, and a press of one kit slot. The session bounds-checks the command and runs it through the ordinary motor step and the server's checked ability request path. A press of a slot the actor's kit does not assign is refused as `Unassigned`; nothing a controller returns can bypass costs, cooldowns, requirements or hit resolution.
+- **The scripted attacker is now a controller.** `make_scripted_attacker` implements the old schedule behind the seam; `CharacterSceneCombat::attacker` remains as shorthand for it. The hard-coded `drive_attacker` is gone. No decision logic was added.
+
+### Decisions made here
+
+- Placement is an editor/Play setting, not scene data. Binding an NPC to a scene object belongs with spawn points and encounter volumes (later M6 scope), where it needs a scene schema decision.
+- The controller sees one opponent (the player). Multiple actors, perception and factions come with sensing in item 4.
+- A facing requested together with a press applies only if the press is accepted, which keeps the scripted attacker's behaviour bit-for-bit (it only turned when its attack started).
+
+### Verified (one pass for the chunk)
+
+- `CharacterCombatSceneTests`: an NPC target with its own kit (no Heavy) and attributes starts at Health 60 in authoritative and public state, takes three Light hits to 35, 10, 0; the scripted controller on the NPC's kit hits the player once (75) with no prediction disturbance; a scripted attack on a slot the NPC kit does not assign is rejected at construction; a test controller walks the NPC from 6 m to about 1.07 m using move and face requests and then attacks through the ordinary ability path, while its presses of the unassigned Heavy slot are refused by authority; owner prediction stays exact with no resynchronisation; an out-of-bounds controller command is rejected. All earlier scripted-attacker cases in this binary still pass unchanged.
+- `HudTests`: target name shown, generic caption when empty.
+- Fresh editor Play on D3D12 with `--target-npc <royal guard> --target-attacks light`: `Editor attacked tick=40 player_health=75 reaction_tick=14 ... hud_health=75/100 hud_target=60/60 hud_target_name=Royal_Guard`; capture `evidence/npc-target-d3d12.png` inspected (HUD shows "Royal Guard 60 / 60", the player is staggered at 75).
+- `python scripts/verify_effect_reaction.py`: 28 gates pass on this build. CTest: only the five known unrelated failures.
+
+### Not done, not verified
+
+- The owned Royal Guard still uses the Royal player kit; a distinct owned NPC kit is content work. The different-kit case is proven with a test kit.
+- An NPC with equipped masks as the target: the cooker and loader support it, Play preparation does not wear the mask model on the target or switch its loadouts.
+- The "Place on the combat target" button is exercised through the CLI path, not by clicking.
+- Controllers are native C++ only; nothing is authored. No navigation: the test controller walks in a straight line on flat ground.
+- Host/client over GNS (deferred with the rest of that qualification). The controller is server-side only by construction.
+
 ### Next step (track B)
 
-Place the Royal Guard as the combat target: `load_character_preview` gains an NPC role for the target (its own kit, abilities, attributes and `target_attributes` from `CookedNpc`), `CharacterSceneCombat` gains a target kit so the scripted attacker presses the NPC's kit rather than the player's, and the Royal scene names the NPC for its target placement. Then item 2, the controller seam: replace `drive_attacker` with a small server-side controller interface that requests the operations a player intent does.
+Item 3, navigation: check whether `recastnavigation` is installed in the build tree (dry-run rule from the autonomous prompt, additions only), then a Recast/Detour adapter, a cooked navmesh for the Royal scene collision, a path query, and a controller that follows the path to the player. The controller seam needs no change for this: a path follower is another `ActorController`.

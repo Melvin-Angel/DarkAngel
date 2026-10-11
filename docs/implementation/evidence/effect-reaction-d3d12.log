@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
 [39mViewport foreground pixels=862781 capture=C:\DarkAngel\docs\implementation\evidence\effect-reaction-d3d12.png
-Masked action frozen_generation=a856c1cb6a44abdf659d156aaeb93a157e072cde0d47f62023fc8c3e05661c51 locomotion_bound=3 total_bound=4
+Masked action frozen_generation=21ea9be79404da406b65ed4f43ad9885f7bf0d8f8fbb14f4986c7605dd821e1a locomotion_bound=3 total_bound=4
 Native heavy editor tick=30 target_health=60 stamina=80 pending=0
 Editor reaction effect_handle=2 onset=18 clip_tick=12 of 40 player_reaction=none effects=2
 DarkAngel editor rendered 30 frames with d3d12

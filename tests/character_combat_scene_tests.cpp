@@ -109,6 +109,50 @@ int main(){try{
         while(late->motor().tick<dodge_hit+60)late->step({});check(player_health(*late)==100,"The avoided hit window damaged the player later");
         check(authoring.serialize()==original,"Scripted attacker changed the authoring world");
     }
+    // NPC on the combat target (M6): its own kit and starting attributes, driven only through the controller seam.
+    {
+        const auto light_id=cooked.definition->slots[0].ability,heavy_id=cooked.definition->slots[1].ability;
+        auto guard_kit=std::make_shared<CombatKitDefinition>(*cooked.definition);guard_kit->slots[1].ability={};std::erase_if(guard_kit->effect_bindings,[&](const auto& binding){return binding.ability==heavy_id;});
+        CharacterSceneNpc guard;guard.kit=guard_kit;guard.input=cooked.input;for(const auto& ability:cooked.abilities)if(ability->id!=heavy_id)guard.abilities.push_back(ability);guard.attributes=combat.attributes;for(auto& attribute:guard.attributes)if(attribute.id==1||attribute.id==2)attribute.base=60;guard.name="Test Guard";guard.faction="royal_guard";guard.generation=std::string(64,'a');
+        auto placed=combat;placed.npc=guard;auto guarded=objects;guarded[1].health={60,60};
+        auto target_health=[&](const CharacterSceneSession& scene){return scene.presentation().read(scene.presentation().find(target.id)).health.current;};
+        auto player_health=[&](const CharacterSceneSession& scene){return scene.presentation().read(scene.presentation().find(player.id)).health.current;};
+        auto public_health=[&](const CharacterSceneSession& scene){for(const auto& value:scene.observer(target.id,double(scene.motor().tick)).frame.ability.attributes)if(value.id==2)return value.value;return -1.;};
+        {
+            // Same Character and ability execution as the player, different attributes: three Light hits defeat a 60 Health guard.
+            CharacterSceneSession scene(hello,guarded,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,placed);
+            scene.step({});check(target_health(scene)==60&&public_health(scene)==60&&player_health(scene)==100&&!scene.attacker_receipt(),"NPC target did not start from its own attributes, or acted without a controller");
+            CharacterSceneInput press;press.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};CharacterSceneInput release;release.combat_events={{8,InputEdge::Released,2000,0,0,false}};
+            for(unsigned attack=1;attack<=3;++attack){scene.step(press);scene.step(release);while(scene.motor().tick<70*attack)scene.step({});check(target_health(scene)==std::max(0.,60.-25*attack)&&public_health(scene)==target_health(scene),"Player hits did not reduce the NPC's own Health through authority");}
+            check(target_health(scene)==0&&scene.pending_prediction()==0,"NPC was not defeated by three Light hits");
+        }
+        {
+            // The scripted attacker is now one controller behind the seam and presses the NPC's own kit.
+            auto attacking=placed;attacking.attacker=CharacterSceneAttacker{CombatSlot::Light,10,120,3,true};auto away=guarded;away[1].transform.yaw=0;
+            CharacterSceneSession scene(hello,away,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,attacking);const auto baseline=scene.resynchronizations();
+            while(scene.motor().tick<70)scene.step({});check(scene.attacker_receipt()&&scene.attacker_receipt()->committed&&player_health(scene)==75&&target_health(scene)==60&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Scripted controller on the NPC kit did not hit the player once through authority");
+            auto unarmed=placed;unarmed.attacker=CharacterSceneAttacker{CombatSlot::Heavy,10,120,3,true};bool rejected=false;try{CharacterSceneSession invalid(hello,away,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,unarmed);}catch(const std::exception&){rejected=true;}check(rejected,"Scripted attacker accepted a slot the NPC kit does not assign");
+        }
+        {
+            // A controller asks for move, face and a slot press, the same operations a player intent carries.
+            struct Chaser final:ActorController {unsigned heavy_presses{};ControllerCommand decide(const ControllerView& view)override{
+                ControllerCommand command;if(!view.alive||!view.opponent||!view.opponent_alive)return command;const double dx=view.opponent->position.x-view.self.position.x,dz=view.opponent->position.z-view.self.position.z,distance=std::hypot(dx,dz);
+                command.face=std::atan2(dx,dz);if(distance>1.5){command.move_x=dx/distance;command.move_z=dz/distance;}else if(!view.busy)command.press=view.tick%2?CombatSlot::Light:(++heavy_presses,CombatSlot::Heavy);return command;}};
+            auto chaser=std::make_shared<Chaser>();auto hunted=placed;hunted.controller=chaser;auto far=guarded;far[1].transform.z=6;far[1].transform.yaw=0;
+            CharacterSceneSession scene(hello,far,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,hunted);const auto baseline=scene.resynchronizations();
+            while(scene.motor().tick<40)scene.step({});const auto walking=scene.observer(target.id,40).frame.motor;check(walking.position.z<5.5&&std::abs(std::remainder(walking.yaw-3.141592653589793,6.283185307179586))<.05&&player_health(scene)==100,"Controller move/face requests did not walk the NPC toward the player");
+            bool refused=false;while(scene.motor().tick<400&&player_health(scene)>0){scene.step({});if(scene.attacker_receipt()&&scene.attacker_receipt()->failure==AbilityFailure::Unassigned)refused=true;}
+            const auto arrived=scene.observer(target.id,double(scene.motor().tick)).frame.motor.position;
+            check(std::hypot(arrived.x-scene.motor().position.x,arrived.z-scene.motor().position.z)<2&&player_health(scene)<100&&target_health(scene)==60,"Controller did not close in and hit the player through the ordinary ability path");
+            check(chaser->heavy_presses>0&&refused,"A press of a slot the NPC kit does not assign was not refused by authority");
+            check(scene.pending_prediction()==0&&scene.resynchronizations()==baseline&&scene.pending_abilities()==0,"A controlled NPC disturbed owner prediction");
+            std::cout<<"NPC controller: walked 6 m -> "<<std::hypot(arrived.x-scene.motor().position.x,arrived.z-scene.motor().position.z)<<" m, player Health "<<player_health(scene)<<", refused unassigned presses\n";
+        }
+        {
+            struct Runaway final:ActorController {ControllerCommand decide(const ControllerView&)override{ControllerCommand command;command.move_x=5;return command;}};
+            auto broken=placed;broken.controller=std::make_shared<Runaway>();CharacterSceneSession scene(hello,guarded,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,broken);bool rejected=false;try{scene.step({});}catch(const std::exception&){rejected=true;}check(rejected,"An out-of-bounds controller command was accepted");
+        }
+    }
     // Melee soft lock on the owned Light: the targeting module proposes the target, the motor turns the swing and closes distance,
     // and authority, owner prediction and the hit query agree. A copy without targeting is the control.
     {
@@ -150,5 +194,5 @@ int main(){try{
         }
     }
     auto tag_registry=std::make_shared<const TagDictionary>(std::vector<TagDefinition>{{2,0,"State.Blocked",AttributeVisibility::Public}},AssetId::random(),std::string(64,'e'));auto tagged=*combat.abilities[0];tagged.tag_registry=tag_registry->registry();tagged.tag_generation=tag_registry->generation();tagged.requirements.none={2};combat.abilities={std::make_shared<const AbilityDefinition>(std::move(tagged))};combat.tags=tag_registry;auto tagged_kit=std::make_shared<CombatKitDefinition>(*combat.kit);for(auto& slot:tagged_kit->slots)if(slot.ability!=combat.abilities[0]->id)slot.ability={};tagged_kit->effects.clear();tagged_kit->effect_bindings.clear();combat.kit=std::move(tagged_kit);CharacterSceneSession tagged_scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);tagged_scene.step(pressed);check(tagged_scene.predicted_ability()->active&&tagged_scene.predicted_ability()->tags.registry==tag_registry->registry()&&tagged_scene.observer(player.id,1).frame.ability.tags.registry==tag_registry->registry(),"Scene prepares the same frozen tag registry for native authority, owner prediction and observer frames");
-    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
+    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, NPC target with its own kit/attributes and the controller seam (move, face, press, refusal), melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

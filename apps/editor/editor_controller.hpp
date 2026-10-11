@@ -28,6 +28,8 @@ public:
     std::unique_ptr<AssetService> assets;
     std::vector<AssetInfo> asset_inventory;
     NativeAuthoring authoring;AssetId authoring_kit,authoring_player;
+    // NPC definition placed on the combat target for the next fresh Play; empty keeps the plain training target.
+    AssetId authoring_npc;
     std::function<void()> prepare_play_resources;
     std::function<std::vector<AssetId>()> authoring_roots;
     std::function<void(AssetId)> prepare_model;

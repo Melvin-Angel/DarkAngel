@@ -1,2 +1,3 @@
+NPC controller: walked 6 m -> 1.06551 m, player Health 0, refused unassigned presses
 Soft lock closed 2.12132 -> 1.12787 m, predicted_error=0
-Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed
+Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, NPC target with its own kit/attributes and the controller seam (move, face, press, refusal), melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed

@@ -3,6 +3,7 @@
 #include <darkangel/collision_asset.hpp>
 #include <darkangel/ability_observer.hpp>
 #include <darkangel/world_session.hpp>
+#include <darkangel/actor_controller.hpp>
 
 namespace darkangel {
 struct ReactionSample;
@@ -12,6 +13,10 @@ struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vecto
 // while the player is alive and within range. Shared target behaviour for exercising
 // incoming hits; not an NPC controller or AI.
 struct CharacterSceneAttacker {CombatSlot slot{CombatSlot::Light};std::uint64_t first_tick{60},interval{150};double range{2.5};bool face_player{true};};
+// An NPC placed on the combat target: its own frozen kit, input semantics, abilities and
+// resolved starting attributes. Its abilities, effects and clips must also be in the
+// combat's prepared unions. Identity fields are presentation and fingerprint data only.
+struct CharacterSceneNpc {std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;std::vector<std::shared_ptr<const AbilityDefinition>> abilities;std::vector<AttributeDefinition> attributes;std::string name,faction,generation;};
 struct CharacterSceneCombat {
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
     std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};
@@ -31,6 +36,12 @@ struct CharacterSceneCombat {
     // Semantic input actions that select loadout slots 0-3 (zero = unbound).
     std::array<std::uint32_t,loadout_slot_count> loadout_actions{};
     std::optional<CharacterSceneAttacker> attacker;
+    // The target as an NPC with its own kit and attributes. Without it the target uses
+    // target_attributes and, when something controls it, borrows the scene kit.
+    std::optional<CharacterSceneNpc> npc;
+    // Server-side controller of the target. attacker above is shorthand for the scripted
+    // training controller and is ignored when a controller is supplied.
+    std::shared_ptr<ActorController> controller;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.

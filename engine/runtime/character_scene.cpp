@@ -15,7 +15,7 @@ struct CharacterSceneSession::Impl {
     ConnectionHandle host_peer,client_peer;
     PhysicsWorld authoritative;std::unique_ptr<PhysicsWorld> prediction=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);
     std::unique_ptr<CharacterMotor> host_motor,owner_motor,target_motor;
-    std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner,target_owner;std::shared_ptr<const AbilityDefinition> attacker_ability;std::uint64_t attacker_operation{1};std::optional<AbilityReceipt> attacker_receipt;std::uint64_t target{},next_operation{1};std::vector<InputEvent> pending_events;
+    std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner,target_owner;std::shared_ptr<ActorController> controller;std::uint64_t attacker_operation{1};std::optional<AbilityReceipt> attacker_receipt;std::uint64_t target{},next_operation{1};std::vector<InputEvent> pending_events;
     std::unique_ptr<OwnerPrediction> owner;
     std::unique_ptr<OwnerAbilityPrediction> ability_prediction;std::deque<MotorInput> semantic_commands;
     std::map<std::uint64_t,std::unique_ptr<ObserverAbility>> observers;
@@ -53,8 +53,12 @@ struct CharacterSceneSession::Impl {
         require(player,"Character scene player missing");authoritative.load_scene(collision);prediction->load_scene(collision);
         host_motor=std::make_unique<CharacterMotor>(authoritative,foot,player);owner_motor=std::make_unique<CharacterMotor>(*prediction,foot,player);
         if(combat){require(combat->kit&&target&&combat->evaluator&&(bool(combat->damage)||bool(combat->combat_damage)),"Combat scene requires frozen kit/target/game evaluator");validate_combat_kit(*combat->kit,combat->input);for(const auto& ability:combat->abilities){require(ability&&ability->action->motion,"Scene action requires a frozen clip");auto clip=combat->clips.at(ability->action->motion->clip.id);require(clip&&clip->definition().skeleton==rig.definition().id&&clip->definition().signature==rig.definition().signature&&clip->archive_generation()==ability->action->motion->archive_generation,"Scene action clip generation/rig mismatch");}
-            target_motor=std::make_unique<CharacterMotor>(authoritative,target_foot,target);auto state=target_motor->state();state.yaw=target_yaw;target_motor->restore(state);server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));if(combat->combat_damage)server.register_combat_evaluator(combat->evaluator,combat->combat_damage);else server.register_damage_evaluator(combat->evaluator,combat->damage);for(const auto& [id,evaluator]:combat->effect_evaluators)server.register_effect_evaluator(id,evaluator);ability_owner=server.configure_abilities(player,combat->attributes,combat->health,combat->maximum_health);target_owner=server.configure_abilities(target,combat->target_attributes.empty()?combat->attributes:combat->target_attributes,combat->health,combat->maximum_health);if(combat->tags){server.configure_ability_tags(ability_owner,combat->tags);server.configure_ability_tags(target_owner,combat->tags);}if(combat->loadouts.empty())server.equip_combat_kit(ability_owner,combat->kit,combat->input,combat->abilities);else{require(combat->loadouts.size()==loadout_slot_count&&combat->active_loadout<loadout_slot_count&&combat->loadouts[combat->active_loadout],"Scene loadouts need four slots and an equipped active slot");server.configure_ability_loadouts(ability_owner,combat->loadouts,combat->active_loadout);}
-            if(combat->attacker){const auto& script=*combat->attacker;require(static_cast<unsigned>(script.slot)<combat_slot_count&&script.first_tick&&script.interval&&std::isfinite(script.range)&&script.range>=0,"Scripted attacker schedule bounds");const auto wanted=combat->kit->slots[static_cast<unsigned>(script.slot)].ability;for(const auto& ability:combat->abilities)if(ability->id==wanted)attacker_ability=ability;require(bool(attacker_ability),"Scripted attacker slot has no ability in the scene kit");server.equip_combat_kit(target_owner,combat->kit,combat->input,combat->abilities);}
+            target_motor=std::make_unique<CharacterMotor>(authoritative,target_foot,target);auto state=target_motor->state();state.yaw=target_yaw;target_motor->restore(state);server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));if(combat->combat_damage)server.register_combat_evaluator(combat->evaluator,combat->combat_damage);else server.register_damage_evaluator(combat->evaluator,combat->damage);for(const auto& [id,evaluator]:combat->effect_evaluators)server.register_effect_evaluator(id,evaluator);ability_owner=server.configure_abilities(player,combat->attributes,combat->health,combat->maximum_health);target_owner=server.configure_abilities(target,target_schema(),combat->health,combat->maximum_health);if(combat->tags){server.configure_ability_tags(ability_owner,combat->tags);server.configure_ability_tags(target_owner,combat->tags);}if(combat->loadouts.empty())server.equip_combat_kit(ability_owner,combat->kit,combat->input,combat->abilities);else{require(combat->loadouts.size()==loadout_slot_count&&combat->active_loadout<loadout_slot_count&&combat->loadouts[combat->active_loadout],"Scene loadouts need four slots and an equipped active slot");server.configure_ability_loadouts(ability_owner,combat->loadouts,combat->active_loadout);}
+            // The target is equipped when it is an NPC (its own kit) or when something controls it (the scene kit).
+            if(combat->npc){validate_combat_kit(*combat->npc->kit,combat->npc->input);for(const auto& ability:combat->npc->abilities)require(std::any_of(combat->abilities.begin(),combat->abilities.end(),[&](const auto& known){return known->id==ability->id&&known->generation==ability->generation;}),"NPC ability is not in the prepared scene abilities");AttributeSet(combat->npc->attributes);server.equip_combat_kit(target_owner,combat->npc->kit,combat->npc->input,combat->npc->abilities);}
+            if(combat->attacker){const auto& script=*combat->attacker;require(static_cast<unsigned>(script.slot)<combat_slot_count&&script.first_tick&&script.interval&&std::isfinite(script.range)&&script.range>=0,"Scripted attacker schedule bounds");require(bool(target_ability(script.slot)),"Scripted attacker slot has no ability in the scene kit");}
+            controller=combat->controller;if(!controller&&combat->attacker)controller=make_scripted_attacker({combat->attacker->slot,combat->attacker->first_tick,combat->attacker->interval,combat->attacker->range,combat->attacker->face_player});
+            if(controller&&!combat->npc)server.equip_combat_kit(target_owner,combat->kit,combat->input,combat->abilities);
             server.publish_motor(target,target_motor->state());server.drain_ability_actions();}
         auto host_state=host_motor->state();host_state.topology=authoritative.topology();host_state.yaw=yaw;host_motor->restore(host_state);auto owner_state=owner_motor->state();owner_state.yaw=yaw;owner_motor->restore(owner_state);
         owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_geometry=prediction->capture().meshes;
@@ -63,7 +67,7 @@ struct CharacterSceneSession::Impl {
         for(unsigned work=0;work<32&&(!client.motors().contains(player)||!client.collision_control_ready()||(combat&&(!client.ability_corrections().contains(player)||!client.public_abilities().contains(player)||!client.public_abilities().contains(target))));++work)pump();
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags,combat->loadouts);}
-        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);for(auto id:{player,target}){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(id==player||combat->target_attributes.empty()?combat->attributes:combat->target_attributes,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(id==player||combat->target_attributes.empty()?combat->attributes:combat->target_attributes),combat->tags,combat->effects));}}
+        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);for(auto id:{player,target}){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(id==player?combat->attributes:target_schema(),combat->health,combat->maximum_health,actions,combat->tags);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(id==player?combat->attributes:target_schema()),combat->tags,combat->effects));}}
             action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),actions);reactions=std::make_unique<ReactionPresentation>(rig.definition(),combat->effects,combat->clips);if(combat->death)player_death=std::make_unique<DeathPresentation>(rig.definition(),combat->death,combat->clips);target_pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),archive,actions,combat->clips,combat->tags,combat->effects,combat->death);target_pose->sample(observers.at(target)->sample(0).frame,effect_frame(target));
         }
         GraphParameters initial_parameters;if(graph.tag_dictionary())initial_parameters.tags=&client.ability_corrections().at(player).ability.tags;
@@ -134,19 +138,28 @@ struct CharacterSceneSession::Impl {
     static std::optional<std::uint64_t> lock(MotionRequest& request,const MotorState& state,const MotorInput& command,std::span<const TargetCandidate> candidates){
         if(!request.warp.active)return std::nullopt;if(auto chosen=select_soft_lock(request.warp,state,command,candidates)){request.warp.point=chosen->position;return chosen->id;}request.warp={};return std::nullopt;
     }
-    // Scripted training attacker: a server-owned press of one kit slot on a fixed schedule.
-    // Activation, cost, cooldown, hits and effects are the ordinary authoritative ability path.
-    bool drive_attacker(std::uint64_t tick,MotorInput& command){
-        const auto& script=*combat->attacker;if(tick<script.first_tick||(tick-script.first_tick)%script.interval)return false;
-        if(server.objects().at(player).health.current<=0||server.objects().at(target).health.current<=0)return false;
-        const auto& from=target_motor->state().position;const auto& to=host_motor->state().position;const double dx=to.x-from.x,dz=to.z-from.z,distance=std::hypot(dx,dz);
-        if(script.range>0&&distance>script.range)return false;
-        auto snapshot=server.ability_snapshot(target_owner);if(snapshot.active)return false;
-        require(attacker_operation!=UINT64_MAX,"Scripted attacker operation identity exhausted");if(attacker_operation>1)server.retire_ability_operations(target_owner,attacker_operation-1);
-        const auto& slot=combat->kit->slots[static_cast<unsigned>(script.slot)];
-        attacker_receipt=server.request_ability({target_owner,attacker_operation++,snapshot.grant_generation,script.slot,{slot.input_action,attacker_ability->activate_on,tick*16667,attacker_ability->minimum_held_us,1,false},false});
-        if(attacker_receipt->failure!=AbilityFailure::None)return false;
-        if(script.face_player&&distance>1e-6)command.yaw=std::atan2(dx,dz);return true;
+    // Controller seam: the target's controller sees a bounded view of authoritative state and asks for
+    // move, face and a slot press. Activation, cost, cooldown, hits and effects are the ordinary authoritative ability path.
+    const CombatKitDefinition& target_kit()const{return combat->npc?*combat->npc->kit:*combat->kit;}
+    const std::vector<AttributeDefinition>& target_schema()const{return combat->npc?combat->npc->attributes:combat->target_attributes.empty()?combat->attributes:combat->target_attributes;}
+    std::shared_ptr<const AbilityDefinition> target_ability(CombatSlot slot)const{const auto wanted=target_kit().slots[static_cast<unsigned>(slot)].ability;if(wanted==AssetId{})return {};for(const auto& ability:combat->npc?combat->npc->abilities:combat->abilities)if(ability->id==wanted)return ability;return {};}
+    bool drive_controller(std::uint64_t tick,MotorInput& command){
+        ControllerView view;view.tick=tick;view.self=target_motor->state();view.opponent=host_motor->state();view.alive=server.objects().at(target).health.current>0;view.opponent_alive=server.objects().at(player).health.current>0;
+        auto snapshot=server.ability_snapshot(target_owner);view.busy=bool(snapshot.active);
+        const auto decision=controller->decide(view);
+        require(std::isfinite(decision.move_x)&&std::isfinite(decision.move_z)&&decision.move_x*decision.move_x+decision.move_z*decision.move_z<=1.00001&&(!decision.face||std::isfinite(*decision.face))&&(!decision.press||static_cast<unsigned>(*decision.press)<combat_slot_count),"Controller command bounds");
+        command.x=decision.move_x;command.z=decision.move_z;bool pressed=false;
+        if(decision.press){
+            require(attacker_operation!=UINT64_MAX,"Controller operation identity exhausted");
+            if(const auto ability=target_ability(*decision.press)){
+                if(attacker_operation>1)server.retire_ability_operations(target_owner,attacker_operation-1);
+                const auto& slot=target_kit().slots[static_cast<unsigned>(*decision.press)];
+                attacker_receipt=server.request_ability({target_owner,attacker_operation++,snapshot.grant_generation,*decision.press,{slot.input_action,ability->activate_on,tick*16667,ability->minimum_held_us,1,false},false});
+            }else{AbilityReceipt refused;refused.failure=AbilityFailure::Unassigned;refused.tick=tick;attacker_receipt=refused;}
+            pressed=attacker_receipt->failure==AbilityFailure::None;
+        }
+        if(decision.face&&(!decision.press||pressed))command.yaw=std::remainder(*decision.face,6.283185307179586);
+        validate_motor_input(command);return pressed;
     }
     MotionRequest predicted_motion(const AbilityPredictionMotion& predicted,MotorInput& command)const{
         const auto& v=predicted.local.root.translation;const auto yaw=command.yaw;command.yaw=std::remainder(yaw+predicted.local.root.yaw,6.283185307179586);MotionRequest request;request.root={std::cos(yaw)*v[0]+std::sin(yaw)*v[2],v[1],-std::sin(yaw)*v[0]+std::cos(yaw)*v[2]};request.action=predicted.activation;request.lock=predicted.local.movement_lock;request.warp=predicted.warp;return request;
@@ -168,8 +181,8 @@ struct CharacterSceneSession::Impl {
         server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
         auto accepted=server.consume_motor(player,tick,command.epoch);
         MotorInput target_command{tick,tick,target_motor?target_motor->state().epoch:1,0,0,target_motor?target_motor->state().yaw:0};MotionRequest target_motion;
-        if(combat){const bool requested=combat->attacker&&drive_attacker(tick,target_command);auto before=server.ability_snapshot(ability_owner),target_before=server.ability_snapshot(target_owner);server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
-            if(combat->attacker)target_motion=action_motion(target_before,server.ability_snapshot(target_owner),updates,target_command,target_motor->state().yaw,requested);if(restricted(target_owner,target))restrict(target_command,target_motion);target_motion.warp={};}
+        if(combat){const bool requested=controller&&drive_controller(tick,target_command);auto before=server.ability_snapshot(ability_owner),target_before=server.ability_snapshot(target_owner);server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
+            if(controller)target_motion=action_motion(target_before,server.ability_snapshot(target_owner),updates,target_command,target_motor->state().yaw,requested);if(restricted(target_owner,target))restrict(target_command,target_motion);target_motion.warp={};}
         owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
         host_motor->step(accepted,authoritative_motion);if(target_motor)target_motor->step(target_command,target_motion);authoritative.step();host_motor->post_physics();if(target_motor)target_motor->post_physics();authoritative.finish_tick();
         auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());if(target_motor){server.publish_motor(target,target_motor->state());server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}server.publish_collision(collision_stream(frame));pump();
@@ -201,6 +214,21 @@ struct CharacterSceneSession::Impl {
 
     }
 };
+namespace {
+class ScriptedAttacker final:public ActorController {
+public:
+    explicit ScriptedAttacker(ScriptedAttack script):script_(script){}
+    ControllerCommand decide(const ControllerView& view)override{
+        if(view.tick<script_.first_tick||(view.tick-script_.first_tick)%script_.interval)return {};
+        if(!view.alive||!view.opponent||!view.opponent_alive)return {};
+        const double dx=view.opponent->position.x-view.self.position.x,dz=view.opponent->position.z-view.self.position.z,distance=std::hypot(dx,dz);
+        if((script_.range>0&&distance>script_.range)||view.busy)return {};
+        ControllerCommand command;command.press=script_.slot;if(script_.face_opponent&&distance>1e-6)command.face=std::atan2(dx,dz);return command;
+    }
+private:ScriptedAttack script_;
+};
+}
+std::shared_ptr<ActorController> make_scripted_attacker(ScriptedAttack script){require(static_cast<unsigned>(script.slot)<combat_slot_count&&script.first_tick&&script.interval&&std::isfinite(script.range)&&script.range>=0,"Scripted attacker schedule bounds");return std::make_shared<ScriptedAttacker>(script);}
 CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,std::span<const ObjectData> objects,StableId player,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat)
     :impl_(std::make_unique<Impl>(std::move(hello),objects,player,collision,std::move(plan),std::move(rig),archive,std::move(combat))){}
 CharacterSceneSession::~CharacterSceneSession()=default;

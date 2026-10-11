@@ -40,6 +40,6 @@ private:AnimationGraphInstance graph_;RigPose pose_;GraphPoseInputs inputs_;Grap
 };
 struct AuthoredGraphPose {CookedCharacter character;CookedGraph graph;std::unique_ptr<GraphPosePreview> pose;};
 AuthoredGraphPose prepare_authored_graph_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId graph);
-CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},StableId target={},AssetId collision={});
+CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},StableId target={},AssetId collision={},AssetId target_npc={});
 std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&);
 }
