@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "kind": "ability",
+  "asset": "19a17d21-ad2c-47f4-9160-efa9b7aa096b",
+  "action": "5f0cf79f-9e1d-4928-b126-0c62c5dae648",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "sources": {
+    "action": "royal_district/combat/bow.daaction",
+    "attributes": "royal_district/combat/base.daattributes"
+  },
+  "costs": [
+    {
+      "attribute": 3,
+      "amount": 10
+    }
+  ],
+  "cooldown_group": 4,
+  "cooldown_ticks": 60,
+  "activate_on": "pressed",
+  "minimum_held_us": 0,
+  "cancel_on_release": false,
+  "interruptible": true,
+  "melee": [
+    {
+      "block": 2,
+      "offset": [
+        0,
+        1.3,
+        0.6
+      ],
+      "radius": 0.25,
+      "power": 20,
+      "evaluator": 1,
+      "damage_type": 1
+    }
+  ],
+  "targeting": {
+    "mode": "aim",
+    "range": 20.0
+  }
+}

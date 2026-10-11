@@ -1,0 +1,40 @@
+{
+  "schema": 2,
+  "kind": "action",
+  "asset": "5f0cf79f-9e1d-4928-b126-0c62c5dae648",
+  "duration": 59392,
+  "loops": 1,
+  "priority": 10,
+  "slot": "full-body",
+  "blocks": [
+    {
+      "id": 1,
+      "track": 0,
+      "begin": 0,
+      "end": 0,
+      "kind": "cue",
+      "key": "Attack.Start"
+    },
+    {
+      "id": 2,
+      "track": 1,
+      "begin": 30720,
+      "end": 34816,
+      "kind": "hit",
+      "key": "Projectile.Arrow"
+    },
+    {
+      "id": 3,
+      "track": 2,
+      "begin": 0,
+      "end": 59392,
+      "kind": "movement-lock",
+      "key": "Motor.Root"
+    }
+  ],
+  "motion": {
+    "clip": "7271fb88-ef0f-4aca-82bc-aab016829579",
+    "source": "animation/blink/bow-shot.glb",
+    "policy": "none"
+  }
+}

@@ -15,6 +15,9 @@ struct AbilityActionTag {unsigned block{};TagId tag{};};
 struct AbilityMelee {
     unsigned block{};std::array<double,3> offset{};double radius{},power{};
     std::uint32_t evaluator{},damage_type{};
+    // Metres the sphere travels along the facing from its offset; zero is the classic
+    // overlap. A swept profile is a ranged shot and stops at the first actor it meets.
+    double sweep{};
 };
 // Authored forward travel in metres over an action-clock window, requested from the
 // motor as ordinary root movement along the actor's facing. Collision, achieved
@@ -24,6 +27,10 @@ struct AbilityDash {double distance{};unsigned begin{},end{};};
 // the actor turns toward an acceptable nearby target (range, cone half angle in radians) and
 // may close up to `distance` metres on it, never inside `stop`. The targeting module
 // proposes the target; the motor resolves the warp. Not a hard lock-on.
+// Crosshair aim (targeting mode "aim"): the ability's hit profiles travel up to `range`
+// along the actor's facing, which is the aim direction while an aim camera is live. The
+// direction is the commanded yaw the server already validates; no client hit data.
+struct AbilityAim {double range{};};
 struct AbilitySoftLock {double range{},cone{},stop{},distance{};unsigned begin{},end{};};
 struct AbilityDefinition {
     AssetId id;std::string generation;
@@ -39,6 +46,7 @@ struct AbilityDefinition {
     bool face_movement{};
     std::optional<AbilityDash> dash;
     std::optional<AbilitySoftLock> soft_lock;
+    std::optional<AbilityAim> aim;
     AssetId tag_registry;std::string tag_generation;TagRequirement requirements;
     // Typed interval bindings. Their contribution belongs to this execution.
     std::vector<AbilityActionTag> action_tags;

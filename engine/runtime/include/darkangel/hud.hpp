@@ -18,6 +18,8 @@ struct HudViewModel {
     bool target_locked{};
     // Display name of the target actor; the HUD shows a generic caption when empty.
     std::string target_name;
+    // Screen-centre crosshair, shown while an aim camera is live.
+    bool crosshair{};
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

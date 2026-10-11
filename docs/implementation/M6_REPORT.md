@@ -77,6 +77,33 @@ Built as one chunk and verified once, per the user's direction on testing.
 - Controllers are native C++ only; nothing is authored. No navigation: the test controller walks in a straight line on flat ground.
 - Host/client over GNS (deferred with the rest of that qualification). The controller is server-side only by construction.
 
+## Increment 4: navigation (11 October 2026)
+
+Track B item 3, built in one chunk with crosshair aim and verified once.
+
+### Dependency
+
+`recastnavigation 1.6.0` was not installed in the build tree. Following the standing rule, a dry run with the manifest step's arguments (`x64-windows-darkangel`, the overlay ports, the build tree's `vcpkg_installed`, the recorded buildtrees root, features `m1;m2;m3;m4;m5-ui` plus a new `m6-nav`) listed every existing package as already installed and exactly one package to build. Only then was it installed (14 seconds; the log shows that one build). `vcpkg.json` gained the small `m6-nav` feature, and the `m5-editor-relwithdebinfo` preset and the build directory's cached feature list name it so the records agree with the tree. `VCPKG_MANIFEST_INSTALL=OFF` is still set. CMake looks for the package quietly and builds navigation only where it is installed.
+
+### What exists
+
+- `navigation.hpp` / `navigation.cpp`, library `DarkAngelNavigation`: `NavigationMesh` builds one Recast/Detour mesh from a `CollisionDefinition`'s static boxes and triangle meshes (moving, dynamic and sensor boxes are left out) with agent settings that fit the standing motor, and answers `path(from, to)` with the corner points of a complete path, or nothing when an end is off the mesh or no complete path exists.
+- `make_path_follower`: a controller behind the seam that asks the mesh for a path to its opponent every 15 ticks, walks it corner by corner with ordinary move and face requests, and in reach presses its attack slot no more often than the attack interval. Movement and collision stay with the motor; the path is advice.
+- Editor: `--target-navigates` builds the mesh from the collision the Play session will actually simulate and gives the target this controller.
+
+### Verified
+
+- `NavigationTests` (CTest `M6.navigation`): on a floor with a wall across the middle the path goes around the wall end (5 corners, 11.1 m against a 6 m straight line) and no corner lies inside the wall; an unobstructed path is the straight line; points off the mesh give no path; a scene without static collision, and moving collision, are rejected. In a session, a straight-line controller stays behind the wall (control) while the path follower walks around it (widest x 4.4 m), arrives at tick 119 and lands one authoritative Light hit at tick 138, with owner prediction undisturbed.
+- Fresh editor Play on D3D12 with the Royal Guard as target and `--target-navigates`: `Editor attacked tick=60 player_health=75 ... nav_polygons=52 hud_health=75/100 hud_target=60/60 hud_target_name=Royal_Guard`. The mesh is built from the Royal scene's cooked mesh collision (52 polygons).
+- `python scripts/verify_effect_reaction.py`: all gates pass on this build (31, including `navigation`, `ranged-d3d12` and `npc-navigates-d3d12`). CTest: only the five known unrelated failures.
+
+### Not done, not verified
+
+- The mesh is baked at Play preparation, not cooked as an asset product, and has no generation identity. The M6 gate "unloaded nav invalidates queries" needs a cooked, per-cell product; this is one static mesh for the whole scene.
+- In the Royal scene the target starts next to the player, so the editor run proves the mesh builds from real scene collision and the controller attacks, not a long walk. The walk around an obstacle is proven in the test scene.
+- No dynamic obstacles, no off-mesh links, no crowd avoidance, no vertical/multi-level check beyond what Recast gives by default.
+- One agent profile; settings are not authored.
+
 ### Next step (track B)
 
-Item 3, navigation: check whether `recastnavigation` is installed in the build tree (dry-run rule from the autonomous prompt, additions only), then a Recast/Detour adapter, a cooked navmesh for the Royal scene collision, a path query, and a controller that follows the path to the player. The controller seam needs no change for this: a path follower is another `ActorController`.
+Item 4: the BT.CPP executor adapter. `behaviortree-cpp 4.9.1` is pinned in `vcpkg.json` but not installed, so start with the same dry run (it brings its own dependencies; proceed only if the plan is additions alone). Then JSON tree topology, a first tree (acquire target, approach to preferred range, attack, recover) whose leaves call the same controller command, with blackboard and sensing kept native. The path follower's logic becomes the "approach" leaf.

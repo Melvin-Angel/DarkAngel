@@ -84,18 +84,36 @@ Not verified, or not built:
 - Vertical separation is a coarse gate (height difference within `range`); no line-of-sight check. Hits still come only from the authoritative melee query, so this affects the assist, not damage.
 - Physical pointer/controller input; the exercise is scripted input through the input profile.
 
-## Next slice: crosshair aim (plan revised 11 October 2026 after tracing the code)
+## Slice 2: crosshair aim and the first ranged ability (11 October 2026)
 
-Proposed change to the design above: do not add an aim payload to `AbilityIntent`. The aim direction is continuous look input, and the commanded yaw already travels in `MotorInput` on every tick, is validated by the server, kept in the owner's input history and replayed. With the Aim camera live the character already faces the camera yaw. So:
+Built in one chunk with navigation and verified once.
 
-- Horizontal aim needs no wire change: the server takes the aim direction from the actor's own yaw at the hit tick.
-- Vertical aim adds one bounded `pitch` to `MotorInput` (and its codec in `world_session.cpp`), which gives authority, prediction and replay the same value through the existing motor path. The client never sends a point or a target; ground-snapped AOE is the server's own ray against its own collision from that direction.
-- Known limit to state when it lands: the ray starts at the server's actor (authored eye/muzzle offset), not at the camera, so a third-person crosshair has parallax at close range.
+Design change from the top of this report, made after tracing the code: there is no aim payload on `AbilityIntent`. The aim direction is continuous look input, and the commanded yaw already travels in `MotorInput` on every tick, is validated by the server, kept in the owner's input history and replayed. With the Aim camera live the character already faces the camera yaw. So horizontal aim needs no wire change: the server takes the aim direction from the actor's own facing at the hit tick, and the client never sends a direction, point or target for an ability.
 
-Work for the slice, as one chunk with item 2 (ranged abilities), because aim is not observable without a consumer:
+What exists:
 
-1. `targeting.mode: "aim"` with `range` in the cooker, freeze validation and the Ability form.
-2. A ranged hit profile: `AbilityMelee` gains a sweep length (or a sibling ray profile) and `PhysicsMeleeQuery::query` sweeps the sphere along the facing with `PhysicsWorld::sweep`; damage and effects go through the existing evaluator and bindings.
-3. Owned content: a bow-shot ability from the converted Blink clip on a ranged slot of the Royal kit (check how the ranged slots are routed with the `combat.ranged` modifier before binding).
-4. HUD crosshair while an aim camera is live.
-5. Then `pitch` in `MotorInput` and the server ray using it.
+- Ability source: `"targeting": {"mode": "aim", "range": 20.0}`. Frozen as `AbilityDefinition::aim`. An aim ability needs at least one hit profile, a range up to 60 m, and excludes soft lock.
+- Ranged hit profile: `AbilityMelee::sweep`. For an aim ability the cooker sets every hit profile's sweep to the aim range, and `PhysicsMeleeQuery` sweeps the profile's sphere from its offset along the facing, keeps only the first actor it meets, and applies the existing line-of-sight check, so static collision blocks the shot. Damage and effects go through the existing evaluator and kit bindings. This is a hitscan shot, not a travelling projectile.
+- Owned content: Bow Shot (`bow.daability`, `bow.daaction`, the converted Blink bow-shot clip) on the Royal kit's ranged-light slot: Stamina 10, power 20, range 20 m, hit window at ticks 30 to 34. It is pressed with the existing `projectile.light` chord (Mouse.Left with Alt held, or the gamepad equivalent), which is also what raises the Aim camera.
+- HUD: a screen-centre crosshair while an aim camera is live (`HudViewModel::crosshair`).
+- Editor: the Ability form's Targeting section is now a mode choice (None, Crosshair aim, Melee soft lock).
+
+Verified:
+
+- `CharacterCombatSceneTests`: Bow Shot starts through authority and prediction, charges Stamina once, and hits a target 8 m straight ahead for 20; it misses when the commanded yaw points 0.5 rad away, misses a target 23 m away, is blocked by a wall between the actors, and still hits at melee distance. Freezing rejects an aim ability whose hit profile is not swept and a range beyond the bound.
+- `HudTests`: crosshair at the screen centre while aiming, absent otherwise.
+- Fresh editor Play on D3D12, `--exercise-ranged`: `Editor ranged tick=60 camera=Aim range=20 distance=1.2 target_health=80 pending=0 hud_crosshair=1`; capture `evidence/ranged-d3d12.png` inspected (Aim camera, crosshair, bow pose, target at 80 / 100). The Royal scene's target stands 1.2 m away, so the long-range cases are proven in the scene test, not in this capture.
+
+Not built, not verified:
+
+- Vertical aim. The shot is horizontal at the profile's authored height. Pitch is the next step: one bounded `pitch` on `MotorInput` (and its codec in `world_session.cpp`), used by the server's sweep.
+- Parallax: the shot starts at the actor, not at the camera, so at close range it does not pass exactly through a third-person crosshair.
+- A travelling projectile with flight time, and any projectile presentation (arrow, trail, impact).
+- The owner does not predict the hit; like melee, damage appears with the server's result.
+- Ground-snapped AOE aim (slice 3).
+
+## Next slices
+
+1. Pitch on `MotorInput` and the server sweep using it (shared wire code: one full rebuild and CTest).
+2. Ground-snapped AOE aim: `mode: "ground"`, the server's own ray against its collision from the same yaw and pitch, clamped to the authored range, with a ground marker on the HUD.
+3. Travelling projectiles if wanted: an authoritative projectile entity advanced by the server with the same sweep per tick.

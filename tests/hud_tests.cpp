@@ -35,7 +35,7 @@ int main(){try{
     {
         Hud hud(recorder,document,font,1280,720);
         bool second=false;try{Hud other(recorder,document,font,1280,720);}catch(const std::exception&){second=true;}check(second,"A second HUD was allowed");
-        hud.update(mapped);hud.render();check(hud.text("target-name")=="Target","HUD target caption fallback");{auto named=mapped;named.target_name="Royal Guard";hud.update(named);check(hud.text("target-name")=="Royal Guard","HUD does not show the target name");hud.update(mapped);}
+        hud.update(mapped);hud.render();check(hud.text("target-name")=="Target"&&!hud.box("crosshair"),"HUD target caption fallback or stray crosshair");{auto aimed=mapped;aimed.crosshair=true;hud.update(aimed);auto mark=hud.box("crosshair");check(mark&&near(mark->x+mark->width/2,640,2.f),"HUD crosshair is not at the screen centre while aiming");hud.update(mapped);}{auto named=mapped;named.target_name="Royal Guard";hud.update(named);check(hud.text("target-name")=="Royal Guard","HUD does not show the target name");hud.update(mapped);}
         auto bar=hud.box("health-bar"),fill=hud.box("health-fill"),player=hud.box("player"),target=hud.box("target"),stamina=hud.box("stamina-fill"),enemy=hud.box("target-fill");
         check(bar&&fill&&player&&target&&stamina&&enemy,"HUD document lost a bound element");
         check(near(player->x,24)&&near(player->width,320)&&near(player->y+player->height,720-24),"Player panel is not anchored bottom-left");

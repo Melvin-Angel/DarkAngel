@@ -198,6 +198,15 @@
           ]
         }
       ]
+    },
+    "m6-nav": {
+      "description": "Navigation: Recast/Detour for M6 NPC navigation",
+      "dependencies": [
+        {
+          "name": "recastnavigation",
+          "default-features": false
+        }
+      ]
     }
   },
   "overrides": [

@@ -43,9 +43,11 @@ std::shared_ptr<const AbilityDefinition> ability(const Json& source,const Attrib
     auto edge=source.at("activate_on").get<std::string>();require(edge=="pressed"||edge=="hold"||edge=="released"||edge=="tapped","Ability input edge");result.activate_on=edge=="pressed"?InputEdge::Pressed:edge=="hold"?InputEdge::Hold:edge=="released"?InputEdge::Released:InputEdge::Tapped;
     result.cancel_on_release=source.at("cancel_on_release").get<bool>();result.interruptible=source.at("interruptible").get<bool>();if(source.contains("dash")){const auto& dash=source.at("dash");fields(dash,{"distance","begin","end"});require(dash.at("distance").is_number(),"Ability dash distance type");result.dash=AbilityDash{dash.at("distance").get<double>(),static_cast<unsigned>(integer(dash.at("begin"),UINT32_MAX)),static_cast<unsigned>(integer(dash.at("end"),UINT32_MAX))};}if(source.contains("targeting")){
         // One targeting object per ability; the mode owns the remaining fields. Only the melee soft lock exists so far.
-        const auto& targeting=source.at("targeting");require(targeting.is_object()&&targeting.contains("mode")&&targeting.at("mode").is_string()&&targeting.at("mode")=="soft_lock","Ability targeting mode");fields(targeting,{"mode","range","cone_degrees","stop","distance","begin","end"});
+        const auto& targeting=source.at("targeting");require(targeting.is_object()&&targeting.contains("mode")&&targeting.at("mode").is_string()&&(targeting.at("mode")=="soft_lock"||targeting.at("mode")=="aim"),"Ability targeting mode");
+        if(targeting.at("mode")=="aim"){fields(targeting,{"mode","range"});require(targeting.at("range").is_number(),"Ability targeting scalar type");result.aim=AbilityAim{targeting.at("range").get<double>()};}
+        else{fields(targeting,{"mode","range","cone_degrees","stop","distance","begin","end"});
         for(auto key:{"range","cone_degrees","stop","distance"})require(targeting.at(key).is_number(),"Ability targeting scalar type");
-        result.soft_lock=AbilitySoftLock{targeting.at("range").get<double>(),targeting.at("cone_degrees").get<double>()*3.141592653589793/180,targeting.at("stop").get<double>(),targeting.at("distance").get<double>(),static_cast<unsigned>(integer(targeting.at("begin"),UINT32_MAX)),static_cast<unsigned>(integer(targeting.at("end"),UINT32_MAX))};
+        result.soft_lock=AbilitySoftLock{targeting.at("range").get<double>(),targeting.at("cone_degrees").get<double>()*3.141592653589793/180,targeting.at("stop").get<double>(),targeting.at("distance").get<double>(),static_cast<unsigned>(integer(targeting.at("begin"),UINT32_MAX)),static_cast<unsigned>(integer(targeting.at("end"),UINT32_MAX))};}
     }
     if(source.contains("face_movement")){require(source.at("face_movement").is_boolean(),"Ability face-movement flag type");result.face_movement=source.at("face_movement").get<bool>();}if(source.contains("deferred_commit_block"))result.deferred_commit_block=static_cast<unsigned>(integer(source.at("deferred_commit_block"),UINT32_MAX));
     if(source.contains("action_tags")){require(tags&&source.at("action_tags").is_array()&&source.at("action_tags").size()<=16,"Ability action tag source binding/count");for(const auto& binding:source.at("action_tags")){fields(binding,{"block","tag"});result.action_tags.push_back({static_cast<unsigned>(integer(binding.at("block"),UINT32_MAX)),static_cast<TagId>(integer(binding.at("tag"),UINT32_MAX))});}}
@@ -56,7 +58,7 @@ std::shared_ptr<const AbilityDefinition> ability(const Json& source,const Attrib
             fields(entry,{"block","offset","radius","power","evaluator","damage_type"});AbilityMelee profile;
             profile.block=static_cast<unsigned>(integer(entry.at("block"),UINT32_MAX));profile.evaluator=static_cast<std::uint32_t>(integer(entry.at("evaluator"),UINT32_MAX));profile.damage_type=static_cast<std::uint32_t>(integer(entry.at("damage_type"),UINT32_MAX));
             require(entry.at("radius").is_number()&&entry.at("power").is_number(),"Melee scalar type");profile.radius=entry.at("radius").get<double>();profile.power=entry.at("power").get<double>();
-            profile.offset=entry.at("offset").get<std::array<double,3>>();result.melee.push_back(profile);
+            profile.offset=entry.at("offset").get<std::array<double,3>>();if(result.aim)profile.sweep=result.aim->range;result.melee.push_back(profile);
         }
     }
     // Include gameplay dependency generations, not just the parent source hash.

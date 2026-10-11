@@ -153,6 +153,26 @@ int main(){try{
             auto broken=placed;broken.controller=std::make_shared<Runaway>();CharacterSceneSession scene(hello,guarded,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,broken);bool rejected=false;try{scene.step({});}catch(const std::exception&){rejected=true;}check(rejected,"An out-of-bounds controller command was accepted");
         }
     }
+    // Crosshair aim and the first ranged ability: the owned Bow Shot sweeps its hit along the actor's facing (the commanded yaw the
+    // server already validates) up to its authored range and stops at the first actor; static collision blocks it.
+    {
+        const auto bow_id=cooked.definition->slots[2].ability;auto bow=std::find_if(cooked.abilities.begin(),cooked.abilities.end(),[&](const auto& ability){return ability->id==bow_id;});
+        check(bow!=cooked.abilities.end()&&(*bow)->aim&&(*bow)->aim->range==20&&!(*bow)->soft_lock&&(*bow)->melee.size()==1&&(*bow)->melee[0].sweep==20,"Owned Royal Bow Shot lost its aim range or swept hit profile");
+        {auto bad=**bow;bad.melee[0].sweep=0;bool rejected=false;try{freeze_ability_definition(bad,AttributeSet(combat.attributes),combat.tags.get());}catch(const std::exception&){rejected=true;}check(rejected,"An aim ability with an unswept hit profile was frozen");bad=**bow;bad.aim->range=500;bad.melee[0].sweep=500;rejected=false;try{freeze_ability_definition(bad,AttributeSet(combat.attributes),combat.tags.get());}catch(const std::exception&){rejected=true;}check(rejected,"An aim range beyond the bound was frozen");}
+        auto health=[&](const CharacterSceneSession& scene){return scene.presentation().read(scene.presentation().find(target.id)).health.current;};
+        auto stamina_of=[&](const CharacterSceneSession& scene){for(const auto& attribute:scene.ability()->attributes)if(attribute.id==3)return attribute.value;return -1.;};
+        auto shoot=[&](std::span<const ObjectData> placed,const CollisionDefinition& world,double yaw){
+            auto scene=std::make_unique<CharacterSceneSession>(hello,placed,player.id,world,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);CharacterSceneInput idle;idle.yaw=yaw;
+            while(scene->motor().tick<5)scene->step(idle);const auto baseline=scene->resynchronizations();auto press=idle;press.combat_events={{14,InputEdge::Pressed,1000,0,1,false}};scene->step(press);
+            check(scene->ability()->active&&scene->ability()->ability==bow_id&&scene->predicted_ability()->active&&!scene->soft_lock(),"Bow Shot did not start through authority and prediction");
+            while(scene->motor().tick<75)scene->step(idle);check(stamina_of(*scene)==90&&!scene->ability()->active&&scene->pending_prediction()==0&&scene->resynchronizations()==baseline,"Bow Shot did not charge once and settle");return scene;};
+        auto distant=objects;distant[1].transform.z=8;
+        check(health(*shoot(distant,collision,0))==80,"An aimed shot did not hit a target 8 m straight ahead exactly once");
+        check(health(*shoot(distant,collision,.5))==100,"A shot aimed away from the target hit it");
+        auto beyond=objects;beyond[0].transform.z=-9;beyond[1].transform.z=14;check(health(*shoot(beyond,collision,0))==100,"A shot hit a target beyond its range");
+        auto walled=collision;walled.boxes.push_back({102,{0,1,4},{2,1,.2}});check(health(*shoot(distant,walled,0))==100,"A shot passed through static collision");
+        check(health(*shoot(objects,collision,0))==80,"A shot did not hit a target at melee distance");
+    }
     // Melee soft lock on the owned Light: the targeting module proposes the target, the motor turns the swing and closes distance,
     // and authority, owner prediction and the hit query agree. A copy without targeting is the control.
     {
@@ -194,5 +214,5 @@ int main(){try{
         }
     }
     auto tag_registry=std::make_shared<const TagDictionary>(std::vector<TagDefinition>{{2,0,"State.Blocked",AttributeVisibility::Public}},AssetId::random(),std::string(64,'e'));auto tagged=*combat.abilities[0];tagged.tag_registry=tag_registry->registry();tagged.tag_generation=tag_registry->generation();tagged.requirements.none={2};combat.abilities={std::make_shared<const AbilityDefinition>(std::move(tagged))};combat.tags=tag_registry;auto tagged_kit=std::make_shared<CombatKitDefinition>(*combat.kit);for(auto& slot:tagged_kit->slots)if(slot.ability!=combat.abilities[0]->id)slot.ability={};tagged_kit->effects.clear();tagged_kit->effect_bindings.clear();combat.kit=std::move(tagged_kit);CharacterSceneSession tagged_scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);tagged_scene.step(pressed);check(tagged_scene.predicted_ability()->active&&tagged_scene.predicted_ability()->tags.registry==tag_registry->registry()&&tagged_scene.observer(player.id,1).frame.ability.tags.registry==tag_registry->registry(),"Scene prepares the same frozen tag registry for native authority, owner prediction and observer frames");
-    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, NPC target with its own kit/attributes and the controller seam (move, face, press, refusal), melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
+    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, NPC target with its own kit/attributes and the controller seam (move, face, press, refusal), aimed ranged Bow Shot (range, aim direction, static blocking), melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

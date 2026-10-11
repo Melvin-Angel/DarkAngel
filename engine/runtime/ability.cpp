@@ -32,7 +32,7 @@ std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,
     }
     for(const auto& hit:source.melee){
         auto block=std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& b){return b.id==hit.block&&b.kind==ActionBlockKind::HitWindow;});
-        require(block!=source.action->blocks.end()&&hit_blocks.insert(hit.block).second&&hit.evaluator&&hit.damage_type&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2,"Ability melee profile identity/bounds");
+        require(block!=source.action->blocks.end()&&hit_blocks.insert(hit.block).second&&hit.evaluator&&hit.damage_type&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2&&std::isfinite(hit.sweep)&&hit.sweep==(source.aim?source.aim->range:0.),"Ability melee profile identity/bounds");
         require(!commit_block||block->begin>=commit_block->begin,"Deferred ability cannot damage before commitment");
         for(auto value:hit.offset)require(std::isfinite(value)&&std::abs(value)<=3,"Ability melee offset bounds");
     }
@@ -53,6 +53,7 @@ std::vector<AbilityCost> reserved_costs(const AbilityDefinition& definition){std
 }
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){
     if(source.dash){const auto& dash=*source.dash;require(source.action&&std::isfinite(dash.distance)&&dash.distance>0&&dash.distance<=30&&dash.begin<dash.end&&dash.end<=source.action->duration&&source.action->loops==1&&dash.distance*action_tick_units/(dash.end-dash.begin)<=.5,"Ability dash distance/window/speed bounds");}
+    if(source.aim)require(!source.soft_lock&&!source.melee.empty()&&std::isfinite(source.aim->range)&&source.aim->range>0&&source.aim->range<=60,"Ability aim needs a hit profile and a range up to 60 m, and excludes soft lock");
     if(source.soft_lock){const auto& lock=*source.soft_lock;require(source.action&&!source.dash&&!source.face_movement&&std::isfinite(lock.range)&&lock.range>0&&lock.range<=30&&std::isfinite(lock.cone)&&lock.cone>0&&lock.cone<=3.1415927&&std::isfinite(lock.stop)&&lock.stop>=0&&lock.stop<=lock.range&&std::isfinite(lock.distance)&&lock.distance>=0&&lock.distance<=30&&lock.begin<lock.end&&lock.end<=source.action->duration&&source.action->loops==1&&lock.distance*action_tick_units/(lock.end-lock.begin)<=.5,"Ability soft lock range/cone/stop/window/speed bounds");}
     return freeze(source,attributes,tags);
 }
