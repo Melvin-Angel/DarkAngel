@@ -97,6 +97,8 @@ public:
     // muzzle is the shot's origin relative to the owner (right, up, forward). The result only shapes the owner's
     // input; authority sweeps its own world from its own state.
     AimSolution aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const;
+    // Projectiles in flight as the client last received them. Presentation only.
+    const std::vector<ProjectileView>& projectiles()const;
     // Server-driven actors in simulation order (ascending network identity).
     std::span<const StableId> actors()const;
     // Authoritative receipt of an actor's latest controller press, if it has made one.

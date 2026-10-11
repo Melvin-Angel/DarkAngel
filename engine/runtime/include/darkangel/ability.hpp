@@ -30,7 +30,12 @@ struct AbilityDash {double distance{};unsigned begin{},end{};};
 // Crosshair aim (targeting mode "aim"): the ability's hit profiles travel up to `range`
 // along the actor's facing, which is the aim direction while an aim camera is live. The
 // direction is the commanded yaw the server already validates; no client hit data.
-struct AbilityAim {double range{};};
+// An aim ability may fire a travelling projectile instead of an instant sweep: speed in metres per second,
+// gravity in metres per second squared (downward) and a lifetime in ticks. It leaves from the hit profile's
+// offset along the actor's yaw and aim pitch, flies at most the aim range, and authority alone moves it and
+// resolves what it hits.
+struct AbilityProjectile {double speed{},gravity{};unsigned lifetime{};};
+struct AbilityAim {double range{};std::optional<AbilityProjectile> projectile;};
 struct AbilitySoftLock {double range{},cone{},stop{},distance{};unsigned begin{},end{};};
 struct AbilityDefinition {
     AssetId id;std::string generation;

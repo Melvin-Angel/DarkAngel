@@ -17,6 +17,11 @@ struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};uns
 struct CollisionStreamDiagnostics {std::uint64_t sent_packets{},sent_bytes{},decoded{},ack_tick{},ack_topology{},expired{},superseded{};std::size_t partial_chunks{};bool has_ack{},needs_resync{};};
 struct AbilityCorrection {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityOwnerSnapshot ability;};
 struct AbilityPublicFrame {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityPublicSnapshot ability;};
+// A projectile in flight as presentation sees it (velocity in metres per second). Authority owns the flight
+// and its hit; this is public state and decides nothing.
+struct ProjectileView {std::uint64_t id{};MotorVec position{},velocity{};};
+// Projectiles one session flies at once; a launch beyond it is dropped.
+inline constexpr std::size_t projectile_capacity=16;
 // All providers carry the same bounded, versioned protocol. Only the server
 // creates identities and publishes state. Client worlds are read-only views.
 class WorldSession {
@@ -59,6 +64,8 @@ public:
     void assign_team(std::uint64_t,std::uint32_t team);
     // After authoritative motor post_physics/publication, once per fixed tick.
     std::vector<DamageResult> resolve_ability_hits(std::uint64_t);
+    // Projectiles in flight: the server's own after its latest hit resolution, or the latest frame a client received.
+    const std::vector<ProjectileView>& projectiles()const;
     const std::map<std::uint64_t,AbilityCorrection>& ability_corrections()const;
     bool ability_correction_needs_resync()const;
     const std::map<std::uint64_t,AbilityPublicFrame>& public_abilities()const;

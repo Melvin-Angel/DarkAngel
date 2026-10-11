@@ -36,6 +36,11 @@
   ],
   "targeting": {
     "mode": "aim",
-    "range": 20.0
+    "range": 20.0,
+    "projectile": {
+      "speed": 40.0,
+      "gravity": 5.0,
+      "lifetime": 120
+    }
   }
 }
