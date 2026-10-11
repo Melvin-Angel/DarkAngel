@@ -13,6 +13,12 @@ public:
     void open(const std::filesystem::path&);
     void save(const std::filesystem::path&);
     void save_gameplay();
+    // Background cooking: project sources this cache has not cooked yet are cooked a few at a time while the editor is
+    // idle, so anything copied or imported into the project is ready without a Play preparation. A source that fails
+    // is reported once and tried again only after its file changes. Returns how many sources are still waiting.
+    struct CookSweep {std::size_t waiting{},cooked{},failed{};};
+    CookSweep cook_pending(unsigned budget=1);
+    std::map<std::string,std::pair<std::filesystem::file_time_type,std::string>> cook_failures;
     void play();void stop();void step();void update(double seconds);
     void reload_scripts();
     void configure_assets(const std::filesystem::path& source,const std::filesystem::path& cache);

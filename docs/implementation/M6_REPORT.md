@@ -332,3 +332,17 @@ User requests of 11 October 2026. Editor-only; each has its own gate, and the fu
 **Verified:** `place-mouse-d3d12` now ends with a real click on a spawn point's body in the viewport and requires it to become the selection (`viewport_select=1`). `save-all-d3d12` makes a mask draft edit, opens File and clicks Save All with the mouse, and requires the edit to be in the source file with nothing left dirty.
 
 **Not verified:** selecting a model (the gate clicks a spawn point); a scene with unsaved changes in both the scene and gameplay at once; no capture was looked at for these two (the result is a selection and a file, not a picture).
+
+## Assets: cooking what is in the project (11 October 2026)
+
+User note of 11 October 2026: "assets imported into the project should get cooked. This should happen periodically in the project or once during import." Editor-only; it needed only its own gate.
+
+- **What was already true.** Import through the editor (File > Import asset, the Assets tab's Import) validates a full cook before it publishes and cooks on commit (`AssetService::prepare_import`, `commit_import`), so an imported asset has a cook generation at once.
+- **What was missing.** A source that reaches the project folder any other way (copied in, created by a tool, pulled from version control, or left over from another cache) stayed "Not cooked here" until a Play preparation happened to need it.
+- **Built.** `Controller::cook_pending`: sources the cache has not cooked are cooked in the background, one every half second while a visible editor is not in Play. A source that fails is reported once in the console and tried again only after its file changes. The Assets tab shows how many sources are still not cooked and how many of them failed (hover for the errors), and has a "Cook all now" button. Placement: the Assets tab, because it is the asset list's own state.
+- Hidden gate runs do not sweep, so fixtures stay as they are.
+- Limits: the sweep cooks sources that were never cooked in this cache. It does not watch for a cooked source whose file changed on disk outside the editor; the asset service's scan decides what a changed source means, and that was not touched. Cooking happens on the main thread, so a large model can stall a frame.
+
+**Verified:** `cook-sweep-d3d12`: a Character source written straight into the project folder is listed with no cook generation, the sweep cooks it, and a second sweep neither cooks anything again nor retries a failure. The capture was looked at: the Assets tab shows "1 source(s) not cooked yet, 1 of them failed" for a fixture source that cannot cook, with "Cook all now" disabled because nothing else is waiting.
+
+**Not verified:** the half-second cadence in a visible editor (the gate calls the sweep directly); "Cook all now" by click; a large model.

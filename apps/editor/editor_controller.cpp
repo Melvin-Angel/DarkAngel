@@ -18,6 +18,16 @@ void Controller::demo(){stop();World defaults(WorldDomain::Authoring);ObjectData
 void Controller::open(const std::filesystem::path& file){auto candidate=EditorDocument::open(file);candidate->scripts();for(const auto& [object,asset]:candidate->plan().models){if(prepare_model)prepare_model(asset);else if(asset!=model)throw std::runtime_error("Scene requires a model outside the loaded cooked registry");}stop();document=std::move(candidate);path=file;selected=document->plan().origins.empty()?StableId{}:document->plan().origins.front().object;log("Opened "+file.string());}
 void Controller::save(const std::filesystem::path& file){document->save(file);path=file;log("Saved scene manifest and stable placement records.");}
 void Controller::save_gameplay(){if(preview.active())throw std::runtime_error("Stop Play before saving gameplay");if(!assets)throw std::runtime_error("Open a source mount before saving gameplay");auto roots=authoring_roots?authoring_roots():std::vector<AssetId>{};authoring.save_all(*assets,roots);}
+Controller::CookSweep Controller::cook_pending(unsigned budget){
+    CookSweep sweep;if(!assets||preview.active())return sweep;bool changed=false;
+    for(const auto& asset:asset_inventory){if(asset.generation)continue;if(auto draft=authoring.drafts.find(asset.id);draft!=authoring.drafts.end()&&draft->second.pending)continue;
+        std::error_code missing;const auto written=std::filesystem::last_write_time(assets->source_root()/asset.path,missing);if(missing)continue;
+        if(auto failed=cook_failures.find(asset.path);failed!=cook_failures.end()){if(failed->second.first==written){++sweep.failed;continue;}cook_failures.erase(failed);}
+        if(!budget){++sweep.waiting;continue;}--budget;
+        try{assets->cook(asset.path);++sweep.cooked;changed=true;log("Cooked "+asset.path+" in the background.");}
+        catch(const std::exception& error){cook_failures[asset.path]={written,error.what()};++sweep.failed;log("Could not cook "+asset.path+": "+error.what(),ConsoleSeverity::Warning);}}
+    if(changed)asset_inventory=authoring.inventory(*assets);return sweep;
+}
 void Controller::play(){if(authoring.dirty())throw std::runtime_error("Save gameplay changes before Play");if(prepare_play_resources)prepare_play_resources();auto scripts=document->scripts();auto prepared=preview.prepare(document->plan(),scripts,[&](AssetId id){if(prepare_model)prepare_model(id);else if(id!=model)throw std::runtime_error("Model is outside the loaded cooked registry");});if(prepare_gameplay)prepare_gameplay(prepared->plan,*prepared->world);preview.activate(std::move(prepared));paused=false;log("Play activated an isolated Preview world; authoring remains unchanged.");}
 void Controller::stop(){if(stop_gameplay)stop_gameplay();preview.retire();paused=false;}
 void Controller::step(){if(!preview.active())play();paused=true;if(step_gameplay)step_gameplay();else preview.step(1./60);}
