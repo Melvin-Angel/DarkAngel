@@ -104,6 +104,48 @@ Track B item 3, built in one chunk with crosshair aim and verified once.
 - No dynamic obstacles, no off-mesh links, no crowd avoidance, no vertical/multi-level check beyond what Recast gives by default.
 - One agent profile; settings are not authored.
 
+## Increment 5: behaviour trees (11 October 2026)
+
+Track B item 4, built as one chunk and verified once.
+
+### Dependency
+
+`behaviortree-cpp 4.9.1` was not installed. The dry run with the manifest step's arguments listed every existing package (now including Recast) as already installed and four packages to build: `behaviortree-cpp` and its dependencies `tinyxml2`, `minitrace` and `flatbuffers`, all at their pinned versions, nothing rebuilt or removed. They were then installed (the log shows exactly those four). `vcpkg.json` gained the `m6-bt` feature; the preset and the cached feature list name it; `VCPKG_MANIFEST_INSTALL=OFF` is unchanged. Licence notices for all four were already under `third_party/notices`.
+
+### What exists
+
+- **Behaviour source** `.dabehavior` (`kind: "behavior"`): a full native source (catalog, drafts, Undo/Redo, private validation, coordinated Save, frozen `behavior.json`). It holds a display name and a JSON tree over a closed native node set:
+  - composites `sequence`, `selector` (one to eight children);
+  - conditions `opponent_alive`, `in_range {range}`, `idle`;
+  - actions `face`, `approach {range}`, `attack {slot}`, `recover {ticks}`.
+  Shape is bounded (depth 8, 64 nodes) and validated by one decoder shared by source validation, the cooker and the runtime (`behavior.hpp`), which has no BT.CPP dependency.
+- **NPC reference**: an NPC definition can reference one behaviour (`behavior` plus its source locator); it joins the NPC's frozen closure, and `CookedNpc::behavior` carries the decoded tree.
+- **Executor adapter** (`behavior_tree.hpp`, library `DarkAngelBehavior`): `make_behavior_controller` turns a decoded tree into a BT.CPP tree and runs it as an `ActorController`. The blackboard is native (the controller view in, the controller command out); leaves are native nodes. The tree is ticked once per authoritative tick. `approach` follows the navigation mesh when one is supplied and walks straight otherwise. Leaves can only fill the controller command, so a tree cannot bypass ability validation: `attack` is a press request authority may refuse.
+- **First tree**, owned as `content/npcs/guard_melee.dabehavior` and referenced by the Royal Guard: if the opponent is alive, in reach and the NPC is idle, face it, attack with Light and recover for 90 ticks; otherwise approach to 1.4 m.
+- **Editor, NPC tab**: the Behaviour section has a behaviour picker, "Edit behaviour", "Clear behaviour" and "Create behaviour" (seeded with the first tree and assigned). Behaviours are listed in the NPC tab beside NPCs. Opening one shows its name and an indented outline of the tree with its parameters editable (ranges, recover ticks, attack slot).
+- **Play**: a placed NPC with a behaviour runs it. The navigation mesh is built from the session's collision for its approach leaf.
+
+### Decisions made here
+
+- The tree is authored as JSON and converted to BT.CPP's own format in memory; no BT.CPP XML is stored or authored. The handoff asks for JSON topology.
+- A placed NPC's behaviour takes precedence over the training options (`--target-attacks`, `--target-navigates`). Those remain for a target without a behaviour.
+- The node set is deliberately small and closed. Luau leaves and scorers are later M6 scope.
+
+### Verified (one pass for the chunk)
+
+- `BehaviorTreeTests` (CTest `M6.behavior_tree`): the default tree decodes; seven invalid trees are rejected (unknown node, empty composite, zero range, non-canonical slot, zero recover ticks, unknown field, depth beyond the bound). Against scripted views the controller asks to walk toward a distant opponent, stops moving in range, faces and presses Light when idle, does not press again during recovery or while its action runs, attacks again after recovering, and does nothing against a dead opponent. The owned Royal Guard cooks with its frozen behaviour, and behaviour products are kind-checked. In a session with a wall between them, the tree-driven Royal Guard walks around the wall, hits the player at tick 139, recovers and hits again at tick 230 (Health 50), keeps its own Health 60, and leaves owner prediction undisturbed.
+- `NativeAuthoringTests`: behaviour creation, assignment to an NPC with Undo/Redo, clearing, rejection of a non-behaviour asset, an invalid tree rejected by private validation, coordinated Save and the frozen NPC carrying its tree.
+- Fresh editor Play on D3D12 with the Royal Guard placed and no training option: `Editor attacked tick=60 player_health=75 ... nav_polygons=52 behavior=Guard_Melee ... hud_target=60/60 hud_target_name=Royal_Guard`.
+- NPC tab capture `evidence/npc-form-d3d12.png` inspected: the Behaviour section shows the assigned `guard_melee.dabehavior` with its edit, clear and create controls, and the list shows a Behaviours group.
+- `python scripts/verify_effect_reaction.py`: all gates pass (33). CTest: only the five known unrelated failures.
+
+### Not done, not verified
+
+- The behaviour form itself (the tree outline with parameter fields) was not captured or looked at; only the NPC form was. Tree structure (adding, removing, reordering nodes) cannot be edited in the UI yet, only parameters.
+- Because the owned Royal Guard now has a behaviour, the editor gates `npc-target-d3d12` and `npc-navigates-d3d12` also ran the tree (their logs show `behavior=Guard_Melee`). The scripted attacker and the plain path follower are still covered by `CharacterCombatSceneTests` and `NavigationTests`, but no longer by an editor run with an NPC.
+- No sensing beyond the one opponent in the controller view, no blackboard visualisation, no decision inspection in the Game tab.
+- No Luau leaves; a new node kind still needs a native rebuild, which is what the M6 gate's "new Luau node without a native rebuild" is about.
+
 ### Next step (track B)
 
-Item 4: the BT.CPP executor adapter. `behaviortree-cpp 4.9.1` is pinned in `vcpkg.json` but not installed, so start with the same dry run (it brings its own dependencies; proceed only if the plan is additions alone). Then JSON tree topology, a first tree (acquire target, approach to preferred range, attack, recover) whose leaves call the same controller command, with blackboard and sensing kept native. The path follower's logic becomes the "approach" leaf.
+Either deepen the NPC workflow the user asked for (tree structure editing in the NPC tab: add, remove and reorder nodes; a decision readout in the Game tab's Gameplay Inspector; preferred range, aggression and recovery settings as NPC-level parameters the tree reads), or start the world side of M6 (regions/cells and the ledger). The NPC workflow is the smaller, user-visible step and should come first unless the user says otherwise.

@@ -20,6 +20,8 @@
   },
   "sources": {
     "character": "characters/royal_human.dacharacter",
-    "kit": "royal_district/combat/player.dakit"
-  }
+    "kit": "royal_district/combat/player.dakit",
+    "behavior": "npcs/guard_melee.dabehavior"
+  },
+  "behavior": "ac81bd4f-cfce-4658-a5d7-17ac695aae67"
 }

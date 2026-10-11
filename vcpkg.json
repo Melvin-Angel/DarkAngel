@@ -207,6 +207,15 @@
           "default-features": false
         }
       ]
+    },
+    "m6-bt": {
+      "description": "Behaviour trees: BT.CPP executor for M6 NPC behaviour",
+      "dependencies": [
+        {
+          "name": "behaviortree-cpp",
+          "default-features": false
+        }
+      ]
     }
   },
   "overrides": [

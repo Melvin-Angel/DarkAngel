@@ -7,7 +7,7 @@
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201910000
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201a10000
 [39mViewport foreground pixels=860176 capture=C:\DarkAngel\docs\implementation\evidence\mask-worn-d3d12.png
-Masked action frozen_generation=8dbd0de8334f81d9680f6dbdb66912b79efe572e724b6e791005db146c2f1596 locomotion_bound=3 total_bound=4
+Masked action frozen_generation=c9b6ea7cbe8c8b8692ff50c6bd6882e0841b853541aa0f612f82e4c55b79b325 locomotion_bound=3 total_bound=4
 Native heavy editor tick=30 target_health=60 stamina=80 pending=0
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

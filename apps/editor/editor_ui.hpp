@@ -38,7 +38,7 @@ public:
     std::function<void()> draw_character_info;
     bool show_kit_slots{true};AssetId kit_copy_origin,last_created_kit;
     char kit_duplicate_name[65]{"new_kit"};
-    char character_name[65]{"new_character"},player_name[65]{"new_player"},npc_name[65]{"new_npc"},npc_faction[33]{"hostile"};
+    char character_name[65]{"new_character"},player_name[65]{"new_player"},npc_name[65]{"new_npc"},npc_faction[33]{"hostile"},behavior_name[65]{"new_behavior"};
     std::function<void(AssetId,unsigned)> prepare_composer;
     std::function<void(AssetId)> prepare_action_pose;
     std::function<void(double)> scrub_composer;

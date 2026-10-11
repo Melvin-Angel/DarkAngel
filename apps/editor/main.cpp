@@ -56,6 +56,9 @@ using namespace Diligent;
 #ifdef DAE_NAVIGATION
 #include <darkangel/navigation.hpp>
 #endif
+#ifdef DAE_BEHAVIOR
+#include <darkangel/behavior_tree.hpp>
+#endif
 using namespace darkangel;
 namespace {
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
@@ -201,7 +204,7 @@ int main(int argc,char** argv){try{
     std::unique_ptr<CameraDirector> director;std::vector<std::string> camera_held;std::vector<TagId> camera_tags;float camera_fov=DirectX::XM_PIDIV4;
     std::unique_ptr<CharacterSceneSession> character;StableId character_player;std::unique_ptr<darkangel::editor_app::CharacterPreviewResources> character_resources;CharacterSceneInput character_input;std::vector<InputEvent> combat_events;
     // Training script for the combat target; applied to the next Play session.
-    unsigned navigation_polygons{};
+    unsigned navigation_polygons{};std::string behavior_running;
     std::optional<darkangel::CharacterSceneAttacker> target_attacker;if(!args.target_attacks.empty()){require(args.target_attacks=="light"||args.target_attacks=="heavy","--target-attacks expects light or heavy");target_attacker=darkangel::CharacterSceneAttacker{args.target_attacks=="heavy"?darkangel::CombatSlot::Heavy:darkangel::CombatSlot::Light,10,120};}
 #ifdef DAE_HUD
     // Runtime HUD: the game's RmlUi document over the Game viewport, fed by a native view model of confirmed
@@ -227,6 +230,10 @@ int main(int argc,char** argv){try{
             if(args.target_navigates&&character_resources->combat)target_controller=[&](const darkangel::CollisionDefinition& collision){auto mesh=std::make_shared<const darkangel::NavigationMesh>(collision);navigation_polygons=mesh->polygons();darkangel::PathFollow follow;follow.attack.slot=target_attacker?target_attacker->slot:darkangel::CombatSlot::Light;follow.attack.first_tick=1;follow.attack.interval=120;return darkangel::make_path_follower(std::move(mesh),follow);};
 #else
             require(!args.target_navigates,"This build has no navigation library");
+#endif
+#ifdef DAE_BEHAVIOR
+            // A placed NPC with an authored behaviour runs its tree; it takes precedence over the training options.
+            if(character_resources->combat&&character_resources->target_behavior)target_controller=[&](const darkangel::CollisionDefinition& collision){auto mesh=std::make_shared<const darkangel::NavigationMesh>(collision);navigation_polygons=mesh->polygons();behavior_running=character_resources->target_behavior->name;return darkangel::make_behavior_controller(*character_resources->target_behavior,std::move(mesh));};
 #endif
             auto prepared=darkangel::editor_app::prepare_character_preview(plan,world,*character_resources,[&](AssetId asset){return load_cooked_model(args.registry,args.cas,asset);},target_controller);character_player=prepared.first;character=std::move(prepared.second);editor.log(character_resources->combat?"Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.":"Native Loopback character Play: locomotion and solid box collision proxies. Use Game to play; click its viewport for input.");};
         shell.draw_gameplay_inspector=[&]{
@@ -554,7 +561,7 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
         require(bool(hud)&&hud->model().target_locked&&hud->box("lock"),"Runtime HUD does not show the soft-lock indicator");std::cout<<" hud_lock=1";
 #endif
         std::cout<<'\n';editor.stop();}
-    if(args.exercise_attacked){require(bool(character)&&character->ability()&&(character_resources->combat->attacker||args.target_navigates),"Attacked exercise needs a combat session and --target-attacks or --target-navigates");double health=-1;for(const auto& attribute:character->ability()->attributes)if(attribute.id==character->ability()->health_attribute)health=attribute.value;auto receipt=character->attacker_receipt();auto reaction=character->reaction(character_resources->player);auto death=character->death(character_resources->player);require(receipt&&health>=0&&health<100&&character->pending_prediction()==0&&editor.document->world().serialize()==import_baseline,"Editor Game: the scripted attacker did not damage the player through authority");std::cout<<"Editor attacked tick="<<character->motor().tick<<" player_health="<<health<<" reaction_tick="<<(reaction&&reaction->suppressed==darkangel::ReactionSuppression::None?reaction->tick:-1.)<<" death_tick="<<(death?*death:-1.)<<" pending=0";if(args.target_navigates)std::cout<<" nav_polygons="<<navigation_polygons;
+    if(args.exercise_attacked){require(bool(character)&&character->ability()&&(character_resources->combat->attacker||args.target_navigates||character_resources->target_behavior),"Attacked exercise needs a combat session and --target-attacks or --target-navigates");double health=-1;for(const auto& attribute:character->ability()->attributes)if(attribute.id==character->ability()->health_attribute)health=attribute.value;auto receipt=character->attacker_receipt();auto reaction=character->reaction(character_resources->player);auto death=character->death(character_resources->player);require(receipt&&health>=0&&health<100&&character->pending_prediction()==0&&editor.document->world().serialize()==import_baseline,"Editor Game: the scripted attacker did not damage the player through authority");std::cout<<"Editor attacked tick="<<character->motor().tick<<" player_health="<<health<<" reaction_tick="<<(reaction&&reaction->suppressed==darkangel::ReactionSuppression::None?reaction->tick:-1.)<<" death_tick="<<(death?*death:-1.)<<" pending=0";if(args.target_navigates||!behavior_running.empty())std::cout<<" nav_polygons="<<navigation_polygons;if(!behavior_running.empty()){auto shown=behavior_running;std::replace(shown.begin(),shown.end(),' ','_');std::cout<<" behavior="<<shown;}
 #ifdef DAE_HUD
         {require(bool(hud)&&hud_renderer.drawn()>0&&hud->model().health==health,"Editor Game did not draw the runtime HUD from confirmed Health");auto shown=hud->text("health-text");std::erase(shown,' ');std::cout<<" hud_health="<<shown;auto target_shown=hud->text("target-text");std::erase(target_shown,' ');auto named=hud->text("target-name");std::replace(named.begin(),named.end(),' ','_');std::cout<<" hud_target="<<target_shown<<" hud_target_name="<<named;}
 #endif

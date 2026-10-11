@@ -1,4 +1,5 @@
 #pragma once
+#include <darkangel/behavior.hpp>
 #include <darkangel/assets.hpp>
 #include <nlohmann/json.hpp>
 #include <map>
@@ -23,6 +24,9 @@ public:
     AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
     // An NPC shares the Player's Character reference and Actor Loadout; it adds a display name and faction.
     AssetId create_npc(AssetService&,AssetId character,AssetId kit,std::string_view name,std::string_view faction="hostile");
+    // A behaviour tree source seeded with the default approach/attack/recover tree, and its assignment to an NPC (empty clears).
+    AssetId create_behavior(AssetService&,std::string_view name);
+    void assign_npc_behavior(AssetService&,AssetId npc,AssetId behavior);
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
     AssetId duplicate_ability_with_action(AssetService&,AssetId,std::string_view name,bool blank=false);
     // Copies a Composer action as a presentation-only reaction (cue blocks only,

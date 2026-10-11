@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "kind": "behavior",
+  "asset": "ac81bd4f-cfce-4658-a5d7-17ac695aae67",
+  "name": "Guard Melee",
+  "tree": {
+    "type": "selector",
+    "children": [
+      {
+        "type": "sequence",
+        "children": [
+          {
+            "type": "opponent_alive"
+          },
+          {
+            "type": "in_range",
+            "range": 1.4
+          },
+          {
+            "type": "idle"
+          },
+          {
+            "type": "face"
+          },
+          {
+            "type": "attack",
+            "slot": "light"
+          },
+          {
+            "type": "recover",
+            "ticks": 90
+          }
+        ]
+      },
+      {
+        "type": "sequence",
+        "children": [
+          {
+            "type": "opponent_alive"
+          },
+          {
+            "type": "approach",
+            "range": 1.4
+          }
+        ]
+      }
+    ]
+  }
+}
