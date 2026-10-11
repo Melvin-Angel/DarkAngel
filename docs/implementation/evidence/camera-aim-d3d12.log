@@ -3,40 +3,9 @@
 [39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
-[39m[00001] [imgui-error] (current settings: Assert=1, Log=1, Tooltip=1)
-[00001] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[00002] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00003] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00004] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201970000
-[39m[00005] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00006] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00007] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00008] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00009] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00010] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00011] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00012] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00013] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00014] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00015] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00016] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00017] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00018] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00019] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00020] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00021] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00022] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00023] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00024] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00025] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00026] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00027] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00028] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00029] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00030] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-Viewport foreground pixels=861548 capture=C:\DarkAngel\docs\implementation\evidence\camera-aim-d3d12.png
+[39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201970000
+[39mViewport foreground pixels=843077 capture=C:\DarkAngel\docs\implementation\evidence\camera-aim-d3d12.png
 Editor camera live=Aim blend=1 fov=55 camera_distance=2.78343 character_faces_camera=1 aim_yaw_offset=-0.0707339 aim_pitch=-0.198149 pending=0
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

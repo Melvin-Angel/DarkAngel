@@ -1,4 +1,5 @@
 #include <darkangel/character_scene.hpp>
+#include <darkangel/assembly.hpp>
 #include <darkangel/combat_kit_assets.hpp>
 #include <darkangel/assets.hpp>
 #include <darkangel/hash.hpp>
@@ -434,6 +435,51 @@ int main(){try{
             check(flown&&lead<-.03,"The archer did not aim ahead of a target running across its line");
             check(health_of(session,player.id)==80&&struck-crossed>.5,"The led arrow did not hit the running player, or the player had not moved during its flight");
             std::cout<<"NPC aim lead: "<<-lead<<" rad ahead at launch, player ran "<<struck-crossed<<" m during the flight and was hit\n";
+        }
+        {
+            // Encounters: enemies enter a running session. The scene starts with the player alone; a world event starts a wave encounter
+            // whose enemies appear at its spawn points, are replicated, and die to the player's ordinary attacks; the next wave follows.
+            const AssetId weak=AssetId::random();CharacterSceneInput swing;swing.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};CharacterSceneInput let_go;let_go.combat_events={{8,InputEdge::Released,2000,0,0,false}};
+            auto enemy=[&](double health,const char* faction){auto made=guard({},health,nullptr);made.name="Raider";made.faction=faction;made.senses={};made.senses.everything=true;return made;};
+            auto staged=[&](const char* json,double health){CharacterSceneEncounter made;made.id={9,50};std::string text(json);for(auto at=text.find("NPC");at!=text.npos;at=text.find("NPC"))text.replace(at,3,weak.text());made.definition=decode_encounter(text);made.npcs.emplace(weak,enemy(health,"raiders"));return made;};
+            std::array<ObjectData,1> alone{player};
+            {
+                auto scene=combat;scene.actors.clear();auto encounter=staged(R"({"trigger":{"event":"test.go"},"mode":"waves","waves":[{"npc":"NPC","count":2},{"npc":"NPC","count":1}],"placement":"points","emits":{"started":"test.started","wave_cleared":"test.wave_cleared","completed":"test.done"},"tag":"test.active"})",25);
+                encounter.points={{{-.45,0,1.2},3.141592653589793},{{.45,0,1.2},3.141592653589793}};scene.encounters={encounter};
+                CharacterSceneSession session(hello,alone,player.id,collision,plan,rig.definition,rig.archive,scene);const auto baseline=session.resynchronizations();
+                while(session.motor().tick<20)session.step({});check(session.actors().empty()&&session.encounter({9,50})->phase==EncounterPhase::Waiting&&session.world_events().log().size()==1&&session.world_events().log()[0].name=="play.started","An encounter spawned before its event, or the session did not emit play.started");
+                session.emit_world_event("test.go");session.step({});session.step({});
+                check(session.actors().size()==2&&session.encounter({9,50})->phase==EncounterPhase::Running&&session.encounter({9,50})->alive==2&&session.world_events().tag("test.active"),"A world event did not start the encounter's first wave");
+                for(auto id:session.actors()){const auto frame=session.observer(id,double(session.motor().tick)).frame;check(session.pose(id)&&frame.motor.tick==session.motor().tick&&std::abs(frame.motor.position.z-1.2)<.05&&std::abs(std::abs(frame.motor.position.x)-.45)<.05&&health_of(session,id)==25&&session.actor_encounter(id)==StableId{9,50}&&session.actor(id)&&session.actor(id)->name=="Raider","An enemy that entered during play is not replicated at its spawn point on the current tick");}
+                check(session.actors()[0]==encounter_actor({9,50},0)&&session.actors()[1]==encounter_actor({9,50},1),"Encounter enemies do not have identities derived from the encounter");
+                // The player's ordinary attacks kill the wave; the second wave enters only then.
+                auto fight=[&](std::size_t until_actors,EncounterPhase until_phase){for(unsigned round=0;round<8&&!(session.actors().size()>=until_actors&&session.encounter({9,50})->phase==until_phase&&(until_phase==EncounterPhase::Complete||session.encounter({9,50})->wave==2));++round){session.step(swing);session.step(let_go);for(unsigned tick=0;tick<58;++tick)session.step({});}};
+                fight(3,EncounterPhase::Running);check(session.actors().size()==3&&health_of(session,session.actors()[0])==0&&health_of(session,session.actors()[1])==0&&health_of(session,session.actors()[2])==25&&session.encounter({9,50})->wave==2,"The second wave did not enter when the player had killed the first");
+                fight(3,EncounterPhase::Complete);check(session.encounter({9,50})->phase==EncounterPhase::Complete&&health_of(session,session.actors()[2])==0&&!session.world_events().tag("test.active"),"The encounter did not complete when the player killed its last wave");
+                session.step({});std::string heard;for(const auto& event:session.world_events().log())heard+=event.name+" ";check(heard=="play.started test.go test.started test.wave_cleared test.done ","The encounter did not emit its world events in order");
+                check(session.pending_prediction()==0&&health_of(session,player.id)==100,"Enemies entering during play disturbed owner prediction or hurt the player without a controller");
+                std::cout<<"Encounter: two waves entered and were killed by tick "<<session.motor().tick<<", resynchronisations "<<session.resynchronizations()-baseline<<", events: "<<heard<<"\n";
+            }
+            {
+                // A trigger volume the player walks into emits the event; enemies with a controller from the host's factory appear at random
+                // points inside the encounter's volume, sense the player and attack through the ordinary paths. Two runs are identical.
+                struct Raider final:ActorController {ControllerCommand decide(const ControllerView& view)override{ControllerCommand command;const auto* foe=view.alive?nearest_hostile(view):nullptr;if(!foe)return command;command.target=foe->id;const double dx=foe->motor.position.x-view.self.position.x,dz=foe->motor.position.z-view.self.position.z,distance=std::hypot(dx,dz);command.face=std::atan2(dx,dz);if(distance>1.4){command.move_x=dx/distance;command.move_z=dz/distance;}else if(!view.busy)command.press=CombatSlot::Light;return command;}};
+                auto run=[&]{auto scene=combat;scene.actors.clear();auto encounter=staged(R"({"trigger":{"event":"gate.entered"},"mode":"timed","timed":{"npc":"NPC","interval_seconds":0.5,"max_alive":2,"total":3},"placement":"random"})",60);encounter.volumes={{{0,1,9},0,{4,2,2}}};encounter.controller=[](AssetId){return std::make_shared<Raider>();};scene.encounters={encounter};
+                    CharacterSceneTrigger gate;gate.id={9,60};gate.definition=decode_trigger(R"({"event":"gate.entered","half":[3,2,1]})");gate.center={0,1,3};scene.triggers={gate};
+                    auto session=std::make_unique<CharacterSceneSession>(hello,alone,player.id,collision,plan,rig.definition,rig.archive,scene);CharacterSceneInput forward;forward.z=1;
+                    while(session->motor().tick<30)session->step({});check(session->actors().empty()&&session->trigger_fired({9,60})==0u,"A trigger volume fired before the player reached it");
+                    while(session->motor().tick<200&&session->actors().empty())session->step(forward);check(session->trigger_fired({9,60})==1u&&session->actors().size()==1&&session->motor().position.z>1.9&&session->motor().position.z<3.2,"Walking into the trigger volume did not start the encounter");
+                    const auto first=session->observer(session->actors()[0],double(session->motor().tick)).frame.motor.position;check(encounter_contains(encounter.volumes,{first.x,1,first.z})&&std::abs(first.y)<.05,"A random spawn is outside the encounter's volume or off the floor");
+                    std::string record;std::size_t most=0;while(session->motor().tick<420&&health_of(*session,player.id)>0){session->step({});most=std::max(most,std::size_t(session->encounter({9,50})->alive));}
+                    check(session->actors().size()==2&&most==2&&session->encounter({9,50})->spawned==2,"A timed encounter did not hold to its cap on enemies alive");check(health_of(*session,player.id)<100&&session->controller_target(session->actors()[0])==player.id,"Encounter enemies with controllers did not sense and attack the player");
+                    for(auto id:session->actors()){const auto at=session->observer(id,double(session->motor().tick)).frame.motor.position;record+=id.text()+":"+std::to_string(at.x)+","+std::to_string(at.z)+";";}return record+std::to_string(health_of(*session,player.id))+"@"+std::to_string(session->motor().tick);};
+                const auto once=run();check(once==run(),"Two runs of the same encounter differ");std::cout<<"Encounter: trigger volume, timed random spawns: "<<once<<"\n";
+            }
+            {
+                // A scene whose spawn points and encounters ask for more actors than a session holds is refused when the session is built.
+                auto scene=combat;scene.actors={dummy(first)};auto encounter=staged(R"({"trigger":{"event":"test.go"},"mode":"waves","waves":[{"npc":"NPC","count":8},{"npc":"NPC","count":8}],"placement":"points"})",25);encounter.points={{{0,0,3},0}};scene.encounters={encounter};std::array<ObjectData,2> pair{player,placed(first,0,5,0)};
+                bool refused=false;try{CharacterSceneSession session(hello,pair,player.id,collision,plan,rig.definition,rig.archive,scene);}catch(const std::exception&){refused=true;}check(refused,"A scene asking for seventeen actors was accepted");
+            }
         }
         {
             // Bounds: an actor needs a scene object and resolved attributes, identities are unique, and the list is bounded.

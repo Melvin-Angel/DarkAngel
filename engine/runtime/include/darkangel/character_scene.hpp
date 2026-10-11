@@ -4,6 +4,8 @@
 #include <darkangel/ability_observer.hpp>
 #include <darkangel/world_session.hpp>
 #include <darkangel/actor_controller.hpp>
+#include <darkangel/encounter.hpp>
+#include <functional>
 
 namespace darkangel {
 struct ReactionSample;
@@ -29,6 +31,15 @@ struct CharacterSceneActor {
     // What the actor can notice. Without sensors it perceives nothing and its controller finds no target.
     SensesDefinition senses;
 };
+// An encounter of the scene: its definition, bounds and spawn points, a prepared actor for each NPC definition it
+// spawns (kit, abilities, attributes, name, faction, senses; identity and controller are filled per enemy), and the
+// host's source of a fresh controller for each enemy. Its enemies enter the session during play.
+struct CharacterSceneEncounter {
+    StableId id;EncounterDefinition definition;std::vector<EncounterVolume> volumes;std::vector<EncounterPoint> points;
+    std::map<AssetId,CharacterSceneActor> npcs;
+    std::function<std::shared_ptr<ActorController>(AssetId npc)> controller;
+};
+struct CharacterSceneTrigger {StableId id;TriggerDefinition definition;MotorVec center{};double yaw{};};
 // The session carries session_character_capacity characters; one of them is the player.
 constexpr std::size_t character_scene_actor_limit=session_character_capacity-1;
 struct CharacterSceneCombat {
@@ -52,6 +63,9 @@ struct CharacterSceneCombat {
     // Server-driven actors, at most character_scene_actor_limit. Actors of different
     // factions are hostile to each other; the player's faction is below.
     std::vector<CharacterSceneActor> actors;std::string faction{"player"};
+    // Encounters and trigger volumes. The actors above plus every enemy the encounters will ever spawn must fit
+    // character_scene_actor_limit: the dead keep their place in this stage.
+    std::vector<CharacterSceneEncounter> encounters;std::vector<CharacterSceneTrigger> triggers;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
@@ -116,6 +130,17 @@ public:
     // An actor's senses and what it perceived on the latest tick, as authority holds them. For
     // debug views in the host process only; nothing here is replicated.
     const Perception* perception(StableId)const;
+    // World events and tags, as authority holds them. Emitting queues the event for the next tick, like any other.
+    void emit_world_event(std::string name);
+    const WorldEvents& world_events()const;
+    // Encounters in scene order, the state of one, and for an actor that an encounter spawned, which one.
+    std::span<const StableId> encounters()const;
+    std::optional<EncounterStatus> encounter(StableId)const;
+    std::optional<StableId> actor_encounter(StableId actor)const;
+    // Trigger volumes: how often one has fired, if it exists.
+    std::optional<unsigned> trigger_fired(StableId)const;
+    // Name and faction of any server-driven actor, spawned enemies included.
+    const CharacterSceneActor* actor(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

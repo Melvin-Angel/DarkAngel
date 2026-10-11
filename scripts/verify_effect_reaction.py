@@ -96,6 +96,22 @@ if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise Runtime
 # Level design: the Place panel's catalogue and its place, delete, undo and redo commands on the training scene.
 log=run('place-panel-d3d12',common+['--exercise-place','--frames','5','--capture',EVIDENCE/'place-panel-d3d12.png'])
 if 'Place panel items=' not in log or 'delete_undo_redo=1' not in log or 'on_collision=1' not in log:raise RuntimeError('Place panel did not place and delete scene objects: '+log[-400:])
+# Encounters: the player walks into a trigger volume, its world event starts a wave encounter, and Royal Guards enter the
+# running session at random points inside the encounter's volume. The same scene in the Scene tab draws the volumes and
+# places an encounter, a second volume and a trigger volume through the Place panel's command.
+encounter_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());encounter_entities=encounter_source['sources'][encounter_source['root']]['entities']
+for key in [key for key,entity in encounter_entities.items() if 'spawn' in entity]:
+    template=encounter_entities.pop(key)
+def gameplay_entity(name,x,z,**component):
+    entity=dict(name=name,target=None,types=json.loads(json.dumps(template['types'])),**component);entity['types']['1']['fields'].update({'1':0.0,'2':x,'4':z});return entity
+encounter_entities['00000000000000000000000000000007']=gameplay_entity('Gate trigger',0.0,6.0,trigger={'event':'gate.entered','half':[3.0,2.0,1.0],'once':True})
+encounter_entities['00000000000000000000000000000008']=gameplay_entity('Gate fight',0.0,14.0,encounter={'trigger':{'event':'gate.entered'},'mode':'waves','waves':[{'npc':f['npc'],'count':2},{'npc':f['npc'],'count':1}],'placement':'random','emits':{'started':'gate.fight_started','completed':'gate.cleared'},'tag':'gate.fight_active'})
+encounter_entities['00000000000000000000000000000009']=gameplay_entity('Gate fight volume',0.0,14.0,volume={'encounter':'00000000000000000000000000000008','half':[4.0,2.0,3.0]})
+(source/'royal_district/RoyalEncounter.dascene').write_text(json.dumps(encounter_source,indent=2)+chr(10))
+log=run('encounter-scene-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--select-encounter','--frames','6','--capture',EVIDENCE/'encounter-scene-d3d12.png'])
+if 'Editor encounter_place encounters=2 volumes=3 triggers=2 undo_redo=1' not in log or marker(log,'volumes_drawn','Editor encounter_scene ')<4:raise RuntimeError('The Scene tab did not draw or place encounter volumes: '+log[-400:])
+log=run('encounter-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--exercise-encounter','--frames','200','--capture',EVIDENCE/'encounter-d3d12.png'])
+if not('Editor encounter fired=1 spawned=2 ' in log and 'events=play.started,gate.entered,gate.fight_started' in log):raise RuntimeError('Editor Play did not start the encounter from its trigger volume: '+log[-400:])
 # The Place panel and outliner driven with real mouse and key events: drag into the viewport, double-click, Delete key, right-click Delete.
 log=run('place-mouse-d3d12',common+['--exercise-place-mouse','--frames','44','--capture',EVIDENCE/'place-mouse-d3d12.png'])
 if 'Editor mouse drag=1' not in log or 'double_click=1 delete_key=1 context_delete=1' not in log or 'viewport_select=1' not in log:raise RuntimeError('The Place panel mouse paths did not work: '+log[-400:])

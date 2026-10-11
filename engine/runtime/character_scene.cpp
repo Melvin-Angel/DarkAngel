@@ -2,6 +2,7 @@
 #include <darkangel/ability_prediction.hpp>
 #include <darkangel/character_presentation.hpp>
 #include <darkangel/targeting.hpp>
+#include <darkangel/assembly.hpp>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -17,8 +18,10 @@ struct CharacterSceneSession::Impl {
     std::unique_ptr<CharacterMotor> host_motor,owner_motor;
     // A server-driven actor: its scene configuration, authoritative motor and ability owner, the latest controller
     // press and chosen target, and the pose observed from its public state. Kept in ascending network identity.
-    struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<ObservedCharacterPose> pose;std::unique_ptr<Perception> perception;};
+    struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<ObservedCharacterPose> pose;std::unique_ptr<Perception> perception;std::optional<std::size_t> encounter;};
     std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner;std::vector<Actor> actors;std::vector<StableId> actor_identities;std::uint32_t player_faction{1};std::vector<SensedSubject> seen;std::vector<MotorInput> actor_commands;std::vector<MotionRequest> actor_motions;std::vector<AbilityOwnerSnapshot> actor_before;std::vector<char> actor_requested;std::uint64_t next_operation{1};std::vector<InputEvent> pending_events;
+    // World events, trigger volumes and encounters; enemies an encounter spawned keep their configuration here.
+    WorldEvents world;std::vector<WorldTrigger> triggers;std::vector<EncounterDirector> directors;std::vector<StableId> encounter_identities;std::deque<CharacterSceneActor> spawned;std::map<std::string,std::uint32_t> factions;std::vector<std::shared_ptr<const ActionDefinition>> prepared_actions;std::string rig_archive;
     std::unique_ptr<OwnerPrediction> owner;
     std::unique_ptr<OwnerAbilityPrediction> ability_prediction;std::deque<MotorInput> semantic_commands;
     std::map<std::uint64_t,std::unique_ptr<ObserverAbility>> observers;
@@ -57,7 +60,7 @@ struct CharacterSceneSession::Impl {
             if(combat)for(const auto& config:combat->actors)if(config.id==object.id){require(object.id!=identity&&std::none_of(actors.begin(),actors.end(),[&](const auto& known){return known.identity==object.id;})&&object.transform.scale==1&&object.health.current>0,"Combat actor profile");Actor actor;actor.identity=object.id;actor.id=id;actor.config=&config;actor.foot={object.transform.x,object.transform.y,object.transform.z};actor.yaw=object.transform.yaw;actors.push_back(std::move(actor));}}
         if(combat){require(actors.size()==combat->actors.size(),"Combat actor has no scene object");std::sort(actors.begin(),actors.end(),[](const auto& a,const auto& b){return a.id<b.id;});
             // Factions become session-local numbers in simulation order; the player's is 1.
-            std::map<std::string,std::uint32_t> factions{{combat->faction,player_faction}};for(auto& actor:actors){actor.faction=factions.emplace(actor.config->faction,std::uint32_t(factions.size()+1)).first->second;actor_identities.push_back(actor.identity);}
+            factions={{combat->faction,player_faction}};for(auto& actor:actors){actor.faction=factions.emplace(actor.config->faction,std::uint32_t(factions.size()+1)).first->second;actor_identities.push_back(actor.identity);}
             server.assign_team(player,player_faction);for(const auto& actor:actors)server.assign_team(actor.id,actor.faction);
             actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());seen.reserve(actors.size()+1);}
         require(player,"Character scene player missing");authoritative.load_scene(collision);prediction->load_scene(collision);
@@ -65,12 +68,11 @@ struct CharacterSceneSession::Impl {
         if(combat){require(combat->kit&&combat->evaluator&&(bool(combat->damage)||bool(combat->combat_damage)),"Combat scene requires frozen kit/game evaluator");validate_combat_kit(*combat->kit,combat->input);for(const auto& ability:combat->abilities){require(ability&&ability->action->motion,"Scene action requires a frozen clip");auto clip=combat->clips.at(ability->action->motion->clip.id);require(clip&&clip->definition().skeleton==rig.definition().id&&clip->definition().signature==rig.definition().signature&&clip->archive_generation()==ability->action->motion->archive_generation,"Scene action clip generation/rig mismatch");}
             server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));if(combat->combat_damage)server.register_combat_evaluator(combat->evaluator,combat->combat_damage);else server.register_damage_evaluator(combat->evaluator,combat->damage);for(const auto& [id,evaluator]:combat->effect_evaluators)server.register_effect_evaluator(id,evaluator);ability_owner=server.configure_abilities(player,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(ability_owner,combat->tags);if(combat->loadouts.empty())server.equip_combat_kit(ability_owner,combat->kit,combat->input,combat->abilities);else{require(combat->loadouts.size()==loadout_slot_count&&combat->active_loadout<loadout_slot_count&&combat->loadouts[combat->active_loadout],"Scene loadouts need four slots and an equipped active slot");server.configure_ability_loadouts(ability_owner,combat->loadouts,combat->active_loadout);}
             // Every actor gets its own motor and ability owner; one with a kit is equipped with it.
-            for(auto& actor:actors){const auto& config=*actor.config;require(!config.attributes.empty(),"Combat actor needs resolved attributes");AttributeSet(config.attributes);
-                actor.perception=std::make_unique<Perception>(config.senses);actor.motor=std::make_unique<CharacterMotor>(authoritative,actor.foot,actor.id);auto state=actor.motor->state();state.yaw=actor.yaw;actor.motor->restore(state);
-                actor.owner=server.configure_abilities(actor.id,config.attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(actor.owner,combat->tags);
-                if(config.kit){validate_combat_kit(*config.kit,config.input);for(const auto& ability:config.abilities)require(ability&&std::any_of(combat->abilities.begin(),combat->abilities.end(),[&](const auto& known){return known->id==ability->id&&known->generation==ability->generation;}),"Actor ability is not in the prepared scene abilities");server.equip_combat_kit(actor.owner,config.kit,config.input,config.abilities);}
-                else require(config.abilities.empty(),"An actor without a kit cannot carry abilities");
-                server.publish_motor(actor.id,actor.motor->state());}
+            for(auto& actor:actors)arm(actor);
+            {std::size_t planned=actors.size();for(const auto& encounter:combat->encounters)planned+=encounter.definition.enemies();require(planned<=character_scene_actor_limit,"The scene's spawn points and encounters ask for more actors than one session holds");}
+            for(const auto& encounter:combat->encounters){for(auto npc:encounter.definition.npcs()){auto found=encounter.npcs.find(npc);require(found!=encounter.npcs.end()&&!found->second.attributes.empty()&&!found->second.faction.empty(),"An encounter's NPC definition is not prepared");for(const auto& ability:found->second.abilities)require(ability&&std::any_of(combat->abilities.begin(),combat->abilities.end(),[&](const auto& known){return known->id==ability->id&&known->generation==ability->generation;}),"An encounter NPC's ability is not in the prepared scene abilities");}
+                require(bool(encounter.id)&&std::find(encounter_identities.begin(),encounter_identities.end(),encounter.id)==encounter_identities.end(),"Encounter identity");directors.emplace_back(encounter.definition,encounter.volumes,encounter.points,encounter.id.high^encounter.id.low);encounter_identities.push_back(encounter.id);}
+            for(const auto& trigger:combat->triggers)triggers.emplace_back(trigger.definition,trigger.center,trigger.yaw);world.emit("play.started");
             server.drain_ability_actions();}
         auto host_state=host_motor->state();host_state.topology=authoritative.topology();host_state.yaw=yaw;host_motor->restore(host_state);auto owner_state=owner_motor->state();owner_state.yaw=yaw;owner_motor->restore(owner_state);
         owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_geometry=prediction->capture().meshes;
@@ -79,7 +81,7 @@ struct CharacterSceneSession::Impl {
         for(unsigned work=0;work<32&&(!client.motors().contains(player)||!client.collision_control_ready()||(combat&&(!client.ability_corrections().contains(player)||!client.public_abilities().contains(player)||!actors_public())));++work)pump();
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags,combat->loadouts);}
-        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);
+        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);prepared_actions=actions;rig_archive=std::string(archive);
             auto observe=[&](std::uint64_t id,const std::vector<AttributeDefinition>& schema){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(schema,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(schema),combat->tags,combat->effects));}};
             observe(player,combat->attributes);for(const auto& actor:actors)observe(actor.id,actor.config->attributes);
             action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),actions);reactions=std::make_unique<ReactionPresentation>(rig.definition(),combat->effects,combat->clips);if(combat->death)player_death=std::make_unique<DeathPresentation>(rig.definition(),combat->death,combat->clips);
@@ -148,6 +150,39 @@ struct CharacterSceneSession::Impl {
     // own motor state from the motor stream.
     bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick==tick&&(held->second.ability.tick==tick||(!held->second.ability.active&&listed->second.content==public_ability_content(held->second.ability)));}
     AbilityPublicFrame shown(std::uint64_t id)const{auto frame=client.public_abilities().at(id);auto motor=client.motors().find(id);if(!frame.ability.active&&motor!=client.motors().end()&&motor->second.tick>frame.ability.tick&&motor->second.epoch==frame.motor.epoch){frame.motor=motor->second;frame.ability.tick=motor->second.tick;}return frame;}
+    // Server side of one actor: senses, authoritative motor, ability owner with its kit. Runs at session start for the scene's
+    // actors and during play for an enemy an encounter spawns.
+    void arm(Actor& actor){const auto& config=*actor.config;require(!config.attributes.empty(),"Combat actor needs resolved attributes");AttributeSet(config.attributes);
+                actor.perception=std::make_unique<Perception>(config.senses);actor.motor=std::make_unique<CharacterMotor>(authoritative,actor.foot,actor.id);auto state=actor.motor->state();state.yaw=actor.yaw;state.tick=state.sequence=authoritative.tick();actor.motor->restore(state);
+                actor.owner=server.configure_abilities(actor.id,config.attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(actor.owner,combat->tags);
+                if(config.kit){validate_combat_kit(*config.kit,config.input);for(const auto& ability:config.abilities)require(ability&&std::any_of(combat->abilities.begin(),combat->abilities.end(),[&](const auto& known){return known->id==ability->id&&known->generation==ability->generation;}),"Actor ability is not in the prepared scene abilities");server.equip_combat_kit(actor.owner,config.kit,config.input,config.abilities);}
+                else require(config.abilities.empty(),"An actor without a kit cannot carry abilities");
+                server.publish_motor(actor.id,actor.motor->state());}
+    // Client side of one actor: observer, effect view and pose, once its first public frame has arrived.
+    void present(Actor& actor){
+        require(client.public_abilities().contains(actor.id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(actor.config->attributes,combat->health,combat->maximum_health,prepared_actions,combat->tags);prepared->push(client.public_abilities().at(actor.id));observers.emplace(actor.id,std::move(prepared));
+        if(!combat->effects.empty())effect_views.emplace(actor.id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(actor.config->attributes),combat->tags,combat->effects));
+        actor.pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),rig_archive,prepared_actions,combat->clips,combat->tags,combat->effects,combat->death);actor.pose->sample(observers.at(actor.id)->sample(double(client.public_abilities().at(actor.id).ability.tick)).frame,effect_frame(actor.id));
+    }
+    // An enemy enters the session: a replicated object at the requested place, then the same setup as any actor.
+    void spawn(std::size_t index,const EncounterSpawn& request){
+        const auto& encounter=combat->encounters[index];require(actors.size()<character_scene_actor_limit,"An encounter spawned more actors than one session holds");
+        auto made=encounter.npcs.at(request.npc);made.id=encounter_actor(encounter.id,request.index);made.controller=encounter.controller?encounter.controller(request.npc):nullptr;spawned.push_back(std::move(made));const auto& config=spawned.back();
+        ObjectData object;object.id=config.id;object.transform.x=request.position.x;object.transform.y=request.position.y;object.transform.z=request.position.z;object.transform.yaw=request.yaw;
+        for(const auto& attribute:config.attributes){if(attribute.id==combat->health)object.health.current=attribute.base;if(attribute.id==combat->maximum_health)object.health.maximum=attribute.base;}
+        Actor actor;actor.identity=config.id;actor.id=server.create(object);actor.config=&config;actor.foot=request.position;actor.yaw=request.yaw;actor.encounter=index;require(actors.empty()||actors.back().id<actor.id,"A spawned actor's network identity is out of order");
+        actor.faction=factions.emplace(config.faction,std::uint32_t(factions.size()+1)).first->second;server.assign_team(actor.id,actor.faction);arm(actor);
+        actors.push_back(std::move(actor));actor_identities.push_back(config.id);actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());
+    }
+    // World step, before sensing: deliver last tick's events, let trigger volumes and encounters act on authoritative state.
+    void run_world(std::uint64_t tick){
+        world.begin_tick(tick);const auto& owner_state=host_motor->state();const bool owner_alive=server.objects().at(player).health.current>0;
+        for(auto& trigger:triggers)trigger.step(world,owner_state.position,owner_alive);
+        const auto ground=[this](double x,double from,double z)->std::optional<double>{const auto found=authoritative.query_ray({x,from,z},{0,-(std::abs(from)+500),0},{StaticCollision,0});const CollisionHit* nearest=nullptr;for(const auto& hit:found.hits)if(!nearest||hit.fraction<nearest->fraction)nearest=&hit;if(!nearest)return std::nullopt;return nearest->point.y;};
+        const auto occupied=[this](MotorVec point){auto near=[&](const MotorVec& at){return std::hypot(at.x-point.x,at.z-point.z)<1.&&std::abs(at.y-point.y)<2.5;};if(server.objects().at(player).health.current>0&&near(host_motor->state().position))return true;for(const auto& actor:actors)if(server.objects().at(actor.id).health.current>0&&near(actor.motor->state().position))return true;return false;};
+        for(std::size_t index=0;index<directors.size();++index){unsigned alive=0;for(const auto& actor:actors)if(actor.encounter==index&&server.objects().at(actor.id).health.current>0)++alive;
+            for(const auto& request:directors[index].step(tick,world,owner_state.position,alive,ground,occupied))spawn(index,request);}
+    }
     bool actors_public()const{for(const auto& actor:actors)if(!client.public_abilities().contains(actor.id))return false;return true;}
     const Actor* find(StableId identity)const{for(const auto& actor:actors)if(actor.identity==identity)return &actor;return nullptr;}
     // Soft-lock candidates for the player: every live actor of another faction. Authority reads its own
@@ -238,6 +273,7 @@ struct CharacterSceneSession::Impl {
         semantic_commands.push_back(command);require(semantic_commands.size()<=30,"Character scene semantic history overflow; resynchronize");
         server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
         auto accepted=server.consume_motor(player,tick,command.epoch);
+        if(combat)run_world(tick);
         for(std::size_t index=0;index<actors.size();++index){const auto& motor=actors[index].motor->state();actor_commands[index]=MotorInput{tick,tick,motor.epoch,0,0,motor.yaw};actor_motions[index]={};}
         if(combat){
             // Controllers decide in ascending network identity from the state before this tick; their presses join the same ability advance as the player's intents.
@@ -262,8 +298,8 @@ struct CharacterSceneSession::Impl {
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(prepared);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
-        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
-        for(auto& actor:actors)actor.pose->sample(observers.at(actor.id)->sample(double(tick)).frame,effect_frame(actor.id));
+        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& actor:actors)if(!actor.pose)present(actor);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
+        for(auto& actor:actors)if(actor.pose)actor.pose->sample(observers.at(actor.id)->sample(double(tick)).frame,effect_frame(actor.id));
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
         if(graph.tag_dictionary())parameters.tags=&client.ability_corrections().at(player).ability.tags;
@@ -316,8 +352,8 @@ const MotorState& CharacterSceneSession::predicted_motor()const{return impl_->ow
 const GraphState& CharacterSceneSession::graph()const{return impl_->graph.state();}
 const GraphPoseInputs& CharacterSceneSession::graph_inputs()const{return impl_->graph_inputs;}
 const std::vector<JointMatrix>& CharacterSceneSession::pose()const{return impl_->matrices;}
-const std::vector<JointMatrix>* CharacterSceneSession::pose(StableId actor)const{if(actor==impl_->player_identity)return &impl_->matrices;if(const auto* found=impl_->find(actor))return &found->pose->matrices();return nullptr;}
-const GraphPoseInputs* CharacterSceneSession::graph_inputs(StableId actor)const{if(actor==impl_->player_identity)return &impl_->graph_inputs;if(const auto* found=impl_->find(actor))return &found->pose->inputs();return nullptr;}
+const std::vector<JointMatrix>* CharacterSceneSession::pose(StableId actor)const{if(actor==impl_->player_identity)return &impl_->matrices;if(const auto* found=impl_->find(actor))if(found->pose)return &found->pose->matrices();return nullptr;}
+const GraphPoseInputs* CharacterSceneSession::graph_inputs(StableId actor)const{if(actor==impl_->player_identity)return &impl_->graph_inputs;if(const auto* found=impl_->find(actor))if(found->pose)return &found->pose->inputs();return nullptr;}
 std::size_t CharacterSceneSession::pending_prediction()const{return impl_->owner->pending();}
 unsigned CharacterSceneSession::resynchronizations()const{return impl_->resynchronizations;}
 const AbilityOwnerSnapshot* CharacterSceneSession::ability()const{auto found=impl_->client.ability_corrections().find(impl_->player);return found==impl_->client.ability_corrections().end()?nullptr:&found->second.ability;}
@@ -369,9 +405,16 @@ AimSolution CharacterSceneSession::aim(MotorVec camera,MotorVec direction,double
 std::string CharacterSceneSession::controller_status(StableId actor)const{const auto* found=impl_->find(actor);return found&&found->config->controller?found->config->controller->status():std::string{};}
 const AbilityReceipt* CharacterSceneSession::controller_receipt(StableId actor)const{const auto* found=impl_->find(actor);return found&&found->receipt?&*found->receipt:nullptr;}
 std::optional<StableId> CharacterSceneSession::controller_target(StableId actor)const{const auto* found=impl_->find(actor);return found?found->chosen:std::nullopt;}
+void CharacterSceneSession::emit_world_event(std::string name){impl_->world.emit(std::move(name));}
+const WorldEvents& CharacterSceneSession::world_events()const{return impl_->world;}
+std::span<const StableId> CharacterSceneSession::encounters()const{return impl_->encounter_identities;}
+std::optional<EncounterStatus> CharacterSceneSession::encounter(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.directors.size();++index)if(p.encounter_identities[index]==id)return p.directors[index].status();return std::nullopt;}
+std::optional<StableId> CharacterSceneSession::actor_encounter(StableId actor)const{const auto* found=impl_->find(actor);if(found&&found->encounter)return impl_->encounter_identities[*found->encounter];return std::nullopt;}
+std::optional<unsigned> CharacterSceneSession::trigger_fired(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.triggers.size();++index)if(p.combat->triggers[index].id==id)return p.triggers[index].fired();return std::nullopt;}
+const CharacterSceneActor* CharacterSceneSession::actor(StableId id)const{const auto* found=impl_->find(id);return found?found->config:nullptr;}
 const Perception* CharacterSceneSession::perception(StableId actor)const{const auto* found=impl_->find(actor);return found?found->perception.get():nullptr;}
 unsigned CharacterSceneSession::predicted_loadout()const{return impl_->ability_prediction?impl_->ability_prediction->view().loadout:0;}
-std::optional<double> CharacterSceneSession::death(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_death_tick;if(const auto* found=p.find(actor))return found->pose->death();return std::nullopt;}
-const ReactionSample* CharacterSceneSession::reaction(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_reaction?&*p.player_reaction:nullptr;if(const auto* found=p.find(actor))if(found->pose->reaction())return &*found->pose->reaction();return nullptr;}
+std::optional<double> CharacterSceneSession::death(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_death_tick;if(const auto* found=p.find(actor))if(found->pose)return found->pose->death();return std::nullopt;}
+const ReactionSample* CharacterSceneSession::reaction(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_reaction?&*p.player_reaction:nullptr;if(const auto* found=p.find(actor))if(found->pose&&found->pose->reaction())return &*found->pose->reaction();return nullptr;}
 const EffectPresentation* CharacterSceneSession::effects(StableId actor)const{for(const auto& [id,view]:impl_->effect_views)if(impl_->client.objects().at(id).id==actor)return view.get();return nullptr;}
 }

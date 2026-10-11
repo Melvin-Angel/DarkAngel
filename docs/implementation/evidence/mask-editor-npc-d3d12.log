@@ -3,15 +3,9 @@
 [39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
-[39m[00001] [imgui-error] (current settings: Assert=1, Log=1, Tooltip=1)
-[00001] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[00002] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201d60000
-[39m[00003] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00004] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-[00005] [imgui-error] In window '##MainMenuBar': Calling EndPopup() too many times or in wrong window!
-Viewport foreground pixels=763026 capture=C:\DarkAngel\docs\implementation\evidence\mask-editor-npc-d3d12.png
+[39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201d60000
+[39mViewport foreground pixels=757956 capture=C:\DarkAngel\docs\implementation\evidence\mask-editor-npc-d3d12.png
 Mask Editor open mask=Air Mask workspace=npc selection_kept=1 dirty=0
 DarkAngel editor rendered 5 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

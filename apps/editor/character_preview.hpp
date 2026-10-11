@@ -7,13 +7,16 @@
 #include "native_authoring.hpp"
 #include <darkangel/assembly.hpp>
 #include <functional>
+#include <set>
 namespace darkangel::editor_app {
 // Presentation of the active equipped mask: a static model on a rig socket joint.
 struct WornMask {AssetId mask,model;std::string name;std::array<float,4> tint{1,1,1,1};unsigned joint{};std::array<float,3> position{},rotation{};float scale{1};};
 // A scene spawn point prepared for Play: the placed object, the runtime actor it creates, the NPC definition and skin,
 // and the behaviour its controller runs. Listed in the same order as the combat's actors.
 struct PreparedSpawn {StableId point,actor;AssetId npc,skin;std::string name;std::optional<BehaviorDefinition> behavior;BehaviorTuning tuning;};
-struct CharacterPreviewResources {CameraRigDefinition cameras{default_camera_rig()};std::array<std::optional<WornMask>,mask_slot_count> masks;std::optional<WornMask> mask;std::array<std::string,mask_slot_count> mask_names;unsigned active_mask{};AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::vector<PreparedSpawn> spawns;std::string spawn_generation;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
+// An NPC definition an encounter can spawn, prepared for Play: the actor each enemy is made from, and what its controller needs.
+struct PreparedEncounterNpc {CharacterSceneActor actor;PreparedSpawn spawn;};
+struct CharacterPreviewResources {std::map<AssetId,PreparedEncounterNpc> encounter_npcs;CameraRigDefinition cameras{default_camera_rig()};std::array<std::optional<WornMask>,mask_slot_count> masks;std::optional<WornMask> mask;std::array<std::string,mask_slot_count> mask_names;unsigned active_mask{};AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::vector<PreparedSpawn> spawns;std::string spawn_generation;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
 // Authoring-only pose sampling. Owns independent Ozz buffers and never creates
 // a WorldSession, action activation, motor request or gameplay event.
 class ComposerPosePreview {
@@ -43,6 +46,6 @@ private:AnimationGraphInstance graph_;RigPose pose_;GraphPoseInputs inputs_;Grap
 };
 struct AuthoredGraphPose {CookedCharacter character;CookedGraph graph;std::unique_ptr<GraphPosePreview> pose;};
 AuthoredGraphPose prepare_authored_graph_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId graph);
-CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},const std::map<StableId,AssetId>& spawns={},AssetId collision={});
+CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},const std::map<StableId,AssetId>& spawns={},AssetId collision={},const std::set<AssetId>& encounter_npcs={});
 std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&,const std::function<std::shared_ptr<ActorController>(const PreparedSpawn&,const CollisionDefinition&)>& controller={});
 }
