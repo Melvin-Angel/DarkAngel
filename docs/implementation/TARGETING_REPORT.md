@@ -268,3 +268,18 @@ Full pass on this build: all 41 verify gates and CTest with only the five known 
 ### Not verified
 
 Packet loss: a lost public frame is repaired by the 30-tick keep-alive, and until then the scene session waits for it (its pump bound is 32). Over a real lossy connection that wait must become the staleness bound of the design. GNS tests pass but none exercises the index under loss.
+
+## Packet budget, second build: under budget at 14.4 packets a tick (11 October 2026)
+
+- **Cause found.** The collision stream packed a fixed four items to a packet, a count sized for its largest item. A character entry is 88 bytes and a box 176, so seventeen characters and the ground took five to six packets every tick.
+- **Change.** Collision items are packed whole, as many as fit a packet (`collision_chunk_starts` in world_session.cpp). The receiver reads each chunk to its end and checks the item total instead of expecting four per chunk; the old four-per-chunk layout is still a valid input. No wire kind or field changed.
+
+| CharacterCombatSceneTests, seventeen characters | start of day | after public index | now |
+|---|---|---|---|
+| server packets per tick | 30.04 | 17.79 | 14.40 |
+
+Now, by kind: motor batch 6.00, public ability 3.00, collision 2.18, owner correction 2.18, public index 1.00. The test's bound is the budget itself, 16.
+
+**Verified:** full pass on this build, all 41 verify gates and CTest with only the five known unrelated failures; `CollisionStreamTests` (loss, reorder, duplicates, late join) passes with a largest packet of 952 bytes. No capture was looked at for this build: nothing visible changed since the capture looked at for the first build.
+
+**Not verified / remaining:** the margin is 1.6 packets in a scene where every actor is within reach of the player and four are acting; a scene with more actors acting at once sends more public ability frames. Step 3 of the design (remote motor states by relevance and rate, the largest remaining share) and dropping the motor state from the public frame are not built. Loopback only; packet loss on the public index was not exercised.
