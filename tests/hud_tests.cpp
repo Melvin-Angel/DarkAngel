@@ -44,6 +44,9 @@ int main(){try{
         check(hud.text("health-text")=="75 / 100"&&hud.text("stamina-text")=="85 / 100"&&hud.text("target-text")=="60 / 100","HUD numbers do not follow the view model");
         check(hud.box("stagger")&&!hud.box("state"),"Staggered caption or defeat banner state is wrong");
         check(recorder.drawn>0&&recorder.textured>0&&!recorder.textures.empty()&&recorder.file_textures==0,"HUD produced no geometry or no font texture");
+        // Switch feedback: the active mask's name is part of the view model; an unmasked actor shows none.
+        check(!hud.box("mask"),"HUD showed a mask for an unmasked actor");auto masked=ashen_roots::royal_hud(owner,schema,Health{100,60},"Ember Mask");hud.update(masked);hud.render();check(hud.box("mask")&&hud.text("mask")=="Ember Mask","HUD does not show the active mask");
+        masked.mask="Earth Mask";hud.update(masked);check(hud.text("mask")=="Earth Mask","HUD did not follow a mask switch");hud.update(mapped);hud.render();
         // Unchanged state redraws without rebuilding the model; changes are picked up on the next update.
         const auto drawn=recorder.drawn;hud.update(mapped);hud.render();check(recorder.drawn>drawn&&hud.model()==mapped,"HUD did not redraw unchanged state");
         auto dead=mapped;dead.health=0;dead.has_target=false;hud.update(dead);hud.render();

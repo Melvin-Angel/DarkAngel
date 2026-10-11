@@ -12,6 +12,8 @@ struct HudViewModel {
     double health{},maximum_health{},stamina{},maximum_stamina{};
     bool staggered{};
     bool has_target{};double target_health{},target_maximum_health{};
+    // Display name of the active equipped mask; empty when the actor wears none.
+    std::string mask;
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

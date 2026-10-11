@@ -34,6 +34,8 @@ run('dodge-d3d12',dodge+['--exercise-dodge','--frames','30','--capture',EVIDENCE
 worn=[x for x in common];worn[worn.index('--registry')+1]=f['mask_registry'];k=worn.index('--character-kit');worn[k:k+2]=['--character-clips','player:'+f['mask_player'],'--player-asset',f['mask_player']]
 run('mask-worn-d3d12',worn+['--exercise-upper-body','--frames','30','--capture',EVIDENCE/'mask-worn-d3d12.png'])
 run('mask-placement-d3d12',worn+['--exercise-upper-body','--frames','30','--mask-tune','0.04,0.11,0,0,-90,0,0.01','--capture',EVIDENCE/'mask-placement-d3d12.png'])
+log=run('mask-switch-d3d12',worn+['--exercise-mask-switch','--frames','30','--capture',EVIDENCE/'mask-switch-d3d12.png'])
+if 'Editor mask switch tick=30 loadout=2 mask=test_air worn=0 pending=0' not in log:raise RuntimeError('Editor Play did not switch masks: '+log[-400:])
 run('camera-free-look-d3d12',worn+['--exercise-camera-look','--frames','30','--capture',EVIDENCE/'camera-free-look-d3d12.png'])
 run('camera-aim-d3d12',worn+['--exercise-aim','--frames','30','--capture',EVIDENCE/'camera-aim-d3d12.png'])
 form=[x for x in worn];run('camera-preview-d3d12',form+['--player-workspace','--authoring-asset',f['mask_player'],'--exercise-camera-preview','--height','1500','--frames','6','--capture',EVIDENCE/'camera-preview-d3d12.png'])

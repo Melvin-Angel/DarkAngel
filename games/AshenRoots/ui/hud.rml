@@ -14,6 +14,7 @@ div { display: block; }
 .enemy { background-color: #c4762a; }
 .label { position: absolute; left: 8px; top: 2px; font-size: 14px; }
 .caption { font-size: 13px; color: #d8d1c4; }
+.mask { font-size: 18px; margin-bottom: 2px; }
 #state { position: absolute; left: 0px; right: 0px; top: 36%; text-align: center; font-size: 36px; color: #e8dccb; }
 </style>
 </head>
@@ -24,6 +25,7 @@ div { display: block; }
 </div>
 <div id="state" data-if="dead">Defeated</div>
 <div id="player" class="panel">
+	<div id="mask" class="mask" data-if="has_mask">{{mask}}</div>
 	<div id="stagger" class="caption" data-if="staggered">Staggered</div>
 	<div id="health-bar" class="bar"><div id="health-fill" class="fill health" data-style-width="health_percent + '%'"></div><div id="health-text" class="label">{{health_text}}</div></div>
 	<div id="stamina-bar" class="bar"><div id="stamina-fill" class="fill stamina" data-style-width="stamina_percent + '%'"></div><div id="stamina-text" class="label">{{stamina_text}}</div></div>

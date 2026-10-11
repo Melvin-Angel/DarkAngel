@@ -34,6 +34,14 @@ Every target was rebuilt through the pinned build command after the CMake change
   - [Death, tick 240](evidence/attacked-death-d3d12.png): "0 / 100", empty Health bar, "Defeated" banner over the fallen player.
 - The other editor gates (reaction, death, dodge, masks, cameras) now run with the HUD drawn and still pass.
 
+## Supplement: mask switch feedback (same day)
+
+First piece of the mask-depth item. `HudViewModel` carries the display name of the active equipped mask and the game document shows it above the bars; an unmasked actor shows none. The editor feeds it from the confirmed (not predicted) active loadout, the same index the worn visual follows. New scripted check `--exercise-mask-switch` presses Keyboard 3 (`mask.down`) during masked Play.
+
+Verified: HudTests (no mask shown for an unmasked actor, name shown, name follows a switch). D3D12 editor Play on the authoring fixture's masked Player, [capture](evidence/mask-switch-d3d12.png) inspected from a direct run with the same arguments: at tick 30 the confirmed and predicted loadout are both slot 2, prediction and ability pending 0, the scene is unchanged, the HUD reads "test_air", the Input Monitor shows the `mask.down` press, and the worn mask is gone because that fixture mask has no model. This is the switch capture that MASK_REPORT listed as not verified. All targets were rebuilt and `python scripts/verify_effect_reaction.py` ran twenty-four gates, all passing, including the new `mask-switch-d3d12` gate. The whole CTest suite was not re-run for this supplement (no shared runtime, wire or prediction code changed).
+
+Not delivered for mask depth: distinct kits per element (all four owned masks still use the Royal kit), a per-mask death timeline and locomotion graph following the switch, switch VFX/sound or a cooldown. The fixture masks differ by model presence rather than tint, so a tint change between two worn masks is still not captured.
+
 ## Limits
 
 - The only host is the editor's Game viewport, composited through the editor's ImGui draw list. There is no standalone Diligent render backend for RmlUi yet; a packaged game needs one. The `Hud` class and document do not change for that.

@@ -28,10 +28,10 @@ private:std::chrono::steady_clock::time_point start_=std::chrono::steady_clock::
 struct Hud::Impl {
     System system;std::string font;Rml::Context* context{};Rml::ElementDocument* document{};Rml::DataModelHandle handle;HudViewModel model;
     // Bound variables. Text is formatted natively so the document carries no rules.
-    float health_percent{},stamina_percent{},target_percent{};Rml::String health_text,stamina_text,target_text;bool dead{},staggered{},has_target{};
+    float health_percent{},stamina_percent{},target_percent{};Rml::String health_text,stamina_text,target_text,mask;bool dead{},staggered{},has_target{},has_mask{};
     void assign(const HudViewModel& value){
         model=value;health_percent=float(percent(value.health,value.maximum_health));stamina_percent=float(percent(value.stamina,value.maximum_stamina));target_percent=float(percent(value.target_health,value.target_maximum_health));
-        health_text=amount(value.health,value.maximum_health);stamina_text=amount(value.stamina,value.maximum_stamina);target_text=amount(value.target_health,value.target_maximum_health);dead=value.health<=0;staggered=value.staggered&&!dead;has_target=value.has_target;
+        health_text=amount(value.health,value.maximum_health);stamina_text=amount(value.stamina,value.maximum_stamina);target_text=amount(value.target_health,value.target_maximum_health);dead=value.health<=0;staggered=value.staggered&&!dead;has_target=value.has_target;mask=value.mask;has_mask=!value.mask.empty();
     }
     Rml::Element* find(const std::string& id)const{return document->GetElementById(id);}
 };
@@ -45,7 +45,7 @@ Hud::Hud(Rml::RenderInterface& renderer,const std::filesystem::path& document,co
         impl_->context=Rml::CreateContext("darkangel-hud",{width,height},&renderer);require(impl_->context!=nullptr,"HUD context creation failed");
         require(Rml::LoadFontFace({reinterpret_cast<const Rml::byte*>(impl_->font.data()),impl_->font.size()},"HUD",Rml::Style::FontStyle::Normal,Rml::Style::FontWeight::Normal,true),"HUD font face rejected");
         auto model=impl_->context->CreateDataModel("hud");require(bool(model),"HUD data model creation failed");
-        bool bound=model.Bind("health_percent",&impl_->health_percent)&&model.Bind("stamina_percent",&impl_->stamina_percent)&&model.Bind("target_percent",&impl_->target_percent)&&model.Bind("health_text",&impl_->health_text)&&model.Bind("stamina_text",&impl_->stamina_text)&&model.Bind("target_text",&impl_->target_text)&&model.Bind("dead",&impl_->dead)&&model.Bind("staggered",&impl_->staggered)&&model.Bind("has_target",&impl_->has_target);
+        bool bound=model.Bind("health_percent",&impl_->health_percent)&&model.Bind("stamina_percent",&impl_->stamina_percent)&&model.Bind("target_percent",&impl_->target_percent)&&model.Bind("health_text",&impl_->health_text)&&model.Bind("stamina_text",&impl_->stamina_text)&&model.Bind("target_text",&impl_->target_text)&&model.Bind("dead",&impl_->dead)&&model.Bind("staggered",&impl_->staggered)&&model.Bind("has_target",&impl_->has_target)&&model.Bind("mask",&impl_->mask)&&model.Bind("has_mask",&impl_->has_mask);
         require(bound,"HUD view model binding failed");impl_->handle=model.GetModelHandle();impl_->assign({});
         impl_->document=impl_->context->LoadDocumentFromMemory(source,document.filename().generic_string());require(impl_->document!=nullptr,"HUD document failed to load");impl_->document->Show();impl_->context->Update();
         if(!impl_->system.problems.empty())throw std::runtime_error("HUD document problems: "+impl_->system.problems);
@@ -54,7 +54,7 @@ Hud::Hud(Rml::RenderInterface& renderer,const std::filesystem::path& document,co
 Hud::~Hud(){Rml::Shutdown();hud_alive=false;}
 void Hud::resize(int width,int height){require(width>0&&height>0&&width<=16384&&height<=16384,"HUD dimensions");if(impl_->context->GetDimensions()!=Rml::Vector2i{width,height})impl_->context->SetDimensions({width,height});}
 void Hud::update(const HudViewModel& value){
-    for(double number:{value.health,value.maximum_health,value.stamina,value.maximum_stamina,value.target_health,value.target_maximum_health})require(std::isfinite(number)&&number>=0&&number<=1e9,"HUD view model bounds");
+    for(double number:{value.health,value.maximum_health,value.stamina,value.maximum_stamina,value.target_health,value.target_maximum_health})require(std::isfinite(number)&&number>=0&&number<=1e9,"HUD view model bounds");require(value.mask.size()<=64,"HUD mask name bound");
     if(!(value==impl_->model)){impl_->assign(value);impl_->handle.DirtyAllVariables();}
     impl_->context->Update();
 }
