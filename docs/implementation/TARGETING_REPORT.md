@@ -191,3 +191,53 @@ User request of 11 October 2026: batch per-character snapshot packets so a full 
 - **What would fix it** (not built; it changes how the scene session and observers consume state, so it should be designed on its own): send remote characters' public state at a lower rate than the simulation (the observer already buffers and interpolates), send a character's public ability frame only when something other than its clock changed, and stop repeating the motor state inside the public frame. That also means the scene session must stop requiring every character's public frame on the same tick as the owner's correction.
 
 All 40 verify gates pass (the two-guard gate now accepts two or more guards, because the user's own uncommitted combat scene has three); CTest shows only the five known unrelated failures.
+
+## Packet budget design: send what changed, at the rate the reader needs (11 October 2026)
+
+User request of 11 October 2026. Design only; no code has been changed. It starts from "What would fix it" above and from reading the send paths in `engine/runtime/world_session.cpp` (`pump_abilities`, `pump_public_abilities`, `pump_effects`, `pump_collision`, the motor batch) and the reader in `CharacterSceneSession::step`.
+
+### What the code does today
+
+- `pump_public_abilities` already skips a character whose public snapshot `revision` is unchanged, except for a keep-alive every 30 ticks. It still sends one frame per character per tick because the scene session requires it: `public_ready` in `CharacterSceneSession::step` wants `ability.tick == tick` for the player and every actor, and the snapshot's revision moves with its clock.
+- Each public frame carries the whole `MotorState` again (`encode_ability_public({id, epoch, revision, motor, snapshot})`), although every character's motor state already travels in the motor batch.
+- Each frame is its own packet (chunked at `ability_chunk_bytes`), where motor states go three to a packet.
+- `packets_sent` is one number per peer. The split of the measured 30 packets between motor, public ability, effect, correction and collision packets is an estimate in the section above, not a measurement.
+
+### Step 0: measure by kind
+
+Count packets per wire kind per peer (beside the total) and print the split in the sixteen-actor test. Every later step is judged against that table, and the estimate above is replaced by it. No behaviour change.
+
+### Step 1: a public ability frame only when its content changed
+
+- Split the public snapshot's identity in two: a **content revision** that moves when attributes, tags, the active ability, its action identity or the loadout change, and the **clock** (tick and action clock). The send test in `pump_public_abilities` uses the content revision; the 30-tick keep-alive stays as the repair for a lost unreliable packet.
+- The reader derives the clock. For an idle character a frame is valid for every later tick. For an active action the clock advances one tick per tick from the frame's own tick, which `ObserverAbility` can do because it already samples buffered frames at a render tick. An action that ends changes content, so the end still arrives as a frame.
+- Risk to check in code before building: anything on the server that changes public state on a clock without bumping the content revision (cooldown displays, periodic effects that change a public attribute). Those must bump it.
+
+### Step 2: no motor state inside the public frame
+
+The frame keeps only what fences it: the avatar epoch and its tick. `ObserverAbilitySample::frame.motor` is then filled by the client from the motor stream for the same character. This is a wire change to `AbilityPublic` (protocol 3), so the codec, the wire tests and the GNS tests that hand-build frames change with it: plan one full rebuild and CTest. Smaller frames then go several to a packet, the same way `MotorBatch` does.
+
+### Step 3: remote motor states at a lower rate, by relevance
+
+- The owner's own correction and motor state stay every tick; prediction needs them.
+- A remote character within a relevance radius of the owner (proposed 12 m, a session limit) is sent every tick. That keeps melee, soft lock and aim against nearby actors exactly as they are, including the zero prediction error the soft-lock gates assert in loopback.
+- A remote character beyond it is sent every third tick, staggered by network identity so the load is even. `ObserverAbility` and `ObservedCharacterPose` interpolate between the states they have, as they would have to over any real connection.
+- Product decision hidden in this, to confirm with the user before building: the relevance radius, and whether far characters at 20 states a second look acceptable. It is a tuning number, not a blocker for steps 0 to 2.
+
+### The same-tick requirement in CharacterSceneSession::step
+
+Settled as follows, before any code:
+
+- `step` keeps requiring, on the tick: the owner's motor snapshot, the owner's ability correction and the collision frame. Those drive reconciliation and nothing else can stand in for them.
+- `public_ready` is removed from `snapshots_ready` and from the `require` after reconciliation. Public frames and remote motor states are consumed as they arrive: an observer is pushed a frame only when the client holds a newer one than it last pushed.
+- What replaces the guarantee is a staleness bound, checked instead of equality: a remote character's newest public content is never older than the keep-alive interval, and its newest motor state never older than its send interval plus the retry the state stream already does. The session fails (resynchronise) only when that bound is broken, not when a frame is simply not due.
+- Readers that assumed the current tick and must be changed together: `client_candidates` (soft-lock prediction reads remote motor positions and public Health; inside the relevance radius they are still current), `CharacterSceneSession::aim` (confirmed public positions; a far target can be up to three ticks old, which is acceptable because aim only shapes input and the server sweeps its own state), `actor.pose->sample(observers.at(id)->sample(tick))` (samples at the render tick, extrapolating the action clock), `effect_views` (already tolerant: they push only when a frame is found), and the Gameplay Inspector.
+- Tests that assert `observer(id, tick).frame.motor.tick == motor().tick` for every actor (the sixteen-actor block of CharacterCombatSceneTests) change to the staleness bound; tests of a single nearby target keep the exact tick.
+
+### Expected result (an estimate until step 0 gives the real split)
+
+For the sixteen-actor test, where most actors stand still: public ability packets fall from about one per character per tick to the few characters whose content changed, motor packets from 6 to between 2 and 6 depending on how many actors are inside the relevance radius, and the rest (owner correction, effects on change, collision) stays. The target is under the 16-packet budget with every actor near the player and well under it in the usual case. Report the before and after numbers from `CharacterSceneSession::server_packets` and the per-kind split; the before number on today's build is 30.04 packets a tick.
+
+### Order of work
+
+Step 0, then 1 with the `step` change (they depend on each other), measured; then 2 (the wire change, one full rebuild); then 3 after the user confirms the radius. One full verification pass at the end of the chunk; steps 1 to 3 touch shared runtime, wire and prediction code.
