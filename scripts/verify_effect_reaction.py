@@ -72,6 +72,13 @@ run('spawn-points-scene-d3d12',scene(guarded,'RoyalCombat.dascene')+['--frames',
 # Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.
 log=run('navigation-tool-d3d12',common+['--exercise-navigation-bake','--frames','5','--capture',EVIDENCE/'navigation-tool-d3d12.png'])
 if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise RuntimeError('Navigation tool did not bake: '+log[-400:])
+# Mask Editor: one window for a mask definition, opened over the Player tab and over the NPC tab.
+masks=sorted(source.glob('masks/*.dafacemask'));mask_id=json.loads(masks[0].read_text())['asset']
+masked_npc=next((json.loads(p.read_text())['asset'] for p in sorted(source.glob('npcs/*.danpc')) if any(json.loads(p.read_text()).get('loadout',{}).get('masks',[]))),f['npc'])
+log=run('mask-editor-player-d3d12',form+['--player-workspace','--authoring-asset',f['mask_player'],'--mask-editor',mask_id,'--height','1500','--frames','5','--capture',EVIDENCE/'mask-editor-player-d3d12.png'])
+if 'Mask Editor open mask=' not in log or 'workspace=player selection_kept=1 dirty=0' not in log:raise RuntimeError('Mask Editor did not open over the Player tab: '+log[-400:])
+log=run('mask-editor-npc-d3d12',form+['--npc-workspace','--authoring-asset',masked_npc,'--mask-editor',mask_id,'--height','1500','--frames','5','--capture',EVIDENCE/'mask-editor-npc-d3d12.png'])
+if 'Mask Editor open mask=' not in log or 'workspace=npc selection_kept=1 dirty=0' not in log:raise RuntimeError('Mask Editor did not open over the NPC tab: '+log[-400:])
 # M6 track: the Guard Melee behaviour opened in the NPC workspace (tree outline with structure controls).
 run('behavior-form-d3d12',common+['--npc-workspace','--authoring-asset',f['behavior'],'--height','1500','--frames','5','--capture',EVIDENCE/'behavior-form-d3d12.png'])
 # M6 track: the owned Royal Guard NPC definition opened in the NPC workspace.

@@ -47,3 +47,25 @@ Inspected against the code on 10 October 2026. The input profile already declare
 - Gates: switch accepted/rejected/duplicate/stale, mid-action policy, prediction agreement and correction replay across a switch, cooldown/Stamina continuity across kits, public index on late join, GNS intent suites re-run, D3D12 capture of a tint change.
 
 This touches the authoritative ability state, its snapshot wire and prediction restore together, so it should land as one increment with the full ability/prediction/GNS suite run, not piecemeal.
+
+## Combat sandbox stage 4: the Mask Editor window (11 October 2026)
+
+Stage 4 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md) (user decision 7: no Mask tab; one reusable Mask Editor window opened from the Player and NPC editors, and later from an Items tab). Editor-only.
+
+### What changed
+
+- The mask form (display name, combat kit, worn model, tint, socket, offset, rotation, scale) left the Player tab's property column and now exists once, in `Shell::draw_mask_editor`. It is a movable window titled "Mask Editor" that stays open while you switch tabs and closes with its own close button.
+- It opens from: "Edit mask" on a mask slot in the Player or NPC loadout; a mask row in the Player or NPC tab's asset list (masks are now listed in the NPC tab too); "Create mask from base kit"; and `open_native_asset` for a mask from anywhere else (history, references). Opening a mask no longer replaces the tab's own selection, so the Player or NPC being edited stays in view beside it.
+- Edits are ordinary drafts: the window records them into the same history as every other gameplay source and has Save, Undo and Redo of its own, which call the same commands as the tab toolbar. Mask definitions are unchanged; nothing about inventory instances was added.
+- `--mask-editor <mask id>` opens the window at startup (used by the gates).
+
+### Verified
+
+- `mask-editor-player-d3d12` and `mask-editor-npc-d3d12`: the window opens on the mask draft over each tab, the tab keeps its own selection, and nothing becomes dirty. Both captures were looked at: the form is complete and the tab underneath is intact.
+- Only these two gates were run for this editor-only change. The full gate script (which now includes them) and CTest were not re-run; the last full pass is the stage 3 build.
+
+### Not verified, and known limits
+
+- No gate clicks inside the window: editing a field, Undo, Redo and Save from the window were not exercised by a run. They call the same authoring commands NativeAuthoringTests covers.
+- The first version drew the window underneath the full-screen tab; the fix keeps it displayed in front while no popup of the tab is open. In the Scene and Game tabs, which use docked panels, it can still end up behind a panel you click, and it has not been tried docked into those layouts.
+- There is no Items tab yet.

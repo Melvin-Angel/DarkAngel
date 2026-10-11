@@ -60,6 +60,46 @@ void Shell::prepare_effect_preview(Controller& c,AssetId id){
  if(!c.assets)throw std::runtime_error("Open project sources before preparing an effect preview");
  try{auto prepared=std::make_unique<EffectPreview>(*c.assets,c.authoring,id);effect_preview=std::move(prepared);effect_preview_asset=id;if(effect_prepare_failed_asset==id){if(author_diagnostic==effect_prepare_error)author_diagnostic.clear();effect_prepare_failed_asset={};effect_prepare_error.clear();}}catch(const std::exception& error){effect_prepare_failed_asset=id;effect_prepare_error=error.what();if(effect_preview&&effect_preview_asset==id)effect_preview->record_failure("Reprepare",error.what());throw;}
 }
+void Shell::draw_mask_editor(Controller& c){
+ if(mask_editor==AssetId{})return;
+ if(!c.assets||std::none_of(c.asset_inventory.begin(),c.asset_inventory.end(),[&](const auto& asset){return asset.id==mask_editor;})){mask_editor={};return;}
+ auto perform=[&](auto f){try{f();}catch(const std::exception& e){if(author_diagnostic!=e.what())c.log(e.what(),ConsoleSeverity::Error);author_diagnostic=e.what();}};
+ bool open=true;AssetId navigate;const auto* viewport=ImGui::GetMainViewport();
+ ImGui::SetNextWindowSize({520,620},ImGuiCond_FirstUseEver);ImGui::SetNextWindowPos({viewport->Pos.x+viewport->Size.x-560,viewport->Pos.y+110},ImGuiCond_FirstUseEver);
+ // Raised when a different mask is opened; the tab underneath never takes the front from it.
+ if(mask_editor_raised!=mask_editor){ImGui::SetNextWindowFocus();mask_editor_raised=mask_editor;}
+ if(ImGui::Begin("Mask Editor",&open,ImGuiWindowFlags_NoSavedSettings)){
+  // The full-screen tab underneath takes the front when it is clicked; keep this window displayed above it unless one of the tab's popups is open.
+  if(!ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)&&!ImGui::IsPopupOpen("",ImGuiPopupFlags_AnyPopupId|ImGuiPopupFlags_AnyPopupLevel))ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+  const bool playing=c.preview.active()!=nullptr;ImGui::BeginDisabled(playing);
+  // Mask edits are ordinary drafts: the same history, validation and coordinated Save as every other gameplay source.
+  if(ImGui::Button("Save gameplay changes"))perform([&]{author_diagnostic.clear();c.save_gameplay();c.refresh_assets();c.log("Saved gameplay sources. Next Play prepares the complete scene and combat kit.");});
+  ImGui::SameLine();ImGui::BeginDisabled(!c.authoring.can_undo());if(ImGui::Button("Undo"))perform([&]{c.authoring.undo(*c.assets);c.refresh_assets();});ImGui::EndDisabled();
+  ImGui::SameLine();ImGui::BeginDisabled(!c.authoring.can_redo());if(ImGui::Button("Redo"))perform([&]{c.authoring.redo(*c.assets);c.refresh_assets();});ImGui::EndDisabled();
+  if(std::any_of(c.asset_inventory.begin(),c.asset_inventory.end(),[&](const auto& asset){return asset.id==mask_editor;})){ImGui::PushItemWidth(-190.f);
+   perform([&]{auto& draft=c.authoring.open(*c.assets,mask_editor);auto& v=draft.value;if(v.at("kind")!="mask")throw std::runtime_error("The Mask Editor edits mask definitions only");
+    ImGui::TextUnformatted(std::filesystem::path(draft.asset.path).stem().string().c_str());ImGui::SameLine();ImGui::TextDisabled(draft.pending?"new draft, not saved":draft.dirty()?"edited draft":"saved");ImGui::TextDisabled("%s",draft.asset.path.c_str());
+  ImGui::SeparatorText("Mask");text("Display name",v["name"]);
+  AssetId mask_kit=AssetId::parse(v["kit"].get<std::string>());if(picker("Combat kit (this mask's eight slots, dodge and death)",mask_kit,c,reference_filters,".dakit")){v["kit"]=mask_kit.text();for(const auto& a:c.asset_inventory)if(a.id==mask_kit)v["sources"]["kit"]=a.path;}
+  if(ImGui::Button("Edit kit in Ability"))navigate=mask_kit;
+  ImGui::SeparatorText("Worn visual");AssetId visual=v.contains("visual")?AssetId::parse(v["visual"].get<std::string>()):AssetId{};
+  if(picker("Mask model",visual,c,reference_filters,".glb",nullptr,"static-gltf-v1")){v["visual"]=visual.text();for(const auto& a:c.asset_inventory)if(a.id==visual)v["sources"]["visual"]=a.path;}
+  if(visual!=AssetId{}){if(ImGui::Button("Remove visual")){v.erase("visual");v["sources"].erase("visual");}
+   if(!v.contains("tint"))v["tint"]={1.0,1.0,1.0,1.0};float tint[4];for(unsigned i=0;i<4;++i)tint[i]=v["tint"][i].get<float>();if(ImGui::ColorEdit4("Tint",tint))for(unsigned i=0;i<4;++i)v["tint"][i]=tint[i];
+   if(!v.contains("attachment"))v["attachment"]={{"socket","head"},{"position",{0.0,0.0,0.0}},{"rotation",{0.0,0.0,0.0}},{"scale",1.0}};auto& attachment=v["attachment"];
+   text("Character socket",attachment["socket"]);float position[3],rotation[3];for(unsigned i=0;i<3;++i){position[i]=attachment["position"][i].get<float>();rotation[i]=attachment["rotation"][i].get<float>();}
+   if(ImGui::DragFloat3("Offset (m)",position,.005f,-2,2,"%.3f"))for(unsigned i=0;i<3;++i)attachment["position"][i]=position[i];if(ImGui::DragFloat3("Rotation (deg)",rotation,.5f,-360,360,"%.1f"))for(unsigned i=0;i<3;++i)attachment["rotation"][i]=rotation[i];number("Scale",attachment["scale"]);
+   ImGui::TextWrapped("The model follows the named rig socket of the wearing Character. Save, then Play with a Player that has this mask active to see it.");}
+  else ImGui::TextDisabled("No model: the mask still supplies its kit.");
+ 
+   });
+   ImGui::PopItemWidth();
+   perform([&]{auto active=ImGui::GetActiveID();c.authoring.record_changes(*c.assets,active?("Edit mask field "+std::to_string(active)):"Edit mask",active!=0);});}
+  ImGui::EndDisabled();if(playing)ImGui::TextDisabled("Stop Play to edit.");
+ }
+ ImGui::End();if(!open){mask_editor={};mask_editor_raised={};}
+ if(navigate!=AssetId{})perform([&]{c.authoring_kit=navigate;open_native_asset(c,navigate);});
+}
 void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float top){
  ImGui::SetNextWindowPos({0,top});ImGui::SetNextWindowSize({float(width),float(height)-top});const bool character=workspace==Workspace::Character,npc_tab=workspace==Workspace::Npc,player=workspace==Workspace::Player||npc_tab;auto& selection=character?character_selection:npc_tab?npc_selection:player?player_selection:this->authored_selection;const bool animation=workspace==Workspace::Animation;ImGui::Begin(character?"Character workspace":npc_tab?"NPC workspace":player?"Player workspace":animation?"Animation workspace":"Ability workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
  if(!c.assets){ImGui::TextWrapped("Open a project source mount to author gameplay assets.");ImGui::End();return;}
@@ -67,6 +107,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  ImGui::BeginDisabled(c.preview.active()!=nullptr);if(ImGui::Button("Save gameplay changes"))perform([&]{author_diagnostic.clear();c.save_gameplay();c.refresh_assets();c.log("Saved gameplay sources. Next Play prepares the complete scene and combat kit.");});ImGui::SameLine();ImGui::BeginDisabled(!c.authoring.can_undo());if(ImGui::Button("Undo gameplay"))perform([&]{c.authoring.undo(*c.assets);c.refresh_assets();});ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(!c.authoring.can_redo());if(ImGui::Button("Redo gameplay"))perform([&]{c.authoring.redo(*c.assets);c.refresh_assets();});ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(c.authoring.drafts.empty());if(ImGui::Button("Validate drafts"))perform([&]{last_validation.reset();author_diagnostic.clear();auto roots=c.authoring_roots?c.authoring_roots():std::vector<AssetId>{};last_validation=c.authoring.validate(*c.assets,selection,roots);c.log("Validated native drafts and consumer closure privately; sources/catalog remain unpublished. Save validates again.");});ImGui::EndDisabled();ImGui::SameLine();ImGui::TextDisabled(c.authoring.dirty()?"Unsaved gameplay changes":"Gameplay saved");ImGui::EndDisabled();if(c.preview.active())ImGui::TextWrapped("Stop in Game to edit gameplay sources.");if(!author_diagnostic.empty())ImGui::TextWrapped("Needs attention: %s",author_diagnostic.c_str());
  if(last_validation){ImGui::TextWrapped("Last private validation: %u source drafts at revision %llu. No publication; Save validates again.%s",static_cast<unsigned>(last_validation->sources),static_cast<unsigned long long>(last_validation->revision),last_validation->revision!=c.authoring.revision()?" Drafts changed since this check.":"");}
  if(selection!=AssetId{}&&std::none_of(c.asset_inventory.begin(),c.asset_inventory.end(),[&](const auto& asset){return asset.id==selection;}))selection={};
+ if(selection!=AssetId{})perform([&]{if(c.authoring.open(*c.assets,selection).value.at("kind")=="mask"){mask_editor=selection;selection={};}});
  auto clear_missing=[&](AssetId& id){if(id!=AssetId{}&&std::none_of(c.asset_inventory.begin(),c.asset_inventory.end(),[&](const auto& asset){return asset.id==id;}))id={};};
  for(auto field:{&binding_ability,&binding_effect,&creation_ability_template,&creation_effect_template,&create_skin,&create_character,&graph_character})clear_missing(*field);
  if(animation){
@@ -90,7 +131,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
   bool any=false;
   for(const auto& group:groups){
    const std::string_view ext=group.extension;
-   if(character?ext!=".dacharacter":npc_tab?(ext!=".danpc"&&ext!=".dabehavior"):player?(ext!=".daplayer"&&ext!=".dafacemask"):animation?(ext!=".daaction"&&ext!=".dagraph"):(ext==".dacharacter"||ext==".daplayer"||ext==".danpc"||ext==".dabehavior"||ext==".dafacemask"))continue;
+   if(character?ext!=".dacharacter":npc_tab?(ext!=".danpc"&&ext!=".dabehavior"&&ext!=".dafacemask"):player?(ext!=".daplayer"&&ext!=".dafacemask"):animation?(ext!=".daaction"&&ext!=".dagraph"):(ext==".dacharacter"||ext==".daplayer"||ext==".danpc"||ext==".dabehavior"||ext==".dafacemask"))continue;
    std::vector<const AssetInfo*> rows;for(const auto& a:c.asset_inventory)if(std::filesystem::path(a.path).extension()==ext&&(reference_search(a.path,asset_filter)||reference_search(a.id.text(),asset_filter)))rows.push_back(&a);
    if(rows.empty())continue;any=true;
    std::sort(rows.begin(),rows.end(),[](const AssetInfo* a,const AssetInfo* b){auto x=std::filesystem::path(a->path).filename().string(),y=std::filesystem::path(b->path).filename().string();return x==y?a->path<b->path:x<y;});
@@ -100,7 +141,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
     auto name=std::filesystem::path(a.path).stem().string();auto row_draft=c.authoring.drafts.find(a.id);const bool pending=row_draft!=c.authoring.drafts.end()&&row_draft->second.pending,edited=!pending&&row_draft!=c.authoring.drafts.end()&&row_draft->second.dirty();
     if(pending)name+=" (new)";else if(edited)name+=" (edited)";
     ImGui::PushID(a.id.text().c_str());if(grouped)ImGui::Indent(14.f);if(pending||edited)ImGui::PushStyleColor(ImGuiCol_Text,ImVec4{1.f,.78f,.38f,1.f});
-    if(ImGui::Selectable(name.c_str(),selection==a.id))perform([&]{c.authoring.open(*c.assets,a.id);selection=a.id;});
+    if(ImGui::Selectable(name.c_str(),ext==".dafacemask"?mask_editor==a.id:selection==a.id))perform([&]{c.authoring.open(*c.assets,a.id);if(ext==".dafacemask")mask_editor=a.id;else selection=a.id;});
     if(pending||edited)ImGui::PopStyleColor();
     if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::TextWrapped("%s",a.path.c_str());ImGui::Text("UUID: %s",a.id.text().c_str());if(pending)ImGui::TextUnformatted("Pending creation; not published");else{ImGui::Text("Catalog generation: %llu",static_cast<unsigned long long>(a.generation));if(edited)ImGui::TextUnformatted("Edited draft; Save publishes it, fresh Play uses it afterwards");}ImGui::EndTooltip();}
     if(grouped)ImGui::Unindent(14.f);ImGui::PopID();
@@ -198,10 +239,10 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
    {auto masks=v["loadout"].value("masks",Json::array({nullptr,nullptr,nullptr,nullptr}));unsigned active=v["loadout"].value("active_mask",0u);const char* slots[]={"Up","Right","Down","Left"};
     for(unsigned slot=0;slot<4;++slot){ImGui::PushID(static_cast<int>(slot));AssetId mask=masks[slot].is_null()?AssetId{}:AssetId::parse(masks[slot].get<std::string>());
      if(picker(slots[slot],mask,c,reference_filters,".dafacemask"))perform([&]{c.authoring.equip_mask(*c.assets,selection,slot,mask);});
-     if(mask!=AssetId{}){bool starting=active==slot;if(ImGui::RadioButton("Starts active",starting)&&!starting)perform([&]{c.authoring.select_mask(*c.assets,selection,slot);});ImGui::SameLine();if(ImGui::SmallButton("Edit mask")){open_native_asset(c,mask);ImGui::PopID();return;}ImGui::SameLine();if(ImGui::SmallButton("Unequip"))perform([&]{c.authoring.equip_mask(*c.assets,selection,slot,{});});}
+     if(mask!=AssetId{}){bool starting=active==slot;if(ImGui::RadioButton("Starts active",starting)&&!starting)perform([&]{c.authoring.select_mask(*c.assets,selection,slot);});ImGui::SameLine();if(ImGui::SmallButton("Edit mask"))mask_editor=mask;ImGui::SameLine();if(ImGui::SmallButton("Unequip"))perform([&]{c.authoring.equip_mask(*c.assets,selection,slot,{});});}
      ImGui::PopID();}
     ImGui::TextWrapped(v["loadout"].contains("masks")?"The active mask's kit replaces the base kit at spawn and its model is worn on the Character's face socket. Empty slots are allowed.":"No masks equipped: this actor uses its base kit. Equip a mask to give it that mask's kit and visual.");
-    ImGui::SetNextItemWidth(200);ImGui::InputTextWithHint("##mask-name","new_mask_name",mask_name,sizeof(mask_name));ImGui::SameLine();ImGui::BeginDisabled(!mask_name[0]);if(ImGui::Button("Create mask from base kit"))perform([&]{auto created=c.authoring.create_mask(*c.assets,mask_name,kit);c.refresh_assets();mask_name[0]=0;c.log("Created mask "+c.authoring.drafts.at(created).asset.path+". Choose its kit, visual and tint, then equip it in a slot.");});ImGui::EndDisabled();
+    ImGui::SetNextItemWidth(200);ImGui::InputTextWithHint("##mask-name","new_mask_name",mask_name,sizeof(mask_name));ImGui::SameLine();ImGui::BeginDisabled(!mask_name[0]);if(ImGui::Button("Create mask from base kit"))perform([&]{auto created=c.authoring.create_mask(*c.assets,mask_name,kit);c.refresh_assets();mask_name[0]=0;mask_editor=created;c.log("Created mask "+c.authoring.drafts.at(created).asset.path+". Choose its kit, visual and tint, then equip it in a slot.");});ImGui::EndDisabled();
    }
   auto fields=schema(c,kit_definition,"attributes");ImGui::SeparatorText("Starting attributes");
   if(v["loadout"].contains("starting_attributes")){auto& values=v["loadout"]["starting_attributes"];for(unsigned index=0;index<values.size();++index){ImGui::PushID(index);attribute("Attribute",values[index]["attribute"],fields);number("Starting value",values[index]["value"]);if(ImGui::Button("Use schema default")){values.erase(index);ImGui::PopID();break;}ImGui::PopID();}}
@@ -226,20 +267,6 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
   outline(v["tree"],1,0);
   if(tree_edit.action){using Edit=NativeAuthoring::BehaviorEdit;perform([&]{c.authoring.edit_behavior_tree(*c.assets,selection,tree_edit.path,tree_edit.action==1?Edit::MoveUp:tree_edit.action==2?Edit::MoveDown:tree_edit.action==3?Edit::Remove:Edit::AddChild,tree_edit.type);});return;}
   try{decode_behavior(v.dump());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"Behaviour needs attention: %s. Save will reject it.",error.what());}
- }
- if(kind=="mask"){
-  ImGui::SeparatorText("Mask");text("Display name",v["name"]);
-  AssetId mask_kit=AssetId::parse(v["kit"].get<std::string>());if(picker("Combat kit (this mask's eight slots, dodge and death)",mask_kit,c,reference_filters,".dakit")){v["kit"]=mask_kit.text();for(const auto& a:c.asset_inventory)if(a.id==mask_kit)v["sources"]["kit"]=a.path;}
-  if(ImGui::Button("Edit kit in Ability")){c.authoring_kit=mask_kit;open_native_asset(c,mask_kit);return;}
-  ImGui::SeparatorText("Worn visual");AssetId visual=v.contains("visual")?AssetId::parse(v["visual"].get<std::string>()):AssetId{};
-  if(picker("Mask model",visual,c,reference_filters,".glb",nullptr,"static-gltf-v1")){v["visual"]=visual.text();for(const auto& a:c.asset_inventory)if(a.id==visual)v["sources"]["visual"]=a.path;}
-  if(visual!=AssetId{}){if(ImGui::Button("Remove visual")){v.erase("visual");v["sources"].erase("visual");}
-   if(!v.contains("tint"))v["tint"]={1.0,1.0,1.0,1.0};float tint[4];for(unsigned i=0;i<4;++i)tint[i]=v["tint"][i].get<float>();if(ImGui::ColorEdit4("Tint",tint))for(unsigned i=0;i<4;++i)v["tint"][i]=tint[i];
-   if(!v.contains("attachment"))v["attachment"]={{"socket","head"},{"position",{0.0,0.0,0.0}},{"rotation",{0.0,0.0,0.0}},{"scale",1.0}};auto& attachment=v["attachment"];
-   text("Character socket",attachment["socket"]);float position[3],rotation[3];for(unsigned i=0;i<3;++i){position[i]=attachment["position"][i].get<float>();rotation[i]=attachment["rotation"][i].get<float>();}
-   if(ImGui::DragFloat3("Offset (m)",position,.005f,-2,2,"%.3f"))for(unsigned i=0;i<3;++i)attachment["position"][i]=position[i];if(ImGui::DragFloat3("Rotation (deg)",rotation,.5f,-360,360,"%.1f"))for(unsigned i=0;i<3;++i)attachment["rotation"][i]=rotation[i];number("Scale",attachment["scale"]);
-   ImGui::TextWrapped("The model follows the named rig socket of the wearing Character. Save, then Play with a Player that has this mask active to see it.");}
-  else ImGui::TextDisabled("No model: the mask still supplies its kit.");
  }
  if(kind=="attributes"){
   ImGui::SeparatorText("Attribute definitions");
