@@ -117,3 +117,40 @@ Not built, not verified:
 1. Vertical aim. Not just a pitch value: in third person the camera sits above and behind the character and looks down by default, so the raw camera pitch would send a shot from the character into the ground at range. The client must first converge the crosshair: cast the camera ray into the world, take the point it meets (or a far point), and derive yaw and pitch from the actor's muzzle to that point. Those two angles then travel in `MotorInput` (pitch is the new field, with its codec in `world_session.cpp`) and the server sweep uses them. Shared wire code: one full rebuild and CTest.
 2. Ground-snapped AOE aim: `mode: "ground"`, the server's own ray against its collision from the same yaw and pitch, clamped to the authored range, with a ground marker on the HUD.
 3. Travelling projectiles if wanted: an authoritative projectile entity advanced by the server with the same sweep per tick.
+
+## Combat sandbox stage 2: full 3D aim and shared soft lock (11 October 2026)
+
+Stage 2 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md) (user decisions 4 and 6). Design first, then what was built and verified in one chunk.
+
+### Design
+
+- **Aim is two angles, not a ray.** The client never sends a ray, a point or a target. It converges the crosshair locally: cast the camera ray into its own view of the world, take the point it meets (or the far point at the ability's range), and work out the yaw and pitch that send a shot from the character's muzzle through that point. Yaw already travelled in `MotorInput`; `pitch` is the one new field (radians, positive up, at most 1.5 either way). The server validates the bound and sweeps its own world from its own muzzle along those angles. A wrong or malicious pitch can only aim the client's own shot somewhere else.
+- **Pitch is confirmed state.** `MotorState::pitch` is set from the accepted input when the motor steps, exactly like yaw, and replicates with the state. So the hit query reads it from the same state it already checks against the physics pose, the owner's prediction and replay carry it with the rest of the input history, and observers can later present another actor's aim.
+- **Convergence starts level with the owner.** The ray starts where it passes the owner, so ground or a wall between a third-person camera and the character is never the aim point. If the point ends up at or behind the muzzle the camera's own direction is used.
+- **The spawn position is the hit profile's offset.** The sweep leaves from the profile's offset (right, up, forward of the actor) toward the aim point. Stage 3's travelling projectile will leave from the same place along the same two angles.
+- **Soft lock is one rule for every actor.** `select_soft_lock` and the motor's warp resolver are unchanged and now serve three callers: the player on authority, the player in prediction, and NPCs on authority. What differs is only the candidate list: the player's is every live hostile actor; an NPC's is the one target its controller named when the press was accepted, latched for the length of that action. Configuration stays on the Ability (`targeting`), so Light and Heavy are tuned separately by content.
+
+### Built
+
+- `MotorInput::pitch` and `MotorState::pitch`, both validated, both on the wire (`session_wire.hpp` motor state, `world_session.cpp` motor command). No protocol number change: there are no deployed peers, and both ends are always the same build.
+- `PhysicsMeleeQuery` sweeps a ranged profile along yaw and pitch.
+- `CharacterSceneInput::pitch`; `CharacterSceneSession::aim(camera, direction, range, muzzle)` returns `AimSolution{yaw, pitch, point, hit}`. It casts against the owner's predicted collision and the other actors' confirmed public positions (upright capsules).
+- Editor Play: while an aim camera is live the input yaw and pitch come from `aim` with the muzzle and range of the kit's aimed ability.
+- NPC soft lock: an actor's accepted press latches `ControllerCommand::target`; its action's warp runs through the same `lock` call as the player's with that one candidate.
+- Content: the owned Royal Heavy has the same soft lock as Light (range 4.5 m, cone 75 degrees, stop 1.2 m, 2 m over its first 16 ticks, before its hit window).
+- Capacity correction for stage 1: `character_scene_actor_limit` is 3, not 16. WorldSession (motor snapshots, public ability frames, effect frames, ability owners), the collision stream and the physics history each carry at most four characters, and the loopback queue holds 32 packets a tick, so a scene holds the player and three actors. A scene with more spawn points is refused when Play prepares, with a plain message. Lifting this needs per-tick snapshot batching and is its own piece of work.
+
+### Verified (build of 11 October 2026)
+
+- CharacterCombatSceneTests: a target on a slab 3 m up is missed by a level shot and hit with the elevation; the elevation is equal in authority, prediction and the public frame; aiming down or aiming up at a ground target misses; a pitch of 2 rad is rejected. `aim` on the raised actor, on the ground and on empty sky gives angles whose muzzle line passes within 2 cm of the point; a ray that lands at the owner's feet does not turn the owner around; a shot fired with the solved angles hits the actor under the crosshair. A guard 2.5 m away closes to its stop distance and hits through the shared soft lock, and misses from where it stands when the ability has no targeting. Heavy soft-locks an off-axis target with zero prediction error.
+- RoyalHeavySceneTests and MotorTests pass unchanged.
+- Gate script and CTest: All 35 verify gates pass; CTest shows only the five known unrelated failures, after one test-only fix (CollisionStreamTests hand-builds a raw motor command and needed the new pitch field; it was rebuilt and passes, CTest was not run a second time).
+
+### Not verified, and known limits
+
+- The camera-to-angles path in the editor is exercised only by the scripted `--exercise-ranged` and `--exercise-aim` runs on flat ground with the target 1.2 m away; no editor gate aims up or down at a distant target.
+- NPCs have no ranged content, so no NPC sets a pitch. A controller can only ask for yaw.
+- The owner does not see other actors' capsules exactly: convergence uses a fixed 0.35 m by 1.8 m capsule at the confirmed position.
+- Still hitscan. Travelling projectiles are stage 3.
+- Hits still ignore faction (open question in CONTINUE.md).
+- No run under real latency (GNS deferred).

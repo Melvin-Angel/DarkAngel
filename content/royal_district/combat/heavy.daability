@@ -53,5 +53,14 @@
       "tag": 4
     }
   ],
-  "deferred_commit_block": 4
+  "deferred_commit_block": 4,
+  "targeting": {
+    "mode": "soft_lock",
+    "range": 4.5,
+    "cone_degrees": 75.0,
+    "stop": 1.2,
+    "distance": 2.0,
+    "begin": 0,
+    "end": 16384
+  }
 }

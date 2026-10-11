@@ -17,7 +17,7 @@ struct CharacterSceneSession::Impl {
     std::unique_ptr<CharacterMotor> host_motor,owner_motor;
     // A server-driven actor: its scene configuration, authoritative motor and ability owner, the latest controller
     // press and chosen target, and the pose observed from its public state. Kept in ascending network identity.
-    struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen;std::unique_ptr<ObservedCharacterPose> pose;};
+    struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<ObservedCharacterPose> pose;};
     std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner;std::vector<Actor> actors;std::vector<StableId> actor_identities;std::uint32_t player_faction{1};std::vector<ControllerActor> seen;std::vector<MotorInput> actor_commands;std::vector<MotionRequest> actor_motions;std::vector<AbilityOwnerSnapshot> actor_before;std::vector<char> actor_requested;std::uint64_t next_operation{1};std::vector<InputEvent> pending_events;
     std::unique_ptr<OwnerPrediction> owner;
     std::unique_ptr<OwnerAbilityPrediction> ability_prediction;std::deque<MotorInput> semantic_commands;
@@ -156,6 +156,12 @@ struct CharacterSceneSession::Impl {
     static std::optional<std::uint64_t> lock(MotionRequest& request,const MotorState& state,const MotorInput& command,std::span<const TargetCandidate> candidates){
         if(!request.warp.active)return std::nullopt;if(auto chosen=select_soft_lock(request.warp,state,command,candidates)){request.warp.point=chosen->position;return chosen->id;}request.warp={};return std::nullopt;
     }
+    std::vector<TargetCandidate> locked_candidates(const Actor& actor)const{
+        std::vector<TargetCandidate> result;if(!actor.locked)return result;
+        if(*actor.locked==player_identity){if(server.objects().at(player).health.current>0)result.push_back({player,host_motor->state().position});}
+        else if(const auto* other=find(*actor.locked))if(server.objects().at(other->id).health.current>0)result.push_back({other->id,other->motor->state().position});
+        return result;
+    }
     // Controller seam: an actor's controller sees a bounded view of authoritative state as it stood before this tick and asks for
     // move, face and a slot press. Activation, cost, cooldown, hits and effects are the ordinary authoritative ability path.
     std::shared_ptr<const AbilityDefinition> actor_ability(const Actor& actor,CombatSlot slot)const{if(!actor.config->kit)return {};const auto wanted=actor.config->kit->slots[static_cast<unsigned>(slot)].ability;if(wanted==AssetId{})return {};for(const auto& ability:actor.config->abilities)if(ability->id==wanted)return ability;return {};}
@@ -177,6 +183,8 @@ struct CharacterSceneSession::Impl {
                 actor.receipt=server.request_ability({actor.owner,actor.operation++,snapshot.grant_generation,*decision.press,{slot.input_action,ability->activate_on,tick*16667,ability->minimum_held_us,1,false},false});
             }else{AbilityReceipt refused;refused.failure=AbilityFailure::Unassigned;refused.tick=tick;actor.receipt=refused;}
             pressed=actor.receipt->failure==AbilityFailure::None;
+            // The target an accepted press was aimed at stays the action's soft-lock target.
+            if(pressed)actor.locked=decision.target;
         }
         if(decision.face&&(!decision.press||pressed))command.yaw=std::remainder(*decision.face,6.283185307179586);
         validate_motor_input(command);return pressed;
@@ -189,8 +197,8 @@ struct CharacterSceneSession::Impl {
     std::optional<unsigned> loadout_request(const InputEvent& event)const{if(!combat->loadouts.empty()&&event.action)for(unsigned index=0;index<loadout_slot_count;++index)if(combat->loadout_actions[index]==event.action)return index;return std::nullopt;}
     void enqueue(std::span<const InputEvent> events){if(!combat){require(events.empty(),"Combat input requires a configured kit");return;}auto staged=pending_events;for(const auto& event:events){bool routed=loadout_request(event).has_value();for(const auto& slot:routing_kit().slots)routed|=slot.input_action&&slot.input_action==event.action;if(routed){require(staged.size()<32,"Combat input queue full; resynchronize");staged.push_back(event);}}pending_events=std::move(staged);}
     void step(CharacterSceneInput input){
-        require(!failed,"Character scene requires a fresh synchronized session");require(!input.crouch,"Character scene posture animation is not in the initial standing profile");require(std::isfinite(input.x)&&std::isfinite(input.z)&&std::isfinite(input.yaw),"Character scene input finite");
-        const auto tick=authoritative.tick()+1;MotorInput command{tick,tick,owner_motor->state().epoch,input.x,input.z,input.yaw,input.jump,input.crouch};validate_motor_input(command);
+        require(!failed,"Character scene requires a fresh synchronized session");require(!input.crouch,"Character scene posture animation is not in the initial standing profile");require(std::isfinite(input.x)&&std::isfinite(input.z)&&std::isfinite(input.yaw)&&std::isfinite(input.pitch),"Character scene input finite");
+        const auto tick=authoritative.tick()+1;MotorInput command{tick,tick,owner_motor->state().epoch,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch};validate_motor_input(command);
         require(client.collision_control_ready()&&client.submit_motor(player,command),"Character scene control unavailable; resynchronize");
         std::vector<AbilityPredictionInput> prediction_input;
         if(combat){require(client.ability_corrections().contains(player)&&!client.ability_correction_needs_resync(),"Combat correction unavailable; resynchronize");const auto& current=client.ability_corrections().at(player).ability;auto submit=[&](CombatSlot slot,const InputEvent& event){require(next_operation!=UINT64_MAX,"Combat operation identity exhausted");AbilityIntent intent{player,next_operation++,tick,owner_motor->state().epoch,current.grant_generation,slot,event.edge,event.cancelled,false};require(client.submit_ability_intent(intent),"Combat input delivery unavailable; resynchronize");prediction_input.push_back({intent});};
@@ -206,7 +214,10 @@ struct CharacterSceneSession::Impl {
             for(std::size_t index=0;index<actors.size();++index)actor_requested[index]=actors[index].config->controller&&drive_controller(actors[index],tick,actor_commands[index]);
             auto before=server.ability_snapshot(ability_owner);for(std::size_t index=0;index<actors.size();++index)actor_before[index]=server.ability_snapshot(actors[index].owner);
             server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
-            for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];if(actor.config->kit)actor_motions[index]=action_motion(actor_before[index],server.ability_snapshot(actor.owner),updates,actor_commands[index],actor.motor->state().yaw,bool(actor_requested[index]));if(restricted(actor.owner,actor.id))restrict(actor_commands[index],actor_motions[index]);actor_motions[index].warp={};}}
+            for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];if(actor.config->kit)actor_motions[index]=action_motion(actor_before[index],server.ability_snapshot(actor.owner),updates,actor_commands[index],actor.motor->state().yaw,bool(actor_requested[index]));if(restricted(actor.owner,actor.id))restrict(actor_commands[index],actor_motions[index]);
+                // Shared soft lock: an NPC's only candidate is the live target its controller chose for this action.
+                if(!server.ability_snapshot(actor.owner).active&&!actor_requested[index])actor.locked.reset();
+                {const auto candidates=locked_candidates(actor);lock(actor_motions[index],actor.motor->state(),actor_commands[index],candidates);}}}
         owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
         host_motor->step(accepted,authoritative_motion);for(std::size_t index=0;index<actors.size();++index)actors[index].motor->step(actor_commands[index],actor_motions[index]);authoritative.step();host_motor->post_physics();for(auto& actor:actors)actor.motor->post_physics();authoritative.finish_tick();
         auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());for(const auto& actor:actors)server.publish_motor(actor.id,actor.motor->state());if(combat){server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}server.publish_collision(collision_stream(frame));pump();
@@ -262,7 +273,7 @@ const ControllerActor* nearest_hostile(const ControllerView& view){
 CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,std::span<const ObjectData> objects,StableId player,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat)
     :impl_(std::make_unique<Impl>(std::move(hello),objects,player,collision,std::move(plan),std::move(rig),archive,std::move(combat))){}
 CharacterSceneSession::~CharacterSceneSession()=default;
-unsigned CharacterSceneSession::advance(double seconds,CharacterSceneInput input){auto& p=*impl_;require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch});p.enqueue(input.combat_events);input.combat_events.clear();p.pending_jump|=input.jump;auto steps=p.clock.advance(seconds);for(unsigned index=0;index<steps;++index){input.jump=p.pending_jump;try{p.step(input);}catch(...){p.failed=true;throw;}p.pending_jump=false;}return steps;}
+unsigned CharacterSceneSession::advance(double seconds,CharacterSceneInput input){auto& p=*impl_;require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});p.enqueue(input.combat_events);input.combat_events.clear();p.pending_jump|=input.jump;auto steps=p.clock.advance(seconds);for(unsigned index=0;index<steps;++index){input.jump=p.pending_jump;try{p.step(input);}catch(...){p.failed=true;throw;}p.pending_jump=false;}return steps;}
 void CharacterSceneSession::step(CharacterSceneInput input){try{impl_->enqueue(input.combat_events);input.combat_events.clear();impl_->step(input);}catch(...){impl_->failed=true;throw;}}
 void CharacterSceneSession::remove_collision(std::uint64_t id){impl_->authoritative.remove(id);}
 const World& CharacterSceneSession::presentation()const{return impl_->client.world();}
@@ -289,6 +300,35 @@ std::span<const EffectCueUpdate> CharacterSceneSession::effect_cues()const{retur
 unsigned CharacterSceneSession::loadout()const{auto found=impl_->client.ability_corrections().find(impl_->player);return found==impl_->client.ability_corrections().end()?0:found->second.ability.loadout;}
 std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*impl_;if(p.combat&&p.soft_lock_tick&&p.soft_lock_tick==p.authoritative.tick())for(const auto& actor:p.actors)if(actor.id==p.soft_lock_actor)return actor.identity;return std::nullopt;}
 std::span<const StableId> CharacterSceneSession::actors()const{return impl_->actor_identities;}
+AimSolution CharacterSceneSession::aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const{
+    const auto& p=*impl_;const double length=std::sqrt(direction.x*direction.x+direction.y*direction.y+direction.z*direction.z);
+    require(std::isfinite(camera.x)&&std::isfinite(camera.y)&&std::isfinite(camera.z)&&std::isfinite(length)&&length>1e-6&&std::isfinite(range)&&range>0&&range<=200&&std::isfinite(muzzle.x)&&std::isfinite(muzzle.y)&&std::isfinite(muzzle.z),"Aim ray bounds");
+    const MotorVec ray{direction.x/length,direction.y/length,direction.z/length};const auto& self=p.owner_motor->state();
+    // Start level with the owner along the ray: the ground or a wall between the camera and the owner is not what the crosshair is on.
+    const double skip=std::max(0.,(self.position.x-camera.x)*ray.x+(self.position.y+muzzle.y-camera.y)*ray.y+(self.position.z-camera.z)*ray.z);
+    const MotorVec start{camera.x+ray.x*skip,camera.y+ray.y*skip,camera.z+ray.z*skip};double nearest=range;bool hit=false;
+    const auto blockers=p.prediction->query_ray(start,{ray.x*range,ray.y*range,ray.z*range},{StaticCollision|KinematicCollision|DynamicCollision,p.player});
+    for(const auto& blocker:blockers.hits){const double along=(blocker.point.x-start.x)*ray.x+(blocker.point.y-start.y)*ray.y+(blocker.point.z-start.z)*ray.z;if(along>=0&&along<nearest){nearest=along;hit=true;}}
+    // Other actors as upright capsules at their confirmed public positions.
+    constexpr double radius=.35,height=1.8;
+    for(const auto& actor:p.actors){auto motor=p.client.motors().find(actor.id);if(motor==p.client.motors().end())continue;const auto& foot=motor->second.position;
+        // Closest approach between the ray and the capsule's axis segment.
+        const MotorVec base{foot.x,foot.y+radius,foot.z};const double axis=height-2*radius;const MotorVec w{start.x-base.x,start.y-base.y,start.z-base.z};
+        const double b=ray.y,d=ray.x*w.x+ray.y*w.y+ray.z*w.z,e=w.y,denominator=1-b*b;double along=denominator>1e-9?(b*e-d)/denominator:0,up=denominator>1e-9?(e-b*d)/denominator:e;
+        up=std::clamp(up,0.,axis);along=std::max(0.,up*b-d);up=std::clamp(e+along*b,0.,axis);
+        const double dx=start.x+ray.x*along-base.x,dy=start.y+ray.y*along-(base.y+up),dz=start.z+ray.z*along-base.z,gap=dx*dx+dy*dy+dz*dz;
+        if(gap>radius*radius)continue;const double surface=std::max(0.,along-std::sqrt(radius*radius-gap));if(surface<nearest){nearest=surface;hit=true;}}
+    AimSolution solution;solution.hit=hit;solution.point={start.x+ray.x*nearest,start.y+ray.y*nearest,start.z+ray.z*nearest};
+    // Angles from the muzzle, which itself turns with the yaw: one refinement from the owner's position is enough.
+    solution.yaw=std::atan2(ray.x,ray.z);solution.pitch=std::clamp(std::asin(std::clamp(ray.y,-1.,1.)),-1.4,1.4);
+    double yaw=std::atan2(solution.point.x-self.position.x,solution.point.z-self.position.z);
+    for(unsigned pass=0;pass<2;++pass){const double c=std::cos(yaw),s=std::sin(yaw);const MotorVec origin{self.position.x+c*muzzle.x+s*muzzle.z,self.position.y+muzzle.y,self.position.z-s*muzzle.x+c*muzzle.z};
+        const double dx=solution.point.x-origin.x,dy=solution.point.y-origin.y,dz=solution.point.z-origin.z,level=std::hypot(dx,dz);
+        // A point at or behind the muzzle gives no usable angle; keep the camera's own direction.
+        if(level<.5||dx*ray.x+dz*ray.z<=0)return solution;
+        yaw=std::atan2(dx,dz);if(pass==1){solution.yaw=yaw;solution.pitch=std::clamp(std::atan2(dy,level),-1.4,1.4);}}
+    return solution;
+}
 std::string CharacterSceneSession::controller_status(StableId actor)const{const auto* found=impl_->find(actor);return found&&found->config->controller?found->config->controller->status():std::string{};}
 const AbilityReceipt* CharacterSceneSession::controller_receipt(StableId actor)const{const auto* found=impl_->find(actor);return found&&found->receipt?&*found->receipt:nullptr;}
 std::optional<StableId> CharacterSceneSession::controller_target(StableId actor)const{const auto* found=impl_->find(actor);return found?found->chosen:std::nullopt;}

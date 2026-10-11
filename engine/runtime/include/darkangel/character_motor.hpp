@@ -14,7 +14,9 @@ struct PhysicsAllocationCounters {std::uint64_t allocations{},reallocations{},re
 void track_physics_allocations(bool);PhysicsAllocationCounters physics_allocation_counters();
 // Meters, seconds, Y-up right-handed. Tick is always 1/60 second.
 struct MotorVec {double x{},y{},z{}; auto operator<=>(const MotorVec&) const=default;};
-struct MotorInput {std::uint64_t sequence{},tick{},epoch{1};double x{},z{},yaw{};bool jump{},crouch{};};
+// yaw is the commanded facing. pitch is the aim elevation in radians (positive up, at most 1.5 either way);
+// it moves nothing and only gives aimed abilities their vertical direction.
+struct MotorInput {std::uint64_t sequence{},tick{},epoch{1};double x{},z{},yaw{};bool jump{},crouch{};double pitch{};};
 // Soft-lock assist toward a world-space point proposed by the targeting module. The motor
 // resolves it against its own state at step time: inside range and the facing cone it faces
 // the point and adds up to `step` metres of root travel toward it, never closer than `stop`.
@@ -31,6 +33,8 @@ struct MotorState {
     // world-space in air; Y is native world velocity (gravity/impulses/support).
     MotorVec position{},velocity{},momentum{},desired{},achieved{},support_local{},support_velocity{};
     double yaw{};std::uint32_t coyote{},jump_buffer{};bool grounded{},crouched{};
+    // Aim elevation accepted with the latest input; replicated with the state like yaw.
+    double pitch{};
 };
 void validate_motor_input(const MotorInput&);
 void validate_motor_state(const MotorState&);

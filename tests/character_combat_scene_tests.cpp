@@ -165,8 +165,8 @@ int main(){try{
         {auto bad=**bow;bad.melee[0].sweep=0;bool rejected=false;try{freeze_ability_definition(bad,AttributeSet(combat.attributes),combat.tags.get());}catch(const std::exception&){rejected=true;}check(rejected,"An aim ability with an unswept hit profile was frozen");bad=**bow;bad.aim->range=500;bad.melee[0].sweep=500;rejected=false;try{freeze_ability_definition(bad,AttributeSet(combat.attributes),combat.tags.get());}catch(const std::exception&){rejected=true;}check(rejected,"An aim range beyond the bound was frozen");}
         auto health=[&](const CharacterSceneSession& scene){return scene.presentation().read(scene.presentation().find(target.id)).health.current;};
         auto stamina_of=[&](const CharacterSceneSession& scene){for(const auto& attribute:scene.ability()->attributes)if(attribute.id==3)return attribute.value;return -1.;};
-        auto shoot=[&](std::span<const ObjectData> placed,const CollisionDefinition& world,double yaw){
-            auto scene=std::make_unique<CharacterSceneSession>(hello,placed,player.id,world,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);CharacterSceneInput idle;idle.yaw=yaw;
+        auto shoot=[&](std::span<const ObjectData> placed,const CollisionDefinition& world,double yaw,double pitch=0){
+            auto scene=std::make_unique<CharacterSceneSession>(hello,placed,player.id,world,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);CharacterSceneInput idle;idle.yaw=yaw;idle.pitch=pitch;
             while(scene->motor().tick<5)scene->step(idle);const auto baseline=scene->resynchronizations();auto press=idle;press.combat_events={{14,InputEdge::Pressed,1000,0,1,false}};scene->step(press);
             check(scene->ability()->active&&scene->ability()->ability==bow_id&&scene->predicted_ability()->active&&!scene->soft_lock(),"Bow Shot did not start through authority and prediction");
             while(scene->motor().tick<75)scene->step(idle);check(stamina_of(*scene)==90&&!scene->ability()->active&&scene->pending_prediction()==0&&scene->resynchronizations()==baseline,"Bow Shot did not charge once and settle");return scene;};
@@ -176,6 +176,29 @@ int main(){try{
         auto beyond=objects;beyond[0].transform.z=-9;beyond[1].transform.z=14;check(health(*shoot(beyond,collision,0))==100,"A shot hit a target beyond its range");
         auto walled=collision;walled.boxes.push_back({102,{0,1,4},{2,1,.2}});check(health(*shoot(distant,walled,0))==100,"A shot passed through static collision");
         check(health(*shoot(objects,collision,0))==80,"A shot did not hit a target at melee distance");
+        // Vertical aim: a target standing on a slab 3 m up. A level shot passes under it; the aim elevation carried in the motor
+        // input and confirmed in the motor state sends the same shot from the muzzle up to it.
+        {
+            auto raised=objects;raised[1].transform.z=8;raised[1].transform.y=3;auto slab=collision;slab.boxes.push_back({103,{0,2.75,8},{1.5,.25,1.5}});
+            const auto& muzzle=(*bow)->melee[0].offset;const double elevation=std::atan2(3+1.0-muzzle[1],8-muzzle[2]);
+            check(health(*shoot(raised,slab,0))==100,"A level shot hit a target standing 3 m above it");
+            auto up=shoot(raised,slab,0,elevation);check(health(*up)==80&&up->motor().pitch==elevation&&up->predicted_motor().pitch==elevation&&up->observer(player.id,double(up->motor().tick)).frame.motor.pitch==elevation,"A shot with the aim elevation did not hit the raised target, or the elevation is not confirmed state");
+            check(health(*shoot(raised,slab,0,-elevation))==100&&health(*shoot(distant,collision,0,elevation))==100,"A shot aimed down hit the raised target, or a shot aimed up hit a target on the ground");
+            {CharacterSceneSession scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);CharacterSceneInput steep;steep.pitch=2;bool rejected=false;try{scene.step(steep);}catch(const std::exception&){rejected=true;}check(rejected,"An aim elevation beyond the bound was accepted");}
+            // Crosshair convergence: the owner turns a camera ray into the yaw and pitch that send a shot from its muzzle through the
+            // point the ray meets. Authority never sees the ray, only the two angles.
+            CharacterSceneSession scene(hello,raised,player.id,slab,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);while(scene.motor().tick<5)scene.step({});
+            const MotorVec offset{muzzle[0],muzzle[1],muzzle[2]},camera{.6,1.9,-3};
+            auto miss=[&](const AimSolution& solved){const auto& at=scene.predicted_motor().position;const double c=std::cos(solved.yaw),sn=std::sin(solved.yaw);const MotorVec origin{at.x+c*offset.x+sn*offset.z,at.y+offset.y,at.z-sn*offset.x+c*offset.z},along{sn*std::cos(solved.pitch),std::sin(solved.pitch),c*std::cos(solved.pitch)},to{solved.point.x-origin.x,solved.point.y-origin.y,solved.point.z-origin.z};const double t=to.x*along.x+to.y*along.y+to.z*along.z;return std::hypot(std::hypot(to.x-along.x*t,to.y-along.y*t),to.z-along.z*t);};
+            auto actor=scene.aim(camera,{0-camera.x,4-camera.y,8-camera.z},20,offset);check(actor.hit&&std::abs(actor.point.z-8)<.5&&actor.point.y>3.5&&actor.point.y<4.5&&actor.pitch>.2&&miss(actor)<.02,"The crosshair on the raised actor did not converge on it from the muzzle");
+            auto ground=scene.aim(camera,{0-camera.x,0-camera.y,6-camera.z},20,offset);check(ground.hit&&std::abs(ground.point.y)<.02&&std::abs(ground.point.z-6)<.1&&ground.pitch<-.1&&miss(ground)<.02,"The crosshair on the ground did not converge on the ground point");
+            auto sky=scene.aim(camera,{0,1,1},20,offset);check(!sky.hit&&sky.point.y>10&&sky.pitch>.6&&miss(sky)<.02,"A crosshair on nothing did not aim at the far point");
+            // Steeply down from above and behind: the ground between the camera and the owner is not the aim point.
+            auto behind=scene.aim({0,6,-2},{0,-6,2.5},20,offset);check(std::isfinite(behind.yaw)&&std::abs(behind.yaw)<.2&&behind.pitch<0,"A ray that lands at the owner's feet turned the owner around");
+            // The solved angles through the session: the shot lands on the raised target.
+            CharacterSceneInput aimed;aimed.yaw=actor.yaw;aimed.pitch=actor.pitch;auto press=aimed;press.combat_events={{14,InputEdge::Pressed,1000,0,1,false}};scene.step(press);while(scene.motor().tick<75)scene.step(aimed);check(health(scene)==80&&scene.pending_prediction()==0,"A shot aimed by crosshair convergence missed the actor under the crosshair");
+            std::cout<<"Vertical aim: elevation "<<elevation<<" rad, converged yaw "<<actor.yaw<<" pitch "<<actor.pitch<<", muzzle line error "<<miss(actor)<<" m\n";
+        }
     }
     // Melee soft lock on the owned Light: the targeting module proposes the target, the motor turns the swing and closes distance,
     // and authority, owner prediction and the hit query agree. A copy without targeting is the control.
@@ -199,6 +222,28 @@ int main(){try{
             while(scene.motor().tick<24)scene.step({});check(!scene.soft_lock(),"Soft lock indicator outlived its window");
             while(scene.motor().tick<65)scene.step({});check(health(scene)==75&&!scene.ability()->active&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Soft-locked Light did not hit the off-axis target exactly once");
             std::cout<<"Soft lock closed "<<before<<" -> "<<after<<" m, predicted_error="<<worst<<"\n";
+        }
+        {
+            // Shared soft lock for NPC attacks: a guard 2.5 m away presses Light at its controller's target. Its swing turns and
+            // closes exactly as the player's does, toward that target only; without targeting on the ability it stays put and misses.
+            auto guard=[&](const CharacterSceneCombat& scene){CharacterSceneActor made;made.id=target.id;made.kit=scene.kit;made.input=scene.input;made.abilities=scene.abilities;made.attributes=scene.attributes;made.name="Guard";made.faction="royal_guard";made.controller=make_scripted_attacker({CombatSlot::Light,10,600,3,true});return made;};
+            auto apart_now=[&](const CharacterSceneSession& scene){return apart(scene.observer(target.id,double(scene.motor().tick)).frame.motor.position,scene.motor().position);};
+            auto reach=objects;reach[1].transform.z=2.5;reach[1].transform.yaw=0;
+            auto locking=combat;locking.actors={guard(locking)};CharacterSceneSession scene(hello,reach,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,locking);const auto baseline=scene.resynchronizations();
+            while(scene.motor().tick<70)scene.step({});const auto player_health=scene.presentation().read(scene.presentation().find(player.id)).health.current;
+            check(apart_now(scene)<1.4&&apart_now(scene)>.9&&player_health==75&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"The guard's Light did not close on its chosen target and hit it through the shared soft lock");
+            auto still=combat;for(auto& ability:still.abilities)if(ability->id==light_id){auto copy=*ability;copy.soft_lock.reset();ability=std::make_shared<const AbilityDefinition>(std::move(copy));}still.actors={guard(still)};
+            CharacterSceneSession control(hello,reach,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,still);while(control.motor().tick<70)control.step({});
+            check(apart_now(control)>2.2&&control.presentation().read(control.presentation().find(player.id)).health.current==100&&control.controller_receipt(target.id)&&control.controller_receipt(target.id)->committed,"Control: without targeting the guard's swing from 2.5 m must miss");
+        }
+        {
+            // Heavy shares the same authored soft lock.
+            const auto heavy_id=cooked.definition->slots[1].ability;auto heavy=std::find_if(cooked.abilities.begin(),cooked.abilities.end(),[&](const auto& ability){return ability->id==heavy_id;});
+            check(heavy!=cooked.abilities.end()&&(*heavy)->soft_lock&&(*heavy)->soft_lock->range==4.5&&(*heavy)->soft_lock->stop==1.2,"Owned Royal Heavy lost its authored soft lock");
+            CharacterSceneSession scene(hello,aside,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);while(scene.motor().tick<5)scene.step({});const auto baseline=scene.resynchronizations();
+            CharacterSceneInput heavy_press;heavy_press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};scene.step(heavy_press);check(scene.ability()->active&&scene.ability()->ability==heavy_id&&scene.soft_lock()==target.id,"Heavy did not soft-lock the off-axis target");
+            double worst{};while(scene.motor().tick<120){scene.step({});worst=std::max(worst,apart(scene.predicted_motor().position,scene.motor().position));}
+            check(health(scene)<100&&worst<1e-6&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Soft-locked Heavy did not hit the off-axis target, or prediction diverged");
         }
         {
             auto plain=combat;for(auto& ability:plain.abilities)if(ability->id==light_id){auto copy=*ability;copy.soft_lock.reset();ability=std::make_shared<const AbilityDefinition>(std::move(copy));}
@@ -278,5 +323,5 @@ int main(){try{
         }
     }
     auto tag_registry=std::make_shared<const TagDictionary>(std::vector<TagDefinition>{{2,0,"State.Blocked",AttributeVisibility::Public}},AssetId::random(),std::string(64,'e'));auto tagged=*combat.abilities[0];tagged.tag_registry=tag_registry->registry();tagged.tag_generation=tag_registry->generation();tagged.requirements.none={2};combat.abilities={std::make_shared<const AbilityDefinition>(std::move(tagged))};combat.tags=tag_registry;auto tagged_kit=std::make_shared<CombatKitDefinition>(*combat.kit);for(auto& slot:tagged_kit->slots)if(slot.ability!=combat.abilities[0]->id)slot.ability={};tagged_kit->effects.clear();tagged_kit->effect_bindings.clear();combat.kit=std::move(tagged_kit);CharacterSceneSession tagged_scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);tagged_scene.step(pressed);check(tagged_scene.predicted_ability()->active&&tagged_scene.predicted_ability()->tags.registry==tag_registry->registry()&&tagged_scene.observer(player.id,1).frame.ability.tags.registry==tag_registry->registry(),"Scene prepares the same frozen tag registry for native authority, owner prediction and observer frames");
-    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, NPC target with its own kit/attributes and the controller seam (move, face, press, refusal), multi-entity combat (two and three controlled actors, own schedules, defeat of one, nearest soft lock, list-order independence, bounds), aimed ranged Bow Shot (range, aim direction, static blocking), melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
+    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, NPC target with its own kit/attributes and the controller seam (move, face, press, refusal), multi-entity combat (two and three controlled actors, own schedules, defeat of one, nearest soft lock, list-order independence, bounds), aimed ranged Bow Shot (range, aim direction, static blocking), vertical aim (elevation in motor input and state, crosshair convergence from the muzzle), melee soft lock (turn, closing warp, cone/range gates, hit) shared by Heavy and by NPC attacks on their chosen target, scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

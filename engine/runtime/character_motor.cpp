@@ -685,7 +685,7 @@ namespace darkangel {
         vel+=v(root)/dt;
         state.desired=m(vel);
         state.action=request.action;
-        state.yaw=yaw;
+        state.yaw=yaw;state.pitch=input.pitch;
         s.character->SetRotation(JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(yaw)));
         s.character->SetLinearVelocity(vel);
         JPH::CharacterVirtual::ExtendedUpdateSettings settings;

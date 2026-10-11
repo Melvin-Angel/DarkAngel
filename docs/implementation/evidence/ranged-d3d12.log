@@ -6,8 +6,8 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205270000
-[39mViewport foreground pixels=842185 capture=C:\DarkAngel\docs\implementation\evidence\ranged-d3d12.png
-Editor ranged tick=60 camera=Aim range=20 distance=1.2 target_health=80 pending=0 hud_crosshair=1
+[39mViewport foreground pixels=842421 capture=C:\DarkAngel\docs\implementation\evidence\ranged-d3d12.png
+Editor ranged tick=60 camera=Aim range=20 distance=1.2 target_health=80 aim_pitch=-0.191289 pending=0 hud_crosshair=1
 DarkAngel editor rendered 60 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 11/256

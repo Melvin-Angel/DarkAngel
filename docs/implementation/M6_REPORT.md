@@ -227,7 +227,7 @@ Stage 1 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md), delivered as one ch
 
 ### Runtime
 
-- `CharacterSceneCombat::actors` (at most 16) replaces `target`, `target_attributes`, `npc`, `attacker` and the single `controller`. A `CharacterSceneActor` carries its scene identity, optional kit, input semantics, abilities, resolved attributes, name, faction, generation and optional controller. A training dummy is an actor with no controller. The player keeps its own role because it alone is predicted.
+- `CharacterSceneCombat::actors` (at most 3; first written as 16, corrected in stage 2 when the four-character capacity of the session layers was found, see TARGETING_REPORT.md) replaces `target`, `target_attributes`, `npc`, `attacker` and the single `controller`. A `CharacterSceneActor` carries its scene identity, optional kit, input semantics, abilities, resolved attributes, name, faction, generation and optional controller. A training dummy is an actor with no controller. The player keeps its own role because it alone is predicted.
 - `CharacterSceneSession` keeps one record per actor (motor, ability owner, controller receipt, chosen target, observed pose) in ascending network identity and steps them in that order. The order the caller lists actors in does not change the simulation.
 - `ControllerView` lists every other actor (identity, faction, motor state, alive) instead of one opponent. `nearest_hostile` stands in for target selection until sensing exists; different factions are hostile and the player's faction is `player`. `ControllerCommand::target` records the actor a decision is aimed at; the session checks it names an actor in the view and exposes it as `controller_target`.
 - Soft-lock candidates are every live actor hostile to the player. `soft_lock()` returns the actor it chose.
@@ -256,7 +256,7 @@ Stage 1 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md), delivered as one ch
 
 ### Verified (build of 11 October 2026)
 
-- CharacterCombatSceneTests: every earlier two-actor case through a one-actor list, plus two guards on their own schedules with one defeated, nearest-of-two soft lock, an allied actor never soft-locked, list-order independence, three guards closing in, and bounds (missing object, duplicate, no attributes, the player as an actor, 17 actors, no actors).
+- CharacterCombatSceneTests: every earlier two-actor case through a one-actor list, plus two guards on their own schedules with one defeated, nearest-of-two soft lock, an allied actor never soft-locked, list-order independence, three guards closing in, and bounds (missing object, duplicate, no attributes, the player as an actor, more actors than the limit, no actors).
 - NativeAuthoringTests on the training scene with the spawned dummy; NavigationTests, BehaviorTreeTests, ObservedCharacterPoseTests, ReactionPresentationTests, RoyalHeavySceneTests.
 - `python scripts/verify_effect_reaction.py`: 35 gates pass. New or changed: `attacked-flinch`, `attacked-death`, `attacked-light` and `npc-target` now use a Royal Guard spawned in a duel scene derived in the fixture; `npc-spawn-points-d3d12` plays the owned combat scene (2 actors, both guards reach and hit the player, player Health 25 at tick 260); `spawn-points-scene-d3d12` captures the Scene tab. Both captures were looked at.
 - CTest: only the five known unrelated failures (M5.actor_assets, M5.attribute_authoring, M5.composer_structure, M5.composer_preview, M4.royal_mesh_collision).

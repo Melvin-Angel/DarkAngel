@@ -7,7 +7,12 @@
 
 namespace darkangel {
 struct ReactionSample;
-struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;};
+struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;
+    // Aim elevation in radians; see CharacterSceneSession::aim.
+    double pitch{};};
+// Crosshair convergence: where a camera ray meets the world, and the yaw and pitch that point a shot from
+// the owner's muzzle at that point. hit is false when the ray met nothing within range and the far point is used.
+struct AimSolution {double yaw{},pitch{};MotorVec point{};bool hit{};};
 // A server-driven actor of a combat scene: a spawned NPC or a training dummy. The scene
 // object with this identity gives its transform and Health. Its abilities, effects and
 // clips must be in the combat's prepared unions. Without a kit it is unequipped; without a
@@ -22,7 +27,9 @@ struct CharacterSceneActor {
     std::string name,faction,generation;
     std::shared_ptr<ActorController> controller;
 };
-constexpr std::size_t character_scene_actor_limit=16;
+// WorldSession, the collision stream and the physics history each carry at most four characters,
+// so a scene holds the player and three actors until that capacity is lifted.
+constexpr std::size_t character_scene_actor_limit=3;
 struct CharacterSceneCombat {
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
     std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};
@@ -86,6 +93,11 @@ public:
     // Soft-lock target the owner's predicted motor warped toward on the latest tick, if any.
     // Presentation only (HUD indicator); authority resolves its own warp.
     std::optional<StableId> soft_lock()const;
+    // Owner-side aim intent from the camera. The ray is cast against the owner's predicted collision and the confirmed
+    // public positions of the other actors, starting level with the owner so nothing between camera and owner counts.
+    // muzzle is the shot's origin relative to the owner (right, up, forward). The result only shapes the owner's
+    // input; authority sweeps its own world from its own state.
+    AimSolution aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const;
     // Server-driven actors in simulation order (ascending network identity).
     std::span<const StableId> actors()const;
     // Authoritative receipt of an actor's latest controller press, if it has made one.
