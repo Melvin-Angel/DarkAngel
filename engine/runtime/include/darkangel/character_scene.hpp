@@ -8,26 +8,32 @@
 namespace darkangel {
 struct ReactionSample;
 struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;};
-// Scripted training attacker for the combat target: the target is equipped with the scene
-// kit and presses one slot on a fixed schedule through the server's checked request path
-// while the player is alive and within range. Shared target behaviour for exercising
-// incoming hits; not an NPC controller or AI.
-struct CharacterSceneAttacker {CombatSlot slot{CombatSlot::Light};std::uint64_t first_tick{60},interval{150};double range{2.5};bool face_player{true};};
-// An NPC placed on the combat target: its own frozen kit, input semantics, abilities and
-// resolved starting attributes. Its abilities, effects and clips must also be in the
-// combat's prepared unions. Identity fields are presentation and fingerprint data only.
-struct CharacterSceneNpc {std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;std::vector<std::shared_ptr<const AbilityDefinition>> abilities;std::vector<AttributeDefinition> attributes;std::string name,faction,generation;};
+// A server-driven actor of a combat scene: a spawned NPC or a training dummy. The scene
+// object with this identity gives its transform and Health. Its abilities, effects and
+// clips must be in the combat's prepared unions. Without a kit it is unequipped; without a
+// controller it never acts. Name, faction and generation are presentation, hostility and
+// fingerprint data. The player is not in this list: it alone is predicted by this client.
+struct CharacterSceneActor {
+    StableId id;
+    std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
+    std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
+    // Resolved starting attributes over the scene's attribute schema.
+    std::vector<AttributeDefinition> attributes;
+    std::string name,faction,generation;
+    std::shared_ptr<ActorController> controller;
+};
+constexpr std::size_t character_scene_actor_limit=16;
 struct CharacterSceneCombat {
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
     std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};
     std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
     std::map<AssetId,std::shared_ptr<const AnimationClip>> clips;
-    StableId target;std::uint32_t evaluator{};DamageEvaluator damage;
+    std::uint32_t evaluator{};DamageEvaluator damage;
     std::shared_ptr<const TagDictionary> tags;
     CombatEvaluator combat_damage;
     std::map<std::uint32_t,EffectEvaluator> effect_evaluators;
     std::vector<std::shared_ptr<const EffectDefinition>> effects;
-    std::vector<AttributeDefinition> target_attributes;std::string actor_generation;
+    std::string actor_generation;
     // Optional presentation-only death timeline from the frozen kit closure.
     std::shared_ptr<const ActionDefinition> death;
     // Optional equipped-mask loadouts (empty, or exactly four slots). abilities, effects
@@ -35,13 +41,9 @@ struct CharacterSceneCombat {
     std::vector<std::optional<AbilityLoadout>> loadouts;unsigned active_loadout{};
     // Semantic input actions that select loadout slots 0-3 (zero = unbound).
     std::array<std::uint32_t,loadout_slot_count> loadout_actions{};
-    std::optional<CharacterSceneAttacker> attacker;
-    // The target as an NPC with its own kit and attributes. Without it the target uses
-    // target_attributes and, when something controls it, borrows the scene kit.
-    std::optional<CharacterSceneNpc> npc;
-    // Server-side controller of the target. attacker above is shorthand for the scripted
-    // training controller and is ignored when a controller is supplied.
-    std::shared_ptr<ActorController> controller;
+    // Server-driven actors, at most character_scene_actor_limit. Actors of different
+    // factions are hostile to each other; the player's faction is below.
+    std::vector<CharacterSceneActor> actors;std::string faction{"player"};
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
@@ -84,10 +86,14 @@ public:
     // Soft-lock target the owner's predicted motor warped toward on the latest tick, if any.
     // Presentation only (HUD indicator); authority resolves its own warp.
     std::optional<StableId> soft_lock()const;
-    // Authoritative receipt of the scripted attacker's latest request, if it has made one.
-    const AbilityReceipt* attacker_receipt()const;
-    // The target controller's description of its latest decision; empty without a controller.
-    std::string controller_status()const;
+    // Server-driven actors in simulation order (ascending network identity).
+    std::span<const StableId> actors()const;
+    // Authoritative receipt of an actor's latest controller press, if it has made one.
+    const AbilityReceipt* controller_receipt(StableId)const;
+    // An actor's controller's description of its latest decision; empty without a controller.
+    std::string controller_status(StableId)const;
+    // The actor an actor's controller named on its latest decision, if any.
+    std::optional<StableId> controller_target(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

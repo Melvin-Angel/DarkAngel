@@ -134,8 +134,8 @@ int main(){try{
 
  // Replicated public frames through the shared session: late join, duplicates and fences.
  {
-  CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=cooked.input;combat.attributes=schema;combat.health=2;combat.maximum_health=1;combat.abilities=cooked.abilities;combat.tags=tags;combat.effects=cooked.effects;combat.target={31,2};combat.evaluator=1;combat.clips=clips;ashen_roots::configure_royal_combat(combat);
-  ObjectData player;player.id={31,1};ObjectData target;target.id=combat.target;target.transform.z=1.2;target.transform.yaw=3.141592653589793;std::array<ObjectData,2> objects{player,target};CollisionDefinition collision;collision.id=AssetId::random();collision.schema=2;collision.boxes={{100,{0,-.5,0},{16,.5,16}}};SessionHandshake hello{3,sha256("Reaction native pose fixture"),sha256(cooked.definition->generation),1711};
+  CharacterSceneCombat combat;combat.kit=cooked.definition;combat.input=cooked.input;combat.attributes=schema;combat.health=2;combat.maximum_health=1;combat.abilities=cooked.abilities;combat.tags=tags;combat.effects=cooked.effects;combat.evaluator=1;combat.clips=clips;ashen_roots::configure_royal_combat(combat);
+  ObjectData player;player.id={31,1};ObjectData target;target.id={31,2};{CharacterSceneActor dummy;dummy.id=target.id;dummy.attributes=combat.attributes;combat.actors={dummy};}target.transform.z=1.2;target.transform.yaw=3.141592653589793;std::array<ObjectData,2> objects{player,target};CollisionDefinition collision;collision.id=AssetId::random();collision.schema=2;collision.boxes={{100,{0,-.5,0},{16,.5,16}}};SessionHandshake hello{3,sha256("Reaction native pose fixture"),sha256(cooked.definition->generation),1711};
   CharacterSceneSession session(hello,objects,player.id,collision,cooked.stance.plan,rig.definition,rig.archive,combat);
   CharacterSceneInput press;press.combat_events={{cooked.definition->slots[1].input_action,InputEdge::Pressed,1000,0,1,false}};session.step(press);
   while(!session.reaction(target.id)&&session.motor().tick<40)session.step({});check(session.reaction(target.id)!=nullptr,"Replicated hit did not present the target reaction");

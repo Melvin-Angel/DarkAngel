@@ -80,8 +80,8 @@ class PathFollower final:public ActorController {
 public:
     PathFollower(std::shared_ptr<const NavigationMesh> mesh,PathFollow follow):mesh_(std::move(mesh)),follow_(follow){}
     ControllerCommand decide(const ControllerView& view)override{
-        ControllerCommand command;status_="Idle";if(!view.alive||!view.opponent||!view.opponent_alive)return command;
-        const auto& self=view.self.position;const auto& goal=view.opponent->position;const double dx=goal.x-self.x,dz=goal.z-self.z,distance=std::hypot(dx,dz);
+        ControllerCommand command;status_="Idle";const auto* foe=view.alive?nearest_hostile(view):nullptr;if(!foe)return command;command.target=foe->id;
+        const auto& self=view.self.position;const auto& goal=foe->motor.position;const double dx=goal.x-self.x,dz=goal.z-self.z,distance=std::hypot(dx,dz);
         if(distance<=follow_.arrive){
             // In reach: the scripted attack, no more often than its interval.
             if(distance>1e-6)command.face=std::atan2(dx,dz);

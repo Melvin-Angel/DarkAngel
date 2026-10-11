@@ -57,9 +57,23 @@ def prepare():
     output = ROOT / 'content/royal_district/RoyalVillage.dascene'
     write_scene(output, dict(schema=1, root=root, placement=f'{1:032x}', sources={root: graph}))
     combat_root = '6b91b527-31be-4b15-aa9c-2c0b9970457b'
-    place(5, 'Training target', asset(human), 0, .5, 4.2, 3.141592653589793)
-    combat_graph = dict(schema=1, asset=combat_root, entities=entities, mounts={})
+    # Other characters come from NPC spawn points: scene objects that reference an NPC definition.
+    def spawn(target, index, name, npc, x, z, health):
+        target[f'{index:032x}'] = dict(name=name, spawn=dict(npc=npc), target=None, types={
+            '1': dict(version=2, fields={'1': 3.141592653589793, '2': x, '3': 0.5, '4': z, '5': 0, '6': 0, '7': 1}),
+            '2': dict(version=1, fields={'1': health, '2': health})})
+    def npc(relative):
+        return json.loads((SOURCE / relative).read_text())['asset']
+    combat = dict(entities)
+    spawn(combat, 5, 'Royal Guard spawn', npc('npcs/royal_guard.danpc'), -1.5, 9, 60)
+    spawn(combat, 6, 'Royal Guard spawn 2', npc('npcs/royal_guard.danpc'), 2, 10, 60)
+    combat_graph = dict(schema=1, asset=combat_root, entities=combat, mounts={})
     write_scene(SOURCE / 'royal_district/RoyalCombat.dascene', dict(schema=1, root=combat_root, placement=f'{1:032x}', sources={combat_root: combat_graph}))
+    training_root = '92c7496a-31b5-4a3f-84df-a63d62a60559'
+    training = dict(entities)
+    spawn(training, 5, 'Training dummy spawn', npc('npcs/training_dummy.danpc'), 0, 4.2, 100)
+    training_graph = dict(schema=1, asset=training_root, entities=training, mounts={})
+    write_scene(SOURCE / 'royal_district/RoyalTraining.dascene', dict(schema=1, root=training_root, placement=f'{1:032x}', sources={training_root: training_graph}))
     print('Scene:', output, '\nPrimary model:', asset(ground), flush=True)
 
 def write_scene(path, data):

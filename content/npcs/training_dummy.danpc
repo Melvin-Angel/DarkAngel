@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "kind": "npc",
+  "asset": "a4592c4e-5786-46b4-8106-61ea62219929",
+  "name": "Training Dummy",
+  "faction": "training",
+  "character": "dd24e3ea-575b-446a-9e5e-a1f6186b7cdc",
+  "loadout": {
+    "kit": "eecbc589-b6df-4e48-a4dd-38e3ec629d35"
+  },
+  "sources": {
+    "character": "characters/royal_human.dacharacter",
+    "kit": "royal_district/combat/player.dakit"
+  }
+}

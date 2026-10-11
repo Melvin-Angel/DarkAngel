@@ -10,12 +10,13 @@ namespace {
 void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
 // Native blackboard shared by the leaves of one tree instance.
 struct Blackboard {
-    const ControllerView* view{};ControllerCommand command;std::shared_ptr<const NavigationMesh> mesh;
+    const ControllerView* view{};const ControllerActor* foe{};ControllerCommand command;std::shared_ptr<const NavigationMesh> mesh;
     std::vector<MotorVec> path;std::size_t next{1};std::uint64_t repath{};
     // The leaf that decided this tick, for the debug readout.
     std::string trace;
-    bool opponent()const{return view->alive&&view->opponent&&view->opponent_alive;}
-    double distance()const{return std::hypot(view->opponent->position.x-view->self.position.x,view->opponent->position.z-view->self.position.z);}
+    // The opponent is the nearest live hostile, chosen once per decision.
+    bool opponent()const{return view->alive&&foe;}
+    double distance()const{return std::hypot(foe->motor.position.x-view->self.position.x,foe->motor.position.z-view->self.position.z);}
 };
 class OpponentAlive final:public BT::ConditionNode {
 public:OpponentAlive(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::ConditionNode(name,config),board_(board){}
@@ -38,7 +39,7 @@ private:Blackboard* board_;
 class Face final:public BT::SyncActionNode {
 public:Face(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::SyncActionNode(name,config),board_(board){}
     static BT::PortsList providedPorts(){return {};}
-    BT::NodeStatus tick()override{if(!board_->opponent())return BT::NodeStatus::FAILURE;const auto& self=board_->view->self.position;const auto& goal=board_->view->opponent->position;if(board_->distance()>1e-6)board_->command.face=std::atan2(goal.x-self.x,goal.z-self.z);return BT::NodeStatus::SUCCESS;}
+    BT::NodeStatus tick()override{if(!board_->opponent())return BT::NodeStatus::FAILURE;const auto& self=board_->view->self.position;const auto& goal=board_->foe->motor.position;if(board_->distance()>1e-6)board_->command.face=std::atan2(goal.x-self.x,goal.z-self.z);return BT::NodeStatus::SUCCESS;}
 private:Blackboard* board_;
 };
 class Attack final:public BT::SyncActionNode {
@@ -62,9 +63,9 @@ public:Approach(const std::string& name,const BT::NodeConfig& config,Blackboard*
     BT::NodeStatus onStart()override{board_->path.clear();board_->repath=0;return onRunning();}
     BT::NodeStatus onRunning()override{
         auto& b=*board_;if(!b.opponent())return BT::NodeStatus::FAILURE;if(b.distance()<=getInput<double>("range").value())return BT::NodeStatus::SUCCESS;if(b.view->busy)return BT::NodeStatus::RUNNING;
-        const auto& self=b.view->self.position;MotorVec corner=b.view->opponent->position;
+        const auto& self=b.view->self.position;MotorVec corner=b.foe->motor.position;
         if(b.mesh){
-            if(b.path.size()<2||b.view->tick>=b.repath){auto found=b.mesh->path(self,b.view->opponent->position);b.path=found?std::move(*found):std::vector<MotorVec>{};b.next=1;b.repath=b.view->tick+15;}
+            if(b.path.size()<2||b.view->tick>=b.repath){auto found=b.mesh->path(self,b.foe->motor.position);b.path=found?std::move(*found):std::vector<MotorVec>{};b.next=1;b.repath=b.view->tick+15;}
             if(b.path.size()<2)return BT::NodeStatus::FAILURE;
             while(b.next+1<b.path.size()&&std::hypot(b.path[b.next].x-self.x,b.path[b.next].z-self.z)<.3)++b.next;corner=b.path[b.next];
         }
@@ -95,7 +96,7 @@ public:
         std::ostringstream xml;xml.precision(17);xml<<"<root BTCPP_format=\"4\"><BehaviorTree ID=\"Main\">";write(xml,definition.root,tuning);xml<<"</BehaviorTree></root>";
         tree_=factory.createTreeFromText(xml.str());
     }
-    ControllerCommand decide(const ControllerView& view)override{board_.view=&view;board_.command={};board_.trace=view.alive?(view.busy?"Acting":"Idle"):"Defeated";tree_.tickOnce();board_.view=nullptr;return board_.command;}
+    ControllerCommand decide(const ControllerView& view)override{board_.view=&view;board_.foe=view.alive?nearest_hostile(view):nullptr;board_.command={};if(board_.foe)board_.command.target=board_.foe->id;board_.trace=view.alive?(view.busy?"Acting":"Idle"):"Defeated";tree_.tickOnce();board_.view=nullptr;board_.foe=nullptr;return board_.command;}
     std::string status()const override{return board_.trace;}
 private:Blackboard board_;BT::Tree tree_;
 };

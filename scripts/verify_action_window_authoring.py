@@ -39,9 +39,8 @@ model = json.loads((source/'royal_district/static/terrain/SM_RC_Terrain_Ground_3
 collision = json.loads((source/'royal_district/collision/environment.dacollision').read_text())['asset']
 run('action-window-authoring-panel', [BUILD/'DarkAngelEditor.exe',
     '--registry', fixture['registry'], '--cas', cache/'cas', '--model', model,
-    '--scene', source/'royal_district/RoyalCombat.dascene', '--character-kit', fixture['kit'],
-    '--character-collision', collision, '--character-player', '00000000000000000000000000000004',
-    '--combat-target', '00000000000000000000000000000005', '--sources', source,
+    '--scene', source/'royal_district/RoyalTraining.dascene', '--character-kit', fixture['kit'],
+    '--character-collision', collision, '--character-player', '00000000000000000000000000000004', '--sources', source,
     '--asset-cache', cache, '--backend', 'd3d12', '--hidden', '--ability-workspace',
     '--authoring-asset', fixture['ability'], '--height', '1600', '--frames', '5',
     '--capture-workspace', '--capture', EVIDENCE/'action-window-authoring-panel.png'])

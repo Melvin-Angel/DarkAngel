@@ -12,6 +12,8 @@ public:
     ~EditorDocument();
     World& world();
     const SpawnPlan& plan() const;
+    // The scene's own assembly source: structural edits to its objects go here.
+    AssetId root() const;
     std::uint64_t revision() const;
     bool dirty() const;
     DocumentHistoryHead history_head() const;

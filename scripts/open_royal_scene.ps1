@@ -5,7 +5,9 @@ param(
     [switch]$CharacterWorkflow,
     [switch]$PlayerWorkflow,
     [switch]$AnimationWorkflow,
-    [switch]$AttackPose
+    [switch]$AttackPose,
+    # Open the training scene (one passive Training Dummy) instead of the combat scene (two Royal Guards).
+    [switch]$Training
 )
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
@@ -21,11 +23,11 @@ if (!$taskRegistryReady) {
     if ($LASTEXITCODE -ne 0) { throw 'Royal scene preparation failed.' }
 }
 $taskModel = (Get-Content -LiteralPath 'content/royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport' -Raw | ConvertFrom-Json).id
-$taskArguments = @('--registry','.cache/royal-scene/registry.json','--cas','.cache/royal-scene/cas','--model',$taskModel,'--scene','content/royal_district/RoyalCombat.dascene','--backend',$Backend,'--sources','content','--asset-cache','.cache/editor-assets')
+$taskArguments = @('--registry','.cache/royal-scene/registry.json','--cas','.cache/royal-scene/cas','--model',$taskModel,'--scene',$(if ($Training) { 'content/royal_district/RoyalTraining.dascene' } else { 'content/royal_district/RoyalCombat.dascene' }),'--backend',$Backend,'--sources','content','--asset-cache','.cache/editor-assets')
 $taskKit = (Get-Content -LiteralPath 'content/royal_district/combat/player.dakit' -Raw | ConvertFrom-Json).asset
 $taskCollision = (Get-Content -LiteralPath 'content/royal_district/collision/environment.dacollision' -Raw | ConvertFrom-Json).asset
 $taskArguments += @('--character-collision',$taskCollision)
-$taskArguments += @('--character-kit',$taskKit,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005')
+$taskArguments += @('--character-kit',$taskKit,'--character-player','00000000000000000000000000000004')
 if ($CharacterWorkflow) { $taskArguments += '--character-workspace' }
 if ($PlayerWorkflow) { $taskArguments += '--player-workspace' }
 if ($AbilityWorkflow) { $taskArguments += '--ability-workspace' }

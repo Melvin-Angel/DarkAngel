@@ -14,7 +14,7 @@ run('graph-preview-build',[ROOT/'.tools/cmake/cmake-4.4.4-windows-x86_64/bin/cma
 if '--ui-only' not in sys.argv:run('graph-preview-native',[BUILD/'ComposerPreviewTests.exe',BUILD/'authoring-fixture.json','--character'])
 f=json.loads((BUILD/'authoring-fixture.json').read_text(encoding='utf-8'));s=Path(f['source']);c=Path(f['cache'])
 model=json.loads((s/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text(encoding='utf-8'))['id'];collision=json.loads((s/'royal_district/collision/environment.dacollision').read_text(encoding='utf-8'))['asset']
-base=[BUILD/'DarkAngelEditor.exe','--registry',f['registry'],'--cas',c/'cas','--model',model,'--scene',s/'royal_district/RoyalCombat.dascene','--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005','--sources',s,'--asset-cache',c,'--backend','d3d12','--hidden']
+base=[BUILD/'DarkAngelEditor.exe','--registry',f['registry'],'--cas',c/'cas','--model',model,'--scene',s/'royal_district/RoyalTraining.dascene','--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--sources',s,'--asset-cache',c,'--backend','d3d12','--hidden']
 character_path=s/'characters/gui_character.dacharacter'
 if not character_path.exists():character_path=next(iter(sorted(s.glob('characters/*.dacharacter'))))
 character=json.loads(character_path.read_text(encoding='utf-8'))['asset'];graph=json.loads((s/'royal_district/combat/player.dakit').read_text(encoding='utf-8'))['locomotion_stance']

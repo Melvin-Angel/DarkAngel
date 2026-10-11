@@ -35,6 +35,7 @@ EditorDocument::EditorDocument(AssetId root,StableId placement,AssemblySources s
 EditorDocument::~EditorDocument()=default;
 World& EditorDocument::world(){impl_->world->domain();return *impl_->world;}
 const SpawnPlan& EditorDocument::plan() const{impl_->world->domain();return impl_->plan;}
+AssetId EditorDocument::root() const{impl_->world->domain();return impl_->root;}
 std::uint64_t EditorDocument::revision() const{impl_->world->domain();return impl_->revision;}
 bool EditorDocument::dirty() const{impl_->world->domain();return impl_->saved!=impl_->fingerprint();}
 std::string EditorDocument::source(AssetId id) const{impl_->world->domain();return impl_->sources.at(id);}

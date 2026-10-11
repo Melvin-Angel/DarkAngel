@@ -13,7 +13,7 @@ run('player-input-native',[BUILD/'NativeAuthoringTests.exe'])
 run('player-input-assets',[BUILD/'ActorAssetTests.exe',BUILD/'authoring-fixture.json'])
 f=json.loads((BUILD/'authoring-fixture.json').read_text(encoding='utf-8'));s=Path(f['source']);c=Path(f['cache'])
 model=json.loads((s/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text(encoding='utf-8'))['id'];collision=json.loads((s/'royal_district/collision/environment.dacollision').read_text(encoding='utf-8'))['asset']
-base=[BUILD/'DarkAngelEditor.exe','--registry',f['registry'],'--cas',c/'cas','--model',model,'--scene',s/'royal_district/RoyalCombat.dascene','--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005','--sources',s,'--asset-cache',c,'--backend','d3d12','--hidden']
+base=[BUILD/'DarkAngelEditor.exe','--registry',f['registry'],'--cas',c/'cas','--model',model,'--scene',s/'royal_district/RoyalTraining.dascene','--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--sources',s,'--asset-cache',c,'--backend','d3d12','--hidden']
 output=run('player-input-fresh-play',base+['--exercise-player-input','--frames','40'])
 if 'Player input Keyboard.K routed through native semantic light action; history and frozen Player override passed' not in output:raise RuntimeError('Authored Player combat result missing')
 player=json.loads((s/'players/gui_player.daplayer').read_text(encoding='utf-8'))['asset'];character=json.loads((s/'characters/gui_character.dacharacter').read_text(encoding='utf-8'))['asset']

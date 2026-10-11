@@ -18,7 +18,7 @@ for profile,label in [('m5-relwithdebinfo','native'),('m5-editor-relwithdebinfo'
 for profile,label in [('m5-relwithdebinfo','native'),('m5-editor-relwithdebinfo','editor')]:run('royal-heavy-scene-'+label,[ROOT/'build'/profile/'RoyalHeavySceneTests.exe'])
 from prepare_royal_scene import SOURCE,CACHE,asset
 kit=json.loads((SOURCE/'royal_district/combat/player.dakit').read_text())['asset'];collision=json.loads((SOURCE/'royal_district/collision/environment.dacollision').read_text())['asset']
-base=[ROOT/'build/m5-editor-relwithdebinfo/DarkAngelEditor.exe','--registry',CACHE/'registry.json','--cas',CACHE/'cas','--model',asset('royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf'),'--scene',SOURCE/'royal_district/RoyalCombat.dascene','--character-kit',kit,'--character-collision',collision,'--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005']
+base=[ROOT/'build/m5-editor-relwithdebinfo/DarkAngelEditor.exe','--registry',CACHE/'registry.json','--cas',CACHE/'cas','--model',asset('royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf'),'--scene',SOURCE/'royal_district/RoyalTraining.dascene','--character-kit',kit,'--character-collision',collision,'--character-player','00000000000000000000000000000004']
 for backend in ('d3d12','vulkan'):
  for frames,health in ((30,65),(210,55)):
   output=run('royal-heavy-game-'+backend+'-'+str(frames),base+['--backend',backend,'--frames',str(frames),'--hidden','--exercise-heavy','--capture-workspace','--capture',EVIDENCE/('royal-heavy-game-'+backend+'-'+str(frames)+'.png')])

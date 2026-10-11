@@ -29,8 +29,8 @@ character_file=next(source.rglob('pending_shared_character.dacharacter'));charac
 model=json.loads((source/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text())['id']
 collision=json.loads((source/'royal_district/collision/environment.dacollision').read_text())['asset']
 base=[BUILD/'DarkAngelEditor.exe','--registry',fixture['registry'],'--cas',cache/'cas','--model',model,
-    '--scene',source/'royal_district/RoyalCombat.dascene','--character-kit',fixture['kit'],'--character-collision',collision,
-    '--character-player','00000000000000000000000000000004','--combat-target','00000000000000000000000000000005',
+    '--scene',source/'royal_district/RoyalTraining.dascene','--character-kit',fixture['kit'],'--character-collision',collision,
+    '--character-player','00000000000000000000000000000004',
     '--sources',source,'--asset-cache',cache,'--backend','d3d12','--hidden']
 for state,extra in [('unmatched',[]),('matched',['--graph-preview-tag','2'])]:
     run('tag-graph-preview-'+state,base+['--exercise-graph-result','--graph-character',character,'--authoring-asset',graph,

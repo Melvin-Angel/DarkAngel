@@ -214,3 +214,58 @@ User direction: navmesh baking gets a window under Tools to trigger it, to be ex
 ### Next step (track B)
 
 Waiting on the user's answers (asked 11 October 2026) about spawn points, several NPCs in one Play session, and whether to start cells and the ledger now. Recommended order if unanswered: spawn points placed in the Scene tab, then several NPCs per session, then cells.
+
+## Combat sandbox stage 1: multi-entity combat and NPC spawn points (11 October 2026)
+
+Stage 1 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md), delivered as one chunk and verified once.
+
+### The three assumptions checked first
+
+- **Scene placement to SpawnPlan.** `engine/runtime/assembly.cpp` reads each scene entity's optional `model` field into `SpawnPlan::models`. A `spawn` field now rides the same path into `SpawnPlan::spawns` (object identity to NPC asset). It is serialized only when present, so plans without spawn points keep their fingerprint.
+- **StableId.** A 128-bit value (two 64-bit halves). A placed object's identity is the first 32 hex digits of the SHA-256 of its placement path. `spawned_actor(spawn point)` hashes `spawn/<point>/actor` the same way, so no reserved namespace is needed and the same spawn point gives the same actor identity on every Play and on client and server.
+- **Scene viewport preview.** The viewport drew only `plan.models`. It now also draws the player's skin at every spawn point while authoring and at every spawned actor in Play. A marker was not needed.
+
+### Runtime
+
+- `CharacterSceneCombat::actors` (at most 16) replaces `target`, `target_attributes`, `npc`, `attacker` and the single `controller`. A `CharacterSceneActor` carries its scene identity, optional kit, input semantics, abilities, resolved attributes, name, faction, generation and optional controller. A training dummy is an actor with no controller. The player keeps its own role because it alone is predicted.
+- `CharacterSceneSession` keeps one record per actor (motor, ability owner, controller receipt, chosen target, observed pose) in ascending network identity and steps them in that order. The order the caller lists actors in does not change the simulation.
+- `ControllerView` lists every other actor (identity, faction, motor state, alive) instead of one opponent. `nearest_hostile` stands in for target selection until sensing exists; different factions are hostile and the player's faction is `player`. `ControllerCommand::target` records the actor a decision is aimed at; the session checks it names an actor in the view and exposes it as `controller_target`.
+- Soft-lock candidates are every live actor hostile to the player. `soft_lock()` returns the actor it chose.
+- Accessors take an identity: `actors()`, `controller_receipt(id)`, `controller_status(id)`, `controller_target(id)`; `pose`, `observer`, `reaction`, `death` and `effects` already did.
+- A scripted attacker pressing a slot its kit does not assign is now refused by authority at the press (`Unassigned`) instead of being rejected when the session is built, because a controller is opaque to the session.
+
+### Spawn points and Play
+
+- A spawn point is a scene object with a transform and `"spawn": {"npc": "<id>"}`. `respawn` accepts only `"never"` and `encounter` only null; both are reserved.
+- Scene tab: the World Outliner marks spawn points and has "Add NPC spawn point"; the Inspector of a spawn point picks its NPC and removes it. These are structural edits of the scene source through the document, so they share Undo and Save.
+- Play preparation loads every spawn point's NPC, unions abilities, effects and clips, and builds one actor per spawn point with the derived identity and the NPC's own Health. The spawn point object itself is not sent to the session. Spawn point identities and NPC and behaviour generations are part of the session fingerprint. A spawned NPC with a behaviour runs its tree on one navigation mesh shared by the session; one without stays passive.
+- All actors must share the player's skin and rig for now.
+- HUD target is a separate presentation choice: the soft-locked actor, else the nearest live hostile in front of the camera, and it stays shown until another qualifies. Explicit lock-on is not built.
+- The Gameplay Inspector's second tab is now "Actors": Health, faction, behaviour, decision, chosen target, last request, reaction and effects per actor.
+
+### Removed
+
+`--combat-target`, `--target-npc`, `--target-attacks`, `--target-navigates`, `Controller::authoring_npc`, the "Place on the combat target" button, the "Target attacks the player" training option, `CharacterSceneAttacker` and `CharacterSceneNpc`. `make_scripted_attacker` and `make_path_follower` remain as controllers used by tests.
+
+### Content
+
+- `content/royal_district/RoyalCombat.dascene`: two Royal Guard spawn points, 6 to 7 m from the player.
+- `content/royal_district/RoyalTraining.dascene` (new): the same layout with one passive Training Dummy where the training target stood.
+- `content/npcs/training_dummy.danpc` (new): the Royal Character and kit, default attributes, no behaviour.
+- `scripts/prepare_royal_scene.py` writes both scenes with spawn points. `scripts/open_royal_scene.ps1` opens the combat scene, or the training scene with `-Training`.
+
+### Verified (build of 11 October 2026)
+
+- CharacterCombatSceneTests: every earlier two-actor case through a one-actor list, plus two guards on their own schedules with one defeated, nearest-of-two soft lock, an allied actor never soft-locked, list-order independence, three guards closing in, and bounds (missing object, duplicate, no attributes, the player as an actor, 17 actors, no actors).
+- NativeAuthoringTests on the training scene with the spawned dummy; NavigationTests, BehaviorTreeTests, ObservedCharacterPoseTests, ReactionPresentationTests, RoyalHeavySceneTests.
+- `python scripts/verify_effect_reaction.py`: 35 gates pass. New or changed: `attacked-flinch`, `attacked-death`, `attacked-light` and `npc-target` now use a Royal Guard spawned in a duel scene derived in the fixture; `npc-spawn-points-d3d12` plays the owned combat scene (2 actors, both guards reach and hit the player, player Health 25 at tick 260); `spawn-points-scene-d3d12` captures the Scene tab. Both captures were looked at.
+- CTest: only the five known unrelated failures (M5.actor_assets, M5.attribute_authoring, M5.composer_structure, M5.composer_preview, M4.royal_mesh_collision).
+
+### Not verified, and known limits
+
+- Hits do not check faction. In the two-guard capture one guard is at 35/60 without player input: a guard's swing hit the other guard. Whether NPCs of one faction can hurt each other is a product decision.
+- The Scene tab buttons (add, retarget, remove a spawn point) were not clicked by a gate; only loading, drawing and Play of authored spawn points were exercised.
+- The 26 older `scripts/verify_*.py` were switched to the training scene and lost `--combat-target` mechanically; none was re-run. Those that package their own registry (for example `scripts/verify_royal_combat.py`) will need the Training Dummy NPC in it.
+- A startup registry that lacks a spawn point's NPC (for example `.cache/royal-scene/registry.json` used by `open_royal_scene.ps1`) loads without that actor and logs a warning; Play with a project mount packages it. This path was not run.
+- RoyalCollisionTests was updated for the new signature but still does not link (known).
+- No respawn, no encounter ownership, one rig per scene, no GNS run.

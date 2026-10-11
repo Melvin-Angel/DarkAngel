@@ -11,12 +11,17 @@ struct SpawnPlan {
     std::vector<ObjectOrigin> origins;
     std::vector<PlannedBinding> bindings;
     std::map<StableId,AssetId> models;
+    // Spawn point objects and the NPC definition each one spawns.
+    std::map<StableId,AssetId> spawns;
     std::string serialize() const;
     static SpawnPlan deserialize(std::string_view);
 };
 using AssemblySources=std::map<AssetId,std::string>;
 // Stable-keyed source graph -> native scene and explicit script/resource prerequisites.
 SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources&);
+// Identity of the runtime actor a spawn point creates. Derived from the spawn point alone, so
+// the same placement yields the same actor on every Play and on client and server alike.
+StableId spawned_actor(StableId spawn_point);
 struct ScriptDefinition {ScriptDescriptor descriptor;std::string cooked;};
 struct CookedScene {
     SpawnPlan plan;std::map<StableId,ScriptDefinition> scripts;
