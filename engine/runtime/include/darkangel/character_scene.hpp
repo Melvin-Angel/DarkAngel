@@ -26,6 +26,8 @@ struct CharacterSceneActor {
     std::vector<AttributeDefinition> attributes;
     std::string name,faction,generation;
     std::shared_ptr<ActorController> controller;
+    // What the actor can notice. Without sensors it perceives nothing and its controller finds no target.
+    SensesDefinition senses;
 };
 // The session carries session_character_capacity characters; one of them is the player.
 constexpr std::size_t character_scene_actor_limit=session_character_capacity-1;
@@ -109,6 +111,9 @@ public:
     std::string controller_status(StableId)const;
     // The actor an actor's controller named on its latest decision, if any.
     std::optional<StableId> controller_target(StableId)const;
+    // An actor's senses and what it perceived on the latest tick, as authority holds them. For
+    // debug views in the host process only; nothing here is replicated.
+    const Perception* perception(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

@@ -8,10 +8,13 @@
 namespace darkangel {
 // Native behaviour tree topology, authored as JSON. Node kinds are a closed native set:
 //   composites  sequence, selector (one to eight children)
-//   conditions  opponent_alive, in_range {range}, idle
+//   conditions  opponent_alive, opponent_visible, in_range {range}, idle
 //   actions     face, approach {range}, attack {slot}, recover {ticks}
+// approach walks until the opponent is within range and in line of sight.
 // The tree only decides; every leaf acts through the controller seam (move, face, press),
-// so a behaviour cannot bypass ability validation. Blackboard and sensing stay native.
+// so a behaviour cannot bypass ability validation. Blackboard and sensing stay native: the
+// opponent is the nearest live hostile the NPC's senses detect, and opponent_visible adds
+// line of sight to it.
 // preferred: the range comes from the NPC's tuning ("range": "preferred") instead of the tree.
 struct BehaviorNode {std::string type;double range{};bool preferred{};unsigned ticks{};CombatSlot slot{};std::vector<BehaviorNode> children;};
 // Per-NPC numbers a tree reads, so one tree serves differently tuned NPCs: the range that

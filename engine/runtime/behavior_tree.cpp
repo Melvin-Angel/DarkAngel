@@ -10,11 +10,11 @@ namespace {
 void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
 // Native blackboard shared by the leaves of one tree instance.
 struct Blackboard {
-    const ControllerView* view{};const ControllerActor* foe{};ControllerCommand command;std::shared_ptr<const NavigationMesh> mesh;
+    const ControllerView* view{};const PerceivedActor* foe{};ControllerCommand command;std::shared_ptr<const NavigationMesh> mesh;
     std::vector<MotorVec> path;std::size_t next{1};std::uint64_t repath{};
     // The leaf that decided this tick, for the debug readout.
     std::string trace;
-    // The opponent is the nearest live hostile, chosen once per decision.
+    // The opponent is the nearest live hostile the actor detects, chosen once per decision.
     bool opponent()const{return view->alive&&foe;}
     double distance()const{return std::hypot(foe->motor.position.x-view->self.position.x,foe->motor.position.z-view->self.position.z);}
 };
@@ -22,6 +22,12 @@ class OpponentAlive final:public BT::ConditionNode {
 public:OpponentAlive(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::ConditionNode(name,config),board_(board){}
     static BT::PortsList providedPorts(){return {};}
     BT::NodeStatus tick()override{return board_->opponent()?BT::NodeStatus::SUCCESS:BT::NodeStatus::FAILURE;}
+private:Blackboard* board_;
+};
+class OpponentVisible final:public BT::ConditionNode {
+public:OpponentVisible(const std::string& name,const BT::NodeConfig& config,Blackboard* board):BT::ConditionNode(name,config),board_(board){}
+    static BT::PortsList providedPorts(){return {};}
+    BT::NodeStatus tick()override{return board_->opponent()&&board_->foe->visible?BT::NodeStatus::SUCCESS:BT::NodeStatus::FAILURE;}
 private:Blackboard* board_;
 };
 class Idle final:public BT::ConditionNode {
@@ -62,7 +68,7 @@ public:Approach(const std::string& name,const BT::NodeConfig& config,Blackboard*
     static BT::PortsList providedPorts(){return {BT::InputPort<double>("range")};}
     BT::NodeStatus onStart()override{board_->path.clear();board_->repath=0;return onRunning();}
     BT::NodeStatus onRunning()override{
-        auto& b=*board_;if(!b.opponent())return BT::NodeStatus::FAILURE;if(b.distance()<=getInput<double>("range").value())return BT::NodeStatus::SUCCESS;if(b.view->busy)return BT::NodeStatus::RUNNING;
+        auto& b=*board_;if(!b.opponent())return BT::NodeStatus::FAILURE;if(b.distance()<=getInput<double>("range").value()&&b.foe->visible)return BT::NodeStatus::SUCCESS;if(b.view->busy)return BT::NodeStatus::RUNNING;
         const auto& self=b.view->self.position;MotorVec corner=b.foe->motor.position;
         if(b.mesh){
             if(b.path.size()<2||b.view->tick>=b.repath){auto found=b.mesh->path(self,b.foe->motor.position);b.path=found?std::move(*found):std::vector<MotorVec>{};b.next=1;b.repath=b.view->tick+15;}
@@ -79,6 +85,7 @@ void write(std::ostringstream& xml,const BehaviorNode& node,const BehaviorTuning
     const double range=node.preferred?tuning.preferred_range:node.range;
     if(node.type=="sequence"||node.type=="selector"){const char* tag=node.type=="sequence"?"Sequence":"Fallback";xml<<'<'<<tag<<'>';for(const auto& child:node.children)write(xml,child,tuning);xml<<"</"<<tag<<'>';}
     else if(node.type=="opponent_alive")xml<<"<DaOpponentAlive/>";
+    else if(node.type=="opponent_visible")xml<<"<DaOpponentVisible/>";
     else if(node.type=="idle")xml<<"<DaIdle/>";
     else if(node.type=="face")xml<<"<DaFace/>";
     else if(node.type=="in_range")xml<<"<DaInRange range=\""<<range<<"\"/>";
@@ -91,7 +98,7 @@ class BehaviorController final:public ActorController {
 public:
     BehaviorController(const BehaviorDefinition& definition,std::shared_ptr<const NavigationMesh> mesh,const BehaviorTuning& tuning){
         board_.mesh=std::move(mesh);BT::BehaviorTreeFactory factory;
-        factory.registerNodeType<OpponentAlive>("DaOpponentAlive",&board_);factory.registerNodeType<Idle>("DaIdle",&board_);factory.registerNodeType<InRange>("DaInRange",&board_);factory.registerNodeType<Face>("DaFace",&board_);
+        factory.registerNodeType<OpponentAlive>("DaOpponentAlive",&board_);factory.registerNodeType<OpponentVisible>("DaOpponentVisible",&board_);factory.registerNodeType<Idle>("DaIdle",&board_);factory.registerNodeType<InRange>("DaInRange",&board_);factory.registerNodeType<Face>("DaFace",&board_);
         factory.registerNodeType<Attack>("DaAttack",&board_);factory.registerNodeType<Recover>("DaRecover",&board_);factory.registerNodeType<Approach>("DaApproach",&board_);
         std::ostringstream xml;xml.precision(17);xml<<"<root BTCPP_format=\"4\"><BehaviorTree ID=\"Main\">";write(xml,definition.root,tuning);xml<<"</BehaviorTree></root>";
         tree_=factory.createTreeFromText(xml.str());

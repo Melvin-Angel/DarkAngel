@@ -28,8 +28,8 @@ for entity in duel_source['sources'][duel_root]['entities'].values():
 def scene(arguments,name):
     out=[x for x in arguments];out[out.index('--scene')+1]=source/('royal_district/'+name);return out
 # A spawned Royal Guard attacks through its behaviour tree: the player is hit, flinches and dies on its own confirmed pose.
-def marker(log,key):
-    line=[l for l in log.splitlines() if l.startswith('Editor attacked ')][-1];value=dict(part.split('=') for part in line.split()[2:])[key];return value if key.startswith('hud') or key in('behavior','decision') else float(value)
+def marker(log,key,prefix='Editor attacked '):
+    line=[l for l in log.splitlines() if l.startswith(prefix)][-1];value=dict(part.split('=') for part in line.split()[2:])[key];return value if key.startswith('hud') or key in('behavior','decision') else float(value)
 log=run('attacked-flinch-d3d12',scene(death,'RoyalDuel.dascene')+['--exercise-attacked','--frames','40','--capture',EVIDENCE/'attacked-flinch-d3d12.png'])
 if not(marker(log,'reaction_tick')>0 and marker(log,'player_health')==75 and marker(log,'death_tick')<0 and marker(log,'hud_health')=='75/100'):raise RuntimeError('Editor Play did not show the player flinch: '+log[-400:])
 log=run('attacked-death-d3d12',scene(death,'RoyalDuel.dascene')+['--exercise-attacked','--frames','420','--capture',EVIDENCE/'attacked-death-d3d12.png'])
@@ -64,8 +64,13 @@ form=[x for x in worn];run('camera-preview-d3d12',form+['--player-workspace','--
 guarded=[f['npc_registry'] if x==f['reaction_registry'] else x for x in common]
 log=run('npc-target-d3d12',scene(guarded,'RoyalDuel.dascene')+['--exercise-attacked','--frames','40','--capture',EVIDENCE/'npc-target-d3d12.png'])
 if not(marker(log,'player_health')==75 and marker(log,'actors')==1 and marker(log,'hud_target')=='60/60' and marker(log,'hud_target_name')=='Royal_Guard' and marker(log,'nav_polygons')>0 and marker(log,'behavior')=='Guard_Melee' and ' decision=' in log):raise RuntimeError('Editor Play did not spawn the Royal Guard from its spawn point: '+log[-400:])
-# Multi-entity combat: the owned combat scene spawns Royal Guards (two as shipped) that walk the navigation mesh to the player and attack.
-log=run('npc-spawn-points-d3d12',scene(guarded,'RoyalCombat.dascene')+['--exercise-attacked','--frames','260','--capture',EVIDENCE/'npc-spawn-points-d3d12.png'])
+# Multi-entity combat: two Royal Guards facing the player from 6 and 7 m (a scene derived here, not the user's combat scene) see it, walk the navigation mesh to it and attack.
+guards_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());guards_entities=guards_source['sources'][guards_source['root']]['entities']
+for key in [key for key,entity in guards_entities.items() if 'spawn' in entity]:
+    first=guards_entities[key];first['name']='Royal Guard spawn';first['spawn']['npc']=f['npc'];first['types']['1']['fields'].update({'2':-1.5,'4':9})
+    second=json.loads(json.dumps(first));second['name']='Royal Guard spawn 2';second['types']['1']['fields'].update({'2':2,'4':10});guards_entities['00000000000000000000000000000006']=second
+(source/'royal_district/RoyalGuards.dascene').write_text(json.dumps(guards_source,indent=2)+chr(10))
+log=run('npc-spawn-points-d3d12',scene(guarded,'RoyalGuards.dascene')+['--exercise-attacked','--frames','260','--capture',EVIDENCE/'npc-spawn-points-d3d12.png'])
 if not(marker(log,'player_health')<100 and marker(log,'actors')>=2 and marker(log,'nav_polygons')>0 and marker(log,'behavior')=='Guard_Melee'):raise RuntimeError('Editor Play did not run two spawned Royal Guards: '+log[-400:])
 # NPC ranged attack: a Royal Archer spawned 12 m away looses arrows at the player through its behaviour tree.
 archer_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text())
@@ -75,7 +80,16 @@ for entity in archer_source['sources'][archer_source['root']]['entities'].values
 log=run('npc-archer-d3d12',scene(guarded,'RoyalArcher.dascene')+['--exercise-attacked','--frames','110','--capture',EVIDENCE/'npc-archer-d3d12.png'])
 if not(marker(log,'player_health')==80 and marker(log,'actors')==1 and marker(log,'behavior')=='Archer_Ranged' and marker(log,'hud_target_name')=='Royal_Archer'):raise RuntimeError('Editor Play did not run the Royal Archer: '+log[-400:])
 # The same scene in the Scene tab: both spawn points preview their NPC's Character.
-run('spawn-points-scene-d3d12',scene(guarded,'RoyalCombat.dascene')+['--frames','5','--capture',EVIDENCE/'spawn-points-scene-d3d12.png'])
+log=run('spawn-points-scene-d3d12',scene(guarded,'RoyalGuards.dascene')+['--select-spawn','--frames','5','--capture',EVIDENCE/'spawn-points-scene-d3d12.png'])
+if not marker(log,'drawn','Editor senses_scene ')==1:raise RuntimeError('The Scene tab did not draw the selected spawn point senses: '+log[-400:])
+# NPC senses: a Royal Guard 6 m to the player's side, facing the way the player will walk, has the player outside its cone and
+# its distance radius. It stays unaware for a second, notices the player once it has walked into the cone, then comes and attacks.
+senses_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text())
+for entity in senses_source['sources'][senses_source['root']]['entities'].values():
+    if 'spawn' in entity:entity['spawn']['npc']=f['npc'];entity['types']['1']['fields'].update({'1':0.0,'2':6.0,'4':3.0})
+(source/'royal_district/RoyalSenses.dascene').write_text(json.dumps(senses_source,indent=2)+chr(10))
+log=run('npc-senses-d3d12',scene(guarded,'RoyalSenses.dascene')+['--exercise-senses','--frames','330','--capture',EVIDENCE/'npc-senses-d3d12.png'])
+if not(marker(log,'noticed_tick','Editor senses ')>60 and marker(log,'noticed_z','Editor senses ')>4.5 and marker(log,'sensors','Editor senses ')==2 and marker(log,'senses_drawn','Editor senses ')==1):raise RuntimeError('Editor Play did not show a guard noticing the player in its cone: '+log[-400:])
 # Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.
 log=run('navigation-tool-d3d12',common+['--exercise-navigation-bake','--frames','5','--capture',EVIDENCE/'navigation-tool-d3d12.png'])
 if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise RuntimeError('Navigation tool did not bake: '+log[-400:])

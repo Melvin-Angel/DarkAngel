@@ -89,6 +89,8 @@ public:
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).
     std::function<void(ImDrawList*,ViewArea)> game_overlay;
+    // World-space debug drawing over the Scene and Game viewports (NPC senses).
+    std::function<void(ImDrawList*,ViewArea)> debug_overlay;
     std::optional<Transform> draft;
     bool reload_model{},reload_shader{};
     bool native_controls{},controls_focus{},walk{};float forward{},lateral{},turn{};

@@ -2,6 +2,7 @@
 #include <darkangel/combat_kit_assets.hpp>
 #include <darkangel/camera.hpp>
 #include <darkangel/behavior.hpp>
+#include <darkangel/perception.hpp>
 namespace darkangel {
 // Initial authored references only; never a live actor or a gameplay inheritance tree.
 struct CharacterDefinition {AssetId id,skin;std::string generation;};
@@ -18,10 +19,13 @@ struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
 struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};};
 // Typed Player "cameras" array (also used by the editor's authoring preview).
 CameraRigDefinition decode_camera_rig(std::string_view json);
+// Decodes and validates the "senses" object of an NPC source; the cooker reads it with the same rules.
+SensesDefinition decode_npc_senses(std::string_view json);
 // A server-controlled actor: the same shared Character and Actor Loadout a Player uses,
 // plus a display name and a faction. No input profile, cameras or behaviour live here.
 // behavior: optional authored behaviour tree the NPC runs in Play (a native .dabehavior source).
-struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;};
+// senses: what the NPC can notice in Play; without them it perceives nothing.
+struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;SensesDefinition senses;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
 struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};

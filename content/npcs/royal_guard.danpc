@@ -27,5 +27,21 @@
   "tuning": {
     "preferred_range": 1.4,
     "recovery_scale": 1.0
+  },
+  "senses": {
+    "eye_height": 1.6,
+    "forget_seconds": 5.0,
+    "sensors": [
+      {
+        "type": "vision",
+        "range": 18.0,
+        "horizontal": 70.0,
+        "vertical": 40.0
+      },
+      {
+        "type": "distance",
+        "radius": 5.0
+      }
+    ]
   }
 }

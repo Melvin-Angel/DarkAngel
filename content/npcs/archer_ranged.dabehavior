@@ -17,6 +17,9 @@
             "range": 14.0
           },
           {
+            "type": "opponent_visible"
+          },
+          {
             "type": "idle"
           },
           {

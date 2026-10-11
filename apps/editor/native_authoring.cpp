@@ -185,7 +185,7 @@ void NativeAuthoring::edit_behavior_tree(AssetService& assets,AssetId behavior,s
  for(auto index:path){require(composite(*node)&&index<node->at("children").size(),"Behavior node path does not exist");parent=node;node=&(*node)["children"][index];}
  if(action==BehaviorEdit::AddChild){
   require(composite(*node)&&node->at("children").size()<8,"Only a sequence or selector with fewer than eight children can take a child");const std::string kind(type);nlohmann::json added={{"type",kind}};
-  if(kind=="sequence"||kind=="selector")added["children"]=nlohmann::json::array({nlohmann::json{{"type","opponent_alive"}}});else if(kind=="in_range"||kind=="approach")added["range"]=1.4;else if(kind=="attack")added["slot"]="light";else if(kind=="recover")added["ticks"]=60u;else require(kind=="opponent_alive"||kind=="idle"||kind=="face","Unknown behavior node type");
+  if(kind=="sequence"||kind=="selector")added["children"]=nlohmann::json::array({nlohmann::json{{"type","opponent_alive"}}});else if(kind=="in_range"||kind=="approach")added["range"]=1.4;else if(kind=="attack")added["slot"]="light";else if(kind=="recover")added["ticks"]=60u;else require(kind=="opponent_alive"||kind=="opponent_visible"||kind=="idle"||kind=="face","Unknown behavior node type");
   (*node)["children"].push_back(std::move(added));
  }else{
   require(parent!=nullptr,"The root of a behavior tree cannot be moved or removed");auto& siblings=(*parent)["children"];const auto index=path.back();
