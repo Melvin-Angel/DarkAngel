@@ -6,7 +6,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content'
 CACHE = ROOT / '.cache/royal-scene'
-TOOL = ROOT / 'build/m5-relwithdebinfo/AssetTool.exe'
+TOOL = ROOT / 'build/m5-editor-relwithdebinfo/AssetTool.exe'
 
 def run(*args):
     subprocess.run([str(TOOL), *map(str, args)], cwd=ROOT, check=True, timeout=120)

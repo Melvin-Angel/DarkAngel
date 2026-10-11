@@ -7,7 +7,7 @@ import time
 
 ROOT=Path(__file__).resolve().parents[1]
 source=ROOT/'content/royal_district/static';cache=ROOT/'.cache/royal-district'
-tool=ROOT/'build/m5-relwithdebinfo/AssetTool.exe'
+tool=ROOT/'build/m5-editor-relwithdebinfo/AssetTool.exe'
 report=json.loads((source/'conversion.json').read_text())
 digest=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
 records=[];logs=[]
