@@ -123,8 +123,8 @@ The owned Royal Guard and Royal Archer no longer know where the player is. A gua
 
 ### Not verified
 
-- The Senses section of the NPC form was not clicked; its edits go through the same draft path as tuning. The `npc-form-d3d12` capture shows the form and was not looked at in this run.
-- The Scene tab capture of the selected spawn point's cone was not looked at; only its marker was checked.
+- The Senses section of the NPC form was not clicked; its edits go through the same draft path as tuning. The `npc-form-d3d12` capture was looked at later the same day: the section shows the Royal Guard's eye height, time to forget and vision cone; three labels were cut off at the panel edge and were shortened (editor rebuilt and re-captured, no other gate re-run); the half angle labels still lose their last characters at this width, left for the UI pass.
+- The Scene tab capture of the selected spawn point (`spawn-points-scene-d3d12`) was looked at later the same day: the green cone and the amber distance ring are drawn at the selected guard, facing the player.
 - The Actors tab perception readout was not captured.
 - Sensing was measured for correctness, not for cost; a full scene's 256 rays a tick were not profiled.
 - Real latency and GNS: unchanged, sensing is server-only and adds nothing to the wire.
