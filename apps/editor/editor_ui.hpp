@@ -30,6 +30,8 @@ public:
     // First point where a segment meets the scene's cooked static collision, if the session can answer. Set by the host.
     std::function<std::optional<std::array<double,3>>(const std::array<double,3>& from,const std::array<double,3>& to)> place_surface;
     double surface_height(double x,double z)const;
+    // The scene object whose bounds a segment through the scene meets first, if any. Set by the host, which knows the models.
+    std::function<StableId(const std::array<double,3>& from,const std::array<double,3>& to)> pick_object;
     // Screen centres of a few named controls as last drawn, so a gate can drive them with real mouse events.
     std::map<std::string,ImVec2> probes;
     void probe(std::string key){const auto low=ImGui::GetItemRectMin(),high=ImGui::GetItemRectMax();probes[std::move(key)]={(low.x+high.x)*.5f,(low.y+high.y)*.5f};}

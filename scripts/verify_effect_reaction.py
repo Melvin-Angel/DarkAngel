@@ -97,8 +97,8 @@ if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise Runtime
 log=run('place-panel-d3d12',common+['--exercise-place','--frames','5','--capture',EVIDENCE/'place-panel-d3d12.png'])
 if 'Place panel items=' not in log or 'delete_undo_redo=1' not in log or 'on_collision=1' not in log:raise RuntimeError('Place panel did not place and delete scene objects: '+log[-400:])
 # The Place panel and outliner driven with real mouse and key events: drag into the viewport, double-click, Delete key, right-click Delete.
-log=run('place-mouse-d3d12',common+['--exercise-place-mouse','--frames','38','--capture',EVIDENCE/'place-mouse-d3d12.png'])
-if 'Editor mouse drag=1' not in log or 'double_click=1 delete_key=1 context_delete=1' not in log:raise RuntimeError('The Place panel mouse paths did not work: '+log[-400:])
+log=run('place-mouse-d3d12',common+['--exercise-place-mouse','--frames','44','--capture',EVIDENCE/'place-mouse-d3d12.png'])
+if 'Editor mouse drag=1' not in log or 'double_click=1 delete_key=1 context_delete=1' not in log or 'viewport_select=1' not in log:raise RuntimeError('The Place panel mouse paths did not work: '+log[-400:])
 # Mask Editor: one window for a mask definition, opened over the Player tab and over the NPC tab.
 masks=sorted(source.glob('masks/*.dafacemask'));mask_id=json.loads(masks[0].read_text())['asset']
 masked_npc=next((json.loads(p.read_text())['asset'] for p in sorted(source.glob('npcs/*.danpc')) if any(json.loads(p.read_text()).get('loadout',{}).get('masks',[]))),f['npc'])
@@ -109,6 +109,9 @@ if 'Mask Editor open mask=' not in log or 'workspace=npc selection_kept=1 dirty=
 # A real click into the Mask Editor's name field and a typed character edit the mask draft, and Undo restores it.
 log=run('mask-editor-field-d3d12',form+['--player-workspace','--authoring-asset',f['mask_player'],'--mask-editor',mask_id,'--exercise-mask-field','--height','1500','--frames','12','--capture',EVIDENCE/'mask-editor-field-d3d12.png'])
 if 'Editor mask_field typed=1 undo=1' not in log:raise RuntimeError('Typing into the Mask Editor did not edit the mask: '+log[-400:])
+# File > Save All with the mouse writes a gameplay draft made in a workspace, with the scene.
+log=run('save-all-d3d12',form+['--player-workspace','--authoring-asset',f['mask_player'],'--mask-editor',mask_id,'--exercise-save-all','--height','1500','--frames','16','--capture',EVIDENCE/'save-all-d3d12.png'])
+if 'Editor save_all saved=1 restored=1' not in log:raise RuntimeError('File > Save All did not save the gameplay draft: '+log[-400:])
 # M6 track: the Guard Melee behaviour opened in the NPC workspace (tree outline with structure controls).
 run('behavior-form-d3d12',common+['--npc-workspace','--authoring-asset',f['behavior'],'--height','1500','--frames','5','--capture',EVIDENCE/'behavior-form-d3d12.png'])
 # M6 track: the owned Royal Guard NPC definition opened in the NPC workspace.

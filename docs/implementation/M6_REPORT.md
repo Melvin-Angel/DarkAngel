@@ -320,3 +320,15 @@ User request of 11 October 2026. Editor-only; it needed only its own gates, and 
 **Not verified:** the Delete key with the Viewport window focused (the gate presses it with the outliner focused); dragging a model rather than an NPC; the remaining Mask Editor fields (the pickers and numbers); OS-level mouse input (events are queued into ImGui, not sent through Windows).
 
 **Question for the user:** which new placeable kinds come first: encounters, altars or items? None of those asset types exists yet, so each needs a definition before it can be placed.
+
+## Scene viewport selection and File > Save All (11 October 2026)
+
+User requests of 11 October 2026. Editor-only; each has its own gate, and the full gate script and CTest were not re-run.
+
+- **Selecting in the viewport.** A left click in the Scene viewport selects the object under the cursor (`Shell::pick_object`, set in main.cpp): the nearest object whose bounds the ray through the cursor meets. A model uses its cooked bounding box under the object's transform; a character or an NPC spawn point uses a standing body's box. A click on the gizmo, or on nothing, keeps the selection. Not active during Play.
+- Limits: bounds are boxes, not meshes, so a click beside a round hut but inside its box selects the hut, and a click on open ground selects the ground object. There is no box selection, multi-selection or click-through to the next object behind.
+- **File > Save All.** Saves every gameplay draft in every workspace through the coordinated Save (the same path as "Save gameplay changes"), then the scene. Disabled during Play. If the gameplay Save fails validation the scene is not saved either, and the error goes to the console.
+
+**Verified:** `place-mouse-d3d12` now ends with a real click on a spawn point's body in the viewport and requires it to become the selection (`viewport_select=1`). `save-all-d3d12` makes a mask draft edit, opens File and clicks Save All with the mouse, and requires the edit to be in the source file with nothing left dirty.
+
+**Not verified:** selecting a model (the gate clicks a spawn point); a scene with unsaved changes in both the scene and gameplay at once; no capture was looked at for these two (the result is a selection and a file, not a picture).
