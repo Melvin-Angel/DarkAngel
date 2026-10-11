@@ -1,4 +1,5 @@
 #include <darkangel/character_motor.hpp>
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 namespace darkangel {
@@ -15,6 +16,19 @@ namespace darkangel {
     }
     void validate_motor_input(const MotorInput& i){
         check((i.sequence>0||(i.x==0&&i.z==0&&!i.jump))&&i.tick>0&&i.epoch>0&&finite(i.x)&&finite(i.z)&&i.x*i.x+i.z*i.z<=1.00001&&finite(i.yaw),"Invalid motor input");
+    }
+    std::optional<MotionWarpResult> resolve_motion_warp(const MotionWarp& warp,const MotorState& state,const MotorInput& input){
+        if(!warp.active)return std::nullopt;
+        check(valid(warp.point)&&finite(warp.range)&&warp.range>0&&warp.range<=30&&finite(warp.cone)&&warp.cone>0&&warp.cone<=3.1415927&&finite(warp.stop)&&warp.stop>=0&&warp.stop<=30&&finite(warp.step)&&warp.step>=0&&warp.step<=.5,"Motion warp bounds");
+        const double dx=warp.point.x-state.position.x,dz=warp.point.z-state.position.z,distance=std::hypot(dx,dz);
+        if(distance<1e-6||distance>warp.range||std::abs(warp.point.y-state.position.y)>warp.range)return std::nullopt;
+        const double toward=std::atan2(dx,dz),centre=!warp.fresh?state.yaw:std::hypot(input.x,input.z)>.1?std::atan2(input.x,input.z):input.yaw;
+        // Later ticks only keep tracking what the actor already faces; they never acquire a
+        // target the fresh tick turned down.
+        const double cone=warp.fresh?warp.cone:std::min(warp.cone,.35);
+        if(std::abs(std::remainder(toward-centre,6.283185307179586))>cone)return std::nullopt;
+        const double travel=std::clamp(distance-warp.stop,0.,warp.step);
+        return MotionWarpResult{toward,{dx/distance*travel,0,dz/distance*travel}};
     }
     void validate_motor_state(const MotorState& s){
         check(s.epoch&&s.topology&&finite(s.yaw)&&s.coyote<=6&&s.jump_buffer<=6,"Invalid motor state header");

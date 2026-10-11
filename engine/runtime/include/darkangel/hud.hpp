@@ -14,6 +14,8 @@ struct HudViewModel {
     bool has_target{};double target_health{},target_maximum_health{};
     // Display name of the active equipped mask; empty when the actor wears none.
     std::string mask;
+    // The owner is soft-locked onto the target on this tick.
+    bool target_locked{};
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

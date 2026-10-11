@@ -1,6 +1,7 @@
 #include <darkangel/character_scene.hpp>
 #include <darkangel/ability_prediction.hpp>
 #include <darkangel/character_presentation.hpp>
+#include <darkangel/targeting.hpp>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -37,6 +38,8 @@ struct CharacterSceneSession::Impl {
     SimulationClock clock;
     std::uint64_t player{};
     bool pending_jump{},failed{};unsigned resynchronizations{};
+    // Soft lock: the candidate the live prediction chose per unconfirmed tick (reused by replay) and the last tick the owner warped.
+    std::map<std::uint64_t,std::uint64_t> predicted_locks;std::uint64_t soft_lock_tick{};
     Impl(SessionHandshake hello,std::span<const ObjectData> objects,StableId identity,const CollisionDefinition& collision,
          std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::optional<CharacterSceneCombat> configured)
         :transport(create_loopback(hello)),server(SessionRole::Server,hello),client(SessionRole::Client,hello),presentation_plan(plan),graph(std::move(plan)),rig(std::move(definition),archive){
@@ -88,7 +91,7 @@ struct CharacterSceneSession::Impl {
         require(combat&&snapshot.active&&snapshot.action,"Active combat correction required");for(const auto& ability:combat->abilities)if(ability->id==snapshot.ability){require(ability->generation==snapshot.ability_generation&&ability->action->id==snapshot.action_definition&&ability->action->generation==snapshot.action->generation,"Combat correction frozen generation mismatch");return *ability;}throw std::runtime_error("Combat correction missing local ability");
     }
     MotionRequest motion(const AbilityOwnerSnapshot& snapshot,std::uint64_t from,std::uint64_t to,MotorInput& command)const{
-        auto local=ability_motion_between(definition(snapshot),from,to);const auto& v=local.root.translation;auto yaw=command.yaw;command.yaw=std::remainder(command.yaw+local.root.yaw,6.283185307179586);MotionRequest request;request.root={std::cos(yaw)*v[0]+std::sin(yaw)*v[2],v[1],-std::sin(yaw)*v[0]+std::cos(yaw)*v[2]};request.action=snapshot.active->activation;request.lock=local.movement_lock;return request;
+        auto local=ability_motion_between(definition(snapshot),from,to);const auto& v=local.root.translation;auto yaw=command.yaw;command.yaw=std::remainder(command.yaw+local.root.yaw,6.283185307179586);MotionRequest request;request.root={std::cos(yaw)*v[0]+std::sin(yaw)*v[2],v[1],-std::sin(yaw)*v[0]+std::cos(yaw)*v[2]};request.action=snapshot.active->activation;request.lock=local.movement_lock;request.warp=ability_warp_between(definition(snapshot),from,to);return request;
     }
     // Facing rule for abilities authored with face_movement: on the activation tick the
     // actor turns to its world-space movement input (or keeps its yaw without input); afterwards
@@ -119,7 +122,18 @@ struct CharacterSceneSession::Impl {
         if(const auto* frame=effect_frame(player))for(const auto& active:frame->effects)if(!active.suppressed&&active.start<tick&&(!active.end||tick<active.end))for(const auto& effect:combat->effects)if(effect->id==active.definition&&effect->generation==active.generation&&locks(*effect))return true;
         return false;
     }
-    static void restrict(MotorInput& command,MotionRequest& request){request.lock=true;command.jump=false;}
+    static void restrict(MotorInput& command,MotionRequest& request){request.lock=true;request.warp={};command.jump=false;}
+    // Soft-lock candidates for the player: the live combat target. Authority reads its own
+    // state; the owner reads its confirmed public view (motor snapshot and public Health).
+    std::vector<TargetCandidate> server_candidates()const{std::vector<TargetCandidate> result;if(target_motor&&server.objects().at(target).health.current>0)result.push_back({target,target_motor->state().position});return result;}
+    std::vector<TargetCandidate> client_candidates()const{
+        std::vector<TargetCandidate> result;auto motor=client.motors().find(target);auto seen=client.public_abilities().find(target);if(motor==client.motors().end()||seen==client.public_abilities().end())return result;
+        const auto& ability=seen->second.ability;for(const auto& attribute:ability.attributes)if(attribute.id==ability.health_attribute&&attribute.value>0)result.push_back({target,motor->second.position});return result;
+    }
+    // The targeting module proposes the point; the motor gates and applies the warp when it steps.
+    static std::optional<std::uint64_t> lock(MotionRequest& request,const MotorState& state,const MotorInput& command,std::span<const TargetCandidate> candidates){
+        if(!request.warp.active)return std::nullopt;if(auto chosen=select_soft_lock(request.warp,state,command,candidates)){request.warp.point=chosen->position;return chosen->id;}request.warp={};return std::nullopt;
+    }
     // Scripted training attacker: a server-owned press of one kit slot on a fixed schedule.
     // Activation, cost, cooldown, hits and effects are the ordinary authoritative ability path.
     bool drive_attacker(std::uint64_t tick,MotorInput& command){
@@ -135,7 +149,7 @@ struct CharacterSceneSession::Impl {
         if(script.face_player&&distance>1e-6)command.yaw=std::atan2(dx,dz);return true;
     }
     MotionRequest predicted_motion(const AbilityPredictionMotion& predicted,MotorInput& command)const{
-        const auto& v=predicted.local.root.translation;const auto yaw=command.yaw;command.yaw=std::remainder(yaw+predicted.local.root.yaw,6.283185307179586);MotionRequest request;request.root={std::cos(yaw)*v[0]+std::sin(yaw)*v[2],v[1],-std::sin(yaw)*v[0]+std::cos(yaw)*v[2]};request.action=predicted.activation;request.lock=predicted.local.movement_lock;return request;
+        const auto& v=predicted.local.root.translation;const auto yaw=command.yaw;command.yaw=std::remainder(yaw+predicted.local.root.yaw,6.283185307179586);MotionRequest request;request.root={std::cos(yaw)*v[0]+std::sin(yaw)*v[2],v[1],-std::sin(yaw)*v[0]+std::cos(yaw)*v[2]};request.action=predicted.activation;request.lock=predicted.local.movement_lock;request.warp=predicted.warp;return request;
     }
     // Input routes through the predicted active loadout's kit; loadout-select actions are kit independent.
     const CombatKitDefinition& routing_kit()const{if(!combat->loadouts.empty()&&ability_prediction){const auto& loadout=combat->loadouts[ability_prediction->view().loadout];if(loadout)return *loadout->kit;}return *combat->kit;}
@@ -149,13 +163,13 @@ struct CharacterSceneSession::Impl {
         if(combat){require(client.ability_corrections().contains(player)&&!client.ability_correction_needs_resync(),"Combat correction unavailable; resynchronize");const auto& current=client.ability_corrections().at(player).ability;auto submit=[&](CombatSlot slot,const InputEvent& event){require(next_operation!=UINT64_MAX,"Combat operation identity exhausted");AbilityIntent intent{player,next_operation++,tick,owner_motor->state().epoch,current.grant_generation,slot,event.edge,event.cancelled,false};require(client.submit_ability_intent(intent),"Combat input delivery unavailable; resynchronize");prediction_input.push_back({intent});};
             for(const auto& event:pending_events){if(auto index=loadout_request(event)){if(event.edge==InputEdge::Pressed&&!event.cancelled)submit(loadout_select_slot(*index),event);continue;}for(const auto& slot:routing_kit().slots)if(slot.input_action&&slot.input_action==event.action)submit(slot.slot,event);}pending_events.clear();}
         MotionRequest authoritative_motion,predicted_request;auto predicted_command=command;
-        if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);}
+        if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);const auto candidates=client_candidates();if(auto chosen=lock(predicted_request,owner_motor->state(),predicted_command,candidates)){predicted_locks[tick]=*chosen;soft_lock_tick=tick;}}
         semantic_commands.push_back(command);require(semantic_commands.size()<=30,"Character scene semantic history overflow; resynchronize");
         server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
         auto accepted=server.consume_motor(player,tick,command.epoch);
         MotorInput target_command{tick,tick,target_motor?target_motor->state().epoch:1,0,0,target_motor?target_motor->state().yaw:0};MotionRequest target_motion;
-        if(combat){const bool requested=combat->attacker&&drive_attacker(tick,target_command);auto before=server.ability_snapshot(ability_owner),target_before=server.ability_snapshot(target_owner);server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);
-            if(combat->attacker)target_motion=action_motion(target_before,server.ability_snapshot(target_owner),updates,target_command,target_motor->state().yaw,requested);if(restricted(target_owner,target))restrict(target_command,target_motion);}
+        if(combat){const bool requested=combat->attacker&&drive_attacker(tick,target_command);auto before=server.ability_snapshot(ability_owner),target_before=server.ability_snapshot(target_owner);server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
+            if(combat->attacker)target_motion=action_motion(target_before,server.ability_snapshot(target_owner),updates,target_command,target_motor->state().yaw,requested);if(restricted(target_owner,target))restrict(target_command,target_motion);target_motion.warp={};}
         owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
         host_motor->step(accepted,authoritative_motion);if(target_motor)target_motor->step(target_command,target_motion);authoritative.step();host_motor->post_physics();if(target_motor)target_motor->post_physics();authoritative.finish_tick();
         auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());if(target_motor){server.publish_motor(target,target_motor->state());server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}server.publish_collision(collision_stream(frame));pump();
@@ -165,10 +179,10 @@ struct CharacterSceneSession::Impl {
         require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
         if(combat){const auto& correction=client.ability_corrections().at(player);require(correction.ability.tick==tick&&correction.motor.tick==tick,"Atomic combat correction clock");if(correction.ability.active)definition(correction.ability);}
         if(combat){auto prepared=*ability_prediction;for(const auto& receipt:client.drain_ability_receipts())prepared.receipt(receipt);const auto& correction=client.ability_corrections().at(player);prepared.reconcile(correction.ability);std::vector<MotorCommand> regenerated;double replay_yaw=correction.motor.yaw;
-            for(const auto& replay:prepared.replay_motion()){auto found=std::find_if(semantic_commands.begin(),semantic_commands.end(),[&](const auto& value){return value.tick==replay.tick;});require(found!=semantic_commands.end(),"Combat correction missing motor input history");auto replay_input=*found;if(replay.face_movement)face(replay_input,replay_yaw,replay.started);auto request=predicted_motion(replay,replay_input);replay_yaw=replay_input.yaw;if(predicted_restricted(replay.tick))restrict(replay_input,request);regenerated.push_back({replay_input,request});}
+            for(const auto& replay:prepared.replay_motion()){auto found=std::find_if(semantic_commands.begin(),semantic_commands.end(),[&](const auto& value){return value.tick==replay.tick;});require(found!=semantic_commands.end(),"Combat correction missing motor input history");auto replay_input=*found;if(replay.face_movement)face(replay_input,replay_yaw,replay.started);auto request=predicted_motion(replay,replay_input);replay_yaw=replay_input.yaw;if(predicted_restricted(replay.tick))restrict(replay_input,request);if(request.warp.active){const auto candidates=client_candidates();auto locked=predicted_locks.find(replay.tick);auto chosen=std::find_if(candidates.begin(),candidates.end(),[&](const auto& candidate){return locked!=predicted_locks.end()&&candidate.id==locked->second;});if(chosen!=candidates.end())request.warp.point=chosen->position;else request.warp={};}regenerated.push_back({replay_input,request});}
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(prepared);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
-        std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});
+        std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
         if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(client.public_abilities().at(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
         if(target_pose)target_pose->sample(observers.at(target)->sample(double(tick)).frame,effect_frame(target));
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
@@ -215,6 +229,7 @@ namespace darkangel {
 std::span<const AbilityCommitUpdate> CharacterSceneSession::commitments()const{return impl_->commitment_updates;}
 std::span<const EffectCueUpdate> CharacterSceneSession::effect_cues()const{return impl_->effect_cue_updates;}
 unsigned CharacterSceneSession::loadout()const{auto found=impl_->client.ability_corrections().find(impl_->player);return found==impl_->client.ability_corrections().end()?0:found->second.ability.loadout;}
+std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*impl_;if(p.combat&&p.soft_lock_tick&&p.soft_lock_tick==p.authoritative.tick())return p.combat->target;return std::nullopt;}
 const AbilityReceipt* CharacterSceneSession::attacker_receipt()const{return impl_->attacker_receipt?&*impl_->attacker_receipt:nullptr;}
 unsigned CharacterSceneSession::predicted_loadout()const{return impl_->ability_prediction?impl_->ability_prediction->view().loadout:0;}
 std::optional<double> CharacterSceneSession::death(StableId actor)const{const auto& p=*impl_;if(actor==p.player_identity)return p.player_death_tick;if(p.combat&&actor==p.combat->target&&p.target_pose)return p.target_pose->death();return std::nullopt;}

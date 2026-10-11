@@ -109,6 +109,46 @@ int main(){try{
         while(late->motor().tick<dodge_hit+60)late->step({});check(player_health(*late)==100,"The avoided hit window damaged the player later");
         check(authoring.serialize()==original,"Scripted attacker changed the authoring world");
     }
+    // Melee soft lock on the owned Light: the targeting module proposes the target, the motor turns the swing and closes distance,
+    // and authority, owner prediction and the hit query agree. A copy without targeting is the control.
+    {
+        const double pi=3.141592653589793;const auto light_id=cooked.definition->slots[0].ability;auto light=std::find_if(cooked.abilities.begin(),cooked.abilities.end(),[&](const auto& ability){return ability->id==light_id;});
+        check(light!=cooked.abilities.end()&&(*light)->soft_lock&&(*light)->soft_lock->range==4.5&&std::abs((*light)->soft_lock->cone-75*pi/180)<1e-12&&(*light)->soft_lock->stop==1.2&&(*light)->soft_lock->distance==2.0&&(*light)->soft_lock->begin==0&&(*light)->soft_lock->end==16*action_tick_units,"Owned Royal Light lost its authored soft lock");
+        {auto bad=**light;bad.soft_lock->cone=0;bool rejected=false;try{freeze_ability_definition(bad,AttributeSet(combat.attributes),combat.tags.get());}catch(const std::exception&){rejected=true;}check(rejected,"Zero soft-lock cone was frozen");bad=**light;bad.dash=AbilityDash{1,0,16*action_tick_units};rejected=false;try{freeze_ability_definition(bad,AttributeSet(combat.attributes),combat.tags.get());}catch(const std::exception&){rejected=true;}check(rejected,"Soft lock combined with a dash was frozen");}
+        auto aside=objects;aside[1].transform.x=1.5;aside[1].transform.z=1.5;
+        auto health=[&](const CharacterSceneSession& scene){return scene.presentation().read(scene.presentation().find(target.id)).health.current;};
+        auto apart=[](const MotorVec& a,const MotorVec& b){return std::hypot(a.x-b.x,a.z-b.z);};
+        CharacterSceneInput light_press;light_press.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};
+        {
+            CharacterSceneSession scene(hello,aside,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);
+            while(scene.motor().tick<5)scene.step({});const auto baseline=scene.resynchronizations();const auto seen=scene.observer(target.id,5).frame.motor.position;const double before=apart(scene.motor().position,seen);check(!scene.soft_lock()&&std::abs(before-std::hypot(1.5,1.5))<.01,"Soft-lock fixture layout");
+            scene.step(light_press);const double toward=std::atan2(seen.x-scene.motor().position.x,seen.z-scene.motor().position.z);
+            check(scene.ability()->active&&scene.soft_lock()==target.id&&std::abs(std::remainder(scene.motor().yaw-toward,2*pi))<1e-3&&std::abs(std::remainder(scene.predicted_motor().yaw-scene.motor().yaw,2*pi))<1e-12,"Light did not turn to the soft-lock target on activation under authority and prediction");
+            double worst{};while(scene.motor().tick<21){scene.step({});worst=std::max(worst,apart(scene.predicted_motor().position,scene.motor().position));if(scene.motor().tick<=20)check(scene.soft_lock()==target.id,"Soft lock dropped inside its window");}
+            const double after=apart(scene.motor().position,seen);
+            check(worst<1e-6&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Soft-lock warp diverged between prediction and authority");
+            check(after<before-.5&&after<1.3&&after>.6&&std::abs(std::remainder(scene.motor().yaw-std::atan2(seen.x-scene.motor().position.x,seen.z-scene.motor().position.z),2*pi))<.05,"Soft lock did not close on the target and stop near its stop distance");
+            while(scene.motor().tick<24)scene.step({});check(!scene.soft_lock(),"Soft lock indicator outlived its window");
+            while(scene.motor().tick<65)scene.step({});check(health(scene)==75&&!scene.ability()->active&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"Soft-locked Light did not hit the off-axis target exactly once");
+            std::cout<<"Soft lock closed "<<before<<" -> "<<after<<" m, predicted_error="<<worst<<"\n";
+        }
+        {
+            auto plain=combat;for(auto& ability:plain.abilities)if(ability->id==light_id){auto copy=*ability;copy.soft_lock.reset();ability=std::make_shared<const AbilityDefinition>(std::move(copy));}
+            CharacterSceneSession scene(hello,aside,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,plain);
+            while(scene.motor().tick<5)scene.step({});const auto start=scene.motor().position;scene.step(light_press);check(scene.ability()->active&&!scene.soft_lock(),"Control Light reported a soft lock");while(scene.motor().tick<65)scene.step({});
+            check(health(scene)==100&&apart(scene.motor().position,start)<.6,"Control: without targeting the off-axis swing must miss and stay in place");
+        }
+        {
+            // Movement input pointing away puts the target outside the cone: no turn, no hit.
+            CharacterSceneSession scene(hello,aside,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);
+            while(scene.motor().tick<5)scene.step({});auto averted=light_press;averted.x=-1;scene.step(averted);check(scene.ability()->active&&!scene.soft_lock(),"Soft lock ignored its facing cone");while(scene.motor().tick<65)scene.step({});check(health(scene)==100&&scene.pending_prediction()==0,"A target outside the cone was hit");
+        }
+        {
+            auto distant=objects;distant[1].transform.x=4;distant[1].transform.z=4;
+            CharacterSceneSession scene(hello,distant,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);
+            while(scene.motor().tick<5)scene.step({});const auto start=scene.motor().position;scene.step(light_press);check(scene.ability()->active&&!scene.soft_lock(),"Soft lock ignored its range");while(scene.motor().tick<65)scene.step({});check(health(scene)==100&&apart(scene.motor().position,start)<.6,"A target out of range pulled the player");
+        }
+    }
     auto tag_registry=std::make_shared<const TagDictionary>(std::vector<TagDefinition>{{2,0,"State.Blocked",AttributeVisibility::Public}},AssetId::random(),std::string(64,'e'));auto tagged=*combat.abilities[0];tagged.tag_registry=tag_registry->registry();tagged.tag_generation=tag_registry->generation();tagged.requirements.none={2};combat.abilities={std::make_shared<const AbilityDefinition>(std::move(tagged))};combat.tags=tag_registry;auto tagged_kit=std::make_shared<CombatKitDefinition>(*combat.kit);for(auto& slot:tagged_kit->slots)if(slot.ability!=combat.abilities[0]->id)slot.ability={};tagged_kit->effects.clear();tagged_kit->effect_bindings.clear();combat.kit=std::move(tagged_kit);CharacterSceneSession tagged_scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);tagged_scene.step(pressed);check(tagged_scene.predicted_ability()->active&&tagged_scene.predicted_ability()->tags.registry==tag_registry->registry()&&tagged_scene.observer(player.id,1).frame.ability.tags.registry==tag_registry->registry(),"Scene prepares the same frozen tag registry for native authority, owner prediction and observer frames");
-    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
+    std::cout<<"Cooked Royal combat: serialized intent, action/root/pose, Jolt target damage/Health, exact owner correction, prepared tags, melee soft lock (turn, closing warp, cone/range gates, hit), scripted target attacker (owner damage, flinch, interruption, dodge invulnerability, death) and authoring isolation passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

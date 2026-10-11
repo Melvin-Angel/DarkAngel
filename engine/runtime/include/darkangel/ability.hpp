@@ -3,6 +3,7 @@
 #include <darkangel/attributes.hpp>
 #include <darkangel/tags.hpp>
 #include <darkangel/combat_kit.hpp>
+#include <darkangel/character_motor.hpp>
 #include <darkangel/world.hpp>
 #include <optional>
 
@@ -19,6 +20,11 @@ struct AbilityMelee {
 // motor as ordinary root movement along the actor's facing. Collision, achieved
 // motion and replay stay with the motor; the ability only states intent.
 struct AbilityDash {double distance{};unsigned begin{},end{};};
+// Melee soft lock (targeting mode "soft_lock"): while the action clock is inside the window
+// the actor turns toward an acceptable nearby target (range, cone half angle in radians) and
+// may close up to `distance` metres on it, never inside `stop`. The targeting module
+// proposes the target; the motor resolves the warp. Not a hard lock-on.
+struct AbilitySoftLock {double range{},cone{},stop{},distance{};unsigned begin{},end{};};
 struct AbilityDefinition {
     AssetId id;std::string generation;
     std::shared_ptr<const ActionDefinition> action;
@@ -32,6 +38,7 @@ struct AbilityDefinition {
     // the owning motor composition applies it and normal facing resumes afterwards.
     bool face_movement{};
     std::optional<AbilityDash> dash;
+    std::optional<AbilitySoftLock> soft_lock;
     AssetId tag_registry;std::string tag_generation;TagRequirement requirements;
     // Typed interval bindings. Their contribution belongs to this execution.
     std::vector<AbilityActionTag> action_tags;
@@ -42,6 +49,9 @@ struct AbilityDefinition {
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
 // The action's own root/lock request plus the ability's authored dash share.
 ActionMotion ability_motion_between(const AbilityDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
+// The soft-lock share of one clock interval, still without a target point; inactive
+// outside the authored window.
+MotionWarp ability_warp_between(const AbilityDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
 // Up to four prepared loadouts (one per equipped mask). Selecting one is an ordinary
 // ability intent whose slot value lies just past the ability slots, so it shares the
 // operation ledger, receipts, prediction and replay of every other request.

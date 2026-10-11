@@ -643,6 +643,16 @@ namespace darkangel {
         check(input.tick==s.world.tick+1&&input.tick>s.state.tick&&input.sequence>=s.state.sequence&&input.epoch==s.state.epoch,"Motor input clock/epoch mismatch");
         check(valid(request.root)&&valid(request.impulse)&&std::sqrt(request.root.x*request.root.x+request.root.y*request.root.y+request.root.z*request.root.z)<=1&&std::sqrt(request.impulse.x*request.impulse.x+request.impulse.y*request.impulse.y+request.impulse.z*request.impulse.z)<=30,"Motion request bounds");
         auto& state=s.state;
+        // A resolved warp turns the root request with the new facing and adds its travel,
+        // clamped so the whole request stays inside the bound checked above.
+        MotorVec root=request.root;double yaw=input.yaw;
+        if(const auto warp=resolve_motion_warp(request.warp,state,input)){
+            const double turn=warp->yaw-input.yaw,c=std::cos(turn),sn=std::sin(turn);
+            root={c*request.root.x+sn*request.root.z,request.root.y,-sn*request.root.x+c*request.root.z};
+            const double length=std::hypot(warp->travel.x,warp->travel.z),room=std::max(0.,1-std::sqrt(root.x*root.x+root.y*root.y+root.z*root.z));
+            if(length>1e-9){const double scale=std::min(1.,room/length);root.x+=warp->travel.x*scale;root.z+=warp->travel.z*scale;}
+            yaw=warp->yaw;
+        }
         const auto was_grounded=state.grounded;const auto previous_ground=state.support_velocity;
         s.refresh();
         s.previous_support=state.support;
@@ -672,11 +682,11 @@ namespace darkangel {
             state.coyote=state.jump_buffer=0;
         }vel+=JPH::Vec3(0,-20*dt,0)+v(request.impulse);
         auto native_velocity=vel;
-        vel+=v(request.root)/dt;
+        vel+=v(root)/dt;
         state.desired=m(vel);
         state.action=request.action;
-        state.yaw=input.yaw;
-        s.character->SetRotation(JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(input.yaw)));
+        state.yaw=yaw;
+        s.character->SetRotation(JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(yaw)));
         s.character->SetLinearVelocity(vel);
         JPH::CharacterVirtual::ExtendedUpdateSettings settings;
         settings.mWalkStairsStepUp={

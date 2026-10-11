@@ -53,7 +53,14 @@ std::vector<AbilityCost> reserved_costs(const AbilityDefinition& definition){std
 }
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){
     if(source.dash){const auto& dash=*source.dash;require(source.action&&std::isfinite(dash.distance)&&dash.distance>0&&dash.distance<=30&&dash.begin<dash.end&&dash.end<=source.action->duration&&source.action->loops==1&&dash.distance*action_tick_units/(dash.end-dash.begin)<=.5,"Ability dash distance/window/speed bounds");}
+    if(source.soft_lock){const auto& lock=*source.soft_lock;require(source.action&&!source.dash&&!source.face_movement&&std::isfinite(lock.range)&&lock.range>0&&lock.range<=30&&std::isfinite(lock.cone)&&lock.cone>0&&lock.cone<=3.1415927&&std::isfinite(lock.stop)&&lock.stop>=0&&lock.stop<=lock.range&&std::isfinite(lock.distance)&&lock.distance>=0&&lock.distance<=30&&lock.begin<lock.end&&lock.end<=source.action->duration&&source.action->loops==1&&lock.distance*action_tick_units/(lock.end-lock.begin)<=.5,"Ability soft lock range/cone/stop/window/speed bounds");}
     return freeze(source,attributes,tags);
+}
+MotionWarp ability_warp_between(const AbilityDefinition& ability,std::uint64_t from,std::uint64_t to){
+    MotionWarp warp;if(!ability.soft_lock||from>to)return warp;const auto& lock=*ability.soft_lock;
+    // The tick that reaches the window (the activation tick, whose clock is still zero, for a window at 0) is fresh and may only turn.
+    if(to<lock.begin||from>=lock.end)return warp;auto begin=std::max<std::uint64_t>(from,lock.begin),end=std::max(begin,std::min<std::uint64_t>(to,lock.end));
+    warp.active=true;warp.fresh=from<lock.begin||from==to;warp.range=lock.range;warp.cone=lock.cone;warp.stop=lock.stop;warp.step=std::min(.5,lock.distance*double(end-begin)/double(lock.end-lock.begin));return warp;
 }
 ActionMotion ability_motion_between(const AbilityDefinition& ability,std::uint64_t from,std::uint64_t to){
     auto result=action_motion_between(*ability.action,from,to);

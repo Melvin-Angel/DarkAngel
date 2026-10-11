@@ -43,8 +43,8 @@ struct OwnerAbilityPrediction::Impl {
             operation.predicted_commit=result.first.committed;
         }
         auto updates=state.finish_tick(frame.rate,false);state.take_commitments();auto after=state.snapshot();AbilityPredictionMotion output;output.tick=frame.tick;
-        if(after.active){const auto& definition=ability(after);auto from=before.active==after.active?before.action->clock:0;output.activation=after.active->activation;output.local=ability_motion_between(definition,from,after.action->clock);output.face_movement=faces_movement(after);output.started=!(before.active==after.active);}
-        else if(before.active)for(const auto& update:updates)if(update.handle==*before.active&&update.phase==ActionPhase::Completed){const auto& definition=ability(before);output.activation=before.active->activation;output.local=ability_motion_between(definition,before.action->clock,std::uint64_t(definition.action->duration)*definition.action->loops);output.face_movement=faces_movement(before);}
+        if(after.active){const auto& definition=ability(after);auto from=before.active==after.active?before.action->clock:0;output.activation=after.active->activation;output.local=ability_motion_between(definition,from,after.action->clock);output.warp=ability_warp_between(definition,from,after.action->clock);output.face_movement=faces_movement(after);output.started=!(before.active==after.active);}
+        else if(before.active)for(const auto& update:updates)if(update.handle==*before.active&&update.phase==ActionPhase::Completed){const auto& definition=ability(before);output.activation=before.active->activation;output.local=ability_motion_between(definition,before.action->clock,std::uint64_t(definition.action->duration)*definition.action->loops);output.warp=ability_warp_between(definition,before.action->clock,std::uint64_t(definition.action->duration)*definition.action->loops);output.face_movement=faces_movement(before);}
         current=std::move(after);return output;
     }
     void invalidate(){

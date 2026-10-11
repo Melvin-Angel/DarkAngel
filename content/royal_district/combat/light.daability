@@ -33,5 +33,14 @@
       "evaluator": 1,
       "damage_type": 1
     }
-  ]
+  ],
+  "targeting": {
+    "mode": "soft_lock",
+    "range": 4.5,
+    "cone_degrees": 75.0,
+    "stop": 1.2,
+    "distance": 2.0,
+    "begin": 0,
+    "end": 16384
+  }
 }

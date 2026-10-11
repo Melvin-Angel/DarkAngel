@@ -70,6 +70,9 @@ public:
     std::optional<double> death(StableId)const;
     // Confirmed and predicted active loadout (equipped mask slot) of the player.
     unsigned loadout()const;unsigned predicted_loadout()const;
+    // Soft-lock target the owner's predicted motor warped toward on the latest tick, if any.
+    // Presentation only (HUD indicator); authority resolves its own warp.
+    std::optional<StableId> soft_lock()const;
     // Authoritative receipt of the scripted attacker's latest request, if it has made one.
     const AbilityReceipt* attacker_receipt()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;

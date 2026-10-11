@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <deque>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string_view>
 #include <string>
@@ -14,7 +15,15 @@ void track_physics_allocations(bool);PhysicsAllocationCounters physics_allocatio
 // Meters, seconds, Y-up right-handed. Tick is always 1/60 second.
 struct MotorVec {double x{},y{},z{}; auto operator<=>(const MotorVec&) const=default;};
 struct MotorInput {std::uint64_t sequence{},tick{},epoch{1};double x{},z{},yaw{};bool jump{},crouch{};};
-struct MotionRequest {MotorVec root{},impulse{};std::uint64_t action{};bool lock{};};
+// Soft-lock assist toward a world-space point proposed by the targeting module. The motor
+// resolves it against its own state at step time: inside range and the facing cone it faces
+// the point and adds up to `step` metres of root travel toward it, never closer than `stop`.
+// Authority, prediction and replay therefore agree without sharing positions. `fresh` marks
+// the first tick, whose cone is centred on the movement input (or the commanded yaw);
+// later ticks use the current facing.
+struct MotionWarp {MotorVec point{};double range{},cone{},stop{},step{};bool active{},fresh{};};
+struct MotionRequest {MotorVec root{},impulse{};std::uint64_t action{};bool lock{};MotionWarp warp{};};
+struct MotionWarpResult {double yaw{};MotorVec travel{};};
 struct MotorCommand {MotorInput input;MotionRequest motion;};
 struct MotorState {
     std::uint64_t tick{},sequence{},epoch{1},topology{1},support{},action{};
@@ -25,6 +34,8 @@ struct MotorState {
 };
 void validate_motor_input(const MotorInput&);
 void validate_motor_state(const MotorState&);
+// Empty when the warp is inactive or its point fails the range/cone gate for this state.
+std::optional<MotionWarpResult> resolve_motion_warp(const MotionWarp&,const MotorState&,const MotorInput&);
 struct CollisionBox {
     std::uint64_t id{};MotorVec center{},half{1,1,1},velocity{},angular{};double yaw{},roll{};bool moving{};
     bool dynamic{};double mass{50};

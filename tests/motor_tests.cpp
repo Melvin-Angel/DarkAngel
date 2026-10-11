@@ -416,7 +416,26 @@ int main(int argc,char** argv){
             end=mover.state().position.x;
         }SimulationClock debt;
         require(debt.advance(1)==8&&debt.debt()>.8,"Bounded clock retains debt");
-        std::cout<<"M4 motor contracts: obstruction/root, teleport, jump, impulse, stance, steps/slopes, elevator/rotation/removal, isolated replay failures, observer and 30/60/144 Hz passed\n";
+        {
+            // Soft-lock warp: the motor gates the proposed point against its own state, faces it and closes distance down to the stop distance.
+            const double pi=3.141592653589793;MotorState at;MotorInput still{1,1,1};MotionWarp warp;warp.active=warp.fresh=true;warp.point={3,0,3};warp.range=6;warp.cone=1.3;warp.stop=1.2;warp.step=.1;
+            auto resolved=resolve_motion_warp(warp,at,still);require(resolved&&std::abs(resolved->yaw-pi/4)<1e-12&&std::abs(std::hypot(resolved->travel.x,resolved->travel.z)-.1)<1e-12,"Warp faces the point and travels its step");
+            auto gate=warp;gate.range=4;require(!resolve_motion_warp(gate,at,still),"Warp ignores a point out of range");
+            MotorInput away{1,1,1,-1,0};require(!resolve_motion_warp(warp,at,away),"Fresh warp cone follows the movement input");
+            MotorInput toward{1,1,1,1,0,-2.5};require(resolve_motion_warp(warp,at,toward).has_value(),"Movement input toward the point overrides the commanded yaw");
+            gate=warp;gate.fresh=false;at.yaw=pi;require(!resolve_motion_warp(gate,at,toward),"A later warp tick gates on the current facing");at.yaw=0;
+            gate=warp;gate.stop=4.2;resolved=resolve_motion_warp(gate,at,still);require(resolved&&std::abs(std::hypot(resolved->travel.x,resolved->travel.z)-(std::sqrt(18.)-4.2))<1e-9,"Warp closes only down to the stop distance");
+            gate.stop=5;resolved=resolve_motion_warp(gate,at,still);require(resolved&&resolved->travel.x==0&&resolved->travel.z==0&&std::abs(resolved->yaw-pi/4)<1e-12,"Inside the stop distance the warp only turns");
+            require(!resolve_motion_warp({},at,still),"Inactive warp resolves to nothing");
+            PhysicsWorld field;floor(field);CharacterMotor mover(field,{0,.05,0});run(field,mover,20);
+            auto moved=mover.state();const auto origin=moved.position;
+            for(unsigned n=0;n<30;++n){MotionRequest request;request.lock=true;request.warp=warp;request.warp.fresh=n==0;request.root={0,0,.02};moved=mover.step({moved.sequence+1,field.tick()+1,moved.epoch},request);field.step();mover.post_physics();}moved=mover.state();
+            const double left=std::hypot(3-moved.position.x,3-moved.position.z),start=std::hypot(3-origin.x,3-origin.z);
+            require(std::abs(moved.yaw-pi/4)<1e-6&&left<1.25&&left>.5&&left<start-2&&std::abs(moved.position.x-moved.position.z)<1e-3,"Stepped warp did not face the point, close on it along the new facing and hold near the stop distance");
+            MotionRequest plain;plain.lock=true;plain.warp=warp;plain.warp.point={-3,0,-3};moved=mover.step({moved.sequence+1,field.tick()+1,moved.epoch,0,0,.3},plain);field.step();mover.post_physics();
+            require(std::abs(moved.yaw-.3)<1e-12,"A gated-out warp must leave the commanded yaw alone");
+        }
+        std::cout<<"M4 motor contracts: soft-lock warp, obstruction/root, teleport, jump, impulse, stance, steps/slopes, elevator/rotation/removal, isolated replay failures, observer and 30/60/144 Hz passed\n";
         return 0;
     }catch(const std::exception& e){
         std::cerr<<e.what()<<'\n';
