@@ -21,6 +21,8 @@ public:
     CookResult save(AssetService&,AssetId);
     AssetId create_character(AssetService&,AssetId skin,std::string_view name);
     AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
+    // An NPC shares the Player's Character reference and Actor Loadout; it adds a display name and faction.
+    AssetId create_npc(AssetService&,AssetId character,AssetId kit,std::string_view name,std::string_view faction="hostile");
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
     AssetId duplicate_ability_with_action(AssetService&,AssetId,std::string_view name,bool blank=false);
     // Copies a Composer action as a presentation-only reaction (cue blocks only,

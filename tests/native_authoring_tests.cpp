@@ -329,6 +329,37 @@ int main(){try{
    check(w.loadout()==2&&!w.ability()->active&&!w.predicted_ability()->active&&after>=stamina&&after<100&&settled()&&w.resynchronizations()<=1&&scene->world().serialize()==baseline,"Switching during an interruptible action did not cancel it cleanly, refunded its cost or changed the scene");
    std::cout<<"Mask switch: loadout="<<w.loadout()<<" grant_generation="<<w.ability()->grant_generation<<" stamina="<<after<<" pending="<<w.pending_prediction()<<'\n';
   }
+  {
+   // NPC definition (M6): the Player's shared Character and Actor Loadout plus a display name and faction, as a full native source.
+   auto guard=masking.create_npc(assets,character,kit,"test_guard","royal_guard");auto fresh=masking.open(assets,guard).value;
+   check(fresh["kind"]=="npc"&&fresh["name"]=="test_guard"&&fresh["faction"]=="royal_guard"&&fresh["character"]==character.text()&&fresh["loadout"]["kit"]==kit.text()&&masking.open(assets,guard).asset.path=="npcs/test_guard.danpc","Created NPC draft is not the shared actor shape");
+   auto armed=fresh;armed["name"]="Test Guard";armed["loadout"]["starting_attributes"]=Json::array({Json{{"attribute",1u},{"value",60.0}},Json{{"attribute",2u},{"value",60.0}}});masking.apply(assets,guard,masking.revision(),armed,"Author NPC name and starting attributes");
+   masking.undo(assets);check(masking.open(assets,guard).value==fresh,"NPC Undo lost the created draft");masking.redo(assets);check(masking.open(assets,guard).value==armed,"NPC Redo lost the authored fields");
+   // The shared loadout commands serve an NPC exactly as they serve a Player.
+   masking.equip_mask(assets,guard,1,air);auto masked=masking.open(assets,guard).value;check(masked["loadout"]["masks"]==Json::array({nullptr,air.text(),nullptr,nullptr})&&masked["loadout"]["active_mask"]==1&&masked["sources"]["masks"].size()==1,"Shared mask command did not equip the NPC");
+   rejects([&]{masking.equip_mask(assets,guard,4,air);});masking.undo(assets);check(masking.open(assets,guard).value==armed,"NPC mask Undo changed other fields");masking.redo(assets);
+   std::vector<AssetId> npc_roots=player_roots;npc_roots.push_back(guard);const auto guard_path=source/masking.open(assets,guard).asset.path;
+   {auto bad=masked;bad["faction"]="Royal Guard";masking.apply(assets,guard,masking.revision(),bad,"Invalid NPC faction");rejects_with([&]{masking.validate(assets,guard,npc_roots);},"faction");masking.undo(assets);}
+   {auto bad=masked;bad["name"]="";masking.apply(assets,guard,masking.revision(),bad,"Empty NPC name");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
+   {auto bad=masked;bad["input_profile"]=AssetId::random().text();masking.apply(assets,guard,masking.revision(),bad,"NPC with an input profile");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
+   {auto bad=masked;bad["loadout"]["starting_attributes"][1]["value"]=5000.0;masking.apply(assets,guard,masking.revision(),bad,"NPC Health beyond the schema");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
+   check(masking.open(assets,guard).value==masked,"Rejected NPC candidates changed the valid draft");masking.validate(assets,guard,npc_roots);check(!std::filesystem::exists(guard_path),"Private NPC validation published its source");
+   masking.save_all(assets,npc_roots);check(std::filesystem::exists(guard_path),"Coordinated Save did not publish the NPC source");package_authoring(assets,npc_roots,root/"npc.json");const auto saved_guard=read(guard_path);
+   auto npc=load_cooked_npc(root/"npc.json",assets.cas_path(),guard);auto owner=load_cooked_player(root/"npc.json",assets.cas_path(),player);
+   auto base=[](const std::vector<AttributeDefinition>& schema,AttributeId attribute){for(const auto& field:schema)if(field.id==attribute)return field.base;return -1.;};
+   check(npc.definition.name=="Test Guard"&&npc.definition.faction=="royal_guard"&&npc.definition.generation.size()==64&&npc.definition.character==character&&npc.character.definition.generation==owner.character.definition.generation,"Frozen NPC lost its name, faction or the Character it shares with the Player");
+   check(base(npc.attributes,2)==60&&base(npc.attributes,1)==60&&base(owner.attributes,2)==100&&base(npc.attributes,3)==base(owner.attributes,3),"NPC starting attributes did not resolve separately from the Player's");
+   check(npc.masks[1]&&!npc.masks[0]&&npc.masks[1]->definition.id==air&&npc.kit.definition->id==second_kit&&owner.kit.definition->id!=npc.kit.definition->id&&npc.kit.attributes.generation==owner.kit.attributes.generation,"NPC does not resolve its own active mask kit over the shared attribute schema");
+   rejects([&]{load_cooked_player(root/"npc.json",assets.cas_path(),guard);});rejects([&]{load_cooked_npc(root/"npc.json",assets.cas_path(),player);});
+   // Failed Save keeps the published source and the frozen product.
+   {auto bad=masked;bad["faction"]="";masking.apply(assets,guard,masking.revision(),bad,"Empty NPC faction");rejects([&]{masking.save_all(assets,npc_roots);});check(read(guard_path)==saved_guard&&load_cooked_npc(root/"npc.json",assets.cas_path(),guard).definition.faction=="royal_guard","Rejected NPC Save changed the source or frozen product");masking.undo(assets);}
+   // Owned content: the Royal Guard shares the owned Player's Character with its own starting attributes.
+   auto royal_guard=id("npcs/royal_guard.danpc"),royal_player=id("players/royal_player.daplayer");std::vector<AssetId> owned_roots=npc_roots;owned_roots.push_back(royal_guard);owned_roots.push_back(royal_player);package_authoring(assets,owned_roots,root/"royal-npc.json");
+   auto royal=load_cooked_npc(root/"royal-npc.json",assets.cas_path(),royal_guard);auto hero=load_cooked_player(root/"royal-npc.json",assets.cas_path(),royal_player);
+   check(royal.definition.name=="Royal Guard"&&royal.definition.faction=="royal_guard"&&royal.definition.character==hero.definition.character&&royal.character.definition.generation==hero.character.definition.generation&&base(royal.attributes,2)==60&&base(hero.attributes,2)==100&&!royal.definition.loadout.masked,"Owned Royal Guard is not the Player's Character with its own attributes");
+   reaction_fixture["npc_registry"]=(root/"royal-npc.json").generic_string();reaction_fixture["npc"]=royal_guard.text();
+   std::cout<<"Authored NPC: creation, name/faction/starting attributes Undo/Redo, shared mask loadout command, faction/name/input/schema rejection without publication, private validation, coordinated Save, frozen NPC sharing the Player Character with separate attributes and active mask kit, kind-checked loading, failed Save retention and the owned Royal Guard passed\n";
+  }
   reaction_fixture["mask_registry"]=(root/"mask.json").generic_string();reaction_fixture["mask_player"]=player.text();
   std::cout<<"Authored masks: creation, four-slot equip/select/unequip Undo/Redo, Player camera rig authoring/rejection/frozen conditions, duplicate/empty/out-of-range rejection, tint and socket rejection without publication, private validation, coordinated Save, frozen Player resolving the active mask's kit and worn visual on the head socket joint, starting-mask change with previous package retained, fresh Play, and in-Play mask switching (accepted, empty slot, re-select, kit-specific dodge, switch back, mid-action cancel) through authority/prediction/public state passed\n";
  }

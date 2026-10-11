@@ -17,11 +17,16 @@ struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
 struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};};
 // Typed Player "cameras" array (also used by the editor's authoring preview).
 CameraRigDefinition decode_camera_rig(std::string_view json);
+// A server-controlled actor: the same shared Character and Actor Loadout a Player uses,
+// plus a display name and a faction. No input profile, cameras or behaviour live here.
+struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
 struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};
+struct CookedNpc {std::array<std::optional<CookedMask>,mask_slot_count> masks;NpcDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;};
 std::vector<AttributeDefinition> resolve_actor_attributes(const AttributeAsset&,std::span<const AbilityAttributeValue>);
 CookedCharacter load_cooked_character(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedPlayer load_cooked_player(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedMask load_cooked_mask(const std::filesystem::path&,const std::filesystem::path&,AssetId);
+CookedNpc load_cooked_npc(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 }

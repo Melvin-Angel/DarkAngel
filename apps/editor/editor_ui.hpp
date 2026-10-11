@@ -10,7 +10,7 @@
 #include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Character,Player,Ability,Animation,Game,Tools,Settings};
+enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -38,7 +38,7 @@ public:
     std::function<void()> draw_character_info;
     bool show_kit_slots{true};AssetId kit_copy_origin,last_created_kit;
     char kit_duplicate_name[65]{"new_kit"};
-    char character_name[65]{"new_character"},player_name[65]{"new_player"};
+    char character_name[65]{"new_character"},player_name[65]{"new_player"},npc_name[65]{"new_npc"},npc_faction[33]{"hostile"};
     std::function<void(AssetId,unsigned)> prepare_composer;
     std::function<void(AssetId)> prepare_action_pose;
     std::function<void(double)> scrub_composer;
@@ -54,7 +54,7 @@ public:
     int composer_new_kind{};
     AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
-    AssetId character_selection,player_selection,create_skin,create_character;
+    AssetId character_selection,player_selection,npc_selection,create_skin,create_character;
     AssetId creation_ability_template,creation_effect_template;int creation_gameplay_kind{};bool creation_initialized{};bool creation_copy_action{true};char creation_ability_name[65]{"new_ability"},creation_effect_name[65]{"new_effect"};
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
     char history_source_filter[128]{};bool history_pending_only{};std::optional<NativeSourceComparison> last_source_comparison;std::optional<NativeValidationSummary> last_validation;
