@@ -72,6 +72,9 @@ run('spawn-points-scene-d3d12',scene(guarded,'RoyalCombat.dascene')+['--frames',
 # Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.
 log=run('navigation-tool-d3d12',common+['--exercise-navigation-bake','--frames','5','--capture',EVIDENCE/'navigation-tool-d3d12.png'])
 if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise RuntimeError('Navigation tool did not bake: '+log[-400:])
+# Level design: the Place panel's catalogue and its place, delete, undo and redo commands on the training scene.
+log=run('place-panel-d3d12',common+['--exercise-place','--frames','5','--capture',EVIDENCE/'place-panel-d3d12.png'])
+if 'Place panel items=' not in log or 'delete_undo_redo=1' not in log:raise RuntimeError('Place panel did not place and delete scene objects: '+log[-400:])
 # Mask Editor: one window for a mask definition, opened over the Player tab and over the NPC tab.
 masks=sorted(source.glob('masks/*.dafacemask'));mask_id=json.loads(masks[0].read_text())['asset']
 masked_npc=next((json.loads(p.read_text())['asset'] for p in sorted(source.glob('npcs/*.danpc')) if any(json.loads(p.read_text()).get('loadout',{}).get('masks',[]))),f['npc'])

@@ -17,6 +17,17 @@ class Shell {
 public:
     ViewArea draw(Controller&,unsigned width,unsigned height,const char* backend,std::uint64_t generation,double frame_seconds,ImTextureID scene_texture);
     void gizmo(Controller&,const DirectX::XMFLOAT4X4& view,const DirectX::XMFLOAT4X4& projection);
+    // Level design: things that can be placed in the scene, sorted into categories from the asset catalogue itself
+    // (NPC definitions, and static models grouped by their folder). New placeable asset kinds join here.
+    struct PlaceItem {AssetId id;std::string name,category;bool npc{};};
+    std::vector<PlaceItem> place_items;std::size_t place_signature{};std::string place_category;char place_filter[64]{};
+    // Height of the ground plane a drop lands on, and the scene camera of the latest frame for turning a drop position into a point on it.
+    double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{};bool scene_camera{};
+    void refresh_place_items(Controller&);
+    // Places one item as a new scene object at a ground position and selects it; one document edit, so Undo removes it.
+    StableId place(Controller&,const PlaceItem&,double x,double z,double yaw=0);
+    // Deletes a placed object of the scene's own source; one document edit, so Undo brings it back.
+    void remove_object(Controller&,StableId);
     void open_import(const std::filesystem::path&,std::optional<AssetImportType> type={});
     void validate_import(Controller&);
     void commit_import(Controller&);

@@ -269,3 +269,26 @@ Stage 1 of [COMBAT_SANDBOX_PLAN.md](COMBAT_SANDBOX_PLAN.md), delivered as one ch
 - A startup registry that lacks a spawn point's NPC (for example `.cache/royal-scene/registry.json` used by `open_royal_scene.ps1`) loads without that actor and logs a warning; Play with a project mount packages it. This path was not run.
 - RoyalCollisionTests was updated for the new signature but still does not link (known).
 - No respawn, no encounter ownership, one rig per scene, no GNS run.
+
+## Level design: Place panel and deleting scene objects (11 October 2026)
+
+User request of 11 October 2026: place and delete game objects in the Scene tab without hunting through a project browser. Editor-only.
+
+### What exists
+
+- **Place panel**, docked under the scene viewport. Its items come from the asset catalogue and sort themselves into categories: "NPCs" for every NPC definition, and one "Environment: <folder>" category per folder of imported static models (a model counts when its import sidecar names the static model importer). A search box and category chips narrow the list. There is no hand-kept list: a new NPC or imported model appears on its own.
+- **Placing.** Drag a tile into the viewport: the drop position is turned into a ray through the scene camera and the object lands where that ray meets the ground plane (the "Ground height" field, 0.5 m by default, which is the Royal ground). Double-click a tile to place it beside the selected object. An NPC becomes a spawn point; a model becomes a model object. A model that is not in the loaded resources is cooked and packaged with the scene first, and the placement is undone if that fails.
+- **Deleting.** The Delete key in the viewport or the World Outliner, "Delete" in an outliner row's right-click menu, and "Delete object" in the Inspector remove the selected object. Objects that belong to a mounted assembly are refused with a message.
+- Placing and deleting are single edits of the scene's own source through the document, so the Inspector's Undo and Redo cover them and Save writes them.
+- Categories for encounters, altars and items do not exist yet because those asset kinds do not exist; `Shell::refresh_place_items` is the one place a new placeable kind is added.
+
+### Verified
+
+- `place-panel-d3d12` (`--exercise-place`): the catalogue lists 58 items in 4 categories on the fixture; an NPC and a model are placed through the panel's own commands at a requested ground position; the model is deleted, the delete is undone and redone; deleting an object that is not in the scene is refused. Capture looked at: the panel shows its categories and tiles under the viewport, and the placed spawn point is in the outliner and the viewport.
+- Only this gate was run. The full gate script (which now includes it) and CTest were last run on the stage 3 build.
+
+### Not verified
+
+- The mouse paths: an actual drag from a tile into the viewport, the double-click, the Delete key and the right-click menu were not driven by a run. The gate calls the same `place` and `remove_object` commands those paths call. The drop-position ray was therefore not exercised either.
+- Placing a model that is not already in the loaded resources (the cook-and-package path).
+- Objects are placed on a flat plane at the ground height, not on the collision under the cursor.
