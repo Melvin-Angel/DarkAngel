@@ -17,6 +17,13 @@ struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};uns
 struct CollisionStreamDiagnostics {std::uint64_t sent_packets{},sent_bytes{},decoded{},ack_tick{},ack_topology{},expired{},superseded{};std::size_t partial_chunks{};bool has_ack{},needs_resync{};};
 struct AbilityCorrection {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityOwnerSnapshot ability;};
 struct AbilityPublicFrame {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityPublicSnapshot ability;};
+// What a public ability snapshot says apart from its clock: attributes, tags, loadout and the running action. Two
+// snapshots of an idle character with the same content differ only in tick and revision. A running action is part of
+// the content with its clock, so it changes every tick. Server and client compute it with this one function.
+std::uint64_t public_ability_content(const AbilityPublicSnapshot&);
+// The server's per-tick index of public ability state: for each character, the tick its state stands at and its
+// content. A client holding a frame with the same content knows that frame is current without receiving it again.
+struct PublicIndexEntry {std::uint64_t tick{},content{};};
 // A projectile in flight as presentation sees it (velocity in metres per second). Authority owns the flight
 // and its hit; this is public state and decides nothing.
 struct ProjectileView {std::uint64_t id{};MotorVec position{},velocity{};};
@@ -94,6 +101,10 @@ public:
     CollisionStreamDiagnostics collision_diagnostics(ConnectionHandle)const;
     // Packets this session has handed to the transport for a peer, for budget measurements.
     std::uint64_t packets_sent(ConnectionHandle)const;
+    // The same count split by wire kind (index = kind number), for budget measurements.
+    std::vector<std::uint64_t> packets_by_kind(ConnectionHandle)const;
+    // Latest public ability index received from the server, by network identity. Client role.
+    const std::map<std::uint64_t,PublicIndexEntry>& public_index()const;
     const World& world() const;
     const std::map<std::uint64_t,ObjectData>& objects() const;
     std::uint64_t revision() const;

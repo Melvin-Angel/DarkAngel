@@ -101,6 +101,8 @@ public:
     AimSolution aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const;
     // Packets the server has sent this client so far, for budget measurements.
     std::uint64_t server_packets()const;
+    // The same count split by wire kind number.
+    std::vector<std::uint64_t> server_packet_kinds()const;
     // Projectiles in flight as the client last received them. Presentation only.
     const std::vector<ProjectileView>& projectiles()const;
     // Server-driven actors in simulation order (ascending network identity).

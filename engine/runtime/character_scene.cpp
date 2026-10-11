@@ -143,6 +143,11 @@ struct CharacterSceneSession::Impl {
         return false;
     }
     static void restrict(MotorInput& command,MotionRequest& request){request.lock=true;request.warp={};command.jump=false;}
+    // A character's public frame as observers take it. The server sends a public ability frame only when its content
+    // changed; while the index says the held content is current, the frame is brought to the tick with the character's
+    // own motor state from the motor stream.
+    bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick==tick&&(held->second.ability.tick==tick||(!held->second.ability.active&&listed->second.content==public_ability_content(held->second.ability)));}
+    AbilityPublicFrame shown(std::uint64_t id)const{auto frame=client.public_abilities().at(id);auto motor=client.motors().find(id);if(!frame.ability.active&&motor!=client.motors().end()&&motor->second.tick>frame.ability.tick&&motor->second.epoch==frame.motor.epoch){frame.motor=motor->second;frame.ability.tick=motor->second.tick;}return frame;}
     bool actors_public()const{for(const auto& actor:actors)if(!client.public_abilities().contains(actor.id))return false;return true;}
     const Actor* find(StableId identity)const{for(const auto& actor:actors)if(actor.identity==identity)return &actor;return nullptr;}
     // Soft-lock candidates for the player: every live actor of another faction. Authority reads its own
@@ -242,7 +247,7 @@ struct CharacterSceneSession::Impl {
         owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
         host_motor->step(accepted,authoritative_motion);for(std::size_t index=0;index<actors.size();++index)actors[index].motor->step(actor_commands[index],actor_motions[index]);authoritative.step();host_motor->post_physics();for(auto& actor:actors)actor.motor->post_physics();authoritative.finish_tick();
         auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());for(const auto& actor:actors)server.publish_motor(actor.id,actor.motor->state());if(combat){server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}server.publish_collision(collision_stream(frame));pump();
-        auto public_ready=[&]{if(!client.public_abilities().contains(player)||client.public_abilities().at(player).ability.tick!=tick)return false;for(const auto& actor:actors){auto shown=client.public_abilities().find(actor.id);if(shown==client.public_abilities().end()||shown->second.ability.tick!=tick)return false;}return true;};
+        auto public_ready=[&]{if(!public_current(player,tick))return false;for(const auto& actor:actors)if(!public_current(actor.id,tick))return false;return true;};
         auto snapshots_ready=[&]{return client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick&&client.collision_control_ready()&&(!combat||(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick&&public_ready()));};
         for(unsigned work=0;work<32&&!snapshots_ready();++work)pump();
         require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
@@ -252,7 +257,7 @@ struct CharacterSceneSession::Impl {
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(prepared);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
-        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(client.public_abilities().at(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
+        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
         for(auto& actor:actors)actor.pose->sample(observers.at(actor.id)->sample(double(tick)).frame,effect_frame(actor.id));
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
@@ -323,6 +328,7 @@ std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*i
 std::span<const StableId> CharacterSceneSession::actors()const{return impl_->actor_identities;}
 const std::vector<ProjectileView>& CharacterSceneSession::projectiles()const{return impl_->client.projectiles();}
 std::uint64_t CharacterSceneSession::server_packets()const{return impl_->server.packets_sent(impl_->host_peer);}
+std::vector<std::uint64_t> CharacterSceneSession::server_packet_kinds()const{return impl_->server.packets_by_kind(impl_->host_peer);}
 AimSolution CharacterSceneSession::aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const{
     const auto& p=*impl_;const double length=std::sqrt(direction.x*direction.x+direction.y*direction.y+direction.z*direction.z);
     require(std::isfinite(camera.x)&&std::isfinite(camera.y)&&std::isfinite(camera.z)&&std::isfinite(length)&&length>1e-6&&std::isfinite(range)&&range>0&&range<=200&&std::isfinite(muzzle.x)&&std::isfinite(muzzle.y)&&std::isfinite(muzzle.z),"Aim ray bounds");

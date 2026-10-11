@@ -241,3 +241,30 @@ For the sixteen-actor test, where most actors stand still: public ability packet
 ### Order of work
 
 Step 0, then 1 with the `step` change (they depend on each other), measured; then 2 (the wire change, one full rebuild); then 3 after the user confirms the radius. One full verification pass at the end of the chunk; steps 1 to 3 touch shared runtime, wire and prediction code.
+
+## Packet budget, first build: 30 to 17.8 packets a tick (11 October 2026)
+
+Steps 0 and 1 of the design above are built, with one change to the design found while building.
+
+- **Change to the design.** Step 1 said the reader could derive an idle character's clock on its own. It cannot know on its own that nothing changed this tick, and an idle character that is walking still needs a fresh motor state in the frame observers read. So the server now sends a **public index** (wire kind `PublicIndex`, one packet a tick): each character's public ability tick and a content value (`public_ability_content`: attributes, tags, loadout and the running action with its clock, without tick and revision). A client holding a frame with the same content knows it is current. The scene session then brings that frame to the tick with the character's motor state from the motor stream (`shown` in character_scene.cpp). This is the client half of step 2; the wire frame still carries its own copy of the motor state.
+- **Server.** `pump_public_abilities` sends a frame when its content changed (or as the 30-tick keep-alive), not when only its clock did. A running action is content, so an acting character is still sent every tick. `pump_public_index` sends the index.
+- **Same-tick requirement.** `public_ready` in `CharacterSceneSession::step` now asks, per character: the index and the motor state are at the tick, and the held frame is either at the tick or idle with the indexed content. The owner's motor, correction and collision requirements are unchanged. It is still an exact rule, not yet the staleness bound of the design; that comes with step 3.
+- **Step 0.** `WorldSession::packets_by_kind` and `CharacterSceneSession::server_packet_kinds`; the sixteen-actor test prints the split.
+
+### Measured (CharacterCombatSceneTests, seventeen characters, loopback)
+
+| | before | after |
+|---|---|---|
+| server packets per tick | 30.04 | 17.79 |
+
+After, by kind: motor batch 6.00, collision 5.45, public ability 3.09, owner correction 2.21, public index 1.00. The before split was not measured (the counter did not exist); the public ability share before was about one packet per character per tick. The test's bound is now 19 (was 34).
+
+Still above the 16-packet budget by about two. What is left, largest first: motor states for seventeen characters every tick (step 3, relevance and rate), the collision stream at five to six packets a tick (not looked at yet: seventeen moving character bodies), and the owner correction at two packets.
+
+### Verified
+
+Full pass on this build: all 41 verify gates and CTest with only the five known unrelated failures. The combat scene test's exact-tick assertions on observed actors (every actor replicated on the current tick, action phase on the render clock) pass unchanged. One capture looked at (`npc-spawn-points-d3d12`: two guards standing over the defeated player, target bar shown).
+
+### Not verified
+
+Packet loss: a lost public frame is repaired by the 30-tick keep-alive, and until then the scene session waits for it (its pump bound is 32). Over a real lossy connection that wait must become the staleness bound of the design. GNS tests pass but none exercises the index under loss.
