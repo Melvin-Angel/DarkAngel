@@ -1,0 +1,32 @@
+<rml>
+<head>
+<title>Ashen Roots combat HUD</title>
+<style>
+body { font-family: HUD; font-size: 16px; color: #f2ede4; width: 100%; height: 100%; }
+div { display: block; }
+.panel { position: absolute; }
+#player { left: 24px; bottom: 24px; width: 320px; }
+#target { top: 20px; left: 50%; width: 360px; margin-left: -180px; }
+.bar { position: relative; height: 22px; margin-top: 6px; background-color: #101216c8; border: 1px #000000a0; }
+.fill { position: absolute; left: 0px; top: 0px; height: 100%; }
+.health { background-color: #b3262b; }
+.stamina { background-color: #3f9f58; }
+.enemy { background-color: #c4762a; }
+.label { position: absolute; left: 8px; top: 2px; font-size: 14px; }
+.caption { font-size: 13px; color: #d8d1c4; }
+#state { position: absolute; left: 0px; right: 0px; top: 36%; text-align: center; font-size: 36px; color: #e8dccb; }
+</style>
+</head>
+<body data-model="hud">
+<div id="target" class="panel" data-if="has_target">
+	<div class="caption">Target</div>
+	<div id="target-bar" class="bar"><div id="target-fill" class="fill enemy" data-style-width="target_percent + '%'"></div><div id="target-text" class="label">{{target_text}}</div></div>
+</div>
+<div id="state" data-if="dead">Defeated</div>
+<div id="player" class="panel">
+	<div id="stagger" class="caption" data-if="staggered">Staggered</div>
+	<div id="health-bar" class="bar"><div id="health-fill" class="fill health" data-style-width="health_percent + '%'"></div><div id="health-text" class="label">{{health_text}}</div></div>
+	<div id="stamina-bar" class="bar"><div id="stamina-fill" class="fill stamina" data-style-width="stamina_percent + '%'"></div><div id="stamina-text" class="label">{{stamina_text}}</div></div>
+</div>
+</body>
+</rml>

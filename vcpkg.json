@@ -186,6 +186,18 @@
           "default-features": false
         }
       ]
+    },
+    "m5-ui": {
+      "description": "Runtime UI: RmlUi with FreeType for the M5 HUD",
+      "dependencies": [
+        {
+          "name": "rmlui",
+          "default-features": false,
+          "features": [
+            "freetype"
+          ]
+        }
+      ]
     }
   },
   "overrides": [

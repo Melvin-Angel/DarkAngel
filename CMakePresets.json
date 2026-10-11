@@ -145,6 +145,7 @@
       "binaryDir": "${sourceDir}/build/m5-editor-relwithdebinfo",
       "cacheVariables": {
         "DAE_AUTHORING": true,
+        "VCPKG_MANIFEST_FEATURES": "m1;m2;m3;m4;m5-ui",
         "DAE_RENDERER_SPIKE": true,
         "CMAKE_POLICY_VERSION_MINIMUM": "3.10",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/stage/m5-editor-relwithdebinfo"
