@@ -178,6 +178,24 @@ void NativeAuthoring::assign_npc_behavior(AssetService& assets,AssetId npc,Asset
  else{auto& target=open(assets,behavior);require(target.value.at("kind")=="behavior","Select a native Behavior");check_sources(assets,{{npc,value},{behavior,target.value}});value["behavior"]=behavior.text();value["sources"]["behavior"]=target.asset.path;}
  apply(assets,npc,revision_,std::move(value),behavior==AssetId{}?"Clear NPC behavior":"Assign NPC behavior");
 }
+void NativeAuthoring::edit_behavior_tree(AssetService& assets,AssetId behavior,std::span<const unsigned> path,BehaviorEdit action,std::string_view type){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,behavior).value;require(value.at("kind")=="behavior"&&path.size()<=8,"Select a native Behavior and a node inside its depth bound");
+ auto composite=[](const nlohmann::json& node){return node.at("type")=="sequence"||node.at("type")=="selector";};
+ nlohmann::json* node=&value["tree"];nlohmann::json* parent=nullptr;
+ for(auto index:path){require(composite(*node)&&index<node->at("children").size(),"Behavior node path does not exist");parent=node;node=&(*node)["children"][index];}
+ if(action==BehaviorEdit::AddChild){
+  require(composite(*node)&&node->at("children").size()<8,"Only a sequence or selector with fewer than eight children can take a child");const std::string kind(type);nlohmann::json added={{"type",kind}};
+  if(kind=="sequence"||kind=="selector")added["children"]=nlohmann::json::array({nlohmann::json{{"type","opponent_alive"}}});else if(kind=="in_range"||kind=="approach")added["range"]=1.4;else if(kind=="attack")added["slot"]="light";else if(kind=="recover")added["ticks"]=60u;else require(kind=="opponent_alive"||kind=="idle"||kind=="face","Unknown behavior node type");
+  (*node)["children"].push_back(std::move(added));
+ }else{
+  require(parent!=nullptr,"The root of a behavior tree cannot be moved or removed");auto& siblings=(*parent)["children"];const auto index=path.back();
+  if(action==BehaviorEdit::MoveUp){require(index>0,"The first child cannot move up");std::swap(siblings[index],siblings[index-1]);}
+  else if(action==BehaviorEdit::MoveDown){require(index+1<siblings.size(),"The last child cannot move down");std::swap(siblings[index],siblings[index+1]);}
+  else{require(siblings.size()>1,"A sequence or selector keeps at least one child");siblings.erase(index);}
+ }
+ decode_behavior(value.dump());
+ apply(assets,behavior,revision_,std::move(value),action==BehaviorEdit::AddChild?"Add behavior node":action==BehaviorEdit::Remove?"Remove behavior node":"Reorder behavior node");
+}
 AssetId NativeAuthoring::create_mask(AssetService& assets,std::string_view name,AssetId kit,AssetId visual){
  require(!name.empty()&&name.size()<=64&&std::all_of(name.begin(),name.end(),[](unsigned char c){return std::isalnum(c)||c=='_'||c=='-';}),"Use a name with letters, numbers, underscores or hyphens");auto inventory=this->inventory(assets);
  auto path=[&](AssetId id,std::initializer_list<const char*> extensions){auto source=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){if(asset.id!=id)return false;auto ext=std::filesystem::path(asset.path).extension();return std::any_of(extensions.begin(),extensions.end(),[&](const char* e){return ext==e;});});require(source!=inventory.end(),"Select a typed catalog reference for the mask");return source->path;};

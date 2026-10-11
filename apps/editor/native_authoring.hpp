@@ -27,6 +27,10 @@ public:
     // A behaviour tree source seeded with the default approach/attack/recover tree, and its assignment to an NPC (empty clears).
     AssetId create_behavior(AssetService&,std::string_view name);
     void assign_npc_behavior(AssetService&,AssetId npc,AssetId behavior);
+    // Structure edits on a behaviour tree. path holds child indices from the root to the node (empty = root).
+    // MoveUp/MoveDown/Remove act on that node among its siblings; AddChild appends a default node of `type` to that composite.
+    enum class BehaviorEdit {MoveUp,MoveDown,Remove,AddChild};
+    void edit_behavior_tree(AssetService&,AssetId behavior,std::span<const unsigned> path,BehaviorEdit,std::string_view type={});
     AssetId duplicate(AssetService&,AssetId,std::string_view name,bool blank=false);
     AssetId duplicate_ability_with_action(AssetService&,AssetId,std::string_view name,bool blank=false);
     // Copies a Composer action as a presentation-only reaction (cue blocks only,

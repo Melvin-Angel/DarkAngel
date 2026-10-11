@@ -164,9 +164,9 @@ One chunk, verified once.
 
 ### Not verified
 
-- The structure buttons were not clicked: the capture proves they are drawn with the right enabled state, and the edit logic is a few lines applied to the draft JSON, but no scripted run presses Up, Down, Remove or Add child. A scripted exercise for them is the first thing to add.
+- Follow-up, same day: the structure edits now go through an authoring command (`NativeAuthoring::edit_behavior_tree`, one history entry per edit) and `NativeAuthoringTests` covers reorder, add, remove, Undo/Redo and six rejected edits (moving or removing the root, moving past either end, adding to a leaf, an unknown node kind, a path that does not exist). The buttons call that command. What remains unverified is only the click itself; after this follow-up the editor and `NativeAuthoringTests` were rebuilt and that test re-run, not the full gate set.
 - The Gameplay Inspector readout was checked through the exercise marker, not by looking at the inspector panel.
 
 ### Next step (track B)
 
-A scripted exercise that presses the tree structure controls and checks the draft, then NPC-level tuning the tree reads (preferred range, aggression/recovery) so designers tune an NPC without editing its tree. After that the world side of M6 (regions/cells and the ledger), which is the larger remaining part of the milestone.
+NPC-level tuning the tree reads (preferred range, aggression/recovery) so designers tune an NPC without editing its tree. After that the world side of M6 (regions/cells and the ledger), which is the larger remaining part of the milestone.
