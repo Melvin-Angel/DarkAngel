@@ -32,6 +32,20 @@ User direction, 11 October 2026 (supersedes the earlier order): items 1-3 of the
 4. Block/parry outcomes, combos, lock-on camera using the look target.
 5. Deferred until the user says otherwise: host/client qualification over GNS; multiplayer Play in the Game tab.
 
+### M6 track (user decision 11 October 2026: begin M6 in parallel)
+
+User decision (11 October 2026): M5 is accepted on single-process (Loopback) evidence so that M6 can begin in parallel. This is not a claim that the original M5 gate passed: host/client qualification over GNS for dodge, mask switching, the scripted attacker, stagger locks and death, and late join with a real second client, are deferred, as are the remaining M5 content items (targeting module, ranged/projectile, mask depth, block/parry, combos). M4's open network/fault/performance matrices are unchanged and still open. Live EOS remains externally blocked.
+
+Alternate increments between the M5 list above (track A, targeting module first) and this M6 list (track B). Finish and push one increment before starting the next; do not interleave half-done work from both tracks. Read the M6 row and the "M6 World state and NPCs" extension row in docs/architecture/DarkAngel_Implementation_Handoff.md and the NPC / AI Designer section of the vision before the first M6 increment. Record every M6 increment in an M6_REPORT.md and keep STATUS honest: M6 is In progress, nothing in it is Verified until its own gates pass.
+
+1. Native NPC definition (`.danpc` or the name the existing conventions suggest): references a shared Character and the same Actor Loadout structure as Player (kit, starting attributes, optional masks), plus faction. Full native source type like Mask (catalog, drafts, Undo/Redo, validation, Save, frozen product). Staged acceptance from the handoff: an NPC using the same Character as the Player but a different kit/attributes, both running through the same native ability execution. Place it in the Royal scene as the combat target so the scripted training attacker becomes that NPC's first, temporary controller. NPC workspace/tab in the editor using the shared forms.
+2. NPC controller seam: replace the hard-coded scripted attacker with a small server-side controller interface that requests the same approved operations a player intent does (move, face, activate slot). No decision logic beyond what the scripted attacker already does yet.
+3. Navigation: Recast/Detour adapter and a cooked navmesh for the Royal scene collision, a path query, and an NPC that walks to the player. `recastnavigation` and `behaviortree-cpp` are in vcpkg.json; check whether they are installed in the build tree and apply the same dry-run rule as for RmlUi (additions only, nothing rebuilt or removed) before installing.
+4. BT.CPP executor adapter with JSON tree topology and a first tree (acquire target, approach to preferred range, attack, recover), blackboard and sensing kept native; decisions never bypass ability validation.
+5. Later M6 scope, not to start without finishing the above: regions/cells and the world ledger, splines/scatter, encounter volumes and spawn points, Luau leaves.
+
+Do not import the Unity YAML behaviour-tree runtime. The Unity docs remain a read-only reference for behaviour intent only.
+
 Animation: use the clips already converted under `content/animation/blink/` and `content/royal_district/clips/`. Do not build a retargeting pipeline now; the user will decide that later.
 
 ## How to work
