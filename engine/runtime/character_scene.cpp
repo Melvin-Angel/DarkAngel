@@ -169,12 +169,17 @@ struct CharacterSceneSession::Impl {
         return result;
     }
     // Shared aim for NPCs: an aimed ability points from its muzzle at the body of the target the controller chose for this action,
-    // raised by the drop a projectile will suffer on the way. The controller only chooses the target and presses the slot.
+    // raised by the drop a projectile will suffer on the way. A projectile is aimed at where the target will be when it arrives:
+    // the target's current movement over the ground, held for the flight time, refined twice because the lead changes the distance.
+    // An instant shot has no flight time and no lead. The controller only chooses the target and presses the slot.
     void aim_actor(const Actor& actor,const AbilityDefinition& ability,MotorInput& command)const{
         if(!ability.aim||ability.melee.empty())return;const auto candidates=locked_candidates(actor);if(candidates.empty())return;
-        const auto& self=actor.motor->state();const auto& goal=candidates.front().position;MotorState turned=self;turned.yaw=std::atan2(goal.x-self.position.x,goal.z-self.position.z);const auto muzzle=melee_origin(turned,ability.melee.front());
-        const double dx=goal.x-muzzle.x,dz=goal.z-muzzle.z,level=std::hypot(dx,dz);if(level<.3)return;double height=goal.y+perception_body_height-muzzle.y;
-        if(ability.aim->projectile){const double seconds=level/ability.aim->projectile->speed;height+=.5*ability.aim->projectile->gravity*seconds*seconds;}
+        const auto& self=actor.motor->state();const auto& goal=candidates.front().position;MotorVec drift{};
+        if(ability.aim->projectile){const MotorState* target=nullptr;if(*actor.locked==player_identity)target=&host_motor->state();else if(const auto* other=find(*actor.locked))target=&other->motor->state();if(target)drift={target->achieved.x*60,0,target->achieved.z*60};}
+        double seconds=0,dx=0,dz=0,level=0;MotorVec muzzle{};
+        for(unsigned pass=0;pass<3;++pass){const MotorVec ahead{goal.x+drift.x*seconds,goal.y,goal.z+drift.z*seconds};MotorState turned=self;turned.yaw=std::atan2(ahead.x-self.position.x,ahead.z-self.position.z);muzzle=melee_origin(turned,ability.melee.front());
+            dx=ahead.x-muzzle.x;dz=ahead.z-muzzle.z;level=std::hypot(dx,dz);if(level<.3)return;if(!ability.aim->projectile)break;seconds=level/ability.aim->projectile->speed;}
+        double height=goal.y+perception_body_height-muzzle.y;if(ability.aim->projectile)height+=.5*ability.aim->projectile->gravity*seconds*seconds;
         command.yaw=std::atan2(dx,dz);command.pitch=std::clamp(std::atan2(height,level),-1.4,1.4);
     }
     // Controller seam: an actor's controller sees a bounded view of authoritative state as it stood before this tick and asks for

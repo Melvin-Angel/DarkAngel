@@ -44,3 +44,15 @@ User request of 11 October 2026.
 Verified: in CharacterCombatSceneTests an archer 10 m away looses exactly one arrow that hits the player for 20; with the player standing on a slab 3 m above it the arrow still hits; with a controller that names no target the shot is level and passes under the raised player. All 40 verify gates pass (the two-guard gate now accepts two or more guards, because the user's own uncommitted combat scene has three); CTest shows only the five known unrelated failures.
 
 Not verified, and limits: the aim is a straight line with a drop correction, with no lead for a moving target and no line-of-sight check before firing, so an archer shoots at walls between it and its target. The archer uses the player's bow animation and kit.
+
+## NPC ranged aim: lead for a moving target (11 October 2026)
+
+User request of 11 October 2026.
+
+- `aim_actor` in `engine/runtime/character_scene.cpp` now aims a projectile at where its target will be when it arrives: the target's current movement over the ground (the authoritative motor's achieved movement per tick), held for the flight time, in three passes because the lead changes the distance and so the time. Height still aims at the target's body with the drop added. An instant aimed ability has no flight time and is aimed as before. Server-only; nothing on the wire changed.
+- It is a straight-line lead. A target that turns, stops or jumps during the flight is missed, which is what makes arrows dodgeable. Vertical movement is not led.
+- Line of sight for the shot is the sensor system's rule ([SENSOR_REPORT.md](SENSOR_REPORT.md)): the press is dropped when the chosen target is not visible.
+
+**Verified:** `CharacterCombatSceneTests`: a player running across an archer's line 10 m away is hit; at launch the archer's aim was 0.106 rad ahead of the bearing to the player, and the player ran 1.17 m during the arrow's flight (more than three body radii, so an arrow aimed at the launch position would have missed). Full pass on this build: all 43 verify gates and CTest with only the five known unrelated failures. The `npc-archer-d3d12` capture was looked at (the archer has hit the standing player, 80/100).
+
+**Not verified:** there is no switch to turn the lead off, so the miss without it is inferred from the distance run, not measured in a control run. No editor capture shows a led shot at a moving player. A target on a moving platform, and NPC targets (the test leads the player only), were not tried.

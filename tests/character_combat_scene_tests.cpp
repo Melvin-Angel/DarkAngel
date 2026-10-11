@@ -414,6 +414,19 @@ int main(){try{
             std::cout<<"NPC sensing: distance radius, vision cone (facing, half angles, range, height), line of sight, a wall, losing and forgetting, no senses, actor order, archer line of sight\n";
         }
         {
+            // NPC ranged aim leads a moving target: the player runs across the archer's line, the arrow is loosed ahead of it and lands.
+            struct Leader final:ActorController {ControllerCommand decide(const ControllerView& view)override{ControllerCommand command;const auto* foe=view.alive?nearest_hostile(view):nullptr;if(!foe)return command;command.target=foe->id;command.face=std::atan2(foe->motor.position.x-view.self.position.x,foe->motor.position.z-view.self.position.z);if(!view.busy&&view.tick>=10)command.press=CombatSlot::RangedLight;return command;}};
+            auto scene=combat;scene.actors={guard(first,60,std::make_shared<Leader>())};std::array<ObjectData,2> crowd{player,placed(first,0,10,3.141592653589793,60)};CharacterSceneSession session(hello,crowd,player.id,collision,plan,rig.definition,rig.archive,scene);
+            CharacterSceneInput run;run.x=1;double lead=0,crossed=0;bool flown=false;
+            while(session.motor().tick<120&&health_of(session,player.id)==100){session.step(run);
+                if(!flown&&!session.projectiles().empty()){flown=true;const auto archer=session.observer(first,double(session.motor().tick)).frame.motor;const auto& target=session.motor().position;lead=std::remainder(archer.yaw-std::atan2(target.x-archer.position.x,target.z-archer.position.z),6.283185307179586);crossed=target.x;}}
+            const auto struck=session.motor().position.x;
+            // Facing -z, a target moving toward +x is led by turning to a smaller yaw.
+            check(flown&&lead<-.03,"The archer did not aim ahead of a target running across its line");
+            check(health_of(session,player.id)==80&&struck-crossed>.5,"The led arrow did not hit the running player, or the player had not moved during its flight");
+            std::cout<<"NPC aim lead: "<<-lead<<" rad ahead at launch, player ran "<<struck-crossed<<" m during the flight and was hit\n";
+        }
+        {
             // Bounds: an actor needs a scene object and resolved attributes, identities are unique, and the list is bounded.
             auto reject=[&](CharacterSceneCombat bad,const char* message){bool rejected=false;try{CharacterSceneSession scene(hello,objects,player.id,collision,plan,rig.definition,rig.archive,bad);}catch(const std::exception&){rejected=true;}check(rejected,message);};
             auto missing=combat;missing.actors={dummy(third)};reject(missing,"An actor without a scene object was accepted");
