@@ -7,6 +7,11 @@
 namespace darkangel {
 struct ReactionSample;
 struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;};
+// Scripted training attacker for the combat target: the target is equipped with the scene
+// kit and presses one slot on a fixed schedule through the server's checked request path
+// while the player is alive and within range. Shared target behaviour for exercising
+// incoming hits; not an NPC controller or AI.
+struct CharacterSceneAttacker {CombatSlot slot{CombatSlot::Light};std::uint64_t first_tick{60},interval{150};double range{2.5};bool face_player{true};};
 struct CharacterSceneCombat {
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
     std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};
@@ -25,6 +30,7 @@ struct CharacterSceneCombat {
     std::vector<std::optional<AbilityLoadout>> loadouts;unsigned active_loadout{};
     // Semantic input actions that select loadout slots 0-3 (zero = unbound).
     std::array<std::uint32_t,loadout_slot_count> loadout_actions{};
+    std::optional<CharacterSceneAttacker> attacker;
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.
@@ -64,6 +70,8 @@ public:
     std::optional<double> death(StableId)const;
     // Confirmed and predicted active loadout (equipped mask slot) of the player.
     unsigned loadout()const;unsigned predicted_loadout()const;
+    // Authoritative receipt of the scripted attacker's latest request, if it has made one.
+    const AbilityReceipt* attacker_receipt()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

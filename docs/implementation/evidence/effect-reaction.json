@@ -1,104 +1,114 @@
 {
   "schema": 1,
-  "base_head": "93c816d3c015483c2fb0d090a0538196bbabb2ce",
-  "scope": "Player virtual camera rig (free-look and aim) with blending; in-Play mask switching; mask assets with four Player slots, active-mask kit and worn face-socket visual; dodge as an authored ability on the kit utility ingress with dash and facing lock; kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
+  "base_head": "10641b875db135d244f1594ceb28514e695c855d",
+  "scope": "Scripted training attacker on the combat target (owner damage, flinch, interruption, dodge invulnerability and death in fresh Play); Player virtual camera rig (free-look and aim) with blending; in-Play mask switching; mask assets with four Player slots, active-mask kit and worn face-socket visual; dodge as an authored ability on the kit utility ingress with dash and facing lock; kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
   "gates": [
-    {
-      "name": "effect-reaction-build",
-      "exit": 0,
-      "seconds": 43.515
-    },
     {
       "name": "effect-reaction-authoring",
       "exit": 0,
-      "seconds": 219.375
+      "seconds": 259.968
     },
     {
       "name": "effect-reaction-presentation",
       "exit": 0,
-      "seconds": 0.219
+      "seconds": 0.282
     },
     {
       "name": "effect-reaction-public-pose",
       "exit": 0,
-      "seconds": 0.172
+      "seconds": 0.25
     },
     {
       "name": "effect-reaction-effect-assets",
       "exit": 0,
-      "seconds": 0.469
+      "seconds": 0.5
     },
     {
       "name": "effect-reaction-kit-assets",
       "exit": 0,
-      "seconds": 2.125
+      "seconds": 2.64
     },
     {
       "name": "effect-reaction-replication",
       "exit": 0,
-      "seconds": 0.187
+      "seconds": 0.313
     },
     {
       "name": "effect-reaction-combat-effects",
       "exit": 0,
-      "seconds": 0.063
+      "seconds": 0.156
     },
     {
       "name": "camera-rig",
       "exit": 0,
-      "seconds": 0.015
+      "seconds": 0.016
+    },
+    {
+      "name": "scripted-attacker",
+      "exit": 0,
+      "seconds": 1.703
     },
     {
       "name": "effect-reaction-form",
       "exit": 0,
-      "seconds": 0.969
+      "seconds": 1.109
     },
     {
       "name": "effect-reaction-d3d12",
       "exit": 0,
-      "seconds": 2.125
+      "seconds": 3.688
     },
     {
       "name": "kit-death-d3d12",
       "exit": 0,
-      "seconds": 2.375
+      "seconds": 2.875
+    },
+    {
+      "name": "attacked-flinch-d3d12",
+      "exit": 0,
+      "seconds": 2.531
+    },
+    {
+      "name": "attacked-death-d3d12",
+      "exit": 0,
+      "seconds": 3.234
     },
     {
       "name": "dodge-d3d12",
       "exit": 0,
-      "seconds": 2.094
+      "seconds": 2.656
     },
     {
       "name": "mask-worn-d3d12",
       "exit": 0,
-      "seconds": 1.64
+      "seconds": 1.797
     },
     {
       "name": "mask-placement-d3d12",
       "exit": 0,
-      "seconds": 1.594
+      "seconds": 1.875
     },
     {
       "name": "camera-free-look-d3d12",
       "exit": 0,
-      "seconds": 1.485
+      "seconds": 1.844
     },
     {
       "name": "camera-aim-d3d12",
       "exit": 0,
-      "seconds": 1.546
+      "seconds": 1.875
     },
     {
       "name": "camera-preview-d3d12",
       "exit": 0,
-      "seconds": 1.454
+      "seconds": 1.781
     }
   ],
   "source_sha256": {
     "apps/editor/character_preview.cpp": "e2b46ca22635df9ec0e0298adeb2173c21206e31ccfd68b158599db921e2c41c",
-    "apps/editor/editor_authoring.cpp": "75e62b2bec5794a2f02614e2366dad4a619902abe42547e3bffff3cb7cecfab6",
-    "apps/editor/editor_ui.hpp": "ade7d2f47fb6f3de7bb4abbc3718f27ead40865342de71928304bc92e66028f8",
-    "apps/editor/main.cpp": "408e67c31a4848fd62a30ef9939ff651fb7fc5177df36721bd45f3ec16bafdef",
+    "apps/editor/editor_authoring.cpp": "e77bf4efa1e81e3c2da1b67f14258877a13d8cb246fd4683b2a8da3309e53684",
+    "apps/editor/editor_ui.hpp": "54192092f69a1cccb472485a76e5b9731a0fb04f27272bcaf57484a368e29a20",
+    "apps/editor/main.cpp": "2c741d1c54e73a1c4e2bdc360ba664dfbc4d108eacb64f035d0a248348b1945d",
     "apps/editor/native_authoring.cpp": "6c01db8e26ae2065d87377af3ac7431dbec7fb03ca866f618bd5db17916d94f7",
     "apps/editor/native_authoring.hpp": "8acb0ff9c8b58a41555343badc104a62ab2156fdd668bf79f0988af0a57cb7ba",
     "engine/assets/effect_cooker.cpp": "5001d796cdd6937db3b22d7ab522fbc98fd4d503a7629593e728066c4681409f",
@@ -119,24 +129,25 @@
     "engine/runtime/include/darkangel/combat_kit.hpp": "fb58e0c09c9125e402d3859756bfb5ce902a150d2f8445e80759511c2c4d8c3b",
     "engine/runtime/effects.cpp": "9cfd108317f6abc8d703141caca425283c211a2e9425f286e8a3b1f0b473f56b",
     "engine/runtime/character_presentation.cpp": "e6299455e57f25241dae4fa015621eb600f787d9712232c0eaeaf3917222c756",
-    "engine/runtime/character_scene.cpp": "df1dc4d4d6f19109c89e2dbda1355f49e588d7e4b2b0dedeff0651849e979329",
+    "engine/runtime/character_scene.cpp": "ec1f06b412b2cd7ba77a8e67a07c56184749ffe98cb85b960d41b7d353bd1708",
     "engine/runtime/include/darkangel/effects.hpp": "7a2294e2cf125989eeed572021eae85475521c0dcac6730e7361a082f87d8db6",
     "engine/runtime/include/darkangel/character_presentation.hpp": "5c90570f7149b5badd932d60e4bfe49aef962c84eecba928d0d69a4de48b4868",
-    "engine/runtime/include/darkangel/character_scene.hpp": "4e8365ec52bd3d607d723bb042025af571483dd1841e49c3dd478bb7726928f5",
+    "engine/runtime/include/darkangel/character_scene.hpp": "10cbfbc8c28be985e6968305350b06031d2dc1c4729d3b6500af26b175c99236",
     "tests/native_authoring_tests.cpp": "38f3e3f983e52a29d2527103dc13ebb1a1b2aa261e3782ed0c1961c706fefca0",
+    "tests/character_combat_scene_tests.cpp": "be52404508574c8d7a94c76302736e94f5764aa1499a4dabb185f9bb6739ef8e",
     "tests/reaction_presentation_tests.cpp": "5c14d7924bbe03b28d6329777d76cdb4fab5f98fd1fce8cd2796e31db731540d",
-    "scripts/verify_effect_reaction.py": "71a3dcb911ac70a53b88dfd81f7f1294e798d868bf7e103c90c05c5737bad1da"
+    "scripts/verify_effect_reaction.py": "42b5cd71cf108157a9fe0944a075b1419d25a9ffc2f8fac86e2300c7a3251800"
   },
   "binary_sha256": {
-    "DarkAngelEditor.exe": "124f5a01cfaed85c8ef7b2bee16ff5f8c6a59e1ef96b7cc877696b9808be04ea",
-    "NativeAuthoringTests.exe": "19f1787be6633a3a1edb0bbd703127098fc2dc9c75199ed844f072cf04c68b86",
-    "ReactionPresentationTests.exe": "b6f7216808ceaa141ed7d65c2cde5fe71333892bfacce9987c1fc705b66c7f56"
+    "DarkAngelEditor.exe": "63b31249fa181e88cbdbf47aa9333d2b49fe0524951ea8606929bf4bf748b688",
+    "NativeAuthoringTests.exe": "7c590c8238702c72422b470e3767004e528fb8a74b42e8f0301e8ae50b955cfb",
+    "ReactionPresentationTests.exe": "5a9c33d82342d4dfb1782bf143d2f3994a110dfb11da33643178271e4e580c78"
   },
   "limitations": [
     "One visible full-body reaction per actor, root policy none; no reaction queue, blend ramps, additive or upper-body reactions.",
     "Reaction timelines carry cue blocks only and no cue is dispatched by presentation in this slice.",
     "The fixture reuses the existing attack clip as its flinch; no flinch clip or default Royal reaction content is shipped.",
-    "Owner-pose reaction selection shares the verified selector; a positive owner-side flinch in editor Play needs an attacker other than the player and is covered by native WorldSession tests only.",
+    "The scripted attacker is a fixed-interval training script on the existing target, not an NPC controller; it stops when its Stamina runs out because nothing regenerates Stamina yet.",
     "Scripted native commands and D3D12 form/rendering evidence, not physical pointer input, remote graphical timing/loss or multiplayer qualification.",
     "M4/M5 In progress; EOS blocked; M6-M9 not started; publication crash-recovery limits unchanged."
   ]
