@@ -190,6 +190,27 @@ One chunk, verified once.
 - The behaviour form's "Use NPC preferred" / "Use fixed" switch was not captured after this change; the earlier behaviour-form capture predates it.
 - Tuning beyond these two numbers (strafe, retreat, aggression curves from the vision) does not exist.
 
+## Increment 8: navigation bake tool (11 October 2026)
+
+User direction: navmesh baking gets a window under Tools to trigger it, to be expanded later.
+
+### What exists
+
+- **Tools > Navigation** (`ToolView::Navigation`, CLI `--navigation-tool`): the agent and voxel settings (cell size and height, agent height and radius, step height, walkable slope) with "Use defaults", a "Bake navigation mesh" button, "Clear bake", and the result: polygons, source triangles, bake time, how many Play sessions used the bake, and whether it is current, stale (the scene collision changed) or behind the settings.
+- **Play reuses the bake.** A Play session whose collision matches the baked collision uses the baked mesh; otherwise it builds one on demand with the tool's current settings, as before. The match is by collision content (mesh identities and signatures), so reloading the same scene keeps the bake and changing collision invalidates it.
+
+### Verified
+
+- Editor on D3D12, `--exercise-navigation-bake`: `Navigation bake polygons=52 source_triangles=1320 play_reuses_bake=1 on_demand_for_other_collision=1`; capture `evidence/navigation-tool-d3d12.png` inspected (settings, Bake and Clear, 52 polygons, 1320 source triangles, 13.2 ms, "Current: the next Play session uses this bake").
+- This was an editor-only change. Only the editor was rebuilt and only this gate was run; the last full pass (34 gates, CTest with the five known failures) was on the previous commit.
+
+### Not done, not verified
+
+- The bake lives in the editor session. It is not saved, not a cooked asset product and has no generation identity, so it is redone after a restart. Making it a cooked product is the step that connects to the M6 cell/invalidation gate.
+- No visualisation of the mesh in the viewport.
+- The Bake button is exercised through the function it calls, not by clicking.
+- One agent profile.
+
 ### Next step (track B)
 
-The world side of M6: regions/cells and the world ledger, then spawn points so an NPC is placed by the scene rather than by an editor setting. This is the largest remaining part of the milestone and should start with a short design note in this report, as the targeting module did.
+Waiting on the user's answers (asked 11 October 2026) about spawn points, several NPCs in one Play session, and whether to start cells and the ledger now. Recommended order if unanswered: spawn points placed in the Scene tab, then several NPCs per session, then cells.

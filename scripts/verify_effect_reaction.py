@@ -55,6 +55,9 @@ if not(marker(log,'player_health')<100 and marker(log,'nav_polygons')>0):raise R
 # M6 track: the placed Royal Guard runs its authored behaviour tree (no training option switched on).
 log=run('npc-behavior-d3d12',guarded+['--target-npc',f['npc'],'--exercise-attacked','--frames','60','--capture',EVIDENCE/'npc-behavior-d3d12.png'])
 if not(marker(log,'player_health')<100 and marker(log,'nav_polygons')>0 and 'behavior=Guard_Melee' in log and ' decision=' in log):raise RuntimeError('Editor Play did not run the Royal Guard behaviour tree: '+log[-400:])
+# Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.
+log=run('navigation-tool-d3d12',common+['--exercise-navigation-bake','--frames','5','--capture',EVIDENCE/'navigation-tool-d3d12.png'])
+if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise RuntimeError('Navigation tool did not bake: '+log[-400:])
 # M6 track: the Guard Melee behaviour opened in the NPC workspace (tree outline with structure controls).
 run('behavior-form-d3d12',common+['--npc-workspace','--authoring-asset',f['behavior'],'--height','1500','--frames','5','--capture',EVIDENCE/'behavior-form-d3d12.png'])
 # M6 track: the owned Royal Guard NPC definition opened in the NPC workspace.
