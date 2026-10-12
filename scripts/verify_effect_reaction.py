@@ -123,6 +123,14 @@ lever_entities['00000000000000000000000000000008']['encounter']['trigger']={'eve
 (source/'royal_district/RoyalLever.dascene').write_text(json.dumps(lever_source,indent=2)+chr(10))
 log=run('interaction-d3d12',scene(guarded,'RoyalLever.dascene')+['--exercise-interaction','--frames','200','--capture',EVIDENCE/'interaction-d3d12.png'])
 if not('Editor interaction asked=1 result=Accepted used=1 ' in log and 'lever.pulled' in log):raise RuntimeError('Editor Play did not use the lever through the server: '+log[-400:])
+# Splines and scatter: the training scene with a four-point spline that scatters one of the scene's own hut models along it.
+spline_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());spline_entities=spline_source['sources'][spline_source['root']]['entities']
+hut=[entity['model'] for entity in spline_entities.values() if entity.get('model') and 'MudHut' in entity.get('name','')][0]
+spline_entities['0000000000000000000000000000000b']=gameplay_entity('Hut row',-12.0,-11.0,spline={'closed':False,'scatter':{'model':hut,'spacing':7.0,'jitter':0.0,'seed':3,'align':True}})
+for index,(x,z) in enumerate([(-12.0,-11.0),(-4.0,-13.0),(4.0,-13.0),(12.0,-11.0)]):spline_entities['000000000000000000000000000000%02x'%(0x10+index)]=gameplay_entity('Hut row point',x,z,spline_point={'spline':'0000000000000000000000000000000b','index':index})
+(source/'royal_district/RoyalSpline.dascene').write_text(json.dumps(spline_source,indent=2)+chr(10))
+log=run('spline-d3d12',scene(common,'RoyalSpline.dascene')+['--exercise-spline','--frames','5','--capture',EVIDENCE/'spline-d3d12.png'])
+if not('Editor spline splines=1 points=4 ' in log and ' scatter=4' in log):raise RuntimeError('Editor Scene did not draw the spline and its scatter: '+log[-400:])
 # Background cooking: a source copied into the project (not through Import) is listed as uncooked and the sweep cooks it.
 log=run('cook-sweep-d3d12',common+['--assets-workspace','--exercise-cook-sweep','--frames','5','--capture',EVIDENCE/'cook-sweep-d3d12.png'])
 if 'Editor cook_sweep waiting_before=' not in log:raise RuntimeError('The background cook sweep did not cook a copied source: '+log[-400:])

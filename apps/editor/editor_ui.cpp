@@ -1,6 +1,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <darkangel/interaction.hpp>
+#include <darkangel/spline.hpp>
 #include <commdlg.h>
 #include "editor_ui.hpp"
 #include "editor_theme.hpp"
@@ -70,6 +71,19 @@ void draw_components(Controller& editor,StableId object){
         auto value=entity_source(editor,object).at("volume");const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("volume");ImGui::Text("Bounds of: %s",plan.encounters.contains(found->second.encounter)?object_name(editor,found->second.encounter).c_str():"(its encounter was deleted)");half_fields(value["half"]);ImGui::TextDisabled("A box centred on this object, turned by its yaw.");ImGui::PopID();ImGui::EndDisabled();
         if(value!=before){action(editor,[&]{set_component(editor,object,"volume",value,"Resized the encounter volume.");});return;}
     }
+    if(auto found=plan.splines.find(object);found!=plan.splines.end()&&ImGui::CollapsingHeader("Spline",ImGuiTreeNodeFlags_DefaultOpen)){
+        auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("spline");unsigned points=0;for(const auto& [point,info]:plan.spline_points)if(info.spline==object)++points;ImGui::Text("%u point(s)",points);
+        bool closed=value.value("closed",false);if(ImGui::Checkbox("Closed loop",&closed))value["closed"]=closed;bool scattered=value.contains("scatter")&&!value["scatter"].is_null();
+        if(ImGui::Checkbox("Scatter a model along it",&scattered)){if(!scattered)value.erase("scatter");else{AssetId model;for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".daimport"){model=asset.id;break;}if(model==AssetId{})editor.log("Import a model before scattering one.",ConsoleSeverity::Error);else value["scatter"]={{"model",model.text()},{"spacing",2.0},{"jitter",0.0},{"seed",1u},{"align",true}};}}
+        if(value.contains("scatter")&&!value["scatter"].is_null()){auto& scatter=value["scatter"];const auto current=AssetId::parse(scatter["model"].get<std::string>());ImGui::SetNextItemWidth(260);
+            if(ImGui::BeginCombo("Model",npc_label(editor,current).c_str())){for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".daimport"){ImGui::PushID(asset.id.text().c_str());if(ImGui::Selectable(std::filesystem::path(asset.path).stem().string().c_str(),asset.id==current))scatter["model"]=asset.id.text();ImGui::PopID();}ImGui::EndCombo();}
+            double spacing=scatter.value("spacing",2.0),jitter=scatter.value("jitter",0.0);int seed=int(scatter.value("seed",1u));bool align=scatter.value("align",true);
+            ImGui::SetNextItemWidth(120);if(ImGui::InputDouble("Spacing (m)",&spacing,0,0,"%.2f",ImGuiInputTextFlags_EnterReturnsTrue))scatter["spacing"]=std::clamp(spacing,.25,50.);ImGui::SetNextItemWidth(120);if(ImGui::InputDouble("Sideways jitter (m)",&jitter,0,0,"%.2f",ImGuiInputTextFlags_EnterReturnsTrue))scatter["jitter"]=std::clamp(jitter,0.,5.);
+            ImGui::SetNextItemWidth(120);if(ImGui::InputInt("Seed",&seed,0,0,ImGuiInputTextFlags_EnterReturnsTrue))scatter["seed"]=unsigned(std::max(0,seed));if(ImGui::Checkbox("Face along the curve",&align))scatter["align"]=align;}
+        ImGui::TextWrapped("Move its points with the gizmo. Add a point with the Place panel's Spline point while the spline or one of its points is selected. Scattered models are drawn only: they have no collision.");ImGui::PopID();ImGui::EndDisabled();
+        if(value!=before){action(editor,[&]{decode_spline(value.dump());set_component(editor,object,"spline",value,"Edited the spline.");});return;}
+    }
+    if(auto found=plan.spline_points.find(object);found!=plan.spline_points.end()&&ImGui::CollapsingHeader("Spline point",ImGuiTreeNodeFlags_DefaultOpen))ImGui::TextWrapped("Point %u of its spline. Move it with the gizmo.",found->second.index);
     if(auto found=plan.interactables.find(object);found!=plan.interactables.end()&&ImGui::CollapsingHeader("Interactable",ImGuiTreeNodeFlags_DefaultOpen)){
         auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("interactable");auto prompt=value["prompt"].get<std::string>();ImGui::SetNextItemWidth(220);if(committed_text("Prompt",prompt))value["prompt"]=prompt;auto name=value["event"].get<std::string>();ImGui::SetNextItemWidth(180);if(committed_text("World event",name))value["event"]=name;
         double radius=value.value("radius",2.0);ImGui::SetNextItemWidth(120);if(ImGui::InputDouble("Radius (m)",&radius,0,0,"%.2f",ImGuiInputTextFlags_EnterReturnsTrue))value["radius"]=std::clamp(radius,.5,10.);bool once=value.value("once",true);if(ImGui::Checkbox("Only once",&once))value["once"]=once;
@@ -97,7 +111,7 @@ void Shell::refresh_place_items(Controller& editor){
     // Rebuilt only when the catalogue changes: an imported model's importer is read from its sidecar once.
     std::size_t signature=editor.asset_inventory.size();for(const auto& asset:editor.asset_inventory)signature=signature*1315423911u+std::hash<std::string>{}(asset.path)+asset.generation;
     if(signature==place_signature&&!place_items.empty())return;place_signature=signature;place_items.clear();if(!editor.assets)return;
-    place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});place_items.push_back({{},"Interactable","Gameplay",false,4});
+    place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});place_items.push_back({{},"Interactable","Gameplay",false,4});place_items.push_back({{},"Spline","Gameplay",false,5});place_items.push_back({{},"Spline point","Gameplay",false,6});
     for(const auto& asset:editor.asset_inventory){const std::filesystem::path path(asset.path);const auto extension=path.extension().string();
         if(extension==".danpc"){place_items.push_back({asset.id,path.stem().string(),"NPCs",true});continue;}
         if(extension!=".gltf"&&extension!=".glb")continue;
@@ -117,6 +131,10 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
         const auto owner=object_local(editor,placed);add_object(editor,{{"name","Encounter volume"},{"volume",{{"encounter",owner},{"half",nlohmann::json::array({5.0,2.0,5.0})}}}},at,"Placed its first volume.");editor.selected=placed;return placed;}
     if(item.gameplay==2){StableId owner=editor.selected;{const auto& plan=editor.document->plan();if(auto volume=plan.volumes.find(owner);volume!=plan.volumes.end())owner=volume->second.encounter;else if(auto point=plan.spawn_owners.find(owner);point!=plan.spawn_owners.end())owner=point->second;if(!plan.encounters.contains(owner))throw std::runtime_error("Select the encounter this volume belongs to, then place the volume");}
         const auto key=object_local(editor,owner);placed=add_object(editor,{{"name","Encounter volume"},{"volume",{{"encounter",key},{"half",nlohmann::json::array({4.0,2.0,4.0})}}}},at,"Placed an encounter volume.");editor.selected=placed;return placed;}
+    // A spline starts with two points; a point joins the spline of the selected spline or point, after its last one.
+    if(item.gameplay==5){placed=add_object(editor,{{"name","Spline"},{"spline",{{"closed",false}}}},at,"Placed a spline.");const auto owner=object_local(editor,placed);auto second=at;second.x+=4;add_object(editor,{{"name","Spline point"},{"spline_point",{{"spline",owner},{"index",0u}}}},at,"Placed its first point.");add_object(editor,{{"name","Spline point"},{"spline_point",{{"spline",owner},{"index",1u}}}},second,"Placed its second point.");editor.selected=placed;return placed;}
+    if(item.gameplay==6){StableId owner=editor.selected;unsigned next=0;{const auto& plan=editor.document->plan();if(auto point=plan.spline_points.find(owner);point!=plan.spline_points.end())owner=point->second.spline;if(!plan.splines.contains(owner))throw std::runtime_error("Select the spline this point belongs to (or one of its points), then place the point");unsigned count=0;for(const auto& [point,info]:plan.spline_points)if(info.spline==owner){++count;next=std::max(next,info.index+1);}if(count>=spline_point_limit)throw std::runtime_error("A spline has at most 32 points");}
+        const auto key=object_local(editor,owner);placed=add_object(editor,{{"name","Spline point"},{"spline_point",{{"spline",key},{"index",next}}}},at,"Placed a spline point.");editor.selected=placed;return placed;}
     if(item.gameplay==4){placed=add_object(editor,{{"name","Interactable"},{"interactable",{{"prompt","Use"},{"event","object.used"},{"radius",2.0},{"once",true}}}},at,"Placed an interactable.");editor.selected=placed;return placed;}
     if(item.gameplay==3){placed=add_object(editor,{{"name","Trigger volume"},{"trigger",{{"event","trigger.entered"},{"half",nlohmann::json::array({2.0,2.0,2.0})},{"once",true}}}},at,"Placed a trigger volume.");editor.selected=placed;return placed;}
     if(item.npc)placed=add_object(editor,{{"name",item.name+" spawn"},{"spawn",{{"npc",item.id.text()}}}},at,"Placed an NPC spawn point.");

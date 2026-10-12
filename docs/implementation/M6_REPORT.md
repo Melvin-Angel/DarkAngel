@@ -496,3 +496,49 @@ None in behaviour. The prompt is offered from the owner's predicted position, th
 - A locked interactable still shows its prompt (tags are server state); the HUD does not yet show the refusal, only the World tab does.
 - Placing an interactable through the Place panel and editing it in the Inspector have no gate of their own; the gate's scene is written as source. They use the same commands as the trigger volume.
 - Used-up state is per session; persistence is the deferred world ledger.
+
+## Splines and scatter: design (12 October 2026)
+
+Written before any code. The decision log makes splines first-class (roads, rivers, paths, walls, fences) and scatter built in. This is the first slice of both: a spline you can place and shape, and one kind of scatter, models along a spline (a fence line, a row of posts, trees along a road).
+
+### Spline
+
+- A scene object with a `spline` component (`{"closed": false}`) and, as with an encounter and its volumes, separate point objects that name it: `"spline_point": {"spline": "<the spline's local identity>", "index": 2}`. Points are ordinary scene objects, so the existing selection, gizmo, Undo and Save shape a spline; nothing new is needed to move a point. Points are ordered by index, then identity.
+- Runtime: `Spline` (engine/runtime/spline.cpp), a uniform Catmull-Rom curve through the points, open or closed, with an arc-length table: `length()`, `sample(distance)` (position and tangent), `polyline()` for drawing. Two points give a straight line. Pure and deterministic.
+- Bounds: 16 splines a scene, 32 points a spline.
+
+### Scatter
+
+- An optional `scatter` object in the spline component: `{"model": "<model asset>", "spacing": 2.0, "jitter": 0.0, "seed": 1, "align": true}`. One instance of the model every `spacing` metres of arc length, pushed sideways by up to `jitter` metres, facing along the curve (`align`) or turned at random. Every random number is a hash of the seed and the instance's index, so the same source gives the same instances on every machine.
+- Definition, instance, entity: the component is the definition; instances are derived from it and the points' current places. They are not scene objects and not replicated objects: a session holds at most 128 replicated objects, and a fence must not spend them. Both ends derive the same instances from the same scene. Each has a stable derived identity (`scatter_instance(spline, index)`).
+- Bounds: spacing 0.25 to 50 m, jitter 0 to 5 m, at most 256 instances a spline (the rest are dropped and the editor says so).
+
+### Editor
+
+Placement: "Spline" and "Spline point" in the Place panel's Gameplay category (a spline starts with two points; a point is added to the spline of the selected spline or point), the spline's fields in the Inspector (closed, scatter on/off, model, spacing, jitter, seed, align), the curve and its points drawn in the viewports like the other gameplay objects, and the scattered models drawn with the scene's models. Why there: a spline is a placed level-design object like an encounter, and the user asked for no new tabs without need.
+
+### Not in this step
+
+Scatter instances have no collision and are not in the navigation mesh (static collision is a cooked asset; baking scatter into it is its own step). No meshes generated along a spline (roads, walls). No area scatter, biomes or painting. Nothing in gameplay reads a spline yet (patrol paths are the obvious first reader). A model used only by a scatter is prepared by the editor on demand; it is not yet part of the scene's packaged dependency closure.
+
+## Splines and scatter: built (12 October 2026)
+
+Built as designed.
+
+### Where things are
+
+- `engine/runtime/spline.hpp/.cpp`: `SplineDefinition`, `ScatterDefinition`, `decode_spline`, `Spline` (length, sample, polyline), `scatter_along`.
+- `engine/runtime/assembly.cpp`: the `spline` and `spline_point` components in the spawn plan (`splines`, `spline_points`), `scatter_instance`. Plans without splines serialize exactly as before.
+- Editor: "Spline" and "Spline point" in the Place panel's Gameplay category; the Inspector's Spline section (closed, scatter on/off, model, spacing, jitter, seed, face along the curve) and a Spline point line; the curve and its points drawn in the viewports and clickable; scattered models drawn with the scene's models, rebuilt every frame from the points as they stand, so dragging a point moves the curve and its models.
+
+### Verified
+
+- EncounterTests: a two-point spline is a straight line by arc length; a curve passes through its points; a closed spline returns to its start; one point, thirty-three points and no length are refused; scatter places one aligned instance every spacing with both ends, stays inside its jitter, is repeatable from its seed and differs with another seed, does not repeat the first instance of a closed curve, and stops at 256 instances; decoding with defaults and six rejections.
+- Gate `spline-d3d12` (new, 50 gates now): the training scene with a four-point spline that scatters one of the scene's hut models every 7 m: one spline, four points, four scattered models, all drawn. The capture was looked at: four more huts stand in a row along the far edge of the ground with the curve drawn through them, and the Outliner lists the spline and its four points. The row was put where the scene's own two huts already stand, so the new huts overlap them; that is the test scene's doing, not the scatter's.
+
+### Not verified, and limits
+
+- Placing a spline and a point through the Place panel, and the Inspector's spline fields, have no gate; the gate's scene is written as source. They use the same commands as the other gameplay objects.
+- Dragging a point was not exercised by a gate (the code reads the gizmo's draft pose like the model draw does).
+- Every spline point is a scene object and so a replicated object in Play, like trigger volumes; a scene of many long splines will meet the session's object limit. Points should become plain source data that Play does not replicate; noted, not done.
+- No collision, no navigation, no closure for a scatter-only model, nothing in gameplay reads a spline (all in the design's "not in this step").

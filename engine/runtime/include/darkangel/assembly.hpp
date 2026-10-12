@@ -20,6 +20,9 @@ struct SpawnPlan {
     struct Volume {StableId encounter;std::array<double,3> half{};};
     // interactables hold the object's validated "interactable" component JSON; the object may also be a placed model.
     std::map<StableId,std::string> interactables;
+    // Splines hold the object's validated "spline" component JSON; a spline point names its spline and its place in the order.
+    struct SplinePoint {StableId spline;unsigned index{};};
+    std::map<StableId,std::string> splines;std::map<StableId,SplinePoint> spline_points;
     std::map<StableId,std::string> encounters,triggers;std::map<StableId,Volume> volumes;std::map<StableId,StableId> spawn_owners;
     std::string serialize() const;
     static SpawnPlan deserialize(std::string_view);
@@ -32,6 +35,8 @@ SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources
 StableId spawned_actor(StableId spawn_point);
 // Identity of the index-th enemy an encounter spawns. Derived from the encounter alone, so every Play of a scene has the same enemies.
 StableId encounter_actor(StableId encounter,unsigned index);
+// The stable identity of one scattered instance of a spline. Derived: there is no scene object behind it.
+StableId scatter_instance(StableId spline,unsigned index);
 struct ScriptDefinition {ScriptDescriptor descriptor;std::string cooked;};
 struct CookedScene {
     SpawnPlan plan;std::map<StableId,ScriptDefinition> scripts;
