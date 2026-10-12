@@ -17,7 +17,7 @@ public:
     explicit VfxCueSink(CueSink* also):also_(also){}
     void bind(VfxService* service,const std::map<std::string,AssetId>* effects,Locate locate){clear();service_=service;effects_=effects;locate_=std::move(locate);}
     void start(const CueStart& begun)override{
-        if(also_)also_->start(begun);if(!service_||!effects_||!locate_)return;const auto effect=effects_->find(begun.definition.visual);
+        if(also_)also_->start(begun);if(!service_||!effects_||!locate_||begun.definition.visual.empty())return;const auto effect=effects_->find(begun.definition.visual);
         if(effect==effects_->end()||!service_->loaded(effect->second)){++missing_;return;}const auto at=locate_(begun.network);if(!at)return;
         if(const auto handle=service_->play(effect->second,*at))held_[begun.instance]={handle,begun.network,frame_};
     }

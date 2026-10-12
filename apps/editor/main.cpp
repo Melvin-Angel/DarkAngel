@@ -30,6 +30,8 @@
 #include "vfx_cue_sink.hpp"
 #ifdef DAE_AUDIO
 #include "audio_cue_sink.hpp"
+#include "primitive_cue_sink.hpp"
+#include <darkangel/primitive_assets.hpp>
 #include <darkangel/audio_director.hpp>
 #include <deque>
 #endif
@@ -220,7 +222,7 @@ int main(int argc,char** argv){try{
     // for the visual and the audio service until they exist. Declared before the session, which must not outlive its cue player.
     std::optional<std::vector<darkangel::CueDefinition>> play_cues;std::size_t play_cue_closure{};darkangel::editor_app::RecordingCueSink cue_visual{true},cue_audio{false};bool cue_debug_selected{};
     // Visual effects: one service on this device, the effect asset behind each cue visual, and the sink that plays them. The recording sink stays behind it for the Cues tab.
-    std::unique_ptr<darkangel::VfxService> vfx;std::map<std::string,AssetId> play_effects;darkangel::editor_app::VfxCueSink cue_effects{&cue_visual};std::uint64_t vfx_tick{};std::string vfx_failed;
+    std::unique_ptr<darkangel::VfxService> vfx;std::map<std::string,AssetId> play_effects;darkangel::editor_app::PrimitiveCueSink cue_primitives{&cue_visual};std::map<AssetId,darkangel::TrailDefinition> play_trails;std::map<AssetId,darkangel::DecalDefinition> play_decals;darkangel::editor_app::VfxCueSink cue_effects{&cue_primitives};std::uint64_t vfx_tick{};std::string vfx_failed;
     try{vfx=std::make_unique<darkangel::VfxService>(device,context,int(swap_desc.ColorBufferFormat),int(swap_desc.DepthBufferFormat));}catch(const std::exception& error){vfx_failed=error.what();editor.log(std::string("Visual effects unavailable: ")+error.what(),darkangel::editor_app::ConsoleSeverity::Warning);}
 #ifdef DAE_AUDIO
     // Sounds: one audio service for the process, made when the first Play needs it. A hidden run and --no-audio use the silent driver. The recording sink stays behind it for the Cues tab.
@@ -255,7 +257,7 @@ int main(int argc,char** argv){try{
 #endif
     // The VFX tab: the selected effect is cooked and played in a loop in the preview, and cooked again whenever its source file changes on disk
     // (that is how an edit saved in Effekseer shows up). A refusal by the cooker is shown as it is.
-    struct VfxPreview {AssetId selected;std::string path,error,generation;std::filesystem::file_time_type seen{};bool cooked{};std::uint64_t handle{};float yaw{.6f},distance{4.5f},height{1.f};char name[49]{"new_effect"};AssetId cue;char cue_name[49]{"new_cue"};std::string cue_error;double idle{};std::size_t textures{};unsigned cooks{};} vfx_preview;
+    struct VfxPreview {AssetId selected;std::string path,error,generation;std::filesystem::file_time_type seen{};bool cooked{};std::uint64_t handle{};float yaw{.6f},distance{4.5f},height{1.f};char name[49]{"new_effect"};AssetId cue,primitive;char cue_name[49]{"new_cue"},primitive_name[49]{"new_trail"};std::string cue_error;double idle{};std::size_t textures{};unsigned cooks{};} vfx_preview;
     auto vfx_effects=[&]{std::vector<darkangel::AssetInfo> found;for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension==".efkproj"||extension==".efkefc")found.push_back(asset);}return found;};
     auto vfx_cook=[&]{auto& preview=vfx_preview;preview.cooked=false;preview.error.clear();if(!vfx||!editor.assets||preview.selected==AssetId{})return;if(preview.handle){vfx->kill(preview.handle);preview.handle=0;}
         try{std::error_code ignored;preview.seen=std::filesystem::last_write_time(editor.assets->source_root()/preview.path,ignored);const auto registry=editor.assets->cas_path().parent_path()/("vfx-preview-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};const std::array roots{preview.selected};darkangel::editor_app::package_authoring(*editor.assets,roots,registry);
@@ -265,7 +267,7 @@ int main(int argc,char** argv){try{
     // Cues in the VFX tab: the project's cue sources as ordinary native drafts (Undo, Redo, Save All), edited in a small form.
     auto vfx_cues=[&]{auto& preview=vfx_preview;const auto red=[](const std::string& text){ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1.f,.45f,.35f,1.f));ImGui::TextWrapped("%s",text.c_str());ImGui::PopStyleColor();};
         ImGui::SeparatorText("Cues");ImGui::TextWrapped("A cue is what gameplay asks for by key: an effect, a sound or both, played on the actor.");
-        std::vector<darkangel::AssetInfo> cues,sounds;for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension==".dacue")cues.push_back(asset);else if(extension==".wav")sounds.push_back(asset);}
+        std::vector<darkangel::AssetInfo> cues,sounds,trail_assets,decal_assets;for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension==".dacue")cues.push_back(asset);else if(extension==".wav"||extension==".dasound")sounds.push_back(asset);else if(extension==".datrail")trail_assets.push_back(asset);else if(extension==".dadecal")decal_assets.push_back(asset);}
         if(cues.empty())ImGui::TextDisabled("This project has no cues yet.");
         for(const auto& asset:cues){const auto draft=editor.authoring.drafts.find(asset.id);const bool dirty=draft!=editor.authoring.drafts.end()&&draft->second.dirty();if(ImGui::Selectable((asset.path+(dirty?" *":"")+"##cue").c_str(),asset.id==preview.cue)){preview.cue=asset.id;preview.cue_error.clear();}}
         ImGui::SetNextItemWidth(220);ImGui::InputText("##cue-name",preview.cue_name,sizeof(preview.cue_name));ImGui::SameLine();
@@ -276,13 +278,33 @@ int main(int argc,char** argv){try{
                 field("Name##cue","name");field("Key##cue","key");
                 const auto pick=[&](const char* label,const char* name,const std::vector<darkangel::AssetInfo>& choices,bool effect){const auto current=value.value(name,std::string{});if(ImGui::BeginCombo(label,current.empty()?"(none)":current.c_str())){if(ImGui::Selectable("(none)",current.empty()))value[name]="";for(const auto& choice:choices)if(ImGui::Selectable(choice.path.c_str(),choice.path==current)){value[name]=choice.path;if(effect)vfx_select(choice);}ImGui::EndCombo();}};
                 pick("Effect##cue","visual",vfx_effects(),true);pick("Sound##cue","audio",sounds,false);
+                // A trail and a decal are optional fields of the cue: absent when none is chosen.
+                const auto optional=[&](const char* label,const char* name,const std::vector<darkangel::AssetInfo>& choices){const auto current=value.value(name,std::string{});if(ImGui::BeginCombo(label,current.empty()?"(none)":current.c_str())){if(ImGui::Selectable("(none)",current.empty()))value.erase(name);for(const auto& choice:choices)if(ImGui::Selectable(choice.path.c_str(),choice.path==current)){value[name]=choice.path;preview.primitive=choice.id;}ImGui::EndCombo();}};
+                optional("Weapon trail##cue","trail",trail_assets);optional("Decal##cue","decal",decal_assets);
                 int tail=int(value.value("tail_ticks",30u));if(ImGui::InputInt("Tail (ticks)##cue",&tail))value["tail_ticks"]=unsigned(std::clamp(tail,0,600));
                 bool predictable=value.value("predictable",false);if(ImGui::Checkbox("Starts on prediction (the owner's own cue)",&predictable))value["predictable"]=predictable;
                 std::string problem;try{darkangel::decode_cue(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
                 ImGui::BeginDisabled(!draft->dirty()||!problem.empty());if(ImGui::Button("Save cue")){try{const auto path=draft->asset.path;editor.authoring.save(*editor.assets,preview.cue);editor.refresh_assets();play_cues.reset();preview.cue_error.clear();editor.log("Saved "+path);}catch(const std::exception& error){preview.cue_error=error.what();}}ImGui::EndDisabled();
                 if(args.exercise_cue_form)ImGui::SetScrollHereY(1.f);
                 try{editor.authoring.record_changes(*editor.assets,"Edit cue",ImGui::IsAnyItemActive());}catch(const std::exception& error){preview.cue_error=error.what();}}}
-        if(!preview.cue_error.empty())red(preview.cue_error);};
+        if(!preview.cue_error.empty())red(preview.cue_error);
+        // Weapon trails and decals: native, small, and edited here because a cue is what names them.
+        ImGui::SeparatorText("Trails and decals");ImGui::TextWrapped("A weapon trail is a strip swept by two points on a socket while its cue is live. A decal is a soft disc laid under the actor when its cue starts.");
+        for(const auto* list:{&trail_assets,&decal_assets})for(const auto& asset:*list){const auto draft=editor.authoring.drafts.find(asset.id);const bool dirty=draft!=editor.authoring.drafts.end()&&draft->second.dirty();if(ImGui::Selectable((asset.path+(dirty?" *":"")+"##primitive").c_str(),asset.id==preview.primitive)){preview.primitive=asset.id;preview.cue_error.clear();}}
+        ImGui::SetNextItemWidth(160);ImGui::InputText("##primitive-name",preview.primitive_name,sizeof(preview.primitive_name));ImGui::SameLine();
+        if(ImGui::Button("New trail")){try{preview.primitive=editor.authoring.create_trail(*editor.assets,preview.primitive_name);editor.refresh_assets();preview.cue_error.clear();}catch(const std::exception& error){preview.cue_error=error.what();}}ImGui::SameLine();
+        if(ImGui::Button("New decal")){try{preview.primitive=editor.authoring.create_decal(*editor.assets,preview.primitive_name);editor.refresh_assets();preview.cue_error.clear();}catch(const std::exception& error){preview.cue_error=error.what();}}
+        if(preview.primitive!=AssetId{}){darkangel::editor_app::NativeDraft* draft{};try{draft=&editor.authoring.open(*editor.assets,preview.primitive);}catch(const std::exception& error){preview.cue_error=error.what();preview.primitive=AssetId{};}
+            if(draft){auto& value=draft->value;const bool trail=value.value("kind",std::string{})=="trail";ImGui::SeparatorText(trail?"Selected trail":"Selected decal");ImGui::TextWrapped("%s",draft->asset.path.c_str());
+                const auto text=[&](const char* label,const char* name){char buffer[65]{};std::snprintf(buffer,sizeof(buffer),"%s",value.value(name,std::string{}).c_str());if(ImGui::InputText(label,buffer,sizeof(buffer)))value[name]=std::string(buffer);};
+                const auto floats=[&](const char* label,const char* name,int count,float least,float most){float numbers[4]{};for(int index=0;index<count;++index)numbers[index]=value[name].is_array()&&value[name].size()==std::size_t(count)&&value[name][index].is_number()?value[name][index].get<float>():0.f;bool changed=count==3?ImGui::DragFloat3(label,numbers,.01f,least,most,"%.2f"):ImGui::ColorEdit4(label,numbers);if(changed){value[name]=nlohmann::json::array();for(int index=0;index<count;++index)value[name].push_back(double(std::round(std::clamp(numbers[index],least,most)*1000)/1000));}};
+                const auto whole=[&](const char* label,const char* name,int least,int most){int number=int(value.value(name,unsigned(least)));if(ImGui::InputInt(label,&number))value[name]=unsigned(std::clamp(number,least,most));};
+                text("Name##primitive","name");
+                if(trail){text("Socket or joint##primitive","socket");floats("Base offset (m)##primitive","base",3,-5,5);floats("Tip offset (m)##primitive","tip",3,-5,5);whole("Lifetime (ticks)##primitive","lifetime_ticks",1,120);whole("Points##primitive","max_points",2,64);floats("Colour##primitive","color",4,0,1);}
+                else{float size=value.value("size",1.f);if(ImGui::SliderFloat("Size (m)##primitive",&size,.05f,10,"%.2f"))value["size"]=double(std::round(size*100)/100);whole("Lifetime (ticks)##primitive","lifetime_ticks",1,3600);whole("Fade (ticks)##primitive","fade_ticks",0,3600);floats("Colour##primitive","color",4,0,1);}
+                std::string problem;try{if(trail)darkangel::decode_trail(value.dump());else darkangel::decode_decal(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
+                ImGui::BeginDisabled(!draft->dirty()||!problem.empty());if(ImGui::Button("Save##primitive")){try{const auto path=draft->asset.path;editor.authoring.save(*editor.assets,preview.primitive);editor.refresh_assets();play_cues.reset();preview.cue_error.clear();editor.log("Saved "+path);}catch(const std::exception& error){preview.cue_error=error.what();}}ImGui::EndDisabled();
+                try{editor.authoring.record_changes(*editor.assets,"Edit trail or decal",ImGui::IsAnyItemActive());}catch(const std::exception& error){preview.cue_error=error.what();}}}};
     if(editor.assets)shell.draw_vfx_panel=[&]{auto& preview=vfx_preview;
         ImGui::TextWrapped("Effects are built in Effekseer. Pick one to preview it as the game draws it; \"Edit in Effekseer\" opens it there, and saving it there updates the preview.");
         if(!vfx){ImGui::TextWrapped("Visual effects are unavailable: %s",vfx_failed.c_str());return;}
@@ -559,6 +581,9 @@ int main(int argc,char** argv){try{
                     if(roots.size()>64){editor.log("This project has more than 64 cue assets outside the Play package; Play uses the first 64 of them.",darkangel::editor_app::ConsoleSeverity::Warning);roots.resize(64);}
                     if(!roots.empty()){const auto registry=editor.assets->cas_path().parent_path()/("cues-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};darkangel::editor_app::package_authoring(*editor.assets,roots,registry);for(auto& cue:darkangel::load_cooked_cues(registry,editor.assets->cas_path())){if(keys.insert(cue.key).second)cues.push_back(std::move(cue));else editor.log("Two cues answer to the key "+cue.key+"; "+cue.name+" is not used.",darkangel::editor_app::ConsoleSeverity::Warning);}}}
                 else cues=darkangel::load_cooked_cues(args.registry,args.cas);
+                // The weapon trails and decals the cues name, by the identities in the cue products.
+                play_trails.clear();play_decals.clear();if(editor.assets){std::vector<AssetId> primitives;for(const auto& cue:cues)for(const auto id:{cue.trail_asset,cue.decal_asset})if(id!=AssetId{}&&std::find(primitives.begin(),primitives.end(),id)==primitives.end())primitives.push_back(id);
+                    if(!primitives.empty()&&primitives.size()<=64){const auto registry=editor.assets->cas_path().parent_path()/("primitives-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};darkangel::editor_app::package_authoring(*editor.assets,primitives,registry);for(auto& trail:darkangel::load_cooked_trails(registry,editor.assets->cas_path()))play_trails[trail.id]=std::move(trail);for(auto& decal:darkangel::load_cooked_decals(registry,editor.assets->cas_path()))play_decals[decal.id]=std::move(decal);}}
                 // A cue's visual names an effect source by its path; each is cooked, packaged and loaded into the service.
                 play_effects.clear();if(vfx&&editor.assets){std::vector<AssetId> effects;std::vector<std::string> names;for(const auto& cue:cues){if(cue.visual.empty()||std::find(names.begin(),names.end(),cue.visual)!=names.end())continue;bool found=false;for(const auto& asset:editor.assets->assets())if(cue.visual_asset!=AssetId{}?asset.id==cue.visual_asset:asset.path==cue.visual){effects.push_back(asset.id);names.push_back(cue.visual);found=true;}if(!found)editor.log("Cue "+cue.name+" names a visual effect that is not in the project: "+cue.visual,darkangel::editor_app::ConsoleSeverity::Warning);}
 #ifdef DAE_AUDIO
@@ -579,7 +604,7 @@ int main(int argc,char** argv){try{
 #endif
             auto prepared=darkangel::editor_app::prepare_character_preview(plan,world,*character_resources,[&](AssetId asset){return load_cooked_model(args.registry,args.cas,asset);},controller);character_player=prepared.first;character=std::move(prepared.second);
             // An effect cue names its cue asset; an action cue block only has a key.
-            cue_player.reset();cue_effects.bind(nullptr,nullptr,{});
+            cue_player.reset();cue_effects.bind(nullptr,nullptr,{});cue_primitives.bind(nullptr,nullptr,{});
 #ifdef DAE_AUDIO
             cue_sounds.bind(nullptr,nullptr,{});
 #endif
@@ -590,6 +615,7 @@ int main(int argc,char** argv){try{
                     &cue_audio
 #endif
                     );character->present_cues(cue_player.get());
+                cue_primitives.bind(&play_trails,&play_decals,[&](std::uint64_t network)->std::optional<std::array<float,3>>{if(!character)return std::nullopt;const auto identity=character->identity(network);if(!identity)return std::nullopt;const auto handle=character->presentation().find(*identity);if(!character->presentation().valid(handle))return std::nullopt;const auto& at=character->presentation().read(handle).transform;return std::array<float,3>{float(at.x),float(at.y),float(at.z)};});
                 cue_effects.bind(vfx.get(),&play_effects,[&](std::uint64_t network)->std::optional<std::array<float,3>>{if(!character)return std::nullopt;const auto identity=character->identity(network);if(!identity)return std::nullopt;const auto handle=character->presentation().find(*identity);if(!character->presentation().valid(handle))return std::nullopt;const auto& at=character->presentation().read(handle).transform;return std::array<float,3>{float(at.x),float(at.y)+1.f,float(at.z)};});vfx_tick=0;
 #ifdef DAE_AUDIO
                 cue_sounds.bind(audio.get(),&play_sounds,[&](std::uint64_t network)->std::optional<std::array<float,3>>{if(!character)return std::nullopt;const auto identity=character->identity(network);if(!identity)return std::nullopt;const auto handle=character->presentation().find(*identity);if(!character->presentation().valid(handle))return std::nullopt;const auto& at=character->presentation().read(handle).transform;return std::array<float,3>{float(at.x),float(at.y)+1.f,float(at.z)};});
@@ -632,7 +658,7 @@ int main(int argc,char** argv){try{
                     ImGui::TextWrapped("%zu cue asset(s) loaded. Visual cues play as effects and audio cues as sounds; the lists below are what each side was told.",play_cues->size());
                     ImGui::Text("Live %zu | keys without a cue asset %llu | dropped %llu",cue_player->live(),static_cast<unsigned long long>(cue_player->unresolved()),static_cast<unsigned long long>(cue_player->dropped()));
                     const auto who=[&](std::uint64_t network){std::string name="Actor "+std::to_string(network);if(const auto identity=character->identity(network)){if(*identity==character_player)name="Player";else if(const auto* known=character->actor(*identity))if(!known->name.empty())name=known->name;}return name;};
-                    if(vfx){const auto drawn=vfx->stats();ImGui::Text("Visual effects: %zu loaded, %zu playing, %zu particles, %u quads in %u draws",drawn.effects,drawn.playing,drawn.instances,drawn.quads,drawn.draws);if(drawn.unsupported)ImGui::TextWrapped("%u batch(es) skipped: they need shading the renderer does not have.",drawn.unsupported);if(cue_effects.missing())ImGui::TextWrapped("%u cue(s) named a visual effect that is not loaded.",cue_effects.missing());}else ImGui::TextWrapped("Visual effects are unavailable: %s",vfx_failed.c_str());
+                    if(vfx){const auto drawn=vfx->stats();ImGui::Text("Visual effects: %zu loaded, %zu playing, %zu particles, %u quads in %u draws",drawn.effects,drawn.playing,drawn.instances,drawn.quads,drawn.draws);ImGui::Text("Trails: %zu live, %zu points. Decals: %zu. %u quad(s) of both drawn.",cue_primitives.trails.live(),cue_primitives.trails.points(),cue_primitives.decals.live(),drawn.primitives);if(drawn.unsupported)ImGui::TextWrapped("%u batch(es) skipped: they need shading the renderer does not have.",drawn.unsupported);if(cue_effects.missing())ImGui::TextWrapped("%u cue(s) named a visual effect that is not loaded.",cue_effects.missing());}else ImGui::TextWrapped("Visual effects are unavailable: %s",vfx_failed.c_str());
 #ifdef DAE_AUDIO
                     if(audio){const auto heard=audio->stats();ImGui::Text("Audio (%s): %zu sound(s) loaded, %zu playing, %llu started",heard.device?"device":"silent driver",heard.sounds,heard.playing,static_cast<unsigned long long>(heard.started));if(cue_sounds.missing())ImGui::TextWrapped("%u cue(s) named a sound that is not loaded.",cue_sounds.missing());}else if(!audio_failed.empty())ImGui::TextWrapped("Audio is unavailable: %s",audio_failed.c_str());
 #endif
@@ -1100,6 +1126,16 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
                 if(audio)audio->update(double(std::min<std::uint64_t>(tick-vfx_tick,120))/60.);
 #endif
             }vfx_tick=tick;cue_effects.follow();
+            {const auto& rig=character_resources->rig.definition;
+                for(const auto& request:cue_primitives.trails.emitting()){const auto identity=character->identity(request.network);if(!identity)continue;const auto* pose=character->pose(*identity);const auto handle=character->presentation().find(*identity);if(!pose||!character->presentation().valid(handle))continue;
+                    std::string key=request.definition->socket;if(const auto socket=rig.sockets.find(key);socket!=rig.sockets.end())key=socket->second;const auto joint=std::find_if(rig.joints.begin(),rig.joints.end(),[&](const auto& candidate){return candidate.key==key;});if(joint==rig.joints.end())continue;const auto index=std::size_t(joint-rig.joints.begin());if(index>=pose->size())continue;
+                    const auto& at=character->presentation().read(handle).transform;XMFLOAT4X4 stored_joint;std::memcpy(&stored_joint,(*pose)[index].values.data(),sizeof(stored_joint));
+                    const auto joint_world=XMLoadFloat4x4(&stored_joint)*XMMatrixScaling(float(at.scale),float(at.scale),float(at.scale))*XMMatrixRotationRollPitchYaw(float(at.pitch),float(at.yaw),float(at.roll))*XMMatrixTranslation(float(at.x),float(at.y),float(at.z));
+                    const auto point=[&](const std::array<float,3>& offset){XMFLOAT3 out;XMStoreFloat3(&out,XMVector3TransformCoord(XMVectorSet(offset[0],offset[1],offset[2],1),joint_world));return std::array<float,3>{out.x,out.y,out.z};};
+                    cue_primitives.trails.sample(request.instance,tick,point(request.definition->base),point(request.definition->tip));}
+                cue_primitives.trails.advance(tick);cue_primitives.decals.advance(tick);std::vector<darkangel::PrimitiveVertex> built;std::vector<darkangel::VfxQuadVertex> quads;
+                const auto hand=[&](bool additive){quads.clear();for(const auto& vertex:built)quads.push_back({vertex.position,vertex.color});built.clear();vfx->quads(quads,additive);};
+                cue_primitives.decals.build(tick,built);hand(false);cue_primitives.trails.build(tick,built);hand(true);}
             darkangel::VfxView shown;XMFLOAT4X4 stored;XMStoreFloat4x4(&stored,view);std::memcpy(shown.view.data(),&stored,sizeof(stored));XMStoreFloat4x4(&stored,projection);std::memcpy(shown.projection.data(),&stored,sizeof(stored));XMStoreFloat4x4(&stored,XMMatrixInverse(nullptr,view));
             shown.eye={stored._41,stored._42,stored._43};shown.forward={-stored._31,-stored._32,-stored._33};shown.near_plane=gpu.radius*.01f;shown.far_plane=gpu.radius*40;
 #ifdef DAE_AUDIO
@@ -1193,7 +1229,7 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
         // What the sinks hold is exactly what the player holds for them, and nothing was dropped.
         std::size_t visual_live=0,audio_live=0;for(const auto& [instance,held]:cue_visual.held()){(void)instance;require(character->identity(held.network).has_value(),"A live visual cue names an actor that is not in the session");++visual_live;}for(const auto& [instance,held]:cue_audio.held()){(void)instance;require(character->identity(held.network).has_value(),"A live audio cue names an actor that is not in the session");++audio_live;}
         require(cue_player->dropped()==0&&cue_player->live()>=std::max(visual_live,audio_live)&&cue_visual.starts()==cue_visual.releases()+visual_live&&cue_audio.starts()==cue_audio.releases()+audio_live,"Cue sinks and the cue player disagree about what is live");
-        std::cout<<"Editor cues tick="<<character->motor().tick<<" assets="<<play_cues->size()<<" closure="<<play_cue_closure<<" live="<<cue_player->live()<<" visual_live="<<visual_live<<" audio_live="<<audio_live<<" visual_starts="<<cue_visual.starts()<<" audio_starts="<<cue_audio.starts()<<" audio_stops="<<cue_audio.stops()<<" unresolved="<<cue_player->unresolved()<<" visual="<<list(cue_visual.started())<<" audio="<<list(cue_audio.started());{const auto drawn=vfx?vfx->stats():darkangel::VfxStats{};std::cout<<" vfx_loaded="<<drawn.effects<<" vfx_playing="<<drawn.playing<<" vfx_particles="<<drawn.instances<<" vfx_quads="<<drawn.quads<<" vfx_draws="<<drawn.draws<<" vfx_unsupported="<<drawn.unsupported<<" vfx_missing="<<cue_effects.missing();}
+        std::cout<<"Editor cues tick="<<character->motor().tick<<" assets="<<play_cues->size()<<" closure="<<play_cue_closure<<" live="<<cue_player->live()<<" visual_live="<<visual_live<<" audio_live="<<audio_live<<" visual_starts="<<cue_visual.starts()<<" audio_starts="<<cue_audio.starts()<<" audio_stops="<<cue_audio.stops()<<" unresolved="<<cue_player->unresolved()<<" visual="<<list(cue_visual.started())<<" audio="<<list(cue_audio.started());{const auto drawn=vfx?vfx->stats():darkangel::VfxStats{};std::cout<<" vfx_loaded="<<drawn.effects<<" vfx_playing="<<drawn.playing<<" vfx_particles="<<drawn.instances<<" vfx_quads="<<drawn.quads<<" vfx_draws="<<drawn.draws<<" vfx_unsupported="<<drawn.unsupported<<" vfx_missing="<<cue_effects.missing()<<" trails="<<cue_primitives.trails.live()<<" trail_points="<<cue_primitives.trails.points()<<" decals="<<cue_primitives.decals.live()<<" primitive_quads="<<drawn.primitives<<" primitive_missing="<<cue_primitives.missing();}
 #ifdef DAE_AUDIO
         {const auto heard=audio?audio->stats():darkangel::AudioStats{};std::cout<<" audio_service="<<(audio?1:0)<<" audio_device="<<(heard.device?1:0)<<" audio_loaded="<<heard.sounds<<" audio_played="<<heard.started<<" audio_missing="<<cue_sounds.missing();}
 #endif

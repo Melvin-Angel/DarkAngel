@@ -115,7 +115,7 @@ struct VfxService::Impl {
     RefCntAutoPtr<IShader> vertex_shader,pixel_shader;RefCntAutoPtr<IBuffer> constants,vertices,indices;RefCntAutoPtr<ITexture> white;
     // One pipeline per blend and depth state; one resource binding per pipeline and texture.
     std::map<std::tuple<int,bool,bool>,RefCntAutoPtr<IPipelineState>> pipelines;std::map<std::pair<IPipelineState*,ITextureView*>,RefCntAutoPtr<IShaderResourceBinding>> bindings;
-    std::vector<DrawnVertex> packed;VfxStats latest;
+    std::vector<DrawnVertex> packed,queued_blend,queued_add;VfxStats latest;
     IPipelineState* pipeline(Effekseer::AlphaBlendType blend,bool test,bool write){
         const auto key=std::make_tuple(int(blend),test,write);if(auto found=pipelines.find(key);found!=pipelines.end())return found->second;
         GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel visual effect";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vertex_shader;ci.pPS=pixel_shader;auto& graphics=ci.GraphicsPipeline;
@@ -177,6 +177,10 @@ void VfxService::update(double seconds){
     auto& p=*impl_;require(seconds>=0&&seconds<=10,"Visual effect clock delta bounds");p.manager->Update(static_cast<float>(seconds*60));
     for(auto at=p.playing.begin();at!=p.playing.end();)if(!p.manager->Exists(at->second))at=p.playing.erase(at);else ++at;
 }
+void VfxService::quads(std::span<const VfxQuadVertex> vertices,bool additive){
+    auto& p=*impl_;require(vertices.size()%4==0,"Primitive quads come four vertices at a time");auto& queue=additive?p.queued_add:p.queued_blend;if(queue.size()/4+vertices.size()/4>square_limit/4)return;
+    for(const auto& vertex:vertices){DrawnVertex drawn{};for(int axis=0;axis<3;++axis)drawn.position[axis]=vertex.position[std::size_t(axis)];for(int channel=0;channel<4;++channel)drawn.color[channel]=static_cast<std::uint8_t>(std::clamp(vertex.color[std::size_t(channel)],0.f,1.f)*255.f+.5f);drawn.uv[0]=drawn.uv[1]=.5f;queue.push_back(drawn);}
+}
 void VfxService::draw(const VfxView& view){
     auto& p=*impl_;Effekseer::Matrix44 camera,projection;for(int row=0;row<4;++row)for(int column=0;column<4;++column){camera.Values[row][column]=view.view[std::size_t(row*4+column)];projection.Values[row][column]=view.projection[std::size_t(row*4+column)];}
     p.renderer->SetCameraMatrix(camera);p.renderer->SetProjectionMatrix(projection);p.renderer->SetCameraParameter({view.forward[0],view.forward[1],view.forward[2]},{view.eye[0],view.eye[1],view.eye[2]});
@@ -191,6 +195,9 @@ void VfxService::draw(const VfxView& view){
         for(std::size_t vertex=0;vertex<quads*4;++vertex){DrawnVertex drawn;std::memcpy(&drawn,batcher.data()+batch.offset+vertex*std::size_t(batch.stride),sizeof(drawn));p.packed.push_back(drawn);}
         ITextureView* texture=p.white->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);if(batch.state.Collector.TextureCount>0&&batch.state.Collector.Textures[0]!=nullptr)if(auto* held=dynamic_cast<BackendTexture*>(batch.state.Collector.Textures[0].Get()))texture=held->view;
         draws.push_back({p.pipeline(batch.state.AlphaBlend,batch.state.DepthTest,batch.state.DepthWrite),texture,batch.state.EmissiveScaling,first,static_cast<std::uint32_t>(quads)});}
+    // Native primitives after the effects: alpha blended first (decals lie on surfaces), then additive (trails).
+    p.latest.primitives=0;for(auto* queue:{&p.queued_blend,&p.queued_add}){const std::size_t quads=queue->size()/4;if(quads&&p.packed.size()/4+quads<=square_limit){const auto first=static_cast<std::uint32_t>(p.packed.size());p.packed.insert(p.packed.end(),queue->begin(),queue->end());
+            draws.push_back({p.pipeline(queue==&p.queued_add?Effekseer::AlphaBlendType::Add:Effekseer::AlphaBlendType::Blend,true,false),p.white->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE),1.f,first,static_cast<std::uint32_t>(quads)});p.latest.primitives+=static_cast<unsigned>(quads);}queue->clear();}
     if(draws.empty())return;
     {void* mapped{};p.context->MapBuffer(p.vertices,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped!=nullptr,"Visual effect vertex mapping failed");std::memcpy(mapped,p.packed.data(),p.packed.size()*sizeof(DrawnVertex));p.context->UnmapBuffer(p.vertices,MAP_WRITE);}
     IBuffer* buffers[]={p.vertices};p.context->SetVertexBuffers(0,1,buffers,nullptr,RESOURCE_STATE_TRANSITION_MODE_TRANSITION,SET_VERTEX_BUFFERS_FLAG_RESET);p.context->SetIndexBuffer(p.indices,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

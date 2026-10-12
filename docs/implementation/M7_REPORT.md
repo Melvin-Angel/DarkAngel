@@ -455,3 +455,50 @@ Not verified: anything by ear (every run used the silent driver): how the loops,
 3. Trimming and fades inside a clip are left to an external audio editor. Acceptable?
 4. Should a sound's bus follow who triggers it (player or NPC) automatically, instead of needing two definitions?
 
+## Weapon trails and decals: design (12 October 2026, written before the code)
+
+Decision 018 keeps weapon trails and decals native, beside Effekseer, and says what each must do. This is the first slice of both.
+
+**Where they hang.** On a cue, like an effect and a sound: a cue gains two optional fields, `trail` (a `.datrail`) and `decal` (a `.dadecal`), resolved by the cue cooker to identities as its sound definition is. The visual side of the cue player presents a cue that has an effect, a trail or a decal.
+
+**Weapon trail** (`.datrail`): a socket of the rig (or a joint), a base and a tip offset in that joint's space, a lifetime in ticks, a point cap and a colour. While the cue is live the host samples the two points once a presented tick from the pose the client already draws; the strip between consecutive pairs fades by age and from tip to base. A pair more than three metres from the one before breaks the strip (teleport, correction, new avatar), so a trail cannot span the map. The trail is visual only: hits stay with the combat queries.
+
+- The decision opens and closes emission with an Action Composer interval. Action cue blocks are markers in this runtime (a limit recorded in step 1), so emission lasts as long as the cue lives, which for a marker is the cue's tail. The swing cue's tail is lengthened to cover the sweep.
+
+**Decal** (`.dadecal`): a size, a lifetime, a fade at the end of it and a colour, drawn as a soft disc (opaque in the middle, clear at the rim) lifted two centimetres off its surface, in a pool of 64 that replaces its oldest.
+
+- The decision spawns impact decals at the confirmed impact position and normal. The session publishes no hit position (step 1: there is no public hit event without an effect), so the first decal is laid at the feet of the actor whose cue starts, facing up. It is confirmed (the hit cue is not predictable), but it is not projected onto the collision: on a slope or a step it floats or sinks. A material (texture), receiver masks, attachment to moving surfaces are not in this slice.
+
+**Drawing.** `VfxService` gains `quads()`: plain coloured quads drawn after the effects with the pipelines it already has, depth tested and not depth written; decals alpha blended, trails additive. The logic that builds them (`WeaponTrails`, `DecalPool` in engine/runtime) knows no renderer and is tested without one.
+
+**Authoring.** Trails and decals are native drafts listed under the cue form in the VFX tab, with New trail, New decal and a small form each; the cue form picks them.
+
+## Weapon trails and decals: built (12 October 2026)
+
+### Built
+
+- **Definitions and logic** (engine/runtime/presentation_primitives.cpp): `decode_trail`, `decode_decal`, `WeaponTrails` (begin, one sample a tick, break on a jump of more than three metres, point cap, fade by age, end, retire, a bound of 32 trails) and `DecalPool` (a soft disc of twelve slices in the plane of its surface, a fade at the end of its life, a bound of 64 that replaces the oldest). Both build plain coloured quads and know no renderer.
+- **Assets**: `.datrail` and `.dadecal` are native leaf sources (engine/assets/primitive_cooker.cpp, `load_cooked_trails`, `load_cooked_decals`). A cue has two optional fields, `trail` and `decal`; the cue cooker resolves them to `trail_asset` and `decal_asset`. A cue with only a trail or a decal is valid and goes to the visual side.
+- **Drawing**: `VfxService::quads` queues plain coloured quads for the next draw; they are drawn after the effects with the existing pipelines, depth tested and not depth written, decals alpha blended and trails additive.
+- **In Play** (apps/editor/primitive_cue_sink.hpp): a cue's trail emits while the cue is live and is sampled once a presented tick from the socket's joint in the pose the client draws; a cue's decal is laid at the feet of the cue's actor when the cue starts. The Cues tab shows live trails, points, decals and quads drawn.
+- **Authoring**: the cue form has Weapon trail and Decal pickers; below it the VFX tab lists trails and decals with New trail, New decal and a form each (socket, base and tip offsets, lifetime, points, colour; size, lifetime, fade, colour). The cue form's Sound picker now also lists sound definitions.
+- **Content**: a placeholder swing trail on the right weapon socket and a placeholder scuff decal; the swing cue names the trail and its tail is 24 ticks so emission covers the sweep; the hit cue names the decal.
+
+### Limits
+
+- Emission follows the cue's life, not an interval of the action (cue blocks are markers). The swing trail therefore also covers the wind-up.
+- One sample per presented frame: a frame that runs several ticks samples once.
+- The decal is at the actor's feet facing up, not projected onto the collision; no material, no receiver mask, no attachment to moving surfaces.
+- The trail's offsets were chosen by looking at one capture; the character holds no visible weapon, so the strip stands for a blade from the hand.
+- No width or colour curves, no subdivision between samples.
+- Late join does not reconstruct a trail in progress, as the decision says it need not.
+
+### Verified
+
+- `PresentationPrimitiveTests` (`M7.presentation_primitives`, new): sources and refusals; a trail holding one pair a tick, fading from tip to base and from new to old, breaking at a teleport with no quad across the gap, keeping to its point cap, dropping aged pairs, ending and being forgotten once faded, the set's bound, an actor leaving; a decal's disc (opaque centre, clear rim at half its size, flat on a floor, in the plane of a wall), its fade and expiry, the pool's bound; a cue naming a trail and a decal cooking with their identities, a missing trail and a decal named as a trail refused; the cue player sending a trail-only cue to the visual side alone and releasing it after its tail.
+- `CueAssetTests` updated for the swing cue's trail.
+- Editor gate `cues-swing-d3d12` (extended): after the Light press and its hit there is a live trail with at least two pairs, a decal, quads of both drawn, and nothing missing. The capture was looked at: a pale ribbon swept from the player's weapon hand, and a dark soft disc under the dummy that was hit.
+- One full pass: the build shows only the known `RoyalCollisionTests` link failure; **CTest 96 of 97** (only `M4.royal_mesh_collision`); all **58** verify gates pass.
+
+Not verified: the trail and decal forms' widgets by hand; a trail on an NPC's swing by eye; a decal on anything but flat ground; many trails at once; Vulkan.
+

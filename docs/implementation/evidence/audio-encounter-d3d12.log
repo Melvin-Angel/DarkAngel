@@ -5,16 +5,17 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
-[39mViewport foreground pixels=864604 capture=C:\DarkAngel\docs\implementation\evidence\audio-encounter-d3d12.png
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205350000
+[39mViewport foreground pixels=864576 capture=C:\DarkAngel\docs\implementation\evidence\audio-encounter-d3d12.png
 Editor encounter fired=1 spawned=2 alive=2 wave=1 actors=2 volumes_drawn=2 player_z=9.66667 events=play.started,gate.entered,gate.fight_started hud_target=Royal Guard readouts=2
 Editor audio workspace=0 waves=6 definitions=3 profiles=2 mixers=1 driver=null loaded=6 playing=2 started=15 audition=0 bus_music=1 bus_ambient=0.501187 bus_npc=0.25 limit=0 director=1 profile=be7471d9-3d66-4154-a5c7-c5ce55d425ea music=5bf01c2f-d8ef-4ef7-af7c-654151b2636b ambient=1 layers=1 missing=0
 DarkAngel editor rendered 200 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 12/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 1003.75 KB / 1003.75 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 98.0%
+                       Peak used/aligned/allocated size: 1004.25 KB / 1004.25 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 98.1%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
-                       Total allocated memory: 2.00 MB
+                       Total allocated memory: 3.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:
 QUERY_TYPE_OCCLUSION          :    0/ 128
 QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
@@ -25,7 +26,7 @@ QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 118 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) | 512/8192 (6.25%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) | 768/8192 (9.38%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 5/1024 (0.49%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).

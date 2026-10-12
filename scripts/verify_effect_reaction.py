@@ -60,9 +60,9 @@ run('mask-placement-d3d12',worn+['--exercise-upper-body','--frames','30','--mask
 def cues(log):
     line=[l for l in log.splitlines() if l.startswith('Editor cues ')][-1];return dict(part.split('=') for part in line.split()[2:])
 seen=cues(run('cues-swing-d3d12',common+['--exercise-combat','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-swing-d3d12.png']))
-# The swing sound starts on the predicted press; the Light's hit applies Flinch, whose cue plays the hit spark and the hit sound.
+# The swing sound and the weapon trail start on the predicted press; the Light's hit applies Flinch, whose cue plays the hit spark and the hit sound and lays a decal.
 # A hidden run has no audio device: the service runs on its silent driver and the lifecycle is the same.
-if not(int(seen['assets'])>=3 and [key for key in seen['audio'].split(',') if key!='Footstep']==['Attack.Start','Status.Flinch'] and seen['visual']=='Status.Flinch' and seen['vfx_missing']=='0' and int(seen['vfx_loaded'])>=1):raise RuntimeError('Editor Play did not present the swing and hit cues: '+str(seen))
+if not(int(seen['assets'])>=3 and [key for key in seen['audio'].split(',') if key!='Footstep']==['Attack.Start','Status.Flinch'] and seen['visual']=='Attack.Start,Status.Flinch' and seen['vfx_missing']=='0' and int(seen['vfx_loaded'])>=1 and int(seen['trails'])>=1 and int(seen['trail_points'])>=2 and int(seen['decals'])>=1 and int(seen['primitive_quads'])>0 and seen['primitive_missing']=='0'):raise RuntimeError('Editor Play did not present the swing and hit cues: '+str(seen))
 if not(seen['audio_service']=='1' and seen['audio_device']=='0' and int(seen['audio_loaded'])>=2 and int(seen['audio_played'])>=2 and seen['audio_missing']=='0'):raise RuntimeError('Editor Play did not play the swing and hit sounds on the silent driver: '+str(seen))
 # Footsteps: the player runs forward for two seconds and is heard doing it, a step every stride of ground covered, from its predicted position.
 seen=cues(run('cues-footsteps-d3d12',common+['--exercise-character','--exercise-cues','--frames','120','--capture',EVIDENCE/'cues-footsteps-d3d12.png']))

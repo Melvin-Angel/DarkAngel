@@ -6,6 +6,7 @@
   "key": "Attack.Start",
   "visual": "",
   "audio": "audio/placeholder/swing.wav",
-  "tail_ticks": 12,
-  "predictable": true
+  "tail_ticks": 24,
+  "predictable": true,
+  "trail": "vfx/trails/swing.datrail"
 }

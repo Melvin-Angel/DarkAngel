@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "kind": "decal",
+  "asset": "4e9a1989-265f-447e-b48f-0500a3820b35",
+  "name": "Scuff (placeholder)",
+  "size": 1.4,
+  "lifetime_ticks": 600,
+  "fade_ticks": 120,
+  "color": [
+    0.05,
+    0.04,
+    0.03,
+    0.55
+  ]
+}

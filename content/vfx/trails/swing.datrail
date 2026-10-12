@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "kind": "trail",
+  "asset": "9ae99a8f-0b8f-462d-9616-3720f9a788ce",
+  "name": "Swing trail (placeholder)",
+  "socket": "weapon_right",
+  "base": [
+    0.0,
+    0.1,
+    0.0
+  ],
+  "tip": [
+    0.0,
+    0.9,
+    0.0
+  ],
+  "lifetime_ticks": 12,
+  "max_points": 24,
+  "color": [
+    1.0,
+    0.9,
+    0.7,
+    0.6
+  ]
+}

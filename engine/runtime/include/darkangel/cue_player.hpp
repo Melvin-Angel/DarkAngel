@@ -20,9 +20,13 @@ namespace darkangel {
 //   tail_ticks      how long an instance may fade after it is stopped before it is released
 //   predictable     an owner may start it from its own prediction; it is cut if the activation is rejected
 //   key, name       the cue key the asset answers to, and its display name (both empty for a definition made in code)
-struct CueDefinition {AssetId id;std::string visual,audio;unsigned tail_ticks{30};bool predictable{};std::string key,name;AssetId visual_asset,audio_asset;};
+struct CueDefinition {AssetId id;std::string visual,audio;unsigned tail_ticks{30};bool predictable{};std::string key,name;AssetId visual_asset,audio_asset;
+    // Native primitives beside the effect: a weapon trail emitted while the cue is live, a decal laid under the actor when it starts.
+    std::string trail,decal;AssetId trail_asset,decal_asset;
+    // What the visual side presents: an effect, a trail or a decal.
+    bool visible()const{return !visual.empty()||!trail.empty()||!decal.empty();}};
 // The native cue source (.dacue): schema 1, kind "cue", asset, name, key, visual, audio, tail_ticks, predictable.
-// At least one of visual and audio is named. Throws on anything else. A cooked cue also carries visual_asset and audio_asset,
+// Optional: trail and decal (paths of a .datrail and a .dadecal). At least one of visual, audio, trail and decal is named. Throws on anything else. A cooked cue also carries visual_asset and audio_asset,
 // the identities the cooker resolved the two names to (an empty string where nothing is named).
 CueDefinition decode_cue(std::string_view);
 // Whose action a cue block belongs to, as this client sees it. Another actor's action is Observed: confirmed public

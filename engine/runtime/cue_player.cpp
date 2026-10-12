@@ -21,12 +21,12 @@ void CuePlayer::stop(std::map<Source,Instance>::iterator found,unsigned tail,std
 bool CuePlayer::start(const Source& source,std::string_view key,AssetId cue,std::uint64_t tick){
     // The same source starting again while it is live is one cue, not two.
     if(auto held=instances_.find(source);held!=instances_.end()){if(!held->second.stopping)return false;release(held);}
-    const auto definition=resolver_(key,cue);if(!definition||(definition->visual.empty()&&definition->audio.empty())){++unresolved_;return false;}
+    const auto definition=resolver_(key,cue);if(!definition||(!definition->visible()&&definition->audio.empty())){++unresolved_;return false;}
     if(instances_.size()>=limits_.live){
         // Room is taken from the fading instance that would end first; a player full of live cues drops the new one.
         auto oldest=instances_.end();for(auto at=instances_.begin();at!=instances_.end();++at)if(at->second.stopping&&(oldest==instances_.end()||at->second.until<oldest->second.until))oldest=at;
         if(oldest==instances_.end()){++dropped_;return false;}release(oldest);}
-    Instance instance;instance.id=next_++;instance.started=tick;instance.key=std::string(key);instance.visual=!definition->visual.empty();instance.audio=!definition->audio.empty();
+    Instance instance;instance.id=next_++;instance.started=tick;instance.key=std::string(key);instance.visual=definition->visible();instance.audio=!definition->audio.empty();
     const CueStart begun{instance.id,source.network,tick,instance.key,*definition};instances_.emplace(source,instance);
     if(instance.visual&&visual_)visual_->start(begun);if(instance.audio&&audio_)audio_->start(begun);return true;
 }
@@ -103,16 +103,18 @@ std::vector<ActionCueUpdate> ActionCueTracker::drain_cues(){return std::exchange
 std::vector<ActionCueCut> ActionCueTracker::drain_cuts(){return std::exchange(cuts_,{});}
 CueDefinition decode_cue(std::string_view text){
     using Json=nlohmann::json;require(text.size()<=4096,"Cue source size bound");const auto value=Json::parse(text);
-    const bool cooked=value.is_object()&&value.contains("visual_asset");require(value.is_object()&&value.size()==(cooked?11u:9u)&&(!cooked||value.contains("audio_asset")),"Cue source field count");for(auto field:{"schema","kind","asset","name","key","visual","audio","tail_ticks","predictable"})require(value.contains(field),"Cue source missing/unknown field");
+    const bool cooked=value.is_object()&&value.contains("visual_asset");require(value.is_object(),"Cue source field count");std::size_t known=9;for(auto field:{"schema","kind","asset","name","key","visual","audio","tail_ticks","predictable"})require(value.contains(field),"Cue source missing/unknown field");
+    for(auto field:{"trail","decal"})if(value.contains(field))++known;if(cooked){require(value.contains("audio_asset"),"Cue source field count");known+=2;for(auto field:{"trail_asset","decal_asset"})if(value.contains(field))++known;}require(known==value.size(),"Cue source missing/unknown field");
     require(value.at("schema")==1&&value.at("kind")=="cue","Cue source schema/type");CueDefinition cue;cue.id=AssetId::parse(value.at("asset").get<std::string>());require(cue.id!=AssetId{},"Cue identity");
     const auto word=[&](const char* field,std::size_t limit,bool empty,const char* letters,const char* error){require(value.at(field).is_string(),error);auto read=value.at(field).get<std::string>();require((empty||!read.empty())&&read.size()<=limit&&read.find_first_not_of(letters)==read.npos,error);return read;};
     const char* typed="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-";const char* path="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-/";
     require(value.at("name").is_string(),"Cue name type");cue.name=value.at("name").get<std::string>();require(!cue.name.empty()&&cue.name.size()<=64,"Cue display name bounds (1 to 64 characters)");
     cue.key=word("key",64,false,typed,"Cue key: 1 to 64 letters, digits, '_', '.' or '-'");cue.visual=word("visual",128,true,path,"Cue visual name");cue.audio=word("audio",128,true,path,"Cue audio name");
-    require(!cue.visual.empty()||!cue.audio.empty(),"A cue names a visual, a sound or both");
+    if(value.contains("trail"))cue.trail=word("trail",128,true,path,"Cue trail name");if(value.contains("decal"))cue.decal=word("decal",128,true,path,"Cue decal name");
+    require(cue.visible()||!cue.audio.empty(),"A cue names an effect, a sound, a trail or a decal");
     require(value.at("tail_ticks").is_number_unsigned()&&value.at("tail_ticks").get<std::uint64_t>()<=600,"Cue tail bounds (0 to 600 ticks)");cue.tail_ticks=value.at("tail_ticks").get<unsigned>();
     require(value.at("predictable").is_boolean(),"Cue predictable flag type");cue.predictable=value.at("predictable").get<bool>();
-    if(cooked){const auto resolved=[&](const char* field,const std::string& name){require(value.at(field).is_string(),"Cooked cue reference type");const auto text=value.at(field).get<std::string>();require(text.empty()==name.empty(),"Cooked cue reference does not match its name");return text.empty()?AssetId{}:AssetId::parse(text);};cue.visual_asset=resolved("visual_asset",cue.visual);cue.audio_asset=resolved("audio_asset",cue.audio);}
+    if(cooked){const auto resolved=[&](const char* field,const std::string& name){require(value.at(field).is_string(),"Cooked cue reference type");const auto text=value.at(field).get<std::string>();require(text.empty()==name.empty(),"Cooked cue reference does not match its name");return text.empty()?AssetId{}:AssetId::parse(text);};cue.visual_asset=resolved("visual_asset",cue.visual);cue.audio_asset=resolved("audio_asset",cue.audio);require(value.contains("trail_asset")==!cue.trail.empty()&&value.contains("decal_asset")==!cue.decal.empty(),"Cooked cue reference does not match its name");if(!cue.trail.empty())cue.trail_asset=resolved("trail_asset",cue.trail);if(!cue.decal.empty())cue.decal_asset=resolved("decal_asset",cue.decal);}
     return cue;
 }
 std::size_t CuePlayer::live()const{return instances_.size();}

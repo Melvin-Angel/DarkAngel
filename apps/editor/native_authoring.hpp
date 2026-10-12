@@ -28,6 +28,9 @@ public:
     AssetId create_behavior(AssetService&,std::string_view name);
     // A cue source under vfx/cues with a key of its own and no effect or sound yet; it is valid once one is chosen.
     AssetId create_cue(AssetService&,std::string_view name);
+    // Native presentation primitives a cue may name: a weapon trail under vfx/trails, a decal under vfx/decals.
+    AssetId create_trail(AssetService&,std::string_view name);
+    AssetId create_decal(AssetService&,std::string_view name);
     // Audio sources: a definition of how one WAV is played, the project mixer (audio/project.damix), an empty audio profile.
     AssetId create_sound_definition(AssetService&,AssetId wave,std::string_view wave_path,std::string_view name);
     AssetId create_audio_mix(AssetService&);

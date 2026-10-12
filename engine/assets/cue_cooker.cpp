@@ -6,7 +6,7 @@ namespace darkangel::assets_detail {
 // A cue's effect and sound are resolved to identities through their import sidecars, which are inputs of the cue. Their products are not
 // carried in the cue's closure (cooking an effect runs the Effekseer tool); whoever packages a cue adds the two identities as roots.
 Import import_cue(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
-    auto bytes=read(source,4096);auto data=json(bytes,4096);require(data.is_object()&&!data.contains("visual_asset")&&!data.contains("audio_asset"),"A cue source names its effect and sound by path; the cooker resolves them");auto cue=decode_cue(bytes);
+    auto bytes=read(source,4096);auto data=json(bytes,4096);require(data.is_object()&&!data.contains("visual_asset")&&!data.contains("audio_asset")&&!data.contains("trail_asset")&&!data.contains("decal_asset"),"A cue source names its effect and sound by path; the cooker resolves them");auto cue=decode_cue(bytes);
     Import result;result.identities.push_back(cue.id);result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);
     const auto resolve=[&](const std::string& name,bool visual){if(name.empty())return std::string{};const auto file=within(root,name);const auto extension=file.extension();
         require(visual?(extension==".efkproj"||extension==".efkefc"):(extension==".wav"||extension==".dasound"),visual?"A cue's effect is an Effekseer effect of the project (.efkproj or .efkefc)":"A cue's sound is a sound (.wav) or a sound definition (.dasound) of the project");
@@ -16,6 +16,10 @@ Import import_cue(const std::filesystem::path& root,const std::filesystem::path&
         const auto text=read(sidecar,1024*1024);const auto metadata=json(text);require(metadata.at("schema")==1&&metadata.at("importer")==(visual?"effekseer-v1":"sound-wav-v1"),visual?"A cue's effect was not imported as an effect":"A cue's sound was not imported as a sound");
         result.inputs[sidecar.lexically_relative(root).generic_string()]=sha256(text);return AssetId::parse(metadata.at("id").get<std::string>()).text();};
     data["visual_asset"]=resolve(cue.visual,true);data["audio_asset"]=resolve(cue.audio,false);
+    // A trail and a decal are native sources: their identity is in the file itself, and the file is an input of the cue.
+    const auto native=[&](const std::string& name,const char* extension,const char* kind,const char* error){const auto file=within(root,name);require(file.extension()==extension&&std::filesystem::is_regular_file(file),error);const auto text=read(file,4096);const auto definition=json(text,4096);require(definition.is_object()&&definition.value("kind",std::string{})==kind&&definition.contains("asset"),error);result.inputs[file.lexically_relative(root).generic_string()]=sha256(text);return AssetId::parse(definition.at("asset").get<std::string>()).text();};
+    if(!cue.trail.empty())data["trail_asset"]=native(cue.trail,".datrail","trail","A cue's trail is a weapon trail of the project (.datrail)");else data.erase("trail");
+    if(!cue.decal.empty())data["decal_asset"]=native(cue.decal,".dadecal","decal","A cue's decal is a decal of the project (.dadecal)");else data.erase("decal");
     if(!inspect){require(ids.size()==1&&ids.at("$source")==cue.id,"Cue source UUID mismatch");result.products.push_back({cue.id,"cue","cue.json",data.dump(),{}});}return result;}
 }
 namespace darkangel {

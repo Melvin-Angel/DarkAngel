@@ -7,5 +7,6 @@
   "visual": "vfx/placeholder/hit_spark.efkproj",
   "audio": "audio/placeholder/hit.wav",
   "tail_ticks": 30,
-  "predictable": false
+  "predictable": false,
+  "decal": "vfx/decals/scuff.dadecal"
 }
