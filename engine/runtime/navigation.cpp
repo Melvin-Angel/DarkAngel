@@ -70,6 +70,16 @@ NavigationMesh::~NavigationMesh()=default;
 unsigned NavigationMesh::polygons()const{return impl_->polygons;}
 namespace {struct Timed {NavigationMesh::Usage& usage;std::chrono::steady_clock::time_point start=std::chrono::steady_clock::now();~Timed(){++usage.queries;usage.microseconds+=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();}};}
 NavigationMesh::Usage NavigationMesh::usage()const{return impl_->usage;}
+std::vector<NavigationMesh::Edge> NavigationMesh::outline()const{
+    std::vector<Edge> result;const dtNavMesh* mesh=impl_->mesh;
+    for(int index=0;index<mesh->getMaxTiles();++index){const dtMeshTile* tile=mesh->getTile(index);if(!tile||!tile->header)continue;
+        for(int polygon=0;polygon<tile->header->polyCount;++polygon){const dtPoly& poly=tile->polys[polygon];if(poly.getType()==DT_POLYTYPE_OFFMESH_CONNECTION)continue;
+            for(unsigned edge=0;edge<poly.vertCount;++edge){const unsigned short neighbour=poly.neis[edge];const bool border=neighbour==0;
+                // An inner edge belongs to two polygons of the tile: it is listed from the lower one.
+                if(!border&&!(neighbour&DT_EXT_LINK)&&int(neighbour)-1<polygon)continue;
+                const float* a=&tile->verts[std::size_t(poly.verts[edge])*3];const float* b=&tile->verts[std::size_t(poly.verts[(edge+1)%poly.vertCount])*3];result.push_back({{a[0],a[1],a[2]},{b[0],b[1],b[2]},border});}}}
+    return result;
+}
 std::optional<std::vector<MotorVec>> NavigationMesh::path(MotorVec from,MotorVec to,unsigned limit)const{
     Timed timed{impl_->usage};
     require(limit>=2&&limit<=256&&std::isfinite(from.x)&&std::isfinite(from.y)&&std::isfinite(from.z)&&std::isfinite(to.x)&&std::isfinite(to.y)&&std::isfinite(to.z),"Navigation path query bounds");

@@ -21,6 +21,9 @@ public:
     // included. Empty when either end is off the mesh or no complete path exists.
     std::optional<std::vector<MotorVec>> path(MotorVec from,MotorVec to,unsigned limit=64)const;
     unsigned polygons()const;
+    // The mesh's polygon edges, each once, for drawing. border: an edge with no neighbouring polygon.
+    struct Edge {MotorVec from,to;bool border{};};
+    std::vector<Edge> outline()const;
     // Path queries answered so far and the time they took, for profiling.
     struct Usage {std::uint64_t queries{};double microseconds{};};
     Usage usage()const;

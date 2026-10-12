@@ -93,6 +93,9 @@ if not(marker(log,'noticed_tick','Editor senses ')>60 and marker(log,'noticed_z'
 # Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.
 log=run('navigation-tool-d3d12',common+['--exercise-navigation-bake','--frames','5','--capture',EVIDENCE/'navigation-tool-d3d12.png'])
 if 'play_reuses_bake=1 on_demand_for_other_collision=1' not in log:raise RuntimeError('Navigation tool did not bake: '+log[-400:])
+# The baked navigation mesh drawn over the Scene viewport.
+log=run('navigation-overlay-d3d12',common+['--exercise-navigation-overlay','--frames','5','--capture',EVIDENCE/'navigation-overlay-d3d12.png'])
+if 'Editor navigation_overlay polygons=' not in log:raise RuntimeError('Navigation overlay was not drawn: '+log[-400:])
 # Level design: the Place panel's catalogue and its place, delete, undo and redo commands on the training scene.
 log=run('place-panel-d3d12',common+['--exercise-place','--frames','5','--capture',EVIDENCE/'place-panel-d3d12.png'])
 if 'Place panel items=' not in log or 'delete_undo_redo=1' not in log or 'on_collision=1' not in log:raise RuntimeError('Place panel did not place and delete scene objects: '+log[-400:])

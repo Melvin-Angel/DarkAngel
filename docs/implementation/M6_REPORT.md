@@ -421,3 +421,11 @@ Written before any code. Goal: see the baked navigation mesh over the scene, to 
 - **Editor.** Placement: a checkbox "Show in the viewports" in Tools > Navigation, next to the bake, because the overlay shows that bake (the user's earlier decision put baking there). It draws through the existing viewport overlay that already draws senses and encounter volumes: inner edges thin, border edges brighter, lifted a few centimetres off the surface. It shows the current bake; without a bake the checkbox says so and nothing is drawn.
 - **Gate.** `navigation-tool-d3d12` bakes already; it also turns the overlay on and requires that edges were drawn in the Scene viewport. Editor-only change apart from the read-only accessor.
 - **Not in this step.** No filled polygons, no path preview, no per-area colours, no off-mesh links (the mesh has none).
+
+## Navigation mesh overlay: built (12 October 2026)
+
+Built as designed. `NavigationMesh::outline()` in engine/runtime/navigation.cpp; the checkbox "Show in the viewports" in Tools > Navigation; drawing in the viewport overlay of apps/editor/main.cpp (Scene and Game viewports). The outline is taken once at bake time.
+
+**Verified:** gate `navigation-overlay-d3d12` (`--exercise-navigation-overlay`) on the training scene: 52 polygons, 154 edges of which 104 on the border, all drawn. The capture was looked at: a bright border runs round the walkable ground and round each of the two huts, with thin inner edges between polygons across the ground. NavigationTests passes. This is an editor-only change apart from the read-only accessor, so only its own gate was run, standalone after CTest with the verify script's common arguments; the full verify script and CTest were not re-run for it.
+
+**Not verified:** the checkbox itself was not clicked by a gate (the exercise sets the same flag); the Game viewport was not captured with the overlay; a stale bake still draws (the tool already says when a bake is stale).
