@@ -64,9 +64,9 @@ Not checked yet: the interface names above are Effekseer's as I know them from i
 ### Order of work
 
 1. `CuePlayer`, the two sink interfaces, the cue asset and its cooker, lifecycle tests with recording sinks (no new dependency used). One chunk.
-2. Effekseer runtime built and linked; the Diligent renderer for sprites and ribbons; one owned placeholder effect each for a hit spark on the Light attack's hit and a Burn aura on its effect cue, in Editor Play, with a capture looked at. One chunk, the largest. It settles how an effect source becomes `.efk` (see "VFX tab").
+2. Effekseer runtime built and linked; the Diligent renderer for sprites and ribbons; one owned placeholder effect each for a hit spark on the Light attack's hit and a Burn aura on its effect cue, in Editor Play, with a capture looked at. One chunk, the largest. It checks the Effekseer editor's command-line export, which the cooker and the placeholder effects both depend on (see "VFX tab").
 3. Amplitude rebuilt and linked; the adapter; placeholder tones for swing and hit, the swing predicted for the owner; a no-device run. One chunk.
-4. The VFX tab: catalog, effect form, preview viewport, the cue form. Then rings/tracks/models, trails and decals, footsteps, ambient and music.
+4. The VFX tab: catalog, "Edit in Effekseer" with re-cook on save, preview viewport, the cue form. Then rings/tracks/models, trails and decals, footsteps, ambient and music.
 
 Runtime UI as authored content ([UI_PLAN.md](UI_PLAN.md)) is not part of this order: the user deferred it on 12 October 2026.
 
@@ -87,25 +87,25 @@ The three questions that stood here are answered:
 
 The same message asked for two additions to the plan:
 
-- A **VFX tab** in the editor where Effekseer effects are created. This replaces the earlier placement decision ("Effekseer's own editor stays the tool for building an effect"); see "VFX tab" below.
+- A **VFX tab** in the editor for Effekseer effects. Later the same day the user chose how: Effekseer's own editor as a companion tool opened from the tab, no particle form of our own, no live link and no window embedding; see "VFX tab" below.
 - **Runtime UI as authored content**: a UI tab for editing UI documents, UI documents attached to NPCs (world space) and to the Player (screen-space HUD, world space later), and a place for main menus in the same system. That is its own plan, [UI_PLAN.md](UI_PLAN.md), which the user deferred the same day.
 
-### VFX tab (added 12 October 2026, user request)
+### VFX tab (added 12 October 2026, user request; revised the same day)
 
-A top-level **VFX** workspace (`Workspace::Vfx`), matching item 9 of the vision ("VFX Designer"). It is where an effect is created, edited, previewed and bound, without leaving the editor.
+A top-level **VFX** workspace (`Workspace::Vfx`), item 9 of the vision ("VFX Designer"). User decision of 12 October 2026: effects are built in Effekseer's own editor, opened from the tab as a companion tool. The tab does not have its own particle form, Effekseer's window is not placed inside ours, and there is no live link between the two; an edit shows up when the file is saved.
 
-What it holds:
+What the tab holds:
 
-- **Catalog** of effect assets under `content/vfx/`, with New, Duplicate and Delete as ordinary draft operations (Undo/Redo, validation, coordinated Save), like every other native source.
-- **Effect form.** An effect is a tree of nodes; each node has spawn (count, rate, lifetime, delay), shape and motion (position, velocity, acceleration, rotation, scale, each fixed, random in a range or eased over life), and a drawing kind (sprite, ribbon, ring, track, model) with texture, colour over life and blend mode. The form edits the subset the Diligent renderer draws; a node kind or feature the renderer does not support cannot be created here, and an imported effect that uses one is refused at cook time, as already designed.
-- **Preview viewport**: the effect playing in a loop on its own, or attached to the preview character at a chosen joint; play, pause, restart, a time scrubber and live instance and particle counts. No session is involved.
-- **Cues**: the cue asset (`.dacue`) form moves here from the planned "Cues section of the Ability tab", because a cue is where an effect and a sound are bound to an attachment and a tail, and the preview is here. The Ability tab's effect form and the Composer's cue blocks still pick a cue by asset.
-- **Import** of `.efkefc`/`.efkproj` made in Effekseer's own editor stays supported; the tab does not replace that tool for effects beyond the supported subset.
+- **Catalog** of effect assets under `content/vfx/`: New (from a small template effect), Duplicate, Delete, Import of an existing `.efkefc` or `.efkproj`.
+- **Edit in Effekseer**: opens the selected effect's source in the acquired Effekseer editor (`.tools/effekseer-editor`). The editor watches the source file; when it is saved there, the effect is cooked again and the preview and any running Play pick up the new product. A failed cook keeps the previous product and shows the reason in the tab.
+- **Preview viewport**, drawn by our own Diligent renderer, so it shows what the game will show: the effect in a loop on its own, or attached to the preview character at a chosen joint; play, pause, restart, a time scrubber, live instance and particle counts. No session is involved.
+- **What our renderer does not draw.** An effect can use features that look right in Effekseer and that our renderer lacks (distortion and custom materials in the first slice). The cook refuses such an effect, as already designed, and the tab names the feature and the node, so the difference between the two tools is never silent.
+- **Cues**: the cue asset (`.dacue`) form lives here (not in a Cues section of the Ability tab), because a cue is where an effect and a sound are bound to an attachment and a tail, and the preview is here. The Ability tab's effect form and the Composer's cue blocks pick a cue by asset; that is also when a cue becomes a real dependency of what names it.
 
-The decision that has to be made before building it, and what is not checked:
+How a source becomes what the runtime loads, and what is not checked:
 
-- The Effekseer runtime loads compiled `.efk` binaries. The editable sources (`.efkproj`, XML; `.efkefc`, a container around it) are compiled by Effekseer's editor. For the tab to create an effect, the engine needs one of: (a) a native effect source (`.davfx`, JSON, the form's own data) that our cooker writes to `.efk` directly for the supported subset; (b) the form writing `.efkproj` and the cooker running the acquired Effekseer tool's command-line export. (a) has no tool dependency at cook time and keeps headless cooks simple, but means owning a writer for a binary format that changes between Effekseer versions (the runtime is pinned, so the format is fixed for now). (b) reuses Effekseer's exporter and keeps files openable in Effekseer's editor, but puts a Windows GUI tool in the cook path. My default is (b) if the pinned editor has a working command-line export, with the exported `.efk` stored as the cooked product so a cook without the tool can still reuse it; otherwise (a). Not checked: whether Effekseer 1.80.7's editor exports from the command line without a window, and the `.efkproj` schema for the node features listed above. Check both when step 2 reads the pinned source; the placeholder effects of step 2 need the same answer, since I cannot use the GUI.
-- The first placeholder effects (hit spark, Burn aura) are authored through whichever path is chosen, so they are the first test of it.
+- The Effekseer runtime loads compiled `.efk` binaries; the sources Effekseer's editor saves (`.efkefc`, and `.efkproj` in XML) are compiled by that editor. The cooker therefore needs a way to compile without a person: the acquired editor's command-line export, with the exported `.efk` stored as the cooked product so a cook on a machine without the tool reuses it. Not checked: whether Effekseer 1.80.7's editor exports from the command line without opening a window. Step 2 checks it first. If it cannot, the fallback is that the user exports `.efk` from Effekseer next to the source and the cooker takes that file; our own `.efk` writer is no longer planned.
+- The first placeholder effects (hit spark, Burn aura) are authored by me without the GUI, by writing the `.efkproj` XML directly, starting from one of the samples shipped with the editor, and compiling it through the same export. They are the first test of that path. Not checked: the `.efkproj` schema; read it from the samples and the pinned source.
 
 ## Step 1, first part: the cue player (12 October 2026)
 
