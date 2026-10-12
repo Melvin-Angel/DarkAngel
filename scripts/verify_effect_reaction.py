@@ -60,11 +60,14 @@ run('mask-placement-d3d12',worn+['--exercise-upper-body','--frames','30','--mask
 def cues(log):
     line=[l for l in log.splitlines() if l.startswith('Editor cues ')][-1];return dict(part.split('=') for part in line.split()[2:])
 seen=cues(run('cues-swing-d3d12',common+['--exercise-combat','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-swing-d3d12.png']))
-if not(int(seen['assets'])>=2 and seen['audio']=='Attack.Start' and seen['audio_starts']=='1' and seen['audio_stops']=='1' and seen['audio_live']=='0' and seen['visual']=='none'):raise RuntimeError('Editor Play did not present the swing cue once: '+str(seen))
+# The swing sound starts on the predicted press; the Light's hit applies Flinch, whose cue plays the hit spark and the hit sound.
+# A hidden run has no audio device: the service runs on its silent driver and the lifecycle is the same.
+if not(int(seen['assets'])>=3 and seen['audio'].split(',')==['Attack.Start','Status.Flinch'] and seen['visual']=='Status.Flinch' and seen['vfx_missing']=='0' and int(seen['vfx_loaded'])>=1):raise RuntimeError('Editor Play did not present the swing and hit cues: '+str(seen))
+if not(seen['audio_service']=='1' and seen['audio_device']=='0' and int(seen['audio_loaded'])>=2 and seen['audio_played']=='2' and seen['audio_missing']=='0'):raise RuntimeError('Editor Play did not play the swing and hit sounds on the silent driver: '+str(seen))
 seen=cues(run('cues-burn-d3d12',common+['--exercise-reaction','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-burn-d3d12.png']))
-if not('Status.Burn' in seen['visual'].split(',') and int(seen['visual_live'])>=1 and seen['audio']=='none'):raise RuntimeError('Editor Play did not present the Burn aura cue: '+str(seen))
+if not('Status.Burn' in seen['visual'].split(',') and int(seen['visual_live'])>=1):raise RuntimeError('Editor Play did not present the Burn aura cue: '+str(seen))
 # The aura is a real effect: cooked from its Effekseer source, loaded, playing and drawn through the renderer, with nothing skipped.
-if not(seen['vfx_loaded']=='1' and seen['vfx_playing']=='1' and int(seen['vfx_particles'])>0 and int(seen['vfx_quads'])>0 and int(seen['vfx_draws'])>=1 and seen['vfx_unsupported']=='0' and seen['vfx_missing']=='0'):raise RuntimeError('Editor Play did not draw the Burn aura effect: '+str(seen))
+if not(int(seen['vfx_loaded'])>=1 and int(seen['vfx_playing'])>=1 and int(seen['vfx_particles'])>0 and int(seen['vfx_quads'])>0 and int(seen['vfx_draws'])>=1 and seen['vfx_unsupported']=='0' and seen['vfx_missing']=='0'):raise RuntimeError('Editor Play did not draw the Burn aura effect: '+str(seen))
 log=run('mask-switch-d3d12',worn+['--exercise-mask-switch','--frames','30','--capture',EVIDENCE/'mask-switch-d3d12.png'])
 if 'Editor mask switch tick=30 loadout=2 mask=test_air worn=0 pending=0' not in log:raise RuntimeError('Editor Play did not switch masks: '+log[-400:])
 run('camera-free-look-d3d12',worn+['--exercise-camera-look','--frames','30','--capture',EVIDENCE/'camera-free-look-d3d12.png'])

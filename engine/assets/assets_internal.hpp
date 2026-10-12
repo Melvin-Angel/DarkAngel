@@ -30,6 +30,7 @@ Import import_graph(const std::filesystem::path&,const std::filesystem::path&,co
 Import import_ability(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_effect(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_vfx(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+Import import_sound(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_cue(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_input(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_joint_mask(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);

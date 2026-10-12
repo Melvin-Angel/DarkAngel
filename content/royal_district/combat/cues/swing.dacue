@@ -5,7 +5,7 @@
   "name": "Swing",
   "key": "Attack.Start",
   "visual": "",
-  "audio": "royal_district/audio/swing",
+  "audio": "audio/placeholder/swing.wav",
   "tail_ticks": 12,
   "predictable": true
 }

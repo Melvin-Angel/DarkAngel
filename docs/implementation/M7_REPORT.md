@@ -210,3 +210,42 @@ A cue's visual is now a real effect: authored as an Effekseer project, cooked th
 - One full pass on the final build: the build shows only the known `RoyalCollisionTests` link failure; CTest 89 of 94 with the five known unrelated failures; all 52 verify gates pass.
 
 Not verified: ribbons, rings and tracks on screen (the shared code is built and reached the same way as sprites, but no owned effect uses them yet); blend modes other than additive; Vulkan; an effect stopping and fading at the end of Burn seen by eye; many effects at once.
+
+## Step 3: audio on Amplitude (12 October 2026)
+
+A cue's sound is now a real sound: a WAV asset, cooked, loaded into the Amplitude engine and played at the actor when the cue starts. The owner's swing plays on the predicted press; the hit plays when the Light's hit applies Flinch.
+
+### What was checked first
+
+- **The SDK built at M0 still works.** `scripts/build_amplitude.py --import-only` configures, links and runs the import probe against today's toolchain and the installed `amplitude-deps` packages. The SDK was not rebuilt.
+- **A silent driver exists.** The pinned Amplitude has a `null` driver beside `miniaudio`; a config that names it starts the whole engine without opening a device, and sounds still start, last their length and end. That is the no-device mode; nothing has to be faked above the engine.
+- **No HRTF data is needed** when the mixer's panning mode is stereo, and the WAV decoder is built in.
+
+### Built
+
+- **Sound assets** (engine/assets/sound_cooker.cpp, `darkangel/sound_assets.hpp`). A `.wav` file with an import sidecar (importer `sound-wav-v1`) is a source; a WAV file without a sidecar is not, like an image. Cooking validates it (16 or 24 bit PCM or 32 bit float, mono or stereo, 8 to 96 kHz, at most 16 MB) and stores it as it is.
+- **Placeholder sounds** (`content/audio/placeholder`, written by `scripts/generate_placeholder_audio.py`): a swing (swept noise) and a hit (a falling sine with a noise burst). Plainly stand-ins.
+- **Audio service** (engine/audio, library `DarkAngelAudio`, `darkangel::AudioService`). Amplitude wants a project on disk in its own binary formats; the service writes the smallest one it accepts into a folder of its own (engine config, a master bus with one child, the stereo pipeline, one distance attenuation: full gain within 2 m, silent at 40 m) and one sound definition and bank per loaded set, compiled in memory from JSON with the SDK's own schemas through the FlatBuffers parser. No `flatc` run and no Amplitude authoring tool is involved. It loads cooked sounds, plays one at a position, moves it, fades it out, follows a listener, advances, and reports the driver, loaded sounds, playing sounds and how many were started. A process has one; it can be destroyed and made again; it removes its folder.
+- **Cues play sounds** (apps/editor/audio_cue_sink.hpp). A cue's `audio` names a sound by its source path, as `visual` names an effect. A one-shot cue's sound plays out; a lasting cue stopped later fades by the cue's tail.
+- **The hit** (content): a new cue `hit.dacue` (key `Status.Flinch`, the hit spark and the hit sound, not predictable) and a cue binding on the owned Flinch effect. Flinch is what the Royal kit's Light hit applies, so the spark and the thud appear on the actor that was hit, from confirmed state.
+- **Editor Play** makes the audio service when the first Play needs it, on the audio device, or on the silent driver for a hidden run or with the new `--no-audio` flag. The listener is the Play camera. The Cues tab shows the driver and the counts.
+
+### Differences from the design, and limits
+
+- **Sounds are added, never unloaded** while the service lives. Unloading a sound bank while the mixer still referred to it crashed in the first version, so `load` only adds: a sound in a generation already loaded is left alone and a new generation of an asset is played from then on. A service holds at most 512 sound generations before it must be made again.
+- **No events, buses, RTPCs, switches or collections are authored.** Amplitude's own authoring model (events and banks as assets a designer edits) is not exposed; a cue plays one sound directly. Bus routing, mixing and randomised collections are step 4 work.
+- **One attenuation for every sound**, stereo panning only (no HRTF), no reverb, occlusion or environments.
+- **Positions**: the listener orientation is passed as forward and up vectors in our right-handed, Y-up space. That the left and right channels are the right way round was not heard.
+- **Not heard at all.** Every run so far used the silent driver, or started the device without playing anything. Whether the placeholder tones sound acceptable needs a person at the machine: start Play in the editor and swing.
+- **The schemas are read from the SDK folder in `.cache`** at run time; a packaged game needs them shipped (M9).
+- **Clock.** In the editor the audio engine is advanced on the session's tick clock, like effects; the mixer itself runs on Amplitude's own thread in real time.
+
+### Verified
+
+- `AudioTests` (`M7.audio`, new): the placeholder sounds in the catalog, cook, package and load with their format; a file that is not WAVE, a broken source and a WAV file without a sidecar are refused or ignored; the service on the silent driver loads, plays two sounds, moves one, lets a sound end by its length, ends a stopped sound early, leaves loaded sounds alone on a repeated load, takes a new generation, refuses a second service, starts again after being destroyed and leaves no folder behind. It also starts the service on this machine's audio device without playing anything ("Audio device: started"); a machine without a device reports that and passes.
+- Editor Play, D3D12, gate `cues-swing-d3d12` (extended): the Light press starts `Attack.Start` on the audio side at once; the hit applies Flinch and `Status.Flinch` starts the hit spark and the hit sound on the dummy; two sounds played, none missing, on the silent driver because the run is hidden. The [capture](evidence/cues-swing-d3d12.png) was looked at: sparks around the hit dummy and the Cues tab's audio and effect counts.
+- One full pass on the final build: the build shows only the known `RoyalCollisionTests` link failure; CTest 90 of 95 with the five known unrelated failures; all 52 verify gates pass.
+
+Not verified: any sound through loudspeakers; stereo placement; a lasting sound fading by a cue's tail (no owned cue has a lasting sound); many sounds at once; what happens when the audio device disappears during Play.
+
+Seen in passing, not part of M7: three of the five long-standing "known unrelated" CTest failures (`M5.actor_assets`, `M5.attribute_authoring`, `M5.composer_structure`) fail with "Asset staging write failed" on a file under `content/royal_district/RoyalCombat.dascene.records/`, which is the user's uncommitted scene. They copy the whole content folder; the long record file names under the deep test folder are the likely cause (path length), not checked.

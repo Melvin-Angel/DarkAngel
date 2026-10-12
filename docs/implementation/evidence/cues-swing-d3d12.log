@@ -5,14 +5,14 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
-[39mViewport foreground pixels=861115 capture=C:\DarkAngel\docs\implementation\evidence\cues-swing-d3d12.png
-Editor cues tick=30 assets=2 live=0 visual_live=0 audio_live=0 visual_starts=0 audio_starts=1 audio_stops=1 unresolved=0 visual=none audio=Attack.Start vfx_loaded=1 vfx_playing=0 vfx_particles=0 vfx_quads=0 vfx_draws=0 vfx_unsupported=0 vfx_missing=0
+[39mViewport foreground pixels=861103 capture=C:\DarkAngel\docs\implementation\evidence\cues-swing-d3d12.png
+Editor cues tick=30 assets=3 live=1 visual_live=1 audio_live=1 visual_starts=1 audio_starts=2 audio_stops=1 unresolved=0 visual=Status.Flinch audio=Attack.Start,Status.Flinch vfx_loaded=2 vfx_playing=1 vfx_particles=14 vfx_quads=13 vfx_draws=1 vfx_unsupported=0 vfx_missing=0 audio_service=1 audio_device=0 audio_loaded=2 audio_played=2 audio_missing=0
 Native combat editor tick=30 target_health=75 stamina=90 pending=0
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 10/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 232.00 KB / 232.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 22.7%
+                       Peak used/aligned/allocated size: 1004.00 KB / 1004.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 98.0%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:
@@ -29,5 +29,5 @@ QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 5/1024 (0.49%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 20/8192 (0.24%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 21/8192 (0.26%).
 [39m

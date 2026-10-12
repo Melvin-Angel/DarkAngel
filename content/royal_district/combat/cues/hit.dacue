@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "7d0e6c1a-3f52-4b9e-8a6d-2c4f9b1e5a37",
+  "name": "Hit",
+  "key": "Status.Flinch",
+  "visual": "vfx/placeholder/hit_spark.efkproj",
+  "audio": "audio/placeholder/hit.wav",
+  "tail_ticks": 30,
+  "predictable": false
+}

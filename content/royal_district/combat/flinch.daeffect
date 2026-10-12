@@ -29,7 +29,12 @@
   "ongoing_policy": "suppress",
   "modifiers": [],
   "visibility": "public",
-  "cues": [],
+  "cues": [
+    {
+      "id": "7d0e6c1a-3f52-4b9e-8a6d-2c4f9b1e5a37",
+      "key": "Status.Flinch"
+    }
+  ],
   "sources": {
     "attributes": "royal_district/combat/base.daattributes",
     "tags": "royal_district/combat/state.datags",
