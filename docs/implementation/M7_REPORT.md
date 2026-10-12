@@ -80,3 +80,24 @@ Not checked yet: the interface names above are Effekseer's as I know them from i
 1. Sounds: there are no audio sources in the repository. Which sounds should the first owned cues use, or may I generate simple placeholder tones for swing and hit?
 2. Effects: the same for Effekseer effects. The authoring tool is acquired; may the first hit spark and Burn aura be simple effects I author, to be replaced later?
 3. Should a predicted cue (the swing's own sound and trail) start on the owner's prediction and be cut if rejected, or wait for confirmation? The design supports both per cue; the default I would pick is predicted for the owner's own swing, confirmed for hits.
+
+## Step 1, first part: the cue player (12 October 2026)
+
+Built: `engine/runtime/cue_player.hpp/.cpp`. `CuePlayer` takes effect cue edges, action cue block events, rejected activations and actor retirement, resolves a cue key to a `CueDefinition` through a resolver the host supplies, and forwards start, stop (with a tail) and release to a visual and an audio `CueSink`. Either sink may be absent.
+
+Rules it enforces, each with a test in `CuePlayerTests` (CTest `M7.cue_player`):
+
+- An effect cue starts once however often its `Begin` arrives, stops with its tail on `End`, and is released when the tail is over. Cues of different effect instances or actors are separate. A cue that begins again during its tail replaces the fading instance.
+- An action cue block with length starts and stops; a marker is a one-shot that fades by its tail; hit windows and other block kinds are not cues.
+- A cue goes only to the sinks it names; tails are held to the player's limit (180 ticks).
+- A rejected activation's cues are cut with a short tail (6 ticks), fading ones included; other activations and actors are untouched.
+- An actor that leaves has its cues released at once.
+- Bounds: at most 128 live instances by default; a full player gives the place of the instance that fades out first to a new cue, and drops the new cue (counted) when nothing is fading.
+- A key without presentation is counted and holds nothing.
+- Without sinks the lifecycle is identical; destroying the player releases what the sinks hold.
+
+Differences from the design: one `CueSink` interface serves both the visual and the audio side (the design named two); the cue definition is a plain struct until the cue asset exists.
+
+**Not built yet in step 1:** the `.dacue` asset and its cooker, and feeding a player from `CharacterSceneSession` (effect cues are published there; action cue block events of observed actors are not surfaced to the host yet and need an accessor). Nothing calls the cue player outside its test.
+
+**Verified:** `CuePlayerTests`; a full build; CTest with only the five known unrelated failures (`M7.cue_player` passes). The 50 editor gates were not re-run: this adds a file nothing else calls.

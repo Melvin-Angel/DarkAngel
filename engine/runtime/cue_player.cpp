@@ -1,0 +1,62 @@
+#include <darkangel/cue_player.hpp>
+#include <algorithm>
+#include <stdexcept>
+
+namespace darkangel {
+namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
+CuePlayer::CuePlayer(Resolver resolver,CueSink* visual,CueSink* audio,CueLimits limits):resolver_(std::move(resolver)),visual_(visual),audio_(audio),limits_(limits){
+    require(bool(resolver_)&&limits_.live>=1&&limits_.live<=4096&&limits_.tail_ticks<=3600&&limits_.rejected_tail_ticks<=limits_.tail_ticks,"Cue player resolver/limits");
+}
+CuePlayer::~CuePlayer(){while(!instances_.empty())release(instances_.begin());}
+void CuePlayer::release(std::map<Source,Instance>::iterator found){
+    if(found->second.visual&&visual_)visual_->release(found->second.id);if(found->second.audio&&audio_)audio_->release(found->second.id);instances_.erase(found);
+}
+void CuePlayer::stop(std::map<Source,Instance>::iterator found,unsigned tail,std::uint64_t tick){
+    auto& instance=found->second;if(instance.stopping)return;tail=std::min(tail,limits_.tail_ticks);instance.stopping=true;instance.until=tick+tail;
+    if(instance.visual&&visual_)visual_->stop(instance.id,tail);if(instance.audio&&audio_)audio_->stop(instance.id,tail);if(!tail)release(found);
+}
+bool CuePlayer::start(const Source& source,std::string_view key,AssetId cue,std::uint64_t tick){
+    // The same source starting again while it is live is one cue, not two.
+    if(auto held=instances_.find(source);held!=instances_.end()){if(!held->second.stopping)return false;release(held);}
+    const auto definition=resolver_(key,cue);if(!definition||(definition->visual.empty()&&definition->audio.empty())){++unresolved_;return false;}
+    if(instances_.size()>=limits_.live){
+        // Room is taken from the fading instance that would end first; a player full of live cues drops the new one.
+        auto oldest=instances_.end();for(auto at=instances_.begin();at!=instances_.end();++at)if(at->second.stopping&&(oldest==instances_.end()||at->second.until<oldest->second.until))oldest=at;
+        if(oldest==instances_.end()){++dropped_;return false;}release(oldest);}
+    Instance instance;instance.id=next_++;instance.started=tick;instance.key=std::string(key);instance.visual=!definition->visual.empty();instance.audio=!definition->audio.empty();
+    const CueStart begun{instance.id,source.network,tick,instance.key,*definition};instances_.emplace(source,instance);
+    if(instance.visual&&visual_)visual_->start(begun);if(instance.audio&&audio_)audio_->start(begun);return true;
+}
+void CuePlayer::effect(const EffectCueUpdate& update,std::uint64_t tick){
+    const auto& id=update.state.id;Source source;source.session_epoch=id.session_epoch;source.network=id.network;source.avatar_epoch=id.avatar_epoch;source.handle=id.handle;source.cue=id.cue;
+    if(update.edge==EffectCueEdge::Begin)start(source,update.state.key,id.cue,tick);
+    else if(update.edge==EffectCueEdge::End){if(auto found=instances_.find(source);found!=instances_.end()){const auto definition=resolver_(found->second.key,id.cue);stop(found,definition?definition->tail_ticks:0,tick);}}
+}
+void CuePlayer::action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent& event,std::uint64_t tick){
+    if(event.kind!=ActionBlockKind::Cue)return;require(network&&event.activation,"An action cue needs its actor and activation");
+    Source source;source.network=network;source.avatar_epoch=avatar_epoch;source.activation=event.activation;source.block=event.block;source.loop=event.loop;source.action=true;
+    const auto tail=[&]{const auto definition=resolver_(event.key,AssetId{});return definition?definition->tail_ticks:0u;};
+    if(event.edge==ActionEdge::Begin)start(source,event.key,AssetId{},tick);
+    else if(event.edge==ActionEdge::End){if(auto found=instances_.find(source);found!=instances_.end())stop(found,tail(),tick);}
+    // A marker has no length: it plays once and fades by its own tail.
+    else if(start(source,event.key,AssetId{},tick))stop(instances_.find(source),tail(),tick);
+}
+void CuePlayer::rejected(std::uint64_t network,std::uint64_t activation,std::uint64_t tick){
+    for(auto at=instances_.begin();at!=instances_.end();){auto next=std::next(at);if(at->first.action&&at->first.network==network&&at->first.activation==activation){
+            // Cut short even when it was already fading on its own, longer tail.
+            if(at->second.stopping){at->second.until=std::min(at->second.until,tick+limits_.rejected_tail_ticks);if(at->second.visual&&visual_)visual_->stop(at->second.id,limits_.rejected_tail_ticks);if(at->second.audio&&audio_)audio_->stop(at->second.id,limits_.rejected_tail_ticks);}
+            else stop(at,limits_.rejected_tail_ticks,tick);}
+        at=next;}
+}
+void CuePlayer::retire(std::uint64_t network){
+    for(auto at=instances_.begin();at!=instances_.end();){auto next=std::next(at);if(at->first.network==network)release(at);at=next;}
+}
+void CuePlayer::advance(std::uint64_t tick){
+    for(auto at=instances_.begin();at!=instances_.end();){auto next=std::next(at);if(at->second.stopping&&tick>=at->second.until)release(at);at=next;}
+}
+std::size_t CuePlayer::live()const{return instances_.size();}
+std::vector<CueInstanceInfo> CuePlayer::instances()const{
+    std::vector<CueInstanceInfo> result;for(const auto& [source,instance]:instances_)result.push_back({instance.id,source.network,instance.started,instance.stopping?instance.until:0,instance.key,source.action});
+    std::sort(result.begin(),result.end(),[](const auto& a,const auto& b){return a.instance<b.instance;});return result;
+}
+}
