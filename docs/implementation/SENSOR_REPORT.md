@@ -151,3 +151,11 @@ Answers to the four questions at the top of this file: (1) build an awareness me
 
 - `investigate` in a real session or in the editor: it is covered by the tree's unit test only, and no owned NPC uses it.
 - No capture of the meter readout or the yellow line was looked at.
+
+## Go and look is on for the Royal Guard (12 October 2026)
+
+The owned Guard Melee tree (`content/npcs/guard_melee.dabehavior`) now ends in `investigate`: attack in reach, else approach, else walk to the last known position of the hostile it lost most recently. The Royal Archer's tree is unchanged and still gives up. This uses the allowance in the work list ("turn on go-and-look for one owned NPC if you think it is ready"); the earlier decision that owned NPCs give up stands for every other NPC.
+
+Why it was judged ready: the action had only controller-level tests. BehaviorTreeTests now runs it in a session with real senses (a line-of-sight sensor) and the navigation mesh: the player walks round the end of a wall and out of sight; the guard loses it (tick 153), walks to where it last saw it, sees it again from there (tick 218) and takes it as its target again. The same guard with the branch removed stays where it lost the player (8.1 m away against 5.1 m).
+
+Behaviour to know about: at the last known position the guard stands until it forgets (the NPC's forget time, 5 s on the Royal Guard) or detects something. It does not search further.

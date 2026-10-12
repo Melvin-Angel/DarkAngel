@@ -51,10 +51,42 @@ int main(){try{
         check(rejects([&]{make_behavior_controller(tree,{},BehaviorTuning{0,1});})&&rejects([&]{make_behavior_controller(tree,{},BehaviorTuning{1.4,9});}),"Out-of-bounds NPC tuning was accepted");
     }
 
+    // Script leaves: a behaviour node written in Luau inside the tree, deciding through the same seam, sandboxed, and never able to fail the tree's owner.
+    const std::string keep_distance=R"lua(return function(view, state)
+  state.calls = (state.calls or 0) + 1
+  local foe = view.opponent
+  if not foe then return "failure" end
+  if foe.distance < 4 then
+    local dx, dz = view.self.x - foe.x, view.self.z - foe.z
+    return "running", {move_x = dx / foe.distance, move_z = dz / foe.distance, face = math.atan2(-dx, -dz), say = "Backing off, call " .. state.calls}
+  end
+  return "success", {press = "light", say = "Far enough"}
+end)lua";
+    auto scripted=[&](const std::string& lua,const char* name="Keep distance"){Json made=source;made["tree"]={{"type","selector"},{"children",Json::array({Json{{"type","script"},{"name",name},{"source",lua}},Json{{"type","face"}}})}};return made;};
+    {
+        auto tree=decode_behavior(scripted(keep_distance).dump());check(tree.root.children[0].type=="script"&&tree.root.children[0].name=="Keep distance"&&tree.root.children[0].source==keep_distance,"A script leaf did not decode");
+        check(rejects([&]{decode_behavior(scripted("return function(view state) end").dump());})&&rejects([&]{decode_behavior(scripted("--"+std::string(4096,'a')).dump());})&&rejects([&]{decode_behavior(scripted("").dump());})&&rejects([&]{decode_behavior(scripted(keep_distance,"").dump());})&&rejects([&]{auto extra=scripted(keep_distance);extra["tree"]["children"][0]["range"]=1.0;decode_behavior(extra.dump());}),"A script leaf that does not compile, is out of bounds or has an unknown field was decoded");
+        check(rejects([&]{auto many=scripted(keep_distance);Json group={{"type","sequence"},{"children",Json::array()}};for(unsigned n=0;n<8;++n)group["children"].push_back(many["tree"]["children"][0]);many["tree"]["children"].push_back(group);decode_behavior(many.dump());}),"A tree with nine script leaves was decoded");
+        // The script backs the NPC away from an opponent 2.5 m off, keeps its own state between ticks, and presses once it is far enough.
+        auto runner=make_behavior_controller(tree,{},BehaviorTuning{3.0,1.0});ControllerView near;near.alive=true;near.faction=2;near.perceived=foes;near.self.position={0,0,2.5};near.tick=1;
+        auto away=runner->decide(near);check(!away.press&&away.target==foes[0].id&&std::abs(away.move_z-1)<1e-9&&std::abs(away.move_x)<1e-9&&away.face&&std::abs(std::abs(*away.face)-3.141592653589793)<1e-9&&runner->status()=="Backing off, call 1","A script leaf did not decide move and face through the controller seam");
+        near.tick=2;runner->decide(near);check(runner->status()=="Backing off, call 2","A script leaf's state did not persist between ticks");
+        near.self.position={0,0,5};near.tick=3;auto press=runner->decide(near);check(press.press&&*press.press==CombatSlot::Light&&press.move_x==0&&press.move_z==0&&runner->status()=="Far enough","A script leaf did not press a slot by name");
+        // Each NPC has its own sandbox and state.
+        auto other=make_behavior_controller(tree);near.self.position={0,0,2.5};near.tick=4;other->decide(near);check(other->status()=="Backing off, call 1","Two controllers share script state");
+        // The view: the tuning's preferred range, no clock library, and globals that cannot be written.
+        auto told=[&](const std::string& lua){auto made=make_behavior_controller(decode_behavior(scripted(lua).dump()),{},BehaviorTuning{3.0,1.0});ControllerView at=near;at.tick=1;const auto command=made->decide(at);return std::pair{made->status(),command};};
+        check(told(R"lua(return function(view) return "success", {say = "range " .. view.preferred_range .. (os == nil and " no os" or " os")} end)lua").first=="range 3 no os","A script leaf does not see the NPC's tuning, or can reach the clock library");
+        // Faults: the leaf fails, the readout names the script and the reason, the tree's next branch still decides, and the fault repeats without harm.
+        for(const auto& [lua,reason]:{std::pair<const char*,const char*>{R"lua(return function() error("boom") end)lua","boom"},{R"lua(return function() while true do end end)lua","time budget"},{R"lua(return function() return 42 end)lua","must return"},{R"lua(return function() return "maybe" end)lua","unknown status"},{R"lua(return function() return "running", {move_x = 2} end)lua","longer than 1"},{R"lua(return function() return "success", {press = "dodge"} end)lua","unknown slot"},{R"lua(return 5)lua","must return a function"},{R"lua(counter = 1 return function() return "success" end)lua","readonly"},{R"lua(return function(view) view.tick = 0 return "success" end)lua","readonly"},{R"lua(return function() local big = {} for n = 1, 10000000 do big[n] = {n} end return "success" end)lua",""}}){
+            auto made=make_behavior_controller(decode_behavior(scripted(lua,"Faulty").dump()));ControllerView at=near;at.tick=1;const auto first=made->decide(at);const auto readout=made->status();at.tick=2;const auto second=made->decide(at);
+            check(!first.press&&first.move_x==0&&first.move_z==0&&first.face.has_value()&&second.face.has_value()&&readout.find("Script \"Faulty\" is disabled")==0&&readout.find(reason)!=std::string::npos&&made->status()==readout,"A faulty script leaf did not fail alone with its reason in the readout");}
+    }
+
     // Owned content: the Royal Guard references the Guard Melee behaviour; both are frozen with the NPC.
     auto content=std::filesystem::path(DAE_SOURCE_DIR)/"content",cache=std::filesystem::path(DAE_BINARY_DIR)/("behavior-"+AssetId::random().text());AssetService assets(content,cache);
     std::ifstream npc_source(content/"npcs/royal_guard.danpc");auto npc_id=AssetId::parse(Json::parse(npc_source).at("asset").get<std::string>());assets.cook("npcs/royal_guard.danpc");assets.package(npc_id,cache/"registry.json");
-    auto guard=load_cooked_npc(cache/"registry.json",assets.cas_path(),npc_id);check(guard.behavior&&guard.behavior->name=="Guard Melee"&&guard.definition.behavior==guard.behavior->id&&guard.behavior->generation.size()==64&&guard.behavior->root.children.size()==2&&guard.behavior->root.children[1].children[1].preferred&&guard.definition.tuning.preferred_range==1.4&&guard.definition.tuning.recovery_scale==1,"Owned Royal Guard lost its frozen behaviour tree or tuning");
+    auto guard=load_cooked_npc(cache/"registry.json",assets.cas_path(),npc_id);check(guard.behavior&&guard.behavior->name=="Guard Melee"&&guard.definition.behavior==guard.behavior->id&&guard.behavior->generation.size()==64&&guard.behavior->root.children.size()==3&&guard.behavior->root.children[1].children[1].preferred&&guard.definition.tuning.preferred_range==1.4&&guard.definition.tuning.recovery_scale==1,"Owned Royal Guard lost its frozen behaviour tree or tuning");
     check(load_cooked_behavior(cache/"registry.json",assets.cas_path(),guard.behavior->id).generation==guard.behavior->generation&&rejects([&]{load_cooked_behavior(cache/"registry.json",assets.cas_path(),npc_id);}),"Behaviour products are not kind-checked");
 
     // In a session: the NPC's own kit and attributes, its authored tree as the controller, and the navigation mesh for the approach leaf.
@@ -68,6 +100,39 @@ int main(){try{
     check(widest>4&&first&&second&&second-first>=90&&health()==50,"The behaviour tree did not walk the NPC around the wall, attack, recover and attack again through authority");
     check(!scene.controller_status(target.id).empty()&&scene.presentation().read(scene.presentation().find(target.id)).health.current==60&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"A tree-driven NPC disturbed its own state or owner prediction");
     std::cout<<"Behaviour tree: around the wall (widest x "<<widest<<" m), first hit tick "<<first<<", second hit tick "<<second<<"\n";
+    {
+        // In a session: an NPC whose tree is one script leaf backs away from the player to four metres and holds there, through authority.
+        // The same script without its press: a Light swing would soft-lock the NPC back toward the player.
+        std::string holding=keep_distance;{const std::string press="press = \"light\", ";const auto at=holding.find(press);check(at!=std::string::npos,"Test script lost its press");holding.erase(at,press.size());}
+        Json keeper=source;keeper["tree"]={{"type","sequence"},{"children",Json::array({Json{{"type","opponent_alive"}},Json{{"type","script"},{"name","Keep distance"},{"source",holding}}})}};const auto tree=decode_behavior(keeper.dump());
+        auto wary=combat;wary.actors={CharacterSceneActor{StableId{9,2},cooked.definition,cooked.input,cooked.abilities,guard.attributes,guard.definition.name,guard.definition.faction,guard.definition.generation,make_behavior_controller(tree),SensesDefinition{true}}};
+        ObjectData close=target;close.transform.z=-2;std::array<ObjectData,2> pair{player,close};CharacterSceneSession scene(hello,pair,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,wary);const auto baseline=scene.resynchronizations();
+        while(scene.motor().tick<240)scene.step({});const auto at=scene.observer(target.id,double(scene.motor().tick)).frame.motor.position;const double apart=std::hypot(at.x-scene.motor().position.x,at.z-scene.motor().position.z);
+        check(apart>3.9&&apart<4.6&&scene.controller_status(target.id)=="Far enough"&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"A script-driven NPC did not keep its distance through authority");
+        std::cout<<"Script leaf: NPC backed off from 2 m to "<<apart<<" m, readout \""<<scene.controller_status(target.id)<<"\"\n";
+    }
+    {
+        // Go and look, in a session with real senses: the player walks round the wall and out of sight. A guard whose tree ends in
+        // "investigate" walks to where it last saw the player, sees it again from there and takes it as its target again. The same
+        // guard without that branch gives up where it stands. The owned Guard Melee tree has the branch.
+        check(guard.behavior->root.children.size()==3&&guard.behavior->root.children[2].type=="investigate","The owned Guard Melee tree does not end in go-and-look");
+        auto hunt=[&](bool looks){
+            auto tree=*guard.behavior;if(!looks)tree.root.children.pop_back();SensesDefinition eyes;eyes.sensors={{SensorKind::LineOfSight,40,0,0}};
+            auto chase=combat;chase.actors={CharacterSceneActor{StableId{9,2},cooked.definition,cooked.input,cooked.abilities,guard.attributes,guard.definition.name,guard.definition.faction,guard.definition.generation,make_behavior_controller(tree,mesh,guard.definition.tuning),eyes}};
+            ObjectData distant=target;distant.transform.z=-14;std::array<ObjectData,2> pair{player,distant};CharacterSceneSession scene(hello,pair,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,chase);
+            std::uint64_t lost{},looked{},found{};const auto detects=[&]{for(const auto& other:scene.perception(target.id)->actors())if(other.id==player.id)return other.detected;return false;};
+            while(scene.motor().tick<900&&!found){
+                // Round the wall's end at x = 4, then in behind it.
+                const auto here=scene.motor().position;CharacterSceneInput walk;if(here.z<5&&here.x<5.2)walk.x=1;else if(here.z<5)walk.z=1;else if(here.x>.5)walk.x=-1;
+                scene.step(walk);const auto now=scene.motor().tick;const bool seen=detects();
+                if(!lost&&now>30&&!seen)lost=now;if(lost&&!looked&&scene.controller_status(target.id).starts_with("Investigate"))looked=now;if(lost&&seen&&now>lost+10)found=now;}
+            const auto at=scene.observer(target.id,double(scene.motor().tick)).frame.motor.position;
+            return std::tuple{lost,looked,found,std::hypot(at.x-scene.motor().position.x,at.z-scene.motor().position.z)};};
+        const auto [lost,looked,found,near]=hunt(true);const auto [gave_up,never_looked,never_found,far]=hunt(false);
+        check(lost&&looked>=lost&&found>looked,"A guard with go-and-look did not walk to the last known position and find the player again");
+        check(gave_up&&!never_looked&&!never_found&&far>near,"A guard without go-and-look did not give up where it lost the player");
+        std::cout<<"Go and look: lost at tick "<<lost<<", looking from tick "<<looked<<", found again at tick "<<found<<" ("<<near<<" m away); without it the guard stays "<<far<<" m away\n";
+    }
     {
         // Profile of a full scene: twenty-four tree-driven guards at spawn points and an encounter that keeps eight more alive, all with the
         // Royal Guard's authored senses (rays against static collision) and the navigation mesh. Prints where a tick's time goes for three
@@ -88,5 +153,5 @@ int main(){try{
         };
         run(8,8,2);run(32,32,8);run(4,4,1);
     }
-    std::cout<<"Behaviour trees: JSON topology decoding and rejection, BT.CPP executor behind the controller seam (approach, face, attack, recover), frozen behaviour on the owned Royal Guard, and a tree-driven NPC navigating and attacking in a session passed\n";return 0;
+    std::cout<<"Behaviour trees: JSON topology decoding and rejection, BT.CPP executor behind the controller seam (approach, face, attack, recover), frozen behaviour on the owned Royal Guard, a tree-driven NPC navigating and attacking in a session, and Luau script leaves (decode, seam, state, sandbox, fault isolation, session) passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

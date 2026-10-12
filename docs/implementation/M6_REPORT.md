@@ -346,3 +346,78 @@ User note of 11 October 2026: "assets imported into the project should get cooke
 **Verified:** `cook-sweep-d3d12`: a Character source written straight into the project folder is listed with no cook generation, the sweep cooks it, and a second sweep neither cooks anything again nor retries a failure. The capture was looked at: the Assets tab shows "1 source(s) not cooked yet, 1 of them failed" for a fixture source that cannot cook, with "Cook all now" disabled because nothing else is waiting.
 
 **Not verified:** the half-second cadence in a visible editor (the gate calls the sweep directly); "Cook all now" by click; a large model.
+
+## Luau behaviour leaves: design (12 October 2026)
+
+Written before any code. Goal from the M6 row: an agent (or a designer) authors a new behaviour node without a native rebuild.
+
+### What it is
+
+One new leaf kind in the behaviour tree's closed set: `script`. Its Luau source is inline in the `.dabehavior` source:
+
+```json
+{"type": "script", "name": "Keep distance", "source": "return function(view, state) ... end"}
+```
+
+Inline, not a separate asset, for this first step: the behaviour's source is already the unit of drafts, Undo, validation, Save, cooking and the generation hash, so a script leaf gets all of that with no new asset type and no new dependency edge. A shared script asset referenced from several trees can come later without changing the leaf's contract. Bounds: name 1 to 48 characters, source at most 4,096 bytes, at most 8 script leaves in a tree.
+
+### Contract
+
+The chunk returns one function, called once on each tick the tree reaches the leaf:
+
+- `view` (a fresh read-only table each call): `tick`, `alive`, `busy`, `preferred_range`, `self = {x, y, z, yaw}`, `opponent` (nil, or `{x, y, z, distance, visible}` for the nearest live hostile the NPC detects, the same one the native leaves use) and `lost` (nil, or `{x, y, z}` for the last known position of the hostile it lost most recently).
+- `state`: a table that belongs to this leaf of this NPC and persists between ticks.
+- It returns a status, `"success"`, `"failure"` or `"running"`, and optionally a command table: `move_x`, `move_z` (world space, length at most 1), `face` (yaw in radians), `press` (a slot name such as `"light"`), `say` (text for the decision readout).
+
+The leaf writes the command into the same blackboard the native leaves write, so a script can only ask for move, face and a slot press: the controller seam, ability validation, costs and cooldowns are unchanged. It cannot name a target (the tree's opponent stays the target), read another actor that the NPC does not perceive, or reach the world, the session or any other script.
+
+### Sandbox and faults
+
+- One Luau VM per controller (one NPC), created with the standard sandbox (`luaL_sandbox`), without `os` and with a fixed random seed so a run is repeatable. Memory limit 1 MB per VM; a call that runs longer than 2 ms is interrupted.
+- Any fault (compile error at runtime, error raised, time or memory limit, a return that is not a known status, a command out of bounds) makes the leaf fail and disables that leaf for that NPC; the readout shows the script's name and the message. The tree goes on with its other branches. A script fault never throws into the session.
+- Decoding compiles every script leaf, so a syntax error is refused by validation and Save, like any other invalid tree. Runtime faults cannot be found at Save and are handled as above.
+
+### Server-only
+
+Scripts run inside the controller, which the session runs on authority only. Nothing about a script is replicated.
+
+### Editor
+
+Placement: the existing behaviour form (NPC tab), because a script leaf is a node of the tree. "Add child" gains "Script (Luau)"; the node shows its name and a multi-line source box. No separate script editor now.
+
+### Tests
+
+BehaviorTreeTests: decode and rejection (syntax error, size, unknown field), a script leaf deciding through the controller (move, face, press, running and state kept between ticks), fault isolation (error, endless loop, bad return: the leaf fails, the tree's next branch acts, later ticks keep working), and a session scene where an NPC whose tree has a script leaf keeps its distance from the player through authority.
+
+### Not in this step
+
+No owned NPC is switched to a script leaf (the owned trees stay native so the existing gates keep their meaning). No coroutines or waiting inside a script (return `"running"` and keep state instead). No shared script assets.
+
+## Luau behaviour leaves: built (12 October 2026)
+
+Built as designed above. Where things are:
+
+- `engine/runtime/behavior.cpp`: the `script` node kind (name, source), its bounds, `compile_behavior_script` (decoding compiles every script leaf, so validation and Save refuse source that does not compile) and `behavior_slot`.
+- `engine/runtime/behavior_tree.cpp`: `ScriptHost`, one sandboxed Luau VM per controller, and the `DaScript` leaf. The VM is made only for a tree that has a script leaf.
+- Editor: "Script (Luau)" in the behaviour form's "Add child", with a name field and a source box on the node (NPC tab, behaviour form). Adding one inserts a small working script.
+
+One difference from the design: scripts cannot write globals at all (the sandbox makes them read-only), so a script keeps everything in locals and in its `state` table. The design did not say; the tests fix it.
+
+### Verified
+
+BehaviorTreeTests: decoding and rejection (does not compile, empty or oversized source, empty name, unknown field, nine script leaves); a script deciding move, face and a slot press through the controller seam; state kept between ticks and separate per NPC; the tuning value in the view; no `os`; ten kinds of fault (error, endless loop, wrong return type, unknown status, move longer than 1, unknown slot, chunk that returns no function, global write, write to the view, memory limit), each failing the leaf alone with the script's name and reason in the readout while the tree's next branch decides on that tick and the next; a session scene where an NPC driven by a script leaf backs away from the player from 2 m to 4.4 m through authority with owner prediction undisturbed.
+
+### Not verified
+
+- The editor's script node (name field, source box) was not looked at in a capture and has no gate: no fixture behaviour has a script leaf. It compiles and uses the same draft path as the other node fields.
+- No owned NPC uses a script leaf, so no Play gate runs one.
+- The 2 ms time budget is wall-clock: a script near the limit can be interrupted on a loaded machine and is then disabled for that NPC until the next Play.
+
+## Navigation mesh overlay: design (12 October 2026)
+
+Written before any code. Goal: see the baked navigation mesh over the scene, to judge where NPCs can walk.
+
+- **Runtime.** `NavigationMesh::outline()` returns the mesh's polygon edges as pairs of points, each edge once, with a flag for edges on the mesh's border (no neighbour). Read-only; no query state.
+- **Editor.** Placement: a checkbox "Show in the viewports" in Tools > Navigation, next to the bake, because the overlay shows that bake (the user's earlier decision put baking there). It draws through the existing viewport overlay that already draws senses and encounter volumes: inner edges thin, border edges brighter, lifted a few centimetres off the surface. It shows the current bake; without a bake the checkbox says so and nothing is drawn.
+- **Gate.** `navigation-tool-d3d12` bakes already; it also turns the overlay on and requires that edges were drawn in the Scene viewport. Editor-only change apart from the read-only accessor.
+- **Not in this step.** No filled polygons, no path preview, no per-area colours, no off-mesh links (the mesh has none).

@@ -43,6 +43,9 @@
             "range": "preferred"
           }
         ]
+      },
+      {
+        "type": "investigate"
       }
     ]
   }
