@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "kind": "audio_profile",
+  "asset": "bd4a032e-5a41-41f1-bde1-6c3b00e54d09",
+  "name": "Royal district, calm",
+  "music": "cba7e107-c2f9-4352-9a9d-f30fa3cf083a",
+  "music_volume": 1.0,
+  "ambient": [
+    {
+      "sound": "dd9d9662-0c1d-42df-adbb-fb6a07d11b16",
+      "volume": 1.0
+    }
+  ],
+  "bus_offsets_db": {
+    "master": 0.0,
+    "music": 0.0,
+    "ambient": 0.0,
+    "player": 0.0,
+    "npc": 0.0,
+    "ui": 0.0
+  },
+  "crossfade_seconds": 1.5,
+  "sources": {
+    "sounds": {
+      "cba7e107-c2f9-4352-9a9d-f30fa3cf083a": "audio/music_calm.dasound",
+      "dd9d9662-0c1d-42df-adbb-fb6a07d11b16": "audio/wind.dasound"
+    }
+  }
+}

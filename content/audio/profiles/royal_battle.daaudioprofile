@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "kind": "audio_profile",
+  "asset": "be7471d9-3d66-4154-a5c7-c5ce55d425ea",
+  "name": "Royal district, battle",
+  "music": "5bf01c2f-d8ef-4ef7-af7c-654151b2636b",
+  "music_volume": 1.0,
+  "ambient": [],
+  "bus_offsets_db": {
+    "master": 0.0,
+    "music": 0.0,
+    "ambient": -6.0,
+    "player": 0.0,
+    "npc": 0.0,
+    "ui": 0.0
+  },
+  "crossfade_seconds": 1.5,
+  "sources": {
+    "sounds": {
+      "5bf01c2f-d8ef-4ef7-af7c-654151b2636b": "audio/music_battle.dasound"
+    }
+  }
+}

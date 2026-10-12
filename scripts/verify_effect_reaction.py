@@ -81,6 +81,12 @@ if not(int(seen['effects'])>=2 and seen['selected']=='vfx/placeholder/burn_aura.
 log=run('cue-form-d3d12',common+['--vfx-workspace','--vfx-select','vfx/placeholder/hit_spark.efkproj','--exercise-cue-form','--frames','20','--capture',EVIDENCE/'cue-form-d3d12.png'])
 line=[l for l in log.splitlines() if l.startswith('Editor cue_form ')][-1];seen=dict(part.split('=') for part in line.split()[2:])
 if not(int(seen['cues'])>=5 and seen['path'].startswith('vfx/cues/gate_') and seen['saved']=='1' and seen['tail']=='20' and seen['visual_resolved']=='1' and seen['audio_resolved']=='1'):raise RuntimeError('The cue form did not create, save and cook a cue: '+str(seen))
+# The Audio tab: a sound definition auditioned, a mixer volume changed in its draft and heard at once, a whole profile auditioned.
+def audio(log):
+    line=[l for l in log.splitlines() if l.startswith('Editor audio ')][-1];return dict(part.split('=') for part in line.split()[2:])
+def asset_id(path):return json.loads((source/path).read_text())['asset']
+seen=audio(run('audio-tab-d3d12',common+['--audio-workspace','--exercise-audio','--frames','30','--capture',EVIDENCE/'audio-tab-d3d12.png']))
+if not(seen['workspace']=='1' and int(seen['waves'])>=6 and int(seen['definitions'])>=3 and int(seen['profiles'])>=2 and seen['mixers']=='1' and seen['driver']=='null' and int(seen['loaded'])>=2 and abs(float(seen['bus_music'])-0.3)<1e-3 and seen['director']=='1' and seen['profile']==asset_id('audio/profiles/royal_calm.daaudioprofile') and seen['music']==asset_id('audio/music_calm.dasound') and seen['ambient']=='1' and seen['missing']=='0'):raise RuntimeError('The Audio tab did not audition a sound and a profile and apply a mixer change: '+str(seen))
 log=run('mask-switch-d3d12',worn+['--exercise-mask-switch','--frames','30','--capture',EVIDENCE/'mask-switch-d3d12.png'])
 if 'Editor mask switch tick=30 loadout=2 mask=test_air worn=0 pending=0' not in log:raise RuntimeError('Editor Play did not switch masks: '+log[-400:])
 run('camera-free-look-d3d12',worn+['--exercise-camera-look','--frames','30','--capture',EVIDENCE/'camera-free-look-d3d12.png'])
@@ -141,6 +147,17 @@ log=run('encounter-scene-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--sele
 if 'Editor encounter_place encounters=2 volumes=3 triggers=2 undo_redo=1' not in log or marker(log,'volumes_drawn','Editor encounter_scene ')<4:raise RuntimeError('The Scene tab did not draw or place encounter volumes: '+log[-400:])
 log=run('encounter-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--exercise-encounter','--frames','200','--capture',EVIDENCE/'encounter-d3d12.png'])
 if not('Editor encounter fired=1 spawned=2 ' in log and 'events=play.started,gate.entered,gate.fight_started' in log and ' hud_target=' in log and ' readouts=' in log):raise RuntimeError('Editor Play did not start the encounter from its trigger volume: '+log[-400:])
+# Play: the scene's audio profile starts with it, the encounter's is layered while the fight runs, and a mixer volume changed during Play is applied.
+audio_source=json.loads(json.dumps(encounter_source));audio_entities=audio_source['sources'][audio_source['root']]['entities']
+audio_entities['00000000000000000000000000000008']['encounter']['audio_profile']=asset_id('audio/profiles/royal_battle.daaudioprofile')
+audio_entities['0000000000000000000000000000000a']=gameplay_entity('Scene audio',0.0,0.0,audio={'profile':asset_id('audio/profiles/royal_calm.daaudioprofile')})
+(source/'royal_district/RoyalEncounterAudio.dascene').write_text(json.dumps(audio_source,indent=2)+chr(10))
+# Without the trigger volume the fight never starts, so only the scene's profile plays.
+quiet_source=json.loads(json.dumps(audio_source));del quiet_source['sources'][quiet_source['root']]['entities']['00000000000000000000000000000007'];(source/'royal_district/RoyalQuietAudio.dascene').write_text(json.dumps(quiet_source,indent=2)+chr(10))
+seen=audio(run('audio-play-d3d12',scene(guarded,'RoyalQuietAudio.dascene')+['--exercise-character','--exercise-audio','--frames','40','--capture',EVIDENCE/'audio-play-d3d12.png']))
+if not(seen['director']=='1' and seen['profile']==asset_id('audio/profiles/royal_calm.daaudioprofile') and seen['music']==asset_id('audio/music_calm.dasound') and seen['ambient']=='1' and seen['layers']=='0' and seen['missing']=='0' and abs(float(seen['bus_ambient'])-1.0)<1e-3):raise RuntimeError('Play did not start the scene audio profile: '+str(seen))
+log=run('audio-encounter-d3d12',scene(guarded,'RoyalEncounterAudio.dascene')+['--exercise-encounter','--exercise-audio','--frames','200','--capture',EVIDENCE/'audio-encounter-d3d12.png']);seen=audio(log)
+if not('Editor encounter fired=1 spawned=2 ' in log and seen['profile']==asset_id('audio/profiles/royal_battle.daaudioprofile') and seen['music']==asset_id('audio/music_battle.dasound') and seen['layers']=='1' and seen['ambient']=='1' and seen['missing']=='0' and abs(float(seen['bus_ambient'])-10**(-6/20))<1e-3 and abs(float(seen['bus_npc'])-0.25)<1e-3):raise RuntimeError('The encounter did not layer its audio profile, or the mixer change during Play was not applied: '+str(seen))
 # Interaction: the same scene with a lever instead of the trigger volume. The player walks to it, the HUD offers it, the interact input
 # asks the server, and the encounter that listens for its event starts.
 lever_source=json.loads(json.dumps(encounter_source));lever_entities=lever_source['sources'][lever_source['root']]['entities'];del lever_entities['00000000000000000000000000000007']

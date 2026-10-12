@@ -23,6 +23,8 @@ struct SpawnPlan {
     // Splines hold the object's validated "spline" component JSON; a spline point names its spline and its place in the order.
     struct SplinePoint {StableId spline;unsigned index{};};
     std::map<StableId,std::string> splines;std::map<StableId,SplinePoint> spline_points;
+    // The scene's audio profile: the one object with an "audio" component, and the profile asset it names. Presentation only.
+    std::map<StableId,AssetId> audio_profiles;
     std::map<StableId,std::string> encounters,triggers;std::map<StableId,Volume> volumes;std::map<StableId,StableId> spawn_owners;
     std::string serialize() const;
     static SpawnPlan deserialize(std::string_view);

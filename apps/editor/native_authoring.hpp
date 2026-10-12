@@ -28,6 +28,10 @@ public:
     AssetId create_behavior(AssetService&,std::string_view name);
     // A cue source under vfx/cues with a key of its own and no effect or sound yet; it is valid once one is chosen.
     AssetId create_cue(AssetService&,std::string_view name);
+    // Audio sources: a definition of how one WAV is played, the project mixer (audio/project.damix), an empty audio profile.
+    AssetId create_sound_definition(AssetService&,AssetId wave,std::string_view wave_path,std::string_view name);
+    AssetId create_audio_mix(AssetService&);
+    AssetId create_audio_profile(AssetService&,std::string_view name);
     void assign_npc_behavior(AssetService&,AssetId npc,AssetId behavior);
     // Structure edits on a behaviour tree. path holds child indices from the root to the node (empty = root).
     // MoveUp/MoveDown/Remove act on that node among its siblings; AddChild appends a default node of `type` to that composite.

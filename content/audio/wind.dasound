@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "kind": "sound",
+  "asset": "dd9d9662-0c1d-42df-adbb-fb6a07d11b16",
+  "name": "Wind (placeholder)",
+  "wave": "09f9d6d7-b8b7-4a61-b996-cb46d9fd004a",
+  "bus": "ambient",
+  "gain": 0.5,
+  "pitch": 1.0,
+  "loop": true,
+  "positioned": false,
+  "range": 40.0,
+  "effect": {
+    "kind": "none",
+    "parameters": {}
+  },
+  "sources": {
+    "wave": "audio/placeholder/wind.wav"
+  }
+}

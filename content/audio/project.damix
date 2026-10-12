@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "kind": "mix",
+  "asset": "3d69e8fb-6b8f-4205-82a7-8af8d93a385b",
+  "buses": {
+    "master": {
+      "volume": 1.0,
+      "mute": false
+    },
+    "music": {
+      "volume": 1.0,
+      "mute": false
+    },
+    "ambient": {
+      "volume": 1.0,
+      "mute": false
+    },
+    "player": {
+      "volume": 1.0,
+      "mute": false
+    },
+    "npc": {
+      "volume": 1.0,
+      "mute": false
+    },
+    "ui": {
+      "volume": 1.0,
+      "mute": false
+    }
+  },
+  "limit_each_sound": false,
+  "threshold_db": -1.0,
+  "ducking": []
+}

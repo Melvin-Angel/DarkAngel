@@ -387,7 +387,7 @@ What follows from that: bus volumes and mutes are live; the limiter and the duck
 
 ### Assets
 
-- **Sound definition `.dasound`** (kind `sound`): `name`, `wave` (the WAV asset's id, with its path in `sources.wave`), `bus` (`music`, `ambient`, `player`, `npc`, `ui`), `gain` (0 to 4), `pitch` (0.25 to 4), `loop`, `positioned`, `range` (metres at which it is silent, 1 to 500), and `effect`: `{kind, parameters}` with kind one of `none`, `low_pass`, `high_pass`, `delay`, `lofi`, `compressor`, `bass_boost`. The cooked product carries the WAV in its closure (a real dependency; it is a byte copy, no tool runs). Because a definition is its own asset, one WAV can have several (the same swing on the Player bus and on the NPC bus).
+- **Sound definition `.dasound`** (kind `sound`): `name`, `wave` (the WAV asset's id, with its path in `sources.wave`), `bus` (`music`, `ambient`, `player`, `npc`, `ui`), `gain` (0 to 4), `pitch` (0.25 to 4), `loop`, `positioned`, `range` (metres at which it is silent, 1 to 500), and `effect`: `{kind, parameters}` with kind one of `none`, `low_pass`, `high_pass`, `delay`, `lofi`, `compressor`. The cooked product carries the WAV in its closure (a real dependency; it is a byte copy, no tool runs). Because a definition is its own asset, one WAV can have several (the same swing on the Player bus and on the NPC bus).
 - A cue's `audio` may name a `.wav` (played with default settings: positioned, Player bus, 40 m) or a `.dasound`.
 - **Mixer `.damix`** (kind `mix`), one per project at `audio/project.damix`: for each of the five buses and Master a `volume` (0 to 2) and `mute`; `limit_each_sound` on or off with `threshold_db`; `ducking`: a list of `{when, lower, to, fade_in, fade_out}` (while a sound plays on bus `when`, bus `lower` goes to gain `to`). The bus set is fixed in the MVP (question 1 of the plan stays open; nothing here prevents free buses later, since buses are data in the generated project).
 - **Audio profile `.daaudioprofile`** (kind `audio_profile`): `name`, `music` (a sound definition or none) with `music_volume`, up to eight `ambient` loops (sound definition and volume), `bus_offsets_db` per bus (-60 to +12), `crossfade_seconds`. Its sound definitions travel in its closure.
@@ -413,3 +413,45 @@ One effect per sound; the limiter is per sound; no meters; music starts without 
 ### Order, one verification pass at the end
 
 Service and director with their tests on the silent driver; the three cookers and their tests; cues through definitions; scene and encounter fields; the tab; gates for audition, a mixer volume changed during Play, a scene profile at Play and an encounter layering its profile.
+
+## The Audio tab, MVP: built (12 October 2026)
+
+### Built
+
+- **Audio assets** (engine/assets/audio_cooker.cpp, `darkangel/audio_assets.hpp`): the sound definition `.dasound`, the mixer `.damix` and the audio profile `.daaudioprofile` as native sources with decoders, cookers and loaders, in the catalog, coordinated Save, native edit and create like every other native source. A definition's product carries its WAV; a profile's carries its definitions. A cue's `audio` may name a WAV or a sound definition.
+- **Audio service** (engine/audio): the six buses with the mixer's volumes and mutes, live (`mix`); ducking rules and the per-sound limiter written into the generated Amplitude project at start; sounds loaded with settings (`AudioSound`: bus, gain, pitch, loop, positioned or flat, range through one attenuation per distinct range, one effect: low pass, high pass, delay, lo-fi, compressor); a gain per playing sound.
+- **Fades are done by the service.** Amplitude's own timed stop crashed in the pinned build the first time it was used (every stop before this was immediate; step 3 listed a fading sound as not verified). The cause was not found: the crash is inside `Channel::Stop` with a duration, on the silent driver. `AudioService::stop` with a fade now lowers the channel's gain over `update()` time and then stops it at once.
+- **Audio director** (engine/audio/audio_director.cpp): the scene's profile and a stack of layered ones; the top profile's music plays, the leaving track fades out over the crossfade time while the new one starts; the ambient loops of every held profile play together; the top profile's bus offsets apply over the mixer and are taken off again.
+- **Scene and encounter**: a scene object with `"audio": {"profile": id}` (at most one; `SpawnPlan::audio_profiles`), and the optional `"audio_profile"` of an encounter component (`EncounterDefinition::audio_profile`, which the simulation never reads; the encounter's Inspector has the field). In Play the scene's profile starts with the session and an encounter's is layered while the session reports that encounter as running.
+- **The Audio tab** (`Workspace::Audio`, between VFX and Game): **Sounds** (WAVs and definitions, Import of a WAV by path, New definition for a WAV, the definition form, Play and Stop; a definition is auditioned as its draft has it, saved or not), **Mixer** (volumes and mutes of the six buses, heard at once and also during Play; "Limit each sound to"; ducking rules; created on first use), **Scene audio** (profiles, New profile, the profile form, "Use for this scene", "Scene uses none", audition of a saved profile). Every form is an ordinary draft with Undo, Redo and Save All.
+- **Content** (`scripts/generate_placeholder_audio.py`, which writes missing files only): two placeholder music loops and a wind loop, their definitions, the project mixer `content/audio/project.damix`, and the profiles `royal_calm` (calm music, wind) and `royal_battle` (battle music, ambient bus 6 dB down). No owned scene uses a profile yet: the user's scene is theirs, and the training scene is what the gates derive their scenes from. "Use for this scene" in the Audio tab sets it.
+- The cue form of the VFX tab could not open a cue that already existed on disk (the draft opener did not know the cue's kind; the cue-form gate had only opened a cue it had just staged). Fixed here with the same table entry the audio sources needed.
+
+### Differences from the design, and limits
+
+- One effect per sound; the limiter holds each sound, not the sum; no meters; no master effect chain. All three are what the pinned Amplitude offers (see the design).
+- The limiter and the ducking rules apply when the audio service is next started; the editor restarts it by itself only when nothing is playing and no Play session runs. The tab says so when they differ.
+- New music starts at its full volume while the old track fades out under it; there is no fade-in.
+- A sound plays on the one bus its definition names, whoever triggers it. The same WAV on the Player bus for the player and on the NPC bus for an NPC needs two definitions and two cues; nothing chooses between them by actor yet.
+- A WAV named directly by a cue plays positioned, on the Player bus, silent at 40 m.
+- Import takes a path typed into the tab; there is no file dialog. Imported names are limited to letters, digits, '_' and '-'.
+- A profile is auditioned as saved (the profile is cooked from disk), unlike a single definition.
+- Ducking was loaded and the engine accepted it; that the second bus is in fact lowered while the first plays was not measured (the engine reports a bus's own gain, not its ducked gain).
+- Not built from the plan's later list: collections, switches, RTPCs, environments, meters, trim and fades.
+
+### Verified
+
+- `AudioAuthoringTests` (`M7.audio_authoring`, new): the three sources created, cooked, packaged and loaded with their values and their refusals; a definition locating another WAV than it names refused; a changed definition cooking its profile again; a cue resolving a sound definition; the service on the silent driver starting with the mixer (limiter, one ducking rule), a looped sound outlasting its length, a fade lasting its time and then ending, every effect kind loading and playing, live volumes and mutes, a structural mixer change told apart from a live one; the director starting a scene profile, layering a second, applying and removing its bus offset, counting a sound that is not loaded, and leaving the mixer as it found it.
+- `AudioTests` and `CueAssetTests` pass unchanged in behaviour.
+- Editor gates, D3D12, all new: `audio-tab-d3d12` (the tab lists six WAVs, three definitions, two profiles and the mixer; a definition is auditioned; the Music volume moved in the mixer's draft is applied; a profile is auditioned with its music and one ambient loop); `audio-play-d3d12` (Play starts the scene's profile: calm music, wind, no layer); `audio-encounter-d3d12` (the fight starts: battle music, the wind kept, the ambient bus at -6 dB, one layer, and an NPC bus volume changed in the mixer's draft during Play is applied). The [Audio tab capture](evidence/audio-tab-d3d12.png) and, now that its form is scrolled into view, the [cue form capture](evidence/cue-form-d3d12.png) were looked at.
+- One full pass: the build shows only the known `RoyalCollisionTests` link failure; **CTest 95 of 96**, the one failure being `M4.royal_mesh_collision`; all **58** verify gates pass. CTest ran before a one-line editor fix (the draft opener's kind table); the gate script, which runs `NativeAuthoringTests` and nine other test programs itself, ran on the final build.
+
+Not verified: anything by ear (every run used the silent driver): how the loops, the crossfade and the effects sound; the limiter's and the ducking's audible result; the tab's widgets by hand (the gates drive the same calls); Import; a profile on one of the user's scenes; the audio device disappearing during Play.
+
+### Questions for the user (none blocking; the first three are the plan's, still open)
+
+1. Buses: Master, Music, Ambient, Player, NPC, UI are fixed. Should buses be free to add and rename?
+2. The engine has no limiter on the summed output, only on each sound. Is that enough for now, or should a master limiter of our own be planned (it means mixing through our own output stage)?
+3. Trimming and fades inside a clip are left to an external audio editor. Acceptable?
+4. Should a sound's bus follow who triggers it (player or NPC) automatically, instead of needing two definitions?
+

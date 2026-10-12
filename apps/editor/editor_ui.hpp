@@ -10,7 +10,7 @@
 #include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx};
+enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -98,6 +98,8 @@ public:
     std::function<void()> draw_navigation_tool;
     // The VFX tab's left panel: supplied by the host, which owns the visual effect service. The preview beside it is the scene render target.
     std::function<void()> draw_vfx_panel;
+    // The Audio tab: supplied by the host, which owns the audio service.
+    std::function<void()> draw_audio_panel;
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).
     std::function<void(ImDrawList*,ViewArea)> game_overlay;
@@ -116,4 +118,7 @@ private:
     PreparedAssetImport import_prepared;std::string import_error,import_status;
     char asset_filter[128]{};int asset_kind{};AssetId selected_asset;
 };
+// The audio profile this scene names (its one object with an "audio" component), and setting it: an ordinary undoable scene edit.
+AssetId scene_audio_profile(const Controller&);
+void set_scene_audio_profile(Controller&,AssetId profile);
 }

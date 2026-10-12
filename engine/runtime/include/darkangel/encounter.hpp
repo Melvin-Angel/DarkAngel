@@ -27,6 +27,8 @@ struct EncounterDefinition {
     std::string started,wave_cleared,completed,tag;
     // How long a dead enemy stays before it is removed from the session; 0 keeps it for good.
     double corpse_seconds{6};
+    // Presentation only: an audio profile layered over the scene's while the encounter runs. The simulation never reads it.
+    AssetId audio_profile;
     // How many enemies it spawns over its whole life.
     unsigned enemies()const;
     // The most that can be alive at once.

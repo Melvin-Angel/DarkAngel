@@ -37,7 +37,7 @@ void validate_encounter(const EncounterDefinition& encounter){
 EncounterDefinition decode_encounter(std::string_view text){
     require(text.size()<=16384,"Encounter component size bound");const auto value=Json::parse(text);EncounterDefinition encounter;
     const bool timed=value.is_object()&&value.contains("mode")&&value.at("mode")=="timed";
-    fields(value,{"trigger","mode",timed?"timed":"waves","placement"},{"emits","tag","corpse_seconds"});
+    fields(value,{"trigger","mode",timed?"timed":"waves","placement"},{"emits","tag","corpse_seconds","audio_profile"});
     const auto& trigger=value.at("trigger");require(trigger.is_object()&&trigger.size()==1,"Encounter trigger is {\"event\": name} or {\"enter\": true}");
     if(trigger.contains("event"))encounter.trigger_event=name(trigger.at("event"));else{require(trigger.contains("enter")&&trigger.at("enter").is_boolean()&&trigger.at("enter").get<bool>(),"Encounter trigger is {\"event\": name} or {\"enter\": true}");encounter.trigger_enter=true;}
     require(value.at("mode").is_string()&&(timed||value.at("mode")=="waves"),"Encounter mode is \"waves\" or \"timed\"");
@@ -47,6 +47,7 @@ EncounterDefinition decode_encounter(std::string_view text){
     if(value.contains("emits")){const auto& emits=value.at("emits");fields(emits,{},{"started","wave_cleared","completed"});if(emits.contains("started"))encounter.started=name(emits.at("started"));if(emits.contains("wave_cleared"))encounter.wave_cleared=name(emits.at("wave_cleared"));if(emits.contains("completed"))encounter.completed=name(emits.at("completed"));}
     if(value.contains("tag"))encounter.tag=name(value.at("tag"));
     if(value.contains("corpse_seconds")){require(value.at("corpse_seconds").is_number(),"Encounter corpse time type");encounter.corpse_seconds=value.at("corpse_seconds").get<double>();}
+    if(value.contains("audio_profile")){require(value.at("audio_profile").is_string(),"Encounter audio profile type");encounter.audio_profile=AssetId::parse(value.at("audio_profile").get<std::string>());require(encounter.audio_profile!=AssetId{},"Encounter audio profile identity");}
     validate_encounter(encounter);return encounter;
 }
 TriggerDefinition decode_trigger(std::string_view text){

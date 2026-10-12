@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "kind": "sound",
+  "asset": "5bf01c2f-d8ef-4ef7-af7c-654151b2636b",
+  "name": "Battle music (placeholder)",
+  "wave": "96bff887-ef06-4edd-9bfc-604cb3b487a8",
+  "bus": "music",
+  "gain": 0.7,
+  "pitch": 1.0,
+  "loop": true,
+  "positioned": false,
+  "range": 40.0,
+  "effect": {
+    "kind": "none",
+    "parameters": {}
+  },
+  "sources": {
+    "wave": "audio/placeholder/music_battle.wav"
+  }
+}
