@@ -55,7 +55,7 @@ if 'predicted_error=0 pending=0 hud_lock=1' not in log or 'Editor soft lock tick
 worn=[x for x in common];worn[worn.index('--registry')+1]=f['mask_registry'];k=worn.index('--character-kit');worn[k:k+2]=['--character-clips','player:'+f['mask_player'],'--player-asset',f['mask_player']]
 run('mask-worn-d3d12',worn+['--exercise-upper-body','--frames','30','--capture',EVIDENCE/'mask-worn-d3d12.png'])
 run('mask-placement-d3d12',worn+['--exercise-upper-body','--frames','30','--mask-tune','0.04,0.11,0,0,-90,0,0.01','--capture',EVIDENCE/'mask-placement-d3d12.png'])
-# M7: presentation cues in Play. No visual or audio service exists yet; two recording sinks show what each would be told. The owner's
+# M7: presentation cues in Play. Visual cues play as effects; audio has no service yet, so a recording sink shows what it would be told. The owner's
 # Light starts the predictable swing cue (audio) once and it has faded by tick 30; the Heavy hit's Burn starts its aura cue (visual), still live.
 def cues(log):
     line=[l for l in log.splitlines() if l.startswith('Editor cues ')][-1];return dict(part.split('=') for part in line.split()[2:])
@@ -63,6 +63,8 @@ seen=cues(run('cues-swing-d3d12',common+['--exercise-combat','--exercise-cues','
 if not(int(seen['assets'])>=2 and seen['audio']=='Attack.Start' and seen['audio_starts']=='1' and seen['audio_stops']=='1' and seen['audio_live']=='0' and seen['visual']=='none'):raise RuntimeError('Editor Play did not present the swing cue once: '+str(seen))
 seen=cues(run('cues-burn-d3d12',common+['--exercise-reaction','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-burn-d3d12.png']))
 if not('Status.Burn' in seen['visual'].split(',') and int(seen['visual_live'])>=1 and seen['audio']=='none'):raise RuntimeError('Editor Play did not present the Burn aura cue: '+str(seen))
+# The aura is a real effect: cooked from its Effekseer source, loaded, playing and drawn through the renderer, with nothing skipped.
+if not(seen['vfx_loaded']=='1' and seen['vfx_playing']=='1' and int(seen['vfx_particles'])>0 and int(seen['vfx_quads'])>0 and int(seen['vfx_draws'])>=1 and seen['vfx_unsupported']=='0' and seen['vfx_missing']=='0'):raise RuntimeError('Editor Play did not draw the Burn aura effect: '+str(seen))
 log=run('mask-switch-d3d12',worn+['--exercise-mask-switch','--frames','30','--capture',EVIDENCE/'mask-switch-d3d12.png'])
 if 'Editor mask switch tick=30 loadout=2 mask=test_air worn=0 pending=0' not in log:raise RuntimeError('Editor Play did not switch masks: '+log[-400:])
 run('camera-free-look-d3d12',worn+['--exercise-camera-look','--frames','30','--capture',EVIDENCE/'camera-free-look-d3d12.png'])

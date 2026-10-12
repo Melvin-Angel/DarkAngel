@@ -23,11 +23,11 @@ QUERY_TYPE_PIPELINE_STATISTICS:    0/ 128
 QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
-[39m[39mDiligent Engine: Info: Command list manager: created 60 allocators
+[39m[39mDiligent Engine: Info: Command list manager: created 62 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 5/16384 (0.03%) | 512/8192 (6.25%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 2/1024 (0.20%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 4/1024 (0.39%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 12/8192 (0.15%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 13/8192 (0.16%).
 [39m

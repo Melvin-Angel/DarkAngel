@@ -28,3 +28,29 @@ function(darkangel_add_diligent)
   # Diligent-Imgui compiles the only active Dear ImGui copy. ImGuizmo must link
   # this provider rather than using the vcpkg port, which depends on another imgui.
 endfunction()
+
+# Effekseer 1.80.7 runtime from its pinned source: the simulation and the shared node renderer code only. Every
+# bundled renderer and sound backend stays off; DarkAngel draws through Diligent (engine/vfx). Plain variables, not
+# cache entries, so these generic option names do not leak into other subprojects.
+function(darkangel_add_effekseer)
+  set(BUILD_EXAMPLES OFF)
+  set(BUILD_GL OFF)
+  set(BUILD_VULKAN OFF)
+  set(BUILD_DX9 OFF)
+  set(BUILD_DX11 OFF)
+  set(BUILD_DX12 OFF)
+  set(BUILD_METAL OFF)
+  set(BUILD_WEBGPU OFF)
+  set(BUILD_VIEWER OFF)
+  set(BUILD_EDITOR OFF)
+  set(BUILD_TEST OFF)
+  set(USE_OPENAL OFF)
+  set(USE_XAUDIO2 OFF)
+  set(USE_DSOUND OFF)
+  set(USE_OSM OFF)
+  set(NETWORK_ENABLED OFF)
+  set(USE_LIBPNG_LOADER OFF)
+  set(CLANG_FORMAT_ENABLED OFF)
+  set(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
+  add_subdirectory("${PROJECT_SOURCE_DIR}/.tools/effekseer-runtime" "${PROJECT_BINARY_DIR}/effekseer-runtime" EXCLUDE_FROM_ALL)
+endfunction()

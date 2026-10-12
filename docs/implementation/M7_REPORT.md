@@ -174,3 +174,39 @@ Rules, each with a test:
 - One full pass on the final build: the build shows only the known `RoyalCollisionTests` link failure; CTest 88 of 93, the five others being the known unrelated ones (`M5.actor_assets`, `M5.attribute_authoring`, `M5.composer_structure`, `M5.composer_preview`, `M4.royal_mesh_collision`); `python scripts/verify_effect_reaction.py` ran 52 gates (the earlier 50 and the two cue gates) and all pass. Both cue captures were looked at ([swing](evidence/cues-swing-d3d12.png), [Burn](evidence/cues-burn-d3d12.png)).
 
 Not verified: a predicted cue that authority then rejects, in a real session (loopback never rejects a prediction on its own; the cut is covered by the tracker and cue player tests only); more than one frame's worth of ticks in one editor frame; a project with no cue assets beyond the code path that returns an empty list.
+
+## Step 2: Effekseer on Diligent (12 October 2026)
+
+A cue's visual is now a real effect: authored as an Effekseer project, cooked through the Effekseer tool, simulated by the Effekseer runtime and drawn by our own renderer in Editor Play. The owned Burn aura is the first one.
+
+### What was checked first
+
+- **Command-line export.** The acquired Effekseer 1.80.7 editor compiles a project without opening a window: `Effekseer.exe -cui -in <source> -e <output.efk>`, for both `.efkproj` (XML) and `.efkefc` (packed). It exits with 0 even when it fails: a malformed project writes no output, and a missing input writes an empty effect. The cooker therefore trusts only the output file, never the exit code, and never passes a path that does not exist.
+- **Renderer interfaces** (correcting the design above). Effekseer's shared renderer code (`EffekseerRendererCommon`) already builds the geometry of sprites, ribbons, rings and tracks; those classes are templates over a backend renderer and need only its camera, a quad budget and a "standard renderer" with three functions that hands out vertex memory per render state. So this renderer does not implement the node renderers itself, as the design said; it supplies that small backend and reuses Effekseer's node renderers unchanged.
+
+### Built
+
+- **Effekseer runtime in the build** (`darkangel_add_effekseer` in cmake/later-recipes.cmake): the pinned source's `Effekseer` and `EffekseerRendererCommon` static libraries, every bundled renderer, sound backend, network and example off. No vcpkg package was touched.
+- **Effect assets** (engine/assets/vfx_cooker.cpp, `darkangel/vfx_assets.hpp`). `.efkproj` and `.efkefc` are asset sources with the usual import sidecar (importer `effekseer-v1`). Cooking compiles the source with the tool and writes one product: the compiled effect together with its colour textures, each cooked by the existing texture cooker and stored under the path the effect asks for. The textures a source names are read without the tool (from the XML, or from the packed file's resource list), so a changed texture is a changed effect. Refused by name at cook time: normal maps (lit particles), distortion, models, custom materials, and sounds inside the effect.
+- **Placeholder effects** (`content/vfx/placeholder`, written by `scripts/generate_placeholder_vfx.py`): a soft glow texture, a hit spark and a Burn aura. They are plainly stand-ins and are replaced by editing them in Effekseer.
+- **Visual effect service** (engine/vfx, library `DarkAngelVfx`, `darkangel::VfxService`): loads a cooked effect, plays it at a position, moves it, stops it spawning or removes it, advances all effects, and draws them into the bound render targets against their depth. One dynamic vertex buffer, one pipeline per blend mode and depth state made on first use, unlit shading (texture times colour, with Effekseer's emissive scaling). It reports loaded effects, playing effects, particles, quads, draw calls and skipped batches.
+- **Cues play effects** (apps/editor/vfx_cue_sink.hpp). A cue's `visual` names an effect asset by its source path. The cue player's start, stop and release become play, stop spawning and remove; an effect follows its actor (root position plus one metre). A one-shot cue plays out and is removed on release. The Burn cue now names `vfx/placeholder/burn_aura.efkproj`.
+- **Editor Play** creates one service on the device, cooks and loads the effects its cues name when Play starts, advances effects on the session's tick clock (so a gate is repeatable) and draws them after the opaque scene. The Cues tab shows the service's counts.
+
+### Limits
+
+- **Unlit only.** Lit particles, distortion, models and custom materials are not drawn. Cooking refuses the effects that are known to need them; a batch that needs other shading at run time is skipped and counted, never drawn wrongly. Of Effekseer's "advanced" unlit options (flipbook blending, UV distortion, alpha cutoff, soft particles) only the plain texture and colour are used.
+- **No culling.** Both faces are always drawn.
+- **Attachment** is the actor's root plus one metre. Joints and authored offsets come with the cue form.
+- **The hit spark is authored and cooked but not bound.** Binding it means adding a cue to the owned Flinch effect, which changes owned gameplay content that many tests pin; it is done together with the hit sound in step 3 so that content changes once.
+- **Editor only, D3D12 looked at.** The service is renderer-independent of the editor, but nothing else constructs it yet; the Vulkan backend was not run.
+- **Placeholder projects say they come from Effekseer's oldest tool version**, because they use that schema's element names (the shipped samples'); Effekseer upgrades them on load. Naming the current tool version made it skip the upgrade and silently drop the colours.
+- **Cook needs the tool.** A machine without `.tools/effekseer-editor` cannot cook an effect source that is not already cooked.
+
+### Verified
+
+- `VfxAssetTests` (`M7.vfx_assets`, new): the owned placeholders in the catalog; compile through the tool, package and load with the texture under its path; a warm cook does nothing; a changed texture cooks again and a missing one is refused; a malformed source is refused; a packed sample project with three textures cooks; a sample that uses distortion is refused by name.
+- Editor Play, D3D12, gate `cues-burn-d3d12` (extended): after the Heavy hit the Burn aura is loaded, playing, has particles and is drawn in at least one draw call with nothing skipped and no cue left without its effect. The [capture](evidence/cues-burn-d3d12.png) was looked at: an orange glow and embers around the burning dummy, hidden where the player stands in front of it, so the scene depth is respected.
+- One full pass on the final build: the build shows only the known `RoyalCollisionTests` link failure; CTest 89 of 94 with the five known unrelated failures; all 52 verify gates pass.
+
+Not verified: ribbons, rings and tracks on screen (the shared code is built and reached the same way as sprites, but no owned effect uses them yet); blend modes other than additive; Vulkan; an effect stopping and fading at the end of Burn seen by eye; many effects at once.

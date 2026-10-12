@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39mEditor encounter_place encounters=2 volumes=3 triggers=2 undo_redo=1
 [39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201860000
-[39mViewport foreground pixels=861494 capture=C:\DarkAngel\docs\implementation\evidence\encounter-scene-d3d12.png
+[39mViewport foreground pixels=861497 capture=C:\DarkAngel\docs\implementation\evidence\encounter-scene-d3d12.png
 Editor encounter_scene volumes_drawn=5
 DarkAngel editor rendered 6 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
@@ -23,11 +23,11 @@ QUERY_TYPE_PIPELINE_STATISTICS:    0/ 128
 QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
-[39m[39mDiligent Engine: Info: Command list manager: created 60 allocators
+[39m[39mDiligent Engine: Info: Command list manager: created 62 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 5/16384 (0.03%) | 512/8192 (6.25%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 5/1024 (0.49%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 13/8192 (0.16%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 14/8192 (0.17%).
 [39m

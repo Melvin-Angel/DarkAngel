@@ -26,17 +26,20 @@ def axes(name, x=None, y=None, z=None):
     body = ''.join(f'<{axis}>{triple(value)}</{axis}>' for axis, value in (('X', x), ('Y', y), ('Z', z)) if value)
     return f'<{name}>{body}</{name}>'
 
-def node(name, generation, life, interval, velocity, acceleration, scale, grow, colour, fade):
+def node(name, generation, life, interval, velocity, acceleration, scale, grow, colour, fade, location=(None, None, None)):
     red, green, blue, alpha = colour
     return (f'<Node><CommonValues><MaxGeneration>{generation}</MaxGeneration><Life>{triple(life)}</Life><GenerationTime>{triple(interval)}</GenerationTime></CommonValues>'
-            f'<LocationValues><Type>1</Type><PVA>{axes("Velocity", *velocity)}{axes("Acceleration", *acceleration)}</PVA></LocationValues>'
+            f'<LocationValues><Type>1</Type><PVA>{axes("Location", *location)}{axes("Velocity", *velocity)}{axes("Acceleration", *acceleration)}</PVA></LocationValues>'
             f'<ScalingValues><Type>1</Type><PVA>{axes("Scale", scale, scale, scale)}{axes("Velocity", grow, grow, grow)}</PVA></ScalingValues>'
             f'<RendererCommonValues><ColorTexture>Texture/glow.png</ColorTexture><AlphaBlend>2</AlphaBlend><ZWrite>False</ZWrite><FadeInType>1</FadeInType><FadeIn><Frame>2</Frame></FadeIn><FadeOutType>1</FadeOutType><FadeOut><Frame>{fade}</Frame></FadeOut></RendererCommonValues>'
             f'<DrawingValues><Sprite><ColorAll_Fixed><R>{red}</R><G>{green}</G><B>{blue}</B><A>{alpha}</A></ColorAll_Fixed></Sprite></DrawingValues><Name>{name}</Name><Children /></Node>')
 
+# The element names used here are those of Effekseer's oldest project schema (the one its shipped samples use), so the file
+# says so in ToolVersion; Effekseer upgrades it when it opens or compiles it. Naming a newer tool makes it skip that upgrade
+# and silently ignore the colours.
 def project(nodes, end, loop):
     return ('<?xml version="1.0" encoding="utf-8"?>\n<EffekseerProject><Root><Name>Root</Name><Children>' + ''.join(nodes) +
-            f'</Children></Root><ToolVersion>1.80.7</ToolVersion><Version>3</Version><StartFrame>0</StartFrame><EndFrame>{end}</EndFrame><IsLoop>{loop}</IsLoop></EffekseerProject>\n')
+            f'</Children></Root><ToolVersion>0.7CTP1</ToolVersion><Version>3</Version><StartFrame>0</StartFrame><EndFrame>{end}</EndFrame><IsLoop>{loop}</IsLoop></EffekseerProject>\n')
 
 (ROOT / 'Texture').mkdir(parents=True, exist_ok=True)
 png(ROOT / 'Texture/glow.png', 64)
@@ -47,8 +50,8 @@ spark = project([
 ], 30, 'False')
 # Burn aura: embers rising around the body for as long as the effect lasts.
 aura = project([
-    node('Embers', '<Infinite>True</Infinite>', (26, 34, 42), (1.5, 2, 2.5), ((-.012, 0, .012), (.02, .03, .04), (-.012, 0, .012)), (None, None, None), (.12, .2, .28), (-.003, -.003, -.003), (255, 120, 40, 220), 16),
-    node('Glow', '<Infinite>True</Infinite>', (30, 30, 30), (10, 10, 10), (None, (.004, .004, .004), None), (None, None, None), (1.1, 1.1, 1.1), (.004, .004, .004), (255, 90, 20, 70), 14),
+    node('Embers', '<Infinite>True</Infinite>', (26, 34, 42), (.8, 1, 1.2), ((-.008, 0, .008), (.015, .025, .035), (-.008, 0, .008)), (None, None, None), (.18, .28, .38), (-.004, -.004, -.004), (255, 130, 40, 230), 16, ((-.45, 0, .45), (-.8, -.1, .6), (-.45, 0, .45))),
+    node('Glow', '<Infinite>True</Infinite>', (30, 30, 30), (10, 10, 10), (None, (.004, .004, .004), None), (None, None, None), (2.4, 2.4, 2.4), (.006, .006, .006), (255, 90, 20, 110), 14),
 ], 120, 'True')
 (ROOT / 'hit_spark.efkproj').write_text(spark, encoding='utf-8')
 (ROOT / 'burn_aura.efkproj').write_text(aura, encoding='utf-8')
