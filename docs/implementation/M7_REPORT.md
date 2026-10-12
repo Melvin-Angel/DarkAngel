@@ -276,3 +276,47 @@ An actor that walks is heard: a step for every stride of ground it covers.
 Limits: one stride length and one sound for every actor and every surface (no surface types, no walk and run difference, no left and right foot); steps follow distance, not the animation's foot contacts, so they are not in sync with the feet; a running player takes a step about every 0.15 s, which may be too quick to the ear.
 
 Verified: `CuePlayerTests` (three steps for three metres, none in the air, none for a teleport, a new avatar starts again, a retired actor forgets; moments play once per actor and serial); `CharacterCombatSceneTests` (the player walking for two seconds takes the steps its covered ground gives, within one, all its own; the dummy that stands still takes none); editor gate `cues-footsteps-d3d12` (new: the player runs for two seconds and only footsteps are played, 18 of them, none missing). One full pass: the build shows only the known `RoyalCollisionTests` link failure; CTest 90 of 95 with the five known unrelated failures; all 54 verify gates pass. Not heard.
+
+## Plan change: an Audio tab (12 October 2026, user request)
+
+The user asked for a dedicated **Audio** tab for audio authoring, as an MVP now and grown later: edit audio clips (for example adding effects), edit the mixer (volumes for tracks such as background music, ambient sounds, NPC sounds and player sounds, and if possible bus effects such as a limiter, a compressor or a reverb to level the mix), audio profiles per scene, and different audio for encounters. The full workflow is open; the tab is not.
+
+This replaces item (2) of what was left of M7 ("lasting sounds, ambient and music, bus volumes as project settings"): those become the content of the Audio tab instead of settings scattered elsewhere. Nothing below is built.
+
+### What Amplitude offers, and what it does not (read from the pinned source, not tried)
+
+- **Buses** with a gain each, parent and child buses, and ducking (one bus lowering another while it plays, with fade times). Our service creates only `master` and `effects` today.
+- **Effects on a sound** (`.amfx`): bass boost, equaliser, compressor, delay, flanger, lo-fi, pitch shift, robotize, wave shaper, low and high pass, DC removal. An effect is chosen per sound, with parameters.
+- **A mixing pipeline** for the whole output, built from nodes, among them a limiter, a hard clip, reverb and reflections.
+- **Environments** (regions with an effect such as reverb that sounds inside them pick up) and **attenuation** shapes.
+- **Collections** (random or sequenced variants of a sound), **switches** (a state that selects among sounds, for example a surface type) and **RTPCs** (a game value driving a gain or a parameter).
+- **Not in its model: an effect chain on a bus.** A compressor or a reverb on the music bus alone is not something Amplitude's buses do. A limiter on the final mix and a reverb through the pipeline or an environment are; a per-bus compressor would have to be applied per sound on that bus, or built by us. This limits "bus effects" in the MVP to the master output.
+
+### The Audio tab, MVP
+
+A top-level **Audio** workspace (`Workspace::Audio`) with three sections.
+
+1. **Sounds.** The project's sound assets with Import (a WAV file into `content/audio`), play and stop, length and format. A sound gets a small native definition beside its WAV (`.dasound`): the bus it plays on, gain, pitch, loop, whether it is positioned in the world or plays flat (music, UI), its distance range, and a list of Amplitude effects with their parameters. Editing is a native draft like every other asset (Undo, Redo, validation, Save). Audition plays the sound with its effects exactly as the game will. No waveform editing (trim, fade, normalise) in the MVP: that is destructive editing of the file and belongs to an audio editor; if wanted later, non-destructive trim and fades can be definition fields.
+2. **Mixer.** One project asset (`.damix`): the bus list, fixed to begin with as Master, Music, Ambient, Player, NPC and UI, each with a volume and mute; ducking rules between buses (for example Music lowered while a boss encounter stinger plays); and the master chain: limiter on or off with its threshold. Live meters per bus are wanted and depend on whether Amplitude exposes bus levels (not checked). Changing a volume during Play is heard at once.
+3. **Scene audio.** A profile (`.daaudioprofile`) that a scene names: its music track, its ambient loops with volumes, an optional reverb environment for the whole scene, and per-bus volume offsets over the project mixer. Starting Play applies the scene's profile.
+
+Cues stay the link from gameplay to sound: a cue's audio names a sound asset, and the sound's definition decides bus, effects and looping.
+
+### Encounters and other changes during play
+
+An encounter (and later other world events) can name an audio profile to **layer** while it runs: the profile's music replaces the scene's with a crossfade, its ambient loops are added, and when the encounter completes the scene's profile returns. This reuses what encounters already publish (start and completion as world events), so the audio side listens to world events and needs no new gameplay state. Authored in the encounter's Inspector as one "Audio profile" field.
+
+### Order of work
+
+1. Lasting sounds in the service: loop, flat (not positioned) playback, stop with fade, a second handle type for music and ambience. Buses beyond `effects`. The service's project generation gains buses, effects and the pipeline's limiter.
+2. `.dasound` definition, cooker, and its form in the Audio tab with audition. Cues play through it.
+3. `.damix` and the Mixer section; volumes applied live.
+4. `.daaudioprofile`, the Scene audio section, a scene naming its profile, applied at Play.
+5. Encounter audio profile: layered on the encounter's world events.
+6. Later, not MVP: collections for variation (several footstep samples), switches for surfaces, RTPCs, environments placed in a scene as volumes, meters, per-bus effect chains if we build them, non-destructive trim and fades.
+
+### Questions for the user (none blocking)
+
+1. Buses: is Master, Music, Ambient, Player, NPC, UI the right starting set, or should buses be free to add and rename from the start?
+2. Is a limiter on the master output enough for "levelling" in the MVP, given that Amplitude has no per-bus effect chain?
+3. Clip editing: are effects, gain, pitch and loop per sound enough for now, with trimming and fades left to an external audio editor?
