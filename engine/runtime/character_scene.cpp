@@ -31,6 +31,9 @@ struct CharacterSceneSession::Impl {
     std::vector<AbilityCommitUpdate> commitment_updates;
     std::vector<EffectCueUpdate> effect_cue_updates;
     // Action cue blocks derived from the client's own view of every actor's action clock, and the host's cue player, if any.
+    // The owner's predicted action as it stood this tick before authority's answer for the tick was applied: what a client on a real
+    // connection presents. Loopback answers within the tick, so without this a refused press would never be seen at all.
+    AssetId predicted_cue_definition;std::optional<ActionState> predicted_cue_action;
     std::unique_ptr<ActionCueTracker> cue_tracker;std::vector<ActionCueUpdate> action_cue_updates;std::vector<ActionCueCut> action_cue_cuts;CuePlayer* cue_player{};FootstepTracker footstep_tracker;std::vector<FootstepUpdate> footstep_updates;
     CollisionHistory history;
     std::vector<CollisionMesh> prepared_geometry;
@@ -306,7 +309,7 @@ struct CharacterSceneSession::Impl {
         // An interaction is a request like any intent: it names the object, and authority resolves it in its world step.
         if(combat&&input.interact)client.submit_interaction(player,*input.interact);
         MotionRequest authoritative_motion,predicted_request;auto predicted_command=command;
-        if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);const auto candidates=client_candidates();if(auto chosen=lock(predicted_request,owner_motor->state(),predicted_command,candidates)){predicted_locks[tick]=*chosen;soft_lock_tick=tick;soft_lock_actor=*chosen;}}
+        if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);predicted_cue_definition=ability_prediction->view().action_definition;predicted_cue_action=ability_prediction->view().action;if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);const auto candidates=client_candidates();if(auto chosen=lock(predicted_request,owner_motor->state(),predicted_command,candidates)){predicted_locks[tick]=*chosen;soft_lock_tick=tick;soft_lock_actor=*chosen;}}
         semantic_commands.push_back(command);require(semantic_commands.size()<=30,"Character scene semantic history overflow; resynchronize");
         lap(profile.prediction);server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
         auto accepted=server.consume_motor(player,tick,command.epoch);
@@ -341,7 +344,7 @@ struct CharacterSceneSession::Impl {
         lap(profile.prediction);
         if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& actor:actors)if(!actor.pose)present(actor);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}
             // Action cues. The owner's action is seen twice, confirmed and predicted; every other actor's once, from its public frame at this tick.
-            {const auto& correction=client.ability_corrections().at(player);cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerConfirmed,correction.ability.action_definition,correction.ability.action);const auto& predicted=ability_prediction->view();cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerPredicted,predicted.action_definition,predicted.action);
+            {const auto& correction=client.ability_corrections().at(player);cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerConfirmed,correction.ability.action_definition,correction.ability.action);cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerPredicted,predicted_cue_definition,predicted_cue_action);
                 for(const auto& actor:actors)if(actor.pose){auto frame=shown(actor.id);if(frame.ability.tick<tick)frame.ability=public_ability_at(frame.ability,tick);cue_tracker->observe(actor.id,frame.avatar_epoch,CueTiming::Observed,frame.ability.action_definition,frame.ability.action);footstep_tracker.observe(actor.id,frame.avatar_epoch,frame.motor.position.x,frame.motor.position.z,frame.motor.grounded);}
                 // The owner hears its own steps from its predicted motor.
                 {const auto& walked=owner_motor->state();footstep_tracker.observe(player,correction.motor.epoch,walked.position.x,walked.position.z,walked.grounded);}footstep_updates=footstep_tracker.drain();
@@ -466,6 +469,7 @@ std::string CharacterSceneSession::controller_status(StableId actor)const{const 
 const AbilityReceipt* CharacterSceneSession::controller_receipt(StableId actor)const{const auto* found=impl_->find(actor);return found&&found->receipt?&*found->receipt:nullptr;}
 std::optional<StableId> CharacterSceneSession::controller_target(StableId actor)const{const auto* found=impl_->find(actor);return found?found->chosen:std::nullopt;}
 void CharacterSceneSession::emit_world_event(std::string name){impl_->world.emit(std::move(name));}
+void CharacterSceneSession::refuse_next_activation(){require(bool(impl_->combat),"A refusal needs a combat session");impl_->server.refuse_next_ability(impl_->player);}
 const WorldEvents& CharacterSceneSession::world_events()const{return impl_->world;}
 std::span<const StableId> CharacterSceneSession::encounters()const{return impl_->encounter_identities;}
 std::optional<EncounterStatus> CharacterSceneSession::encounter(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.directors.size();++index)if(p.encounter_identities[index]==id)return p.directors[index].status();return std::nullopt;}

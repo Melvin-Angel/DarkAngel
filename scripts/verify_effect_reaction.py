@@ -65,6 +65,10 @@ seen=cues(run('cues-swing-d3d12',common+['--exercise-combat','--exercise-cues','
 if not(int(seen['assets'])>=3 and [key for key in seen['audio'].split(',') if key!='Footstep']==['Attack.Start','Status.Flinch'] and seen['visual']=='Attack.Start,Status.Flinch' and seen['vfx_missing']=='0' and int(seen['vfx_loaded'])>=1 and int(seen['trails'])>=1 and int(seen['trail_points'])>=2 and int(seen['decals'])>=1 and int(seen['primitive_quads'])>0 and seen['primitive_missing']=='0'):raise RuntimeError('Editor Play did not present the swing and hit cues: '+str(seen))
 if not(seen['audio_service']=='1' and seen['audio_device']=='0' and int(seen['audio_loaded'])>=2 and int(seen['audio_played'])>=2 and seen['audio_missing']=='0'):raise RuntimeError('Editor Play did not play the swing and hit sounds on the silent driver: '+str(seen))
 # Footsteps: the player runs forward for two seconds and is heard doing it, a step every stride of ground covered, from its predicted position.
+# A rejected activation in a live session: authority refuses the press (fault injection). The swing sound and the weapon trail start on the
+# predicted press, as real effect and sound, and are cut short when the refusal arrives; no hit follows, so no hit cue, spark or decal.
+seen=cues(run('cues-rejected-d3d12',common+['--exercise-combat','--exercise-cues','--exercise-reject','--frames','30','--capture',EVIDENCE/'cues-rejected-d3d12.png']))
+if not(seen['refused']=='1' and [key for key in seen['audio'].split(',') if key!='Footstep']==['Attack.Start'] and seen['visual']=='Attack.Start' and seen['live']=='0' and int(seen['audio_stops'])>=1 and seen['trails']=='0' and seen['decals']=='0' and seen['audio_played']=='1' and seen['audio_missing']=='0' and seen['primitive_missing']=='0'):raise RuntimeError('A refused press did not start and then cut its real sound and trail: '+str(seen))
 seen=cues(run('cues-footsteps-d3d12',common+['--exercise-character','--exercise-cues','--frames','120','--capture',EVIDENCE/'cues-footsteps-d3d12.png']))
 if not(set(seen['audio'].split(','))=={'Footstep'} and 8<=int(seen['audio_played'])<=30 and seen['audio_missing']=='0' and seen['visual']=='none'):raise RuntimeError('Editor Play did not play the player footsteps: '+str(seen))
 seen=cues(run('cues-burn-d3d12',common+['--exercise-reaction','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-burn-d3d12.png']))
@@ -87,6 +91,22 @@ def audio(log):
 def asset_id(path):return json.loads((source/path).read_text())['asset']
 seen=audio(run('audio-tab-d3d12',common+['--audio-workspace','--exercise-audio','--frames','30','--capture',EVIDENCE/'audio-tab-d3d12.png']))
 if not(seen['workspace']=='1' and int(seen['waves'])>=6 and int(seen['definitions'])>=3 and int(seen['profiles'])>=2 and seen['mixers']=='1' and seen['driver']=='null' and int(seen['loaded'])>=2 and abs(float(seen['bus_music'])-0.3)<1e-3 and seen['director']=='1' and seen['profile']==asset_id('audio/profiles/royal_calm.daaudioprofile') and seen['music']==asset_id('audio/music_calm.dasound') and seen['ambient']=='1' and seen['missing']=='0'):raise RuntimeError('The Audio tab did not audition a sound and a profile and apply a mixer change: '+str(seen))
+# An agent changes actual effect and sound content, not wrapper parameters: the hit spark's own node (how many sparks it emits) in the
+# Effekseer project, and the hit sound's samples in its WAV. Both sources cook again, and the next Play draws and plays the changed products.
+def generations(seen,field,name):
+    return dict(item.rsplit(':',1) for item in seen[field].split(';'))[name]
+before=cues(run('content-before-d3d12',common+['--exercise-combat','--exercise-cues','--frames','30','--capture',EVIDENCE/'content-before-d3d12.png']))
+spark=source/'vfx/placeholder/hit_spark.efkproj';spark_text=spark.read_text(encoding='utf8');hit=source/'audio/placeholder/hit.wav';hit_bytes=hit.read_bytes()
+if spark_text.count('<MaxGeneration><Value>14</Value></MaxGeneration>')!=1:raise RuntimeError('The hit spark source is not the one this gate edits')
+import math,struct
+spark.write_text(spark_text.replace('<MaxGeneration><Value>14</Value></MaxGeneration>','<MaxGeneration><Value>40</Value></MaxGeneration>'),encoding='utf8')
+samples=bytes().join(struct.pack('<h',int(20000*math.sin(2*math.pi*330*i/48000)*math.exp(-i/4000))) for i in range(9600));hit.write_bytes(bytes('RIFF','ascii')+struct.pack('<I',36+len(samples))+bytes('WAVEfmt ','ascii')+struct.pack('<IHHIIHH',16,1,1,48000,96000,2,16)+bytes('data','ascii')+struct.pack('<I',len(samples))+samples)
+try:
+    after=cues(run('content-after-d3d12',common+['--exercise-combat','--exercise-cues','--frames','30','--capture',EVIDENCE/'content-after-d3d12.png']))
+finally:
+    spark.write_text(spark_text,encoding='utf8');hit.write_bytes(hit_bytes)
+changed=dict(effect=(generations(before,'effect_generations','vfx/placeholder/hit_spark.efkproj'),generations(after,'effect_generations','vfx/placeholder/hit_spark.efkproj')),sound=(generations(before,'sound_generations','audio/placeholder/hit.wav'),generations(after,'sound_generations','audio/placeholder/hit.wav')),aura=(generations(before,'effect_generations','vfx/placeholder/burn_aura.efkproj'),generations(after,'effect_generations','vfx/placeholder/burn_aura.efkproj')),particles=(int(before['vfx_particles']),int(after['vfx_particles'])))
+if not(changed['effect'][0]!=changed['effect'][1] and changed['sound'][0]!=changed['sound'][1] and changed['aura'][0]==changed['aura'][1] and changed['particles'][1]>changed['particles'][0] and after['vfx_missing']=='0' and after['audio_missing']=='0' and int(after['audio_played'])>=2 and after['vfx_unsupported']=='0'):raise RuntimeError('Edited effect and sound content did not reach Play: '+str(changed)+' '+str(after))
 log=run('mask-switch-d3d12',worn+['--exercise-mask-switch','--frames','30','--capture',EVIDENCE/'mask-switch-d3d12.png'])
 if 'Editor mask switch tick=30 loadout=2 mask=test_air worn=0 pending=0' not in log:raise RuntimeError('Editor Play did not switch masks: '+log[-400:])
 run('camera-free-look-d3d12',worn+['--exercise-camera-look','--frames','30','--capture',EVIDENCE/'camera-free-look-d3d12.png'])

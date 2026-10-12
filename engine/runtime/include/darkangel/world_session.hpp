@@ -76,6 +76,10 @@ public:
     std::vector<InteractionNotice> drain_interaction_receipts();
     AbilityFailure can_activate(const AbilityRequest&)const;
     AbilityReceipt request_ability(const AbilityRequest&);
+    // Fault injection for tests and tools: authority refuses this owner's next pressed ability intent with the given
+    // reason, through the same path and with the same receipt as a rule that failed. Loopback never refuses a
+    // prediction on its own; on a real connection a refusal comes from state the client has not heard of yet.
+    void refuse_next_ability(std::uint64_t network,AbilityFailure reason=AbilityFailure::Busy);
     AbilityFailure cancel_ability(AbilityActivationHandle);
     void advance_abilities(std::uint64_t simulation_tick,unsigned action_rate=action_tick_units);
     void bind_melee_query(std::shared_ptr<const MeleeQuery>);

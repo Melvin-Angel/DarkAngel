@@ -165,6 +165,9 @@ public:
     const Perception* perception(StableId)const;
     // World events and tags, as authority holds them. Emitting queues the event for the next tick, like any other.
     void emit_world_event(std::string name);
+    // Fault injection for tests and the editor's gate: authority refuses the player's next pressed ability (see
+    // WorldSession::refuse_next_ability). The client predicts the press as usual and is then corrected.
+    void refuse_next_activation();
     const WorldEvents& world_events()const;
     // Encounters in scene order, the state of one, and for an actor that an encounter spawned, which one.
     std::span<const StableId> encounters()const;

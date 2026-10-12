@@ -69,7 +69,7 @@ struct WorldSession::Impl {
     };
     std::map<ConnectionHandle,Peer> peers;
     struct MotorQueue {ConnectionHandle owner;std::map<std::uint64_t,MotorInput> pending;MotorInput last;std::uint64_t consumed_tick{},received_sequence{};};
-    std::map<std::uint64_t,MotorQueue> motor_inputs;std::map<std::uint64_t,MotorState> motor_states;
+    std::map<std::uint64_t,MotorQueue> motor_inputs;std::map<std::uint64_t,MotorState> motor_states;std::map<std::uint64_t,AbilityFailure> injected_refusals;
     std::optional<CollisionStreamFrame> latest_collision;std::deque<CollisionStreamFrame> collision_states;
     std::map<std::uint64_t,std::unique_ptr<AbilityState>> abilities;
     std::uint64_t ability_tick{},resolved_hit_tick{};
@@ -436,6 +436,7 @@ AbilityFailure WorldSession::can_activate(const AbilityRequest& request)const{re
 AbilityReceipt WorldSession::request_ability(const AbilityRequest& request){
     auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(request.owner));auto outcome=state->request(request);s.commit_ability(request.owner.network,std::move(state),outcome.second);return outcome.first;
 }
+void WorldSession::refuse_next_ability(std::uint64_t network,AbilityFailure reason){auto& s=*impl_;s.authority();require(reason!=AbilityFailure::None&&s.abilities.contains(network),"A refusal is injected for a known ability owner, with a reason");s.injected_refusals[network]=reason;}
 AbilityFailure WorldSession::cancel_ability(AbilityActivationHandle handle){
     auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(handle.owner));auto outcome=state->cancel(handle,AbilityActionReason::Cancelled);s.commit_ability(handle.owner.network,std::move(state),outcome.second);return outcome.first;
 }
@@ -449,6 +450,7 @@ void WorldSession::advance_abilities(std::uint64_t tick,unsigned rate){
         auto input=pending.find(id);if(input!=pending.end())for(auto request=input->second.begin();request!=input->second.end();){auto& queued=request->second;if(queued.intent.tick>tick){++request;continue;}
             if(!s.peers.contains(queued.peer)||!s.motor_inputs.contains(id)||s.motor_inputs.at(id).owner!=queued.peer){request=input->second.erase(request);continue;}
             std::optional<AbilityFailure> rejection;if(!s.motor_states.contains(id)||queued.intent.avatar_epoch!=s.motor_states.at(id).epoch)rejection=AbilityFailure::AvatarMismatch;else if(queued.intent.tick<tick)rejection=AbilityFailure::InputExpired;
+            else if(queued.intent.edge==InputEdge::Pressed&&!queued.intent.cancelled)if(const auto injected=s.injected_refusals.find(id);injected!=s.injected_refusals.end()){rejection=injected->second;s.injected_refusals.erase(injected);}
             auto outcome=state->request_wire(queued.intent,rejection);require(outcome.first.failure!=AbilityFailure::OperationConflict,"Changed wire operation payload; resynchronize");updates.insert(updates.end(),outcome.second.begin(),outcome.second.end());
             auto receipt=outcome.first;if(!receipt.operation){receipt.operation=queued.intent.operation;receipt.tick=tick;}
             const bool terminal=receipt.failure!=AbilityFailure::HistoryFull;

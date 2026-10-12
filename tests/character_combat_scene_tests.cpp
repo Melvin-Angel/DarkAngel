@@ -39,6 +39,17 @@ int main(){try{
             scene.step(pressed);count();check(predicted==1&&sound.starts==1,"The owner's swing cue did not start on the tick of its predicted press");scene.step(released);count();while(scene.motor().tick<80){scene.step({});count();}
             check(predicted==1&&confirmed==1&&other==0&&cuts==0,"The owner's action cue was not reported exactly once predicted and once confirmed");check(sound.starts==1&&sound.stops==1&&sound.releases==1&&cues.live()==0&&scene.identity(sound.network)==player.id,"The owner's swing cue did not play exactly once and retire");
             scene.present_cues(nullptr);}
+        // Authority refuses the owner's press (fault injection, the path a real refusal takes): the predicted swing cue starts on the press, is cut
+        // with the short tail when the refusal arrives instead of lasting its own, is never confirmed, and the action does not happen.
+        {Recorder sound;CuePlayer cues(swing,nullptr,&sound);CharacterSceneSession scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);scene.present_cues(&cues);unsigned predicted{},confirmed{},cuts{};
+            const auto count=[&]{for(const auto& cue:scene.action_cues()){if(cue.event.key!="Attack.Start")continue;if(cue.timing==CueTiming::OwnerPredicted)++predicted;else if(cue.timing==CueTiming::OwnerConfirmed)++confirmed;}cuts+=unsigned(scene.action_cue_cuts().size());};
+            scene.refuse_next_activation();scene.step(pressed);count();check(predicted==1&&sound.starts==1&&cues.live()==1,"A press that authority will refuse did not start its predicted cue");scene.step(released);count();
+            // Uncut, the cue would live for its tail of twelve ticks. Cut, it is gone within the rejection tail of six after the refusal arrives.
+            while(scene.motor().tick<11){scene.step({});count();}check(cuts==1&&cues.live()==0&&sound.releases==1,"A refused press's predicted cue was not cut short");
+            while(scene.motor().tick<80){scene.step({});count();}check(predicted==1&&confirmed==0&&cuts==1&&sound.starts==1,"A refused press was confirmed, repeated, or cut more than once");
+            // The refusal is spent: the next press is accepted and confirmed.
+            scene.step(pressed);count();scene.step(released);count();while(scene.motor().tick<170){scene.step({});count();}check(predicted==2&&confirmed==1&&cuts==1,"A press after a refused one was not accepted");
+            scene.present_cues(nullptr);}
         {auto attacked=combat;arm(attacked,{CombatSlot::Light,10,120,3,true});auto away=objects;away[1].transform.yaw=0;Recorder sound;CuePlayer cues(swing,nullptr,&sound);CharacterSceneSession scene(hello,away,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,attacked);scene.present_cues(&cues);unsigned observed{};std::uint64_t first{};
             while(scene.motor().tick<70){scene.step({});for(const auto& cue:scene.action_cues())if(cue.event.key=="Attack.Start"){check(cue.timing==CueTiming::Observed&&scene.identity(cue.network)==target.id,"An NPC's action cue is not an observed cue of that NPC");++observed;if(!first)first=scene.motor().tick;}}
             check(observed==1&&first==10&&sound.starts==1&&scene.identity(sound.network)==target.id&&cues.live()==0,"An NPC's swing cue was not presented once from its public action");scene.present_cues(nullptr);}

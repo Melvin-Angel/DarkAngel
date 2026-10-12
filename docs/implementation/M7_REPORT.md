@@ -502,3 +502,50 @@ Decision 018 keeps weapon trails and decals native, beside Effekseer, and says w
 
 Not verified: the trail and decal forms' widgets by hand; a trail on an NPC's swing by eye; a decal on anything but flat ground; many trails at once; Vulkan.
 
+## The M7 gates: design (12 October 2026, written before the code)
+
+The milestone row asks for four things. Two are met and stay as they are: bounded tails and resource retirement (the cue player's bounds and its tests; trails, decals and sounds are bounded too), and no-device and headless operation (the silent audio driver, null sinks, every scene test without a device). Two are open.
+
+**A rejected activation cutting a real effect and sound, in a live session.** A loopback session never refuses a prediction by itself, which is why step 1 could only test the cut below the session. Authority already has the path a refusal takes: `WorldSession::advance_abilities` passes an optional rejection into `request_wire` (it uses it for an avatar mismatch and for an expired input), and the receipt that comes back corrects the owner's prediction. The gate uses that path through a fault injection, named as one: `WorldSession::refuse_next_ability(network, reason)` makes authority refuse that owner's next pressed intent, and `CharacterSceneSession::refuse_next_activation()` is the same for the player. Nothing else is special: the client predicts the press, starts its predictable cue, receives the refusal, drops the activation, and the cue tracker reports a cut.
+
+- A scene test (`CharacterCombatSceneTests`): the predicted cue starts on the press, is released within the rejection tail instead of its own, is never confirmed, and the next press is accepted.
+- An editor gate (`cues-rejected-d3d12`): in Play the swing's real sound and real trail start on the press and are cut; no hit follows, so no hit cue, spark or decal.
+
+What this does not show is a refusal caused by real latency: that needs two processes or a delayed transport, which is the host and client qualification postponed on 11 October.
+
+**An agent changing actual effect and sound content, not only wrapper parameters.** The gate script plays the agent: it runs Play, then edits the hit spark's own node in its Effekseer project (how many sparks it emits) and replaces the hit sound's samples in its WAV, runs Play again and restores the files. Play reports the product generation of each effect and sound it loaded, so the gate can require that both changed, that an untouched effect did not, and that more particles are alive than before.
+
+## The M7 gates: built (12 October 2026)
+
+### Built
+
+- **Fault injection for one refusal.** `WorldSession::refuse_next_ability(network, reason)` (authority only) and `CharacterSceneSession::refuse_next_activation()`: authority refuses that owner's next pressed intent through the `rejection` argument `request_wire` already had, with an ordinary receipt.
+- **The owner's prediction is observed before the tick's answer.** The first run of the new scene test showed nothing at all for a refused press: on loopback the refusal arrives inside the same tick, and the session looked at the owner's predicted action only after applying it. A client on a real connection presents its prediction first. `CharacterSceneSession::step` now remembers the predicted action as it stood right after the prediction advanced and gives that to the cue tracker as the owner's predicted stream. An accepted press is seen exactly as before; a refused one is seen for the tick it was predicted and reported as a cut on the next.
+- **Editor**: `--exercise-reject` arms one refusal at the start of Play. With it the combat exercise requires the target unharmed and the press's cost not spent.
+- **The capture writer retries.** During this increment's gate runs the editor twice failed to write a screenshot into the evidence folder ("PNG capture failed"), on two unrelated gates. Reproduced: replacing an existing PNG in that folder failed about one time in three, while a scratch folder never failed, so another program on the machine briefly holds a capture that was just replaced (which program was not found). The editor now encodes the PNG in memory and tries the file write for up to two seconds. Six of six replacements then succeeded and the full run passed.
+- **Play reports what it loaded**: the cue readout line lists the product generation of each effect and sound of the session.
+
+### Verified
+
+- `CharacterCombatSceneTests` (extended): with a refusal armed, the press starts the predicted swing cue on its tick; the cue is released by tick 11 (cut with the six tick rejection tail; its own tail of twelve would have kept it) with exactly one cut reported; it is never confirmed; and the next press is predicted and confirmed as usual. Every earlier check of that test passes unchanged, which covers the changed observation point for accepted presses.
+- Editor gate `cues-rejected-d3d12` (new): in a live Play session the refused Light starts the swing sound on the audio service and the weapon trail, both are stopped (two stops on the audio side, no trail left, no live cue at tick 30), there is no hit cue, spark or decal, the dummy's health is 100 and the player's stamina is unspent.
+- Editor gates `content-before-d3d12` and `content-after-d3d12` (new): between the two runs the gate script changes the hit spark's emitter in its `.efkproj` from 14 to 40 sparks and replaces the hit WAV's samples. Play then loaded a new product for the spark (`2dfc0fdec910` to `cc1cb0fd30c2`) and for the hit sound (`834794ce560a` to `890f683cc3c1`), the untouched Burn aura kept its product, and 34 particles were alive at tick 30 against 14 before. The script restores both files afterwards.
+- One full pass: the build shows only the known `RoyalCollisionTests` link failure; **CTest 96 of 97** (only `M4.royal_mesh_collision`); all **61** verify gates pass. CTest ran before two editor-only changes (what the combat exercise requires when a refusal is armed, and the capture writer below); the gate script ran on the final build. Two earlier runs of the gate script on this increment stopped at a capture that could not be written, on two different gates; see the capture writer.
+
+### Where the milestone row stands
+
+| Gate of the row | State |
+|---|---|
+| Real effect and sound through an accepted activation | Shown in Editor Play (`cues-swing-d3d12`, `cues-burn-d3d12`): Effekseer effects, a native trail and decal, sounds through the Amplitude engine. |
+| The same through a rejected activation | Shown in a live session with an injected refusal (`cues-rejected-d3d12`, the scene test). Not shown with a refusal caused by real latency. |
+| Bounded tails and resource retirement | Cue player bounds and tails, trail and decal bounds, the service's own fades: tests listed in the sections above. |
+| No-device and headless operation | The silent audio driver in every hidden run, null sinks, all scene tests without a device. |
+| An agent changes actual effect and sound content | Shown (`content-before-d3d12`, `content-after-d3d12`). |
+
+What keeps M7 from being called Verified without qualification:
+
+- **Heard by a person: swing, hit and steps only** (the user, 12 October). The Audio tab's music, ambience, crossfade, effects, limiter and ducking were never heard; every automated run uses the silent driver.
+- **D3D12 only.** The effect service and the primitives were not run on Vulkan.
+- **Editor Play only.** No game executable constructs the two services yet (M9 packaging).
+- A refusal from real latency, and whether stereo placement is the right way round, are open.
+
