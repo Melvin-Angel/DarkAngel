@@ -1,0 +1,72 @@
+#pragma once
+#include <darkangel/scene_definitions.hpp>
+
+namespace darkangel {
+// The client half of a scene session for one player: the client WorldSession, the prediction world, the owner's motor
+// and ability prediction, observers and poses of every other character (the other players included), effect views, cue
+// and footstep trackers, the owner's graph and pose, and the interaction prompt. It learns which characters exist from
+// the replicated world and what they are from the same prepared scene content authority was built from; it never reads
+// authority's state. In stage 1a its owner steps it in lockstep with authority: begin, then finish once ready.
+class SceneClient {
+public:
+    // party names every member of the session, this client's player among them.
+    SceneClient(SessionHandshake,Transport&,ConnectionHandle,StableId player,std::span<const StableId> party,const CollisionDefinition&,
+        std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::shared_ptr<const CharacterSceneCombat>);
+    ~SceneClient();
+    SceneClient(const SceneClient&)=delete;
+    // One round of packet work: receive, prepare the newest collision frame for prediction and acknowledge it, send.
+    void receive();
+    // Bootstrap: true once the first state of the player and of every character it knows has arrived; start() then
+    // builds prediction and presentation from it.
+    bool bootstrapped()const;
+    void start();
+    // Combat input is routed and kept until the next begin.
+    void enqueue(std::span<const InputEvent>);
+    // The owner's side of a tick before authority's answer: submit the command and intents, predict.
+    void begin(std::uint64_t tick,const CharacterSceneInput&);
+    // Authority's state for the tick has arrived in full.
+    bool ready(std::uint64_t tick);
+    // Reconcile and present the tick, acknowledge it.
+    void finish(std::uint64_t tick);
+    // One send/receive round after finish, then authority's answers to interaction requests.
+    void flush();
+    void settle(std::uint64_t tick);
+    StableId player()const;
+    // The player's network identity; 0 until the replicated world names it.
+    std::uint64_t network()const;
+    // True when this client holds the character with this network identity (its own or another's).
+    bool knows(std::uint64_t network)const;
+    std::size_t characters()const;
+    const World& presentation()const;
+    const MotorState& predicted_motor()const;
+    const GraphState& graph()const;
+    const GraphPoseInputs& graph_inputs()const;
+    const std::vector<JointMatrix>& pose()const;
+    const std::vector<JointMatrix>* pose(StableId actor)const;
+    const GraphPoseInputs* graph_inputs(StableId actor)const;
+    std::size_t pending_prediction()const;
+    unsigned resynchronizations()const;
+    const AbilityOwnerSnapshot* ability()const;
+    const AbilityOwnerSnapshot* predicted_ability()const;
+    std::size_t pending_abilities()const;
+    MotorVec prediction_visual_offset()const;
+    ObserverAbilitySample observer(StableId,double render_tick)const;
+    const EffectPresentation* effects(StableId)const;
+    std::span<const EffectCueUpdate> effect_cues()const;
+    std::span<const ActionCueUpdate> action_cues()const;
+    std::span<const ActionCueCut> action_cue_cuts()const;
+    std::span<const FootstepUpdate> footsteps()const;
+    void present_cues(CuePlayer*);
+    std::optional<StableId> identity(std::uint64_t network)const;
+    const ReactionSample* reaction(StableId)const;
+    std::optional<double> death(StableId)const;
+    unsigned loadout()const;unsigned predicted_loadout()const;
+    std::optional<StableId> soft_lock()const;
+    AimSolution aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const;
+    const std::vector<ProjectileView>& projectiles()const;
+    std::optional<InteractionPrompt> interaction_prompt()const;
+    const InteractionOutcome* last_interaction()const;
+    const CharacterSceneProfile& profile()const;
+private:struct Impl;std::unique_ptr<Impl> impl_;
+};
+}

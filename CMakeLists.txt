@@ -150,7 +150,7 @@ if(DAE_PHYSICS)
   endif()
 endif()
 if(DAE_ANIMATION AND DAE_PHYSICS)
-  add_library(DarkAngelCharacterScene STATIC engine/runtime/character_scene.cpp engine/runtime/character_presentation.cpp)
+  add_library(DarkAngelCharacterScene STATIC engine/runtime/character_scene.cpp engine/runtime/scene_authority.cpp engine/runtime/scene_client.cpp engine/runtime/character_presentation.cpp)
   target_link_libraries(DarkAngelCharacterScene PUBLIC DarkAngelAnimation DarkAngelPhysics)
 
   target_compile_options(DarkAngelCharacterScene PRIVATE /W4 /utf-8 /EHsc)
