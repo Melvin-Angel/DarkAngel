@@ -25,6 +25,8 @@ struct EncounterDefinition {
     EncounterPlacement placement{};
     // Optional world event names and an optional world tag held while running.
     std::string started,wave_cleared,completed,tag;
+    // How long a dead enemy stays before it is removed from the session; 0 keeps it for good.
+    double corpse_seconds{6};
     // How many enemies it spawns over its whole life.
     unsigned enemies()const;
     // The most that can be alive at once.
@@ -72,12 +74,15 @@ public:
     std::span<const EncounterVolume> volumes()const{return volumes_;}
     // One tick. alive is how many of this encounter's enemies are alive now; every spawn
     // returned earlier counts as spawned. Emits its events and sets its tag on the world.
-    std::vector<EncounterSpawn> step(std::uint64_t tick,WorldEvents& world,MotorVec player,unsigned alive,const Ground& ground,const Occupied& occupied);
+    // room is how many more actors the session can take now: a wave waits until all of it fits, a timed spawn until one does.
+    std::vector<EncounterSpawn> step(std::uint64_t tick,WorldEvents& world,MotorVec player,unsigned alive,const Ground& ground,const Occupied& occupied,unsigned room=~0u);
+    // How many actors its next spawn needs room for; 0 when it is not about to spawn.
+    unsigned need()const;
     EncounterStatus status()const;
 private:
     EncounterSpawn place(AssetId npc,const Ground& ground,const Occupied& occupied,std::span<const EncounterSpawn> placed);
     std::vector<EncounterSpawn> wave(const Ground& ground,const Occupied& occupied);
     EncounterDefinition definition_;std::vector<EncounterVolume> volumes_;std::vector<EncounterPoint> points_;
-    std::uint64_t random_{};EncounterPhase phase_{};unsigned wave_{},spawned_{},alive_{};std::uint64_t spawned_tick_{},next_spawn_{};
+    std::uint64_t random_{};EncounterPhase phase_{};bool armed_{};unsigned wave_{},spawned_{},alive_{};std::uint64_t spawned_tick_{},next_spawn_{};
 };
 }

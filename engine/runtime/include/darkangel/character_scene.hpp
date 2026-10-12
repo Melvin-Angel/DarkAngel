@@ -63,9 +63,13 @@ struct CharacterSceneCombat {
     // Server-driven actors, at most character_scene_actor_limit. Actors of different
     // factions are hostile to each other; the player's faction is below.
     std::vector<CharacterSceneActor> actors;std::string faction{"player"};
-    // Encounters and trigger volumes. The actors above plus every enemy the encounters will ever spawn must fit
-    // character_scene_actor_limit: the dead keep their place in this stage.
+    // Encounters and trigger volumes. The actors above plus the most each encounter can have alive at once must fit
+    // character_scene_actor_limit; an encounter's dead are removed after its corpse time, or sooner when a spawn needs the room.
     std::vector<CharacterSceneEncounter> encounters;std::vector<CharacterSceneTrigger> triggers;
+    // Time slicing: per tick, at most this many controllers decide, this many actors sense and this many enemies enter.
+    // The rest keep their latest decision (movement and facing) and perception until their turn, in ascending order
+    // from where the previous tick stopped. An actor without a controller neither senses nor decides.
+    unsigned decision_budget{8},sense_budget{8},spawn_budget{2};
 };
 // Local listen-host composition of the existing session, motor and graph.
 // Resources are already validated/cooked. This adapter owns no transport codec.

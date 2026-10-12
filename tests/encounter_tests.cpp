@@ -71,5 +71,13 @@ int main(){try{
         step({10,1,1});check(gate.fired()==1&&bell.fired()==1,"A trigger volume fired again while the player stayed inside");
         step({0,1,0});step({10,1,0});check(gate.fired()==1&&bell.fired()==2,"A once trigger fired twice, or a repeating trigger did not fire on the second entry");
     }
-    std::cout<<"Encounters: trigger volumes (entry, once and repeating, dead player), world events (next-tick delivery, order, bounds, tags), decoding and rejection, waves at spawn points (trigger, next wave on death, emitted events, tag, completion), timed spawning (interval, cap, total), enter trigger, random points inside turned volumes (ground, spacing, repeatable) passed\n";
+    {
+        // Room: a wave waits until all of it fits and then enters whole; a timed spawn waits for one place. need() says how much.
+        EncounterDirector director(decode_encounter(waves.dump()),{},points,7);WorldEvents world;world.emit("gate.opened");std::uint64_t tick=0;auto step=[&](unsigned alive,unsigned room){world.begin_tick(++tick);return director.step(tick,world,{},alive,no_ground,empty,room);};
+        check(director.need()==2&&step(0,1).empty()&&director.status().phase==EncounterPhase::Running&&director.need()==2,"A wave entered without room for all of it, or the encounter did not start");
+        check(step(0,1).empty()&&step(0,2).size()==2&&director.need()==3,"A wave that waits for room did not enter when there was room");
+        check(step(2,9).empty()&&step(0,2).empty()&&director.status().wave==2&&director.need()==3&&step(0,3).size()==3&&director.need()==0,"The next wave did not wait for room, or need() is wrong");
+        auto relaxed=decode_encounter(waves.dump());check(relaxed.corpse_seconds==6,"The default corpse time is not 6 s");auto kept=waves;kept["corpse_seconds"]=0.0;check(decode_encounter(kept.dump()).corpse_seconds==0,"A corpse time of 0 did not decode");kept["corpse_seconds"]=-1.0;check(rejects([&]{decode_encounter(kept.dump());}),"A negative corpse time was decoded");
+    }
+    std::cout<<"Encounters: waits for room, trigger volumes (entry, once and repeating, dead player), world events (next-tick delivery, order, bounds, tags), decoding and rejection, waves at spawn points (trigger, next wave on death, emitted events, tag, completion), timed spawning (interval, cap, total), enter trigger, random points inside turned volumes (ground, spacing, repeatable) passed\n";
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

@@ -56,11 +56,12 @@ void draw_components(Controller& editor,StableId object){
         ImGui::SeparatorText("World events it emits (empty for none)");
         for(const auto& [key,label]:{std::pair<const char*,const char*>{"started","When it starts"},{"wave_cleared","When a wave is dead"},{"completed","When it is complete"}}){std::string name=value.contains("emits")&&value["emits"].contains(key)?value["emits"][key].get<std::string>():std::string{};ImGui::SetNextItemWidth(180);if(committed_text(label,name)){if(name.empty()){if(value.contains("emits")){value["emits"].erase(key);if(value["emits"].empty())value.erase("emits");}}else value["emits"][key]=name;}}
         {std::string tag=value.value("tag",std::string{});ImGui::SetNextItemWidth(180);if(committed_text("World tag while it runs",tag)){if(tag.empty())value.erase("tag");else value["tag"]=tag;}}
+        {double corpse=value.value("corpse_seconds",6.0);ImGui::SetNextItemWidth(130);if(ImGui::InputDouble("Dead enemies disappear after (s, 0 never)",&corpse,1,5,"%.1f")&&corpse>=0&&corpse<=600)value["corpse_seconds"]=corpse;}
         unsigned volumes=0,points=0;for(const auto& [volume,info]:plan.volumes)volumes+=info.encounter==object;for(const auto& [point,owner]:plan.spawn_owners)points+=owner==object;
         ImGui::TextDisabled("%u volume(s), %u spawn point(s), %u enemies in total.",volumes,points,decode_encounter(found->second).enemies());
         if((value["trigger"].contains("enter")||value["placement"]=="random")&&!volumes)ImGui::TextColored({1,.6f,.3f,1},"Needs a volume: place an Encounter volume with this encounter selected.");
         if(value["placement"]=="points"&&!points)ImGui::TextColored({1,.6f,.3f,1},"Needs a spawn point: select a spawn point and choose this encounter.");
-        ImGui::TextWrapped("Names are lowercase letters, digits, '_' and '.'. The dead keep their place, so a scene's spawn points and encounters together can bring in at most sixteen actors.");
+        ImGui::TextWrapped("Names are lowercase letters, digits, '_' and '.'. A scene's spawn points plus the most its encounters have alive at once can be at most thirty-two actors.");
         ImGui::PopID();ImGui::EndDisabled();
         if(value!=before){action(editor,[&]{decode_encounter(value.dump());set_component(editor,object,"encounter",value,"Edited the encounter.");});return;}
     }

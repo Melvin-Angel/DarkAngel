@@ -283,3 +283,23 @@ Now, by kind: motor batch 6.00, public ability 3.00, collision 2.18, owner corre
 **Verified:** full pass on this build, all 41 verify gates and CTest with only the five known unrelated failures; `CollisionStreamTests` (loss, reorder, duplicates, late join) passes with a largest packet of 952 bytes. No capture was looked at for this build: nothing visible changed since the capture looked at for the first build.
 
 **Not verified / remaining:** the margin is 1.6 packets in a scene where every actor is within reach of the player and four are acting; a scene with more actors acting at once sends more public ability frames. Step 3 of the design (remote motor states by relevance and rate, the largest remaining share) and dropping the motor state from the public frame are not built. Loopback only; packet loss on the public index was not exercised.
+
+## Thirty-two actors, relevance and packed public frames (12 October 2026)
+
+User decisions of 12 October 2026: a 12 m relevance radius is fine; support higher NPC counts.
+
+- **Capacity.** `session_character_capacity` is 33: the player and thirty-two actors (was 17). The collision stream's bounds follow it.
+- **Relevance (step 3 of the design above).** `SessionLimits::relevance_radius` (12 m) and `far_interval` (3). A character further than the radius from the receiving peer's own character has its motor state sent every third tick, staggered by identity; the peer's own character and everything inside the radius are sent every tick and first. Observers hold a far character's newest state: its pose still advances every tick. The scene session now accepts a motor state up to two ticks old for any character (`public_current`); it does not itself distinguish near from far.
+- **Packed public frames.** Public ability frames that fit a packet together travel together (wire kind `PublicBatch`); a frame is marked sent only when its packet has gone out. The single-frame kind is still accepted and still used for a frame too large to share.
+
+| CharacterCombatSceneTests, loopback | server packets per tick |
+|---|---|
+| seventeen characters, start of 11 October | 30.04 |
+| seventeen characters, now | 14.27 |
+| thirty-three characters (4 guards attacking near the player, 28 standing 14.5 m away), now | 15.97 |
+
+Thirty-three characters by kind: motor batch 5.08, collision 4.42, public batch 3.21, owner correction 2.21, public index 1.00. Near characters are on the current tick every tick; far motor states were at most two ticks old.
+
+**Verified:** the two scene tests above; `CollisionStreamTests`; full pass: All 47 verify gates; CTest: only the five known unrelated failures.
+
+**Limits, plainly:** 15.97 against a budget of 16 is no margin. It holds for this scene, where most actors are far and idle. Thirty-two actors near the player, or many acting at once, will exceed the budget; in loopback that only costs extra pumps, over a real connection it means late state. What would buy real room, in order of effect: stop sending far characters in the per-tick collision stream (4.4 packets; the client only needs bodies it can touch), drop the motor state repeated inside each public frame (step 2 of the design; halves the public frames), and shrink the owner correction (2.2 packets every tick). A near character whose packet falls into a later pump can be a tick old on the client, which the scene session now accepts; the exact-tick assertions for near characters hold in the tests because the first pump still carries them.

@@ -18,10 +18,10 @@ struct CharacterSceneSession::Impl {
     std::unique_ptr<CharacterMotor> host_motor,owner_motor;
     // A server-driven actor: its scene configuration, authoritative motor and ability owner, the latest controller
     // press and chosen target, and the pose observed from its public state. Kept in ascending network identity.
-    struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<ObservedCharacterPose> pose;std::unique_ptr<Perception> perception;std::optional<std::size_t> encounter;};
+    struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<ObservedCharacterPose> pose;std::unique_ptr<Perception> perception;std::optional<std::size_t> encounter;std::uint64_t died{};double hold_x{},hold_z{};std::optional<double> hold_face;};
     std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner;std::vector<Actor> actors;std::vector<StableId> actor_identities;std::uint32_t player_faction{1};std::vector<SensedSubject> seen;std::vector<MotorInput> actor_commands;std::vector<MotionRequest> actor_motions;std::vector<AbilityOwnerSnapshot> actor_before;std::vector<char> actor_requested;std::uint64_t next_operation{1};std::vector<InputEvent> pending_events;
     // World events, trigger volumes and encounters; enemies an encounter spawned keep their configuration here.
-    WorldEvents world;std::vector<WorldTrigger> triggers;std::vector<EncounterDirector> directors;std::vector<StableId> encounter_identities;std::deque<CharacterSceneActor> spawned;std::map<std::string,std::uint32_t> factions;std::vector<std::shared_ptr<const ActionDefinition>> prepared_actions;std::string rig_archive;
+    WorldEvents world;std::vector<WorldTrigger> triggers;std::vector<EncounterDirector> directors;std::vector<StableId> encounter_identities;std::deque<CharacterSceneActor> spawned;struct Entering {std::size_t first{};EncounterSpawn second;unsigned attempts{};};std::deque<Entering> spawn_queue;std::size_t sense_cursor{},decision_cursor{};std::vector<char> turn;std::map<std::string,std::uint32_t> factions;std::vector<std::shared_ptr<const ActionDefinition>> prepared_actions;std::string rig_archive;
     std::unique_ptr<OwnerPrediction> owner;
     std::unique_ptr<OwnerAbilityPrediction> ability_prediction;std::deque<MotorInput> semantic_commands;
     std::map<std::uint64_t,std::unique_ptr<ObserverAbility>> observers;
@@ -69,7 +69,7 @@ struct CharacterSceneSession::Impl {
             server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));if(combat->combat_damage)server.register_combat_evaluator(combat->evaluator,combat->combat_damage);else server.register_damage_evaluator(combat->evaluator,combat->damage);for(const auto& [id,evaluator]:combat->effect_evaluators)server.register_effect_evaluator(id,evaluator);ability_owner=server.configure_abilities(player,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(ability_owner,combat->tags);if(combat->loadouts.empty())server.equip_combat_kit(ability_owner,combat->kit,combat->input,combat->abilities);else{require(combat->loadouts.size()==loadout_slot_count&&combat->active_loadout<loadout_slot_count&&combat->loadouts[combat->active_loadout],"Scene loadouts need four slots and an equipped active slot");server.configure_ability_loadouts(ability_owner,combat->loadouts,combat->active_loadout);}
             // Every actor gets its own motor and ability owner; one with a kit is equipped with it.
             for(auto& actor:actors)arm(actor);
-            {std::size_t planned=actors.size();for(const auto& encounter:combat->encounters)planned+=encounter.definition.enemies();require(planned<=character_scene_actor_limit,"The scene's spawn points and encounters ask for more actors than one session holds");}
+            {std::size_t planned=actors.size();for(const auto& encounter:combat->encounters)planned+=encounter.definition.concurrent();require(planned<=character_scene_actor_limit,"The scene's spawn points and the most its encounters can have alive at once are more actors than one session holds");require(combat->decision_budget>=1&&combat->sense_budget>=1&&combat->spawn_budget>=1,"Time slicing budgets are at least 1");}
             for(const auto& encounter:combat->encounters){for(auto npc:encounter.definition.npcs()){auto found=encounter.npcs.find(npc);require(found!=encounter.npcs.end()&&!found->second.attributes.empty()&&!found->second.faction.empty(),"An encounter's NPC definition is not prepared");for(const auto& ability:found->second.abilities)require(ability&&std::any_of(combat->abilities.begin(),combat->abilities.end(),[&](const auto& known){return known->id==ability->id&&known->generation==ability->generation;}),"An encounter NPC's ability is not in the prepared scene abilities");}
                 require(bool(encounter.id)&&std::find(encounter_identities.begin(),encounter_identities.end(),encounter.id)==encounter_identities.end(),"Encounter identity");directors.emplace_back(encounter.definition,encounter.volumes,encounter.points,encounter.id.high^encounter.id.low);encounter_identities.push_back(encounter.id);}
             for(const auto& trigger:combat->triggers)triggers.emplace_back(trigger.definition,trigger.center,trigger.yaw);world.emit("play.started");
@@ -148,7 +148,8 @@ struct CharacterSceneSession::Impl {
     // A character's public frame as observers take it. The server sends a public ability frame only when its content
     // changed; while the index says the held content is current, the frame is brought to the tick with the character's
     // own motor state from the motor stream.
-    bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick==tick&&(held->second.ability.tick==tick||(!held->second.ability.active&&listed->second.content==public_ability_content(held->second.ability)));}
+    // A far character's motor state arrives every third tick, so its newest state may be up to two ticks old.
+    bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick+3>tick&&(held->second.ability.tick==tick||(!held->second.ability.active&&listed->second.content==public_ability_content(held->second.ability)));}
     AbilityPublicFrame shown(std::uint64_t id)const{auto frame=client.public_abilities().at(id);auto motor=client.motors().find(id);if(!frame.ability.active&&motor!=client.motors().end()&&motor->second.tick>frame.ability.tick&&motor->second.epoch==frame.motor.epoch){frame.motor=motor->second;frame.ability.tick=motor->second.tick;}return frame;}
     // Server side of one actor: senses, authoritative motor, ability owner with its kit. Runs at session start for the scene's
     // actors and during play for an enemy an encounter spawns.
@@ -165,23 +166,47 @@ struct CharacterSceneSession::Impl {
         actor.pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),rig_archive,prepared_actions,combat->clips,combat->tags,combat->effects,combat->death);actor.pose->sample(observers.at(actor.id)->sample(double(client.public_abilities().at(actor.id).ability.tick)).frame,effect_frame(actor.id));
     }
     // An enemy enters the session: a replicated object at the requested place, then the same setup as any actor.
-    void spawn(std::size_t index,const EncounterSpawn& request){
+    // False when the place is blocked by a body: nothing is left behind and the caller tries again.
+    bool spawn(std::size_t index,const EncounterSpawn& request){
         const auto& encounter=combat->encounters[index];require(actors.size()<character_scene_actor_limit,"An encounter spawned more actors than one session holds");
         auto made=encounter.npcs.at(request.npc);made.id=encounter_actor(encounter.id,request.index);made.controller=encounter.controller?encounter.controller(request.npc):nullptr;spawned.push_back(std::move(made));const auto& config=spawned.back();
         ObjectData object;object.id=config.id;object.transform.x=request.position.x;object.transform.y=request.position.y;object.transform.z=request.position.z;object.transform.yaw=request.yaw;
         for(const auto& attribute:config.attributes){if(attribute.id==combat->health)object.health.current=attribute.base;if(attribute.id==combat->maximum_health)object.health.maximum=attribute.base;}
         Actor actor;actor.identity=config.id;actor.id=server.create(object);actor.config=&config;actor.foot=request.position;actor.yaw=request.yaw;actor.encounter=index;require(actors.empty()||actors.back().id<actor.id,"A spawned actor's network identity is out of order");
-        actor.faction=factions.emplace(config.faction,std::uint32_t(factions.size()+1)).first->second;server.assign_team(actor.id,actor.faction);arm(actor);
-        actors.push_back(std::move(actor));actor_identities.push_back(config.id);actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());
+        actor.faction=factions.emplace(config.faction,std::uint32_t(factions.size()+1)).first->second;server.assign_team(actor.id,actor.faction);
+        try{arm(actor);}catch(const std::exception&){actor.motor.reset();server.destroy(actor.id);spawned.pop_back();return false;}
+        actors.push_back(std::move(actor));actor_identities.push_back(config.id);actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());return true;
     }
     // World step, before sensing: deliver last tick's events, let trigger volumes and encounters act on authoritative state.
+    // An actor leaves the session: its replicated object, motor, ability owner and everything the client prepared for it.
+    void retire(std::size_t position){
+        const auto id=actors[position].id;observers.erase(id);effect_views.erase(id);actors.erase(actors.begin()+std::ptrdiff_t(position));actor_identities.erase(actor_identities.begin()+std::ptrdiff_t(position));server.destroy(id);
+        actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());
+    }
+    // Round robin over the actors that have a controller: up to budget of them get this tick's turn, starting where the last tick stopped.
+    void slice(std::size_t& cursor,unsigned budget){
+        turn.assign(actors.size(),0);if(actors.empty())return;if(cursor>=actors.size())cursor=0;unsigned given=0;std::size_t last=cursor;
+        for(std::size_t step=0;step<actors.size()&&given<budget;++step){const auto index=(cursor+step)%actors.size();if(!actors[index].config->controller)continue;turn[index]=1;++given;last=index;}
+        if(given)cursor=(last+1)%actors.size();
+    }
+    // World step, before sensing: deliver last tick's events, remove the dead whose time is up, let trigger volumes and
+    // encounters act on authoritative state, then bring in at most spawn_budget of the enemies that are waiting to enter.
     void run_world(std::uint64_t tick){
         world.begin_tick(tick);const auto& owner_state=host_motor->state();const bool owner_alive=server.objects().at(player).health.current>0;
+        for(auto& actor:actors)if(actor.encounter&&!actor.died&&server.objects().at(actor.id).health.current<=0)actor.died=tick;
+        for(std::size_t position=actors.size();position-->0;){const auto& actor=actors[position];if(!actor.encounter||!actor.died)continue;const auto keep=std::uint64_t(std::llround(combat->encounters[*actor.encounter].definition.corpse_seconds*60));if(keep&&tick-actor.died>=keep)retire(position);}
         for(auto& trigger:triggers)trigger.step(world,owner_state.position,owner_alive);
         const auto ground=[this](double x,double from,double z)->std::optional<double>{const auto found=authoritative.query_ray({x,from,z},{0,-(std::abs(from)+500),0},{StaticCollision,0});const CollisionHit* nearest=nullptr;for(const auto& hit:found.hits)if(!nearest||hit.fraction<nearest->fraction)nearest=&hit;if(!nearest)return std::nullopt;return nearest->point.y;};
-        const auto occupied=[this](MotorVec point){auto near=[&](const MotorVec& at){return std::hypot(at.x-point.x,at.z-point.z)<1.&&std::abs(at.y-point.y)<2.5;};if(server.objects().at(player).health.current>0&&near(host_motor->state().position))return true;for(const auto& actor:actors)if(server.objects().at(actor.id).health.current>0&&near(actor.motor->state().position))return true;return false;};
-        for(std::size_t index=0;index<directors.size();++index){unsigned alive=0;for(const auto& actor:actors)if(actor.encounter==index&&server.objects().at(actor.id).health.current>0)++alive;
-            for(const auto& request:directors[index].step(tick,world,owner_state.position,alive,ground,occupied))spawn(index,request);}
+        const auto occupied=[this](MotorVec point){auto near=[&](const MotorVec& at){return std::hypot(at.x-point.x,at.z-point.z)<1.&&std::abs(at.y-point.y)<2.5;};if(server.objects().at(player).health.current>0&&near(host_motor->state().position))return true;for(const auto& actor:actors)if(near(actor.motor->state().position))return true;for(const auto& waiting:spawn_queue)if(near(waiting.second.position))return true;return false;};
+        for(std::size_t index=0;index<directors.size();++index){unsigned alive=0;for(const auto& actor:actors)if(actor.encounter==index&&server.objects().at(actor.id).health.current>0)++alive;for(const auto& waiting:spawn_queue)if(waiting.first==index)++alive;
+            auto room=[&]{return unsigned(character_scene_actor_limit-std::min(character_scene_actor_limit,actors.size()+spawn_queue.size()));};
+            // A spawn that needs room takes it from the dead, oldest first, before their time is up.
+            for(const auto need=directors[index].need();room()<need;){std::size_t oldest=actors.size();for(std::size_t position=0;position<actors.size();++position)if(actors[position].encounter&&actors[position].died&&(oldest==actors.size()||actors[position].died<actors[oldest].died))oldest=position;if(oldest==actors.size())break;retire(oldest);}
+            for(const auto& request:directors[index].step(tick,world,owner_state.position,alive,ground,occupied,room()))spawn_queue.push_back({index,request,0});}
+        for(unsigned entered=0;entered<combat->spawn_budget&&!spawn_queue.empty();++entered){auto next=spawn_queue.front();spawn_queue.pop_front();auto request=next.second;
+            // A blocked place is tried again on later ticks, a little further out each time.
+            if(next.attempts){const double angle=2.399963229728653*next.attempts,reach=.45*next.attempts;request.position.x+=std::sin(angle)*reach;request.position.z+=std::cos(angle)*reach;}
+            if(!spawn(next.first,request)){require(next.attempts<12,"An encounter found no free place to bring an enemy in");++next.attempts;spawn_queue.push_back(next);break;}}
     }
     bool actors_public()const{for(const auto& actor:actors)if(!client.public_abilities().contains(actor.id))return false;return true;}
     const Actor* find(StableId identity)const{for(const auto& actor:actors)if(actor.identity==identity)return &actor;return nullptr;}
@@ -252,6 +277,7 @@ struct CharacterSceneSession::Impl {
             if(pressed)actor.locked=decision.target;
         }
         if(decision.face&&(!decision.press||pressed))command.yaw=std::remainder(*decision.face,6.283185307179586);
+        actor.hold_x=decision.move_x;actor.hold_z=decision.move_z;actor.hold_face=decision.face&&(!decision.press||pressed)?decision.face:std::optional<double>{};
         validate_motor_input(command);return pressed;
     }
     MotionRequest predicted_motion(const AbilityPredictionMotion& predicted,MotorInput& command)const{
@@ -277,8 +303,10 @@ struct CharacterSceneSession::Impl {
         for(std::size_t index=0;index<actors.size();++index){const auto& motor=actors[index].motor->state();actor_commands[index]=MotorInput{tick,tick,motor.epoch,0,0,motor.yaw};actor_motions[index]={};}
         if(combat){
             // Controllers decide in ascending network identity from the state before this tick; their presses join the same ability advance as the player's intents.
-            for(auto& actor:actors)sense(actor,tick);
-            for(std::size_t index=0;index<actors.size();++index)actor_requested[index]=actors[index].config->controller&&drive_controller(actors[index],tick,actor_commands[index]);
+            slice(sense_cursor,combat->sense_budget);for(std::size_t index=0;index<actors.size();++index)if(turn[index])sense(actors[index],tick);
+            // An actor whose turn it is decides; the others keep moving and facing as they last decided.
+            slice(decision_cursor,combat->decision_budget);
+            for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];actor_requested[index]=false;if(turn[index])actor_requested[index]=drive_controller(actor,tick,actor_commands[index]);else if(actor.config->controller){actor_commands[index].x=actor.hold_x;actor_commands[index].z=actor.hold_z;if(actor.hold_face)actor_commands[index].yaw=std::remainder(*actor.hold_face,6.283185307179586);}}
             auto before=server.ability_snapshot(ability_owner);for(std::size_t index=0;index<actors.size();++index)actor_before[index]=server.ability_snapshot(actors[index].owner);
             server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
             for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];if(actor.config->kit){const auto now=server.ability_snapshot(actor.owner);if(now.active)aim_actor(actor,definition(now),actor_commands[index]);actor_motions[index]=action_motion(actor_before[index],now,updates,actor_commands[index],actor.motor->state().yaw,bool(actor_requested[index]));}if(restricted(actor.owner,actor.id))restrict(actor_commands[index],actor_motions[index]);
@@ -299,7 +327,8 @@ struct CharacterSceneSession::Impl {
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
         if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& actor:actors)if(!actor.pose)present(actor);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
-        for(auto& actor:actors)if(actor.pose)actor.pose->sample(observers.at(actor.id)->sample(double(tick)).frame,effect_frame(actor.id));
+        // A far character's newest state can be a tick or two old; its pose still advances every tick, holding that state.
+        for(auto& actor:actors)if(actor.pose){auto frame=observers.at(actor.id)->sample(double(tick)).frame;if(!frame.ability.active&&frame.ability.tick<tick){frame.ability.tick=tick;frame.motor.tick=tick;}actor.pose->sample(frame,effect_frame(actor.id));}
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
         if(graph.tag_dictionary())parameters.tags=&client.ability_corrections().at(player).ability.tags;

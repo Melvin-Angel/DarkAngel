@@ -20,7 +20,7 @@ void validate_senses(const SensesDefinition& senses){
 }
 Perception::Perception(SensesDefinition senses):senses_(std::move(senses)){validate_senses(senses_);actors_.reserve(16);previous_.reserve(16);}
 void Perception::sense(std::uint64_t tick,const MotorState& self,bool alive,std::span<const SensedSubject> subjects,const SightQuery& sight){
-    previous_.swap(actors_);actors_.clear();if(!alive||(!senses_.everything&&senses_.sensors.empty()))return;
+    const double elapsed=sensed_&&tick>sensed_?double(tick-sensed_):1.;sensed_=tick;previous_.swap(actors_);actors_.clear();if(!alive||(!senses_.everything&&senses_.sensors.empty()))return;
     const MotorVec eye{self.position.x,self.position.y+senses_.eye_height,self.position.z};const auto forget=std::uint64_t(std::llround(senses_.forget_seconds*60));
     for(const auto& subject:subjects){
         const MotorVec body{subject.motor.position.x,subject.motor.position.y+perception_body_height,subject.motor.position.z};
@@ -42,7 +42,7 @@ void Perception::sense(std::uint64_t tick,const MotorState& self,bool alive,std:
         }
         const auto known=std::find_if(previous_.begin(),previous_.end(),[&](const auto& entry){return entry.id==subject.id;});const bool had=known!=previous_.end(),was=had&&known->detected;
         // The awareness meter: fills while sensed, drains at the same rate while not.
-        const double step=senses_.awareness_seconds>0&&!senses_.everything?1/(senses_.awareness_seconds*60):1;const double awareness=sensed?std::min(1.,(had?known->awareness:0)+step):std::max(0.,(had?known->awareness:0)-step);
+        const double step=senses_.awareness_seconds>0&&!senses_.everything?elapsed/(senses_.awareness_seconds*60):1;const double awareness=sensed?std::min(1.,(had?known->awareness:0)+step):std::max(0.,(had?known->awareness:0)-step);
         if(sensed&&(was||awareness>=1))actors_.push_back({subject.id,subject.faction,subject.motor,subject.alive,true,visible(),was?known->since:tick,tick,true,awareness});
         else{
             // Not detected: still becoming aware, remembered after a detection, or fading. A remembered state is never refreshed here.

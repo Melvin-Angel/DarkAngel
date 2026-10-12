@@ -13,7 +13,10 @@
 namespace darkangel {
 enum class SessionRole { Server, Client };
 enum class SessionReadiness { Handshake, ContentReady, Bootstrap, CatchUp, Ready };
-struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};};
+// relevance_radius and far_interval: a character further than the radius from the receiving peer's own character has its
+// motor state sent every far_interval-th tick instead of every tick; observers interpolate. The peer's own character and
+// everything inside the radius stay at full rate, so melee, soft lock and aim against nearby characters are unchanged.
+struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};double relevance_radius{12};unsigned far_interval{3};};
 struct CollisionStreamDiagnostics {std::uint64_t sent_packets{},sent_bytes{},decoded{},ack_tick{},ack_topology{},expired{},superseded{};std::size_t partial_chunks{};bool has_ack{},needs_resync{};};
 struct AbilityCorrection {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityOwnerSnapshot ability;};
 struct AbilityPublicFrame {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityPublicSnapshot ability;};

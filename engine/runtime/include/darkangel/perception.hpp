@@ -43,11 +43,12 @@ class Perception {
 public:
     explicit Perception(SensesDefinition);
     const SensesDefinition& senses()const{return senses_;}
-    // One pass over the subjects in the order given: at most one sight query per subject.
+    // One pass over the subjects in the order given: at most one sight query per subject. Sensing may be
+    // time-sliced: the awareness meter moves by the ticks since the previous call.
     // A dead self perceives nothing and forgets everything.
     void sense(std::uint64_t tick,const MotorState& self,bool alive,std::span<const SensedSubject> subjects,const SightQuery& sight);
     // Detected and remembered subjects, in subject order.
     std::span<const PerceivedActor> actors()const{return actors_;}
-private:SensesDefinition senses_;std::vector<PerceivedActor> actors_,previous_;
+private:SensesDefinition senses_;std::vector<PerceivedActor> actors_,previous_;std::uint64_t sensed_{};
 };
 }

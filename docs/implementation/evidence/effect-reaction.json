@@ -1,152 +1,152 @@
 {
   "schema": 1,
-  "base_head": "91b157f0699cfe87df1a67416f39c72ff42e5c12",
+  "base_head": "2c7c6611bc8855affaa4a845d7910df146bf11eb",
   "scope": "Multi-entity combat (an actor list on stable identities, per-actor controllers, factions, nearest soft lock) and NPC spawn points (scene objects that reference an NPC definition, derived actor identities, Play preparation, two Royal Guards from spawn points); melee soft lock from the player targeting module (authored on the Ability, proposed by the targeting module, resolved by the motor on authoritative, predicted and replayed ticks, HUD indicator); runtime Health HUD through RmlUi with a native view model, drawn in the editor Game viewport; stagger as gameplay (effect movement lock predicted by the owner, looping stun reaction, death movement lock, Flinch bound to the Royal Light hit); scripted training attacker on the combat target (owner damage, flinch, interruption, dodge invulnerability and death in fresh Play); Player virtual camera rig (free-look and aim) with blending; in-Play mask switching; mask assets with four Player slots, active-mask kit and worn face-socket visual; dodge as an authored ability on the kit utility ingress with dash and facing lock; kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play",
   "gates": [
     {
       "name": "effect-reaction-authoring",
       "exit": 0,
-      "seconds": 338.578
+      "seconds": 363.984
     },
     {
       "name": "effect-reaction-presentation",
       "exit": 0,
-      "seconds": 0.219
+      "seconds": 0.422
     },
     {
       "name": "effect-reaction-public-pose",
       "exit": 0,
-      "seconds": 0.187
+      "seconds": 0.453
     },
     {
       "name": "effect-reaction-effect-assets",
       "exit": 0,
-      "seconds": 0.438
+      "seconds": 0.531
     },
     {
       "name": "effect-reaction-kit-assets",
       "exit": 0,
-      "seconds": 2.453
+      "seconds": 2.079
     },
     {
       "name": "effect-reaction-replication",
       "exit": 0,
-      "seconds": 0.297
+      "seconds": 0.156
     },
     {
       "name": "effect-reaction-combat-effects",
       "exit": 0,
-      "seconds": 0.203
+      "seconds": 0.125
     },
     {
       "name": "camera-rig",
       "exit": 0,
-      "seconds": 0.172
+      "seconds": 0.047
     },
     {
       "name": "scripted-attacker",
       "exit": 0,
-      "seconds": 5.031
+      "seconds": 4.187
     },
     {
       "name": "royal-heavy-scene",
       "exit": 0,
-      "seconds": 1.437
+      "seconds": 1.641
     },
     {
       "name": "runtime-hud",
       "exit": 0,
-      "seconds": 0.078
+      "seconds": 0.125
     },
     {
       "name": "motor-warp",
       "exit": 0,
-      "seconds": 0.032
+      "seconds": 0.063
     },
     {
       "name": "navigation",
       "exit": 0,
-      "seconds": 1.172
+      "seconds": 1.297
     },
     {
       "name": "behavior-tree",
       "exit": 0,
-      "seconds": 1.468
+      "seconds": 1.453
     },
     {
       "name": "effect-reaction-form",
       "exit": 0,
-      "seconds": 1.235
+      "seconds": 1.656
     },
     {
       "name": "effect-reaction-d3d12",
       "exit": 0,
-      "seconds": 2.937
+      "seconds": 2.828
     },
     {
       "name": "kit-death-d3d12",
       "exit": 0,
-      "seconds": 3.375
+      "seconds": 4.344
     },
     {
       "name": "attacked-flinch-d3d12",
       "exit": 0,
-      "seconds": 2.969
+      "seconds": 3.531
     },
     {
       "name": "attacked-death-d3d12",
       "exit": 0,
-      "seconds": 3.781
+      "seconds": 4.469
     },
     {
       "name": "attacked-light-d3d12",
       "exit": 0,
-      "seconds": 3.109
+      "seconds": 3.14
     },
     {
       "name": "dodge-d3d12",
       "exit": 0,
-      "seconds": 2.985
+      "seconds": 3.0
     },
     {
       "name": "ranged-d3d12",
       "exit": 0,
-      "seconds": 3.0
+      "seconds": 3.797
     },
     {
       "name": "projectile-flight-d3d12",
       "exit": 0,
-      "seconds": 2.906
+      "seconds": 3.094
     },
     {
       "name": "soft-lock-d3d12",
       "exit": 0,
-      "seconds": 2.937
+      "seconds": 3.172
     },
     {
       "name": "mask-worn-d3d12",
       "exit": 0,
-      "seconds": 1.875
+      "seconds": 2.047
     },
     {
       "name": "mask-placement-d3d12",
       "exit": 0,
-      "seconds": 1.969
+      "seconds": 1.937
     },
     {
       "name": "mask-switch-d3d12",
       "exit": 0,
-      "seconds": 1.906
+      "seconds": 1.985
     },
     {
       "name": "camera-free-look-d3d12",
       "exit": 0,
-      "seconds": 1.907
+      "seconds": 2.093
     },
     {
       "name": "camera-aim-d3d12",
       "exit": 0,
-      "seconds": 2.296
+      "seconds": 2.125
     },
     {
       "name": "camera-preview-d3d12",
@@ -156,93 +156,98 @@
     {
       "name": "npc-target-d3d12",
       "exit": 0,
-      "seconds": 3.0
+      "seconds": 3.125
     },
     {
       "name": "npc-spawn-points-d3d12",
       "exit": 0,
-      "seconds": 3.703
+      "seconds": 3.828
     },
     {
       "name": "npc-archer-d3d12",
       "exit": 0,
-      "seconds": 3.062
+      "seconds": 3.156
     },
     {
       "name": "spawn-points-scene-d3d12",
       "exit": 0,
-      "seconds": 1.344
+      "seconds": 1.25
     },
     {
       "name": "npc-senses-d3d12",
       "exit": 0,
-      "seconds": 3.5
+      "seconds": 4.063
     },
     {
       "name": "navigation-tool-d3d12",
       "exit": 0,
-      "seconds": 1.141
+      "seconds": 0.968
     },
     {
       "name": "place-panel-d3d12",
       "exit": 0,
-      "seconds": 1.156
+      "seconds": 1.484
     },
     {
       "name": "encounter-scene-d3d12",
       "exit": 0,
-      "seconds": 1.187
+      "seconds": 1.125
     },
     {
       "name": "encounter-d3d12",
       "exit": 0,
-      "seconds": 3.313
+      "seconds": 3.922
+    },
+    {
+      "name": "cook-sweep-d3d12",
+      "exit": 0,
+      "seconds": 16.844
     },
     {
       "name": "place-mouse-d3d12",
       "exit": 0,
-      "seconds": 1.312
+      "seconds": 1.906
     },
     {
       "name": "mask-editor-player-d3d12",
       "exit": 0,
-      "seconds": 1.75
+      "seconds": 1.625
     },
     {
       "name": "mask-editor-npc-d3d12",
       "exit": 0,
-      "seconds": 1.813
+      "seconds": 1.938
     },
     {
       "name": "mask-editor-field-d3d12",
       "exit": 0,
-      "seconds": 1.875
+      "seconds": 1.953
     },
     {
       "name": "save-all-d3d12",
       "exit": 0,
-      "seconds": 11.328
+      "seconds": 10.797
     },
     {
       "name": "behavior-form-d3d12",
       "exit": 0,
-      "seconds": 1.109
+      "seconds": 1.093
     },
     {
       "name": "npc-form-d3d12",
       "exit": 0,
-      "seconds": 1.094
+      "seconds": 1.032
     }
   ],
   "source_sha256": {
     "apps/editor/character_preview.cpp": "36a87ea4b30e3d31d4e1a3e23dec836784c3cdb790d0139ea6498379358400aa",
     "engine/runtime/melee_query.cpp": "ceefd0c3f31e2928e467e5c6a6582bc70fec09fee35e62193046ae4e9176c9a9",
-    "engine/runtime/world_session.cpp": "c95e10c2405e4abb8467fb86f3875c97638028b2cc9d7ff64b4c0a8e85f64864",
-    "engine/runtime/include/darkangel/world_session.hpp": "c486d1d74bdadcd03ab8d38e6c801a79f364066f336e18c0f2098f1ace613558",
+    "engine/runtime/world_session.cpp": "61d67fbc5914c84271f6cce42d7aafa56ef88fcb90ca23253bb8fa061927bec8",
+    "engine/runtime/include/darkangel/world_session.hpp": "9cdfe42207237249bea0440ad59cd1a0d45d7b77aadaaf2ca63145b49f852979",
     "engine/assets/ability_cooker.cpp": "c12d85365d3c27211114544dbe4aec08a61f60b6d2a106c54dc185e7c004394a",
     "engine/runtime/assembly.cpp": "f85624b24b2670999820930666cb394c55dcb4f6d1520d84e9f0a6c7a2034b75",
     "engine/runtime/include/darkangel/assembly.hpp": "219f62f4a38471098ac868abe69fbb661bc7d1c553e2072f17bea2bf707c9ea5",
-    "apps/editor/editor_ui.cpp": "e12be0defeb98b99d18394a3011891c1aba16926c9d3f80e7416c002877bd3d0",
+    "apps/editor/editor_ui.cpp": "cac2f73c8dd44ba56a98c3017c354128c7546e5be8d8c98b99a6692e4e64e43c",
     "content/npcs/training_dummy.danpc": "d1e4c5015d0bc7dbce63d2fa309ac91f519f223cccd148a8abdb76f3ca71a324",
     "content/royal_district/RoyalCombat.dascene": "533f72ec968f25fc13941cd44a0f4ef2deffbf7459b7a9efe5d5864d722dcd02",
     "content/royal_district/RoyalTraining.dascene": "0aae9e3245b5c08702d8908dd7169c5032e7d9be7e2179e57664ac5d4c003ad2",
@@ -251,7 +256,7 @@
     "apps/editor/editor_workspaces.cpp": "f965cfb6eeeefe194ee476f080d69a7d868050e6c890f498aaa55d0ca71e72d5",
     "apps/editor/editor_authoring.cpp": "3fe41b53c8bd8047625cefdcb3ef929be990ce469519e147b9bc19180458e35e",
     "apps/editor/editor_ui.hpp": "109ff309dc490219134e23b78a5171c28f74b4f663a1320fbef812ae05f2292d",
-    "apps/editor/main.cpp": "cdec833dded91c7362e3f736dbd0d245203eab8eefe11b5d635f3ed395d8c30b",
+    "apps/editor/main.cpp": "b575dce42248b5c19267a790f1fb20f8df104044ec19b635e60b978072563c7c",
     "apps/editor/native_authoring.cpp": "97bc65c9b7f1ad7e57649ffc84c462cd288c6e4c7489835a30e9ea2d406f4b6d",
     "apps/editor/native_authoring.hpp": "404eb034094dfe8d1f292868255bc1c577a037aa50a538185cdb73b6cc44a411",
     "engine/assets/effect_cooker.cpp": "2169b1c2d0f552ac345a1efebff5650ed1210f6259fc8e74e32412ba7853dd96",
@@ -270,12 +275,12 @@
     "engine/runtime/include/darkangel/combat_kit.hpp": "fb58e0c09c9125e402d3859756bfb5ce902a150d2f8445e80759511c2c4d8c3b",
     "engine/runtime/effects.cpp": "408955462b518de8e103b12512d76304cc1c5f56105df0b70871b8a45895ccb9",
     "engine/runtime/character_presentation.cpp": "9833489b3c426348f94de1af6fdc32897d43cff38228b5e7b716ed5b4b3557be",
-    "engine/runtime/character_scene.cpp": "a4685eb019294e82168a11f76152a72416463bf93a9fd9e8abceea25620997f0",
+    "engine/runtime/character_scene.cpp": "792cb2cf293cc00dadc753679171a61cb4804149e4aac2b4af198091eb0d0638",
     "engine/runtime/include/darkangel/effects.hpp": "06921de1ce7fef36c7912815eed0e235ff80f80a85816b527063575a4e4582b9",
     "engine/runtime/include/darkangel/character_presentation.hpp": "a5a03d37aaeef4673b068c6c7ed27549d32f7f344c946f0ba0282774b4db2563",
-    "engine/runtime/include/darkangel/character_scene.hpp": "7af8c092eff27ad0317877e5de16263f55aa2c54a1163242132202a777c8c9ee",
+    "engine/runtime/include/darkangel/character_scene.hpp": "4d2f7a162b1680949138a613991d91b71e8827eb991a86985825cead25faa44a",
     "tests/native_authoring_tests.cpp": "e8252fcc6344d27e85cba8fe2150a642d491dfa5eda57761db70d8f6ebc9b00d",
-    "tests/character_combat_scene_tests.cpp": "f2b1a68ace812a94763213dded1057fae7687a35e370460c268d5f6d677edddc",
+    "tests/character_combat_scene_tests.cpp": "a1088463bc3cd7b3a67ca30970de6f204a9333abcff5f472de038dc5d4288fe5",
     "tests/royal_heavy_scene_tests.cpp": "2dc5fd1b28fea8cdce98f7b718560b7860733b13bc202a7df88a8faf296ae796",
     "tests/hud_tests.cpp": "91ede98709a8e8d792f5dbf0c08901ae2f5897b9f8258ebb82a15ac2ed567e8a",
     "engine/runtime/hud.cpp": "588315eb0915d371b40efccc73352e2f06c9edf4fccc53fdf69be8117000e267",
@@ -301,20 +306,20 @@
     "content/royal_district/combat/bow.daability": "57542ff6ab9e603da86626af62e7c4527a342c83452bff6ee853d0396bc6cd19",
     "content/royal_district/combat/bow.daaction": "f8bd7b022b3f78e0fd4aaf35cdc1bc3f335ed180edb940415b4269a0182c32c1",
     "engine/runtime/include/darkangel/actor_controller.hpp": "d3319d6229c90b2933babf0d048908f77a6986613b0cdcd61c7d3cf74672ae22",
-    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/editor_controller.hpp": "91538fd2117c55819d9b0e7382dd1763925a4833ebcf094d37821db4e02efbbc",
     "engine/runtime/include/darkangel/targeting.hpp": "c859d18b7e98cd71787ef12a9690ee2daf95e6c86eb413a6d2f581c05fb7406a",
     "engine/runtime/motor_state.cpp": "49e151f80462616d22d7f33ff476cd92d1b65c0d32a8a58e586a0a9fdd3835f0",
     "engine/runtime/character_motor.cpp": "df9149469c15ab78c7438feea8e319ede1668a915db3f660aca0e0d7bfc9eab2",
-    "engine/runtime/include/darkangel/character_motor.hpp": "0b7b75ac33e1786fea61daaaf1e33eaa74a51fd5d35e1790ad4af5c751199321",
+    "engine/runtime/include/darkangel/character_motor.hpp": "11b2cfdd9ea9e1631129e1b05c9a06d304a497d6cddc128ce3d25a15db7025a3",
     "engine/runtime/include/darkangel/ability_prediction.hpp": "4a48c4f036ce72d4a7030f55bdfcd7eb230c32e34eaa22d812ee0905922b966f",
     "tests/motor_tests.cpp": "5df843447ad1d1755fe8ac6a91a240a7f8fa147910d1dd3c4f2eabb4bdf6cf99",
     "content/royal_district/combat/light.daability": "c4fcf2d99a3af9f71a15ceda9ddb3d0926376ab2df7a6151ebe272eec14b4c2e",
-    "scripts/verify_effect_reaction.py": "7cdb3e323a262ca8e46a364d98ef4c831239b2c4078c43439826b47979771919"
+    "scripts/verify_effect_reaction.py": "c44bb9df0754a57e4def5dc9219007935076a10927076f8b116855d99db19d7c"
   },
   "binary_sha256": {
-    "DarkAngelEditor.exe": "dde09060516e0f4b19a5c8e09a53b96095dad0660e44d3038a24e1464d6ccda7",
-    "NativeAuthoringTests.exe": "d8eaa0779835524ed883ba4841939624a25c6f2d2d68e7c12b220620a50a1cc4",
-    "ReactionPresentationTests.exe": "0944f3ef53376019d6b40af877d656a510529441ab414059cf2a38ebc1343ad3"
+    "DarkAngelEditor.exe": "ab2f650ef50595b6a525414a39629ee02b9251c552fd6cf5a841c4135532be1b",
+    "NativeAuthoringTests.exe": "351005b0641bba37b76b3d4ba9ccacbd468b53b7610307a346dcc05006f12b7d",
+    "ReactionPresentationTests.exe": "732051af876e79040fc725e9751de3f34a6aabc2ce2014626aaf84b9193dddcc"
   },
   "limitations": [
     "One visible full-body reaction per actor, root policy none; no reaction queue, blend ramps, additive or upper-body reactions.",

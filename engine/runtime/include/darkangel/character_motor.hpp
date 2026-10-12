@@ -16,7 +16,7 @@ void track_physics_allocations(bool);PhysicsAllocationCounters physics_allocatio
 struct MotorVec {double x{},y{},z{}; auto operator<=>(const MotorVec&) const=default;};
 // Characters one session carries: the motors a server publishes, the actors in a collision frame and
 // the actors with public ability and effect state. One owner and sixteen others.
-constexpr std::size_t session_character_capacity=17;
+constexpr std::size_t session_character_capacity=33;
 // yaw is the commanded facing. pitch is the aim elevation in radians (positive up, at most 1.5 either way);
 // it moves nothing and only gives aimed abilities their vertical direction.
 struct MotorInput {std::uint64_t sequence{},tick{},epoch{1};double x{},z{},yaw{};bool jump{},crouch{};double pitch{};};

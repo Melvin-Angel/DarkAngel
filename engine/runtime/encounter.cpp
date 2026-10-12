@@ -32,11 +32,12 @@ void validate_encounter(const EncounterDefinition& encounter){
     else{require(encounter.mode==EncounterMode::Timed&&encounter.timed_npc!=AssetId{}&&std::isfinite(encounter.interval_seconds)&&encounter.interval_seconds>=.1&&encounter.interval_seconds<=600&&encounter.max_alive>=1&&encounter.max_alive<=16&&encounter.total>=1,"A timed encounter needs an NPC definition, 0.1 to 600 s between spawns, 1 to 16 alive at most and a total");}
     require(encounter.enemies()<=encounter_enemy_limit,"An encounter spawns at most 64 enemies in total");
     require(encounter.placement==EncounterPlacement::Points||encounter.placement==EncounterPlacement::Random,"Encounter placement");
+    require(std::isfinite(encounter.corpse_seconds)&&encounter.corpse_seconds>=0&&encounter.corpse_seconds<=600,"Encounter corpse time is 0 to 600 s");
 }
 EncounterDefinition decode_encounter(std::string_view text){
     require(text.size()<=16384,"Encounter component size bound");const auto value=Json::parse(text);EncounterDefinition encounter;
     const bool timed=value.is_object()&&value.contains("mode")&&value.at("mode")=="timed";
-    fields(value,{"trigger","mode",timed?"timed":"waves","placement"},{"emits","tag"});
+    fields(value,{"trigger","mode",timed?"timed":"waves","placement"},{"emits","tag","corpse_seconds"});
     const auto& trigger=value.at("trigger");require(trigger.is_object()&&trigger.size()==1,"Encounter trigger is {\"event\": name} or {\"enter\": true}");
     if(trigger.contains("event"))encounter.trigger_event=name(trigger.at("event"));else{require(trigger.contains("enter")&&trigger.at("enter").is_boolean()&&trigger.at("enter").get<bool>(),"Encounter trigger is {\"event\": name} or {\"enter\": true}");encounter.trigger_enter=true;}
     require(value.at("mode").is_string()&&(timed||value.at("mode")=="waves"),"Encounter mode is \"waves\" or \"timed\"");
@@ -45,6 +46,7 @@ EncounterDefinition decode_encounter(std::string_view text){
     require(value.at("placement").is_string()&&(value.at("placement")=="points"||value.at("placement")=="random"),"Encounter placement is \"points\" or \"random\"");encounter.placement=value.at("placement")=="points"?EncounterPlacement::Points:EncounterPlacement::Random;
     if(value.contains("emits")){const auto& emits=value.at("emits");fields(emits,{},{"started","wave_cleared","completed"});if(emits.contains("started"))encounter.started=name(emits.at("started"));if(emits.contains("wave_cleared"))encounter.wave_cleared=name(emits.at("wave_cleared"));if(emits.contains("completed"))encounter.completed=name(emits.at("completed"));}
     if(value.contains("tag"))encounter.tag=name(value.at("tag"));
+    if(value.contains("corpse_seconds")){require(value.at("corpse_seconds").is_number(),"Encounter corpse time type");encounter.corpse_seconds=value.at("corpse_seconds").get<double>();}
     validate_encounter(encounter);return encounter;
 }
 TriggerDefinition decode_trigger(std::string_view text){
@@ -77,8 +79,10 @@ EncounterSpawn EncounterDirector::place(AssetId npc,const Ground& ground,const O
     EncounterSpawn spawn;spawn.npc=npc;spawn.index=spawned_;
     if(definition_.placement==EncounterPlacement::Points){
         // Round robin over the points; a further pass around the same points steps aside so bodies do not start inside each other.
-        const auto& point=points_[spawned_%points_.size()];const unsigned lap=unsigned(spawned_/points_.size())%6;spawn.position=point.position;spawn.yaw=point.yaw;
-        if(lap){const double angle=point.yaw+1.0471975511965976*lap;spawn.position.x+=std::sin(angle)*.9;spawn.position.z+=std::cos(angle)*.9;}
+        const auto& point=points_[spawned_%points_.size()];const unsigned first=unsigned(spawned_/points_.size())%7;spawn.yaw=point.yaw;
+        // The point itself, then six places around it, starting with this pass's own: the first one nobody stands on.
+        for(unsigned attempt=0;attempt<7;++attempt){const unsigned lap=(first+attempt)%7;spawn.position=point.position;if(lap){const double angle=point.yaw+1.0471975511965976*lap;spawn.position.x+=std::sin(angle)*.9;spawn.position.z+=std::cos(angle)*.9;}
+            bool crowded=occupied&&occupied(spawn.position);for(const auto& other:placed)crowded|=std::hypot(other.position.x-spawn.position.x,other.position.z-spawn.position.z)<.7;if(!crowded)break;}
         return spawn;
     }
     auto next=[&]{random_+=0x9e3779b97f4a7c15ull;auto z=random_;z=(z^(z>>30))*0xbf58476d1ce4e5b9ull;z=(z^(z>>27))*0x94d049bb133111ebull;return double((z^(z>>31))>>11)/9007199254740992.;};
@@ -97,23 +101,28 @@ EncounterSpawn EncounterDirector::place(AssetId npc,const Ground& ground,const O
 std::vector<EncounterSpawn> EncounterDirector::wave(const Ground& ground,const Occupied& occupied){
     std::vector<EncounterSpawn> result;const auto& current=definition_.waves[wave_];for(unsigned index=0;index<current.count;++index){result.push_back(place(current.npc,ground,occupied,result));++spawned_;}return result;
 }
-std::vector<EncounterSpawn> EncounterDirector::step(std::uint64_t tick,WorldEvents& world,MotorVec player,unsigned alive,const Ground& ground,const Occupied& occupied){
+unsigned EncounterDirector::need()const{
+    if(phase_==EncounterPhase::Complete)return 0;
+    if(definition_.mode==EncounterMode::Timed)return spawned_<definition_.total?1u:0u;
+    if(phase_==EncounterPhase::Waiting||armed_)return definition_.waves[wave_].count;
+    return wave_+1<definition_.waves.size()?definition_.waves[wave_+1].count:0u;
+}
+std::vector<EncounterSpawn> EncounterDirector::step(std::uint64_t tick,WorldEvents& world,MotorVec player,unsigned alive,const Ground& ground,const Occupied& occupied,unsigned room){
     std::vector<EncounterSpawn> result;alive_=alive;
     if(phase_==EncounterPhase::Waiting){
         if(!(definition_.trigger_enter?encounter_contains(volumes_,player):world.happened(definition_.trigger_event)))return result;
         phase_=EncounterPhase::Running;if(!definition_.started.empty())world.emit(definition_.started);if(!definition_.tag.empty())world.set_tag(definition_.tag,true);
-        if(definition_.mode==EncounterMode::Waves){result=wave(ground,occupied);spawned_tick_=tick;}else next_spawn_=tick;
+        if(definition_.mode==EncounterMode::Waves)armed_=true;else next_spawn_=tick;
     }
     if(phase_!=EncounterPhase::Running)return result;
     const auto finish=[&]{phase_=EncounterPhase::Complete;if(!definition_.completed.empty())world.emit(definition_.completed);if(!definition_.tag.empty())world.set_tag(definition_.tag,false);};
     if(definition_.mode==EncounterMode::Waves){
-        // The wave spawned on an earlier tick is dead: the next one, or the end.
-        if(result.empty()&&tick>spawned_tick_&&alive==0){
-            if(wave_+1==definition_.waves.size())finish();
-            else{if(!definition_.wave_cleared.empty())world.emit(definition_.wave_cleared);++wave_;result=wave(ground,occupied);spawned_tick_=tick;}
-        }
+        // The wave spawned on an earlier tick is dead: the next one is armed, or the encounter ends.
+        if(!armed_&&tick>spawned_tick_&&alive==0){if(wave_+1==definition_.waves.size()){finish();return result;}if(!definition_.wave_cleared.empty())world.emit(definition_.wave_cleared);++wave_;armed_=true;}
+        // An armed wave enters whole, once the session has room for all of it.
+        if(armed_&&room>=definition_.waves[wave_].count){result=wave(ground,occupied);armed_=false;spawned_tick_=tick;}
     }else{
-        if(spawned_<definition_.total&&alive<definition_.max_alive&&tick>=next_spawn_){result.push_back(place(definition_.timed_npc,ground,occupied,{}));++spawned_;spawned_tick_=tick;next_spawn_=tick+std::uint64_t(std::llround(definition_.interval_seconds*60));}
+        if(spawned_<definition_.total&&alive<definition_.max_alive&&tick>=next_spawn_&&room>=1){result.push_back(place(definition_.timed_npc,ground,occupied,{}));++spawned_;spawned_tick_=tick;next_spawn_=tick+std::uint64_t(std::llround(definition_.interval_seconds*60));}
         else if(spawned_==definition_.total&&alive==0&&tick>spawned_tick_)finish();
     }
     alive_=alive+unsigned(result.size());return result;

@@ -134,3 +134,38 @@ The three steps of the design are built. Differences from the design are listed 
 1. Should dead enemies disappear after a while? It decides whether an encounter can spawn more than fits the sixteen-actor scene in total.
 2. Should world events and tags reach clients (music, banners, doors that open on every screen)?
 3. Should an NPC's death, an ability or a script emit world events too, and should NPCs be able to set off a trigger volume?
+
+## Dead enemies disappear, and time slicing (12 October 2026)
+
+User answers of 12 October 2026 to the three questions above, and a new requirement:
+
+1. Dead enemies disappear.
+2. World events themselves need not reach clients, but clients must see their effects (an encounter's enemies and state), and a client must be able to trigger them. Recorded as the rule: events and tags stay server state; what they cause is replicated as ordinary actors and state; a trigger volume is evaluated on the server against each player's authoritative position, so a client triggers it by walking in. A session has one player today, so nothing more was built for this; with several players, `run_world` must step triggers and the enter trigger for each of them.
+3. Only the player sets off trigger volumes; NPCs do not emit world events for now. As built.
+4. New: higher NPC counts, with NPC behaviour, navigation and spawning time-sliced for performance. The count is in TARGETING_REPORT.md; the time slicing is here.
+
+### Built
+
+- **Corpse time.** An encounter has `corpse_seconds` (default 6, 0 keeps the dead; "Dead enemies disappear after" in the Inspector). A dead enemy is removed from the session after that time: its replicated object, motor, ability owner and team on the server, its observer, effect view and pose on the client (`retire` in character_scene.cpp).
+- **Room instead of a lifetime total.** A scene's spawn points plus the most each encounter can have alive at once must fit the session; the total an encounter spawns over its life no longer counts. `EncounterDirector::need` says how many places its next spawn needs and `step` takes the room the session has: a wave waits until all of it fits and then enters whole, a timed spawn waits for one place. When a spawn needs room, the session removes the oldest dead first, before their time is up.
+- **A place that is taken.** A body standing on a spawn point (the player, another enemy, a corpse) no longer aborts the spawn: at spawn points the director picks the first free place of the point and six around it, and the session retries a blocked place on later ticks a little further out (twelve tries, then an error).
+- **Time slicing** (`CharacterSceneCombat::decision_budget`, `sense_budget`, `spawn_budget`; defaults 8, 8 and 2):
+  - *Deciding.* At most `decision_budget` controllers decide per tick, round robin in actor order from where the last tick stopped. An actor whose turn it is not keeps moving and facing as it last decided; it can only press a slot on its own turn. With eight or fewer controlled actors everyone still decides every tick.
+  - *Sensing.* At most `sense_budget` actors sense per tick, the same way; the awareness meter moves by the ticks since that actor's last sense, so its timing does not depend on the budget. An actor without a controller no longer senses at all.
+  - *Navigation.* Path queries only happen inside a decision (and at most one per actor every 15 ticks), so the decision budget is also the bound on path queries per tick. There is no separate navigation budget.
+  - *Spawning.* At most `spawn_budget` enemies enter per tick; the rest of a wave waits in a queue and counts as alive meanwhile, so the encounter does not think the wave is dead.
+- Found and fixed on the way: `WorldSession::destroy` did not release the destroyed object's team entry, so a session ran out of team entries after enough spawns.
+
+### Verified
+
+- `EncounterTests`: a wave waits for room and enters whole; the next wave waits too; `need`; the default, zero and invalid corpse time.
+- `CharacterCombatSceneTests`: six waves of three (eighteen enemies) in one session with a corpse time of half a second: never more than six actors in the session, complete by tick 580, the session and the client's world empty afterwards; a wave of six under a spawn budget of two enters two a tick and counts as six alive from the first; twelve controlled actors with budgets of four: four decisions a tick, a turn every third tick, and they walk 4.60 m in a second against 4.69 m with a turn every tick.
+- Full pass: All 47 verify gates; CTest: only the five known unrelated failures.
+
+### Not verified, and limits
+
+- Removing an enemy changes the replicated world like adding one does, so it too rebuilds the owner's prediction world once. Long encounters therefore rebuild it often; still not fixed.
+- Time slicing was measured for correctness and fairness, not for the time it saves; no profile of a full scene was taken.
+- The budgets are fields of the session's combat description with fixed defaults; they are not authored in the editor.
+- Scene spawn-point NPCs still stay where they fall; only encounter enemies are removed.
+- Several players, and a remote client triggering a volume over a real connection.
