@@ -30,6 +30,8 @@ struct CharacterSceneSession::Impl {
     std::map<std::uint64_t,std::unique_ptr<EffectPresentation>> effect_views;
     std::vector<AbilityCommitUpdate> commitment_updates;
     std::vector<EffectCueUpdate> effect_cue_updates;
+    // Action cue blocks derived from the client's own view of every actor's action clock, and the host's cue player, if any.
+    std::unique_ptr<ActionCueTracker> cue_tracker;std::vector<ActionCueUpdate> action_cue_updates;std::vector<ActionCueCut> action_cue_cuts;CuePlayer* cue_player{};
     CollisionHistory history;
     std::vector<CollisionMesh> prepared_geometry;
     std::shared_ptr<const AnimationGraphPlan> presentation_plan;
@@ -85,7 +87,7 @@ struct CharacterSceneSession::Impl {
         for(unsigned work=0;work<32&&(!client.motors().contains(player)||!client.collision_control_ready()||(combat&&(!client.ability_corrections().contains(player)||!client.public_abilities().contains(player)||!actors_public())));++work)pump();
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags,combat->loadouts);}
-        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);prepared_actions=actions;rig_archive=std::string(archive);
+        if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);prepared_actions=actions;cue_tracker=std::make_unique<ActionCueTracker>(actions);rig_archive=std::string(archive);
             auto observe=[&](std::uint64_t id,const std::vector<AttributeDefinition>& schema){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(schema,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(shown(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(schema),combat->tags,combat->effects));}};
             observe(player,combat->attributes);for(const auto& actor:actors)observe(actor.id,actor.config->attributes);
             action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),actions);reactions=std::make_unique<ReactionPresentation>(rig.definition(),combat->effects,combat->clips);if(combat->death)player_death=std::make_unique<DeathPresentation>(rig.definition(),combat->death,combat->clips);
@@ -184,7 +186,7 @@ struct CharacterSceneSession::Impl {
     // World step, before sensing: deliver last tick's events, let trigger volumes and encounters act on authoritative state.
     // An actor leaves the session: its replicated object, motor, ability owner and everything the client prepared for it.
     void retire(std::size_t position){
-        const auto id=actors[position].id;observers.erase(id);effect_views.erase(id);actors.erase(actors.begin()+std::ptrdiff_t(position));actor_identities.erase(actor_identities.begin()+std::ptrdiff_t(position));server.destroy(id);
+        const auto id=actors[position].id;observers.erase(id);effect_views.erase(id);if(cue_tracker)cue_tracker->retire(id);if(cue_player)cue_player->retire(id);actors.erase(actors.begin()+std::ptrdiff_t(position));actor_identities.erase(actor_identities.begin()+std::ptrdiff_t(position));server.destroy(id);
         actor_commands.resize(actors.size());actor_motions.resize(actors.size());actor_before.resize(actors.size());actor_requested.resize(actors.size());
     }
     // Round robin over the actors that have a controller: up to budget of them get this tick's turn, starting where the last tick stopped.
@@ -337,7 +339,12 @@ struct CharacterSceneSession::Impl {
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
         lap(profile.prediction);
-        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& actor:actors)if(!actor.pose)present(actor);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
+        if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& actor:actors)if(!actor.pose)present(actor);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}
+            // Action cues. The owner's action is seen twice, confirmed and predicted; every other actor's once, from its public frame at this tick.
+            {const auto& correction=client.ability_corrections().at(player);cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerConfirmed,correction.ability.action_definition,correction.ability.action);const auto& predicted=ability_prediction->view();cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerPredicted,predicted.action_definition,predicted.action);
+                for(const auto& actor:actors)if(actor.pose){auto frame=shown(actor.id);if(frame.ability.tick<tick)frame.ability=public_ability_at(frame.ability,tick);cue_tracker->observe(actor.id,frame.avatar_epoch,CueTiming::Observed,frame.ability.action_definition,frame.ability.action);}
+                action_cue_updates=cue_tracker->drain_cues();action_cue_cuts=cue_tracker->drain_cuts();}
+            if(cue_player){for(const auto& update:effect_cue_updates)cue_player->effect(update,tick);for(const auto& update:action_cue_updates)cue_player->action(update.network,update.avatar_epoch,update.event,tick,update.timing);for(const auto& cut:action_cue_cuts)cue_player->rejected(cut.network,cut.activation,tick);cue_player->advance(tick);}}
         // A far character's newest state can be a tick or two old; its pose still advances every tick, holding that state
         // while a running action's clock advances (the index has confirmed its content for this tick).
         for(auto& actor:actors)if(actor.pose){auto frame=observers.at(actor.id)->sample(double(tick)).frame;if(frame.ability.tick<tick){frame.ability=public_ability_at(frame.ability,tick);frame.motor.tick=tick;}actor.pose->sample(frame,effect_frame(actor.id));}
@@ -412,6 +419,10 @@ double CharacterSceneSession::debt()const{return impl_->clock.debt();}
 namespace darkangel {
 std::span<const AbilityCommitUpdate> CharacterSceneSession::commitments()const{return impl_->commitment_updates;}
 std::span<const EffectCueUpdate> CharacterSceneSession::effect_cues()const{return impl_->effect_cue_updates;}
+std::span<const ActionCueUpdate> CharacterSceneSession::action_cues()const{return impl_->action_cue_updates;}
+std::span<const ActionCueCut> CharacterSceneSession::action_cue_cuts()const{return impl_->action_cue_cuts;}
+void CharacterSceneSession::present_cues(CuePlayer* player){impl_->cue_player=player;}
+std::optional<StableId> CharacterSceneSession::identity(std::uint64_t network)const{const auto& p=*impl_;if(network==p.player)return p.player_identity;for(const auto& actor:p.actors)if(actor.id==network)return actor.identity;return std::nullopt;}
 unsigned CharacterSceneSession::loadout()const{auto found=impl_->client.ability_corrections().find(impl_->player);return found==impl_->client.ability_corrections().end()?0:found->second.ability.loadout;}
 std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*impl_;if(p.combat&&p.soft_lock_tick&&p.soft_lock_tick==p.authoritative.tick())for(const auto& actor:p.actors)if(actor.id==p.soft_lock_actor)return actor.identity;return std::nullopt;}
 std::span<const StableId> CharacterSceneSession::actors()const{return impl_->actor_identities;}

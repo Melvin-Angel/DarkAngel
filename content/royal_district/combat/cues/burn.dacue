@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "c09f0b52-de07-4692-8da6-c183e6215146",
+  "name": "Burn aura",
+  "key": "Status.Burn",
+  "visual": "royal_district/vfx/burn_aura",
+  "audio": "",
+  "tail_ticks": 30,
+  "predictable": false
+}

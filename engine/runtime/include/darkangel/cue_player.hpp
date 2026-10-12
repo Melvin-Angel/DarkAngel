@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <functional>
 #include <map>
+#include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -17,7 +19,40 @@ namespace darkangel {
 //   visual, audio   what the sinks play; an empty name means that sink is not used for this cue
 //   tail_ticks      how long an instance may fade after it is stopped before it is released
 //   predictable     an owner may start it from its own prediction; it is cut if the activation is rejected
-struct CueDefinition {AssetId id;std::string visual,audio;unsigned tail_ticks{30};bool predictable{};};
+//   key, name       the cue key the asset answers to, and its display name (both empty for a definition made in code)
+struct CueDefinition {AssetId id;std::string visual,audio;unsigned tail_ticks{30};bool predictable{};std::string key,name;};
+// The native cue source (.dacue): schema 1, kind "cue", asset, name, key, visual, audio, tail_ticks, predictable.
+// At least one of visual and audio is named. Throws on anything else.
+CueDefinition decode_cue(std::string_view);
+// Whose action a cue block belongs to, as this client sees it. Another actor's action is Observed: confirmed public
+// state, all of its cues play. The owner's own action arrives twice, from its prediction and from authority's
+// correction: a predictable cue plays from the predicted one and every other cue from the confirmed one, so each
+// plays once.
+enum class CueTiming {Observed,OwnerPredicted,OwnerConfirmed};
+// A cue block an actor's action crossed on a tick, and an action that ended before its time (interrupted, cancelled,
+// or predicted and then rejected), whose cues are to be cut.
+struct ActionCueUpdate {std::uint64_t network{},avatar_epoch{};CueTiming timing{};ActionEvent event;};
+struct ActionCueCut {std::uint64_t network{},activation{};};
+// Derives cue block crossings from the action state a client already holds for each actor: once a tick it is shown
+// each actor's running action (identity and clock) and reports the cue blocks the clock passed since the tick
+// before. It never reads a server timeline. A clock that moves backwards (a replayed prediction) reports nothing
+// twice. An action first seen more than four ticks in is taken as already running and its earlier cues are skipped.
+class ActionCueTracker {
+public:
+    explicit ActionCueTracker(std::span<const std::shared_ptr<const ActionDefinition>>);
+    // One actor's action on this tick, or none. An action whose definition was not prepared is ignored.
+    void observe(std::uint64_t network,std::uint64_t avatar_epoch,CueTiming,AssetId definition,const std::optional<ActionState>&);
+    // The actor left: forget its actions without reporting anything.
+    void retire(std::uint64_t network);
+    std::vector<ActionCueUpdate> drain_cues();
+    std::vector<ActionCueCut> drain_cuts();
+private:
+    struct Held {std::uint64_t avatar_epoch{},activation{},clock{};unsigned rate{};std::shared_ptr<const ActionDefinition> definition;};
+    void finish(std::uint64_t network,CueTiming,const Held&);
+    void markers(std::uint64_t network,CueTiming,const Held&,std::uint64_t from,std::uint64_t to,bool inclusive);
+    std::map<AssetId,std::shared_ptr<const ActionDefinition>> actions_;std::map<std::pair<std::uint64_t,CueTiming>,Held> held_;
+    std::vector<ActionCueUpdate> cues_;std::vector<ActionCueCut> cuts_;
+};
 // What a sink is told when an instance starts. instance is unique within the player and never reused.
 struct CueStart {std::uint64_t instance{},network{},tick{};std::string key;CueDefinition definition;};
 class CueSink {
@@ -45,8 +80,9 @@ public:
     // A persistent effect's cue: Begin starts it once, End stops it with its tail, Update changes nothing here.
     void effect(const EffectCueUpdate&,std::uint64_t tick);
     // A cue block of an actor's running action: Begin starts, End stops, Marker plays a one-shot. Other block kinds are ignored.
-    void action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent&,std::uint64_t tick);
-    // Authority rejected an activation: every cue started for it is cut with the short rejection tail.
+    // For the owner's own action the timing chooses which of its two streams a cue plays from (see CueTiming).
+    void action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent&,std::uint64_t tick,CueTiming=CueTiming::Observed);
+    // Authority rejected an activation, or the action was cut short: every cue started for it is cut with the short rejection tail.
     void rejected(std::uint64_t network,std::uint64_t activation,std::uint64_t tick);
     // An actor left, or its avatar changed: its instances are released at once, without a tail.
     void retire(std::uint64_t network);

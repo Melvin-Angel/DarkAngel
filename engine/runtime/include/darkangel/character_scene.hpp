@@ -6,6 +6,7 @@
 #include <darkangel/actor_controller.hpp>
 #include <darkangel/encounter.hpp>
 #include <darkangel/interaction.hpp>
+#include <darkangel/cue_player.hpp>
 #include <functional>
 
 namespace darkangel {
@@ -117,6 +118,16 @@ public:
     std::span<const AbilityCommitUpdate> commitments()const;
     const EffectPresentation* effects(StableId)const;
     std::span<const EffectCueUpdate> effect_cues()const;
+    // Cue blocks the actions of the player and the actors crossed on the latest tick, and actions that ended before
+    // their time. Derived on the client side from the action clocks it already holds (the owner's prediction and
+    // correction, the other actors' public frames); no server timeline is read.
+    std::span<const ActionCueUpdate> action_cues()const;
+    std::span<const ActionCueCut> action_cue_cuts()const;
+    // A cue player to drive from every tick of this session: effect cue edges, action cues, cuts, actors leaving
+    // and the tick itself. It must outlive the session or be detached with a null pointer first.
+    void present_cues(CuePlayer*);
+    // The scene identity behind a network identity the cue records name: the player or an actor.
+    std::optional<StableId> identity(std::uint64_t network)const;
     // Current selected reaction for a prepared actor, including a suppressed candidate.
     const ReactionSample* reaction(StableId)const;
     // Death timeline tick while a prepared actor's checked Health is 0.

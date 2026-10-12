@@ -68,5 +68,47 @@ int main(){try{
         Recorder visual,audio;{CuePlayer player(resolve,&visual,&audio);player.effect(effect(EffectCueEdge::Begin,2,11),1);player.action(1,1,block(ActionEdge::Begin,5,3,"swing"),1);}check(visual.held.empty()&&audio.held.empty(),"A destroyed player left instances in its sinks");
         bool refused=false;try{CueLimits bad;bad.live=0;CuePlayer player(resolve,nullptr,nullptr,bad);}catch(const std::exception&){refused=true;}check(refused,"A player without room for any cue was built");
     }
-    std::cout<<"Cue player: effect cues (once, tail, release, per instance and actor, restart during tail), action cue blocks (length, marker, other kinds ignored, per-sink routing, tail limit), rejected activations, actor retirement, bounds, cues without presentation, headless operation and release on destruction passed\n";return 0;
+    {
+        // Action cues derived from an action clock: each cue block once as the clock passes it, the last tick's cues when the action runs out.
+        auto swing=std::make_shared<ActionDefinition>();swing->id=AssetId::random();swing->duration=10*action_tick_units;swing->loops=1;
+        swing->blocks={{1,0,0,0,ActionBlockKind::Cue,"swing"},{2,1,5*action_tick_units,5*action_tick_units,ActionBlockKind::Cue,"hit.spark"},{3,2,9*action_tick_units+512,9*action_tick_units+512,ActionBlockKind::Cue,"grunt"},{4,3,2*action_tick_units,6*action_tick_units,ActionBlockKind::HitWindow,"Weapon.Right"}};
+        const std::vector<std::shared_ptr<const ActionDefinition>> actions{swing};
+        const auto at=[&](std::uint64_t activation,std::uint64_t ticks){ActionState state;state.activation=activation;state.clock=ticks*action_tick_units;state.entered=true;return std::optional<ActionState>(state);};
+        const auto keys=[](const std::vector<ActionCueUpdate>& cues){std::string all;for(const auto& cue:cues){check(cue.event.kind==ActionBlockKind::Cue&&cue.event.edge==ActionEdge::Marker,"A derived cue is not a cue marker");all+=cue.event.key+" ";}return all;};
+        {ActionCueTracker tracker(actions);std::string heard;for(std::uint64_t tick=0;tick<10;++tick){tracker.observe(5,1,CueTiming::Observed,swing->id,at(3,tick));const auto cues=tracker.drain_cues();for(const auto& cue:cues)check(cue.network==5&&cue.avatar_epoch==1&&cue.event.activation==3&&cue.timing==CueTiming::Observed,"A derived cue lost its actor, activation or timing");heard+=keys(cues);if(tick==0)check(heard=="swing ","The cue at the start of an action was not reported on its first tick");if(tick==4)check(heard=="swing ","A cue was reported before the clock reached it");if(tick==5)check(heard=="swing hit.spark ","A cue was not reported on the tick the clock passed it");}
+            tracker.observe(5,1,CueTiming::Observed,{},std::nullopt);heard+=keys(tracker.drain_cues());check(heard=="swing hit.spark grunt "&&tracker.drain_cuts().empty(),"An action that ran out lost the cues of its last tick or was reported as cut");
+            tracker.observe(5,1,CueTiming::Observed,{},std::nullopt);check(tracker.drain_cues().empty()&&tracker.drain_cuts().empty(),"An ended action reported again");}
+        {// Interrupted before its time: a cut, and no cue it never reached.
+            ActionCueTracker tracker(actions);for(std::uint64_t tick=0;tick<4;++tick)tracker.observe(5,1,CueTiming::OwnerPredicted,swing->id,at(3,tick));tracker.drain_cues();tracker.observe(5,1,CueTiming::OwnerPredicted,{},std::nullopt);const auto cuts=tracker.drain_cuts();check(tracker.drain_cues().empty()&&cuts.size()==1&&cuts.front().network==5&&cuts.front().activation==3,"An action that stopped early was not reported as cut exactly once");
+            // Replaced by another activation: the old one is cut and the new one starts its own cues. A cancelled state counts as no action.
+            tracker.observe(5,1,CueTiming::OwnerPredicted,swing->id,at(4,2));tracker.drain_cues();tracker.observe(5,1,CueTiming::OwnerPredicted,swing->id,at(5,0));check(keys(tracker.drain_cues())=="swing "&&tracker.drain_cuts().size()==1,"A replaced action was not cut or its successor lost its first cue");
+            auto cancelled=at(5,1);cancelled->phase=ActionPhase::Cancelled;tracker.observe(5,1,CueTiming::OwnerPredicted,swing->id,cancelled);check(tracker.drain_cuts().size()==1,"A cancelled action was not cut");}
+        {// A clock that goes back and forward again (a replayed prediction) reports nothing twice.
+            ActionCueTracker tracker(actions);std::string heard;for(std::uint64_t tick:{0,1,2,3,2,3,4,5,6,5,6,7}){tracker.observe(5,1,CueTiming::OwnerPredicted,swing->id,at(3,tick));heard+=keys(tracker.drain_cues());}check(heard=="swing hit.spark "&&tracker.drain_cuts().empty(),"A replayed clock repeated or lost a cue");}
+        {// First seen well into an action: its earlier cues are not replayed. Streams of one actor are separate.
+            ActionCueTracker tracker(actions);tracker.observe(5,1,CueTiming::Observed,swing->id,at(3,6));check(tracker.drain_cues().empty(),"An action first seen late replayed its past cues");tracker.observe(5,1,CueTiming::OwnerConfirmed,swing->id,at(3,0));check(keys(tracker.drain_cues())=="swing ","A second stream of the same actor was not tracked on its own");
+            // An actor that leaves, a new avatar and an action nobody prepared report nothing.
+            tracker.retire(5);tracker.observe(5,1,CueTiming::Observed,{},std::nullopt);check(tracker.drain_cuts().empty(),"A retired actor's action was reported as cut");
+            tracker.observe(6,1,CueTiming::Observed,swing->id,at(8,1));tracker.drain_cues();tracker.observe(6,2,CueTiming::Observed,{},std::nullopt);check(tracker.drain_cuts().empty(),"A new avatar's old action was reported as cut");
+            tracker.observe(7,1,CueTiming::Observed,AssetId::random(),at(9,0));check(tracker.drain_cues().empty(),"An unprepared action produced cues");}
+    }
+    {
+        // The owner's action is fed from prediction and from confirmation; each cue plays from exactly one of them.
+        Recorder visual,audio;CuePlayer player(resolve,&visual,&audio);
+        player.action(4,1,block(ActionEdge::Marker,9,1,"swing"),10,CueTiming::OwnerPredicted);player.action(4,1,block(ActionEdge::Marker,9,2,"hit.spark"),10,CueTiming::OwnerPredicted);player.action(4,1,block(ActionEdge::Marker,9,3,"nothing"),10,CueTiming::OwnerPredicted);
+        check(audio.log==std::vector<std::string>{"start swing on 4","stop swing tail 20"}&&player.unresolved()==0,"The owner's prediction did not play exactly its predictable cues");
+        player.action(4,1,block(ActionEdge::Marker,9,1,"swing"),12,CueTiming::OwnerConfirmed);player.action(4,1,block(ActionEdge::Marker,9,2,"hit.spark"),12,CueTiming::OwnerConfirmed);player.action(4,1,block(ActionEdge::Marker,9,3,"nothing"),12,CueTiming::OwnerConfirmed);
+        check(audio.log.size()==2&&visual.log.size()==4&&visual.log[2]=="start hit.spark on 4"&&player.unresolved()==1,"The owner's confirmation repeated a predicted cue or lost a confirmed one");
+        // The predicted swing is rejected: it is cut short.
+        player.rejected(4,9,13);check(audio.log.back()=="stop swing tail 6","A rejected predicted cue was not cut");
+    }
+    {
+        // The cue source.
+        const std::string source=R"({"schema":1,"kind":"cue","asset":"0058d474-74c0-45b9-a4a6-b5d81963ab7e","name":"Swing","key":"Attack.Start","visual":"","audio":"royal_district/audio/swing","tail_ticks":12,"predictable":true})";
+        const auto cue=decode_cue(source);check(cue.id.text()=="0058d474-74c0-45b9-a4a6-b5d81963ab7e"&&cue.name=="Swing"&&cue.key=="Attack.Start"&&cue.visual.empty()&&cue.audio=="royal_district/audio/swing"&&cue.tail_ticks==12&&cue.predictable,"A cue source did not decode to its fields");
+        const auto refused=[&](std::string_view from,std::string_view to){auto changed=source;const auto found=changed.find(from);check(found!=changed.npos,"Cue test edit missing");changed.replace(found,from.size(),to);try{decode_cue(changed);}catch(const std::exception&){return true;}return false;};
+        check(refused("\"royal_district/audio/swing\"","\"\""),"A cue with neither a visual nor a sound was accepted");check(refused("Attack.Start","Attack Start"),"A cue key with a space was accepted");check(refused(":12,",":601,"),"A cue tail beyond the bound was accepted");
+        check(refused("\"schema\":1","\"schema\":2"),"An unknown cue schema was accepted");check(refused(",\"predictable\":true",""),"A cue source without a field was accepted");check(refused("\"predictable\":true","\"predictable\":true,\"extra\":1"),"A cue source with an unknown field was accepted");check(refused("\"kind\":\"cue\"","\"kind\":\"effect\""),"A source of another kind was accepted as a cue");
+    }
+    std::cout<<"Cue player: effect cues (once, tail, release, per instance and actor, restart during tail), action cue blocks (length, marker, other kinds ignored, per-sink routing, tail limit), rejected activations, actor retirement, bounds, cues without presentation, headless operation and release on destruction; action cues derived from a clock (once each, last tick, cut, replay, late first sight, retirement), owner predicted and confirmed streams, the cue source passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "0058d474-74c0-45b9-a4a6-b5d81963ab7e",
+  "name": "Swing",
+  "key": "Attack.Start",
+  "visual": "",
+  "audio": "royal_district/audio/swing",
+  "tail_ticks": 12,
+  "predictable": true
+}

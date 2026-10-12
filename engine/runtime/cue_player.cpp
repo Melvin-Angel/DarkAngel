@@ -1,6 +1,8 @@
 #include <darkangel/cue_player.hpp>
+#include <nlohmann/json.hpp>
 #include <algorithm>
 #include <stdexcept>
+#include <utility>
 
 namespace darkangel {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
@@ -32,8 +34,10 @@ void CuePlayer::effect(const EffectCueUpdate& update,std::uint64_t tick){
     if(update.edge==EffectCueEdge::Begin)start(source,update.state.key,id.cue,tick);
     else if(update.edge==EffectCueEdge::End){if(auto found=instances_.find(source);found!=instances_.end()){const auto definition=resolver_(found->second.key,id.cue);stop(found,definition?definition->tail_ticks:0,tick);}}
 }
-void CuePlayer::action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent& event,std::uint64_t tick){
+void CuePlayer::action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent& event,std::uint64_t tick,CueTiming timing){
     if(event.kind!=ActionBlockKind::Cue)return;require(network&&event.activation,"An action cue needs its actor and activation");
+    // The owner's action is fed twice; a cue belongs to exactly one of the two streams.
+    if(timing!=CueTiming::Observed){const auto definition=resolver_(event.key,AssetId{});if((timing==CueTiming::OwnerPredicted)!=(definition&&definition->predictable))return;}
     Source source;source.network=network;source.avatar_epoch=avatar_epoch;source.activation=event.activation;source.block=event.block;source.loop=event.loop;source.action=true;
     const auto tail=[&]{const auto definition=resolver_(event.key,AssetId{});return definition?definition->tail_ticks:0u;};
     if(event.edge==ActionEdge::Begin)start(source,event.key,AssetId{},tick);
@@ -53,6 +57,46 @@ void CuePlayer::retire(std::uint64_t network){
 }
 void CuePlayer::advance(std::uint64_t tick){
     for(auto at=instances_.begin();at!=instances_.end();){auto next=std::next(at);if(at->second.stopping&&tick>=at->second.until)release(at);at=next;}
+}
+ActionCueTracker::ActionCueTracker(std::span<const std::shared_ptr<const ActionDefinition>> actions){
+    require(actions.size()<=256,"Cue tracker action bound");for(const auto& action:actions){require(action&&action->duration&&action->loops,"Cue tracker action resource");actions_.emplace(action->id,action);}
+}
+void ActionCueTracker::markers(std::uint64_t network,CueTiming timing,const Held& held,std::uint64_t from,std::uint64_t to,bool inclusive){
+    const auto& definition=*held.definition;const auto first=cues_.size();
+    for(unsigned loop=0;loop<definition.loops;++loop){const auto origin=std::uint64_t(loop)*definition.duration;if(origin>to||origin+definition.duration<from)continue;
+        for(const auto& block:definition.blocks){if(block.kind!=ActionBlockKind::Cue)continue;const auto time=origin+block.begin;if(time>to||(inclusive?time<from:time<=from))continue;
+            cues_.push_back({network,held.avatar_epoch,timing,ActionEvent{held.activation,time,block.id,block.track,loop,ActionEdge::Marker,ActionBlockKind::Cue,block.key}});}}
+    std::sort(cues_.begin()+std::ptrdiff_t(first),cues_.end(),[](const auto& a,const auto& b){return a.event<b.event;});require(cues_.size()<=1024,"Cue tracker work bound");
+}
+void ActionCueTracker::finish(std::uint64_t network,CueTiming timing,const Held& held){
+    const auto total=std::uint64_t(held.definition->duration)*held.definition->loops;if(held.clock>=total)return;
+    // One more tick would have ended it: it ran out, and the cues of its last tick are still due. Anything else was cut short.
+    if(held.rate&&held.clock+held.rate>=total)markers(network,timing,held,held.clock,total,false);else{cuts_.push_back({network,held.activation});require(cuts_.size()<=1024,"Cue tracker work bound");}
+}
+void ActionCueTracker::observe(std::uint64_t network,std::uint64_t avatar_epoch,CueTiming timing,AssetId id,const std::optional<ActionState>& state){
+    require(network!=0,"A cue tracker stream needs its actor");const auto key=std::pair{network,timing};const auto definition=actions_.find(id);
+    const bool running=state&&state->entered&&state->phase!=ActionPhase::Cancelled&&definition!=actions_.end();auto held=held_.find(key);
+    if(held!=held_.end()&&(!running||held->second.activation!=state->activation||held->second.avatar_epoch!=avatar_epoch||held->second.definition!=definition->second)){
+        // A new avatar is a new actor to presentation: the host retires its cues, nothing is reported here.
+        if(held->second.avatar_epoch==avatar_epoch)finish(network,timing,held->second);held_.erase(held);held=held_.end();}
+    if(!running)return;const auto total=std::uint64_t(definition->second->duration)*definition->second->loops;const auto clock=std::min<std::uint64_t>(state->clock,total);
+    if(held==held_.end()){Held begun{avatar_epoch,state->activation,clock,state->rate,definition->second};if(clock<=4*std::uint64_t(action_tick_units))markers(network,timing,begun,0,clock,true);held_.emplace(key,std::move(begun));return;}
+    if(clock>held->second.clock){markers(network,timing,held->second,held->second.clock,clock,false);held->second.clock=clock;}held->second.rate=state->rate;
+}
+void ActionCueTracker::retire(std::uint64_t network){std::erase_if(held_,[&](const auto& item){return item.first.first==network;});}
+std::vector<ActionCueUpdate> ActionCueTracker::drain_cues(){return std::exchange(cues_,{});}
+std::vector<ActionCueCut> ActionCueTracker::drain_cuts(){return std::exchange(cuts_,{});}
+CueDefinition decode_cue(std::string_view text){
+    using Json=nlohmann::json;require(text.size()<=4096,"Cue source size bound");const auto value=Json::parse(text);
+    require(value.is_object()&&value.size()==9,"Cue source field count");for(auto field:{"schema","kind","asset","name","key","visual","audio","tail_ticks","predictable"})require(value.contains(field),"Cue source missing/unknown field");
+    require(value.at("schema")==1&&value.at("kind")=="cue","Cue source schema/type");CueDefinition cue;cue.id=AssetId::parse(value.at("asset").get<std::string>());require(cue.id!=AssetId{},"Cue identity");
+    const auto word=[&](const char* field,std::size_t limit,bool empty,const char* letters,const char* error){require(value.at(field).is_string(),error);auto read=value.at(field).get<std::string>();require((empty||!read.empty())&&read.size()<=limit&&read.find_first_not_of(letters)==read.npos,error);return read;};
+    const char* typed="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-";const char* path="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-/";
+    require(value.at("name").is_string(),"Cue name type");cue.name=value.at("name").get<std::string>();require(!cue.name.empty()&&cue.name.size()<=64,"Cue display name bounds (1 to 64 characters)");
+    cue.key=word("key",64,false,typed,"Cue key: 1 to 64 letters, digits, '_', '.' or '-'");cue.visual=word("visual",128,true,path,"Cue visual name");cue.audio=word("audio",128,true,path,"Cue audio name");
+    require(!cue.visual.empty()||!cue.audio.empty(),"A cue names a visual, a sound or both");
+    require(value.at("tail_ticks").is_number_unsigned()&&value.at("tail_ticks").get<std::uint64_t>()<=600,"Cue tail bounds (0 to 600 ticks)");cue.tail_ticks=value.at("tail_ticks").get<unsigned>();
+    require(value.at("predictable").is_boolean(),"Cue predictable flag type");cue.predictable=value.at("predictable").get<bool>();return cue;
 }
 std::size_t CuePlayer::live()const{return instances_.size();}
 std::vector<CueInstanceInfo> CuePlayer::instances()const{

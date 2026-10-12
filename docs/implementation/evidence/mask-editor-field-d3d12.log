@@ -4,9 +4,9 @@
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80202440000
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201d20000
 [39mEditor mask_field typed=1 undo=1
-Viewport foreground pixels=934999 capture=C:\DarkAngel\docs\implementation\evidence\mask-editor-field-d3d12.png
+Viewport foreground pixels=770141 capture=C:\DarkAngel\docs\implementation\evidence\mask-editor-field-d3d12.png
 Mask Editor open mask=Air Mask workspace=player selection_kept=1 dirty=0
 DarkAngel editor rendered 12 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

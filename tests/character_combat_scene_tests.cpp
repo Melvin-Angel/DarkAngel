@@ -29,6 +29,20 @@ int main(){try{
     auto stamina=[&]{for(const auto& attribute:session.ability()->attributes)if(attribute.id==3)return attribute.value;return -1.;};check(stamina()==90,"Tap/release cannot duplicate the Pressed cost");
     for(unsigned attack=2;attack<=4;++attack){session.step(pressed);session.step(released);while(session.motor().tick<60*attack)session.step({});check(stamina()==100-10*attack,"Repeated serialized operations charge once per activation");check(health()==100-25*attack,"One damage outcome per action/target despite persistent hit window");}
     check(health()==0&&authoring.serialize()==original,"Death baseline and gameplay isolation preserve authoring");session.step(pressed);session.step(released);while(session.motor().tick<300)session.step({});check(health()==0&&stamina()==50,"Dead target never receives repeated damage");
+    // Presentation cues from a running session. The owner's Light is seen predicted and confirmed and its predictable swing cue plays once;
+    // an NPC's Light is seen once, from its public state. Nothing here reads the server's timelines.
+    {
+        struct Recorder final:CueSink {unsigned starts{},stops{},releases{};std::uint64_t network{};void start(const CueStart& begun)override{++starts;network=begun.network;}void stop(std::uint64_t,unsigned)override{++stops;}void release(std::uint64_t)override{++releases;}};
+        const CuePlayer::Resolver swing=[](std::string_view key,AssetId)->std::optional<CueDefinition>{if(key=="Attack.Start")return CueDefinition{{},"","swing",12,true};return std::nullopt;};
+        {Recorder sound;CuePlayer cues(swing,nullptr,&sound);CharacterSceneSession scene(hello,objects,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,combat);scene.present_cues(&cues);unsigned predicted{},confirmed{},other{},cuts{};
+            const auto count=[&]{for(const auto& cue:scene.action_cues()){check(scene.identity(cue.network)==player.id,"An action cue names an actor that did not act");if(cue.event.key!="Attack.Start")continue;if(cue.timing==CueTiming::OwnerPredicted)++predicted;else if(cue.timing==CueTiming::OwnerConfirmed)++confirmed;else ++other;}cuts+=unsigned(scene.action_cue_cuts().size());};
+            scene.step(pressed);count();check(predicted==1&&sound.starts==1,"The owner's swing cue did not start on the tick of its predicted press");scene.step(released);count();while(scene.motor().tick<80){scene.step({});count();}
+            check(predicted==1&&confirmed==1&&other==0&&cuts==0,"The owner's action cue was not reported exactly once predicted and once confirmed");check(sound.starts==1&&sound.stops==1&&sound.releases==1&&cues.live()==0&&scene.identity(sound.network)==player.id,"The owner's swing cue did not play exactly once and retire");
+            scene.present_cues(nullptr);}
+        {auto attacked=combat;arm(attacked,{CombatSlot::Light,10,120,3,true});auto away=objects;away[1].transform.yaw=0;Recorder sound;CuePlayer cues(swing,nullptr,&sound);CharacterSceneSession scene(hello,away,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,attacked);scene.present_cues(&cues);unsigned observed{};std::uint64_t first{};
+            while(scene.motor().tick<70){scene.step({});for(const auto& cue:scene.action_cues())if(cue.event.key=="Attack.Start"){check(cue.timing==CueTiming::Observed&&scene.identity(cue.network)==target.id,"An NPC's action cue is not an observed cue of that NPC");++observed;if(!first)first=scene.motor().tick;}}
+            check(observed==1&&first==10&&sound.starts==1&&scene.identity(sound.network)==target.id&&cues.live()==0,"An NPC's swing cue was not presented once from its public action");scene.present_cues(nullptr);}
+    }
     // Scripted training attacker: the target presses a slot of the same kit through the server's checked request path.
     // Its facing is the direction to the player plus the attack clip's own root yaw.
     {
