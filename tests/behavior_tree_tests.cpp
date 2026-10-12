@@ -68,5 +68,25 @@ int main(){try{
     check(widest>4&&first&&second&&second-first>=90&&health()==50,"The behaviour tree did not walk the NPC around the wall, attack, recover and attack again through authority");
     check(!scene.controller_status(target.id).empty()&&scene.presentation().read(scene.presentation().find(target.id)).health.current==60&&scene.pending_prediction()==0&&scene.resynchronizations()==baseline,"A tree-driven NPC disturbed its own state or owner prediction");
     std::cout<<"Behaviour tree: around the wall (widest x "<<widest<<" m), first hit tick "<<first<<", second hit tick "<<second<<"\n";
+    {
+        // Profile of a full scene: twenty-four tree-driven guards at spawn points and an encounter that keeps eight more alive, all with the
+        // Royal Guard's authored senses (rays against static collision) and the navigation mesh. Prints where a tick's time goes for three
+        // settings of the time-slicing budgets. A measurement, not a pass/fail timing.
+        auto run=[&](unsigned decisions,unsigned senses,unsigned spawns){
+            auto navigation=std::make_shared<const NavigationMesh>(collision);auto full=combat;full.actors.clear();full.decision_budget=decisions;full.sense_budget=senses;full.spawn_budget=spawns;
+            for(auto& attribute:full.attributes)if(attribute.id==1||attribute.id==2){attribute.base=100000;attribute.maximum=std::max(attribute.maximum,100000.);}
+            ObjectData sturdy;sturdy.id={9,1};sturdy.health={100000,100000};std::vector<ObjectData> many{sturdy};
+            for(unsigned index=0;index<24;++index){const StableId id{9,700+index};const double angle=6.283185307179586*index/24,radius=index%2?12.:7.;ObjectData placed;placed.id=id;placed.transform.x=std::sin(angle)*radius;placed.transform.z=std::cos(angle)*radius;placed.health={60,60};many.push_back(placed);
+                full.actors.push_back(CharacterSceneActor{id,cooked.definition,cooked.input,cooked.abilities,guard.attributes,guard.definition.name,guard.definition.faction,guard.definition.generation,make_behavior_controller(*guard.behavior,navigation,guard.definition.tuning),guard.definition.senses});}
+            CharacterSceneEncounter encounter;encounter.id={9,50};std::string text=R"({"trigger":{"event":"play.started"},"mode":"timed","timed":{"npc":"NPC","interval_seconds":0.25,"max_alive":8,"total":64},"placement":"random","corpse_seconds":1})";text.replace(text.find("NPC"),3,guard.definition.id.text());encounter.definition=decode_encounter(text);
+            CharacterSceneActor made{StableId{},cooked.definition,cooked.input,cooked.abilities,guard.attributes,guard.definition.name,guard.definition.faction,guard.definition.generation,nullptr,guard.definition.senses};encounter.npcs.emplace(guard.definition.id,made);encounter.volumes={{{0,1,-9},0,{6,2,3}}};encounter.controller=[&,navigation](AssetId){return make_behavior_controller(*guard.behavior,navigation,guard.definition.tuning);};full.encounters={encounter};
+            CharacterSceneSession scene(hello,many,player.id,collision,cooked.stance.plan,cooked.stance.rig.definition,cooked.stance.rig.archive,full);const auto baseline=scene.resynchronizations();std::size_t most=0;const auto packets=scene.server_packets();
+            while(scene.motor().tick<600){scene.step({});most=std::max(most,scene.actors().size());}
+            const auto& spent=scene.profile();const auto walked=navigation->usage();const double ticks=double(spent.ticks);const double total=spent.world+spent.sensing+spent.decisions+spent.abilities+spent.motors+spent.hits+spent.replication+spent.prediction+spent.presentation;
+            check(most>=30&&scene.resynchronizations()==baseline&&scene.pending_prediction()==0&&scene.presentation().read(scene.presentation().find(player.id)).health.current<100000,"The profiled scene did not fill up, fight, or keep owner prediction undisturbed");
+            std::cout<<"Profile, budgets "<<decisions<<"/"<<senses<<"/"<<spawns<<" (decisions/senses/spawns a tick), at most "<<most<<" actors, "<<double(scene.server_packets()-packets)/ticks<<" packets a tick, microseconds a tick: total "<<total/ticks<<" | world "<<spent.world/ticks<<" sensing "<<spent.sensing/ticks<<" decisions "<<spent.decisions/ticks<<" (navigation "<<walked.microseconds/ticks<<" in "<<double(walked.queries)/ticks<<" queries) abilities "<<spent.abilities/ticks<<" motors "<<spent.motors/ticks<<" hits "<<spent.hits/ticks<<" replication "<<spent.replication/ticks<<" prediction "<<spent.prediction/ticks<<" presentation "<<spent.presentation/ticks<<"\n";
+        };
+        run(8,8,2);run(32,32,8);run(4,4,1);
+    }
     std::cout<<"Behaviour trees: JSON topology decoding and rejection, BT.CPP executor behind the controller seam (approach, face, attack, recover), frozen behaviour on the owned Royal Guard, and a tree-driven NPC navigating and attacking in a session passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

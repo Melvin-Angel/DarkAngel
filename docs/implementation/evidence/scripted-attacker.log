@@ -3,13 +3,14 @@ Projectile: loosed tick 37, landed tick 59, lowest point 0.948611 m
 Vertical aim: elevation 0.349856 rad, converged yaw 0.00244562 pitch 0.357303, muzzle line error 9.9302e-16 m
 Soft lock closed 2.12132 -> 1.12787 m, predicted_error=0
 Three guards: player Health 0 at tick 136
-Sixteen actors: player Health 0 at tick 77, server packets per tick 14.2727
-Sixteen actors, server packets per tick by kind: baseline 0.025974 ready 0.012987 collision 2.18182 correction 2.18182 motor-batch 6 public-index 1 public-batch 2.87013
-Thirty-two actors: server packets per tick 15.974, far motor states at most 2 ticks old, by kind: baseline 0.0519481 ready 0.012987 collision 4.41558 correction 2.20779 motor-batch 5.07792 public-index 1 public-batch 3.20779
+Sixteen actors: player Health 0 at tick 77, server packets per tick 6.14286
+Sixteen actors, server packets per tick by kind: baseline 0.025974 ready 0.012987 collision 1.06494 correction 1.06494 public-index 1.06494 public-batch 0.779221 motor-remote 2.12987
+Thirty-two actors: server packets per tick 7.05195, far motor states at most 2 ticks old, by kind: baseline 0.0519481 ready 0.012987 collision 1.07792 correction 1.07792 public-index 1.07792 public-batch 1.31169 motor-remote 2.44156
+Thirty-two actors near and active: server packets per tick 13.2833, share of actor ticks inside an action 0.85, player Health 8425, by kind: baseline 0.222222 ready 0.0555556 collision 3.78333 correction 1.08333 public-index 1.02222 public-batch 3.03889 motor-remote 4.07778
 NPC sensing: player lost at tick 10, detected again at tick 101
 NPC sensing: distance radius, vision cone (facing, half angles, range, height), line of sight, a wall, losing and forgetting, the awareness meter, no senses, actor order, archer line of sight
 NPC aim lead: 0.105827 rad ahead at launch, player ran 1.16667 m during the flight and was hit
-Encounter: two waves entered and were killed by tick 143, resynchronisations 2, events: play.started test.go test.started test.wave_cleared test.done 
+Encounter: two waves entered and were killed by tick 143, resynchronisations 0, events: play.started test.go test.started test.wave_cleared test.done 
 Encounter: trigger volume, timed random spawns: 8d624e4c485a345070d29a967b20d1ab:-0.036481,3.467735;730d247a3f3a554fbc108a32b0d85e6b:0.646815,3.252273;0.000000@217
 Encounter: eighteen enemies in six waves, at most 6 in the session at once, done by tick 580
 Time slicing: twelve controllers, budget 4: 4 decisions a tick, a turn every 3 ticks, walked 4.60333 m against 4.68657 m with a turn every tick

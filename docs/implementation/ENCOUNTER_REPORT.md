@@ -122,7 +122,7 @@ The three steps of the design are built. Differences from the design are listed 
 
 ### Known limits and things found
 
-- **Each wave's entry rebuilds the owner's prediction world once** (`resynchronizations` rose by 2 for two waves in the scene test). It did not disturb prediction in the tests (no pending input, the player kept moving), but it is a full rebuild and may be a visible hitch in a large scene. Adding a character without a new prediction baseline is the fix; not done.
+- (Fixed 12 October 2026, see the last section.) **Each wave's entry rebuilds the owner's prediction world once** (`resynchronizations` rose by 2 for two waves in the scene test). It did not disturb prediction in the tests (no pending input, the player kept moving), but it is a full rebuild and may be a visible hitch in a large scene. Adding a character without a new prediction baseline is the fix; not done.
 - Dead enemies stay, so a scene's spawn points and encounters together bring in at most sixteen actors. Long encounters need the dead removed (question 1 below).
 - Enemies an encounter spawns are not in the Gameplay Inspector's Actors tab (it lists the scene's spawn points) and never become the HUD target; the World tab lists them with their Health.
 - Only the player sets off trigger volumes and the enter trigger. World events and tags are not replicated.
@@ -169,3 +169,35 @@ User answers of 12 October 2026 to the three questions above, and a new requirem
 - The budgets are fields of the session's combat description with fixed defaults; they are not authored in the editor.
 - Scene spawn-point NPCs still stay where they fall; only encounter enemies are removed.
 - Several players, and a remote client triggering a volume over a real connection.
+
+## No prediction rebuild for entering and removed enemies; Actors tab; tick profile (12 October 2026)
+
+### Why a new character forced a new prediction baseline
+
+Constructing or destroying a `CharacterMotor` advanced the physics world's topology. The client saw a collision frame with another topology and replaced its prediction world (`resynchronizations` rose once per wave and per removed corpse). Characters are already per-frame data in the collision frame and are loaded fresh on every prediction update and replay step, so nothing needed the new baseline. Topology now versions level bodies only (boxes and meshes); replay accepts a changing set of other characters. Design and details: [TARGETING_REPORT.md](TARGETING_REPORT.md), "Real room in the packet budget", point 6.
+
+Scene tests now assert `resynchronizations` unchanged across two waves entering and being killed, and across eighteen enemies entering and their corpses being removed (both were rising before: 2 for two waves).
+
+### Encounter enemies in the Play views
+
+- Gameplay Inspector, Actors tab: lists every actor the session holds now, spawn-point NPCs and encounter enemies (marked "(encounter)"), with the same readouts: Health and faction, behaviour, decision, chosen target, senses with the draw toggle, perception lines, last request, presentation and effects. An enemy's behaviour comes from the NPC definition Play prepared for its encounter.
+- HUD target: chosen among every live hostile actor in the session, so an encounter enemy can be the target and is named.
+- Placement: no new panel; the existing Actors tab and HUD. Gate `encounter-d3d12` now also requires an encounter enemy with a decision readout and as the HUD target by name. Editor-only change.
+
+### Where a tick's time goes
+
+Measured by `CharacterSceneSession::profile()` in BehaviorTreeTests: twenty-four tree-driven Royal Guards at spawn points plus an encounter keeping eight more alive (thirty-two actors), the guards' authored senses (rays against static collision), the navigation mesh, 600 ticks, RelWithDebInfo, server and client in one process. Microseconds a tick:
+
+| budgets (decisions/senses/spawns) | total | sensing | decisions | of which navigation | world | abilities | motors | hits | replication | prediction | presentation |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 8/8/2 (default) | 6713 | 320 | 126 | 6 | 27 | 553 | 1473 | 225 | 2413 | 272 | 1304 |
+| 32/32/8 (no slicing) | 8004 | 1205 | 376 | 9 | 29 | 563 | 1453 | 233 | 2532 | 274 | 1338 |
+| 4/4/1 | 6382 | 185 | 78 | 7 | 32 | 534 | 1372 | 217 | 2394 | 258 | 1311 |
+
+Reading it: a tick is 16,667 microseconds, and the full scene uses about 6.7 ms of it. Replication is the largest share (36%: publishing and both sessions' packet work), then the authoritative motors and physics (22%) and the client's presentation (19%: thirty-two observed poses). One NPC's sensing costs about 40 microseconds and one decision about 16; navigation is half a query a tick and negligible.
+
+**The defaults stay at 8, 8 and 2.** At the defaults sensing and decisions together are 7% of the tick; without slicing they would be 20%, and halving the budgets saves only 0.2 ms while doubling every NPC's reaction delay (at 8 a tick, thirty-two NPCs each sense and decide every fourth tick, 67 ms). The time to win is in replication, not in the budgets. Timings are from one machine and one run each; treat them as proportions. A second run of the default row later the same day measured 4,144 microseconds in total with the same shares (replication 35%, motors 23%, presentation 19%), so absolute times vary by about 1.6 times with the machine's state.
+
+### Verified and not
+
+Verified: the scene tests above; all 47 verify gates including `encounter-d3d12` with its new requirements; the capture `encounter-d3d12.png` was looked at and shows an encounter's Royal Guard as the HUD target (name and Health bar) with the player already hit. Not verified by eye: the Actors tab listing itself, because the capture shows the Game Profiler tab; the gate checks the same accessors the tab reads (configuration, perception, decision), not the drawn rows.

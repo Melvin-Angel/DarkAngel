@@ -7,6 +7,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <iterator>
+#include <chrono>
 
 namespace darkangel {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
@@ -43,7 +44,7 @@ struct CharacterSceneSession::Impl {
     StableId player_identity;
     SimulationClock clock;
     std::uint64_t player{};
-    bool pending_jump{},failed{};unsigned resynchronizations{};
+    bool pending_jump{},failed{};unsigned resynchronizations{};CharacterSceneProfile profile;
     // Soft lock: the candidate the live prediction chose per unconfirmed tick (reused by replay) and the last tick the owner warped.
     std::map<std::uint64_t,std::uint64_t> predicted_locks;std::uint64_t soft_lock_tick{},soft_lock_actor{};
     Impl(SessionHandshake hello,std::span<const ObjectData> objects,StableId identity,const CollisionDefinition& collision,
@@ -82,7 +83,7 @@ struct CharacterSceneSession::Impl {
         require(client.readiness(client_peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags,combat->loadouts);}
         if(combat){std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:combat->abilities)actions.push_back(ability->action);prepared_actions=actions;rig_archive=std::string(archive);
-            auto observe=[&](std::uint64_t id,const std::vector<AttributeDefinition>& schema){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(schema,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(client.public_abilities().at(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(schema),combat->tags,combat->effects));}};
+            auto observe=[&](std::uint64_t id,const std::vector<AttributeDefinition>& schema){require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(schema,combat->health,combat->maximum_health,actions,combat->tags);prepared->push(shown(id));observers.emplace(id,std::move(prepared));if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(schema),combat->tags,combat->effects));}};
             observe(player,combat->attributes);for(const auto& actor:actors)observe(actor.id,actor.config->attributes);
             action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),actions);reactions=std::make_unique<ReactionPresentation>(rig.definition(),combat->effects,combat->clips);if(combat->death)player_death=std::make_unique<DeathPresentation>(rig.definition(),combat->death,combat->clips);
             for(auto& actor:actors){actor.pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),archive,actions,combat->clips,combat->tags,combat->effects,combat->death);actor.pose->sample(observers.at(actor.id)->sample(0).frame,effect_frame(actor.id));}
@@ -146,11 +147,11 @@ struct CharacterSceneSession::Impl {
     }
     static void restrict(MotorInput& command,MotionRequest& request){request.lock=true;request.warp={};command.jump=false;}
     // A character's public frame as observers take it. The server sends a public ability frame only when its content
-    // changed; while the index says the held content is current, the frame is brought to the tick with the character's
-    // own motor state from the motor stream.
+    // changed, and never its motor state; while the index says the held content is current, the frame is brought to the
+    // tick of the character's state in the motor stream (a running action's clock advances by its rate) and paired with it.
     // A far character's motor state arrives every third tick, so its newest state may be up to two ticks old.
-    bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick+3>tick&&(held->second.ability.tick==tick||(!held->second.ability.active&&listed->second.content==public_ability_content(held->second.ability)));}
-    AbilityPublicFrame shown(std::uint64_t id)const{auto frame=client.public_abilities().at(id);auto motor=client.motors().find(id);if(!frame.ability.active&&motor!=client.motors().end()&&motor->second.tick>frame.ability.tick&&motor->second.epoch==frame.motor.epoch){frame.motor=motor->second;frame.ability.tick=motor->second.tick;}return frame;}
+    bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick+3>tick&&(held->second.ability.tick==tick||listed->second.content==public_ability_content(held->second.ability));}
+    AbilityPublicFrame shown(std::uint64_t id)const{auto frame=client.public_abilities().at(id);auto motor=client.motors().find(id);if(motor!=client.motors().end()&&motor->second.tick>=frame.ability.tick&&motor->second.epoch==frame.avatar_epoch){frame.motor=motor->second;frame.ability=public_ability_at(frame.ability,motor->second.tick);}else throw std::runtime_error("A public frame arrived without the motor state of its tick; resynchronize");return frame;}
     // Server side of one actor: senses, authoritative motor, ability owner with its kit. Runs at session start for the scene's
     // actors and during play for an enemy an encounter spawns.
     void arm(Actor& actor){const auto& config=*actor.config;require(!config.attributes.empty(),"Combat actor needs resolved attributes");AttributeSet(config.attributes);
@@ -161,9 +162,9 @@ struct CharacterSceneSession::Impl {
                 server.publish_motor(actor.id,actor.motor->state());}
     // Client side of one actor: observer, effect view and pose, once its first public frame has arrived.
     void present(Actor& actor){
-        require(client.public_abilities().contains(actor.id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(actor.config->attributes,combat->health,combat->maximum_health,prepared_actions,combat->tags);prepared->push(client.public_abilities().at(actor.id));observers.emplace(actor.id,std::move(prepared));
+        require(client.public_abilities().contains(actor.id),"Combat public bootstrap work limit");auto prepared=std::make_unique<ObserverAbility>(actor.config->attributes,combat->health,combat->maximum_health,prepared_actions,combat->tags);const auto first=shown(actor.id);prepared->push(first);observers.emplace(actor.id,std::move(prepared));
         if(!combat->effects.empty())effect_views.emplace(actor.id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(actor.config->attributes),combat->tags,combat->effects));
-        actor.pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),rig_archive,prepared_actions,combat->clips,combat->tags,combat->effects,combat->death);actor.pose->sample(observers.at(actor.id)->sample(double(client.public_abilities().at(actor.id).ability.tick)).frame,effect_frame(actor.id));
+        actor.pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),rig_archive,prepared_actions,combat->clips,combat->tags,combat->effects,combat->death);actor.pose->sample(observers.at(actor.id)->sample(double(first.ability.tick)).frame,effect_frame(actor.id));
     }
     // An enemy enters the session: a replicated object at the requested place, then the same setup as any actor.
     // False when the place is blocked by a body: nothing is left behind and the caller tries again.
@@ -289,6 +290,7 @@ struct CharacterSceneSession::Impl {
     void enqueue(std::span<const InputEvent> events){if(!combat){require(events.empty(),"Combat input requires a configured kit");return;}auto staged=pending_events;for(const auto& event:events){bool routed=loadout_request(event).has_value();for(const auto& slot:routing_kit().slots)routed|=slot.input_action&&slot.input_action==event.action;if(routed){require(staged.size()<32,"Combat input queue full; resynchronize");staged.push_back(event);}}pending_events=std::move(staged);}
     void step(CharacterSceneInput input){
         require(!failed,"Character scene requires a fresh synchronized session");require(!input.crouch,"Character scene posture animation is not in the initial standing profile");require(std::isfinite(input.x)&&std::isfinite(input.z)&&std::isfinite(input.yaw)&&std::isfinite(input.pitch),"Character scene input finite");
+        auto mark=std::chrono::steady_clock::now();auto lap=[&](double& phase){const auto now=std::chrono::steady_clock::now();phase+=std::chrono::duration<double,std::micro>(now-mark).count();mark=now;};
         const auto tick=authoritative.tick()+1;MotorInput command{tick,tick,owner_motor->state().epoch,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch};validate_motor_input(command);
         require(client.collision_control_ready()&&client.submit_motor(player,command),"Character scene control unavailable; resynchronize");
         std::vector<AbilityPredictionInput> prediction_input;
@@ -297,38 +299,41 @@ struct CharacterSceneSession::Impl {
         MotionRequest authoritative_motion,predicted_request;auto predicted_command=command;
         if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);const auto candidates=client_candidates();if(auto chosen=lock(predicted_request,owner_motor->state(),predicted_command,candidates)){predicted_locks[tick]=*chosen;soft_lock_tick=tick;soft_lock_actor=*chosen;}}
         semantic_commands.push_back(command);require(semantic_commands.size()<=30,"Character scene semantic history overflow; resynchronize");
-        server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
+        lap(profile.prediction);server.tick();require(server.motor_input_ready(player,tick),"Character scene owner command unavailable");
         auto accepted=server.consume_motor(player,tick,command.epoch);
-        if(combat)run_world(tick);
+        lap(profile.replication);if(combat)run_world(tick);lap(profile.world);
         for(std::size_t index=0;index<actors.size();++index){const auto& motor=actors[index].motor->state();actor_commands[index]=MotorInput{tick,tick,motor.epoch,0,0,motor.yaw};actor_motions[index]={};}
         if(combat){
             // Controllers decide in ascending network identity from the state before this tick; their presses join the same ability advance as the player's intents.
-            slice(sense_cursor,combat->sense_budget);for(std::size_t index=0;index<actors.size();++index)if(turn[index])sense(actors[index],tick);
+            slice(sense_cursor,combat->sense_budget);for(std::size_t index=0;index<actors.size();++index)if(turn[index])sense(actors[index],tick);lap(profile.sensing);
             // An actor whose turn it is decides; the others keep moving and facing as they last decided.
             slice(decision_cursor,combat->decision_budget);
             for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];actor_requested[index]=false;if(turn[index])actor_requested[index]=drive_controller(actor,tick,actor_commands[index]);else if(actor.config->controller){actor_commands[index].x=actor.hold_x;actor_commands[index].z=actor.hold_z;if(actor.hold_face)actor_commands[index].yaw=std::remainder(*actor.hold_face,6.283185307179586);}}
-            auto before=server.ability_snapshot(ability_owner);for(std::size_t index=0;index<actors.size();++index)actor_before[index]=server.ability_snapshot(actors[index].owner);
+            lap(profile.decisions);auto before=server.ability_snapshot(ability_owner);for(std::size_t index=0;index<actors.size();++index)actor_before[index]=server.ability_snapshot(actors[index].owner);
             server.advance_abilities(tick);auto after=server.ability_snapshot(ability_owner);auto updates=server.drain_ability_actions();authoritative_motion=action_motion(before,after,updates,accepted,host_motor->state().yaw);if(restricted(ability_owner,player))restrict(accepted,authoritative_motion);{const auto candidates=server_candidates();lock(authoritative_motion,host_motor->state(),accepted,candidates);}
             for(std::size_t index=0;index<actors.size();++index){auto& actor=actors[index];if(actor.config->kit){const auto now=server.ability_snapshot(actor.owner);if(now.active)aim_actor(actor,definition(now),actor_commands[index]);actor_motions[index]=action_motion(actor_before[index],now,updates,actor_commands[index],actor.motor->state().yaw,bool(actor_requested[index]));}if(restricted(actor.owner,actor.id))restrict(actor_commands[index],actor_motions[index]);
                 // Shared soft lock: an NPC's only candidate is the live target its controller chose for this action.
                 if(!server.ability_snapshot(actor.owner).active&&!actor_requested[index])actor.locked.reset();
                 {const auto candidates=locked_candidates(actor);lock(actor_motions[index],actor.motor->state(),actor_commands[index],candidates);}}}
-        owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();
-        host_motor->step(accepted,authoritative_motion);for(std::size_t index=0;index<actors.size();++index)actors[index].motor->step(actor_commands[index],actor_motions[index]);authoritative.step();host_motor->post_physics();for(auto& actor:actors)actor.motor->post_physics();authoritative.finish_tick();
-        auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());for(const auto& actor:actors)server.publish_motor(actor.id,actor.motor->state());if(combat){server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}server.publish_collision(collision_stream(frame));pump();
+        lap(profile.abilities);owner->predict(predicted_command,predicted_request);prediction->step();owner_motor->post_physics();prediction->finish_tick();lap(profile.prediction);
+        host_motor->step(accepted,authoritative_motion);for(std::size_t index=0;index<actors.size();++index)actors[index].motor->step(actor_commands[index],actor_motions[index]);authoritative.step();host_motor->post_physics();for(auto& actor:actors)actor.motor->post_physics();authoritative.finish_tick();lap(profile.motors);
+        auto frame=authoritative.capture();history.retain(frame);server.publish_motor(player,host_motor->state());for(const auto& actor:actors)server.publish_motor(actor.id,actor.motor->state());lap(profile.replication);if(combat){server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}lap(profile.hits);server.publish_collision(collision_stream(frame));pump();
         auto public_ready=[&]{if(!public_current(player,tick))return false;for(const auto& actor:actors)if(!public_current(actor.id,tick))return false;return true;};
         auto snapshots_ready=[&]{return client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick&&client.collision_control_ready()&&(!combat||(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick&&public_ready()));};
         for(unsigned work=0;work<32&&!snapshots_ready();++work)pump();
         require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
         if(combat){const auto& correction=client.ability_corrections().at(player);require(correction.ability.tick==tick&&correction.motor.tick==tick,"Atomic combat correction clock");if(correction.ability.active)definition(correction.ability);}
+        lap(profile.replication);
         if(combat){auto prepared=*ability_prediction;for(const auto& receipt:client.drain_ability_receipts())prepared.receipt(receipt);const auto& correction=client.ability_corrections().at(player);prepared.reconcile(correction.ability);std::vector<MotorCommand> regenerated;double replay_yaw=correction.motor.yaw;
             for(const auto& replay:prepared.replay_motion()){auto found=std::find_if(semantic_commands.begin(),semantic_commands.end(),[&](const auto& value){return value.tick==replay.tick;});require(found!=semantic_commands.end(),"Combat correction missing motor input history");auto replay_input=*found;if(replay.face_movement)face(replay_input,replay_yaw,replay.started);auto request=predicted_motion(replay,replay_input);replay_yaw=replay_input.yaw;if(predicted_restricted(replay.tick))restrict(replay_input,request);if(request.warp.active){const auto candidates=client_candidates();auto locked=predicted_locks.find(replay.tick);auto chosen=std::find_if(candidates.begin(),candidates.end(),[&](const auto& candidate){return locked!=predicted_locks.end()&&candidate.id==locked->second;});if(chosen!=candidates.end())request.warp.point=chosen->position;else request.warp={};}regenerated.push_back({replay_input,request});}
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(prepared);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
+        lap(profile.prediction);
         if(combat){require(public_ready(),"Combat public snapshot delivery bound; resynchronize");for(auto& actor:actors)if(!actor.pose)present(actor);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}}
-        // A far character's newest state can be a tick or two old; its pose still advances every tick, holding that state.
-        for(auto& actor:actors)if(actor.pose){auto frame=observers.at(actor.id)->sample(double(tick)).frame;if(!frame.ability.active&&frame.ability.tick<tick){frame.ability.tick=tick;frame.motor.tick=tick;}actor.pose->sample(frame,effect_frame(actor.id));}
+        // A far character's newest state can be a tick or two old; its pose still advances every tick, holding that state
+        // while a running action's clock advances (the index has confirmed its content for this tick).
+        for(auto& actor:actors)if(actor.pose){auto frame=observers.at(actor.id)->sample(double(tick)).frame;if(frame.ability.tick<tick){frame.ability=public_ability_at(frame.ability,tick);frame.motor.tick=tick;}actor.pose->sample(frame,effect_frame(actor.id));}
         const auto& state=host_motor->state();double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
         if(graph.tag_dictionary())parameters.tags=&client.ability_corrections().at(player).ability.tags;
@@ -341,7 +346,8 @@ struct CharacterSceneSession::Impl {
             player_reaction=reactions->select(effect_frame(player),player,correction.session_epoch,correction.motor.epoch,tick,alive,bool(correction.ability.active));
             player_death_tick=player_death?player_death->update(alive,tick,correction.motor.epoch):std::nullopt;
             if(player_death_tick)matrices=rig.sample(player_death->clip(),*player_death_tick);
-            else if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);client.drain_ability_receipts();client.tick();server.tick();}else matrices=rig.blend(graph_inputs.span());
+            else if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);lap(profile.presentation);client.drain_ability_receipts();client.tick();server.tick();lap(profile.replication);}else{matrices=rig.blend(graph_inputs.span());lap(profile.presentation);}
+        ++profile.ticks;
 
     }
 };
@@ -400,6 +406,7 @@ unsigned CharacterSceneSession::loadout()const{auto found=impl_->client.ability_
 std::optional<StableId> CharacterSceneSession::soft_lock()const{const auto& p=*impl_;if(p.combat&&p.soft_lock_tick&&p.soft_lock_tick==p.authoritative.tick())for(const auto& actor:p.actors)if(actor.id==p.soft_lock_actor)return actor.identity;return std::nullopt;}
 std::span<const StableId> CharacterSceneSession::actors()const{return impl_->actor_identities;}
 const std::vector<ProjectileView>& CharacterSceneSession::projectiles()const{return impl_->client.projectiles();}
+const CharacterSceneProfile& CharacterSceneSession::profile()const{return impl_->profile;}
 std::uint64_t CharacterSceneSession::server_packets()const{return impl_->server.packets_sent(impl_->host_peer);}
 std::vector<std::uint64_t> CharacterSceneSession::server_packet_kinds()const{return impl_->server.packets_by_kind(impl_->host_peer);}
 AimSolution CharacterSceneSession::aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const{

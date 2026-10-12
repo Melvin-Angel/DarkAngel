@@ -35,7 +35,8 @@ void trace(bool moving,bool crouching){
     MotorState output;output.position.x=999;
     require(replay_motor(baseline,inputs,history,output)==ReplayResult::Invalid&&output.position.x==999,"Ambiguous owner rejects atomically");
     require(replay_motor(baseline,inputs,missing,output,10)==ReplayResult::MissingHistory&&output.position.x==999,"Missing owner proxy requires resynchronization");
-    require(replay_motor(baseline,inputs,missing_peer,output,10)==ReplayResult::MissingHistory&&output.position.x==999,"Incomplete peer frame requires resynchronization");
+    // A peer that is in the baseline frame and gone from the later ones has left: the replay runs against each frame as retained.
+    {MotorState left;require(replay_motor(baseline,inputs,missing_peer,left,10)==ReplayResult::Applied,"A peer leaving between retained frames must not require resynchronization");}
     require(replay_motor(baseline,inputs,discontinuous,output,10)==ReplayResult::Discontinuity&&output.position.x==999,"Historical owner epoch rejects atomically");
     require(replay_motor(baseline,inputs,history,output,10)==ReplayResult::Applied,"Actor proxy replay applies");
     std::cout<<"Actor replay moving="<<moving<<" crouched="<<crouching<<" live_x="<<owner.state().position.x<<" replay_x="<<output.position.x<<'\n';
@@ -65,7 +66,7 @@ int main(){try{
     const auto tick2=world.tick()+1;MotorInput second{tick2,tick2,1,1};
     MotorState sentinel;sentinel.position.x=999;
     const MotorInput commands[]={first,second};
-    require(replay_motor(baseline,commands,history,sentinel,10)==ReplayResult::TopologyMismatch&&sentinel.position.x==999,"Character removal changes topology and fails bounded replay");
+    require(history.find(baseline.tick)->topology==world.topology()&&replay_motor(baseline,commands,history,sentinel,10)==ReplayResult::Applied&&sentinel.position.x!=999,"A character leaving is not a topology change and must replay without a new baseline");
     // The owner helper supplies its identity rather than relying on inference.
     PhysicsWorld predicted;floor(predicted);CharacterMotor local(predicted,{0,0,0},10),remote(predicted,{1.1,0,0},20);
     OwnerPrediction prediction(predicted,local);MotorState correction;

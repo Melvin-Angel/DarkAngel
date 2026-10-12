@@ -21,6 +21,9 @@ public:
     // included. Empty when either end is off the mesh or no complete path exists.
     std::optional<std::vector<MotorVec>> path(MotorVec from,MotorVec to,unsigned limit=64)const;
     unsigned polygons()const;
+    // Path queries answered so far and the time they took, for profiling.
+    struct Usage {std::uint64_t queries{};double microseconds{};};
+    Usage usage()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 // A controller that walks its actor along the navigation mesh to its opponent and, once

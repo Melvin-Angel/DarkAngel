@@ -75,6 +75,12 @@ struct CharacterSceneCombat {
 // Resources are already validated/cooked. This adapter owns no transport codec.
 // Optional combat uses the same serialized WorldSession path and frozen assets.
 // Owner ability/action/cost prediction shares the native fixed-tick rules.
+// Microseconds accumulated per phase of CharacterSceneSession::step over `ticks` fixed ticks. world: events, trigger volumes,
+// encounters and spawning; sensing and decisions: the NPCs whose turn it was (decisions include their navigation queries);
+// abilities: the authoritative ability advance and action motion; motors: authoritative motor steps and physics; hits: hit and
+// projectile resolution; replication: publishing and both sessions' packet work; prediction: the owner's prediction and
+// reconciliation; presentation: observers, effect views and poses.
+struct CharacterSceneProfile {std::uint64_t ticks{};double world{},sensing{},decisions{},abilities{},motors{},hits{},replication{},prediction{},presentation{};};
 class CharacterSceneSession {
 public:
     CharacterSceneSession(SessionHandshake,std::span<const ObjectData>,StableId player,
@@ -117,6 +123,8 @@ public:
     // muzzle is the shot's origin relative to the owner (right, up, forward). The result only shapes the owner's
     // input; authority sweeps its own world from its own state.
     AimSolution aim(MotorVec camera,MotorVec direction,double range,MotorVec muzzle)const;
+    // Where the session's fixed ticks have spent their time since it was built. A measurement aid; nothing reads it for gameplay.
+    const CharacterSceneProfile& profile()const;
     // Packets the server has sent this client so far, for budget measurements.
     std::uint64_t server_packets()const;
     // The same count split by wire kind number.

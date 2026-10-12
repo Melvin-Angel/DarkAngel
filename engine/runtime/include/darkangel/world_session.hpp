@@ -16,14 +16,24 @@ enum class SessionReadiness { Handshake, ContentReady, Bootstrap, CatchUp, Ready
 // relevance_radius and far_interval: a character further than the radius from the receiving peer's own character has its
 // motor state sent every far_interval-th tick instead of every tick; observers interpolate. The peer's own character and
 // everything inside the radius stay at full rate, so melee, soft lock and aim against nearby characters are unchanged.
-struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};double relevance_radius{12};unsigned far_interval{3};};
+// body_radius: the collision stream carries, for a peer that owns a character, only the character bodies within this
+// distance of it (its own always): a body further away cannot be touched before the next frame arrives. Level bodies
+// (boxes, meshes) always travel.
+struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};double relevance_radius{12};unsigned far_interval{3};double body_radius{5};};
 struct CollisionStreamDiagnostics {std::uint64_t sent_packets{},sent_bytes{},decoded{},ack_tick{},ack_topology{},expired{},superseded{};std::size_t partial_chunks{};bool has_ack{},needs_resync{};};
 struct AbilityCorrection {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityOwnerSnapshot ability;};
-struct AbilityPublicFrame {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityPublicSnapshot ability;};
+// The wire frame carries the ability snapshot and the avatar epoch, not the motor state: a client pairs it with the
+// character's state from the motor stream. motor is that state at the frame's tick once the client holds it, otherwise
+// the newest state it has.
+struct AbilityPublicFrame {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityPublicSnapshot ability;std::uint64_t avatar_epoch{};};
 // What a public ability snapshot says apart from its clock: attributes, tags, loadout and the running action. Two
-// snapshots of an idle character with the same content differ only in tick and revision. A running action is part of
-// the content with its clock, so it changes every tick. Server and client compute it with this one function.
+// snapshots with the same content differ only in tick and revision, and in the clock of a running action by exactly
+// its rate for each tick between them: an action is in the content by its identity, rate, phase and the origin of its
+// clock (clock minus rate times tick). Server and client compute it with this one function.
 std::uint64_t public_ability_content(const AbilityPublicSnapshot&);
+// A held snapshot brought to a later tick whose index entry has the same content: the tick, and a running action's
+// clock advanced by its rate.
+AbilityPublicSnapshot public_ability_at(const AbilityPublicSnapshot&,std::uint64_t tick);
 // The server's per-tick index of public ability state: for each character, the tick its state stands at and its
 // content. A client holding a frame with the same content knows that frame is current without receiving it again.
 struct PublicIndexEntry {std::uint64_t tick{},content{};};

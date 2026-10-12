@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
+#include <chrono>
 
 namespace darkangel {
 namespace {
@@ -27,6 +28,7 @@ void add_box(Soup& soup,const CollisionBox& box){
 }
 }
 struct NavigationMesh::Impl {
+    mutable Usage usage;
     dtNavMesh* mesh{};dtNavMeshQuery* query{};unsigned polygons{};
     ~Impl(){if(query)dtFreeNavMeshQuery(query);if(mesh)dtFreeNavMesh(mesh);}
 };
@@ -66,7 +68,10 @@ NavigationMesh::NavigationMesh(const CollisionDefinition& collision,const Naviga
 }
 NavigationMesh::~NavigationMesh()=default;
 unsigned NavigationMesh::polygons()const{return impl_->polygons;}
+namespace {struct Timed {NavigationMesh::Usage& usage;std::chrono::steady_clock::time_point start=std::chrono::steady_clock::now();~Timed(){++usage.queries;usage.microseconds+=std::chrono::duration<double,std::micro>(std::chrono::steady_clock::now()-start).count();}};}
+NavigationMesh::Usage NavigationMesh::usage()const{return impl_->usage;}
 std::optional<std::vector<MotorVec>> NavigationMesh::path(MotorVec from,MotorVec to,unsigned limit)const{
+    Timed timed{impl_->usage};
     require(limit>=2&&limit<=256&&std::isfinite(from.x)&&std::isfinite(from.y)&&std::isfinite(from.z)&&std::isfinite(to.x)&&std::isfinite(to.y)&&std::isfinite(to.z),"Navigation path query bounds");
     dtQueryFilter filter;filter.setIncludeFlags(1);const float extents[3]{1,2,1};const float start[3]{float(from.x),float(from.y),float(from.z)},end[3]{float(to.x),float(to.y),float(to.z)};
     dtPolyRef first{},last{};float on_start[3],on_end[3];

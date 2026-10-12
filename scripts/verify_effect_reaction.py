@@ -111,7 +111,7 @@ encounter_entities['00000000000000000000000000000009']=gameplay_entity('Gate fig
 log=run('encounter-scene-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--select-encounter','--frames','6','--capture',EVIDENCE/'encounter-scene-d3d12.png'])
 if 'Editor encounter_place encounters=2 volumes=3 triggers=2 undo_redo=1' not in log or marker(log,'volumes_drawn','Editor encounter_scene ')<4:raise RuntimeError('The Scene tab did not draw or place encounter volumes: '+log[-400:])
 log=run('encounter-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--exercise-encounter','--frames','200','--capture',EVIDENCE/'encounter-d3d12.png'])
-if not('Editor encounter fired=1 spawned=2 ' in log and 'events=play.started,gate.entered,gate.fight_started' in log):raise RuntimeError('Editor Play did not start the encounter from its trigger volume: '+log[-400:])
+if not('Editor encounter fired=1 spawned=2 ' in log and 'events=play.started,gate.entered,gate.fight_started' in log and ' hud_target=' in log and ' readouts=' in log):raise RuntimeError('Editor Play did not start the encounter from its trigger volume: '+log[-400:])
 # Background cooking: a source copied into the project (not through Import) is listed as uncooked and the sweep cooks it.
 log=run('cook-sweep-d3d12',common+['--assets-workspace','--exercise-cook-sweep','--frames','5','--capture',EVIDENCE/'cook-sweep-d3d12.png'])
 if 'Editor cook_sweep waiting_before=' not in log:raise RuntimeError('The background cook sweep did not cook a copied source: '+log[-400:])

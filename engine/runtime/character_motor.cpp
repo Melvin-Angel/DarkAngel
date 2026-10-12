@@ -568,8 +568,8 @@ namespace darkangel {
             character->SetCharacterVsCharacterCollision(&w.characters);
             w.characters.Add(character);
             w.actors.emplace(identity,PhysicsWorld::Impl::Actor{character,&state,++w.next_generation,w.tick});
+            // A character is per-frame data, not level topology: entering or leaving needs no new baseline anywhere.
             ++w.motors;
-            ++w.topology;
             state.position=foot;
             state.topology=w.topology;
             state.tick=w.tick;
@@ -580,7 +580,6 @@ namespace darkangel {
             world.characters.Remove(character);
             character=nullptr;
             --world.motors;
-            ++world.topology;
         }
         void refresh(bool contacts=true){
             if(contacts)character->RefreshContacts(world.system.GetDefaultBroadPhaseLayerFilter(1),filter,{
@@ -822,19 +821,13 @@ namespace darkangel {
                 if(f->actors.size()>1)return ReplayResult::Invalid;
                 owner=f->actors.empty()?1:f->actors.front().id;
             }
-            std::vector<std::uint64_t> retained_actors;
-            for(const auto& actor:f->actors)retained_actors.push_back(actor.id);
-            std::sort(retained_actors.begin(),retained_actors.end());
             std::map<std::uint64_t,std::string> retained_meshes;
             for(const auto& mesh:f->meshes){if(!mesh.geometry||!retained_meshes.emplace(mesh.id,mesh.geometry->definition().signature).second)return ReplayResult::Invalid;}
             auto validate_owner=[&](const CollisionFrame& frame){
                 std::map<std::uint64_t,std::string> present_meshes;
                 for(const auto& mesh:frame.meshes){if(!mesh.geometry||!present_meshes.emplace(mesh.id,mesh.geometry->definition().signature).second)return ReplayResult::Invalid;}
                 if(present_meshes!=retained_meshes)return ReplayResult::TopologyMismatch;
-                std::vector<std::uint64_t> present;
-                for(const auto& a:frame.actors)present.push_back(a.id);
-                std::sort(present.begin(),present.end());
-                if(present!=retained_actors)return ReplayResult::MissingHistory;
+                // Other characters may enter or leave between retained frames; each step loads the frame it replays against.
                 auto actor=std::find_if(frame.actors.begin(),frame.actors.end(),[&](const auto& a){return a.id==owner;});
                 if(!frame.actors.empty()&&actor==frame.actors.end())return ReplayResult::MissingHistory;
                 if(actor!=frame.actors.end()&&actor->epoch!=baseline.epoch)return ReplayResult::Discontinuity;

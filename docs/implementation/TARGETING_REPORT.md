@@ -303,3 +303,86 @@ Thirty-three characters by kind: motor batch 5.08, collision 4.42, public batch 
 **Verified:** the two scene tests above; `CollisionStreamTests`; full pass: All 47 verify gates; CTest: only the five known unrelated failures.
 
 **Limits, plainly:** 15.97 against a budget of 16 is no margin. It holds for this scene, where most actors are far and idle. Thirty-two actors near the player, or many acting at once, will exceed the budget; in loopback that only costs extra pumps, over a real connection it means late state. What would buy real room, in order of effect: stop sending far characters in the per-tick collision stream (4.4 packets; the client only needs bodies it can touch), drop the motor state repeated inside each public frame (step 2 of the design; halves the public frames), and shrink the owner correction (2.2 packets every tick). A near character whose packet falls into a later pump can be a tick old on the client, which the scene session now accepts; the exact-tick assertions for near characters hold in the tests because the first pump still carries them.
+
+## Real room in the packet budget: design (12 October 2026)
+
+Written before any code. Goal: thirty-two actors hold the 16-packet budget when all of them are near the player and acting, not only when most are far and idle.
+
+### Before (CharacterCombatSceneTests, loopback, today's build)
+
+| scene | server packets per tick | by kind |
+|---|---|---|
+| seventeen characters, four attacking | 14.27 | motor batch 6.00, public batch 2.87, collision 2.18, correction 2.18, index 1.00 |
+| thirty-three characters, four attacking, twenty-eight far | 15.97 | motor batch 5.08, collision 4.42, public batch 3.21, correction 2.21, index 1.00 |
+| thirty-three characters, all within 6 m, all closing in and swinging (new test) | 49.56 | public batch 30.53, motor batch 11.00, collision 4.36, correction 2.39, index 1.00, baseline 0.22 |
+
+The new test is the worst case: every character moves or runs an action on every tick (85% of actor ticks are inside an action).
+
+### Where the bytes go
+
+Every wire field is eight bytes. A motor state is 264 bytes; a public ability frame of an acting character is about 650 (the motor state again, two 64-character generation strings, the action, attributes and tags), so one fills a packet; a collision character entry is 88; the owner correction is about 1,900 (the motor state, six fields for each of the input slots whether used or not, generation strings).
+
+### Changes, largest first
+
+1. **A running action is not sent every tick.** An action's clock advances by its rate each tick, so the client can advance it. `public_ability_content` stops mixing the action's tick and clock and mixes the clock's origin (clock minus rate times tick) instead: while an action runs undisturbed its content is constant and the frame is not resent. The client brings the held frame to the tick with `public_ability_at` (tick, and for a running action the clock advanced by the rate). The index entry for the tick carries the server's content, so the derived frame is exact or the frame is resent: a rate change, a tag window, an attribute change or the action's end all change the content. This removes the 30 packets.
+2. **The motor state leaves the public frame** (step 2 of the first design). The frame keeps the avatar epoch. The client pairs a public frame with the character's state from the motor stream; `AbilityPublicFrame::motor` is filled by the client session when it holds the state of the frame's tick. Generation strings travel as 32 bytes instead of 64 characters.
+3. **Remote motor states are compact.** A character the receiving peer does not own is sent as what an observer uses: tick, epoch, action, position, yaw, pitch, the achieved step, ground and crouch flags, and the support velocity only when it is not zero (wire kind `MotorRemote`, topology once in the header): 104 bytes, nine to a packet instead of three. The fields left out (sequence, support body, velocity, momentum, desired velocity, support-local position, coyote and jump timers) are prediction inputs that only the owner of a character needs. The peer's own character keeps its full state. A peer that owns no character (a tool or spectator connection) still gets full states, as it already gets them at full rate.
+4. **The owner's motor state travels once.** It is inside the owner correction, which reconciliation needs atomically anyway. When a correction for the tick has gone out to the owner, the motor stream skips that state and the client takes it from the correction.
+5. **Character bodies in the collision stream by reach.** The stream keeps every level body (boxes, meshes) and, for a peer that owns a character, only the character bodies within `SessionLimits::body_radius` (5 m) of it, the peer's own always. A body further away cannot be touched before the next frame arrives: at 8 m/s a character covers 1.6 m in the 12 ticks of a 200 ms round trip. This needs the next point.
+6. **A character entering or leaving is not a topology change.** Today constructing or destroying a `CharacterMotor` advances the physics world's topology, the client sees a frame with another topology and rebuilds its prediction world (`resynchronizations` rises once per encounter wave and per removed corpse). Characters are already per-frame data in the collision frame (`actors`), loaded fresh on every prediction update and every replay step, so nothing needs a new baseline. Topology becomes the version of the level bodies only: boxes and meshes added or removed. Replay stops requiring the same set of characters in every retained frame (it still requires the owner, with the baseline's epoch, and the same meshes). `ObserverCollision` interpolates the characters two frames share instead of dropping its buffer when the set differs. This is item 2 of the work list and is built here because point 5 changes the set of streamed characters from tick to tick.
+7. **A smaller owner correction.** Input state is sent for the slots that are not in their default state (a mask, then six fields per listed slot); generation strings as 32 bytes.
+
+### What stays
+
+The same-tick requirement of `CharacterSceneSession::step` for the owner's motor state, the owner correction and the collision frame. The public index (one packet). Effects, projectiles and the reliable baseline are untouched. Far characters keep the every-third-tick rule.
+
+### Expected after
+
+Thirty-two near and active: motor remote about 3.6, collision about 2, correction 1 to 1.5, index 1, public frames only on change (a few a tick): 10 to 12 packets. The two existing scenes should fall to about half of today's numbers.
+
+### Risks
+
+- Wire schemas change (public frame 3, correction 6, new kind 22); both ends are the same build, and the handshake's protocol number is unchanged because no negotiated behaviour differs.
+- A lost public frame is still repaired only by the 30-tick keep-alive, now also for an acting character (before it was resent every tick). Loopback does not exercise this.
+- Reconciliation in the scene session replays against the server's own collision history (a loopback shortcut that predates this work), so the replay still sees every character while the prediction world sees those in reach. A real client would replay from the frames it received.
+
+## Real room in the packet budget: built (12 October 2026)
+
+All seven points of the design above are built. Two things were found while building and added:
+
+- **A far character's motor state goes out with its public frame.** With the motor state out of the frame, a far character (state due every third tick) whose public content changed arrived as a frame without the state of its tick. The server now makes that character's state due on the tick its frame is sent (`pair_motor` in world_session.cpp).
+- **A far character that is acting.** Its newest state is up to two ticks old while its action runs. The scene session brings the held frame to the tick before sampling the pose, advancing the action clock (`public_ability_at`); before, only idle far characters were handled, because an acting one was resent every tick.
+
+### Measured (CharacterCombatSceneTests, loopback)
+
+| scene | before | after |
+|---|---|---|
+| seventeen characters, four attacking | 14.27 | 6.14 |
+| thirty-three characters, four attacking, twenty-eight far | 15.97 | 7.05 |
+| thirty-three characters, all near and all acting (new test) | 49.56 | 13.28 |
+
+After, by kind:
+
+- Seventeen: remote motor 2.13, collision 1.06, correction 1.06, index 1.06, public batch 0.78.
+- Thirty-three, most far: remote motor 2.45, public batch 1.31, collision 1.08, correction 1.08, index 1.08.
+- Thirty-three near and active: remote motor 4.08, collision 3.78, public batch 3.04, correction 1.08, index 1.02, baseline 0.22.
+
+The near-and-active test asserts under 16 packets a tick, every character replicated on the current tick on every tick, and no rebuild of the owner's prediction world. In it 85% of actor ticks are inside an action.
+
+### What changed where
+
+- `world_session.cpp`: wire kind `MotorRemote` (22); the owner's state taken from its correction (`accept_motor`); collision character bodies by reach (`SessionLimits::body_radius`, 5 m); `public_ability_content` by clock origin; `public_ability_at`.
+- `ability_wire.cpp`: public frame schema 3 (no motor state, avatar epoch), correction schema 6 (input slots by mask), generations as 32 bytes.
+- `character_motor.cpp`: a character entering or leaving does not advance topology; replay accepts a changing set of other characters. `collision_observer.cpp`: interpolates the characters two frames share.
+- `character_scene.cpp`: `shown` pairs a held frame with the motor stream and advances a running action.
+
+### Verified
+
+All 47 verify gates. CTest: the full suite ran once on this chunk and showed the five known unrelated failures plus three tests that pinned the old schema numbers (`M5.ability_observer`, `M5.ability_reservations`, `M5.ability_tags`); they were updated to schema 3 and 6 and pass, re-run with the session, collision, scene, encounter, navigation and behaviour tests. The full suite was not run a second time after those test-only edits. `MotorActorHistoryTests` was changed to the new rule: a peer leaving between retained frames replays, and removing a character is not a topology change. One capture looked at (`encounter-d3d12`).
+
+### Not verified, and what is left
+
+- Loopback only. Packet loss was not exercised: a lost public frame of an acting character now waits for the 30-tick keep-alive, where before the next tick resent it.
+- In the near-and-active scene the collision stream is still 3.8 packets because all thirty-two bodies are within 5 m. The margin there is 2.7 packets. Next room, in order: character bodies from the motor stream instead of a second copy in the collision stream (about 3 packets in that scene), then the public frame's remaining fixed fields (registry identity and two generations per frame).
+- Every Health change still advances the world revision and resends the reliable baseline (0.22 packets a tick in the near scene). Not touched.
+- The scene session's replay still uses the server's collision history (loopback shortcut, see the design's risks).
