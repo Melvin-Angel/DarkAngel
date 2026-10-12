@@ -69,6 +69,23 @@ public:
 struct CueLimits {std::size_t live{128};unsigned tail_ticks{180},rejected_tail_ticks{6};};
 // Why an instance exists, for debug views.
 struct CueInstanceInfo {std::uint64_t instance{},network{},started{},stopping_until{};std::string key;bool action{};};
+// The cue key of a footstep. A step is a moment, not a block of an action or an edge of an effect.
+inline constexpr const char* footstep_cue_key="Footstep";
+// One step an actor took, counted per actor from one.
+struct FootstepUpdate {std::uint64_t network{},avatar_epoch{},serial{};};
+// Derives footsteps from where an actor stands each tick: a step every stride of ground covered while grounded.
+// Time in the air covers no ground, and a jump in position of more than a metre in one tick (a teleport, a correction)
+// is not walking. Client-side presentation; it reads positions the client already holds.
+class FootstepTracker {
+public:
+    explicit FootstepTracker(double stride=.9);
+    void observe(std::uint64_t network,std::uint64_t avatar_epoch,double x,double z,bool grounded);
+    void retire(std::uint64_t network);
+    std::vector<FootstepUpdate> drain();
+private:
+    struct Walk {std::uint64_t avatar_epoch{},serial{};double x{},z{},covered{};};
+    double stride_{};std::map<std::uint64_t,Walk> walks_;std::vector<FootstepUpdate> steps_;
+};
 class CuePlayer {
 public:
     // The resolver turns a cue key (and the effect's cue asset, when there is one) into what to play; no answer
@@ -82,6 +99,9 @@ public:
     // A cue block of an actor's running action: Begin starts, End stops, Marker plays a one-shot. Other block kinds are ignored.
     // For the owner's own action the timing chooses which of its two streams a cue plays from (see CueTiming).
     void action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent&,std::uint64_t tick,CueTiming=CueTiming::Observed);
+    // A moment of an actor that is neither of the above (a footstep): a one-shot by key. serial tells one moment of an
+    // actor from the next, so the same moment fed twice plays once.
+    void moment(std::uint64_t network,std::uint64_t avatar_epoch,std::string_view key,std::uint64_t serial,std::uint64_t tick);
     // Authority rejected an activation, or the action was cut short: every cue started for it is cut with the short rejection tail.
     void rejected(std::uint64_t network,std::uint64_t activation,std::uint64_t tick);
     // An actor left, or its avatar changed: its instances are released at once, without a tail.

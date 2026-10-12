@@ -263,3 +263,16 @@ The editor has a top-level **VFX** tab (`Workspace::Vfx`, between Animation and 
 Limits: the preview stands in the open scene rather than in an empty stage, and has no attached-to-a-character mode or time scrubber yet; only the source file is watched, not its textures (use Cook again); Import of an existing effect from outside the project still goes through copying the files into `content/vfx` and Create or adoption by hand, the Import dialog does not offer effects; no Delete or Duplicate; the cue form is not here yet (next part).
 
 Verified: editor-only change, so its own gate only. `vfx-tab-d3d12` (new, in `scripts/verify_effect_reaction.py`): the tab opens on the Burn aura, it is cooked, has its texture, plays and draws quads; the source file is then changed on disk and the tab cooks it a second time by itself. The [capture](evidence/vfx-tab-d3d12.png) was looked at. While building the gate a deliberately broken edit also showed the refusal path: the cooker's message appeared and nothing was previewed from the broken version. Not verified: the Edit in Effekseer button itself (it starts a GUI program; the gate does not click it), Create, and a real save from Effekseer rather than a file change.
+
+## Step 4, second part: footsteps (12 October 2026)
+
+An actor that walks is heard: a step for every stride of ground it covers.
+
+- `FootstepTracker` (engine/runtime/cue_player.cpp) is shown each actor's position and whether it is grounded, once a tick, and reports a step every 0.9 m of ground covered while grounded. Time in the air covers no ground, and a jump of more than a metre in one tick (a teleport or a correction) is not walking. The session feeds it the player's predicted position, so the owner hears its own steps at once, and the other actors' public positions.
+- `CuePlayer::moment` plays a one-shot that is neither an action block nor an effect edge, identified by actor and a serial, so the same step fed twice plays once.
+- `CharacterSceneSession::footsteps()` gives the steps of the latest tick; a session with a cue player attached plays them under the cue key `Footstep`.
+- Content: a placeholder step sound and `footstep.dacue`.
+
+Limits: one stride length and one sound for every actor and every surface (no surface types, no walk and run difference, no left and right foot); steps follow distance, not the animation's foot contacts, so they are not in sync with the feet; a running player takes a step about every 0.15 s, which may be too quick to the ear.
+
+Verified: `CuePlayerTests` (three steps for three metres, none in the air, none for a teleport, a new avatar starts again, a retired actor forgets; moments play once per actor and serial); `CharacterCombatSceneTests` (the player walking for two seconds takes the steps its covered ground gives, within one, all its own; the dummy that stands still takes none); editor gate `cues-footsteps-d3d12` (new: the player runs for two seconds and only footsteps are played, 18 of them, none missing). One full pass: the build shows only the known `RoyalCollisionTests` link failure; CTest 90 of 95 with the five known unrelated failures; all 54 verify gates pass. Not heard.

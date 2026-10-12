@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "b3f8a2d4-6c1e-4f7a-9d25-8e0c5a714b62",
+  "name": "Footstep",
+  "key": "Footstep",
+  "visual": "",
+  "audio": "audio/placeholder/step.wav",
+  "tail_ticks": 8,
+  "predictable": false
+}

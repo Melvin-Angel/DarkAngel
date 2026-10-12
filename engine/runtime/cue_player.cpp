@@ -1,6 +1,7 @@
 #include <darkangel/cue_player.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 #include <utility>
 
@@ -45,6 +46,20 @@ void CuePlayer::action(std::uint64_t network,std::uint64_t avatar_epoch,const Ac
     // A marker has no length: it plays once and fades by its own tail.
     else if(start(source,event.key,AssetId{},tick))stop(instances_.find(source),tail(),tick);
 }
+void CuePlayer::moment(std::uint64_t network,std::uint64_t avatar_epoch,std::string_view key,std::uint64_t serial,std::uint64_t tick){
+    require(network&&serial&&!key.empty(),"A cue moment needs its actor, its serial and a key");Source source;source.session_epoch=~std::uint64_t{};source.network=network;source.avatar_epoch=avatar_epoch;source.handle=serial;
+    // The same moment again, even while it fades, is not a second one.
+    if(instances_.contains(source))return;
+    if(start(source,key,AssetId{},tick)){const auto definition=resolver_(key,AssetId{});stop(instances_.find(source),definition?definition->tail_ticks:0u,tick);}
+}
+FootstepTracker::FootstepTracker(double stride):stride_(stride){require(std::isfinite(stride)&&stride>=.2&&stride<=5,"Footstep stride bounds");}
+void FootstepTracker::observe(std::uint64_t network,std::uint64_t avatar_epoch,double x,double z,bool grounded){
+    require(network!=0&&std::isfinite(x)&&std::isfinite(z),"A footstep stream needs its actor and a finite position");auto found=walks_.find(network);
+    if(found==walks_.end()||found->second.avatar_epoch!=avatar_epoch){walks_[network]=Walk{avatar_epoch,0,x,z,0};return;}auto& walk=found->second;const double moved=std::hypot(x-walk.x,z-walk.z);walk.x=x;walk.z=z;
+    if(!grounded||moved>1)return;walk.covered+=moved;while(walk.covered>=stride_){walk.covered-=stride_;steps_.push_back({network,avatar_epoch,++walk.serial});require(steps_.size()<=1024,"Footstep work bound");}
+}
+void FootstepTracker::retire(std::uint64_t network){walks_.erase(network);}
+std::vector<FootstepUpdate> FootstepTracker::drain(){return std::exchange(steps_,{});}
 void CuePlayer::rejected(std::uint64_t network,std::uint64_t activation,std::uint64_t tick){
     for(auto at=instances_.begin();at!=instances_.end();){auto next=std::next(at);if(at->first.action&&at->first.network==network&&at->first.activation==activation){
             // Cut short even when it was already fading on its own, longer tail.

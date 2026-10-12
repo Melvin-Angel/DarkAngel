@@ -32,7 +32,17 @@ def hit(seconds=.16):
         out.append((math.sin(angle) * .8 + noise.uniform(-1, 1) * .5 * math.exp(-time * 120)) * decay)
     return out
 
+def step(seconds=.09):
+    # A footfall: a very short low thump with a little grit.
+    noise = random.Random(13); angle = 0.0; out = []
+    for index in range(int(RATE * seconds)):
+        time = index / RATE; decay = math.exp(-time * 60)
+        angle += 2 * math.pi * (55 + 60 * math.exp(-time * 80)) / RATE
+        out.append((math.sin(angle) * .5 + noise.uniform(-1, 1) * .25 * math.exp(-time * 200)) * decay)
+    return out
+
 ROOT.mkdir(parents=True, exist_ok=True)
 wave(ROOT / 'swing.wav', swing())
 wave(ROOT / 'hit.wav', hit())
+wave(ROOT / 'step.wav', step())
 print('wrote', ROOT)

@@ -62,8 +62,11 @@ def cues(log):
 seen=cues(run('cues-swing-d3d12',common+['--exercise-combat','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-swing-d3d12.png']))
 # The swing sound starts on the predicted press; the Light's hit applies Flinch, whose cue plays the hit spark and the hit sound.
 # A hidden run has no audio device: the service runs on its silent driver and the lifecycle is the same.
-if not(int(seen['assets'])>=3 and seen['audio'].split(',')==['Attack.Start','Status.Flinch'] and seen['visual']=='Status.Flinch' and seen['vfx_missing']=='0' and int(seen['vfx_loaded'])>=1):raise RuntimeError('Editor Play did not present the swing and hit cues: '+str(seen))
-if not(seen['audio_service']=='1' and seen['audio_device']=='0' and int(seen['audio_loaded'])>=2 and seen['audio_played']=='2' and seen['audio_missing']=='0'):raise RuntimeError('Editor Play did not play the swing and hit sounds on the silent driver: '+str(seen))
+if not(int(seen['assets'])>=3 and [key for key in seen['audio'].split(',') if key!='Footstep']==['Attack.Start','Status.Flinch'] and seen['visual']=='Status.Flinch' and seen['vfx_missing']=='0' and int(seen['vfx_loaded'])>=1):raise RuntimeError('Editor Play did not present the swing and hit cues: '+str(seen))
+if not(seen['audio_service']=='1' and seen['audio_device']=='0' and int(seen['audio_loaded'])>=2 and int(seen['audio_played'])>=2 and seen['audio_missing']=='0'):raise RuntimeError('Editor Play did not play the swing and hit sounds on the silent driver: '+str(seen))
+# Footsteps: the player runs forward for two seconds and is heard doing it, a step every stride of ground covered, from its predicted position.
+seen=cues(run('cues-footsteps-d3d12',common+['--exercise-character','--exercise-cues','--frames','120','--capture',EVIDENCE/'cues-footsteps-d3d12.png']))
+if not(set(seen['audio'].split(','))=={'Footstep'} and 8<=int(seen['audio_played'])<=30 and seen['audio_missing']=='0' and seen['visual']=='none'):raise RuntimeError('Editor Play did not play the player footsteps: '+str(seen))
 seen=cues(run('cues-burn-d3d12',common+['--exercise-reaction','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-burn-d3d12.png']))
 if not('Status.Burn' in seen['visual'].split(',') and int(seen['visual_live'])>=1):raise RuntimeError('Editor Play did not present the Burn aura cue: '+str(seen))
 # The aura is a real effect: cooked from its Effekseer source, loaded, playing and drawn through the renderer, with nothing skipped.

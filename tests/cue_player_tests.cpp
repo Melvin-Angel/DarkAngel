@@ -103,6 +103,14 @@ int main(){try{
         player.rejected(4,9,13);check(audio.log.back()=="stop swing tail 6","A rejected predicted cue was not cut");
     }
     {
+        // Footsteps: a step each stride of ground covered; none in the air, none for a teleport; each plays once.
+        FootstepTracker tracker(.9);for(unsigned tick=0;tick<=30;++tick)tracker.observe(5,1,0,tick*.1,true);auto steps=tracker.drain();check(steps.size()==3&&steps[0].serial==1&&steps[2].serial==3&&steps[0].network==5,"Thirty decimetres of walking did not make three steps");
+        for(unsigned tick=31;tick<=60;++tick)tracker.observe(5,1,0,tick*.1,false);check(tracker.drain().empty(),"An actor in the air took steps");tracker.observe(5,1,0,100,true);tracker.observe(5,1,0,100.05,true);check(tracker.drain().empty(),"A teleport counted as walking");
+        tracker.observe(5,2,0,200,true);for(unsigned tick=1;tick<=9;++tick)tracker.observe(5,2,0,200+tick*.1,true);steps=tracker.drain();check(steps.size()==1&&steps[0].serial==1&&steps[0].avatar_epoch==2,"A new avatar did not start its steps again");tracker.retire(5);tracker.observe(5,2,0,300,true);check(tracker.drain().empty(),"A retired actor kept its walk");
+        Recorder visual,audio;CuePlayer player(resolve,&visual,&audio);player.moment(4,1,"grunt",1,10);player.moment(4,1,"grunt",1,10);player.moment(4,1,"grunt",2,11);player.moment(6,1,"grunt",1,11);player.moment(4,1,"nothing",3,11);
+        check(audio.log==std::vector<std::string>{"start grunt on 4","stop grunt tail 180","start grunt on 4","stop grunt tail 180","start grunt on 6","stop grunt tail 180"}&&player.unresolved()==1,"Moments did not play once each by actor and serial");player.retire(4);check(player.live()==1,"Retiring an actor kept its moments");
+    }
+    {
         // The cue source.
         const std::string source=R"({"schema":1,"kind":"cue","asset":"0058d474-74c0-45b9-a4a6-b5d81963ab7e","name":"Swing","key":"Attack.Start","visual":"","audio":"royal_district/audio/swing","tail_ticks":12,"predictable":true})";
         const auto cue=decode_cue(source);check(cue.id.text()=="0058d474-74c0-45b9-a4a6-b5d81963ab7e"&&cue.name=="Swing"&&cue.key=="Attack.Start"&&cue.visual.empty()&&cue.audio=="royal_district/audio/swing"&&cue.tail_ticks==12&&cue.predictable,"A cue source did not decode to its fields");
@@ -110,5 +118,5 @@ int main(){try{
         check(refused("\"royal_district/audio/swing\"","\"\""),"A cue with neither a visual nor a sound was accepted");check(refused("Attack.Start","Attack Start"),"A cue key with a space was accepted");check(refused(":12,",":601,"),"A cue tail beyond the bound was accepted");
         check(refused("\"schema\":1","\"schema\":2"),"An unknown cue schema was accepted");check(refused(",\"predictable\":true",""),"A cue source without a field was accepted");check(refused("\"predictable\":true","\"predictable\":true,\"extra\":1"),"A cue source with an unknown field was accepted");check(refused("\"kind\":\"cue\"","\"kind\":\"effect\""),"A source of another kind was accepted as a cue");
     }
-    std::cout<<"Cue player: effect cues (once, tail, release, per instance and actor, restart during tail), action cue blocks (length, marker, other kinds ignored, per-sink routing, tail limit), rejected activations, actor retirement, bounds, cues without presentation, headless operation and release on destruction; action cues derived from a clock (once each, last tick, cut, replay, late first sight, retirement), owner predicted and confirmed streams, the cue source passed\n";return 0;
+    std::cout<<"Cue player: effect cues (once, tail, release, per instance and actor, restart during tail), action cue blocks (length, marker, other kinds ignored, per-sink routing, tail limit), rejected activations, actor retirement, bounds, cues without presentation, headless operation and release on destruction; action cues derived from a clock (once each, last tick, cut, replay, late first sight, retirement), owner predicted and confirmed streams, footsteps and moments, the cue source passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

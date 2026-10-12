@@ -123,6 +123,8 @@ public:
     // correction, the other actors' public frames); no server timeline is read.
     std::span<const ActionCueUpdate> action_cues()const;
     std::span<const ActionCueCut> action_cue_cuts()const;
+    // Steps the player and the actors took on the latest tick: the player from its predicted motor, the others from their public frames.
+    std::span<const FootstepUpdate> footsteps()const;
     // A cue player to drive from every tick of this session: effect cue edges, action cues, cuts, actors leaving
     // and the tick itself. It must outlive the session or be detached with a null pointer first.
     void present_cues(CuePlayer*);
