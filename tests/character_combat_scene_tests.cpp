@@ -504,6 +504,26 @@ int main(){try{
                 const auto once=run();check(once==run(),"Two runs of the same encounter differ");std::cout<<"Encounter: trigger volume, timed random spawns: "<<once<<"\n";
             }
             {
+                // Interaction: the player pulls a lever and the encounter that listens for its event starts. The request goes through the server, which
+                // answers every one: out of reach, an object that does not exist, used up and locked are refused and change nothing.
+                auto scene=combat;scene.actors.clear();auto encounter=staged(R"({"trigger":{"event":"lever.pulled"},"mode":"waves","waves":[{"npc":"NPC","count":1}],"placement":"points"})",25);encounter.points={{{3,0,6},3.141592653589793}};scene.encounters={encounter};
+                const StableId lever{9,70},vault{9,71};scene.interactables={{lever,decode_interactable(R"({"prompt":"Pull the lever","event":"lever.pulled"})"),{0,0,3}},{vault,decode_interactable(R"({"prompt":"Open the vault","event":"vault.opened","requires_tag":"vault.unlocked","radius":3})"),{0,0,5}}};
+                CharacterSceneSession session(hello,alone,player.id,collision,plan,rig.definition,rig.archive,scene);const auto baseline=session.resynchronizations();
+                auto ask=[&](StableId object){CharacterSceneInput use;use.interact=object;session.step(use);session.step({});const auto* outcome=session.last_interaction();check(outcome&&outcome->object==object,"An interaction request was not answered");return outcome->result;};
+                while(session.motor().tick<10)session.step({});check(!session.interaction_prompt(),"An interactable three metres away was offered");
+                check(ask(lever)==InteractionResult::OutOfReach&&ask({9,99})==InteractionResult::Unknown&&session.interactable_used(lever)==0u&&session.encounter({9,50})->phase==EncounterPhase::Waiting,"A request from out of reach or for an unknown object was not refused");
+                CharacterSceneInput forward;forward.z=1;while(session.motor().tick<200&&!session.interaction_prompt())session.step(forward);
+                check(session.interaction_prompt()&&session.interaction_prompt()->id==lever&&session.interaction_prompt()->prompt=="Pull the lever"&&session.motor().position.z<1.5,"The lever was not offered when the player came within its radius");
+                check(ask(lever)==InteractionResult::Accepted&&session.interactable_used(lever)==1u,"The lever was not used through the server");session.step({});
+                check(session.encounter({9,50})->phase==EncounterPhase::Running&&session.actors().size()==1,"Pulling the lever did not start the encounter that listens for its event");
+                check(ask(lever)==InteractionResult::Unavailable&&session.interactable_used(lever)==1u,"A used-up interactable was used again");
+                // The used lever is no longer offered; the vault further on is, and it is locked: its tag is server state the client cannot see.
+                while(session.motor().tick<400&&(!session.interaction_prompt()||session.interaction_prompt()->id!=vault))session.step(forward);check(session.interaction_prompt()&&session.interaction_prompt()->id==vault,"A used-up interactable is still offered, or the next one is not");
+                check(ask(vault)==InteractionResult::Unavailable&&session.interactable_used(vault)==0u&&!session.world_events().happened("vault.opened"),"A locked interactable was used without its world tag");
+                std::string heard;for(const auto& event:session.world_events().log())heard+=event.name+" ";check(heard=="play.started lever.pulled "&&session.pending_prediction()==0&&session.resynchronizations()==baseline,"Interaction emitted the wrong events or disturbed owner prediction");
+                std::cout<<"Interaction: lever pulled at z="<<session.motor().position.z<<", events: "<<heard<<"\n";
+            }
+            {
                 // A scene whose spawn points and encounters ask for more actors than a session holds is refused when the session is built.
                 auto scene=combat;scene.actors.clear();std::vector<ObjectData> pair{player};for(unsigned index=0;index<17;++index){const StableId id{9,300+index};scene.actors.push_back(dummy(id));pair.push_back(placed(id,double(index)-8,5,0));}auto encounter=staged(R"({"trigger":{"event":"test.go"},"mode":"waves","waves":[{"npc":"NPC","count":16}],"placement":"points"})",25);encounter.points={{{0,0,3},0}};scene.encounters={encounter};
                 bool refused=false;try{CharacterSceneSession session(hello,pair,player.id,collision,plan,rig.definition,rig.archive,scene);}catch(const std::exception&){refused=true;}check(refused,"A scene asking for thirty-three actors was accepted");

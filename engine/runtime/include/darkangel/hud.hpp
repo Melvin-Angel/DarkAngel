@@ -20,6 +20,8 @@ struct HudViewModel {
     std::string target_name;
     // Screen-centre crosshair, shown while an aim camera is live.
     bool crosshair{};
+    // What the nearest interactable in reach offers; empty when there is none.
+    std::string prompt;
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

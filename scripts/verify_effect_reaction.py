@@ -115,6 +115,14 @@ log=run('encounter-scene-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--sele
 if 'Editor encounter_place encounters=2 volumes=3 triggers=2 undo_redo=1' not in log or marker(log,'volumes_drawn','Editor encounter_scene ')<4:raise RuntimeError('The Scene tab did not draw or place encounter volumes: '+log[-400:])
 log=run('encounter-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--exercise-encounter','--frames','200','--capture',EVIDENCE/'encounter-d3d12.png'])
 if not('Editor encounter fired=1 spawned=2 ' in log and 'events=play.started,gate.entered,gate.fight_started' in log and ' hud_target=' in log and ' readouts=' in log):raise RuntimeError('Editor Play did not start the encounter from its trigger volume: '+log[-400:])
+# Interaction: the same scene with a lever instead of the trigger volume. The player walks to it, the HUD offers it, the interact input
+# asks the server, and the encounter that listens for its event starts.
+lever_source=json.loads(json.dumps(encounter_source));lever_entities=lever_source['sources'][lever_source['root']]['entities'];del lever_entities['00000000000000000000000000000007']
+lever_entities['0000000000000000000000000000000a']=gameplay_entity('Gate lever',0.0,5.0,interactable={'prompt':'Pull the lever','event':'lever.pulled','radius':2.0,'once':True})
+lever_entities['00000000000000000000000000000008']['encounter']['trigger']={'event':'lever.pulled'}
+(source/'royal_district/RoyalLever.dascene').write_text(json.dumps(lever_source,indent=2)+chr(10))
+log=run('interaction-d3d12',scene(guarded,'RoyalLever.dascene')+['--exercise-interaction','--frames','200','--capture',EVIDENCE/'interaction-d3d12.png'])
+if not('Editor interaction asked=1 result=Accepted used=1 ' in log and 'lever.pulled' in log):raise RuntimeError('Editor Play did not use the lever through the server: '+log[-400:])
 # Background cooking: a source copied into the project (not through Import) is listed as uncooked and the sweep cooks it.
 log=run('cook-sweep-d3d12',common+['--assets-workspace','--exercise-cook-sweep','--frames','5','--capture',EVIDENCE/'cook-sweep-d3d12.png'])
 if 'Editor cook_sweep waiting_before=' not in log:raise RuntimeError('The background cook sweep did not cook a copied source: '+log[-400:])

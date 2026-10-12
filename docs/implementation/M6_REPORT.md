@@ -429,3 +429,70 @@ Built as designed. `NavigationMesh::outline()` in engine/runtime/navigation.cpp;
 **Verified:** gate `navigation-overlay-d3d12` (`--exercise-navigation-overlay`) on the training scene: 52 polygons, 154 edges of which 104 on the border, all drawn. The capture was looked at: a bright border runs round the walkable ground and round each of the two huts, with thin inner edges between polygons across the ground. NavigationTests passes. This is an editor-only change apart from the read-only accessor, so only its own gate was run, standalone after CTest with the verify script's common arguments; the full verify script and CTest were not re-run for it.
 
 **Not verified:** the checkbox itself was not clicked by a gate (the exercise sets the same flag); the Game viewport was not captured with the overlay; a stale bake still draws (the tool already says when a bake is stale).
+
+## Interaction foundation: design (12 October 2026)
+
+Written before any code. Goal from the M6 row: "interaction/world-event foundations". The world-event half exists (events, tags, trigger volumes, encounters). This adds the other half: the player does something to a placed object on purpose, and the world reacts.
+
+### What an interactable is
+
+A scene object with an `interactable` component, the same shape of thing as a trigger volume:
+
+```json
+"interactable": {"prompt": "Open the gate", "event": "gate.opened", "radius": 2.0, "once": true, "requires_tag": "gate.unlocked"}
+```
+
+- `prompt`: what the HUD offers (1 to 48 characters). `event`: the world event a successful use emits. `radius`: how near the player's position must be (0.5 to 10 m, default 2). `once`: used up after the first success (default true). `requires_tag` (optional): a world tag that must be held, so a lever can be locked until an encounter completes.
+- It only emits a world event. What happens next is whatever listens: an encounter starts on it today; doors, pickups and altars will be listeners or richer interactable kinds later. Keeping the first slice to "emit an event" means no new gameplay state has to be replicated.
+- Definition, instance, entity: the component is the definition on the scene instance; the session holds a `WorldInteractable` per instance (used-up state). There is no separate asset type yet.
+
+### Authority (the user's rule: a client triggers world events through the server)
+
+- The client sends an interaction request naming the object (new wire kind, reliable, client to server). It carries no position and no claim of success.
+- The server checks that the sender owns a character, and the scene session resolves the request in its world step from its own state: the object exists, the player is alive, the player's authoritative position is within the radius, the interactable is not used up, the required tag is held. Then it emits the event. Every request gets a receipt (accepted, unknown object, out of reach, unavailable, dead), sent reliably to that client.
+- With several players each request is resolved for the player that sent it; nothing here assumes one player.
+- NPCs do not interact (the user's rule that NPCs emit no world events).
+- World tags stay server state, so a client cannot know that a tagged interactable is locked: it offers the prompt and the receipt says "unavailable". That is deliberate; it leaks nothing and the HUD can say why.
+
+### What the client shows
+
+`CharacterSceneSession::interaction_prompt()`: the nearest interactable within its radius of the owner's predicted position that this client has not seen used up (from receipts). Presentation only. The editor's Play view puts it on the HUD and sends the request on the existing `interact` input action.
+
+### Slices
+
+1. Runtime: `interaction.hpp/.cpp` (definition, decoding, `WorldInteractable`), the request and receipt on the wire, the scene session (request, resolution in the world step, prompt), EncounterTests-style unit tests and a scene test: a lever starts an encounter; out of reach, used up and locked are refused; a forged request for an unknown object is refused.
+2. Editor: the scene component in the spawn plan, Play preparation, the Place panel's Gameplay category, Inspector fields, the HUD prompt, the Gameplay Inspector's World tab, and a Play gate.
+
+### Not in this step
+
+Hold-to-interact, interaction animations, inventory and keys as items, doors that move collision, NPC interaction, persistence of used-up state across sessions (that is the world ledger, deferred).
+
+## Interaction foundation: built (12 October 2026)
+
+Both slices of the design above are built.
+
+### Where things are
+
+- `engine/runtime/interaction.hpp/.cpp`: `InteractableDefinition`, `decode_interactable`, `WorldInteractable::use` (the authority's answer), `InteractionResult`.
+- `engine/runtime/world_session.cpp`: wire kinds `Interact` (client to server) and `InteractReceipt` (server to client), both reliable. The server accepts a request only from the peer that owns the named character, holds at most sixteen unresolved requests and refuses the rest with a receipt.
+- `engine/runtime/character_scene.cpp`: `CharacterSceneInput::interact` sends the request; the world step resolves every request for the player that sent it from authoritative position and state and answers it; `interaction_prompt()`, `last_interaction()`, `interactable_used()`.
+- Scene: the `interactable` component on a scene object (it may also be a placed model, so a lever mesh can be the interactable), carried in the spawn plan and so in the session fingerprint. Plans without interactables serialize exactly as before.
+- Editor. Placement and why: "Interactable" in the Place panel's Gameplay category, beside encounters and trigger volumes, because it is the same kind of placed gameplay object; its fields in the Inspector (prompt, world event, radius, only once, required world tag); its reach drawn as a ring with a marker box in the viewports and clickable there; the Gameplay Inspector's World tab lists every interactable's use count and the latest request's answer. In Play the HUD shows the prompt of the nearest interactable in reach and the `interact` input action (F, gamepad north) sends the request.
+
+### Differences from the design
+
+None in behaviour. The prompt is offered from the owner's predicted position, the server decides from the authoritative one; in loopback they agree.
+
+### Verified
+
+- EncounterTests: decoding and nine rejections; out of reach, dead player, single use, the required tag, repeatable use.
+- CharacterCombatSceneTests: a lever starts the encounter that listens for its event; a request from out of reach, for an unknown object, for a used-up lever and for a locked vault is refused with the right answer and changes nothing; the used lever is no longer offered and the next interactable is; owner prediction undisturbed.
+- Gate `interaction-d3d12` (new, 49 gates now): in Editor Play on a scene derived from the training scene, the player walks to a lever, the prompt is offered, the scripted F press sends one request, the server accepts it and the encounter starts. Its capture was looked at: it is taken after the lever was pulled and shows the encounter's Royal Guards in the scene, one as the HUD target, and `interact: Pressed / Released / Tapped` in the Input Monitor.
+
+### Not verified, and limits
+
+- The HUD prompt text itself was not seen in a capture: the gate's capture is taken after the single-use lever is used up, when no prompt is offered. The gate requires that the prompt was offered before the press; how it looks on screen is unchecked. The reach ring in the Scene viewport was not captured either.
+- Loopback only. With real latency the prompt can be offered a moment before the server would accept; the receipt then says "out of reach".
+- A locked interactable still shows its prompt (tags are server state); the HUD does not yet show the refusal, only the World tab does.
+- Placing an interactable through the Place panel and editing it in the Inspector have no gate of their own; the gate's scene is written as source. They use the same commands as the trigger volume.
+- Used-up state is per session; persistence is the deferred world ledger.

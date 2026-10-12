@@ -18,6 +18,8 @@ struct SpawnPlan {
     // encounter whose bounds it is part of, a spawn point may name the encounter that uses it instead of spawning
     // at Play start. An owner that is no longer in the scene leaves an orphan, which Play ignores.
     struct Volume {StableId encounter;std::array<double,3> half{};};
+    // interactables hold the object's validated "interactable" component JSON; the object may also be a placed model.
+    std::map<StableId,std::string> interactables;
     std::map<StableId,std::string> encounters,triggers;std::map<StableId,Volume> volumes;std::map<StableId,StableId> spawn_owners;
     std::string serialize() const;
     static SpawnPlan deserialize(std::string_view);

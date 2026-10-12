@@ -17,6 +17,7 @@ div { display: block; }
 .mask { font-size: 18px; margin-bottom: 2px; }
 #crosshair { position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; margin-left: -12px; margin-top: -14px; text-align: center; font-size: 22px; color: #ffffffd0; }
 .lock { font-size: 13px; color: #f0c674; margin-top: 4px; text-align: center; }
+#prompt { position: absolute; left: 0px; right: 0px; top: 62%; text-align: center; font-size: 18px; color: #f0e6d2; }
 #state { position: absolute; left: 0px; right: 0px; top: 36%; text-align: center; font-size: 36px; color: #e8dccb; }
 </style>
 </head>
@@ -27,6 +28,7 @@ div { display: block; }
 	<div id="lock" class="lock" data-if="target_locked">Locked on</div>
 </div>
 <div id="crosshair" data-if="crosshair">+</div>
+<div id="prompt" data-if="has_prompt">{{prompt}}</div>
 <div id="state" data-if="dead">Defeated</div>
 <div id="player" class="panel">
 	<div id="mask" class="mask" data-if="has_mask">{{mask}}</div>

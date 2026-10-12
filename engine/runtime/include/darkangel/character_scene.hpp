@@ -5,13 +5,16 @@
 #include <darkangel/world_session.hpp>
 #include <darkangel/actor_controller.hpp>
 #include <darkangel/encounter.hpp>
+#include <darkangel/interaction.hpp>
 #include <functional>
 
 namespace darkangel {
 struct ReactionSample;
 struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;
     // Aim elevation in radians; see CharacterSceneSession::aim.
-    double pitch{};};
+    double pitch{};
+    // The interactable the player asks to use on this step, if any. A request, resolved by authority.
+    std::optional<StableId> interact;};
 // Crosshair convergence: where a camera ray meets the world, and the yaw and pitch that point a shot from
 // the owner's muzzle at that point. hit is false when the ray met nothing within range and the far point is used.
 struct AimSolution {double yaw{},pitch{};MotorVec point{};bool hit{};};
@@ -39,6 +42,11 @@ struct CharacterSceneEncounter {
     std::map<AssetId,CharacterSceneActor> npcs;
     std::function<std::shared_ptr<ActorController>(AssetId npc)> controller;
 };
+// A placed interactable: the scene object, its component and where it stands.
+struct CharacterSceneInteractable {StableId id;InteractableDefinition definition;MotorVec position{};};
+// What the owner's HUD offers, and how authority answered the owner's latest request. Presentation only.
+struct InteractionPrompt {StableId id;std::string prompt;};
+struct InteractionOutcome {StableId object;InteractionResult result{};std::uint64_t tick{};};
 struct CharacterSceneTrigger {StableId id;TriggerDefinition definition;MotorVec center{};double yaw{};};
 // The session carries session_character_capacity characters; one of them is the player.
 constexpr std::size_t character_scene_actor_limit=session_character_capacity-1;
@@ -65,7 +73,7 @@ struct CharacterSceneCombat {
     std::vector<CharacterSceneActor> actors;std::string faction{"player"};
     // Encounters and trigger volumes. The actors above plus the most each encounter can have alive at once must fit
     // character_scene_actor_limit; an encounter's dead are removed after its corpse time, or sooner when a spawn needs the room.
-    std::vector<CharacterSceneEncounter> encounters;std::vector<CharacterSceneTrigger> triggers;
+    std::vector<CharacterSceneEncounter> encounters;std::vector<CharacterSceneTrigger> triggers;std::vector<CharacterSceneInteractable> interactables;
     // Time slicing: per tick, at most this many controllers decide, this many actors sense and this many enemies enter.
     // The rest keep their latest decision (movement and facing) and perception until their turn, in ascending order
     // from where the previous tick stopped. An actor without a controller neither senses nor decides.
@@ -151,6 +159,12 @@ public:
     std::optional<StableId> actor_encounter(StableId actor)const;
     // Trigger volumes: how often one has fired, if it exists.
     std::optional<unsigned> trigger_fired(StableId)const;
+    // Interaction. The prompt is the nearest interactable in reach of the owner's predicted position that this client has
+    // not seen used up; the outcome is authority's answer to the owner's latest request. interactable_used is the
+    // server's count of successful uses, for debug views.
+    std::optional<InteractionPrompt> interaction_prompt()const;
+    const InteractionOutcome* last_interaction()const;
+    std::optional<unsigned> interactable_used(StableId)const;
     // Name and faction of any server-driven actor, spawned enemies included.
     const CharacterSceneActor* actor(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;

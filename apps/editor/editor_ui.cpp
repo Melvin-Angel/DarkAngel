@@ -1,5 +1,6 @@
 #define NOMINMAX
 #include <Windows.h>
+#include <darkangel/interaction.hpp>
 #include <commdlg.h>
 #include "editor_ui.hpp"
 #include "editor_theme.hpp"
@@ -69,6 +70,12 @@ void draw_components(Controller& editor,StableId object){
         auto value=entity_source(editor,object).at("volume");const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("volume");ImGui::Text("Bounds of: %s",plan.encounters.contains(found->second.encounter)?object_name(editor,found->second.encounter).c_str():"(its encounter was deleted)");half_fields(value["half"]);ImGui::TextDisabled("A box centred on this object, turned by its yaw.");ImGui::PopID();ImGui::EndDisabled();
         if(value!=before){action(editor,[&]{set_component(editor,object,"volume",value,"Resized the encounter volume.");});return;}
     }
+    if(auto found=plan.interactables.find(object);found!=plan.interactables.end()&&ImGui::CollapsingHeader("Interactable",ImGuiTreeNodeFlags_DefaultOpen)){
+        auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("interactable");auto prompt=value["prompt"].get<std::string>();ImGui::SetNextItemWidth(220);if(committed_text("Prompt",prompt))value["prompt"]=prompt;auto name=value["event"].get<std::string>();ImGui::SetNextItemWidth(180);if(committed_text("World event",name))value["event"]=name;
+        double radius=value.value("radius",2.0);ImGui::SetNextItemWidth(120);if(ImGui::InputDouble("Radius (m)",&radius,0,0,"%.2f",ImGuiInputTextFlags_EnterReturnsTrue))value["radius"]=std::clamp(radius,.5,10.);bool once=value.value("once",true);if(ImGui::Checkbox("Only once",&once))value["once"]=once;
+        auto tag=value.value("requires_tag",std::string{});ImGui::SetNextItemWidth(180);if(committed_text("Requires world tag",tag)){if(tag.empty())value.erase("requires_tag");else value["requires_tag"]=tag;}ImGui::TextWrapped("The player uses it with the interact input while within the radius. A use emits the world event; with a required tag it is refused until that tag is held. The server decides.");ImGui::PopID();ImGui::EndDisabled();
+        if(value!=before){action(editor,[&]{decode_interactable(value.dump());set_component(editor,object,"interactable",value,"Edited the interactable.");});return;}
+    }
     if(auto found=plan.triggers.find(object);found!=plan.triggers.end()&&ImGui::CollapsingHeader("Trigger volume",ImGuiTreeNodeFlags_DefaultOpen)){
         auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("trigger");auto name=value["event"].get<std::string>();ImGui::SetNextItemWidth(180);if(committed_text("World event",name))value["event"]=name;bool once=value.value("once",true);if(ImGui::Checkbox("Only the first time",&once))value["once"]=once;half_fields(value["half"]);ImGui::TextWrapped("Emits its world event when the player walks into this box. An encounter that starts on that event starts a tick later.");ImGui::PopID();ImGui::EndDisabled();
         if(value!=before){action(editor,[&]{decode_trigger(value.dump());set_component(editor,object,"trigger",value,"Edited the trigger volume.");});return;}
@@ -90,7 +97,7 @@ void Shell::refresh_place_items(Controller& editor){
     // Rebuilt only when the catalogue changes: an imported model's importer is read from its sidecar once.
     std::size_t signature=editor.asset_inventory.size();for(const auto& asset:editor.asset_inventory)signature=signature*1315423911u+std::hash<std::string>{}(asset.path)+asset.generation;
     if(signature==place_signature&&!place_items.empty())return;place_signature=signature;place_items.clear();if(!editor.assets)return;
-    place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});
+    place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});place_items.push_back({{},"Interactable","Gameplay",false,4});
     for(const auto& asset:editor.asset_inventory){const std::filesystem::path path(asset.path);const auto extension=path.extension().string();
         if(extension==".danpc"){place_items.push_back({asset.id,path.stem().string(),"NPCs",true});continue;}
         if(extension!=".gltf"&&extension!=".glb")continue;
@@ -110,6 +117,7 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
         const auto owner=object_local(editor,placed);add_object(editor,{{"name","Encounter volume"},{"volume",{{"encounter",owner},{"half",nlohmann::json::array({5.0,2.0,5.0})}}}},at,"Placed its first volume.");editor.selected=placed;return placed;}
     if(item.gameplay==2){StableId owner=editor.selected;{const auto& plan=editor.document->plan();if(auto volume=plan.volumes.find(owner);volume!=plan.volumes.end())owner=volume->second.encounter;else if(auto point=plan.spawn_owners.find(owner);point!=plan.spawn_owners.end())owner=point->second;if(!plan.encounters.contains(owner))throw std::runtime_error("Select the encounter this volume belongs to, then place the volume");}
         const auto key=object_local(editor,owner);placed=add_object(editor,{{"name","Encounter volume"},{"volume",{{"encounter",key},{"half",nlohmann::json::array({4.0,2.0,4.0})}}}},at,"Placed an encounter volume.");editor.selected=placed;return placed;}
+    if(item.gameplay==4){placed=add_object(editor,{{"name","Interactable"},{"interactable",{{"prompt","Use"},{"event","object.used"},{"radius",2.0},{"once",true}}}},at,"Placed an interactable.");editor.selected=placed;return placed;}
     if(item.gameplay==3){placed=add_object(editor,{{"name","Trigger volume"},{"trigger",{{"event","trigger.entered"},{"half",nlohmann::json::array({2.0,2.0,2.0})},{"once",true}}}},at,"Placed a trigger volume.");editor.selected=placed;return placed;}
     if(item.npc)placed=add_object(editor,{{"name",item.name+" spawn"},{"spawn",{{"npc",item.id.text()}}}},at,"Placed an NPC spawn point.");
     else{

@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <iterator>
 #include <chrono>
+#include <set>
 
 namespace darkangel {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
@@ -22,7 +23,7 @@ struct CharacterSceneSession::Impl {
     struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<ObservedCharacterPose> pose;std::unique_ptr<Perception> perception;std::optional<std::size_t> encounter;std::uint64_t died{};double hold_x{},hold_z{};std::optional<double> hold_face;};
     std::optional<CharacterSceneCombat> combat;AbilityOwnerHandle ability_owner;std::vector<Actor> actors;std::vector<StableId> actor_identities;std::uint32_t player_faction{1};std::vector<SensedSubject> seen;std::vector<MotorInput> actor_commands;std::vector<MotionRequest> actor_motions;std::vector<AbilityOwnerSnapshot> actor_before;std::vector<char> actor_requested;std::uint64_t next_operation{1};std::vector<InputEvent> pending_events;
     // World events, trigger volumes and encounters; enemies an encounter spawned keep their configuration here.
-    WorldEvents world;std::vector<WorldTrigger> triggers;std::vector<EncounterDirector> directors;std::vector<StableId> encounter_identities;std::deque<CharacterSceneActor> spawned;struct Entering {std::size_t first{};EncounterSpawn second;unsigned attempts{};};std::deque<Entering> spawn_queue;std::size_t sense_cursor{},decision_cursor{};std::vector<char> turn;std::map<std::string,std::uint32_t> factions;std::vector<std::shared_ptr<const ActionDefinition>> prepared_actions;std::string rig_archive;
+    WorldEvents world;std::vector<WorldInteractable> interactables;std::set<StableId> interactables_seen_used;std::optional<InteractionOutcome> interaction_outcome;std::vector<WorldTrigger> triggers;std::vector<EncounterDirector> directors;std::vector<StableId> encounter_identities;std::deque<CharacterSceneActor> spawned;struct Entering {std::size_t first{};EncounterSpawn second;unsigned attempts{};};std::deque<Entering> spawn_queue;std::size_t sense_cursor{},decision_cursor{};std::vector<char> turn;std::map<std::string,std::uint32_t> factions;std::vector<std::shared_ptr<const ActionDefinition>> prepared_actions;std::string rig_archive;
     std::unique_ptr<OwnerPrediction> owner;
     std::unique_ptr<OwnerAbilityPrediction> ability_prediction;std::deque<MotorInput> semantic_commands;
     std::map<std::uint64_t,std::unique_ptr<ObserverAbility>> observers;
@@ -73,7 +74,9 @@ struct CharacterSceneSession::Impl {
             {std::size_t planned=actors.size();for(const auto& encounter:combat->encounters)planned+=encounter.definition.concurrent();require(planned<=character_scene_actor_limit,"The scene's spawn points and the most its encounters can have alive at once are more actors than one session holds");require(combat->decision_budget>=1&&combat->sense_budget>=1&&combat->spawn_budget>=1,"Time slicing budgets are at least 1");}
             for(const auto& encounter:combat->encounters){for(auto npc:encounter.definition.npcs()){auto found=encounter.npcs.find(npc);require(found!=encounter.npcs.end()&&!found->second.attributes.empty()&&!found->second.faction.empty(),"An encounter's NPC definition is not prepared");for(const auto& ability:found->second.abilities)require(ability&&std::any_of(combat->abilities.begin(),combat->abilities.end(),[&](const auto& known){return known->id==ability->id&&known->generation==ability->generation;}),"An encounter NPC's ability is not in the prepared scene abilities");}
                 require(bool(encounter.id)&&std::find(encounter_identities.begin(),encounter_identities.end(),encounter.id)==encounter_identities.end(),"Encounter identity");directors.emplace_back(encounter.definition,encounter.volumes,encounter.points,encounter.id.high^encounter.id.low);encounter_identities.push_back(encounter.id);}
-            for(const auto& trigger:combat->triggers)triggers.emplace_back(trigger.definition,trigger.center,trigger.yaw);world.emit("play.started");
+            for(const auto& trigger:combat->triggers)triggers.emplace_back(trigger.definition,trigger.center,trigger.yaw);
+            require(combat->interactables.size()<=64,"Scene interactable limit");for(const auto& item:combat->interactables){require(bool(item.id)&&std::count_if(combat->interactables.begin(),combat->interactables.end(),[&](const auto& other){return other.id==item.id;})==1,"Interactable identity");interactables.emplace_back(item.definition,item.position);}
+            world.emit("play.started");
             server.drain_ability_actions();}
         auto host_state=host_motor->state();host_state.topology=authoritative.topology();host_state.yaw=yaw;host_motor->restore(host_state);auto owner_state=owner_motor->state();owner_state.yaw=yaw;owner_motor->restore(owner_state);
         owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_geometry=prediction->capture().meshes;
@@ -194,6 +197,8 @@ struct CharacterSceneSession::Impl {
     // encounters act on authoritative state, then bring in at most spawn_budget of the enemies that are waiting to enter.
     void run_world(std::uint64_t tick){
         world.begin_tick(tick);const auto& owner_state=host_motor->state();const bool owner_alive=server.objects().at(player).health.current>0;
+        // Interaction requests, each resolved for the player that sent it from authoritative state. Every request is answered.
+        for(const auto& request:server.drain_interactions()){auto result=InteractionResult::Unknown;if(request.network==player)for(std::size_t index=0;index<interactables.size();++index)if(combat->interactables[index].id==request.object){result=interactables[index].use(world,owner_state.position,owner_alive);break;}server.answer_interaction(request.network,request.object,std::uint8_t(result));}
         for(auto& actor:actors)if(actor.encounter&&!actor.died&&server.objects().at(actor.id).health.current<=0)actor.died=tick;
         for(std::size_t position=actors.size();position-->0;){const auto& actor=actors[position];if(!actor.encounter||!actor.died)continue;const auto keep=std::uint64_t(std::llround(combat->encounters[*actor.encounter].definition.corpse_seconds*60));if(keep&&tick-actor.died>=keep)retire(position);}
         for(auto& trigger:triggers)trigger.step(world,owner_state.position,owner_alive);
@@ -296,6 +301,8 @@ struct CharacterSceneSession::Impl {
         std::vector<AbilityPredictionInput> prediction_input;
         if(combat){require(client.ability_corrections().contains(player)&&!client.ability_correction_needs_resync(),"Combat correction unavailable; resynchronize");const auto& current=client.ability_corrections().at(player).ability;auto submit=[&](CombatSlot slot,const InputEvent& event){require(next_operation!=UINT64_MAX,"Combat operation identity exhausted");AbilityIntent intent{player,next_operation++,tick,owner_motor->state().epoch,current.grant_generation,slot,event.edge,event.cancelled,false};require(client.submit_ability_intent(intent),"Combat input delivery unavailable; resynchronize");prediction_input.push_back({intent});};
             for(const auto& event:pending_events){if(auto index=loadout_request(event)){if(event.edge==InputEdge::Pressed&&!event.cancelled)submit(loadout_select_slot(*index),event);continue;}for(const auto& slot:routing_kit().slots)if(slot.input_action&&slot.input_action==event.action)submit(slot.slot,event);}pending_events.clear();}
+        // An interaction is a request like any intent: it names the object, and authority resolves it in its world step.
+        if(combat&&input.interact)client.submit_interaction(player,*input.interact);
         MotionRequest authoritative_motion,predicted_request;auto predicted_command=command;
         if(combat){auto predicted=ability_prediction->advance(tick,prediction_input);if(predicted.face_movement)face(predicted_command,owner_motor->state().yaw,predicted.started);predicted_request=predicted_motion(predicted,predicted_command);if(predicted_restricted(tick))restrict(predicted_command,predicted_request);const auto candidates=client_candidates();if(auto chosen=lock(predicted_request,owner_motor->state(),predicted_command,candidates)){predicted_locks[tick]=*chosen;soft_lock_tick=tick;soft_lock_actor=*chosen;}}
         semantic_commands.push_back(command);require(semantic_commands.size()<=30,"Character scene semantic history overflow; resynchronize");
@@ -346,7 +353,10 @@ struct CharacterSceneSession::Impl {
             player_reaction=reactions->select(effect_frame(player),player,correction.session_epoch,correction.motor.epoch,tick,alive,bool(correction.ability.active));
             player_death_tick=player_death?player_death->update(alive,tick,correction.motor.epoch):std::nullopt;
             if(player_death_tick)matrices=rig.sample(player_death->clip(),*player_death_tick);
-            else if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);lap(profile.presentation);client.drain_ability_receipts();client.tick();server.tick();lap(profile.replication);}else{matrices=rig.blend(graph_inputs.span());lap(profile.presentation);}
+            else if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);lap(profile.presentation);client.drain_ability_receipts();client.tick();server.tick();
+            // Authority's answers to the owner's interaction requests; an accepted single-use interactable is no longer offered.
+            for(const auto& notice:client.drain_interaction_receipts()){interaction_outcome=InteractionOutcome{notice.object,static_cast<InteractionResult>(notice.result),tick};if(interaction_outcome->result==InteractionResult::Accepted)for(const auto& item:combat->interactables)if(item.id==notice.object&&item.definition.once)interactables_seen_used.insert(notice.object);}
+            lap(profile.replication);}else{matrices=rig.blend(graph_inputs.span());lap(profile.presentation);}
         ++profile.ticks;
 
     }
@@ -378,7 +388,7 @@ const PerceivedActor* last_lost_hostile(const ControllerView& view){
 CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,std::span<const ObjectData> objects,StableId player,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat)
     :impl_(std::make_unique<Impl>(std::move(hello),objects,player,collision,std::move(plan),std::move(rig),archive,std::move(combat))){}
 CharacterSceneSession::~CharacterSceneSession()=default;
-unsigned CharacterSceneSession::advance(double seconds,CharacterSceneInput input){auto& p=*impl_;require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});p.enqueue(input.combat_events);input.combat_events.clear();p.pending_jump|=input.jump;auto steps=p.clock.advance(seconds);for(unsigned index=0;index<steps;++index){input.jump=p.pending_jump;try{p.step(input);}catch(...){p.failed=true;throw;}p.pending_jump=false;}return steps;}
+unsigned CharacterSceneSession::advance(double seconds,CharacterSceneInput input){auto& p=*impl_;require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});p.enqueue(input.combat_events);input.combat_events.clear();p.pending_jump|=input.jump;auto steps=p.clock.advance(seconds);for(unsigned index=0;index<steps;++index){input.jump=p.pending_jump;try{p.step(input);}catch(...){p.failed=true;throw;}p.pending_jump=false;input.interact.reset();}return steps;}
 void CharacterSceneSession::step(CharacterSceneInput input){try{impl_->enqueue(input.combat_events);input.combat_events.clear();impl_->step(input);}catch(...){impl_->failed=true;throw;}}
 void CharacterSceneSession::remove_collision(std::uint64_t id){impl_->authoritative.remove(id);}
 const World& CharacterSceneSession::presentation()const{return impl_->client.world();}
@@ -446,6 +456,13 @@ const WorldEvents& CharacterSceneSession::world_events()const{return impl_->worl
 std::span<const StableId> CharacterSceneSession::encounters()const{return impl_->encounter_identities;}
 std::optional<EncounterStatus> CharacterSceneSession::encounter(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.directors.size();++index)if(p.encounter_identities[index]==id)return p.directors[index].status();return std::nullopt;}
 std::optional<StableId> CharacterSceneSession::actor_encounter(StableId actor)const{const auto* found=impl_->find(actor);if(found&&found->encounter)return impl_->encounter_identities[*found->encounter];return std::nullopt;}
+std::optional<InteractionPrompt> CharacterSceneSession::interaction_prompt()const{
+    const auto& p=*impl_;if(!p.combat)return std::nullopt;const auto& self=p.owner_motor->state().position;std::optional<InteractionPrompt> best;double nearest{};
+    for(std::size_t index=0;index<p.interactables.size();++index){const auto& item=p.combat->interactables[index];if(p.interactables_seen_used.contains(item.id)||!p.interactables[index].reaches(self))continue;const double dx=self.x-item.position.x,dy=self.y-item.position.y,dz=self.z-item.position.z,distance=dx*dx+dy*dy+dz*dz;if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
+    return best;
+}
+const InteractionOutcome* CharacterSceneSession::last_interaction()const{return impl_->interaction_outcome?&*impl_->interaction_outcome:nullptr;}
+std::optional<unsigned> CharacterSceneSession::interactable_used(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.interactables.size();++index)if(p.combat->interactables[index].id==id)return p.interactables[index].used();return std::nullopt;}
 std::optional<unsigned> CharacterSceneSession::trigger_fired(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.triggers.size();++index)if(p.combat->triggers[index].id==id)return p.triggers[index].fired();return std::nullopt;}
 const CharacterSceneActor* CharacterSceneSession::actor(StableId id)const{const auto* found=impl_->find(id);return found?found->config:nullptr;}
 const Perception* CharacterSceneSession::perception(StableId actor)const{const auto* found=impl_->find(actor);return found?found->perception.get():nullptr;}

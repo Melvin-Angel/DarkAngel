@@ -129,6 +129,7 @@ std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_pre
             for(auto npc:made.definition.npcs()){auto found=resources.encounter_npcs.find(npc);require(found!=resources.encounter_npcs.end(),"An encounter's NPC definition is not in the prepared Play resources; save and prepare Play again");made.npcs.emplace(npc,found->second.actor);}
             if(controller)made.controller=[controller,ground,prepared](AssetId npc){return controller(prepared->at(npc),*ground);};
             combat->encounters.push_back(std::move(made));}
+        for(const auto& [object,json]:plan.interactables){Transform at;if(!pose(object,at))continue;combat->interactables.push_back({object,decode_interactable(json),{at.x,at.y,at.z}});}
         for(const auto& [object,json]:plan.triggers){Transform at;if(!pose(object,at))continue;auto definition=decode_trigger(json);definition.half={definition.half.x*at.scale,definition.half.y*at.scale,definition.half.z*at.scale};combat->triggers.push_back({object,definition,{at.x,at.y,at.z},at.yaw});}}
     return {player,std::make_unique<CharacterSceneSession>(std::move(hello),objects,player,collision,resources.graph,resources.rig.definition,resources.rig.archive,std::move(combat))};
 }

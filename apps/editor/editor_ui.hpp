@@ -19,7 +19,7 @@ public:
     void gizmo(Controller&,const DirectX::XMFLOAT4X4& view,const DirectX::XMFLOAT4X4& projection);
     // Level design: things that can be placed in the scene, sorted into categories from the asset catalogue itself
     // (NPC definitions, and static models grouped by their folder). New placeable asset kinds join here.
-    // gameplay: 0 an asset, 1 an encounter, 2 an encounter volume, 3 a trigger volume.
+    // gameplay: 0 an asset, 1 an encounter, 2 an encounter volume, 3 a trigger volume, 4 an interactable.
     struct PlaceItem {AssetId id;std::string name,category;bool npc{};int gameplay{};};
     std::vector<PlaceItem> place_items;std::size_t place_signature{};std::string place_category;char place_filter[64]{};
     // Height of the ground plane a drop lands on, and the scene camera of the latest frame for turning a drop position into a point on it.

@@ -1,4 +1,5 @@
 #include <darkangel/encounter.hpp>
+#include <darkangel/interaction.hpp>
 #include <nlohmann/json.hpp>
 #include <cmath>
 #include <iostream>
@@ -79,5 +80,11 @@ int main(){try{
         check(step(2,9).empty()&&step(0,2).empty()&&director.status().wave==2&&director.need()==3&&step(0,3).size()==3&&director.need()==0,"The next wave did not wait for room, or need() is wrong");
         auto relaxed=decode_encounter(waves.dump());check(relaxed.corpse_seconds==6,"The default corpse time is not 6 s");auto kept=waves;kept["corpse_seconds"]=0.0;check(decode_encounter(kept.dump()).corpse_seconds==0,"A corpse time of 0 did not decode");kept["corpse_seconds"]=-1.0;check(rejects([&]{decode_encounter(kept.dump());}),"A negative corpse time was decoded");
     }
+    // Interactables: decoding and the authority's answer to a request.
+    {const auto lever=decode_interactable(R"({"prompt":"Pull the lever","event":"lever.pulled"})");check(lever.prompt=="Pull the lever"&&lever.event=="lever.pulled"&&lever.radius==2&&lever.once&&lever.requires_tag.empty(),"An interactable did not decode with its defaults");
+        for(const char* bad:{R"({"prompt":"","event":"a.b"})",R"({"prompt":"Use","event":"Bad Name"})",R"({"prompt":"Use","event":"a.b","radius":0.1})",R"({"prompt":"Use","event":"a.b","radius":11})",R"({"prompt":"Use","event":"a.b","requires_tag":""})",R"({"prompt":"Use","event":"a.b","extra":1})",R"({"event":"a.b"})",R"({"prompt":"Use"})",R"({"prompt":"Use","event":"a.b","once":1})"})check(rejects([&]{decode_interactable(bad);}),"An invalid interactable component was decoded");
+        WorldEvents world;WorldInteractable once(lever,{0,0,3});check(once.use(world,{0,0,0},true)==InteractionResult::OutOfReach&&once.use(world,{0,0,1.5},false)==InteractionResult::Dead&&once.used()==0,"An interactable was used from out of reach or by a dead player");
+        check(once.reaches({0,0,1.5})&&once.use(world,{0,0,1.5},true)==InteractionResult::Accepted&&once.used()==1&&once.use(world,{0,0,1.5},true)==InteractionResult::Unavailable,"A single-use interactable was not used exactly once");world.begin_tick(1);check(world.happened("lever.pulled")&&world.delivered().size()==1,"Using an interactable did not emit its event once");
+        WorldInteractable gate(decode_interactable(R"({"prompt":"Open the gate","event":"gate.opened","once":false,"requires_tag":"gate.unlocked","radius":3})"),{0,0,0});check(gate.use(world,{1,0,1},true)==InteractionResult::Unavailable,"A locked interactable was used without its tag");world.set_tag("gate.unlocked",true);check(gate.use(world,{1,0,1},true)==InteractionResult::Accepted&&gate.use(world,{1,0,1},true)==InteractionResult::Accepted&&gate.used()==2,"A repeatable interactable holding its tag was refused");}
     std::cout<<"Encounters: waits for room, trigger volumes (entry, once and repeating, dead player), world events (next-tick delivery, order, bounds, tags), decoding and rejection, waves at spawn points (trigger, next wave on death, emitted events, tag, completion), timed spawning (interval, cap, total), enter trigger, random points inside turned volumes (ground, spacing, repeatable) passed\n";
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

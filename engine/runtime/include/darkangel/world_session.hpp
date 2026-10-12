@@ -42,6 +42,10 @@ struct PublicIndexEntry {std::uint64_t tick{},content{};};
 struct ProjectileView {std::uint64_t id{};MotorVec position{},velocity{};};
 // Projectiles one session flies at once; a launch beyond it is dropped.
 inline constexpr std::size_t projectile_capacity=16;
+// A client's request to use a placed interactable, as the server received it from the peer that owns that character,
+// and the server's answer to it (an InteractionResult number). The request claims nothing; the host resolves it.
+struct InteractionRequest {std::uint64_t network{};StableId object;};
+struct InteractionNotice {std::uint64_t network{};StableId object;std::uint8_t result{};};
 // All providers carry the same bounded, versioned protocol. Only the server
 // creates identities and publishes state. Client worlds are read-only views.
 class WorldSession {
@@ -64,6 +68,12 @@ public:
     void configure_ability_loadouts(AbilityOwnerHandle,std::span<const std::optional<AbilityLoadout>>,unsigned active);
     bool submit_ability_intent(const AbilityIntent&);
     std::vector<AbilityOperationNotice> drain_ability_receipts();
+    // Interaction: a client asks for its own character; the server host drains the requests, resolves each from
+    // authoritative state and answers; the client drains the answers.
+    bool submit_interaction(std::uint64_t network,StableId object);
+    std::vector<InteractionRequest> drain_interactions();
+    void answer_interaction(std::uint64_t network,StableId object,std::uint8_t result);
+    std::vector<InteractionNotice> drain_interaction_receipts();
     AbilityFailure can_activate(const AbilityRequest&)const;
     AbilityReceipt request_ability(const AbilityRequest&);
     AbilityFailure cancel_ability(AbilityActivationHandle);

@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201970000
 [39mViewport foreground pixels=860386 capture=C:\DarkAngel\docs\implementation\evidence\mask-placement-d3d12.png
-Masked action frozen_generation=1158c893255e7263cfd416d16acdc44c4b79a19d2a05d5bc6e7a029e5d9357a5 locomotion_bound=3 total_bound=4
+Masked action frozen_generation=666e4f8954e60afbd299a70d364b7aad12ff79039e0ebd381e8f46a110c025ea locomotion_bound=3 total_bound=4
 Native heavy editor tick=30 target_health=60 stamina=80 pending=0
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
