@@ -163,3 +163,145 @@ None blocks stage 1 except the first.
 ## After M8
 
 Unchanged: the editor-wide UX and UI pass before M9.
+
+## Stage 1: design (13 October 2026, written before the code)
+
+Stage 1 is two players in one session, the world ledger with stable persistent IDs, and the scene transition foundation. This section settles the second-player question first, because the rest of the stage depends on how a second player connects.
+
+### What the code is today
+
+Read on 13 October from `engine/runtime/character_scene.*`, `world_session.hpp`, `transport.hpp`, `assembly.hpp`, the editor's Play path and the M3/M4 reports.
+
+- **`CharacterSceneSession` is a host and one client fused in one object.** Its `Impl` owns the server `WorldSession`, the authoritative physics world, the host motor and every NPC. It also owns a client `WorldSession`, the prediction world, owner motor and ability prediction, the observers, effect views, cue and footstep trackers and the player's pose. The two halves are joined by an in-process loopback pair.
+- **It runs in lockstep.** Each `step()` ticks the server and then pumps the loopback until the client holds *this tick's* motor state, collision frame, ability correction and public frames ("snapshot delivery bound"). Reconciliation requires the correction's tick to equal the current tick ("Atomic combat correction clock"). The client has never run on its own clock against a host whose answers arrive later.
+- **The host code assumes one player.** It uses one `player` network id, one `host_motor` and one `ability_owner`. Interaction requests are resolved only for `player`. Trigger volumes and encounter enter-triggers step with the one owner position. `occupied()`, sensing, NPC soft lock and NPC aim lead all name that one player.
+- **`WorldSession` is already multi-peer**: `SessionLimits::peers` is 4, `own_motor` binds a character to a connection, and packet counters are kept per connection. Its wire has separate-process GNS evidence (M3 create/move/despawn, M4 ninety motor commands, M5 ability intents and effects), all with stepped harnesses. None of that evidence covers the scene: combat, NPCs, prediction with presentation, or encounters.
+- **Capacity**: `session_character_capacity` is 33, the player plus 32 actors. Every extra player takes one actor place.
+- **Play** builds one `CharacterSceneSession` from the open scene's `SpawnPlan` (`prepare_character_preview`). There is no game executable; the editor is the only program that plays a scene.
+- **World tags** come only from encounters, held while they run; **world events** are moments. Neither is durable by itself. Durable facts today are: an interactable's use count, a trigger's fire count, an encounter's phase, and which spawned NPCs are dead.
+
+### The second player: separate instances (Multiplayer Play Mode) against the in-process fallback
+
+**What a separate instance needs, in order of cost:**
+
+1. **Host and client split.** Every option needs this. `CharacterSceneSession` becomes `SceneAuthority` (server half, N players) and `SceneClient` (client half, one owner), talking only through a `Transport`.
+2. **A client that tolerates delay. This is the largest cost and the real risk.** A process on GNS cannot be stepped in lockstep with the host. It needs its own fixed clock, predicting ahead of the newest correction; inputs kept until acknowledged; reconciliation against a correction older than the current tick, replaying the newer inputs (the motor and ability prediction classes are built for this, but the scene loop has never driven them that way); observers interpolated from frames that arrive late or out of step; and recovery when a frame never comes. The owner semantic history is bounded at 30 ticks, so a client that falls 0.5 s behind must resynchronize.
+3. **A client-only editor mode**: `DarkAngelEditor --join 127.0.0.1:<port> --player <n>`. It opens the same project, loads the same cooked Play package, sends the content hash in the handshake (the host refuses a mismatch), builds only a `SceneClient` plus rendering, input, camera and HUD, and never constructs authority, NPC controllers or saves. Most of the Play preparation is shared with the host. Server-only parts such as behaviour trees, navigation and encounter directors are skipped.
+4. **The scene stream over GNS UDP.** The transport exists. What is new is the full scene stream through it, inside the budget of 16 packets per tick per peer.
+5. **A launcher.** Play gets a "Players: 1–4" setting. The host opens a GNS listen socket and starts N−1 child editor processes, each with its own window placed beside the host's. Stop ends them. A child that exits or fails its handshake is reported and dropped from the party.
+6. **Gates.** A gate starts the host hidden with `--players 2`. The host starts a hidden child with a scripted input source (`--input-script walk-to:x,z;interact`). Both write their own log and capture, and the gate script checks both. Everything runs on one machine, so it shows two processes agreeing, not behaviour under real latency.
+
+**The in-process fallback needs:** item 1, plus a second `SceneClient` on its own loopback pair inside the editor process, pumped in lockstep like today. A second Game viewport panel shows player 2's camera and HUD. Keyboard and mouse drive the focused viewport's player, a gamepad can be assigned to a player, and gates use a scripted input source. Lockstep stays, so item 2 is not needed yet.
+
+**Cost and value:**
+
+| | In-process loopback | Separate instances |
+|---|---|---|
+| Host/client split, N-player authority | needed | needed |
+| Delay-tolerant client | not needed | needed, the largest piece |
+| Client-only editor mode, launcher | second viewport, input routing (small) | needed (medium) |
+| What it proves | two players' gameplay rules: shared world, both seen by NPCs, both interact, transitions move both | the above plus two processes agreeing over UDP, each with its own window and input |
+| Real latency or loss | no | no (one machine) |
+| Rough size | the stage-1 core plus about one increment | the same plus about two to three increments |
+
+**Recommendation.** The separate instances are feasible and are the right end state: the M8 brief's transitions with client readiness, revive under authority and host-only saves only mean something when a client can lag. But everything the fallback needs is a strict subset of what the separate instances need. So:
+
+- **Stage 1a:** the split, N-player authority, the ledger and the transition coordinator, shown with an in-process second client over loopback (second viewport, scripted input in gates).
+- **Stage 1b**, before stage 2: the delay-tolerant `SceneClient`, the `--join` client mode, the launcher and two-process gates. The editor's "Players" setting then starts real child instances. The in-process client stays for the fast headless tests.
+
+If 1b turns out larger than estimated, its progress is reported at the end of stage 1 and the user decides whether to finish it before items and inventory or move on with in-process co-op. **This order needs the user's agreement before building** (question S1 at the end of this section).
+
+### The host/client split
+
+- **`SceneAuthority`** (new, `engine/runtime/scene_authority.*`): the server `WorldSession`, authoritative physics and collision history, actors, world events, interactables, triggers, encounters, spawning, sensing and controllers, and the **party members**: `{StableId identity, network id, motor, ability owner, connection, input queue}`. `join(member, connection)` creates the member's character at its place; `leave(member)` removes it. Members share the player faction (no friendly fire). Players plus actors must fit 33.
+  - Everything that read the one `player` becomes per member: interactions resolve for the requesting member; trigger volumes and encounter enter-triggers fire for any living member; `occupied()`, sensing, NPC soft lock and aim lead consider every member. `ControllerView` already lists perceived actors by identity, so behaviour trees need no change.
+- **`SceneClient`** (new, `engine/runtime/scene_client.*`): the client `WorldSession`, prediction world, owner motor, owner ability prediction, semantic history and soft-lock memory; observers and `ObservedCharacterPose` for every other character, the other players included; effect views, cue and footstep trackers, the owner's graph and pose, the interaction prompt. In 1a it is stepped in lockstep by its owner; in 1b it gets its own clock.
+- **`CharacterSceneSession`** stays as the composition the editor and nine test files use: one authority plus one local client on loopback, with the same public API. It gains `add_local_player(identity)`, which adds a second loopback client, and accessors per player (`motor(StableId)`, `pose(StableId)` already exists, `interaction_prompt(StableId)`, HUD state per player).
+- **Player definitions**: in stage 1 every member uses the Play's player definition (kit, masks, attributes). Per-player inventories and masks come in stage 2.
+- **Order inside the work**: first the mechanical split with one player and *every existing test unchanged and passing*, then N players. The split moves code; it is not a rewrite of the prediction rules.
+
+### Party placement
+
+- A **Scene Entry Point** is a scene object with an `"entry": {"name": "..."}` component: stable ID, position, facing. `SpawnPlan` gains `entries` (StableId → name). Names are labels for pickers and need not be unique; the StableId is the destination identifier.
+- The party is placed in a fixed formation around the entry point: the first member on it, the others on a ring of 1.2 m in a fixed order. Each place is snapped to the ground with a ray and moved further out, the way an encounter spawn is, when a body blocks it.
+- Initial Play keeps today's rule: the scene's player object is where the party starts. A scene without entry points still plays.
+
+### The world ledger
+
+`engine/runtime/world_ledger.*`. It has no knowledge of scenes being loaded; it stores values.
+
+- **`PersistentId`** = `{AssetId scene, StableId object}`. Party-level facts use a nil scene. Encounter enemies and spawn-point NPCs already have derived StableIds (`encounter_actor`, `spawned_actor`), so they are addressable without new identity.
+- **Record**: `{PersistentId id, std::string kind, unsigned schema, properties}`. A **property** is `{name, value, policy}`. The value is bool, integer, real, text or transform (position and yaw). The **policy** is `{scope: Session | Save, resets: set of SceneEntry, Rest, PartyWipe}`. The policy is written with the value, so a reset can run over records of scenes that are not loaded (resting in scene B resets a gate in scene A). A property absent from the ledger means "as authored".
+- **Persistent objects** implement one interface: `kind()`, `capture(LedgerWriter&)` and `restore(const LedgerReader&)`. Stage 1 implements it for what exists:
+
+| Object | Properties (default policy) |
+|---|---|
+| Interactable | `used` count (single use: Save, no resets; repeatable: not recorded) |
+| Trigger volume | `fired` (once: Save, no resets; repeating: not recorded) |
+| Encounter | `completed` (Save, resets on Rest and PartyWipe). A running encounter is not recorded: after a reload it waits again, so a half-fought encounter restarts. |
+| Spawn-point NPC | `defeated` (Save, resets on Rest and PartyWipe). A defeated NPC is not created. |
+
+  Per-object overrides of these defaults come with the Inspector policy editor in stage 5. Stage 1 hard-codes the defaults in one table per kind, not per object.
+- **Writes happen in the tick** of the gameplay change, by the authority. **Capture** of a whole scene happens when it unloads; **restore** happens after a scene is built and before its first tick (encounters and spawn points read it while being created).
+- **Resets** run one trigger at a time, in a fixed order (scene id, kind, object id, property name). They remove matching properties and are idempotent: running the same reset twice changes nothing the second time. A loaded scene's objects are restored again from the result; the transition and lifecycle coordinators (stages 3 and 4) call them.
+- **Serialization**: versioned JSON. The container has a version and records are sorted by id. A record of an unknown kind or a newer schema is kept as it is and reported, never dropped or overwritten with defaults. This JSON is what the DAE-020 slot stores in stage 3.
+- **Authority only.** Clients get no ledger in stage 1: what they need to see (a used lever, an open door) reaches them through ordinary replicated object state. Replicating party-level records (discovered altars, the checkpoint) comes with the screens that show them in stage 3.
+- **Owner**: the ledger is owned by the Play controller (in a game, the party host) and outlives every scene session. `SceneAuthority` gets a reference to it.
+
+### Scene transitions
+
+`engine/runtime/scene_transition.*`.
+
+- **`SceneProvider`**, an interface implemented by the editor (and later the game), turns a scene AssetId into a **`PreparedScene`**: everything a `SceneAuthority` and `SceneClient` are built from (objects, collision, the combat configuration, navigation, entries, audio profile). It can run over several frames (`begin`, `poll` with progress and status text, `cancel`), so the loading screen moves. The editor implementation reuses Play's existing preparation: cook if needed, collision, navigation, NPC and encounter preparation.
+- **`SceneTransitionCoordinator`** runs one request at a time: `{destination scene, entry StableId, reason}`. Phases:
+  1. **Requested**
+  2. **Preparing**: the provider loads the destination; the source scene keeps running, with player input held.
+  3. **Validating**: the scene exists, the entry exists in it, the party fits its capacity.
+  4. **Capturing**: the ledger takes the source scene's state.
+  5. **Swapping**: the source session is destroyed and the destination session is built with the ledger and the party.
+  6. **Placing**: the party is placed at the entry.
+  7. **Awaiting ready**: every client holds its bootstrap and collision acknowledgement.
+  8. **Resumed**
+- **Failure.** A failure in Preparing or Validating (missing scene, missing entry, load error, no capacity) cancels: the source session never stopped, input returns, and the reason is reported. A failure in Swapping, after the source is gone, rebuilds the source scene from the ledger at the entry the party last came in by (or the scene's player object) and reports it. The session is never left with no scene. A failure to rebuild the source is fatal to Play and says so. Stage 3 adds "return to the checkpoint" as the first fallback.
+- **Requests** come from authority, never from a client directly. A **Scene Transition Trigger** is a scene object with a `"transition": {"scene": AssetId, "entry": StableId, "activation": "enter" | "interact", "prompt": "..."}` component and a box like a trigger volume. With `enter`, it fires when any living member walks in; with `interact`, it goes through the ordinary interaction request. The session exposes the request after the tick, and the coordinator, which is owned next to the ledger, takes it. Doors, altars and fast travel later use the same request type. Party travel is whole-party by definition: there is no per-player request.
+- **What crosses**: the party (members, identities, their player definitions) and the ledger. Nothing else is carried; inventories and the checkpoint join in stages 2 and 3, outside the scene for the same reason.
+- **Loading screen**: the coordinator exposes `{phase, progress, text}`. A game-owned RmlUi document (like the HUD, under `games/AshenRoots/ui`) is shown over every player's view from Requested to Resumed. A 0.3 s minimum avoids a flash.
+- **Separate instances (1b)**: the swap announces `{transition id, scene, entry, new session epoch}` to every client over a small party control channel that outlives scene sessions. Clients prepare the same scene from their own package, then acknowledge. The host waits for every acknowledgement or drops a client after a timeout. Stage 1a has in-process clients only, so the swap rebuilds them directly. The control channel is designed in 1b.
+- **Additive loading later** is another request kind through the same coordinator; nothing here assumes one scene is the whole world, except that one session is one scene.
+
+### Tests and gates
+
+Headless (CTest):
+
+- **`WorldLedgerTests`**: write, read and erase; JSON round trip; a newer container refused; an unknown kind kept; reset order and idempotence; a reset over an unloaded scene.
+- **`CharacterSceneTests` / `CharacterCombatSceneTests`**: unchanged after the split; this proves the mechanical split.
+- **New `PartySceneTests`**:
+  - two players move, both predicted and corrected;
+  - player 2 interacts with a lever, and player 1's client sees it used;
+  - a trigger fires for player 2;
+  - an encounter's enter-trigger fires for player 2;
+  - an NPC detects and attacks player 2;
+  - players cannot hurt each other;
+  - capacity is refused at 34 characters.
+- **New `SceneTransitionTests`**, with a provider that builds small scenes in code:
+  - phase order;
+  - both players arrive at the entry formation;
+  - a used lever and a completed encounter of scene A are restored on the way back;
+  - a defeated spawn NPC stays gone;
+  - a missing scene and a missing entry leave the party in the source scene, still running;
+  - a failure during swap rebuilds the source scene;
+  - a transition requested during another is refused.
+
+Editor gates (D3D12):
+
+- **`two-players-d3d12`**: Play with two local players. Player 2 is driven by a script to a lever and uses it; the capture shows both viewports.
+- **`transition-d3d12`**: in a fixture copy of RoyalTraining, a transition trigger and an entry point are placed through editor commands, leading to RoyalVillage (with an entry point placed there too). Both players walk in, the loading overlay is captured, and both arrive. Walking back restores the lever.
+
+Not shown by stage 1a: any separate process, any delay. Those are 1b's gates.
+
+### Questions for the user before building
+
+- **S1. The second player, in this order:** 1a in-process loopback first (second viewport, scripted input), then 1b real separate instances with their own windows over GNS on localhost, before stage 2. Agree, or go straight to separate instances, or keep in-process only until later?
+- **S2. Building here.** This session reaches the project through a Linux shell and cannot run MSVC, CMake, CTest or the D3D12 gates. Building and verifying need computer use of a PowerShell window on the user's PC (logs read back from here), the user running a runner script, or a Claude Code session running on the PC itself.
+
+**User answers (13 October 2026):** S1: 1a then 1b, as recommended; 1b comes before stage 2. S2: building and verification continue in a Claude Code session running natively on the PC. Nothing of stage 1 is built; the design above is the next session's starting point.
