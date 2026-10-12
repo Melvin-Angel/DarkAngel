@@ -55,6 +55,8 @@ Identity, authority, ownership, content generations and bounded work are foundat
 | M8 Saves and campaign loop | SQLite coherent snapshots, host roster, checkpoints, migrations, recovery and save inspection | Claimed pickup/key/gate/altar/scatter/moved spawn survive reload; guest cannot overwrite host state; injected write/migration failure restores a complete revision; world reset differs from slot deletion |
 | M9 Release slice | Four-player co-op scenario, PvP test arena, package closure, notices/prerequisites, release provenance and clean-machine validation | Game runs without source/dev PATH/editor cache, retains saves through update, rejects incompatible manifests, and passes measured multiplayer/device/streaming checks |
 
+**M8 scope revision (13 October 2026):** the user widened M8 to world state, inventory, scene transitions and co-op progression. The row above is kept as history; where it differs, [M8_BRIEF.md](../implementation/M8_BRIEF.md) and the plan [M8_REPORT.md](../implementation/M8_REPORT.md) govern. See "M8 scope revision" below.
+
 These milestones order implementation rather than delaying all validation until M9. Each adapter gets its focused acceptance spike before production systems rely on it. Four-player stress and poor-connection tests begin as soon as the relevant session/combat code exists. Terrain, UI, audio and VFX features expand only after their minimal working path is proven.
 
 ## Ashen Roots editor workflow workstream
@@ -102,10 +104,20 @@ The [actor design supplement](Actor_Gameplay_Design.md) records confirmed owners
 | M5 | Player/common loadout, four mask equipped/selected policies, contributor ownership/cleanup, typed graph conditions, reaction Composer integration and native/script extension APIs. Depend on frozen refs and atomic native effects; newly planned composition, not implemented designers |
 | M6 | NPC common loadout and controllers, shared actor slice, BT/sensing/nav/encounters/world events; no Unity YAML runtime |
 | M7 | Real composable aura/impact/audio cue lifetime and deduplication, reaction presentation authoring; effect duration stays authoritative |
-| M8 | Durable loadout/inventory/equipment/progression, host roster/checkpoints/rest/travel/world flags and UI/dialog tools within coherent saves |
+| M8 | Durable loadout/inventory/equipment/progression, host roster/checkpoints/rest/travel/world flags and UI/dialog tools within coherent saves (revised 13 October 2026: see "M8 scope revision"; dialog proposed for after M8) |
 | M9 | Integrated mask/combat/world content production, multiplayer/correction/late-join/cleanup/performance and clean packaged qualification |
 
 Staged acceptance after current authoring refinement: M5 instantiate a Player from reusable Character and common loadout; M6 instantiate an NPC using that same Character but different kits/attributes through the same native execution. Then M5's mask slice verifies overlapping source grants, equipped/selected switch cleanup, effect modifiers, stance locomotion and one authored reaction; M7 adds actual aura/audio content. Neither slice replaces original full M4/M5 gates or requires all final visual tools at once. Exact event/schema/reaction representation must be resolved before implementation, not assumed by the plan.
+
+### M8 scope revision (13 October 2026)
+
+The user's [M8 brief](../implementation/M8_BRIEF.md) replaces the M8 rows above where they differ; the plan is [M8_REPORT.md](../implementation/M8_REPORT.md). Summary:
+
+- **Scope**: a host-owned world ledger with stable authored IDs and per-property persistence scope and reset triggers; full scene replacement through one `SceneTransitionCoordinator` with Scene Entry Points, a loading screen and party-wide, host-coordinated travel; item definitions, an Items tab, extensible classifications, masks as items (definition separate from owned instance, the Mask Editor reachable from Items, Player and NPC), per-player server-authoritative inventories and world pickups; altars with rest, the shared party checkpoint and optional fast travel and save; downed, hold-to-revive and party wipe in a `PartyLifecycleCoordinator`; doors, gates and movable platforms as reusable state machines with requirements; editor authoring for all of it; a two-scene co-op acceptance slice.
+- **Kept**: DAE-020 saves (SQLite slot files, host-only `PersistenceService`, safe-point saves, recovery, migration) and the gates for a claimed pickup, key, gate and altar surviving reload, host-only save writes, failure recovery and reset-versus-deletion.
+- **Out of M8**: world-cell streaming and additive loading (design stays compatible), independent per-player scene travel, account-level persistence, bleed-out and revive tokens, party votes. Proposed out, awaiting the user (M8_REPORT.md open questions): quests, dialog and objectives; removable scatter and the moved-spawn gate; a player-facing slot menu.
+- **Order**: two players in one session plus ledger plus transitions; items and inventory; altars, checkpoint, fast travel and saves; downed, revive and wipe; doors, gates, platforms and policies; the acceptance slice and report.
+- Locked DAE contracts are unchanged. M6 cells and the cross-cell world ledger of DAE-016 stay deferred; the M8 ledger is built so cells can partition it later.
 
 ## Dependency acquisition and integration
 
