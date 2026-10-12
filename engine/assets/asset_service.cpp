@@ -29,7 +29,7 @@ struct Statement {
 };
 void exec(sqlite3* db,const char* sql){require(sqlite3_exec(db,sql,nullptr,nullptr,nullptr)==SQLITE_OK,"Asset catalog transaction/schema failed");}
 void atomic_write(const std::filesystem::path& path,std::string_view bytes,bool replace=true){
-    std::filesystem::create_directories(path.parent_path());auto tmp=path;tmp+=".stage-"+AssetId::random().text();
+    std::filesystem::create_directories(path.parent_path());auto tmp=path;tmp+=".s-"+AssetId::random().text().substr(0,8); // short: a staged name must stay under MAX_PATH wherever its final name does
     try{std::ofstream out(tmp,std::ios::binary);out.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));out.close();if(out.fail())throw std::runtime_error("Asset staging write failed: "+path.string());require(MoveFileExW(tmp.c_str(),path.c_str(),MOVEFILE_WRITE_THROUGH|(replace?MOVEFILE_REPLACE_EXISTING:0))!=0,"Asset atomic publication failed");}
     catch(...){std::error_code ignored;std::filesystem::remove(tmp,ignored);throw;}
 }

@@ -68,7 +68,7 @@ if not(seen['audio_service']=='1' and seen['audio_device']=='0' and int(seen['au
 seen=cues(run('cues-footsteps-d3d12',common+['--exercise-character','--exercise-cues','--frames','120','--capture',EVIDENCE/'cues-footsteps-d3d12.png']))
 if not(set(seen['audio'].split(','))=={'Footstep'} and 8<=int(seen['audio_played'])<=30 and seen['audio_missing']=='0' and seen['visual']=='none'):raise RuntimeError('Editor Play did not play the player footsteps: '+str(seen))
 seen=cues(run('cues-burn-d3d12',common+['--exercise-reaction','--exercise-cues','--frames','30','--capture',EVIDENCE/'cues-burn-d3d12.png']))
-if not('Status.Burn' in seen['visual'].split(',') and int(seen['visual_live'])>=1):raise RuntimeError('Editor Play did not present the Burn aura cue: '+str(seen))
+if not('Status.Burn' in seen['visual'].split(',') and int(seen['visual_live'])>=1 and int(seen['closure'])>=2):raise RuntimeError('Editor Play did not present the Burn aura cue: '+str(seen))
 # The aura is a real effect: cooked from its Effekseer source, loaded, playing and drawn through the renderer, with nothing skipped.
 if not(int(seen['vfx_loaded'])>=1 and int(seen['vfx_playing'])>=1 and int(seen['vfx_particles'])>0 and int(seen['vfx_quads'])>0 and int(seen['vfx_draws'])>=1 and seen['vfx_unsupported']=='0' and seen['vfx_missing']=='0'):raise RuntimeError('Editor Play did not draw the Burn aura effect: '+str(seen))
 # M7: the VFX tab. The selected effect is cooked through the Effekseer tool and plays in the preview; a change of its source file on disk
@@ -77,6 +77,10 @@ def vfx_tab(log):
     line=[l for l in log.splitlines() if l.startswith('Editor vfx_tab ') and 'error' not in l.split()[2]][-1];return dict(part.split('=') for part in line.split()[2:])
 seen=vfx_tab(run('vfx-tab-d3d12',common+['--vfx-workspace','--vfx-select','vfx/placeholder/burn_aura.efkproj','--exercise-vfx-edit','--frames','45','--capture',EVIDENCE/'vfx-tab-d3d12.png']))
 if not(int(seen['effects'])>=2 and seen['selected']=='vfx/placeholder/burn_aura.efkproj' and seen['cooked']=='1' and seen['cooks']=='2' and seen['textures']=='1' and seen['playing']=='1' and int(seen['quads'])>0 and seen['unsupported']=='0' and seen['refused']=='0'):raise RuntimeError('The VFX tab did not preview the effect and cook it again after its source changed: '+str(seen))
+# The cue form: a new cue is staged, edited and saved through the draft path, and its cooked product names its effect and sound by identity.
+log=run('cue-form-d3d12',common+['--vfx-workspace','--vfx-select','vfx/placeholder/hit_spark.efkproj','--exercise-cue-form','--frames','20','--capture',EVIDENCE/'cue-form-d3d12.png'])
+line=[l for l in log.splitlines() if l.startswith('Editor cue_form ')][-1];seen=dict(part.split('=') for part in line.split()[2:])
+if not(int(seen['cues'])>=5 and seen['path'].startswith('vfx/cues/gate_') and seen['saved']=='1' and seen['tail']=='20' and seen['visual_resolved']=='1' and seen['audio_resolved']=='1'):raise RuntimeError('The cue form did not create, save and cook a cue: '+str(seen))
 log=run('mask-switch-d3d12',worn+['--exercise-mask-switch','--frames','30','--capture',EVIDENCE/'mask-switch-d3d12.png'])
 if 'Editor mask switch tick=30 loadout=2 mask=test_air worn=0 pending=0' not in log:raise RuntimeError('Editor Play did not switch masks: '+log[-400:])
 run('camera-free-look-d3d12',worn+['--exercise-camera-look','--frames','30','--capture',EVIDENCE/'camera-free-look-d3d12.png'])

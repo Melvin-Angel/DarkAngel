@@ -38,7 +38,10 @@
   "sources": {
     "attributes": "royal_district/combat/base.daattributes",
     "tags": "royal_district/combat/state.datags",
-    "reaction": "royal_district/combat/flinch.daaction"
+    "reaction": "royal_district/combat/flinch.daaction",
+    "cues": {
+      "7d0e6c1a-3f52-4b9e-8a6d-2c4f9b1e5a37": "royal_district/combat/cues/hit.dacue"
+    }
   },
   "reaction": "e659ecc2-e701-4a3e-93e8-0d39f83b20dd",
   "lock_movement": true

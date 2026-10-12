@@ -37,6 +37,9 @@
   ],
   "sources": {
     "attributes": "royal_district/combat/base.daattributes",
-    "tags": "royal_district/combat/state.datags"
+    "tags": "royal_district/combat/state.datags",
+    "cues": {
+      "c09f0b52-de07-4692-8da6-c183e6215146": "royal_district/combat/cues/burn.dacue"
+    }
   }
 }

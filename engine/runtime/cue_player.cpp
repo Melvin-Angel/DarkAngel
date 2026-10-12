@@ -103,7 +103,7 @@ std::vector<ActionCueUpdate> ActionCueTracker::drain_cues(){return std::exchange
 std::vector<ActionCueCut> ActionCueTracker::drain_cuts(){return std::exchange(cuts_,{});}
 CueDefinition decode_cue(std::string_view text){
     using Json=nlohmann::json;require(text.size()<=4096,"Cue source size bound");const auto value=Json::parse(text);
-    require(value.is_object()&&value.size()==9,"Cue source field count");for(auto field:{"schema","kind","asset","name","key","visual","audio","tail_ticks","predictable"})require(value.contains(field),"Cue source missing/unknown field");
+    const bool cooked=value.is_object()&&value.contains("visual_asset");require(value.is_object()&&value.size()==(cooked?11u:9u)&&(!cooked||value.contains("audio_asset")),"Cue source field count");for(auto field:{"schema","kind","asset","name","key","visual","audio","tail_ticks","predictable"})require(value.contains(field),"Cue source missing/unknown field");
     require(value.at("schema")==1&&value.at("kind")=="cue","Cue source schema/type");CueDefinition cue;cue.id=AssetId::parse(value.at("asset").get<std::string>());require(cue.id!=AssetId{},"Cue identity");
     const auto word=[&](const char* field,std::size_t limit,bool empty,const char* letters,const char* error){require(value.at(field).is_string(),error);auto read=value.at(field).get<std::string>();require((empty||!read.empty())&&read.size()<=limit&&read.find_first_not_of(letters)==read.npos,error);return read;};
     const char* typed="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-";const char* path="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-/";
@@ -111,7 +111,9 @@ CueDefinition decode_cue(std::string_view text){
     cue.key=word("key",64,false,typed,"Cue key: 1 to 64 letters, digits, '_', '.' or '-'");cue.visual=word("visual",128,true,path,"Cue visual name");cue.audio=word("audio",128,true,path,"Cue audio name");
     require(!cue.visual.empty()||!cue.audio.empty(),"A cue names a visual, a sound or both");
     require(value.at("tail_ticks").is_number_unsigned()&&value.at("tail_ticks").get<std::uint64_t>()<=600,"Cue tail bounds (0 to 600 ticks)");cue.tail_ticks=value.at("tail_ticks").get<unsigned>();
-    require(value.at("predictable").is_boolean(),"Cue predictable flag type");cue.predictable=value.at("predictable").get<bool>();return cue;
+    require(value.at("predictable").is_boolean(),"Cue predictable flag type");cue.predictable=value.at("predictable").get<bool>();
+    if(cooked){const auto resolved=[&](const char* field,const std::string& name){require(value.at(field).is_string(),"Cooked cue reference type");const auto text=value.at(field).get<std::string>();require(text.empty()==name.empty(),"Cooked cue reference does not match its name");return text.empty()?AssetId{}:AssetId::parse(text);};cue.visual_asset=resolved("visual_asset",cue.visual);cue.audio_asset=resolved("audio_asset",cue.audio);}
+    return cue;
 }
 std::size_t CuePlayer::live()const{return instances_.size();}
 std::vector<CueInstanceInfo> CuePlayer::instances()const{

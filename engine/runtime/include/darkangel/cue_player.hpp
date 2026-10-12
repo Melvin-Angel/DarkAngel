@@ -20,9 +20,10 @@ namespace darkangel {
 //   tail_ticks      how long an instance may fade after it is stopped before it is released
 //   predictable     an owner may start it from its own prediction; it is cut if the activation is rejected
 //   key, name       the cue key the asset answers to, and its display name (both empty for a definition made in code)
-struct CueDefinition {AssetId id;std::string visual,audio;unsigned tail_ticks{30};bool predictable{};std::string key,name;};
+struct CueDefinition {AssetId id;std::string visual,audio;unsigned tail_ticks{30};bool predictable{};std::string key,name;AssetId visual_asset,audio_asset;};
 // The native cue source (.dacue): schema 1, kind "cue", asset, name, key, visual, audio, tail_ticks, predictable.
-// At least one of visual and audio is named. Throws on anything else.
+// At least one of visual and audio is named. Throws on anything else. A cooked cue also carries visual_asset and audio_asset,
+// the identities the cooker resolved the two names to (an empty string where nothing is named).
 CueDefinition decode_cue(std::string_view);
 // Whose action a cue block belongs to, as this client sees it. Another actor's action is Observed: confirmed public
 // state, all of its cues play. The owner's own action arrives twice, from its prediction and from authority's

@@ -356,6 +356,20 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
   for(auto tag:effect_preview->effects->tags().values())for(const auto& definition:effect_preview->cooked.tags.fields)if(definition.definition.id==tag){auto grants=effect_preview->contributors(tag);ImGui::TextWrapped("Tag: %s / %u active effect grants",definition.definition.name.c_str(),static_cast<unsigned>(grants.size()));for(const auto& grant:grants)ImGui::Text("  source %llu / effect %llu",static_cast<unsigned long long>(grant.credit.source_network),static_cast<unsigned long long>(grant.handle.value));}
   if(ImGui::Button("Discard preview"))effect_preview.reset();
  }else ImGui::TextDisabled("Prepare current drafts, then apply an ordinary evaluator-free effect.");
+ ImGui::SeparatorText("Cues");
+ {ImGui::TextWrapped("What is shown and heard on the affected actor while this effect is current. Cues are made in the VFX tab.");
+  const auto bound=v.contains("cues")?v.at("cues"):nlohmann::json::array();const auto located=[&](const std::string& id){return v.contains("sources")&&v.at("sources").contains("cues")&&v.at("sources").at("cues").contains(id);};
+  if(bound.empty())ImGui::TextDisabled("No cues.");
+  for(unsigned i=0;i<bound.size();++i){const auto id=bound[i].value("id",std::string{});const auto key=bound[i].value("key",std::string{});const bool asset=located(id);ImGui::PushID(int(4000+i));
+   if(asset)ImGui::BulletText("%s  (%s)",key.c_str(),v.at("sources").at("cues").at(id).get<std::string>().c_str());else ImGui::BulletText("%s  (key only, no cue asset bound)",key.c_str());
+   ImGui::SameLine();const bool remove=ImGui::SmallButton("Remove");ImGui::PopID();
+   if(remove){v["cues"].erase(i);if(asset){v["sources"]["cues"].erase(id);if(v["sources"]["cues"].empty())v["sources"].erase("cues");}break;}}
+  if(bound.size()<4&&ImGui::BeginCombo("Add cue","Choose a cue asset")){
+   for(const auto& candidate:c.asset_inventory){if(std::filesystem::path(candidate.path).extension()!=".dacue")continue;const auto id=candidate.id.text();const bool already=std::any_of(bound.begin(),bound.end(),[&](const auto& cue){return cue.value("id",std::string{})==id;});
+    if(ImGui::Selectable(candidate.path.c_str(),false,already?ImGuiSelectableFlags_Disabled:0))perform([&]{nlohmann::json cue;if(auto draft=c.authoring.drafts.find(candidate.id);draft!=c.authoring.drafts.end())cue=draft->second.value;else{std::ifstream file(c.assets->source_root()/candidate.path);cue=nlohmann::json::parse(file);}
+     if(!v.contains("cues"))v["cues"]=nlohmann::json::array();v["cues"].push_back({{"id",id},{"key",cue.at("key")}});v["sources"]["cues"][id]=candidate.path;});}
+   ImGui::EndCombo();}
+ }
  ImGui::SeparatorText("Reaction presentation");
  {AssetId reaction=v.contains("reaction")?AssetId::parse(v.at("reaction").get<std::string>()):AssetId{};
   ImGui::TextWrapped("Optional one-shot full-body Composer shown on the affected actor while this effect instance is current. The effect keeps its own duration and interruption; the animation never ends, extends or executes gameplay.");

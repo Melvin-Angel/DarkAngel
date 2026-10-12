@@ -3,8 +3,18 @@
 #include <darkangel/hash.hpp>
 #include <set>
 namespace darkangel::assets_detail {
-// A cue is a leaf source: validated fields, no dependencies yet (its visual and sound are names until the effect and sound assets exist).
-Import import_cue(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){auto bytes=read(source,4096);auto cue=decode_cue(bytes);Import result;result.identities.push_back(cue.id);result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);if(!inspect){require(ids.size()==1&&ids.at("$source")==cue.id,"Cue source UUID mismatch");result.products.push_back({cue.id,"cue","cue.json",json(bytes,4096).dump(),{}});}return result;}
+// A cue's effect and sound are resolved to identities through their import sidecars, which are inputs of the cue. Their products are not
+// carried in the cue's closure (cooking an effect runs the Effekseer tool); whoever packages a cue adds the two identities as roots.
+Import import_cue(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
+    auto bytes=read(source,4096);auto data=json(bytes,4096);require(data.is_object()&&!data.contains("visual_asset")&&!data.contains("audio_asset"),"A cue source names its effect and sound by path; the cooker resolves them");auto cue=decode_cue(bytes);
+    Import result;result.identities.push_back(cue.id);result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);
+    const auto resolve=[&](const std::string& name,bool visual){if(name.empty())return std::string{};const auto file=within(root,name);const auto extension=file.extension();
+        require(visual?(extension==".efkproj"||extension==".efkefc"):extension==".wav",visual?"A cue's effect is an Effekseer effect of the project (.efkproj or .efkefc)":"A cue's sound is a sound of the project (.wav)");
+        auto sidecar=file;sidecar+=".daimport";require(std::filesystem::is_regular_file(file)&&std::filesystem::is_regular_file(sidecar),visual?"A cue names an effect that is not in the project":"A cue names a sound that is not in the project");
+        const auto text=read(sidecar,1024*1024);const auto metadata=json(text);require(metadata.at("schema")==1&&metadata.at("importer")==(visual?"effekseer-v1":"sound-wav-v1"),visual?"A cue's effect was not imported as an effect":"A cue's sound was not imported as a sound");
+        result.inputs[sidecar.lexically_relative(root).generic_string()]=sha256(text);return AssetId::parse(metadata.at("id").get<std::string>()).text();};
+    data["visual_asset"]=resolve(cue.visual,true);data["audio_asset"]=resolve(cue.audio,false);
+    if(!inspect){require(ids.size()==1&&ids.at("$source")==cue.id,"Cue source UUID mismatch");result.products.push_back({cue.id,"cue","cue.json",data.dump(),{}});}return result;}
 }
 namespace darkangel {
 std::vector<CueDefinition> load_cooked_cues(const std::filesystem::path& registry,const std::filesystem::path& cas){

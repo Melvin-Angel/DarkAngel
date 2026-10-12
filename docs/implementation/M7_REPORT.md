@@ -320,3 +320,96 @@ An encounter (and later other world events) can name an audio profile to **layer
 1. Buses: is Master, Music, Ambient, Player, NPC, UI the right starting set, or should buses be free to add and rename from the start?
 2. Is a limiter on the master output enough for "levelling" in the MVP, given that Amplitude has no per-bus effect chain?
 3. Clip editing: are effects, gain, pitch and loop per sound enough for now, with trimming and fades left to an external audio editor?
+
+## Step 4, third part: the cue form, and cues as dependencies (12 October 2026)
+
+### Design (written before the code)
+
+**What a reference is today.** An effect lists `cues: [{id, key}]`, but nothing checks that `id` is a cue asset, and a cue names its effect and its sound by source path without the cooker looking at either. Play therefore packages every cue of the project on its own and searches the catalog by path.
+
+**Effect to cue.** An effect source may give a locator for a cue it binds, in the place every other locator already lives: `sources.cues` is an object from the cue's id to the path of its `.dacue`. For a binding with a locator the effect cooker cooks the cue, refuses the effect when the cue's identity or key differs from the binding, lists the cue in the effect product's `required` and carries the cue product in the effect's closure. So a kit, a player or an NPC that reaches the effect carries the cue, a changed cue re-cooks what names it, and coordinated Save finds the effect as a consumer of the cue (it already follows `sources`). A binding without a locator stays what it is today, a key that some cue of the project may answer; tests and old sources that bind a bare key keep working.
+
+**Cue to effect and sound.** The cue cooker resolves `visual` and `audio` to asset identities: the named file must exist beside its import sidecar and be an Effekseer effect or a sound, and the cooked cue product gains `visual_asset` and `audio_asset`. A cue that names a missing file no longer cooks. The effect and the sound are *not* carried inside the cue's closure. Reason: every root in this asset service holds its whole closure, and nested cooks are not cached, so carrying the compiled effect would run the Effekseer tool inside every cook of every ability, kit, player and NPC that reaches a cue, on every machine and in every test. Instead the sidecars are inputs of the cue (a re-identified file re-cooks it), and whoever packages a cue adds the two identities it reads from the product as package roots. This is the one place the dependency is by identity rather than by closure, and it is deliberate.
+
+**Play.** Cues come from the Play package first (those the kit closure reached through its effects); project cues not in it are added for the keys nothing references by asset (action cue blocks and footsteps name a key only). Effects and sounds are loaded by the identities in the cue products.
+
+**Not in this part:** action cue blocks picking a cue by asset. An action block carries a key; changing that is a change to the action schema and its runtime, and the user's order asks for effects only.
+
+**The cue form** sits in the VFX tab under the effect list: the project's cues, New cue, and for the selected cue its name, key, effect (a list of the project's effects, or none), sound (the project's sounds, or none), tail in ticks and "starts on prediction", with the cooker's refusal shown as text and Save through the ordinary draft path (Undo, Redo, Save All). Picking an effect in the cue form also selects it in the preview. The Ability tab's effect form gains a **Cues** list: add a cue by choosing a cue asset (which writes id, key and locator together), remove one.
+
+### Built
+
+- **Effect to cue.** `sources.cues` in an effect source (`{cue id: path}`); the effect cooker cooks a located cue, refuses a locator for a cue the effect does not bind and a binding whose identity or key differs from the cue's, lists the cue in the effect product's `required` and carries its product. The owned Burn and Flinch effects locate their cues. A binding without a locator is still a bare key.
+- **Cue to effect and sound.** The cue cooker resolves `visual` and `audio` through the named file's import sidecar and writes `visual_asset` and `audio_asset` into the product (`CueDefinition` has both). A cue naming a file that is not in the project, or the wrong kind of file, no longer cooks; a source that already carries the two fields is refused.
+- **Play** reads the cues of the Play package first and adds the project's other cues for keys nothing names by asset; effects and sounds are loaded by the identities in the cue products.
+- **The cue form** in the VFX tab, below the effect controls: the project's cues (a star marks an unsaved one), New cue (under `vfx/cues/`), and for the selected cue name, key, effect, sound, tail and "starts on prediction", the decoder's refusal in red, and Save. Edits are ordinary drafts (Undo, Redo, Save All). Picking an effect also selects it in the preview.
+- **The Ability tab's effect form** has a Cues list: Add cue (a list of the project's cue assets; writes identity, key and locator together) and Remove. A key-only binding is shown as such.
+- Duplicating an effect keeps a located cue (the copy uses the same cue asset); a key-only binding still gets a fresh identity.
+
+### Two fixes found by the first check of this session
+
+- `M5.actor_assets`, `M5.attribute_authoring` and `M5.composer_structure` failed with "Asset staging write failed" on a record of the user's uncommitted scene. Cause, confirmed: the staged file's temporary suffix was 43 characters, which took a 227 character path over Windows' 260. The suffix is now 11 characters (`.s-` and eight hex digits).
+- `M5.composer_preview` failed with "Tagged graph requires an explicit actor tag snapshot": the test evaluated the kit's stance graph directly without a tag snapshot, and that graph has become tagged. The test now passes an empty snapshot to its reference instance, as the preview does.
+
+### Limits
+
+- Action cue blocks and footsteps still name a key, so their cues come from the project's cue set, not from a closure.
+- An effect's or a sound's product is not in the cue's closure (see the design); a packaged game has to add the two identities of each cue as package roots, as the editor does.
+- Up to four located cues per effect (the effect's existing limit of four cues).
+- The cue form is at the bottom of the VFX panel; in the 800 pixel high gate window its fields are below the fold, so the capture shows the cue list but not the form.
+
+### Verified
+
+- `CueAssetTests` (`M7.cue_assets`, extended): resolved effect and sound identities in the cooked cue; refusal of a missing sound, of an effect named as a sound and of a source carrying resolved identities; an effect's package carrying its cue; a changed cue cooking the effect again; refusal when binding and cue disagree on the key, and of a locator for an unbound cue.
+- Editor gate `cue-form-d3d12` (new): a cue is staged through the form's creation path, edited as a draft (undoable), saved, and its cooked product names its effect and sound by identity. `cues-burn-d3d12` now also requires that at least two cues came through the Play package.
+- One full pass on this build: the build shows only the known `RoyalCollisionTests` link failure; **CTest 94 of 95**, the one failure being `M4.royal_mesh_collision` (its executable does not link); all **55** verify gates pass. The first CTest run of the pass failed `M5.native_authoring` (a test that emptied an effect's cue list and left the new locator behind); the test was corrected and it and its seven dependants were run again, all passing. The [cue form capture](evidence/cue-form-d3d12.png) was looked at: the Cues section and the cue list are there; the form's fields are not in view.
+
+Not verified: the cue form's widgets by hand (the gate drives the same draft calls, not the widgets); the effect form's Add cue and Remove; a project with more than 64 cues outside the Play package.
+
+A build mistake of this session, for the record: one build was started without the pinned toolchain's environment, which made CMake reconfigure with Direct3D 12 detected as unsupported and marked the whole tree out of date. No dependency was installed, removed or rebuilt. A reconfigure in the correct environment restored the previous command lines and nothing third-party was recompiled.
+
+## The Audio tab, MVP: design (12 October 2026, written before the code)
+
+The user listened on 12 October 2026: swing, hit and steps are heard, and "Edit in Effekseer" works. The sounds are not good and footsteps come too quickly; both are polish the user put off ("we can make it pretty later"), so neither is tuned here. Whether a sound comes from the correct side was not reported.
+
+This section fixes what the plan above left open, after reading the pinned Amplitude source for each point.
+
+### What the pinned Amplitude does, as read
+
+- **Buses** are a tree with a gain and a mute each, changeable while the engine runs (`Bus::SetGain`, `SetMute`, `FadeTo`), and ducking rules declared in the buses file. The tree and the ducking rules are read when the engine starts.
+- **A sound has one effect, not a list** (`SoundDefinition.effect` is a single id). The plan above said "a list of effects"; the MVP has one effect per sound.
+- **The limiter is a pipeline node, and the pipeline runs per sound.** So Amplitude's limiter holds each sound under a threshold; it is not a limiter on the summed output. There is no master effect chain in the pinned engine. The Mixer exposes it as what it is: "Limit each sound to". The pipeline is read when the engine starts.
+- **No level meters**: a bus reports its gain, not its signal level. No meters in the MVP.
+- **Looping** (`loop.enabled`), **unpositioned playback** (`spatialization: None`) and **distance range** (an attenuation asset) are fields of the sound definition, fixed when the sound is loaded.
+- Sounds are still only added to a running engine, never unloaded (step 3), so a changed definition is a new entry; a service holds 512 of them.
+
+What follows from that: bus volumes and mutes are live; the limiter and the ducking rules take effect when the audio service is next started (the editor restarts it when the mixer asset changed and nothing is playing: at the next Play or audition).
+
+### Assets
+
+- **Sound definition `.dasound`** (kind `sound`): `name`, `wave` (the WAV asset's id, with its path in `sources.wave`), `bus` (`music`, `ambient`, `player`, `npc`, `ui`), `gain` (0 to 4), `pitch` (0.25 to 4), `loop`, `positioned`, `range` (metres at which it is silent, 1 to 500), and `effect`: `{kind, parameters}` with kind one of `none`, `low_pass`, `high_pass`, `delay`, `lofi`, `compressor`, `bass_boost`. The cooked product carries the WAV in its closure (a real dependency; it is a byte copy, no tool runs). Because a definition is its own asset, one WAV can have several (the same swing on the Player bus and on the NPC bus).
+- A cue's `audio` may name a `.wav` (played with default settings: positioned, Player bus, 40 m) or a `.dasound`.
+- **Mixer `.damix`** (kind `mix`), one per project at `audio/project.damix`: for each of the five buses and Master a `volume` (0 to 2) and `mute`; `limit_each_sound` on or off with `threshold_db`; `ducking`: a list of `{when, lower, to, fade_in, fade_out}` (while a sound plays on bus `when`, bus `lower` goes to gain `to`). The bus set is fixed in the MVP (question 1 of the plan stays open; nothing here prevents free buses later, since buses are data in the generated project).
+- **Audio profile `.daaudioprofile`** (kind `audio_profile`): `name`, `music` (a sound definition or none) with `music_volume`, up to eight `ambient` loops (sound definition and volume), `bus_offsets_db` per bus (-60 to +12), `crossfade_seconds`. Its sound definitions travel in its closure.
+
+### Where a scene and an encounter name a profile
+
+- **Scene**: a scene object component, like a spawn point or an encounter: `"audio": {"profile": id}`, at most one per scene. It is placed and changed from the Audio tab's Scene audio section (and is an ordinary object in the outliner). This follows how the scene already holds gameplay data and needs no change to the scene file format.
+- **Encounter**: one optional field of the encounter component, `"audio_profile": id`, edited in the encounter's Inspector. The simulation ignores it. The audio side does not listen for world event names: it asks the session for each encounter's state every tick, so it works for an encounter that emits nothing.
+
+### Runtime pieces
+
+- `AudioService` gains: bus tree and mixer at start (`AudioOptions::mix`), `mix()` for live volumes and mutes, sounds loaded with their settings (`AudioSound`), `gain(handle)`, and the limiter and ducking written into the generated project.
+- `AudioDirector` (engine/audio): holds the scene profile and a stack of layered profiles. The top profile's music plays; when the top changes the old music fades out over the crossfade time and the new one starts. Ambient loops of every profile on the stack play together. Bus offsets of the top profile are applied over the mixer. Nothing in it knows about encounters; the editor pushes and pops.
+
+### The tab
+
+`Workspace::Audio`, three sections in one panel: **Sounds** (WAV assets and sound definitions; Import copies a WAV into `content/audio` and adopts it; New definition for a WAV; the definition form; Play and Stop audition through the real service), **Mixer** (the project mixer's volumes, mutes, limiter and ducking; created on first use), **Scene audio** (profiles; New profile; the profile form; "Use for this scene"; audition of a whole profile).
+
+### Limits known before building
+
+One effect per sound; the limiter is per sound; no meters; music starts without a fade-in (the old track fades out under it); a profile's bus offsets are not themselves crossfaded; changing the limiter or ducking needs an audio restart, which the editor does only while nothing is playing.
+
+### Order, one verification pass at the end
+
+Service and director with their tests on the silent driver; the three cookers and their tests; cues through definitions; scene and encounter fields; the tab; gates for audition, a mixer volume changed during Play, a scene profile at Play and an encounter layering its profile.

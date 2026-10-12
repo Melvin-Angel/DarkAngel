@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80204120000
-[39mViewport foreground pixels=707479 capture=C:\DarkAngel\docs\implementation\evidence\vfx-tab-d3d12.png
+[39mViewport foreground pixels=719082 capture=C:\DarkAngel\docs\implementation\evidence\vfx-tab-d3d12.png
 Editor vfx_tab effects=2 selected=vfx/placeholder/burn_aura.efkproj cooked=1 cooks=2 textures=1 playing=1 particles=16 quads=15 unsupported=0 refused=0
 DarkAngel editor rendered 45 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

@@ -6,8 +6,8 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
 [39mViewport foreground pixels=856330 capture=C:\DarkAngel\docs\implementation\evidence\cues-burn-d3d12.png
-Masked action frozen_generation=49a300a6f41dddb74df64a60f931a6e370cd229d60460e1b7689f2cf028e3858 locomotion_bound=3 total_bound=4
-Editor cues tick=30 assets=4 live=1 visual_live=1 audio_live=0 visual_starts=1 audio_starts=0 audio_stops=0 unresolved=1 visual=Status.Burn audio=none vfx_loaded=2 vfx_playing=1 vfx_particles=16 vfx_quads=15 vfx_draws=1 vfx_unsupported=0 vfx_missing=0 audio_service=1 audio_device=0 audio_loaded=3 audio_played=0 audio_missing=0
+Masked action frozen_generation=94a881911b25418e269747a9d41a997b8eddcb12a49aaaa7b27bcb6787cc050f locomotion_bound=3 total_bound=4
+Editor cues tick=30 assets=4 closure=2 live=1 visual_live=1 audio_live=0 visual_starts=1 audio_starts=0 audio_stops=0 unresolved=1 visual=Status.Burn audio=none vfx_loaded=2 vfx_playing=1 vfx_particles=16 vfx_quads=15 vfx_draws=1 vfx_unsupported=0 vfx_missing=0 audio_service=1 audio_device=0 audio_loaded=3 audio_played=0 audio_missing=0
 Native heavy editor tick=30 target_health=60 stamina=80 pending=0
 Editor reaction effect_handle=2 onset=18 clip_tick=12 of 40 player_reaction=none effects=2
 DarkAngel editor rendered 30 frames with d3d12
