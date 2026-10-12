@@ -10,7 +10,7 @@
 #include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings};
+enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -96,6 +96,8 @@ public:
     std::function<std::string()> gameplay_metrics;
     // Tools > Navigation: supplied by the host where the navigation library is built.
     std::function<void()> draw_navigation_tool;
+    // The VFX tab's left panel: supplied by the host, which owns the visual effect service. The preview beside it is the scene render target.
+    std::function<void()> draw_vfx_panel;
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).
     std::function<void(ImDrawList*,ViewArea)> game_overlay;

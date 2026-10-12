@@ -249,3 +249,17 @@ A cue's sound is now a real sound: a WAV asset, cooked, loaded into the Amplitud
 Not verified: any sound through loudspeakers; stereo placement; a lasting sound fading by a cue's tail (no owned cue has a lasting sound); many sounds at once; what happens when the audio device disappears during Play.
 
 Seen in passing, not part of M7: three of the five long-standing "known unrelated" CTest failures (`M5.actor_assets`, `M5.attribute_authoring`, `M5.composer_structure`) fail with "Asset staging write failed" on a file under `content/royal_district/RoyalCombat.dascene.records/`, which is the user's uncommitted scene. They copy the whole content folder; the long record file names under the deep test folder are the likely cause (path length), not checked.
+
+## Step 4, first part: the VFX tab (12 October 2026)
+
+The editor has a top-level **VFX** tab (`Workspace::Vfx`, between Animation and Game), built as the user decided: effects are made in Effekseer, the tab manages and previews them.
+
+- **Effects**: every `.efkproj` and `.efkefc` of the project. Picking one cooks it and plays it in a loop in the preview.
+- **New effect**: a name, and Create. The new effect is a copy of the placeholder spark under `content/vfx/`, adopted as an asset, so there is something to open and change. (Effekseer's "new project" cannot be started from the command line with a file name that does not exist yet.)
+- **Edit in Effekseer**: opens the selected source in the Effekseer editor from `.tools`. The tab looks at the source file every half second; when it changes on disk (what saving in Effekseer does) the effect is cooked again and the preview restarts with the new version. **Cook again** and **Restart** do the same by hand.
+- **Refusals**: when the cooker refuses the effect (a feature the renderer does not draw, a missing texture, a project Effekseer cannot compile) the tab shows the cooker's sentence in red and keeps previewing the last version that cooked.
+- **Preview**: drawn by `VfxService` into the scene render target, at the origin of the open scene, with turn, distance and height sliders. Particle, quad and draw counts are shown, and skipped batches if there are any.
+
+Limits: the preview stands in the open scene rather than in an empty stage, and has no attached-to-a-character mode or time scrubber yet; only the source file is watched, not its textures (use Cook again); Import of an existing effect from outside the project still goes through copying the files into `content/vfx` and Create or adoption by hand, the Import dialog does not offer effects; no Delete or Duplicate; the cue form is not here yet (next part).
+
+Verified: editor-only change, so its own gate only. `vfx-tab-d3d12` (new, in `scripts/verify_effect_reaction.py`): the tab opens on the Burn aura, it is cooked, has its texture, plays and draws quads; the source file is then changed on disk and the tab cooks it a second time by itself. The [capture](evidence/vfx-tab-d3d12.png) was looked at. While building the gate a deliberately broken edit also showed the refusal path: the cooker's message appeared and nothing was previewed from the broken version. Not verified: the Edit in Effekseer button itself (it starts a GUI program; the gate does not click it), Create, and a real save from Effekseer rather than a file change.
