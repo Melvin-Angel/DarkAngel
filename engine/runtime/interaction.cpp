@@ -24,7 +24,7 @@ InteractableDefinition decode_interactable(std::string_view text){
     validate_interactable(result);return result;
 }
 const char* interaction_result_text(InteractionResult result){
-    switch(result){case InteractionResult::Accepted:return "Accepted";case InteractionResult::Unknown:return "No such interactable";case InteractionResult::OutOfReach:return "Out of reach";case InteractionResult::Unavailable:return "Not available";case InteractionResult::Dead:return "The player is dead";}
+    switch(result){case InteractionResult::Accepted:return "Accepted";case InteractionResult::Unknown:return "No such interactable";case InteractionResult::OutOfReach:return "Out of reach";case InteractionResult::Unavailable:return "Not available";case InteractionResult::Dead:return "The player is dead";case InteractionResult::UsedUp:return "Used up";}
     return "Unknown result";
 }
 WorldInteractable::WorldInteractable(InteractableDefinition definition,MotorVec position):definition_(std::move(definition)),position_(position){

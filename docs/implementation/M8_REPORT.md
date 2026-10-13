@@ -1,6 +1,6 @@
 # M8: world state, inventory, scene transitions and co-op progression
 
-Rewritten 13 October 2026 from the user's M8 brief ([M8_BRIEF.md](M8_BRIEF.md), verbatim). This is the plan that opens M8. Nothing in it is built and nothing is Verified. **Do not start building until the M7 session that was running on 12–13 October has finished and committed**; then begin with stage 1 below.
+Rewritten 13 October 2026 from the user's M8 brief ([M8_BRIEF.md](M8_BRIEF.md), verbatim). This is the plan that opens M8. Stage 1a is built (see "Stage 1a: built" at the end); the rest is not, and nothing is Verified.
 
 The first version of this note (12 October, commit `1e14572`, "saves and campaign loop") asked eight questions. The brief answers most of them and widens M8; the mapping is in "What the brief settled". Its persistence-service design (decision DAE-020) is kept and moved into stage 3.
 
@@ -305,3 +305,80 @@ Not shown by stage 1a: any separate process, any delay. Those are 1b's gates.
 - **S2. Building here.** This session reaches the project through a Linux shell and cannot run MSVC, CMake, CTest or the D3D12 gates. Building and verifying need computer use of a PowerShell window on the user's PC (logs read back from here), the user running a runner script, or a Claude Code session running on the PC itself.
 
 **User answers (13 October 2026):** S1: 1a then 1b, as recommended; 1b comes before stage 2. S2: building and verification continue in a Claude Code session running natively on the PC. Nothing of stage 1 is built; the design above is the next session's starting point.
+
+## Stage 1a: built (13 October 2026)
+
+Stage 1a of the design above is built: the host and client halves are separate, the host half carries a party, the world ledger exists, and the party travels between scenes through one coordinator. Everything below ran in **one process, over in-process loopback, in lockstep**. Nothing here is evidence about separate processes, delay, loss or two machines; that is stage 1b and later.
+
+### What was built
+
+**The split.** `CharacterSceneSession` was one object holding a host and one client. It is now three:
+
+- `SceneAuthority` (`engine/runtime/scene_authority.*`): the server `WorldSession`, authoritative physics, the party members' characters, actors, world events, interactables, trigger volumes, encounters, sensing and controllers.
+- `SceneClient` (`engine/runtime/scene_client.*`): the client `WorldSession`, the prediction world, owner motor and ability prediction, observers and poses of every other character, effect views, cue and footstep trackers, the owner's pose and the interaction prompt.
+- `CharacterSceneSession`: the composition the editor and tests use, with the public API it had. It owns one authority and one client per local player, each client on its own loopback pair, and steps them in lockstep.
+
+A client no longer reads any host state. It learns which characters exist from its replicated world, and what they are (attributes, hostile or not) from the same prepared scene content the host was built from, including the enemies an encounter can spawn (their identities are derived from the encounter, so the client can name them without being told). It keeps its own collision history from the frames it received, where it used to replay against the host's. Its own pose follows its confirmed motor state from the wire. The existing scene tests passed unchanged on this.
+
+**N players.** Authority holds up to four party members. What named the one player is now per member: interactions are resolved for the member that asked; trigger volumes and an encounter's enter trigger fire for any living member; spawn placement, sensing, NPC soft lock and aim lead consider every member. Members share the party's faction, so they cannot hurt each other. Every member takes one of the session's 33 character places. Members are created with the session: a member cannot join a session that is already running (the party travels and enters scenes together; stage 1b's party channel sits above scene sessions).
+
+One addition the design did not list: when a single-use interactable is spent, authority tells the other members' clients (a notice with the result `UsedUp` on the existing interaction answer path), so they stop offering it. The same notice is sent when a session is built with an interactable already spent in the ledger.
+
+**The second local player in the editor.** The Game tab has a Players setting (1 to 4). With more than one, Play builds the party in formation around the scene's player object, shows a second Game viewport from player 2's own client (its world, its poses, its camera, its HUD values), and draws the other players in each view. A click in a viewport gives that player the keyboard and mouse. For gates, `--players N` and `--input-script "walk-to:x,z;interact;wait:n;await-scene:n"` drive player 2, and `--player-script` drives player 1 the same way.
+
+**The world ledger** (`engine/runtime/world_ledger.*`): values under `{scene asset, object StableId}`, a nil scene for party-level facts. A property is a bool, integer, real, text or transform with a policy written beside it: scope (session or save) and any of three reset triggers (scene entry, rest, party wipe). Objects reach it through one interface (`PersistentObject`: `kind`, `capture`, `restore`). Resets run in a fixed order (scene, kind, object, property) and are idempotent; they work on scenes that are not loaded, because the ledger never knew what was loaded. Serialization is versioned JSON sorted by identity; a newer container is refused; a record of an unknown kind or a newer schema is kept verbatim, reported, and never written, restored from or reset.
+
+What uses it now, with the default policies of the design:
+
+| Object | Recorded | Policy |
+|---|---|---|
+| Single-use interactable | `used` | save, never resets |
+| Once-only trigger volume | `fired` | save, never resets |
+| Encounter | `completed`, or `started` while it runs | save, resets on rest and party wipe |
+| Scene actor (a spawn point's NPC, a placed dummy) | `defeated` | save, resets on rest and party wipe |
+
+Authority writes in the tick of the change and captures the whole scene again when it is unloaded; it restores before the first tick. A defeated scene actor is not created. `started` is an addition to the design: without it, an encounter started by a single-use lever could never start again after the scene was left mid-fight (the lever stays used, the encounter waits). An encounter recorded as started starts again from its first wave when the scene is built; it is not resumed mid-wave.
+
+**Scene travel.**
+
+- A **Scene Entry Point** is a scene object with an `"entry": {"name"}` component; its stable identity is the destination identifier. A **Scene Transition Trigger** is an object with a `"transition"` component: destination scene asset, optional entry point, `enter` (any living member walks into its box) or `interact` (a member uses it on purpose, offered on the HUD like an interactable). Both are in the Place panel (Gameplay), have Inspector sections (the transition's destination scene and entry point are picked from the project's scenes) and viewport gizmos.
+- `SceneTransitionCoordinator` (`engine/runtime/scene_transition.*`) owns the running session. Phases, one step per update: Requested, Preparing, Validating, Capturing, Swapping, Placing, Awaiting ready, Resumed. A failure before the swap cancels and the source session never stopped. A failure during the swap builds the source scene again from the ledger, the party where it last came in. If that fails too, Play ends and says so. A request during another is refused. The party arrives in formation: the first member on the point, the others on a 1.2 m ring starting behind it, each put on the ground and moved out when a body stands there.
+- `SceneProvider` turns a scene asset into a `PreparedScene` over several polls. The editor's provider is Play's own preparation run for the destination scene: it opens the destination's document, packages and uploads its resources and builds its Preview world. The editor's document, resources and uploaded models then belong to the destination; the authoring document is set aside and comes back at Stop.
+- **Loading screen**: a panel in the game's own HUD document (`games/AshenRoots/ui/hud.rml`), bound to three view-model fields, shown in every player's view from Requested to Resumed, at least 0.3 s. It is in the HUD document and not a document of its own because RmlUi allows one `Hud` at a time in this build; for the same reason both viewports are drawn from the one `Hud`, laid out twice a frame.
+
+### What was tested
+
+Headless, all pass:
+
+- `WorldLedgerTests` (`M8.world_ledger`): write, read, erase; capture and restore through the interface with a policy per property; reset order, idempotence and a reset of an unloaded scene; JSON round trip; newer container refused; malformed input refused; unknown kind and newer schema kept verbatim and untouched by capture, write and reset.
+- `PartySceneTests` (`M8.party_scene`): two players each predicted and corrected and presented by the other's client; player 2 pulls a lever, authority answers player 2 only, player 1's client stops offering it and is refused when it tries; a trigger volume and an encounter's enter trigger fire for player 2; a guard senses both and attacks the nearer; one player's swing does not damage the other; player 2's own swing hits a hostile and is paid from its own Stamina; 34 characters and a fifth player are refused.
+- `SceneTransitionTests` (`M8.scene_transition`), with a provider that builds scenes in code: phase order; the loading minimum; both players at the entry formation; walk-in and used-on-purpose triggers, the second from player 2; a used lever, a completed encounter and a defeated actor restored on the way back, without their events being emitted again; a rest while the party is elsewhere resetting the encounter and the actor of the unloaded scene and not the lever; a running encounter starting again; a missing scene, a missing entry and a scene the party does not fit cancelled with the source still running; a failed swap rebuilding the source; a request during another refused; the component decoders.
+- The existing scene tests (`CharacterSceneTests`, `CharacterCombatSceneTests` and the others that build a session) unchanged.
+
+Editor gates (D3D12, hidden editor, captures looked at):
+
+- `two-players-d3d12`: Play of the lever scene with two local players; player 2 walks round player 1 to the lever and uses it; authority accepts for player 2; both viewports and both HUDs are drawn.
+- `transition-place-d3d12`: an entry point and a return trigger placed in the temple scene through the Place panel's items and a scene edit, then saved.
+- `transition-d3d12`: the gate scene's entry point and walk-in trigger placed the same way; player 1 pulls the lever and walks in; the party arrives at the temple's entry point; player 2 uses the way back; the party is in the gate scene again with the lever still used and one ledger record.
+- `transition-loading-d3d12`: the loading panel held open, in both views.
+- `transition-missing-d3d12` and `transition-no-entry-d3d12`: a destination that is not in the project, and an entry point the destination does not have. The second is only found after the editor has prepared the destination, so the editor has to follow the party back to the scene it is in; the lever is then used to show Play still works.
+
+Results of the full pass on the committed tree (13 October 2026): full build with only the known `RoyalCollisionTests` link failure; **CTest 98 of 100** (`M4.royal_mesh_collision`, the known link failure; `M5.attribute_authoring` hit its 90 s CTest limit and passes when run directly, in about 105 s on this machine today; it does not link the scene library, and `M5.native_authoring` took 14 minutes in the same run); **all 67 verify gates pass**. An earlier pass of this stage was spoiled by my editing `games/AshenRoots/ui/hud.rml` while it ran, and was discarded and repeated.
+
+### What was not tested, and limits
+
+- **No separate process, no delay, no loss.** Both clients are stepped in lockstep with the host in one process. A client that lags, a client loading a destination on its own and acknowledging, and two processes over UDP are stage 1b.
+- The design's gate scene pair was RoyalTraining and RoyalVillage. The gates use two scenes on the training layout instead (each its own scene asset), because **a scene does not name its collision asset**: Play takes one from the command line, and the editor's provider uses that same asset for every scene. A destination whose placements the asset does not match fails its preparation and the party stays where it is. Travel between differently built scenes needs the scene to name its collision (see the questions).
+- The second swap-failure path (the source cannot be rebuilt either, Play ends) is written and not exercised by a test.
+- In the editor, interactive control of player 2 (click its viewport, then keyboard and mouse) was not tried by hand; gates drive it by script. Gamepad assignment to a player is not built. Player 2's view has no target bar and no worn mask drawn.
+- The entry point and transition Inspector sections and the destination pickers were not looked at; the gates set the components through the same scene edit the Inspector makes.
+- While the party travels, the editor draws no scene objects under the loading panel, because its document and resources may already be the destination's.
+- The first member's identity is the scene's player object, which differs between scenes; companions keep theirs (`party_member(seat)`). Per-player inventories in stage 2 need a member identity that does not depend on the scene.
+- An encounter recorded as started restarts when its scene is built; if a rest erases that record while the single-use lever that started it stays used, it waits for an event that will not come. That is an authored-policy matter the per-object policies of stage 5 address; until then such a lever should be repeatable.
+- Members enter with the session. Nothing joins or leaves a running session yet.
+- Scene files saved in the manifest-and-records form are found by the provider only if their manifest carries the `root` key; this was not checked against such a file.
+
+### Questions for the user
+
+- **Q1. Which collision does a scene use?** Proposal: a scene object names the scene's collision asset, the way one object names its audio profile today, with a "Use for this scene" control; Play and the transition provider read it, and the command-line flag stays as an override for gates. Agree?
+- **Q2. Stage 1b before stage 2, as decided.** It starts with the delay-tolerant `SceneClient` (own clock, inputs kept until acknowledged, reconciliation against older corrections). No decision needed unless the order should change.

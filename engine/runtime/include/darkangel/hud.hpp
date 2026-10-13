@@ -22,6 +22,8 @@ struct HudViewModel {
     bool crosshair{};
     // What the nearest interactable in reach offers; empty when there is none.
     std::string prompt;
+    // The party is travelling between scenes: a full-screen loading panel with a status line and progress 0 to 1.
+    bool loading{};std::string loading_text;double loading_progress{};
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

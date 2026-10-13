@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/character_scene.hpp>
+#include <darkangel/scene_transition.hpp>
 #include <darkangel/character_presentation.hpp>
 #include <darkangel/animation_assets.hpp>
 #include <darkangel/actor_assets.hpp>
@@ -47,5 +48,8 @@ private:AnimationGraphInstance graph_;RigPose pose_;GraphPoseInputs inputs_;Grap
 struct AuthoredGraphPose {CookedCharacter character;CookedGraph graph;std::unique_ptr<GraphPosePreview> pose;};
 AuthoredGraphPose prepare_authored_graph_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId graph);
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view clips,const RuntimeSkinnedModel&,StableId player={},const std::map<StableId,AssetId>& spawns={},AssetId collision={},const std::set<AssetId>& encounter_npcs={});
-std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&,const std::function<std::shared_ptr<ActorController>(const PreparedSpawn&,const CollisionDefinition&)>& controller={});
+// Everything a scene session is built from, for the open scene as Play sees it. The scene asset is the caller's to name.
+PreparedScene prepare_character_scene(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&,const std::function<std::shared_ptr<ActorController>(const PreparedSpawn&,const CollisionDefinition&)>& controller={});
+// The session itself. companions: further local players, in formation around the scene's player object.
+std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&,const std::function<std::shared_ptr<ActorController>(const PreparedSpawn&,const CollisionDefinition&)>& controller={},std::span<const StableId> companions={});
 }

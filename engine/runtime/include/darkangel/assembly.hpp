@@ -20,6 +20,9 @@ struct SpawnPlan {
     struct Volume {StableId encounter;std::array<double,3> half{};};
     // interactables hold the object's validated "interactable" component JSON; the object may also be a placed model.
     std::map<StableId,std::string> interactables;
+    // Party travel: entries and transitions hold the object's validated "entry" and "transition" component JSON. A
+    // transition names its destination entry by that entry's identity in the destination scene's own plan.
+    std::map<StableId,std::string> entries,transitions;
     // Splines hold the object's validated "spline" component JSON; a spline point names its spline and its place in the order.
     struct SplinePoint {StableId spline;unsigned index{};};
     std::map<StableId,std::string> splines;std::map<StableId,SplinePoint> spline_points;
@@ -37,6 +40,9 @@ SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources
 StableId spawned_actor(StableId spawn_point);
 // Identity of the index-th enemy an encounter spawns. Derived from the encounter alone, so every Play of a scene has the same enemies.
 StableId encounter_actor(StableId encounter,unsigned index);
+// Identity of a party member beyond the first (seat 1 to 3) while players have no profile of their own. The first
+// member is the scene's player object.
+StableId party_member(unsigned seat);
 // The stable identity of one scattered instance of a spline. Derived: there is no scene object behind it.
 StableId scatter_instance(StableId spline,unsigned index);
 struct ScriptDefinition {ScriptDescriptor descriptor;std::string cooked;};

@@ -19,8 +19,9 @@ struct InteractableDefinition {std::string prompt,event,requires_tag;double radi
 void validate_interactable(const InteractableDefinition&);
 // Decodes and validates the "interactable" component of a scene object.
 InteractableDefinition decode_interactable(std::string_view json);
-// How authority answered one request.
-enum class InteractionResult:std::uint8_t{Accepted,Unknown,OutOfReach,Unavailable,Dead};
+// How authority answered one request. UsedUp is not an answer: authority tells every other party member with it that a
+// single-use interactable is spent, so their clients stop offering it.
+enum class InteractionResult:std::uint8_t{Accepted,Unknown,OutOfReach,Unavailable,Dead,UsedUp};
 const char* interaction_result_text(InteractionResult);
 class WorldInteractable {
 public:
@@ -33,6 +34,8 @@ public:
     // and in reach, the interactable is not used up and its required tag is held.
     InteractionResult use(WorldEvents& world,MotorVec player,bool player_alive);
     unsigned used()const{return used_;}
+    // Persistent state from the world ledger, before the first tick.
+    void restore(unsigned used){used_=used;}
 private:InteractableDefinition definition_;MotorVec position_{};unsigned used_{};
 };
 }

@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39mEditor placement on_collision=1 surface_y=0.5
-Place panel items=65 categories=5 placed_npc=royal_archer placed_model=SM_RC_MudHut_Round_1F objects=5->6 delete_undo_redo=1
+Place panel items=67 categories=5 placed_npc=royal_archer placed_model=SM_RC_MudHut_Round_1F objects=5->6 delete_undo_redo=1
 [39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201860000
 [39mViewport foreground pixels=865867 capture=C:\DarkAngel\docs\implementation\evidence\place-panel-d3d12.png
 DarkAngel editor rendered 5 frames with d3d12

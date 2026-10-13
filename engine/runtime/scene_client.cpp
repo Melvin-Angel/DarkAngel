@@ -224,7 +224,10 @@ struct SceneClient::Impl {
     // Authority's answers to the owner's interaction requests; an accepted single-use interactable is no longer offered.
     void settle(std::uint64_t tick){
         if(!combat)return;
-        for(const auto& notice:client.drain_interaction_receipts()){interaction_outcome=InteractionOutcome{notice.object,static_cast<InteractionResult>(notice.result),tick};if(interaction_outcome->result==InteractionResult::Accepted)for(const auto& item:combat->interactables)if(item.id==notice.object&&item.definition.once)interactables_seen_used.insert(notice.object);}
+        for(const auto& notice:client.drain_interaction_receipts()){
+            // Not an answer: another member spent a single-use interactable, or it was spent before this session.
+            if(static_cast<InteractionResult>(notice.result)==InteractionResult::UsedUp){interactables_seen_used.insert(notice.object);continue;}
+            interaction_outcome=InteractionOutcome{notice.object,static_cast<InteractionResult>(notice.result),tick};if(interaction_outcome->result==InteractionResult::Accepted)for(const auto& item:combat->interactables)if(item.id==notice.object&&item.definition.once)interactables_seen_used.insert(notice.object);}
     }
 };
 SceneClient::SceneClient(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> party,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::shared_ptr<const CharacterSceneCombat> combat)
@@ -303,6 +306,8 @@ AimSolution SceneClient::aim(MotorVec camera,MotorVec direction,double range,Mot
 std::optional<InteractionPrompt> SceneClient::interaction_prompt()const{
     const auto& p=*impl_;if(!p.combat)return std::nullopt;const auto& self=p.owner_motor->state().position;std::optional<InteractionPrompt> best;double nearest{};
     for(std::size_t index=0;index<p.reach.size();++index){const auto& item=p.combat->interactables[index];if(p.interactables_seen_used.contains(item.id)||!p.reach[index].reaches(self))continue;const double dx=self.x-item.position.x,dy=self.y-item.position.y,dz=self.z-item.position.z,distance=dx*dx+dy*dy+dz*dz;if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
+    // A scene transition used on purpose is offered the same way.
+    for(const auto& item:p.combat->transitions){if(item.definition.activation!=TransitionActivation::Interact)continue;const double dx=self.x-item.center.x,dy=self.y-item.center.y,dz=self.z-item.center.z,distance=dx*dx+dy*dy+dz*dz;if(distance>item.definition.radius*item.definition.radius)continue;if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
     return best;
 }
 const InteractionOutcome* SceneClient::last_interaction()const{return impl_->interaction_outcome?&*impl_->interaction_outcome:nullptr;}

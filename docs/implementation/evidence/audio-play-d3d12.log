@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
-[39mViewport foreground pixels=869182 capture=C:\DarkAngel\docs\implementation\evidence\audio-play-d3d12.png
+[39mViewport foreground pixels=869178 capture=C:\DarkAngel\docs\implementation\evidence\audio-play-d3d12.png
 Editor audio workspace=0 waves=6 definitions=3 profiles=2 mixers=1 driver=null loaded=6 playing=4 started=5 audition=0 bus_music=1 bus_ambient=1 bus_npc=0.25 limit=0 director=1 profile=bd4a032e-5a41-41f1-bde1-6c3b00e54d09 music=cba7e107-c2f9-4352-9a9d-f30fa3cf083a ambient=1 layers=0 missing=0
 Native character editor tick=40 foot=0,0.499999,5.95834 graph_phase=0.164755 pending=0
 DarkAngel editor rendered 40 frames with d3d12

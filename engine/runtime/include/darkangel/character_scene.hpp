@@ -12,7 +12,7 @@ public:
     // companions: further local players, each with its own client. They enter with the session; at most
     // scene_party_limit players in all.
     CharacterSceneSession(SessionHandshake,std::span<const ObjectData>,StableId player,
-        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {},std::span<const ScenePlayer> companions={});
+        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {},std::span<const ScenePlayer> companions={},const SceneStart& = {});
     ~CharacterSceneSession();
     CharacterSceneSession(const CharacterSceneSession&)=delete;
     unsigned advance(double seconds,CharacterSceneInput);
@@ -23,6 +23,10 @@ public:
     // The two halves. players() lists the party in seat order; client(player) is null for an unknown player.
     std::span<const StableId> players()const;
     const SceneAuthority& authority()const;
+    // Party travel a scene transition trigger raised on the latest tick, handed over once; and every persistent
+    // object of the scene into the world ledger, as an unload does. Both are authority's.
+    std::optional<SceneTransitionRequest> take_transition();
+    void capture();
     const SceneClient* client(StableId player)const;
     SceneClient* client(StableId player);
     void remove_collision(std::uint64_t);

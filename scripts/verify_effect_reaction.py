@@ -186,6 +186,39 @@ lever_entities['00000000000000000000000000000008']['encounter']['trigger']={'eve
 (source/'royal_district/RoyalLever.dascene').write_text(json.dumps(lever_source,indent=2)+chr(10))
 log=run('interaction-d3d12',scene(guarded,'RoyalLever.dascene')+['--exercise-interaction','--frames','200','--capture',EVIDENCE/'interaction-d3d12.png'])
 if not('Editor interaction asked=1 result=Accepted used=1 ' in log and 'lever.pulled' in log):raise RuntimeError('Editor Play did not use the lever through the server: '+log[-400:])
+# Two local players in one Play of the lever scene: one authority, a client per player on its own loopback pair, a Game viewport each.
+# The second player is driven by a script: it walks round the first to the lever and uses it; authority answers the second player only.
+# One process in lockstep: this shows the party's gameplay rules and the second view, and nothing about separate processes or delay.
+log=run('two-players-d3d12',scene(guarded,'RoyalLever.dascene')+['--players','2','--exercise-two-players','--input-script','walk-to:1.5,0;walk-to:0.8,3.6;interact;wait:20','--frames','200','--capture',EVIDENCE/'two-players-d3d12.png'])
+if not('Editor two_players tick=200 players=2 viewports=2 ' in log and 'second_result=Accepted used=1 first_asked=0 ' in log and 'lever.pulled' in log):raise RuntimeError('Editor Play did not run two local players: '+log[-400:])
+# Scene transitions with two local players. Two scenes on the training layout, each its own scene asset: the gate (a lever) and the temple.
+# The temple's entry point and its return trigger (used on purpose) are placed and saved through editor commands; then the gate's entry
+# point and walk-in trigger are placed the same way and Play starts. Player 1 pulls the lever and walks into the trigger, the party
+# arrives at the temple's entry point, player 2 uses the way back, and the lever is still used from the world ledger. One process in lockstep.
+import uuid
+def travel_scene(root,lever):
+    made=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());old=made['root'];made['root']=root;made['sources'][root]=made['sources'].pop(old);made['sources'][root]['asset']=root
+    if lever:made['sources'][root]['entities']['0000000000000000000000000000000a']=gameplay_entity('Gate lever',0.0,5.0,interactable={'prompt':'Pull the lever','event':'lever.pulled','radius':2.0,'once':True})
+    return made
+gate_root=str(uuid.uuid4());temple_root=str(uuid.uuid4())
+(source/'royal_district/RoyalGate.dascene').write_text(json.dumps(travel_scene(gate_root,True),indent=2)+chr(10));(source/'royal_district/RoyalTemple.dascene').write_text(json.dumps(travel_scene(temple_root,False),indent=2)+chr(10))
+log=run('transition-place-d3d12',scene(guarded,'RoyalTemple.dascene')+['--exercise-travel-place','--travel-scene',gate_root,'--frames','6','--capture',EVIDENCE/'transition-place-d3d12.png'])
+if 'Editor travel_place scene='+temple_root not in log or 'entries=1 transitions=1' not in log:raise RuntimeError('The editor did not place and save a scene entry point and a scene transition: '+log[-400:])
+temple_entry=[part.split('=')[1] for part in [l for l in log.splitlines() if 'Editor travel_place ' in l][-1].split() if part.startswith('entry=')][0]
+def travel(log):
+    line=[l for l in log.splitlines() if 'Editor transition ' in l][-1];return dict(part.split('=',1) for part in line[line.index('Editor transition ')+18:].split())
+travelling=scene(guarded,'RoyalGate.dascene')+['--players','2','--exercise-transition','--travel-scene',temple_root,'--travel-entry',temple_entry]
+log=run('transition-d3d12',travelling+['--player-script','walk-to:0,3.8;interact;wait:10;walk-to:3,3;walk-to:6,3;await-scene:2;wait:40','--input-script','await-scene:1;wait:20;interact;await-scene:2;wait:40','--frames','420','--capture',EVIDENCE/'transition-d3d12.png']);seen=travel(log)
+if not(seen['arrivals']=='2' and seen['failures']=='0' and seen['players']=='2' and seen['scene']==gate_root and seen['document']==gate_root and seen['lever_used']=='1' and seen['ledger_records']=='1' and seen['phase']=='Idle' and int(seen['overlay_frames'])>=36 and seen['pending']=='0'):raise RuntimeError('The party did not travel to the temple and back with the lever still used: '+str(seen))
+# The loading panel, held open: the party is in the temple, input is held and both views show the panel.
+log=run('transition-loading-d3d12',travelling+['--travel-hold','100','--player-script','walk-to:3,3;walk-to:6,3','--frames','160','--capture',EVIDENCE/'transition-loading-d3d12.png']);seen=travel(log)
+if not(seen['phase']=='Awaiting_ready' and seen['loading']=='1' and seen['scene']==temple_root and seen['arrivals']=='0'):raise RuntimeError('The loading panel was not shown while the party waited in the destination: '+str(seen))
+# Failures leave the party where it is, still playing: a destination that is not in the project, and an entry point the destination does not have
+# (found only after the editor has prepared the destination, so the editor has to follow the party back).
+log=run('transition-missing-d3d12',scene(guarded,'RoyalGate.dascene')+['--players','2','--exercise-transition','--travel-scene',str(uuid.uuid4()),'--player-script','walk-to:3,3;walk-to:6,3;await-scene:1;walk-to:0,3;wait:20','--frames','220','--capture',EVIDENCE/'transition-missing-d3d12.png']);seen=travel(log)
+if not(seen['arrivals']=='0' and seen['failures']=='1' and seen['scene']==gate_root and seen['document']==gate_root and seen['tick']=='220' and 'No_scene_with_the_identity' in seen.get('failure','')):raise RuntimeError('A missing destination scene did not leave the party playing where it was: '+str(seen))
+log=run('transition-no-entry-d3d12',scene(guarded,'RoyalGate.dascene')+['--players','2','--exercise-transition','--travel-scene',temple_root,'--travel-entry','000000000000000000000000000000ff','--player-script','walk-to:3,3;walk-to:6,3;await-scene:1;walk-to:0,3.8;interact;wait:20','--frames','260','--capture',EVIDENCE/'transition-no-entry-d3d12.png']);seen=travel(log)
+if not(seen['arrivals']=='0' and seen['failures']=='1' and seen['scene']==gate_root and seen['document']==gate_root and seen['tick']=='260' and seen['lever_used']=='1' and 'no_entry_point' in seen.get('failure','')):raise RuntimeError('A missing entry point did not bring the editor back to the scene the party is in: '+str(seen))
 # Splines and scatter: the training scene with a four-point spline that scatters one of the scene's own hut models along it.
 spline_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());spline_entities=spline_source['sources'][spline_source['root']]['entities']
 hut=[entity['model'] for entity in spline_entities.values() if entity.get('model') and 'MudHut' in entity.get('name','')][0]

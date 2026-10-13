@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <darkangel/interaction.hpp>
 #include <darkangel/spline.hpp>
+#include <darkangel/scene_travel.hpp>
 #include <commdlg.h>
 #include "editor_ui.hpp"
 #include "editor_theme.hpp"
@@ -37,9 +38,18 @@ std::string npc_label(const Controller& editor,AssetId npc){for(const auto& asse
 // Components of scene objects in the scene's own source: encounters, their volumes, trigger volumes, a spawn point's encounter.
 nlohmann::json entity_source(const Controller& editor,StableId object){auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));return graph.at("entities").at(object_local(editor,object));}
 void set_component(Controller& editor,StableId object,const char* key,nlohmann::json value,const char* message){auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));auto& entity=graph.at("entities").at(object_local(editor,object));if(value.is_null())entity.erase(key);else entity[key]=std::move(value);commit_scene(editor,graph,message);}
+// Every scene file of the project with its asset identity and its entry points. A scene that does not open is left out.
+std::vector<Shell::TravelScene> list_travel_scenes(const Controller& editor){
+    std::vector<Shell::TravelScene> found;if(!editor.assets)return found;const auto root=editor.assets->source_root();std::error_code failed;
+    for(std::filesystem::recursive_directory_iterator file(root,failed),end;!failed&&file!=end;file.increment(failed)){if(!file->is_regular_file()||file->path().extension()!=".dascene")continue;
+        try{const auto document=EditorDocument::open(file->path());Shell::TravelScene scene;scene.id=document->root();scene.path=std::filesystem::relative(file->path(),root).generic_string();for(const auto& [entry,json]:document->plan().entries){std::string label=decode_entry(json).name;for(const auto& origin:document->plan().origins)if(origin.object==entry)label=origin.name+" ("+label+")";scene.entries.emplace_back(entry,label);}found.push_back(std::move(scene));}catch(const std::exception&){}}
+    std::sort(found.begin(),found.end(),[](const auto& a,const auto& b){return a.path<b.path;});return found;
+}
 std::string object_name(const Controller& editor,StableId object){for(const auto& origin:editor.document->plan().origins)if(origin.object==object)return origin.name;return "(missing)";}
 // A text field that commits when Enter is pressed or the field is left after an edit.
 bool committed_text(const char* label,std::string& value){char buffer[64]{};strncpy_s(buffer,value.c_str(),_TRUNCATE);const bool entered=ImGui::InputText(label,buffer,sizeof(buffer),ImGuiInputTextFlags_EnterReturnsTrue);if(entered||ImGui::IsItemDeactivatedAfterEdit()){if(value==buffer)return false;value=buffer;return true;}return false;}
+// The Scene transition section keeps the list it read until Refresh.
+std::vector<Shell::TravelScene> travel_scenes;bool travel_scenes_listed=false;
 // Inspector sections for the gameplay components of the selected object. Every edit is a scene edit: one Undo step, saved with the scene.
 void draw_components(Controller& editor,StableId object){
     const auto& plan=editor.document->plan();const bool playing=editor.preview.active()!=nullptr;
@@ -97,6 +107,30 @@ void draw_components(Controller& editor,StableId object){
         auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("trigger");auto name=value["event"].get<std::string>();ImGui::SetNextItemWidth(180);if(committed_text("World event",name))value["event"]=name;bool once=value.value("once",true);if(ImGui::Checkbox("Only the first time",&once))value["once"]=once;half_fields(value["half"]);ImGui::TextWrapped("Emits its world event when the player walks into this box. An encounter that starts on that event starts a tick later.");ImGui::PopID();ImGui::EndDisabled();
         if(value!=before){action(editor,[&]{decode_trigger(value.dump());set_component(editor,object,"trigger",value,"Edited the trigger volume.");});return;}
     }
+    if(auto found=plan.entries.find(object);found!=plan.entries.end()&&ImGui::CollapsingHeader("Scene entry point",ImGuiTreeNodeFlags_DefaultOpen)){
+        auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("entry");auto name=value["name"].get<std::string>();ImGui::SetNextItemWidth(220);if(committed_text("Name",name))value["name"]=name;ImGui::PopID();ImGui::EndDisabled();
+        ImGui::TextWrapped("A party arrives here, the first player on this point and the others around it, facing the way this object faces. A scene transition names it by its identity:");ImGui::TextDisabled("%s",object.text().c_str());ImGui::SameLine();if(ImGui::SmallButton("Copy##entry-id"))ImGui::SetClipboardText(object.text().c_str());
+        if(value!=before){action(editor,[&]{decode_entry(value.dump());set_component(editor,object,"entry",value,"Edited the scene entry point.");});return;}
+    }
+    if(auto found=plan.transitions.find(object);found!=plan.transitions.end()&&ImGui::CollapsingHeader("Scene transition",ImGuiTreeNodeFlags_DefaultOpen)){
+        auto value=nlohmann::json::parse(found->second);const auto before=value;ImGui::BeginDisabled(playing);ImGui::PushID("transition");
+        // Destinations are the project's scenes and their entry points, read when the section is first shown and on Refresh.
+        if(!travel_scenes_listed){travel_scenes=list_travel_scenes(editor);travel_scenes_listed=true;}
+        const auto current_scene=value["scene"].get<std::string>();const std::string current_entry=value.value("entry",std::string());std::string scene_label=current_scene,entry_label=current_entry.empty()?"The scene's own start":current_entry;
+        for(const auto& known:travel_scenes)if(known.id.text()==current_scene){scene_label=known.path;for(const auto& [entry,label]:known.entries)if(entry.text()==current_entry)entry_label=label;}
+        if(current_scene==editor.document->root().text()){scene_label="This scene";for(const auto& [entry,json]:plan.entries)if(entry.text()==current_entry)entry_label=object_name(editor,entry);}
+        ImGui::SetNextItemWidth(260);if(ImGui::BeginCombo("Destination scene",scene_label.c_str())){
+            for(const auto& known:travel_scenes)if(ImGui::Selectable(known.path.c_str(),known.id.text()==current_scene)&&known.id.text()!=current_scene){value["scene"]=known.id.text();value.erase("entry");}ImGui::EndCombo();}ImGui::SameLine();if(ImGui::SmallButton("Refresh##travel-scenes"))travel_scenes_listed=false;
+        ImGui::SetNextItemWidth(260);if(ImGui::BeginCombo("Entry point",entry_label.c_str())){if(ImGui::Selectable("The scene's own start",current_entry.empty()))value.erase("entry");
+            if(value["scene"].get<std::string>()==editor.document->root().text()){for(const auto& [entry,json]:plan.entries)if(ImGui::Selectable((object_name(editor,entry)+"##"+entry.text()).c_str(),entry.text()==current_entry))value["entry"]=entry.text();}
+            else for(const auto& known:travel_scenes)if(known.id.text()==value["scene"].get<std::string>())for(const auto& [entry,label]:known.entries)if(ImGui::Selectable((label+"##"+entry.text()).c_str(),entry.text()==current_entry))value["entry"]=entry.text();
+            ImGui::EndCombo();}
+        int activation=value["activation"].get<std::string>()=="interact"?1:0;ImGui::SetNextItemWidth(200);if(ImGui::Combo("Activation",&activation,"Walking in\0Used on purpose\0")){value["activation"]=activation?"interact":"enter";if(activation){if(!value.contains("prompt"))value["prompt"]="Travel";}else{value.erase("prompt");value.erase("radius");}}
+        if(activation){auto prompt=value.value("prompt",std::string("Travel"));ImGui::SetNextItemWidth(220);if(committed_text("Prompt",prompt))value["prompt"]=prompt;double radius=value.value("radius",2.0);ImGui::SetNextItemWidth(130);if(ImGui::InputDouble("Reach (m)",&radius,.5,1,"%.2f")&&radius>=.5&&radius<=10)value["radius"]=radius;}
+        half_fields(value["half"]);ImGui::TextWrapped(activation?"A party member standing within reach is offered the prompt; using it sends the whole party to the destination.":"When any living party member walks into this box, the whole party travels to the destination. A party that arrives inside the box is not sent straight back.");
+        ImGui::PopID();ImGui::EndDisabled();
+        if(value!=before){action(editor,[&]{decode_transition(value.dump());set_component(editor,object,"transition",value,"Edited the scene transition.");});return;}
+    }
     if(plan.spawns.contains(object)&&!plan.encounters.empty()){
         auto owner=plan.spawn_owners.find(object);const bool owned=owner!=plan.spawn_owners.end();const std::string label=!owned?"none, spawns at Play start":plan.encounters.contains(owner->second)?object_name(editor,owner->second):"(its encounter was deleted)";ImGui::BeginDisabled(playing);ImGui::SetNextItemWidth(-1);std::optional<nlohmann::json> chosen;
         if(ImGui::BeginCombo("##spawn-encounter",("Encounter: "+label).c_str())){
@@ -114,7 +148,7 @@ void Shell::refresh_place_items(Controller& editor){
     // Rebuilt only when the catalogue changes: an imported model's importer is read from its sidecar once.
     std::size_t signature=editor.asset_inventory.size();for(const auto& asset:editor.asset_inventory)signature=signature*1315423911u+std::hash<std::string>{}(asset.path)+asset.generation;
     if(signature==place_signature&&!place_items.empty())return;place_signature=signature;place_items.clear();if(!editor.assets)return;
-    place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});place_items.push_back({{},"Interactable","Gameplay",false,4});place_items.push_back({{},"Spline","Gameplay",false,5});place_items.push_back({{},"Spline point","Gameplay",false,6});
+    place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});place_items.push_back({{},"Interactable","Gameplay",false,4});place_items.push_back({{},"Spline","Gameplay",false,5});place_items.push_back({{},"Spline point","Gameplay",false,6});place_items.push_back({{},"Scene entry point","Gameplay",false,7});place_items.push_back({{},"Scene transition","Gameplay",false,8});
     for(const auto& asset:editor.asset_inventory){const std::filesystem::path path(asset.path);const auto extension=path.extension().string();
         if(extension==".danpc"){place_items.push_back({asset.id,path.stem().string(),"NPCs",true});continue;}
         if(extension!=".gltf"&&extension!=".glb")continue;
@@ -138,6 +172,9 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
     if(item.gameplay==5){placed=add_object(editor,{{"name","Spline"},{"spline",{{"closed",false}}}},at,"Placed a spline.");const auto owner=object_local(editor,placed);auto second=at;second.x+=4;add_object(editor,{{"name","Spline point"},{"spline_point",{{"spline",owner},{"index",0u}}}},at,"Placed its first point.");add_object(editor,{{"name","Spline point"},{"spline_point",{{"spline",owner},{"index",1u}}}},second,"Placed its second point.");editor.selected=placed;return placed;}
     if(item.gameplay==6){StableId owner=editor.selected;unsigned next=0;{const auto& plan=editor.document->plan();if(auto point=plan.spline_points.find(owner);point!=plan.spline_points.end())owner=point->second.spline;if(!plan.splines.contains(owner))throw std::runtime_error("Select the spline this point belongs to (or one of its points), then place the point");unsigned count=0;for(const auto& [point,info]:plan.spline_points)if(info.spline==owner){++count;next=std::max(next,info.index+1);}if(count>=spline_point_limit)throw std::runtime_error("A spline has at most 32 points");}
         const auto key=object_local(editor,owner);placed=add_object(editor,{{"name","Spline point"},{"spline_point",{{"spline",key},{"index",next}}}},at,"Placed a spline point.");editor.selected=placed;return placed;}
+    // An entry point is where a party arrives; a transition starts out leading to this scene itself until a destination is picked.
+    if(item.gameplay==7){placed=add_object(editor,{{"name","Entry point"},{"entry",{{"name","Entry"}}}},at,"Placed a scene entry point.");editor.selected=placed;return placed;}
+    if(item.gameplay==8){placed=add_object(editor,{{"name","Scene transition"},{"transition",{{"scene",editor.document->root().text()},{"activation","enter"},{"half",nlohmann::json::array({2.0,2.0,1.0})}}}},at,"Placed a scene transition trigger.");editor.selected=placed;return placed;}
     if(item.gameplay==4){placed=add_object(editor,{{"name","Interactable"},{"interactable",{{"prompt","Use"},{"event","object.used"},{"radius",2.0},{"once",true}}}},at,"Placed an interactable.");editor.selected=placed;return placed;}
     if(item.gameplay==3){placed=add_object(editor,{{"name","Trigger volume"},{"trigger",{{"event","trigger.entered"},{"half",nlohmann::json::array({2.0,2.0,2.0})},{"once",true}}}},at,"Placed a trigger volume.");editor.selected=placed;return placed;}
     if(item.npc)placed=add_object(editor,{{"name",item.name+" spawn"},{"spawn",{{"npc",item.id.text()}}}},at,"Placed an NPC spawn point.");
@@ -250,6 +287,7 @@ void Shell::gizmo(Controller& editor,const DirectX::XMFLOAT4X4& view,const Direc
     if(dragging && !using_gizmo){if(!cancelled && draft)action(editor,[&]{auto value=*draft;PropertyChange changes[]={{gesture_object,1,1,value.yaw},{gesture_object,1,2,value.x},{gesture_object,1,3,value.y},{gesture_object,1,4,value.z},{gesture_object,1,5,value.pitch},{gesture_object,1,6,value.roll},{gesture_object,1,7,value.scale}};auto transaction=editor.document->prepare(gesture_revision,changes,scope);editor.document->commit(transaction);editor.log("Committed one transform gesture.");});draft.reset();dragging=false;}
 }
 AssetId scene_audio_profile(const Controller& editor){const auto& held=editor.document->plan().audio_profiles;return held.empty()?AssetId{}:held.begin()->second;}
+void set_scene_transition(Controller& editor,StableId object,AssetId scene,StableId entry,bool interact,std::string_view prompt,double radius){auto value=entity_source(editor,object).at("transition");value["scene"]=scene.text();if(entry)value["entry"]=entry.text();else value.erase("entry");value["activation"]=interact?"interact":"enter";if(interact){value["prompt"]=std::string(prompt);value["radius"]=radius;}else{value.erase("prompt");value.erase("radius");}decode_transition(value.dump());set_component(editor,object,"transition",value,"Edited the scene transition.");}
 void set_scene_audio_profile(Controller& editor,AssetId profile){
     const auto& held=editor.document->plan().audio_profiles;
     if(held.empty()){if(profile!=AssetId{})add_object(editor,{{"name","Scene audio"},{"audio",{{"profile",profile.text()}}}},Transform{},"Set the scene's audio profile.");return;}

@@ -19,6 +19,11 @@ div { display: block; }
 .lock { font-size: 13px; color: #f0c674; margin-top: 4px; text-align: center; }
 #prompt { position: absolute; left: 0px; right: 0px; top: 62%; text-align: center; font-size: 18px; color: #f0e6d2; }
 #state { position: absolute; left: 0px; right: 0px; top: 36%; text-align: center; font-size: 36px; color: #e8dccb; }
+#loading { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: #0b0d11f8; }
+#loading-title { position: absolute; left: 0px; right: 0px; top: 40%; text-align: center; font-size: 30px; color: #e8dccb; }
+#loading-text { position: absolute; left: 0px; right: 0px; top: 50%; text-align: center; font-size: 15px; color: #b9b2a6; }
+#loading-bar { position: absolute; left: 30%; width: 40%; top: 57%; height: 8px; background-color: #1d2128; border: 1px #000000a0; }
+.progress { background-color: #c9a45c; }
 </style>
 </head>
 <body data-model="hud">
@@ -35,6 +40,11 @@ div { display: block; }
 	<div id="stagger" class="caption" data-if="staggered">Staggered</div>
 	<div id="health-bar" class="bar"><div id="health-fill" class="fill health" data-style-width="health_percent + '%'"></div><div id="health-text" class="label">{{health_text}}</div></div>
 	<div id="stamina-bar" class="bar"><div id="stamina-fill" class="fill stamina" data-style-width="stamina_percent + '%'"></div><div id="stamina-text" class="label">{{stamina_text}}</div></div>
+</div>
+<div id="loading" data-if="loading">
+	<div id="loading-title">Travelling</div>
+	<div id="loading-text">{{loading_text}}</div>
+	<div id="loading-bar"><div id="loading-fill" class="fill progress" data-style-width="loading_percent + '%'"></div></div>
 </div>
 </body>
 </rml>

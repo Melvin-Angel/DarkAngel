@@ -58,6 +58,8 @@ public:
     bool step(WorldEvents& world,MotorVec player,bool player_alive);
     bool inside()const{return inside_;}
     unsigned fired()const{return fired_;}
+    // Persistent state from the world ledger, before the first tick.
+    void restore(unsigned fired){fired_=fired;}
 private:TriggerDefinition definition_;EncounterVolume volume_;bool inside_{};unsigned fired_{};
 };
 // One enemy to bring into the session: index counts the encounter's spawns from 0.
@@ -81,10 +83,14 @@ public:
     // How many actors its next spawn needs room for; 0 when it is not about to spawn.
     unsigned need()const;
     EncounterStatus status()const;
+    // Persistent state from the world ledger, before the first tick. Complete: it never runs again and emits nothing.
+    // Running: it had started when the scene was left, so it starts again from its first wave on the next tick,
+    // whatever its trigger. Waiting changes nothing.
+    void restore(EncounterPhase);
 private:
     EncounterSpawn place(AssetId npc,const Ground& ground,const Occupied& occupied,std::span<const EncounterSpawn> placed);
     std::vector<EncounterSpawn> wave(const Ground& ground,const Occupied& occupied);
     EncounterDefinition definition_;std::vector<EncounterVolume> volumes_;std::vector<EncounterPoint> points_;
-    std::uint64_t random_{};EncounterPhase phase_{};bool armed_{};unsigned wave_{},spawned_{},alive_{};std::uint64_t spawned_tick_{},next_spawn_{};
+    std::uint64_t random_{};EncounterPhase phase_{};bool armed_{},resume_{};unsigned wave_{},spawned_{},alive_{};std::uint64_t spawned_tick_{},next_spawn_{};
 };
 }

@@ -11,7 +11,7 @@ struct SceneSeat {StableId id;Transport* transport{};ConnectionHandle peer;Motor
 // In stage 1a it is stepped in lockstep: step(tick) requires every member's motor command for that tick.
 class SceneAuthority {
 public:
-    SceneAuthority(SessionHandshake,std::span<const ObjectData>,std::span<const SceneSeat> party,const CollisionDefinition&,std::shared_ptr<const CharacterSceneCombat>);
+    SceneAuthority(SessionHandshake,std::span<const ObjectData>,std::span<const SceneSeat> party,const CollisionDefinition&,std::shared_ptr<const CharacterSceneCombat>,const SceneStart& = {});
     ~SceneAuthority();
     SceneAuthority(const SceneAuthority&)=delete;
     // One authoritative fixed tick, from receiving the members' commands to publishing the tick's collision frame.
@@ -19,6 +19,10 @@ public:
     // One round of the server session's packet work.
     void pump();
     std::uint64_t tick()const;
+    // Party travel a scene transition trigger raised on the latest tick, handed over once.
+    std::optional<SceneTransitionRequest> take_transition();
+    // Every persistent object of the scene into the world ledger, as an unload does before the scene is destroyed.
+    void capture();
     void remove_collision(std::uint64_t);
     // Party members in seat order, and every character (members, then actors) by network identity.
     std::span<const StableId> party()const;

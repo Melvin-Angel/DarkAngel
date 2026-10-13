@@ -103,6 +103,11 @@ public:
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).
     std::function<void(ImDrawList*,ViewArea)> game_overlay;
+    // The project's scenes and their entry points, as the Scene transition inspector lists them.
+    struct TravelScene {AssetId id;std::string path;std::vector<std::pair<StableId,std::string>> entries;};
+    // Local players of the next Play (1 to 4), and the second player's view while a Play has one: its image, area and
+    // overlay. controls_player is the player the keyboard and mouse drive: the one whose viewport was clicked.
+    int players{1};bool second_view{};ImTextureID game_image_second{};ViewArea area_second;std::function<void(ImDrawList*,ViewArea)> game_overlay_second;int controls_player{};unsigned game_docked_views{};
     // World-space debug drawing over the Scene and Game viewports (NPC senses).
     std::function<void(ImDrawList*,ViewArea)> debug_overlay;
     std::optional<Transform> draft;
@@ -120,5 +125,7 @@ private:
 };
 // The audio profile this scene names (its one object with an "audio" component), and setting it: an ordinary undoable scene edit.
 AssetId scene_audio_profile(const Controller&);
+// Points a placed scene transition trigger at a destination scene and entry point (nil: the scene's own start) as one scene edit.
+void set_scene_transition(Controller&,StableId object,AssetId scene,StableId entry,bool interact,std::string_view prompt="Travel",double radius=2);
 void set_scene_audio_profile(Controller&,AssetId profile);
 }

@@ -111,7 +111,8 @@ unsigned EncounterDirector::need()const{
 std::vector<EncounterSpawn> EncounterDirector::step(std::uint64_t tick,WorldEvents& world,MotorVec player,unsigned alive,const Ground& ground,const Occupied& occupied,unsigned room){
     std::vector<EncounterSpawn> result;alive_=alive;
     if(phase_==EncounterPhase::Waiting){
-        if(!(definition_.trigger_enter?encounter_contains(volumes_,player):world.happened(definition_.trigger_event)))return result;
+        if(!resume_&&!(definition_.trigger_enter?encounter_contains(volumes_,player):world.happened(definition_.trigger_event)))return result;
+        resume_=false;
         phase_=EncounterPhase::Running;if(!definition_.started.empty())world.emit(definition_.started);if(!definition_.tag.empty())world.set_tag(definition_.tag,true);
         if(definition_.mode==EncounterMode::Waves)armed_=true;else next_spawn_=tick;
     }
@@ -128,5 +129,6 @@ std::vector<EncounterSpawn> EncounterDirector::step(std::uint64_t tick,WorldEven
     }
     alive_=alive+unsigned(result.size());return result;
 }
+void EncounterDirector::restore(EncounterPhase phase){require(phase_==EncounterPhase::Waiting&&!spawned_,"An encounter is restored before it has run");if(phase==EncounterPhase::Complete)phase_=EncounterPhase::Complete;else if(phase==EncounterPhase::Running)resume_=true;}
 EncounterStatus EncounterDirector::status()const{return {phase_,definition_.mode==EncounterMode::Waves?wave_+1:0u,definition_.mode==EncounterMode::Waves?unsigned(definition_.waves.size()):0u,spawned_,definition_.enemies(),alive_};}
 }
