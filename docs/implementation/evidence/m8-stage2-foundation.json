@@ -1,0 +1,23 @@
+{
+  "stage": "M8 stage 2 increment 1",
+  "build_exit": 0,
+  "native_tests": {
+    "passed": 6,
+    "total": 6,
+    "log": "m8-stage2-native.log"
+  },
+  "source_hashes": {
+    "engine/runtime/inventory.cpp": "3a5db536b08c46404541653eb34525b464176a021cd71d9b4bad00774878f78c",
+    "engine/runtime/item_definition.cpp": "ad5892555c38edd547a80125d731d9f457e35b8027988df6032a291d6d845dc9",
+    "engine/runtime/include/darkangel/inventory.hpp": "632b43cee054a4812aa8d0e4847e84e8a78e088629fa18bb9a4cf943aa80d79a",
+    "tests/inventory_tests.cpp": "fee82854af31491f0d13f2414b9fb9f94fbc30813c6c0ba5a6297dffd38ad79a"
+  },
+  "not_implemented": [
+    "item CAS cooker/loader",
+    "party inventory host/wire integration",
+    "starting inventories and gameplay mask binding",
+    "Items editor, Grant item and RmlUi inventory",
+    "pickups and atomic ledger/grant integration"
+  ],
+  "qualification": "native domain tests only; no inventory graphical or multiplayer qualification"
+}

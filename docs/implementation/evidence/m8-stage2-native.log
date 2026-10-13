@@ -1,0 +1,21 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+    Start 27: M8.party_scene
+1/6 Test #27: M8.party_scene ...................   Passed    2.38 sec
+    Start 28: M8.scene_delay
+2/6 Test #28: M8.scene_delay ...................   Passed    2.67 sec
+    Start 29: M8.scene_transition
+3/6 Test #29: M8.scene_transition ..............   Passed    2.94 sec
+    Start 83: M8.inventory
+4/6 Test #83: M8.inventory .....................   Passed    0.04 sec
+    Start 84: M8.world_ledger
+5/6 Test #84: M8.world_ledger ..................   Passed    0.11 sec
+    Start 85: M8.party_control
+6/6 Test #85: M8.party_control .................   Passed    0.12 sec
+
+100% tests passed out of 6
+
+Label Time Summary:
+M8         =   8.11 sec*proc (4 tests)
+network    =   8.11 sec*proc (4 tests)
+
+Total Test time (real) =   8.54 sec
