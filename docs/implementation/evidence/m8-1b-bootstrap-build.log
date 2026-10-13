@@ -1,0 +1,98 @@
+[1/132] Scanning C:\DarkAngel\engine\runtime\party_control.cpp for CXX dependencies
+[2/132] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/97] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\party_control.cpp.obj
+[4/97] Linking CXX static library DarkAngelRuntime.lib
+[5/97] Linking CXX executable MotorTests.exe
+[6/97] Linking CXX executable AbilityMotorPredictionTests.exe
+[7/97] Linking CXX executable MotorActorHistoryTests.exe
+[8/97] Linking CXX executable MotorFaultTests.exe
+[9/97] Linking CXX executable MotorDynamicTests.exe
+[10/97] Linking CXX executable MotorSessionTests.exe
+[11/97] Linking CXX executable AssetTool.exe
+[12/97] Linking CXX executable MeleeTests.exe
+[13/97] Linking CXX executable PhysicsQuerySensorTests.exe
+[14/97] Linking CXX executable MotorBudgetTests.exe
+[15/97] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[16/91] Linking CXX executable PlatformAxesTests.exe
+[17/91] Linking CXX executable DarkAngelHeadless.exe
+[18/91] Linking CXX executable EditorCli.exe
+[19/91] Linking CXX executable NativeSourceEditTests.exe
+[20/91] Linking CXX executable TagCodegenTests.exe
+[21/91] Linking CXX executable AnimationClipTests.exe
+[22/91] Linking CXX executable CombatKitAssetTests.exe
+[23/91] Linking CXX executable GraphAssetTests.exe
+[24/91] Linking CXX executable AnimationTests.exe
+[25/91] Linking CXX executable GameplayDebugTests.exe
+[26/91] Linking CXX executable AnimationGraphTests.exe
+[27/91] Linking CXX executable ActorAssetTests.exe
+[28/91] Linking CXX executable AttributeAuthoringTests.exe
+[29/91] Linking CXX executable AuthoredEffectGnsTests.exe
+[30/91] Linking CXX executable ComposerStructureTests.exe
+[31/91] Linking CXX executable ComposerPreviewTests.exe
+[32/91] Linking CXX executable CharacterCombatSceneTests.exe
+[33/91] Linking CXX executable NativeAuthoringTests.exe
+[34/91] Linking CXX executable RoyalCollisionTests.exe
+FAILED: [code=4294967295] RoyalCollisionTests.exe 
+C:\Windows\system32\cmd.exe /C "cd . && C:\DarkAngel\.tools\cmake\cmake-4.4.4-windows-x86_64\bin\cmake.exe -E vs_link_exe --msvc-ver=1951 --intdir=CMakeFiles\RoyalCollisionTests.dir --rc="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\rc.exe" --mt="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\mt.exe" --manifests  -- "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe" /nologo CMakeFiles\RoyalCollisionTests.dir\tests\royal_collision_tests.cpp.obj CMakeFiles\RoyalCollisionTests.dir\apps\editor\character_preview.cpp.obj  /out:RoyalCollisionTests.exe /implib:RoyalCollisionTests.lib /pdb:RoyalCollisionTests.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console  AshenRootsCombat.lib  DarkAngelAssets.lib  DarkAngelCharacterScene.lib  DarkAngelEditorService.lib  vcpkg_installed\x64-windows-darkangel\lib\sqlite3.lib  vcpkg_installed\x64-windows-darkangel\lib\DirectXTex.lib  vcpkg_installed\x64-windows-darkangel\lib\meshoptimizer.lib  ole32.lib  windowscodecs.lib  third_party\ozz\src\animation\offline\ozz_animation_offline_rd.lib  DarkAngelAnimation.lib  third_party\ozz\src\animation\runtime\ozz_animation_rd.lib  third_party\ozz\src\base\ozz_base_rd.lib  DarkAngelPhysics.lib  vcpkg_installed\x64-windows-darkangel\lib\Jolt.lib  DarkAngelRuntime.lib  DarkAngelFoundation.lib  bcrypt.lib  vcpkg_installed\x64-windows-darkangel\lib\flecs_static.lib  wsock32.lib  ws2_32.lib  dbghelp.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.Analysis.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.Config.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.Compiler.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.Bytecode.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.VM.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.Ast.lib  vcpkg_installed\x64-windows-darkangel\lib\Luau.Common.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && C:\Windows\system32\cmd.exe /C "cd /D C:\DarkAngel\build\m5-editor-relwithdebinfo && C:\DarkAngel\.tools\vcpkg\vcpkg.exe z-applocal --target-binary=C:/DarkAngel/build/m5-editor-relwithdebinfo/RoyalCollisionTests.exe --installed-bin-dir=C:/DarkAngel/build/m5-editor-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/bin""
+LINK Pass 1: command "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe /nologo CMakeFiles\RoyalCollisionTests.dir\tests\royal_collision_tests.cpp.obj CMakeFiles\RoyalCollisionTests.dir\apps\editor\character_preview.cpp.obj /out:RoyalCollisionTests.exe /implib:RoyalCollisionTests.lib /pdb:RoyalCollisionTests.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console AshenRootsCombat.lib DarkAngelAssets.lib DarkAngelCharacterScene.lib DarkAngelEditorService.lib vcpkg_installed\x64-windows-darkangel\lib\sqlite3.lib vcpkg_installed\x64-windows-darkangel\lib\DirectXTex.lib vcpkg_installed\x64-windows-darkangel\lib\meshoptimizer.lib ole32.lib windowscodecs.lib third_party\ozz\src\animation\offline\ozz_animation_offline_rd.lib DarkAngelAnimation.lib third_party\ozz\src\animation\runtime\ozz_animation_rd.lib third_party\ozz\src\base\ozz_base_rd.lib DarkAngelPhysics.lib vcpkg_installed\x64-windows-darkangel\lib\Jolt.lib DarkAngelRuntime.lib DarkAngelFoundation.lib bcrypt.lib vcpkg_installed\x64-windows-darkangel\lib\flecs_static.lib wsock32.lib ws2_32.lib dbghelp.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.Analysis.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.Config.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.Compiler.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.Bytecode.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.VM.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.Ast.lib vcpkg_installed\x64-windows-darkangel\lib\Luau.Common.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\RoyalCollisionTests.dir/intermediate.manifest CMakeFiles\RoyalCollisionTests.dir/manifest.res" failed (exit code 1120) with the following output:
+character_preview.cpp.obj : error LNK2019: unresolved external symbol "public: struct darkangel::editor_app::NativeDraft & __cdecl darkangel::editor_app::NativeAuthoring::open(class darkangel::AssetService &,struct darkangel::AssetId)" (?open@NativeAuthoring@editor_app@darkangel@@QEAAAEAUNativeDraft@23@AEAVAssetService@3@UAssetId@3@@Z) referenced in function "class std::unique_ptr<class darkangel::editor_app::ComposerPosePreview,struct std::default_delete<class darkangel::editor_app::ComposerPosePreview> > __cdecl darkangel::editor_app::prepare_authored_action_pose(class darkangel::AssetService &,class darkangel::editor_app::NativeAuthoring &,struct darkangel::editor_app::CharacterPreviewResources const &,struct darkangel::AssetId,struct darkangel::AssetId)" (?prepare_authored_action_pose@editor_app@darkangel@@YA?AV?$unique_ptr@VComposerPosePreview@editor_app@darkangel@@U?$default_delete@VComposerPosePreview@editor_app@darkangel@@@std@@@std@@AEAVAssetService@2@AEAVNativeAuthoring@12@AEBUCharacterPreviewResources@12@UAssetId@2@3@Z)
+RoyalCollisionTests.exe : fatal error LNK1120: 1 unresolved externals
+[35/91] Linking CXX executable PartySceneTests.exe
+[36/91] Linking CXX executable SceneTransitionTests.exe
+[37/91] Linking CXX executable SceneDelayTests.exe
+[38/91] Linking CXX executable NavigationTests.exe
+[39/91] Linking CXX executable BehaviorTreeTests.exe
+[40/91] Linking CXX executable ObservedCharacterPoseTests.exe
+[41/91] Linking CXX executable ReactionPresentationTests.exe
+[42/91] Linking CXX executable RoyalHeavySceneTests.exe
+[43/91] Linking CXX executable RenderableHumanTests.exe
+[44/91] Linking CXX executable CharacterSceneTests.exe
+[45/91] Linking CXX executable JointMaskTests.exe
+[46/91] Linking CXX executable EffectAssetTests.exe
+[47/91] Linking CXX executable AbilityAssetTests.exe
+[48/91] Linking CXX executable ActionClipBindingTests.exe
+[49/91] Linking CXX executable CollisionAssetTests.exe
+[50/91] Linking CXX executable CollisionStreamTests.exe
+[51/91] Linking CXX executable CollisionObserverTests.exe
+[52/91] Linking CXX executable ActionTimelineTests.exe
+[53/91] Linking CXX executable CollisionMeshTests.exe
+[54/91] Linking CXX executable AssetTests.exe
+[55/91] Linking CXX executable AttributeTests.exe
+[56/91] Linking CXX executable CombatKitTests.exe
+[57/91] Linking CXX executable ExternalImportTests.exe
+[58/91] Linking CXX executable CueAssetTests.exe
+[59/91] Linking CXX executable PresentationPrimitiveTests.exe
+[60/91] Linking CXX executable VfxAssetTests.exe
+[61/91] Linking CXX executable InputTests.exe
+[62/91] Linking CXX executable AudioTests.exe
+[63/91] Linking CXX executable AudioAuthoringTests.exe
+[64/91] Linking CXX executable HudTests.exe
+[65/91] Linking CXX executable NativeInputTests.exe
+[66/91] Linking CXX executable FoundationTests.exe
+[67/91] Linking CXX executable ScriptPackageTests.exe
+[68/91] Linking CXX executable EditorTests.exe
+[69/91] Linking CXX executable AssemblyTests.exe
+[70/91] Linking CXX executable AbilityIntentGnsTests.exe
+[71/91] Linking CXX executable EffectGnsTests.exe
+[72/91] Linking CXX executable AbilityIntentTests.exe
+[73/91] Linking CXX executable AbilityPredictionTests.exe
+[74/91] Linking CXX executable AbilityObserverTests.exe
+[75/91] Linking CXX executable AbilityCorrectionTests.exe
+[76/91] Linking CXX executable AbilityTests.exe
+[77/91] Linking CXX executable EffectTests.exe
+[78/91] Linking CXX executable EffectBudgetTests.exe
+[79/91] Linking CXX executable AbilityTagTests.exe
+[80/91] Linking CXX executable ActionTagTests.exe
+[81/91] Linking CXX executable EncounterTests.exe
+[82/91] Linking CXX executable CameraTests.exe
+[83/91] Linking CXX executable WorldLedgerTests.exe
+[84/91] Linking CXX executable CuePlayerTests.exe
+[85/91] Linking CXX executable EffectReplicationTests.exe
+[86/91] Linking CXX executable PartyControlTests.exe
+[87/91] Linking CXX executable AbilityReservationTests.exe
+[88/91] Linking CXX executable CombatEffectTests.exe
+[89/91] Linking CXX executable SessionTests.exe
+[90/91] Linking CXX executable GnsTests.exe
+[91/91] Linking CXX executable DarkAngelEditor.exe
+ninja: build stopped: cannot make progress due to previous errors.

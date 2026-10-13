@@ -1,0 +1,384 @@
+{
+  "stage": "M8 stage 1b increment 2: asynchronous bootstrap and party control foundation",
+  "date": "2026-10-13",
+  "status": "Stage 1b In progress; one-process evidence",
+  "build": {
+    "known_failure": "RoyalCollisionTests link",
+    "manifest_install": "OFF",
+    "d3d12_disabled": "OFF",
+    "parallel": 4
+  },
+  "ctest": {
+    "passed": 99,
+    "total": 102,
+    "failed": [
+      "M5.actor_assets (Timeout)                         M5 asset",
+      "M5.attribute_authoring (Timeout)                  M5 asset editor",
+      "M4.royal_mesh_collision (Not Run)"
+    ]
+  },
+  "direct": {
+    "party_control": "passed",
+    "scene_delay": "passed",
+    "actor_assets_seconds": 133.7,
+    "attribute_authoring_seconds": 157.5
+  },
+  "regression_gates": [
+    {
+      "name": "effect-reaction-authoring",
+      "exit": 0,
+      "seconds": 1085.459
+    },
+    {
+      "name": "effect-reaction-presentation",
+      "exit": 0,
+      "seconds": 0.394
+    },
+    {
+      "name": "effect-reaction-public-pose",
+      "exit": 0,
+      "seconds": 0.546
+    },
+    {
+      "name": "effect-reaction-effect-assets",
+      "exit": 0,
+      "seconds": 1.069
+    },
+    {
+      "name": "effect-reaction-kit-assets",
+      "exit": 0,
+      "seconds": 7.023
+    },
+    {
+      "name": "effect-reaction-replication",
+      "exit": 0,
+      "seconds": 0.574
+    },
+    {
+      "name": "effect-reaction-combat-effects",
+      "exit": 0,
+      "seconds": 0.21
+    },
+    {
+      "name": "camera-rig",
+      "exit": 0,
+      "seconds": 0.056
+    },
+    {
+      "name": "scripted-attacker",
+      "exit": 0,
+      "seconds": 14.727
+    },
+    {
+      "name": "royal-heavy-scene",
+      "exit": 0,
+      "seconds": 3.242
+    },
+    {
+      "name": "runtime-hud",
+      "exit": 0,
+      "seconds": 0.141
+    },
+    {
+      "name": "motor-warp",
+      "exit": 0,
+      "seconds": 0.056
+    },
+    {
+      "name": "navigation",
+      "exit": 0,
+      "seconds": 3.435
+    },
+    {
+      "name": "behavior-tree",
+      "exit": 0,
+      "seconds": 18.895
+    },
+    {
+      "name": "effect-reaction-form",
+      "exit": 0,
+      "seconds": 1.933
+    },
+    {
+      "name": "effect-reaction-d3d12",
+      "exit": 0,
+      "seconds": 15.021
+    },
+    {
+      "name": "kit-death-d3d12",
+      "exit": 0,
+      "seconds": 14.764
+    },
+    {
+      "name": "attacked-flinch-d3d12",
+      "exit": 0,
+      "seconds": 12.944
+    },
+    {
+      "name": "attacked-death-d3d12",
+      "exit": 0,
+      "seconds": 14.622
+    },
+    {
+      "name": "attacked-light-d3d12",
+      "exit": 0,
+      "seconds": 11.144
+    },
+    {
+      "name": "dodge-d3d12",
+      "exit": 0,
+      "seconds": 11.751
+    },
+    {
+      "name": "ranged-d3d12",
+      "exit": 0,
+      "seconds": 11.145
+    },
+    {
+      "name": "projectile-flight-d3d12",
+      "exit": 0,
+      "seconds": 12.586
+    },
+    {
+      "name": "soft-lock-d3d12",
+      "exit": 0,
+      "seconds": 9.417
+    },
+    {
+      "name": "mask-worn-d3d12",
+      "exit": 0,
+      "seconds": 5.943
+    },
+    {
+      "name": "mask-placement-d3d12",
+      "exit": 0,
+      "seconds": 5.896
+    },
+    {
+      "name": "cues-swing-d3d12",
+      "exit": 0,
+      "seconds": 9.025
+    },
+    {
+      "name": "cues-rejected-d3d12",
+      "exit": 0,
+      "seconds": 9.856
+    },
+    {
+      "name": "cues-footsteps-d3d12",
+      "exit": 0,
+      "seconds": 8.772
+    },
+    {
+      "name": "cues-burn-d3d12",
+      "exit": 0,
+      "seconds": 7.538
+    },
+    {
+      "name": "vfx-tab-d3d12",
+      "exit": 0,
+      "seconds": 4.241
+    },
+    {
+      "name": "cue-form-d3d12",
+      "exit": 0,
+      "seconds": 10.139
+    },
+    {
+      "name": "audio-tab-d3d12",
+      "exit": 0,
+      "seconds": 3.872
+    },
+    {
+      "name": "content-before-d3d12",
+      "exit": 0,
+      "seconds": 11.295
+    },
+    {
+      "name": "content-after-d3d12",
+      "exit": 0,
+      "seconds": 14.991
+    },
+    {
+      "name": "mask-switch-d3d12",
+      "exit": 0,
+      "seconds": 9.464
+    },
+    {
+      "name": "camera-free-look-d3d12",
+      "exit": 0,
+      "seconds": 7.901
+    },
+    {
+      "name": "camera-aim-d3d12",
+      "exit": 0,
+      "seconds": 6.742
+    },
+    {
+      "name": "camera-preview-d3d12",
+      "exit": 0,
+      "seconds": 3.039
+    },
+    {
+      "name": "npc-target-d3d12",
+      "exit": 0,
+      "seconds": 13.653
+    },
+    {
+      "name": "npc-spawn-points-d3d12",
+      "exit": 0,
+      "seconds": 14.214
+    },
+    {
+      "name": "npc-archer-d3d12",
+      "exit": 0,
+      "seconds": 13.08
+    },
+    {
+      "name": "spawn-points-scene-d3d12",
+      "exit": 0,
+      "seconds": 2.076
+    },
+    {
+      "name": "npc-senses-d3d12",
+      "exit": 0,
+      "seconds": 12.529
+    },
+    {
+      "name": "navigation-tool-d3d12",
+      "exit": 0,
+      "seconds": 2.783
+    },
+    {
+      "name": "navigation-overlay-d3d12",
+      "exit": 0,
+      "seconds": 2.065
+    },
+    {
+      "name": "place-panel-d3d12",
+      "exit": 0,
+      "seconds": 2.282
+    },
+    {
+      "name": "encounter-scene-d3d12",
+      "exit": 0,
+      "seconds": 2.28
+    },
+    {
+      "name": "encounter-d3d12",
+      "exit": 0,
+      "seconds": 10.805
+    },
+    {
+      "name": "audio-play-d3d12",
+      "exit": 0,
+      "seconds": 9.658
+    },
+    {
+      "name": "audio-encounter-d3d12",
+      "exit": 0,
+      "seconds": 10.31
+    },
+    {
+      "name": "interaction-d3d12",
+      "exit": 0,
+      "seconds": 8.895
+    },
+    {
+      "name": "two-players-d3d12",
+      "exit": 0,
+      "seconds": 8.577
+    },
+    {
+      "name": "transition-place-d3d12",
+      "exit": 0,
+      "seconds": 1.666
+    },
+    {
+      "name": "transition-d3d12",
+      "exit": 0,
+      "seconds": 20.424
+    },
+    {
+      "name": "transition-loading-d3d12",
+      "exit": 0,
+      "seconds": 15.766
+    },
+    {
+      "name": "transition-missing-d3d12",
+      "exit": 0,
+      "seconds": 8.247
+    },
+    {
+      "name": "transition-no-entry-d3d12",
+      "exit": 0,
+      "seconds": 14.702
+    },
+    {
+      "name": "spline-d3d12",
+      "exit": 0,
+      "seconds": 1.22
+    },
+    {
+      "name": "cook-sweep-d3d12",
+      "exit": 0,
+      "seconds": 32.865
+    },
+    {
+      "name": "place-mouse-d3d12",
+      "exit": 0,
+      "seconds": 1.764
+    },
+    {
+      "name": "mask-editor-player-d3d12",
+      "exit": 0,
+      "seconds": 3.076
+    },
+    {
+      "name": "mask-editor-npc-d3d12",
+      "exit": 0,
+      "seconds": 2.593
+    },
+    {
+      "name": "mask-editor-field-d3d12",
+      "exit": 0,
+      "seconds": 2.763
+    },
+    {
+      "name": "save-all-d3d12",
+      "exit": 0,
+      "seconds": 32.633
+    },
+    {
+      "name": "behavior-form-d3d12",
+      "exit": 0,
+      "seconds": 2.164
+    },
+    {
+      "name": "npc-form-d3d12",
+      "exit": 0,
+      "seconds": 2.413
+    }
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "3bd0d4afb584346ce97628c8affe619ffefe14db8550ffeaf8b1215d5556c3e7",
+    "engine/runtime/scene_client.cpp": "ca34d8b593c8addb23b7368acf25871eb64582f8360d6e3d100614ea3054cbe7",
+    "engine/runtime/world_session.cpp": "80937e05c97a750b0b5ba73788ee191457cc3f8c0110b1ec012abdf0902fc187",
+    "engine/runtime/include/darkangel/party_control.hpp": "43df71ce76db6b499785e0039b77000421876758d571b8ea91d37d0a98679e33",
+    "engine/runtime/party_control.cpp": "99c768a3c5387c8000004e9b602ee0c22c6ab4e488580dbde2994df6492c3fff",
+    "tests/scene_delay_tests.cpp": "583df41a620c91b544929400dbe89600a4c27e8a4a63740163631a4aea8ee233",
+    "tests/party_control_tests.cpp": "c5505754117627f6a8db32342772c5c2e70d4f500342e0d9c21e58189425f1a2"
+  },
+  "binary_sha256": {
+    "SceneDelayTests.exe": "7604561edfe9064fbeb3d57c4a6c37ca397278bd6c3b151b851a53a451be1456",
+    "PartyControlTests.exe": "347e28936ea199db01687a70073ef4580a2e2e301d57e15f27886e6bb127b8d3",
+    "DarkAngelEditor.exe": "12ab09e64fe42492f007b7c0f80e6c43054a739f1df5dd49c93ba99c43627e9a"
+  },
+  "limitations": [
+    "Loopback control tests and externally clocked delay/loss harness are one-process evidence.",
+    "Editor remains strict lockstep; client-only GNS scene mode and launcher not built.",
+    "Party admission occurs before scene entry; live joins and gameplay seat removal are not built.",
+    "Profile persistence, two-process scene travel/readiness, multi-machine play and EOS remain unverified.",
+    "Later M8 stages have not begun."
+  ]
+}

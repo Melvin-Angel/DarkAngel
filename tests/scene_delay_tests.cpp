@@ -3,6 +3,7 @@
 #include <darkangel/combat_kit_assets.hpp>
 #include <darkangel/assets.hpp>
 #include <darkangel/hash.hpp>
+#include <darkangel/assembly.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <cmath>
@@ -30,6 +31,7 @@ public:
     }
     void disconnect(ConnectionHandle h)override{inner.disconnect(h);pending.clear();}
 };
+struct RecordedCue final:CueSink {unsigned starts{},stops{},releases{};void start(const CueStart&)override{++starts;}void stop(std::uint64_t,unsigned)override{++stops;}void release(std::uint64_t)override{++releases;}};
 }
 int main(){try{
     const auto content=std::filesystem::path(DAE_SOURCE_DIR)/"content",cache=std::filesystem::path(DAE_BINARY_DIR)/("scene-delay-"+AssetId::random().text());
@@ -93,6 +95,20 @@ int main(){try{
         SceneClient late(late_hello,*link.client,cp,one,roster,collision,cooked.stance.plan,rig.definition,rig.archive,configured,SceneTiming::Independent);
         for(unsigned n=0;n<8;++n){late_host.pump();late.receive();}for(unsigned n=0;n<60;++n){late_host.step(late_host.tick()+1);for(unsigned p=0;p<4;++p){late_host.pump();late.receive();}}
         check(late.bootstrapped(),"Late scene bootstrap was unavailable");late.start();check(late.tick()==60&&late.predicted_motor().position==late_host.motor(one)->position&&late.graph().tick==60&&late.predicted_motor().position.y<.01,"Late bootstrap did not use the correction's tick and grounded state");late.advance(0,{});
+    }
+    // Encounter spawn and corpse removal change the replicated world revision while packets are delayed.
+    {auto scene=std::make_shared<CharacterSceneCombat>(*configured);const AssetId npc=AssetId::random();CharacterSceneEncounter encounter;encounter.id={19,90};encounter.definition=decode_encounter(R"({"trigger":{"event":"delay.spawn"},"mode":"waves","waves":[{"npc":")"+npc.text()+R"(","count":1}],"placement":"points","corpse_seconds":0.05})");encounter.points={{{0,0,1.4},0}};
+        CharacterSceneActor enemy;enemy.attributes=scene->attributes;enemy.faction="enemy";for(auto& attribute:enemy.attributes)if(attribute.id==scene->health||attribute.id==scene->maximum_health)attribute.base=10;encounter.npcs.emplace(npc,enemy);scene->encounters={encounter};const auto actor=encounter_actor(encounter.id,0);
+        auto descriptor=hello;descriptor.session_epoch+=2;std::uint64_t now{};auto link=create_loopback(descriptor);Delayed server(*link.host,now),remote(*link.client,now);auto hp=server.open(descriptor),cp=remote.open(descriptor);const std::array<StableId,1> roster{one};const std::array<SceneSeat,1> seat{{{one,&server,hp}}};
+        SceneAuthority authority(descriptor,objects,seat,collision,scene,{},SceneTiming::Independent);SceneClient view(descriptor,remote,cp,one,roster,collision,cooked.stance.plan,rig.definition,rig.archive,scene,SceneTiming::Independent);
+        auto deliver=[&]{for(unsigned n=0;n<8;++n){authority.pump();view.receive();}};deliver();check(view.bootstrapped(),"Encounter client bootstrap failed");view.start();server.delay=2;remote.delay=3;
+        RecordedCue sink;CuePlayer cues([](std::string_view key,AssetId)->std::optional<CueDefinition>{CueDefinition cue;cue.key=std::string(key);cue.audio="test";cue.predictable=true;cue.tail_ticks=0;return cue;},nullptr,&sink);view.present_cues(&cues);
+        authority.emit_world_event("delay.spawn");bool seen{};
+        bool bootstrap_refusal{};for(unsigned n=0;n<40;++n){++now;CharacterSceneInput input;if(n==0)input.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};if(n==1)input.combat_events={{8,InputEdge::Released,2000,0,0,false},{8,InputEdge::Tapped,2000,0,1,false}};view.advance(1./60,input);authority.step(authority.tick()+1);deliver();seen|=view.pose(actor)!=nullptr;if(view.ability())for(const auto& operation:view.ability()->operations)bootstrap_refusal|=operation.failure==AbilityFailure::InputExpired;}
+        check(seen&&authority.actors().size()==1,"Delayed encounter spawn was not prepared and presented");
+        check(bootstrap_refusal,"In-flight ability during world bootstrap was not refused coherently");
+        for(unsigned n=0;n<100;++n){++now;CharacterSceneInput input;if(n==0)input.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};if(n==1)input.combat_events={{8,InputEdge::Released,2000,0,0,false},{8,InputEdge::Tapped,2000,0,1,false}};view.advance(1./60,input);authority.step(authority.tick()+1);deliver();}
+        check(authority.actors().empty()&&!view.pose(actor)&&view.tick()+8>=authority.tick(),"Delayed corpse removal left an actor or prevented client recovery");check(sink.starts>0&&sink.stops>0&&sink.releases>0,"Delayed scene did not drive cue lifecycle");view.present_cues(nullptr);
     }
     std::cout<<"Independent scene delay, retained inputs, combat, observers, host fallback, history rebase and topology passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<"Independent scene failure: "<<e.what()<<'\n';return 1;}}

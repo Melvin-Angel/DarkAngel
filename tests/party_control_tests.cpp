@@ -1,0 +1,33 @@
+#include <darkangel/party_control.hpp>
+#include <darkangel/hash.hpp>
+#include <nlohmann/json.hpp>
+#include <iostream>
+using namespace darkangel;
+namespace {
+void check(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+template<class F> bool rejects(F f){try{f();}catch(const std::exception&){return true;}return false;}
+SessionHandshake descriptor(unsigned epoch=1){return {3,sha256("party control scene schema"),sha256("party control content"),epoch};}
+struct Fixture {
+    const StableId one{40,1},two{40,2},three{40,3};SessionHandshake control{1,sha256("party control v1"),sha256("project"),1};
+    LoopbackPair a=create_loopback(control),b=create_loopback(control);ConnectionHandle ah=a.host->open(control),ac=a.client->open(control),bh=b.host->open(control),bc=b.client->open(control);
+    PartyHost host{one,{2,2}};PartyGuest first{two,1,*a.client,ac},second{three,2,*b.client,bc};
+    Fixture(){host.attach(1,*a.host,ah);host.attach(2,*b.host,bh);pump();check(host.joined()&&first.phase()==PartyPhase::Joined&&second.phase()==PartyPhase::Joined,"Party members did not join before scene entry");}
+    void pump(){for(unsigned i=0;i<4;++i){first.pump();second.pump();host.pump(0);}}
+    PartyDestination scene(unsigned epoch){PartyDestination d;d.scene=AssetId::random();d.hello=descriptor(epoch);d.members={{one,{50+epoch,1},0},{two,{50+epoch,2},1},{three,{50+epoch,3},2}};d.endpoints={"","127.0.0.1:35001","127.0.0.1:35002",""};return d;}
+};
+void send(Transport& link,ConnectionHandle peer,const nlohmann::json& value){const auto bytes=value.dump();check(link.send(peer,Delivery::ReliableOrdered,{reinterpret_cast<const std::byte*>(bytes.data()),bytes.size()}),"Control test send failed");}
+}
+int main(){try{
+    {Fixture f;auto a=f.scene(1);check(f.host.prepare(a)==1,"First transition identity");f.pump();if(f.first.phase()!=PartyPhase::Preparing){for(const auto& x:f.host.drain_drops())std::cerr<<x.reason<<char(10);throw std::runtime_error(f.first.error());}check(!f.host.resume(),"Host resumed before local and guest readiness");f.host.local_ready(a.scene,a.hello);check(f.first.ready(a.scene,a.hello),"Prepared guest was refused");f.pump();check(!f.host.ready()&&!f.host.resume(),"One guest acknowledgement resumed the whole party");check(f.second.ready(a.scene,a.hello),"Second guest preparation failed");f.pump();check(f.host.ready()&&f.host.resume(),"Prepared party did not resume");f.pump();check(f.first.phase()==PartyPhase::Running&&f.second.phase()==PartyPhase::Running,"Guests did not resume from the host message");
+        const auto profiles=f.host.members();auto b=f.scene(2);f.host.prepare(b);f.pump();check(f.first.offer()->destination.members[1].profile==profiles[1].profile&&f.first.offer()->destination.members[1].avatar!=profiles[1].avatar,"Profile identity did not survive a scene avatar change");
+        send(*f.a.client,f.ac,{{"version",1},{"kind","ready"},{"transition",1},{"scene",a.scene.text()},{"epoch",1},{"content",a.hello.content_hash}});f.host.pump(0);check(!f.host.ready(),"Stale readiness satisfied a new transition");
+        f.host.abort("Destination failed");f.pump();check(f.first.phase()==PartyPhase::Failed&&f.second.phase()==PartyPhase::Failed&&!f.host.resume(),"Failure resumed a partly transitioned party");check(rejects([&]{f.host.prepare(b);}),"An aborted epoch was reused");auto restored=f.scene(3);restored.scene=a.scene;f.host.prepare(restored);f.pump();if(f.first.phase()!=PartyPhase::Preparing){for(const auto& x:f.host.drain_drops())std::cerr<<x.reason<<char(10);throw std::runtime_error(f.first.error());}f.host.local_ready(restored.scene,restored.hello);f.first.ready(restored.scene,restored.hello);f.second.ready(restored.scene,restored.hello);f.pump();check(f.host.resume(),"Fresh source rebuild did not recover an aborted transition");f.pump();}
+    {Fixture f;auto d=f.scene(1);f.host.prepare(d);f.pump();if(f.first.phase()!=PartyPhase::Preparing){for(const auto& x:f.host.drain_drops())std::cerr<<x.reason<<char(10);throw std::runtime_error(f.first.error());}f.host.local_ready(d.scene,d.hello);auto wrong=d.hello;wrong.content_hash=sha256("wrong content");check(!f.first.ready(d.scene,wrong),"Content mismatch acknowledged scene readiness");f.pump();auto drops=f.host.drain_drops();check(drops.size()==1&&drops[0].profile==f.two,"Mismatched client was not dropped with its profile");f.second.ready(d.scene,d.hello);f.pump();check(f.host.resume(),"A failed guest permanently blocked the remaining party");f.pump();check(f.second.offer()->destination.members.size()==2,"Resume retained the dropped party member");}
+    {Fixture f;auto d=f.scene(1);f.host.prepare(d);f.pump();if(f.first.phase()!=PartyPhase::Preparing){for(const auto& x:f.host.drain_drops())std::cerr<<x.reason<<char(10);throw std::runtime_error(f.first.error());}f.host.local_ready(d.scene,d.hello);f.first.ready(d.scene,d.hello);f.pump();f.host.pump(3);auto drops=f.host.drain_drops();check(drops.size()==1&&drops[0].seat==2&&f.host.resume(),"An unready guest did not time out without blocking others");}
+    {Fixture f;auto d=f.scene(1);f.host.prepare(d);f.pump();check(rejects([&]{f.host.local_ready(AssetId::random(),d.hello);}),"Host acknowledged the wrong scene identity");check(!f.first.ready(AssetId::random(),d.hello),"Guest acknowledged the wrong scene identity");f.pump();check(f.host.drain_drops().size()==1,"Wrong-scene guest remained admitted");}
+    {Fixture f;auto d=f.scene(1);f.host.prepare(d);f.pump();f.host.local_ready(d.scene,d.hello);f.first.ready(d.scene,d.hello);f.second.ready(d.scene,d.hello);f.pump();check(f.host.resume(),"Leave fixture did not resume");f.pump();f.first.leave();f.pump();check(f.host.members().size()==2&&f.host.drain_drops().size()==1,"Leaving member remained in the host roster");check(f.second.phase()==PartyPhase::Running&&f.second.offer()->destination.members.size()==2,"Surviving guest did not receive the running roster removal");}
+    // Duplicate identities and wrong-direction traffic are refused without changing the other members.
+    {Fixture f;send(*f.a.client,f.ac,{{"version",1},{"kind","prepare"}});f.host.pump(0);check(f.host.drain_drops().size()==1&&f.host.members().size()==2,"A guest published host-only scene control");}
+    {Fixture f;send(*f.a.client,f.ac,{{"version",1},{"kind","join"},{"seat",1},{"profile",f.three.text()}});f.host.pump(0);check(f.host.drain_drops().size()==1,"Duplicate profile replaced another guest");}
+    std::cout<<"Party control: join, profile/avatar mapping, whole-party readiness, stale ACK, fresh epochs, rollback hold, mismatch, timeout, leave and direction checks passed\n";return 0;
+}catch(const std::exception& e){std::cerr<<"Party control failure: "<<e.what()<<'\n';return 1;}}

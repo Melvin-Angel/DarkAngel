@@ -43,6 +43,7 @@ struct SceneClient::Impl {
     CollisionHistory history;
     std::deque<CollisionFrame> received_collision;
     std::optional<CollisionFrame> held_collision;
+    std::uint64_t received_revision{},baseline_revision{};
     std::uint64_t reconciled_tick{};unsigned lead{2},timely{};double clock_debt{};
     bool queued_jump{};std::optional<StableId> queued_interact;
     std::vector<CollisionMesh> prepared_geometry;
@@ -103,6 +104,7 @@ struct SceneClient::Impl {
         sync();
         if(client.collisions().empty())return;
         if(timing==SceneTiming::Independent){
+            if(received_revision!=client.revision()){received_collision.clear();held_collision.reset();received_revision=client.revision();}
             for(const auto& incoming:client.collisions())if(received_collision.empty()||incoming.tick>received_collision.back().tick){
                 auto frame=prepare_collision_frame(incoming,prepared_geometry);received_collision.push_back(frame);held_collision=std::move(frame);
                 while(received_collision.size()>31)received_collision.pop_front();client.acknowledge_collision(incoming.tick);
@@ -137,7 +139,7 @@ struct SceneClient::Impl {
         std::unique_ptr<OwnerAbilityPrediction> abilities;
         if(combat){const auto& baseline=client.ability_corrections().at(player).ability;abilities=std::make_unique<OwnerAbilityPrediction>(baseline,combat->attributes,combat->kit,combat->input,combat->abilities,state.epoch,combat->tags,combat->loadouts);next_operation=std::max(next_operation,baseline.highest_operation+1);}
         owner.reset();owner_motor.reset();prediction=std::move(replacement);owner_motor=std::move(motor);owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);ability_prediction=std::move(abilities);
-        semantic_commands.clear();predicted_locks.clear();history=CollisionHistory{};latest=state.tick;reconciled_tick=state.tick;
+        semantic_commands.clear();predicted_locks.clear();history=CollisionHistory{};latest=state.tick;reconciled_tick=state.tick;baseline_revision=client.revision();
         auto graph_state=graph.state();graph_state.tick=state.tick;graph.restore(graph_state);predicted_cue_definition={};predicted_cue_action.reset();
         if(started)++resynchronizations;if(combat)client.acknowledge_ability_correction(player);
     }
@@ -220,8 +222,10 @@ struct SceneClient::Impl {
     bool public_ready(std::uint64_t tick)const{if(!public_current(player,tick))return false;for(const auto& [id,remote]:remotes)if(!public_current(id,tick))return false;return true;}
     bool ready(std::uint64_t tick)const{return client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick&&client.collision_control_ready()&&(!combat||(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick&&public_ready(tick)));}
     bool independent_correction(){
-        const auto* baseline=correction_motor();if(!baseline||baseline->tick<=reconciled_tick)return false;
+        const auto* baseline=correction_motor();if(!baseline)return false;
         if(!coherent_baseline())return false;
+        if(baseline_revision!=client.revision()||(combat&&client.ability_correction_needs_resync())){rebase();return false;}
+        if(baseline->tick<=reconciled_tick)return false;
         if(baseline->tick>owner_motor->state().tick||baseline->epoch!=owner_motor->state().epoch||baseline->topology!=prediction->topology()||owner_motor->state().tick-baseline->tick>30||owner->needs_resync()||(ability_prediction&&ability_prediction->needs_resync())){rebase();return false;}
         // Original host frames through the correction, held copies for the still-unconfirmed future.
         CollisionHistory replay;for(auto tick=baseline->tick;tick<=owner_motor->state().tick;++tick){const auto* source=collision_at(tick);if(!source||source->topology!=baseline->topology){rebase();return false;}auto frame=*source;frame.tick=tick;replay.retain(std::move(frame));}history=std::move(replay);
@@ -231,7 +235,11 @@ struct SceneClient::Impl {
     unsigned advance(double seconds,CharacterSceneInput input){
         require(timing==SceneTiming::Independent&&started,"Independent scene clock requires a started client");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Independent scene clock delta bounds");
         enqueue(input.combat_events);input.combat_events.clear();queued_jump|=input.jump;if(input.interact)queued_interact=input.interact;clock_debt+=seconds;
-        receive();finish(owner_motor->state().tick);unsigned steps{};
+        receive();unsigned steps{};
+        // A new world revision clears the old motor/ability maps while its atomic bootstrap catches up.
+        // Keep the last prepared pose and all newly queued one-shot input until the coherent owner bundle returns.
+        if(client.readiness(peer)!=SessionReadiness::Ready||!client.collision_control_ready()||!coherent_baseline()){flush();return 0;}
+        finish(owner_motor->state().tick);
         while(steps<4){const auto* confirmed=correction_motor();if(!confirmed||!held_collision||held_collision->topology!=prediction->topology()||!client.collision_control_ready())break;
             const auto tick=owner_motor->state().tick+1;const bool catchup=tick<=confirmed->tick+lead;
             if((clock_debt+1e-9<1./60&&!catchup)||tick>confirmed->tick+8||owner->pending()>=30)break;
