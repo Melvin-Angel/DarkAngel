@@ -15,6 +15,8 @@ enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringH
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
 public:
+    bool client_only{};
+    std::string client_status;
     ViewArea draw(Controller&,unsigned width,unsigned height,const char* backend,std::uint64_t generation,double frame_seconds,ImTextureID scene_texture);
     void gizmo(Controller&,const DirectX::XMFLOAT4X4& view,const DirectX::XMFLOAT4X4& projection);
     // Level design: things that can be placed in the scene, sorted into categories from the asset catalogue itself

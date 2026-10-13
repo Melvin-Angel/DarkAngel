@@ -4,6 +4,7 @@
 #include <darkangel/assembly.hpp>
 #include "scene_shared.hpp"
 #include <algorithm>
+#include <map>
 #include <chrono>
 #include <cmath>
 #include <iterator>
@@ -59,17 +60,17 @@ struct SceneClient::Impl {
     const EffectFrame* effect_frame(std::uint64_t id)const{auto found=effect_views.find(id);return found!=effect_views.end()&&found->second->current()?&*found->second->current():nullptr;}
     StableId player_identity;
     std::uint64_t player{},latest{};
-    bool started{};unsigned resynchronizations{};CharacterSceneProfile profile;
+    bool started{};unsigned resynchronizations{};std::map<std::string,unsigned> rebase_causes;CharacterSceneProfile profile;
     // Soft lock: the candidate the live prediction chose per unconfirmed tick (reused by replay) and the last tick the owner warped.
     std::map<std::uint64_t,std::uint64_t> predicted_locks;std::uint64_t soft_lock_tick{},soft_lock_actor{};
-    MotorInput predicted_command;MotionRequest predicted_request;
+    MotorInput predicted_command;MotionRequest predicted_request;MotorState confirmed;
     // Which NPC definition the index-th enemy of an encounter is: waves in order, or the timed encounter's one.
     static AssetId enemy_definition(const EncounterDefinition& definition,unsigned index){
         if(definition.mode==EncounterMode::Timed)return definition.timed_npc;for(const auto& wave:definition.waves){if(index<wave.count)return wave.npc;index-=wave.count;}return {};
     }
     Impl(SessionHandshake hello,Transport& link,ConnectionHandle handle,StableId identity,std::span<const StableId> members,const CollisionDefinition& collision,
          std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::shared_ptr<const CharacterSceneCombat> configured,SceneTiming mode)
-        :transport(link),timing(mode),client(SessionRole::Client,hello),peer(handle),combat(std::move(configured)),party(members.begin(),members.end()),rig_archive(archive),presentation_plan(plan),graph(std::move(plan)),rig(std::move(definition),archive),player_identity(identity){
+        :transport(link),timing(mode),client(SessionRole::Client,hello,scene_detail::session_limits(mode)),peer(handle),combat(std::move(configured)),party(members.begin(),members.end()),rig_archive(archive),presentation_plan(plan),graph(std::move(plan)),rig(std::move(definition),archive),player_identity(identity){
         require((hello.protocol==2||hello.protocol==3)&&(!combat||hello.protocol==3)&&rig.definition().human,"Character scene requires wire2 and the initial human profile");require(bool(identity)&&std::find(party.begin(),party.end(),identity)!=party.end(),"Character scene object/player bounds");
         if(auto tags=graph.tag_dictionary())require(combat&&combat->tags&&combat->tags->registry()==tags->registry()&&combat->tags->generation()==tags->generation(),"Character graph/actor tag registry mismatch");
         client.attach(transport,peer);
@@ -132,14 +133,14 @@ struct SceneClient::Impl {
     const CollisionFrame* collision_at(std::uint64_t tick)const{for(auto i=received_collision.rbegin();i!=received_collision.rend();++i)if(i->tick<=tick)return &*i;return nullptr;}
     bool coherent_baseline()const{const auto* state=correction_motor();const auto* frame=state?collision_at(state->tick):nullptr;return state&&frame&&state->tick-frame->tick<=30&&frame->topology==state->topology&&std::any_of(frame->actors.begin(),frame->actors.end(),[&](const auto& a){return a.id==player&&a.epoch==state->epoch;});}
     // Rebuild privately from a wire baseline; never restore a late joiner from its object transform.
-    void rebase(){
+    void rebase(const char* cause="start"){if(started&&rebase_causes.size()<16)++rebase_causes[std::string(cause).substr(0,80)];
         require(coherent_baseline(),"Independent scene baseline is incomplete");const auto state=*correction_motor();auto frame=*collision_at(state.tick);frame.tick=state.tick;
         auto replacement=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);replacement->load(frame,player);
         auto motor=std::make_unique<CharacterMotor>(*replacement,state.position,player,state.crouched);replacement->load(frame,player);motor->restore(state);
         std::unique_ptr<OwnerAbilityPrediction> abilities;
         if(combat){const auto& baseline=client.ability_corrections().at(player).ability;abilities=std::make_unique<OwnerAbilityPrediction>(baseline,combat->attributes,combat->kit,combat->input,combat->abilities,state.epoch,combat->tags,combat->loadouts);next_operation=std::max(next_operation,baseline.highest_operation+1);}
         owner.reset();owner_motor.reset();prediction=std::move(replacement);owner_motor=std::move(motor);owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);ability_prediction=std::move(abilities);
-        semantic_commands.clear();predicted_locks.clear();history=CollisionHistory{};latest=state.tick;reconciled_tick=state.tick;baseline_revision=client.revision();
+        semantic_commands.clear();predicted_locks.clear();history=CollisionHistory{};latest=state.tick;reconciled_tick=state.tick;baseline_revision=client.revision();confirmed=state;
         auto graph_state=graph.state();graph_state.tick=state.tick;graph.restore(graph_state);predicted_cue_definition={};predicted_cue_action.reset();
         if(started)++resynchronizations;if(combat)client.acknowledge_ability_correction(player);
     }
@@ -223,12 +224,12 @@ struct SceneClient::Impl {
     bool ready(std::uint64_t tick)const{return client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick&&client.collision_control_ready()&&(!combat||(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick&&public_ready(tick)));}
     bool independent_correction(){
         const auto* baseline=correction_motor();if(!baseline)return false;
-        if(!coherent_baseline())return false;
-        if(baseline_revision!=client.revision()||(combat&&client.ability_correction_needs_resync())){rebase();return false;}
+        if(!coherent_baseline())return false;confirmed=*baseline;
+        if(baseline_revision!=client.revision()){rebase("world revision");return false;}if(combat&&client.ability_correction_needs_resync()){rebase("ability correction stream");return false;}
         if(baseline->tick<=reconciled_tick)return false;
-        if(baseline->tick>owner_motor->state().tick||baseline->epoch!=owner_motor->state().epoch||baseline->topology!=prediction->topology()||owner_motor->state().tick-baseline->tick>30||owner->needs_resync()||(ability_prediction&&ability_prediction->needs_resync())){rebase();return false;}
+        if(baseline->tick>owner_motor->state().tick||baseline->epoch!=owner_motor->state().epoch||baseline->topology!=prediction->topology()||owner_motor->state().tick-baseline->tick>30||owner->needs_resync()||(ability_prediction&&ability_prediction->needs_resync())){rebase(baseline->tick>owner_motor->state().tick?"host ahead":baseline->epoch!=owner_motor->state().epoch?"motor epoch":baseline->topology!=prediction->topology()?"topology":owner_motor->state().tick-baseline->tick>30?"history":owner->needs_resync()?"owner prediction":"ability prediction");return false;}
         // Original host frames through the correction, held copies for the still-unconfirmed future.
-        CollisionHistory replay;for(auto tick=baseline->tick;tick<=owner_motor->state().tick;++tick){const auto* source=collision_at(tick);if(!source||source->topology!=baseline->topology){rebase();return false;}auto frame=*source;frame.tick=tick;replay.retain(std::move(frame));}history=std::move(replay);
+        CollisionHistory replay;for(auto tick=baseline->tick;tick<=owner_motor->state().tick;++tick){const auto* source=collision_at(tick);if(!source||source->topology!=baseline->topology){rebase("replay collision");return false;}auto frame=*source;frame.tick=tick;replay.retain(std::move(frame));}history=std::move(replay);
         if(baseline->sequence<baseline->tick){lead=std::min(6u,lead+1);timely=0;}else if(++timely>=120){lead=std::max(2u,lead-1);timely=0;}
         return true;
     }
@@ -262,7 +263,7 @@ struct SceneClient::Impl {
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(candidate);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
         const auto confirmed=correction_motor()->tick;std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=confirmed;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=confirmed;});reconciled_tick=confirmed;if(combat)client.acknowledge_ability_correction(player);
-        }catch(...){if(!independent)throw;rebase();tick=latest;}
+        }catch(const std::exception& error){if(!independent)throw;rebase(error.what());tick=latest;}catch(...){if(!independent)throw;rebase("reconcile");tick=latest;}
         lap(profile.prediction);
         if(combat){if(!independent)require(public_ready(tick),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,remote]:remotes)if(!remote.pose&&(!independent||paired(id)))present(id,remote);for(auto& [id,observer]:observers)if(!independent||paired(id))observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}
             // Action cues. The owner's action is seen twice, confirmed and predicted; every other character's once, from its public frame at this tick.
@@ -306,6 +307,7 @@ SceneClient::SceneClient(SessionHandshake hello,Transport& transport,ConnectionH
 SceneClient::~SceneClient()=default;
 void SceneClient::receive(){impl_->receive();}
 bool SceneClient::bootstrapped()const{return impl_->bootstrapped();}
+std::string SceneClient::bootstrap_status()const{const auto& p=*impl_;std::string text="readiness="+std::to_string(int(p.client.readiness(p.peer)))+" revision="+std::to_string(p.client.revision())+" player="+std::to_string(p.player)+" collision="+std::to_string(p.client.collision_control_ready())+" motors="+std::to_string(p.client.motors().size())+" corrections="+std::to_string(p.client.ability_corrections().size())+" public="+std::to_string(p.client.public_abilities().size())+" frames="+std::to_string(p.received_collision.size())+" coherent="+std::to_string(p.coherent_baseline())+" paired="+std::to_string(p.paired(p.player));for(const auto& [cause,count]:p.rebase_causes)text+=" ["+cause+"]="+std::to_string(count);return text;}
 void SceneClient::start(){impl_->start();}
 unsigned SceneClient::advance(double seconds,CharacterSceneInput input){return impl_->advance(seconds,std::move(input));}
 std::uint64_t SceneClient::tick()const{return impl_->latest;}
@@ -322,6 +324,10 @@ std::uint64_t SceneClient::network()const{return impl_->player;}
 bool SceneClient::knows(std::uint64_t network)const{return network&&(network==impl_->player||impl_->remotes.contains(network));}
 std::size_t SceneClient::characters()const{return impl_->remotes.size()+(impl_->player?1:0);}
 const World& SceneClient::presentation()const{return impl_->client.world();}
+const MotorState& SceneClient::confirmed_motor()const{const auto& p=*impl_;require(p.started,"Owner motor not bootstrapped");if(p.timing==SceneTiming::Independent)return p.confirmed;return p.client.motors().at(p.player);}
+std::vector<StableId> SceneClient::actors()const{const auto& p=*impl_;std::vector<StableId> result;for(const auto& [network,remote]:p.remotes)if(p.prepared.contains(remote.identity))result.push_back(remote.identity);return result;}
+const CharacterSceneActor* SceneClient::actor(StableId id)const{const auto& p=*impl_;if(!p.find(id))return nullptr;const auto known=p.prepared.find(id);return known==p.prepared.end()?nullptr:known->second;}
+std::optional<StableId> SceneClient::actor_encounter(StableId id)const{const auto& p=*impl_;if(!actor(id)||!p.combat)return std::nullopt;for(const auto& encounter:p.combat->encounters)for(unsigned index=0;index<encounter.definition.enemies();++index)if(encounter_actor(encounter.id,index)==id)return encounter.id;return std::nullopt;}
 const MotorState& SceneClient::predicted_motor()const{return impl_->owner_motor->state();}
 const GraphState& SceneClient::graph()const{return impl_->graph.state();}
 const GraphPoseInputs& SceneClient::graph_inputs()const{return impl_->graph_inputs;}
@@ -330,11 +336,13 @@ const std::vector<JointMatrix>* SceneClient::pose(StableId actor)const{if(actor=
 const GraphPoseInputs* SceneClient::graph_inputs(StableId actor)const{if(actor==impl_->player_identity)return &impl_->graph_inputs;if(const auto* found=impl_->find(actor))if(found->pose)return &found->pose->inputs();return nullptr;}
 std::size_t SceneClient::pending_prediction()const{return impl_->owner->pending();}
 unsigned SceneClient::resynchronizations()const{return impl_->resynchronizations;}
+void SceneClient::admit(StableId member){auto& p=*impl_;require(bool(member),"Admitted member identity");if(std::find(p.party.begin(),p.party.end(),member)==p.party.end())p.party.push_back(member);std::erase_if(p.scenery,[&](std::uint64_t network){auto found=p.client.objects().find(network);return found!=p.client.objects().end()&&found->second.id==member;});}
 const AbilityOwnerSnapshot* SceneClient::ability()const{auto found=impl_->client.ability_corrections().find(impl_->player);return found==impl_->client.ability_corrections().end()?nullptr:&found->second.ability;}
 const AbilityOwnerSnapshot* SceneClient::predicted_ability()const{return impl_->ability_prediction?&impl_->ability_prediction->view():nullptr;}
 std::size_t SceneClient::pending_abilities()const{return impl_->ability_prediction?impl_->ability_prediction->pending():0;}
 MotorVec SceneClient::prediction_visual_offset()const{return impl_->owner->visual_offset();}
 ObserverAbilitySample SceneClient::observer(StableId identity,double render_tick)const{auto& p=*impl_;auto handle=p.client.world().find(identity);require(p.client.world().valid(handle),"Observer character lifecycle missing");auto id=p.client.world().read(handle).network.value;require(p.observers.contains(id)&&!p.client.public_ability_needs_resync(id),"Observer character state requires resynchronization");return p.observers.at(id)->sample(render_tick);}
+std::optional<ObserverAbilitySample> SceneClient::observer_if_ready(StableId identity,double render_tick)const{auto& p=*impl_;auto handle=p.client.world().find(identity);if(!p.client.world().valid(handle))return {};auto id=p.client.world().read(handle).network.value;if(!p.observers.contains(id)||p.client.public_ability_needs_resync(id))return {};return p.observers.at(id)->sample(render_tick);}
 const EffectPresentation* SceneClient::effects(StableId actor)const{for(const auto& [id,view]:impl_->effect_views){auto found=impl_->client.objects().find(id);if(found!=impl_->client.objects().end()&&found->second.id==actor)return view.get();}return nullptr;}
 std::span<const EffectCueUpdate> SceneClient::effect_cues()const{return impl_->effect_cue_updates;}
 std::span<const ActionCueUpdate> SceneClient::action_cues()const{return impl_->action_cue_updates;}
@@ -380,9 +388,11 @@ AimSolution SceneClient::aim(MotorVec camera,MotorVec direction,double range,Mot
 }
 std::optional<InteractionPrompt> SceneClient::interaction_prompt()const{
     const auto& p=*impl_;if(!p.combat)return std::nullopt;const auto& self=p.owner_motor->state().position;std::optional<InteractionPrompt> best;double nearest{};
-    for(std::size_t index=0;index<p.reach.size();++index){const auto& item=p.combat->interactables[index];if(p.interactables_seen_used.contains(item.id)||!p.reach[index].reaches(self))continue;const double dx=self.x-item.position.x,dy=self.y-item.position.y,dz=self.z-item.position.z,distance=dx*dx+dy*dy+dz*dz;if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
+    // Authority answers from where it has the character. A client ahead of it offers only what both positions reach.
+    const MotorVec* agreed=p.timing==SceneTiming::Independent&&p.started?&p.confirmed.position:nullptr;
+    for(std::size_t index=0;index<p.reach.size();++index){const auto& item=p.combat->interactables[index];if(p.interactables_seen_used.contains(item.id)||!p.reach[index].reaches(self)||(agreed&&!p.reach[index].reaches(*agreed)))continue;const double dx=self.x-item.position.x,dy=self.y-item.position.y,dz=self.z-item.position.z,distance=dx*dx+dy*dy+dz*dz;if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
     // A scene transition used on purpose is offered the same way.
-    for(const auto& item:p.combat->transitions){if(item.definition.activation!=TransitionActivation::Interact)continue;const double dx=self.x-item.center.x,dy=self.y-item.center.y,dz=self.z-item.center.z,distance=dx*dx+dy*dy+dz*dz;if(distance>item.definition.radius*item.definition.radius)continue;if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
+    for(const auto& item:p.combat->transitions){if(item.definition.activation!=TransitionActivation::Interact)continue;const double dx=self.x-item.center.x,dy=self.y-item.center.y,dz=self.z-item.center.z,distance=dx*dx+dy*dy+dz*dz;if(distance>item.definition.radius*item.definition.radius)continue;if(agreed){const double ax=agreed->x-item.center.x,ay=agreed->y-item.center.y,az=agreed->z-item.center.z;if(ax*ax+ay*ay+az*az>item.definition.radius*item.definition.radius)continue;}if(!best||distance<nearest){best=InteractionPrompt{item.id,item.definition.prompt};nearest=distance;}}
     return best;
 }
 const InteractionOutcome* SceneClient::last_interaction()const{return impl_->interaction_outcome?&*impl_->interaction_outcome:nullptr;}

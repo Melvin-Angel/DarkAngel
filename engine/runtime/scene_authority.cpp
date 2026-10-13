@@ -81,7 +81,7 @@ struct SceneAuthority::Impl {
         return fallback;
     }
     Impl(SessionHandshake hello,std::span<const ObjectData> objects,std::span<const SceneSeat> party,const CollisionDefinition& collision,std::shared_ptr<const CharacterSceneCombat> configured,const SceneStart& start,SceneTiming mode)
-        :server(SessionRole::Server,hello),timing(mode),combat(std::move(configured)){
+        :server(SessionRole::Server,hello,scene_detail::session_limits(mode)),timing(mode),combat(std::move(configured)){
         require((hello.protocol==2||hello.protocol==3)&&(!combat||hello.protocol==3),"Character scene requires wire2 and the initial human profile");require(!objects.empty()&&objects.size()<=128&&!party.empty()&&party.size()<=scene_party_limit&&party.front().id,"Character scene object/player bounds");
         if(combat&&combat->scene!=AssetId{})ledger=start.ledger;
         for(const auto& seat:party){require(seat.transport&&bool(seat.id)&&std::count_if(party.begin(),party.end(),[&](const auto& other){return other.id==seat.id;})==1,"Scene party seat");server.attach(*seat.transport,seat.peer);Member member;member.identity=seat.id;member.peer=seat.peer;member.foot=seat.position;member.yaw=seat.yaw;members.push_back(std::move(member));member_identities.push_back(seat.id);}
@@ -98,7 +98,7 @@ struct SceneAuthority::Impl {
             for(std::size_t seat=0;seat<members.size();++seat){members[seat].foot=formation(*start.arrival,seat,taken);members[seat].yaw=start.arrival->yaw;taken.push_back(members[seat].foot);}}
         for(const auto& source:objects){if(absent.contains(source.id))continue;auto object=source;
             if(object.id==identity&&start.arrival){object.transform.x=members.front().foot.x;object.transform.y=members.front().foot.y;object.transform.z=members.front().foot.z;object.transform.yaw=members.front().yaw;}
-            auto id=server.create(object);if(object.id==identity){require(!members.front().id,"Duplicate character scene player");require(object.transform.scale==1&&object.transform.pitch==0&&object.transform.roll==0&&object.health.current>0,"Character scene requires an upright, unscaled live player");members.front().id=id;members.front().foot={object.transform.x,object.transform.y,object.transform.z};members.front().yaw=object.transform.yaw;first=&source;}
+            auto id=server.create(object);if(object.id==identity){require(!members.front().id,"Duplicate character scene player");require(object.transform.scale==1&&object.transform.pitch==0&&object.transform.roll==0&&object.health.current>0,"Character scene requires an upright, unscaled live player");members.front().id=id;members.front().foot={object.transform.x,object.transform.y,object.transform.z};members.front().yaw=object.transform.yaw;first=&source;member_template=source;}
             for(std::size_t seat=1;seat<party.size();++seat)require(object.id!=party[seat].id,"A later party member's identity is a scene object's");
             if(combat)for(const auto& config:combat->actors)if(config.id==object.id){require(object.id!=identity&&std::none_of(actors.begin(),actors.end(),[&](const auto& known){return known.identity==object.id;})&&object.transform.scale==1&&object.health.current>0,"Combat actor profile");Actor actor;actor.identity=object.id;actor.id=id;actor.config=&config;actor.foot={object.transform.x,object.transform.y,object.transform.z};actor.yaw=object.transform.yaw;actors.push_back(std::move(actor));}}
         require(first&&members.front().id,"Character scene player missing");
@@ -291,10 +291,40 @@ struct SceneAuthority::Impl {
         actor.hold_x=decision.move_x;actor.hold_z=decision.move_z;actor.hold_face=decision.face&&(!decision.press||pressed)?decision.face:std::optional<double>{};
         validate_motor_input(command);return pressed;
     }
+    // A member that left stops being a member at once, but its avatar leaves the world at the head of the next tick: a new
+    // world revision needs that tick's motor and collision frames to be a coherent baseline, and a held scene runs no tick.
+    struct Departed {std::uint64_t network{};std::unique_ptr<CharacterMotor> motor;};std::vector<Departed> departed;
+    void retire_departed(){for(auto& gone:departed){gone.motor.reset();server.destroy(gone.network);}departed.clear();}
+    ObjectData member_template;std::vector<SceneSeat> arriving;std::vector<std::pair<StableId,std::string>> refused;
+    void add_member(const SceneSeat& seat){
+        require(timing==SceneTiming::Independent&&bool(combat),"Member admission requires an independent combat scene");require(seat.transport&&bool(seat.id)&&seat.transport->valid(seat.peer),"Scene party seat");
+        require(!member(seat.id)&&std::none_of(arriving.begin(),arriving.end(),[&](const auto& other){return other.id==seat.id||other.transport==seat.transport;})&&!find(seat.id),"The member is already in the scene");
+        require(members.size()+arriving.size()<scene_party_limit,"The party is full");require(scene_actor_demand(*combat)+members.size()+arriving.size()+1<=session_character_capacity,"The party does not fit the scene's character capacity");
+        arriving.push_back(seat);
+    }
+    // The same setup as a member that entered with the session, at the tick the scene has reached.
+    void enter(const SceneSeat& seat){
+        const auto& lead=members.front().motor->state();std::vector<MotorVec> taken;for(const auto& known:members)taken.push_back(known.motor->state().position);for(const auto& actor:actors)taken.push_back(actor.motor->state().position);
+        Member entering;entering.identity=seat.id;entering.peer=seat.peer;entering.foot=formation(SceneArrival{lead.position,lead.yaw},members.size(),taken);entering.yaw=lead.yaw;
+        ObjectData object;object.id=seat.id;object.transform=member_template.transform;object.transform.x=entering.foot.x;object.transform.y=entering.foot.y;object.transform.z=entering.foot.z;object.transform.yaw=entering.yaw;object.health=member_template.health;
+        entering.id=server.create(object);
+        try{require(members.back().id<entering.id,"A party member's network identity is out of order");server.assign_team(entering.id,player_faction);
+            entering.motor=std::make_unique<CharacterMotor>(authoritative,entering.foot,entering.id);auto state=entering.motor->state();state.yaw=entering.yaw;state.tick=state.sequence=authoritative.tick();entering.motor->restore(state);
+            entering.owner=server.configure_abilities(entering.id,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(entering.owner,combat->tags);if(combat->loadouts.empty())server.equip_combat_kit(entering.owner,combat->kit,combat->input,combat->abilities);else server.configure_ability_loadouts(entering.owner,combat->loadouts,combat->active_loadout);
+            server.attach(*seat.transport,seat.peer);server.own_motor(entering.id,entering.peer,authoritative.tick());server.publish_motor(entering.id,entering.motor->state());
+            for(std::size_t index=0;index<interactables.size();++index)if(interactables[index].definition().once&&interactables[index].used())server.answer_interaction(entering.id,combat->interactables[index].id,std::uint8_t(InteractionResult::UsedUp));
+        }catch(...){entering.motor.reset();if(server.attached(seat.peer))server.detach(seat.peer);server.destroy(entering.id);throw;}
+        members.push_back(std::move(entering));member_identities.push_back(seat.id);
+    }
+    void admit_arrivals(){for(const auto& seat:arriving)try{enter(seat);}catch(const std::exception& error){refused.push_back({seat.id,error.what()});}arriving.clear();}
+    bool remove_member(StableId id){require(timing==SceneTiming::Independent,"Member removal requires independent scene timing");for(std::size_t index=1;index<members.size();++index)if(members[index].identity==id){const auto peer=members[index].peer;const auto network=members[index].id;if(server.attached(peer))server.detach(peer);departed.push_back({network,std::move(members[index].motor)});members.erase(members.begin()+std::ptrdiff_t(index));member_identities.erase(member_identities.begin()+std::ptrdiff_t(index));return true;}return false;}
+    void pump(){try{server.tick();}catch(...){if(timing!=SceneTiming::Independent)throw;std::vector<StableId> lost;for(std::size_t index=1;index<members.size();++index)if(!server.attached(members[index].peer))lost.push_back(members[index].identity);if(lost.empty())throw;for(auto member:lost)remove_member(member);}}
     void step(std::uint64_t tick){
-        require(tick==authoritative.tick()+1,"Scene authority tick order");
+        require(tick==authoritative.tick()+1,"Scene authority tick order");retire_departed();admit_arrivals();
         auto mark=std::chrono::steady_clock::now();auto lap=[&](double& phase){const auto now=std::chrono::steady_clock::now();phase+=std::chrono::duration<double,std::micro>(now-mark).count();mark=now;};
-        server.tick();
+        pump();
+        // A member lost while this tick's commands were read leaves before the tick is simulated.
+        retire_departed();
         for(auto& known:members){const bool arrived=server.motor_input_ready(known.id,tick);require(arrived||timing==SceneTiming::Independent,"Character scene owner command unavailable");known.accepted=server.consume_motor(known.id,tick,known.motor->state().epoch);if(arrived)known.held=known.accepted;else if(timing==SceneTiming::Independent){known.accepted.x=known.held.x;known.accepted.z=known.held.z;known.accepted.yaw=known.held.sequence?known.held.yaw:known.motor->state().yaw;known.accepted.pitch=known.held.pitch;known.accepted.crouch=known.held.crouch;}known.motion={};}
         lap(profile.replication);if(combat)run_world(tick);lap(profile.world);
         for(std::size_t index=0;index<actors.size();++index){const auto& motor=actors[index].motor->state();actor_commands[index]=MotorInput{tick,tick,motor.epoch,0,0,motor.yaw};actor_motions[index]={};}
@@ -322,11 +352,14 @@ SceneAuthority::SceneAuthority(SessionHandshake hello,std::span<const ObjectData
     :impl_(std::make_unique<Impl>(std::move(hello),objects,party,collision,std::move(combat),start,timing)){}
 SceneAuthority::~SceneAuthority()=default;
 void SceneAuthority::step(std::uint64_t tick){impl_->step(tick);}
-void SceneAuthority::pump(){impl_->server.tick();}
+void SceneAuthority::pump(){impl_->pump();}
 std::uint64_t SceneAuthority::tick()const{return impl_->authoritative.tick();}
 std::optional<SceneTransitionRequest> SceneAuthority::take_transition(){auto asked=impl_->travel;impl_->travel.reset();return asked;}
 void SceneAuthority::capture(){impl_->capture();}
 void SceneAuthority::remove_collision(std::uint64_t id){impl_->authoritative.remove(id);}
+bool SceneAuthority::remove_member(StableId id){return impl_->remove_member(id);}
+void SceneAuthority::add_member(const SceneSeat& seat){impl_->add_member(seat);}
+std::vector<std::pair<StableId,std::string>> SceneAuthority::take_refused(){auto result=std::move(impl_->refused);impl_->refused.clear();return result;}
 std::span<const StableId> SceneAuthority::party()const{return impl_->member_identities;}
 std::vector<std::uint64_t> SceneAuthority::characters()const{std::vector<std::uint64_t> result;for(const auto& member:impl_->members)result.push_back(member.id);for(const auto& actor:impl_->actors)result.push_back(actor.id);return result;}
 std::optional<std::uint64_t> SceneAuthority::network(StableId member)const{const auto* found=impl_->member(member);return found?std::optional<std::uint64_t>{found->id}:std::nullopt;}

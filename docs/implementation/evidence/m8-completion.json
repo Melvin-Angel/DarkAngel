@@ -1,0 +1,64 @@
+{
+  "retained_ctest": {
+    "passed": 99,
+    "total": 102,
+    "log": "m8-1b-network-test.log",
+    "direct_authoring_passes": 2
+  },
+  "affected_ctest": {
+    "passed": 11,
+    "total": 11
+  },
+  "editor": {
+    "resumed_passes": 66,
+    "retained_fixture_passes": 1,
+    "resume": "execute unchanged verifier with the already passed NativeAuthoringTests setup tuple omitted"
+  },
+  "party": {
+    "gates": [
+      {
+        "name": "party-combat-d3d12",
+        "exit": 0,
+        "seconds": 49.218
+      },
+      {
+        "name": "party-interaction-d3d12",
+        "exit": 0,
+        "seconds": 48.969
+      },
+      {
+        "name": "party-mismatch-d3d12",
+        "exit": 0,
+        "seconds": 28.906
+      },
+      {
+        "name": "party-travel-temple-d3d12",
+        "exit": 0,
+        "seconds": 6.344
+      },
+      {
+        "name": "party-travel-gate-d3d12",
+        "exit": 0,
+        "seconds": 5.468
+      },
+      {
+        "name": "party-travel-d3d12",
+        "exit": 0,
+        "seconds": 69.25
+      },
+      {
+        "name": "party-live-d3d12",
+        "exit": 0,
+        "seconds": 75.844
+      }
+    ],
+    "seconds": 284.3,
+    "transport": "GameNetworkingSockets UDP, 127.0.0.1, separate editor processes"
+  },
+  "source_hashes": {
+    "apps/editor/main.cpp": "5c577eb01dc916ed3b1a4cb50b926cd0690f23fffc4aafcf26cb7dff07c01b22",
+    "engine/runtime/scene_client.cpp": "d55ff447d80ec9cbe481adc74d23ca618cdf1143556d8f105a75a5e4c42e3d62",
+    "tests/scene_delay_tests.cpp": "1d64fb78586acfd5a2ff9cfae2c69442def56399ac5a6a3d3378322d604d1d1c",
+    "tests/royal_collision_tests.cpp": "3f52176e3138fb6deefe57aa4138b0aef6ca8c7e063ad77f3223906573a6840f"
+  }
+}

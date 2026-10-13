@@ -20,6 +20,7 @@ class PartyHost {
 public:
     explicit PartyHost(StableId profile,PartyControlLimits={});~PartyHost();
     PartyHost(const PartyHost&)=delete;
+    // Before scene entry, or while a scene runs: a guest that joins a running party waits for admit().
     void attach(unsigned seat,Transport&,ConnectionHandle);
     void pump(double seconds);
     bool joined()const;
@@ -31,6 +32,12 @@ public:
     bool resume();
     // A failed transition holds control until the caller offers the rebuilt source with a fresh epoch.
     void abort(std::string reason);
+    // Live admission into the running scene: the joined guest at this seat is offered the active destination with its
+    // avatar and gameplay endpoint, the others get the grown roster, and it is resumed alone once it reports ready.
+    std::uint64_t admit(unsigned seat,StableId avatar,std::string endpoint);
+    void expel(unsigned seat,std::string reason);
+    // The running party stands still while the host prepares travel; released when travel is cancelled. A new offer ends it.
+    void hold(bool held);
     PartyPhase phase()const;
     std::vector<PartyDrop> drain_drops();
 private:struct Impl;std::unique_ptr<Impl> impl_;
@@ -42,6 +49,7 @@ public:
     void pump();
     PartyPhase phase()const;
     const std::optional<PartyOffer>& offer()const;
+    bool held()const;
     // Only call after local assets, collision and the SceneClient's bootstrap are prepared.
     bool ready(AssetId scene,const SessionHandshake& actual);
     void failed(std::string reason);

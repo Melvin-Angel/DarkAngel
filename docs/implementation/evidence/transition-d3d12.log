@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802050e0000
 [39mViewport foreground pixels=859932 capture=C:\DarkAngel\docs\implementation\evidence\transition-d3d12.png
-Editor transition tick=293 players=2 arrivals=2 failures=0 phase=Idle scene=e9919719-a111-427a-ba51-2a2d63583686 document=e9919719-a111-427a-ba51-2a2d63583686 authoring=e9919719-a111-427a-ba51-2a2d63583686 lever_used=1 first_prompt=0 overlay_frames=38 loading=0 ledger_records=1 scripts=7/7,5/5 pending=0
+Editor transition tick=293 players=2 arrivals=2 failures=0 phase=Idle scene=40a9abd7-2bfd-4f20-89bc-a607b54244e1 document=40a9abd7-2bfd-4f20-89bc-a607b54244e1 authoring=40a9abd7-2bfd-4f20-89bc-a607b54244e1 lever_used=1 first_prompt=0 overlay_frames=38 loading=0 ledger_records=1 scripts=7/7,5/5 pending=0
 DarkAngel editor rendered 420 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 22/256

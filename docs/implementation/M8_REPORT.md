@@ -1,6 +1,6 @@
 # M8: world state, inventory, scene transitions and co-op progression
 
-Rewritten 13 October 2026 from the user's M8 brief ([M8_BRIEF.md](M8_BRIEF.md), verbatim). Stage 1a is built; the first two stage-1b increments are built with headless fault tests and the existing editor regression gates passing (see the last section). Stage 1b and M8 remain In progress; the remaining stages are not built and nothing is Verified.
+Rewritten 13 October 2026 from the user's M8 brief ([M8_BRIEF.md](M8_BRIEF.md), verbatim). Stage 1a and stage 1b are built and locally verified with the limitations below. Stage 2 is now authorized and beginning; M8 remains In progress and is not milestone-qualified.
 
 The first version of this note (12 October, commit `1e14572`, "saves and campaign loop") asked eight questions. The brief answers most of them and widens M8; the mapping is in "What the brief settled". Its persistence-service design (decision DAE-020) is kept and moved into stage 3.
 
@@ -76,7 +76,7 @@ Read from the code and reports on 13 October; re-check at the start of stage 1, 
 
 ### Scene transitions
 
-- `SceneTransitionCoordinator` (host) runs one transition at a time through explicit phases: **Requested → Validated** (destination scene exists, entry point exists) → **Capturing** (ledger capture of the current scene) → **Announced** (clients told destination and transition id) → **Loading** (host and every client load and build the destination; collision, navigation and gameplay entities ready) → **Restoring** (ledger restore, players placed at the entry point or altar arrival transform) → **Awaiting ready** (every connected client acknowledges) → **Resumed** (control returns).
+- `SceneTransitionCoordinator` (host) runs one transition at a time through explicit phases: **Requested â†’ Validated** (destination scene exists, entry point exists) â†’ **Capturing** (ledger capture of the current scene) â†’ **Announced** (clients told destination and transition id) â†’ **Loading** (host and every client load and build the destination; collision, navigation and gameplay entities ready) â†’ **Restoring** (ledger restore, players placed at the entry point or altar arrival transform) â†’ **Awaiting ready** (every connected client acknowledges) â†’ **Resumed** (control returns).
 - **Failure** before Resumed rolls back to the source scene, which is kept alive until the destination is ready; if that is impossible the party is returned to the checkpoint. The session is never left between scenes. A client that fails or times out is dropped from the party, not allowed to block it.
 - **Scene Entry Point**: a placeable object with stable ID, position and facing. Altars carry their own arrival transform. A **Scene Transition Trigger** (volume or interactable) and doors can request a transition with a destination scene and entry ID.
 - Inventories, masks, progression and the checkpoint live outside the scene, so they cross unchanged.
@@ -85,7 +85,7 @@ Read from the code and reports on 13 October; re-check at the start of stage 1, 
 
 ### Items and inventory
 
-- **Item definition** (`.daitem` native source): stable AssetId, name, description, classification, icon, optional model, stack limit, unique flag, usable/equippable, and a typed classification block. Classifications are registered kinds (Key, Consumable, Mask, Material, Quest Item, …) with their own property schema and use behaviour, all held by one inventory implementation.
+- **Item definition** (`.daitem` native source): stable AssetId, name, description, classification, icon, optional model, stack limit, unique flag, usable/equippable, and a typed classification block. Classifications are registered kinds (Key, Consumable, Mask, Material, Quest Item, â€¦) with their own property schema and use behaviour, all held by one inventory implementation.
 - **Mask as an item**: a Mask item references the existing Mask definition. The definition keeps kit and visual; the owned instance lives in a player's inventory; equipping puts an owned mask into one of the four slots. Player definitions declare a starting inventory and starting equipped masks; NPCs keep referencing mask definitions directly.
 - **Inventory** per player on the host: add, remove, stack, split by stack limit, consume, query, equip and unequip; every entry has an instance ID so later per-instance data fits. All changes are server requests with operation IDs so a replayed or duplicated request grants once.
 - **Pickups**: a placeable object with item and quantity, collection policy (one-time, respawn on rest, respawn on scene entry) and an optional model from the item. The host claims a pickup once; a simultaneous second request is refused.
@@ -110,7 +110,7 @@ Read from the code and reports on 13 October; re-check at the start of stage 1, 
 ### Doors, gates, platforms, requirements
 
 - **Requirement** is one reusable type: has item (optionally consumed), world tag set, encounter completed, ledger property equals. Doors, gates, altars and transition triggers use it.
-- **Door/gate** state machine: Locked → Closed ⇄ Opening ⇄ Open ⇄ Closing, with `locked` and `open` as separate logical properties with separate policies; optional transition on use.
+- **Door/gate** state machine: Locked â†’ Closed â‡„ Opening â‡„ Open â‡„ Closing, with `locked` and `open` as separate logical properties with separate policies; optional transition on use.
 - **Movable platform**: start and end transforms or a path of points; triggers (interaction, volume, world event); states Idle, Moving, Arrived, Returning; speed and behaviour (one-way, return after delay, loop). The host moves it as a kinematic body through `set_platform`; the ledger keeps only the logical state and target, and the transform is reconstructed. Riding it under prediction is a stage-5 gate.
 
 ### Saves (DAE-020)
@@ -188,7 +188,7 @@ Read on 13 October from `engine/runtime/character_scene.*`, `world_session.hpp`,
 2. **A client that tolerates delay. This is the largest cost and the real risk.** A process on GNS cannot be stepped in lockstep with the host. It needs its own fixed clock, predicting ahead of the newest correction; inputs kept until acknowledged; reconciliation against a correction older than the current tick, replaying the newer inputs (the motor and ability prediction classes are built for this, but the scene loop has never driven them that way); observers interpolated from frames that arrive late or out of step; and recovery when a frame never comes. The owner semantic history is bounded at 30 ticks, so a client that falls 0.5 s behind must resynchronize.
 3. **A client-only editor mode**: `DarkAngelEditor --join 127.0.0.1:<port> --player <n>`. It opens the same project, loads the same cooked Play package, sends the content hash in the handshake (the host refuses a mismatch), builds only a `SceneClient` plus rendering, input, camera and HUD, and never constructs authority, NPC controllers or saves. Most of the Play preparation is shared with the host. Server-only parts such as behaviour trees, navigation and encounter directors are skipped.
 4. **The scene stream over GNS UDP.** The transport exists. What is new is the full scene stream through it, inside the budget of 16 packets per tick per peer.
-5. **A launcher.** Play gets a "Players: 1–4" setting. The host opens a GNS listen socket and starts N−1 child editor processes, each with its own window placed beside the host's. Stop ends them. A child that exits or fails its handshake is reported and dropped from the party.
+5. **A launcher.** Play gets a "Players: 1â€“4" setting. The host opens a GNS listen socket and starts Nâˆ’1 child editor processes, each with its own window placed beside the host's. Stop ends them. A child that exits or fails its handshake is reported and dropped from the party.
 6. **Gates.** A gate starts the host hidden with `--players 2`. The host starts a hidden child with a scripted input source (`--input-script walk-to:x,z;interact`). Both write their own log and capture, and the gate script checks both. Everything runs on one machine, so it shows two processes agreeing, not behaviour under real latency.
 
 **The in-process fallback needs:** item 1, plus a second `SceneClient` on its own loopback pair inside the editor process, pumped in lockstep like today. A second Game viewport panel shows player 2's camera and HUD. Keyboard and mouse drive the focused viewport's player, a gamepad can be assigned to a player, and gates use a scripted input source. Lockstep stays, so item 2 is not needed yet.
@@ -222,7 +222,7 @@ If 1b turns out larger than estimated, its progress is reported at the end of st
 
 ### Party placement
 
-- A **Scene Entry Point** is a scene object with an `"entry": {"name": "..."}` component: stable ID, position, facing. `SpawnPlan` gains `entries` (StableId → name). Names are labels for pickers and need not be unique; the StableId is the destination identifier.
+- A **Scene Entry Point** is a scene object with an `"entry": {"name": "..."}` component: stable ID, position, facing. `SpawnPlan` gains `entries` (StableId â†’ name). Names are labels for pickers and need not be unique; the StableId is the destination identifier.
 - The party is placed in a fixed formation around the entry point: the first member on it, the others on a ring of 1.2 m in a fixed order. Each place is snapped to the ground with a ray and moved further out, the way an encounter spawn is, when a body blocks it.
 - Initial Play keeps today's rule: the scene's player object is where the party starts. A scene without entry points still plays.
 
@@ -441,3 +441,85 @@ CharacterSceneSession retains its strict constructor for the existing headless a
 The persistent local profile has a separate local-player slot for launched children, giving distinct identities on one machine. The network seat is an assignment for this session, not the persistent inventory key. The launcher passes the local slot explicitly, while a manually joined guest uses its ordinary local profile. Profiles continue to map to the current scene's authored/runtime avatar IDs.
 
 The user's stage-1b decision explicitly requires simultaneous child editor windows belonging to one Play. The existing one-build/editor-at-a-time rule continues to serialize builds and unrelated editor/verification runs; one multiplayer test party necessarily contains its host and owned guests. Stop closes that party's children before another party starts. Two-process gates will be reported as same-machine UDP evidence; they do not qualify two-machine play or EOS.
+
+Network integration is now in progress after commit 732533a. CharacterSceneSession's independent host and client-only constructors are applied and compile; a remote seat has no mirror SceneClient in the host, and a guest has no SceneAuthority. SceneDelayTests passes the composition, movement, guest authority/capture denial and disconnected-avatar removal cases. SceneTransitionCoordinator has optional construction, readiness, resume and cancellation hooks; construction can return Working across frames, and source reconstruction also waits for the external acknowledgement barrier. SceneTransitionTests passes both the existing strict cases and the new initial construction, delayed readiness, asynchronous rollback and stop-during-construction cases. These are focused loopback checks only; this integration has not completed full CTest/editor verification. The editor GNS bridge, profile persistence, child launcher and live admission are the next work, followed by two-process gates. Do not mark stage 1b complete or begin stage 2 yet.
+
+Editor integration refinement: a manually joined localhost guest defaults to its assigned local-player profile slot, just as launched children do; a remote manual guest defaults to its ordinary profile. --local-profile explicitly overrides either. This avoids a duplicate profile when two local processes run under one Windows account. Client mode draws only the Game viewport/HUD and status, has no authoring navigation or host inspector, uses no NPC controller source, and packages only already-cooked local assets into its private Play registry. A remote guest must prepare matching assets locally; content mismatch is refused. These paths are being compiled and exercised, not yet verified. The transition coordinator retains the source preparation until readiness finishes, so a readiness exception can rebuild the source; its focused regression passes.
+
+### Increment 3: editor network play, live admission and two-process gates built (13 October 2026)
+
+A party now plays in separate editor processes over GNS on localhost. Play with Players above 1 starts one guest editor per further player and owns them; `--listen IP:port` hosts for guests started by hand with `--join IP:port --player 1..3`. A guest has the Game viewport, its HUD and a status line, and no authority.
+
+**Built**
+
+- `CharacterSceneSession` has an independent host composition (one local `SceneClient`, remote seats with no mirror client) and a client-only composition (no `SceneAuthority`). `SceneTransitionCoordinator` can build a session across frames and waits for a readiness answer from outside.
+- `apps/editor/network_play.*`: `EditorPartyHost` and `EditorPartyGuest`. A persistent local profile (`%LOCALAPPDATA%/DarkAngel/profiles/local.json`, with slots for several players on one account), one party control connection per seat that outlives scenes, one gameplay connection per seat per scene epoch, and guest processes owned through a kill-on-close job.
+- Session deadlines in independent scenes count elapsed time, not pumps, so a fast renderer cannot spend a guest's bootstrap deadline while the other process is still loading. Strict sessions keep pump counts.
+- **Live admission.** A guest can join a party whose scene is already running. The party channel accepts the join, offers that guest alone the running scene with its avatar and endpoint, tells the others the grown roster, and resumes the guest alone when it reports ready. `SceneAuthority::add_member` brings the avatar in at the head of the next tick, in formation around the first member, with the same setup as a member that entered with the session; its command queue starts at the current tick. A seat that a guest left listens again, so the same player can come back.
+- **Travel hold.** While the host prepares a destination the running guests are told to hold (input and scripts stop, the status line says the party is travelling); the hold ends when travel is cancelled or the new scene is offered.
+- Diagnostics for gates: `--party-report file` writes a JSON receipt per process (role, authority, epoch, tick, players and positions, actor health, interaction result, prediction rebuild causes, the last console lines, and the fullest and last running snapshots). Script steps `use`, `await-tick`, `await-players`, `capture` and `quit` let a script end a run on the host's tick, which every process shares. The host passes `--capture` on to each guest with its seat in the name.
+
+**Defects found by running two real processes, and fixed**
+
+1. A guest took its own avatar for a second local player and stopped with `Input names a local companion`.
+2. A guest stopped with `Invalid spawn overlaps collision` as soon as it touched another player. Prediction and replay worlds refused an authoritative position that touched another character by more than 1 cm. Only an authoritative spawn is now refused for overlapping a character; static geometry is still checked everywhere. Before the fix each side rebuilt its prediction 13 times in 200 ticks of one player pushing another; after it, once. Two local players in lockstep had the same latent fault.
+3. A guest leaving while the scene was held (waiting for readiness) left the host waiting for ever: the avatar's removal made a new world revision and no tick ran to publish a coherent baseline for it. The member now leaves the party at once and its avatar leaves the world at the head of the next tick; one lost while a tick reads its commands leaves before that tick is simulated.
+4. Under input lead a guest's `Pull the lever` prompt appeared from its predicted position while authority still had the avatar out of reach, and the use was refused. An independent client now offers only what its confirmed position also reaches.
+5. The HUD target lookup threw while a networked client was catching up on a new world revision.
+
+**Design changes from the plan, recorded as agreed**
+
+- Live admission enters the running scene; it is not a reload of the scene with a larger party. The scene's tick, encounters and damage carry on (the second guest in the gate finds the dummy as the first left it).
+- The admitted avatar is in the world from the moment the guest's gameplay connection is up, before the guest has finished preparing. Until its owner is resumed it stands still. It can be hit during that time.
+- A guest is constructed knowing every avatar a member of the scene can have (the host's, and one per seat); its `players()` are those of them in the replicated world. This is what lets a running guest see a later member as a player without a message of its own.
+
+**Gates** (`scripts/verify_network_party.py`, run after `verify_effect_reaction.py`, whose fixture it uses)
+
+| Gate | What it shows |
+| --- | --- |
+| `party-combat-d3d12` | Readiness barrier passed by both; the guest walks and hits the dummy, 75 of 100 in both processes; at most a few prediction rebuilds; the guest quits and the host plays on alone |
+| `party-interaction-d3d12` | The guest uses the lever, authority accepts, the encounter's guards reach both processes |
+| `party-mismatch-d3d12` | A guest with a wrong content hash is refused by name before it reaches the scene; the host plays alone |
+| `party-travel-d3d12` (and two placement runs) | Host takes the party to the temple, guest takes it back: three epochs prepared and resumed by both, guest held twice |
+| `party-live-d3d12` | Host starts alone; a guest started by hand is admitted at tick > 120, fights and leaves; a second guest takes the same seat; the host scene keeps epoch 1 and its tick throughout |
+
+Native tests: `PartyControlTests` gained live join, roster growth, hold, admission timeout; `SceneDelayTests` gained removal while held and re-admission of a member into the running scene; `SceneTransitionTests` the asynchronous construction and readiness cases; `SessionTests` the elapsed-time deadlines.
+
+**Verification.** PENDING-VERIFICATION: the full pass (build, CTest, the 67 editor gates, the party gates on the final binaries) was still running when this was written; the party gates had passed once on the build before it. Nothing of this increment is committed yet.
+
+**Limits, not built or not shown**
+
+- Same machine only. Two machines, real latency and loss, EOS and moving-platform prediction are unverified. These gates are not multiplayer qualification.
+- Joining a running party is done by starting a guest with `--join`. Raising Players during Play does not start another guest; that belongs to the editor UI pass.
+- A guest whose host goes away stops with `Session peer disconnected`; it does not reconnect by itself. It can be started again and is admitted.
+- An interaction request is judged where authority has the avatar when it arrives; it carries no tick. A player who presses while running out of reach is refused.
+- A member whose commands stop arriving keeps its last movement until it is removed, so a guest that stalls mid-walk walks on for a moment.
+- A guest admitted while the host is paused waits until the host runs a tick.
+- The readiness timeout, three and four players, and a guest failing during travel are covered by native tests only, not by two-process gates.
+- A guest prepares from content already cooked on its machine; it cooks nothing.
+- The local profile file is created without an atomic publish; two first launches at the same instant could race.
+- Scene-owned collision (Q1) is still not built: every scene of a Play uses the collision from the command line.
+
+
+## Stage 2 implementation contracts (14 October 2026)
+
+The authoritative scope remains stage 2 of Order of work and the Items and inventory section above. Implementation follows stage 1b verification and its commit; this section records the dependency order.
+
+1. Native item definitions and bounded inventory transactions. Definitions use AssetId; inventory ownership uses PartyMember.profile, never a scene avatar or seat. Every stack has a monotonically allocated instance ID. Classifications use a validated registered kind and typed properties; no inventory implementation per kind. Preparation of a mutation operates on a candidate so capacity, quantity, ownership or validation failures leave state intact. Operation receipts reject conflicting duplicates and retain explicit retirement bounds.
+2. Native .daitem source cooking and source-free frozen loading through AssetService/CAS. Icon, model and mask references participate in dependency closure and generation checks. A Mask item references the existing .dafacemask definition; it does not duplicate combat-kit or visual configuration.
+3. Host-owned party inventory service outside scene sessions, with coherent snapshot/restore and four owned-mask equipment slots. Wire requests and owner-only snapshots use the established gameplay authority and reliable transport; the party-control protocol remains limited to coordination. Travel and disconnect must preserve profile ownership; seat reuse must not transfer another profile's items. Starting inventory comes from Player authoring; NPC loadouts retain direct mask references.
+4. Items Dear ImGui workspace and shared Mask Editor, debug Grant item, and a game-owned RmlUi inventory document. Dedicated implementation files keep item features out of main.cpp. Save uses existing revisioned NativeAuthoring transactions and fresh Play preparation.
+5. Scene pickups use stable PersistentId, item/quantity, per-property LedgerPolicy and host interaction validation. A grant and collected-state change publish atomically; capacity failure leaves the pickup available. One-time claims survive scene reload; resettable availability follows ledger reset triggers. Replayed and concurrent claims cannot grant twice.
+
+Acceptance coverage: stack splitting and limits; unique ownership; atomic failure; consume/use and owned-mask equipment; identical and conflicting operation retries; bounded receipts; malformed serialization and unknown definitions; two-profile isolation; two simultaneous pickup claims; transition preservation; authoring Save/cook/fresh Play; runtime inventory use/equip; separate-process request/correction and late join. Same-machine gates remain distinct from two-machine/EOS qualification. Stage 3 owns durable slot-file persistence; stage 2 provides versioned inventory snapshots for its later party capture.
+
+
+## Stage 1b completion checkpoint (14 October 2026)
+
+Resumed the unfinished increment without repeating the completed full suite. The prior final CTest log records 99/102 passes; ActorAssetTests and AttributeAuthoringTests exceeded 90 seconds but passed directly in 136.4/146.3 seconds. NativeAuthoringTests passed in 1436.75 seconds. These slow tests are not functional failures. The third failure was the known collision-test linker omission.
+
+Fixed RoyalCollisionTests to link native_authoring.cpp. Running it then exposed a stale test fixture predating NPC spawns: it packaged no NPC closure and expected the original dummy identity in today's guard scene. It now uses the existing RoyalTraining scene, cooks the authored NPC closure and resolves spawned_actor; every original mesh/clearance/damage/stale-binding assertion remains. It passes in CTest. No protected content changed.
+
+The remaining editor verification was resumed from the completed native-authoring fixture: 66/66 gates pass, combined with the retained fixture gate for 67/67. A redundant fixture rerun was stopped; it is not counted as a new pass. The resume helper is recorded in the receipt. A fresh separate-process GNS interaction gate then failed intermittently with Observer character state requires resynchronization during encounter spawn. Added observer_if_ready to SceneClient and CharacterSceneSession; HUD selection waits for coherent public state and clears stale targets, while observer() retains strict assertions. SceneDelayTests checks unavailable-before-spawn and available-after-preparation. Full guarded build passes; affected CTest 11/11 passes; final GNS gates 7/7 pass in 284.3 seconds. Combat, interaction/encounter, mismatch, disconnect, readiness, two-way travel and live re-admission ran in separate editor processes. Captures were inspected for rendered characters/HUD.
+
+Combined test disposition: all 102 original tests have passing execution evidence; the original full CTest run remains 99/102 because two tests timed out and collision was then unavailable. This is not a claim of a newly green full-suite CTest run. Raw evidence: m8-1b-network-test.log, m8-1b-network-{actor,attribute}-direct.log, m8-1b-observer-fix-build.log, m8-completion-affected.log, m8-completion-editor-resume.log and m8-completion-party-fixed.log. Limits from Increment 3 remain: same-machine UDP only, D3D12 graphical gates, no two-machine/EOS or real-world latency/loss qualification, no per-scene collision selection, native-only coverage of three/four players and travel timeout/failure. Remaining UI/reconnect/profile refinements are documented above and do not block the planned stage 2.

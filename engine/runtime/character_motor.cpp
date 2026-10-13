@@ -564,7 +564,9 @@ namespace darkangel {
             if(!identity){while(w.actors.contains(w.next_motor))++w.next_motor;identity=w.next_motor++;}
             check(!w.actors.contains(identity),"Duplicate character identity");
             character=new JPH::CharacterVirtual(&settings,v(foot),JPH::Quat::sIdentity(),identity|(1ULL<<63),&w.system);
-            check(clear(foot,true),"Invalid spawn overlaps collision; choose validated safe pose");
+            // Prediction and replay worlds place a motor where authority already had it: another character touching it there is
+            // authority's own contact, so only an authoritative spawn is refused for overlapping a character.
+            check(clear(foot,w.mode==PhysicsWorld::Mode::Authoritative),"Invalid spawn overlaps collision; choose validated safe pose");
             character->SetCharacterVsCharacterCollision(&w.characters);
             w.characters.Add(character);
             w.actors.emplace(identity,PhysicsWorld::Impl::Actor{character,&state,++w.next_generation,w.tick});
@@ -759,7 +761,7 @@ namespace darkangel {
         auto& s=*impl_;
         s.world.thread();
         check(state.topology==s.world.topology&&state.tick==s.world.tick,"Restore history mismatch");
-        check(!s.world.failed&&s.clear(state.position,true,state.crouched?s.low:s.standing),"Restore overlaps current collision; resynchronize to a validated pose");
+        check(!s.world.failed&&s.clear(state.position,s.world.mode==PhysicsWorld::Mode::Authoritative,state.crouched?s.low:s.standing),"Restore overlaps current collision; resynchronize to a validated pose");
         s.shape(state.crouched,true);
         s.state=state;
         s.character->SetPosition(v(state.position));

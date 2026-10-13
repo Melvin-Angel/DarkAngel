@@ -1,0 +1,126 @@
+[1/96] Scanning C:\DarkAngel\engine\runtime\scene_transition.cpp for CXX dependencies
+[2/96] Scanning C:\DarkAngel\engine\runtime\scene_client.cpp for CXX dependencies
+[3/96] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[4/96] Scanning C:\DarkAngel\tests\party_scene_tests.cpp for CXX dependencies
+[5/96] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[6/94] Scanning C:\DarkAngel\tests\scene_delay_tests.cpp for CXX dependencies
+[7/94] Scanning C:\DarkAngel\tests\character_scene_tests.cpp for CXX dependencies
+[8/94] Scanning C:\DarkAngel\tests\scene_transition_tests.cpp for CXX dependencies
+[9/94] Generating CXX dyndep file CMakeFiles\PartySceneTests.dir\CXX.dd
+[10/94] Generating CXX dyndep file CMakeFiles\SceneDelayTests.dir\CXX.dd
+[11/94] Generating CXX dyndep file CMakeFiles\SceneTransitionTests.dir\CXX.dd
+[12/94] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[13/94] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj
+C:\DarkAngel\engine\runtime\scene_transition.cpp(30): warning C4458: declaration of 'session' hides class member
+C:\DarkAngel\engine\runtime\scene_transition.cpp(14): note: see declaration of 'darkangel::SceneTransitionCoordinator::Impl::session'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(81): warning C4458: declaration of 'ready' hides class member
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(84): note: see declaration of 'darkangel::SceneTransitionCoordinator::ready'
+[14/94] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[15/94] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_client.cpp.obj
+C:\DarkAngel\engine\runtime\scene_client.cpp(169): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(66): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(244): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(66): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(265): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(66): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+[16/94] Linking CXX static library DarkAngelCharacterScene.lib
+[17/94] Scanning C:\DarkAngel\games\AshenRoots\royal_combat.cpp for CXX dependencies
+[18/94] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[19/93] Scanning C:\DarkAngel\tests\composer_preview_tests.cpp for CXX dependencies
+[20/93] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[21/93] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[22/93] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[23/93] Scanning C:\DarkAngel\tests\royal_collision_tests.cpp for CXX dependencies
+[24/93] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[25/93] Building CXX object CMakeFiles\PartySceneTests.dir\tests\party_scene_tests.cpp.obj
+[26/93] Scanning C:\DarkAngel\tests\character_combat_scene_tests.cpp for CXX dependencies
+[27/93] Scanning C:\DarkAngel\tests\navigation_tests.cpp for CXX dependencies
+[28/93] Scanning C:\DarkAngel\tests\behavior_tree_tests.cpp for CXX dependencies
+[29/93] Scanning C:\DarkAngel\tests\observed_character_pose_tests.cpp for CXX dependencies
+[30/93] Scanning C:\DarkAngel\tests\reaction_presentation_tests.cpp for CXX dependencies
+[31/93] Scanning C:\DarkAngel\tests\royal_heavy_scene_tests.cpp for CXX dependencies
+[32/93] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[33/93] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[34/93] Scanning C:\DarkAngel\apps\editor\network_play.cpp for CXX dependencies
+[35/93] Generating CXX dyndep file CMakeFiles\ComposerPreviewTests.dir\CXX.dd
+[36/92] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[37/91] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
+[38/90] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[39/90] Generating CXX dyndep file CMakeFiles\NavigationTests.dir\CXX.dd
+[40/90] Generating CXX dyndep file CMakeFiles\BehaviorTreeTests.dir\CXX.dd
+[41/90] Generating CXX dyndep file CMakeFiles\ObservedCharacterPoseTests.dir\CXX.dd
+[42/90] Generating CXX dyndep file CMakeFiles\ReactionPresentationTests.dir\CXX.dd
+[43/90] Generating CXX dyndep file CMakeFiles\RoyalHeavySceneTests.dir\CXX.dd
+[44/90] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[45/79] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_combat.cpp.obj
+[46/79] Linking CXX static library AshenRootsCombat.lib
+[47/79] Building CXX object CMakeFiles\SceneDelayTests.dir\tests\scene_delay_tests.cpp.obj
+[48/79] Building CXX object CMakeFiles\SceneTransitionTests.dir\tests\scene_transition_tests.cpp.obj
+[49/79] Building CXX object CMakeFiles\ComposerPreviewTests.dir\tests\composer_preview_tests.cpp.obj
+[50/79] Building CXX object CMakeFiles\ComposerPreviewTests.dir\apps\editor\character_preview.cpp.obj
+[51/79] Building CXX object CMakeFiles\NativeAuthoringTests.dir\apps\editor\character_preview.cpp.obj
+[52/79] Building CXX object CMakeFiles\RoyalCollisionTests.dir\tests\royal_collision_tests.cpp.obj
+[53/79] Building CXX object CMakeFiles\RoyalCollisionTests.dir\apps\editor\character_preview.cpp.obj
+[54/79] Building CXX object CMakeFiles\NavigationTests.dir\tests\navigation_tests.cpp.obj
+[55/79] Building CXX object CMakeFiles\ObservedCharacterPoseTests.dir\tests\observed_character_pose_tests.cpp.obj
+[56/79] Building CXX object CMakeFiles\BehaviorTreeTests.dir\tests\behavior_tree_tests.cpp.obj
+[57/79] Building CXX object CMakeFiles\CharacterCombatSceneTests.dir\tests\character_combat_scene_tests.cpp.obj
+[58/79] Building CXX object CMakeFiles\CharacterSceneTests.dir\tests\character_scene_tests.cpp.obj
+[59/79] Building CXX object CMakeFiles\RoyalHeavySceneTests.dir\tests\royal_heavy_scene_tests.cpp.obj
+[60/79] Building CXX object CMakeFiles\ReactionPresentationTests.dir\tests\reaction_presentation_tests.cpp.obj
+[61/79] Building CXX object CMakeFiles\NativeAuthoringTests.dir\tests\native_authoring_tests.cpp.obj
+[62/79] Linking CXX executable ComposerPreviewTests.exe
+[63/79] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\network_play.cpp.obj
+C:\DarkAngel\apps\editor\network_play.cpp(53): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+[64/79] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[65/79] Linking CXX executable NativeAuthoringTests.exe
+[66/79] Linking CXX executable CharacterCombatSceneTests.exe
+[67/79] Linking CXX executable PartySceneTests.exe
+[68/79] Linking CXX executable RoyalCollisionTests.exe
+[69/79] Linking CXX executable NavigationTests.exe
+[70/79] Linking CXX executable SceneTransitionTests.exe
+[71/79] Linking CXX executable SceneDelayTests.exe
+[72/79] Linking CXX executable ReactionPresentationTests.exe
+[73/79] Linking CXX executable ObservedCharacterPoseTests.exe
+[74/79] Linking CXX executable BehaviorTreeTests.exe
+[75/79] Linking CXX executable CharacterSceneTests.exe
+[76/79] Linking CXX executable HudTests.exe
+[77/79] Linking CXX executable RoyalHeavySceneTests.exe
+[78/79] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(971): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(972): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1001): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1002): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1010): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1012): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1021): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(204): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1033): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(204): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1116): warning C4456: declaration of 'last' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(918): note: see declaration of 'last'
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1364): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1409): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1409): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1471): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1494): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(193): note: see declaration of 'id'
+[79/79] Linking CXX executable DarkAngelEditor.exe

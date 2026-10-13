@@ -12,8 +12,20 @@ public:
     // companions: further local players, each with its own client. They enter with the session; at most
     // scene_party_limit players in all.
     CharacterSceneSession(SessionHandshake,std::span<const ObjectData>,StableId player,
-        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {},std::span<const ScenePlayer> companions={},const SceneStart& = {});
+        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {},std::span<const ScenePlayer> companions={},const SceneStart& = {},std::span<const SceneSeat> remote={},SceneTiming = SceneTiming::Lockstep);
+    // Independent client-only composition. The transport and prepared resources outlive this session. party lists every
+    // avatar that may be a member of this scene; players() are those of them that are in the replicated world.
+    CharacterSceneSession(SessionHandshake,Transport&,ConnectionHandle,StableId player,std::span<const StableId> party,
+        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {});
     ~CharacterSceneSession();
+    bool hosting()const;
+    bool bootstrapped()const;
+    void pump();
+    // Host-only removal of a disconnected remote avatar; profile-owned state remains outside this scene.
+    bool remove_member(StableId);
+    // Host-only live admission of a remote seat; see SceneAuthority::add_member. The transport outlives this session.
+    void add_member(const SceneSeat&);
+    std::vector<std::pair<StableId,std::string>> take_refused();
     CharacterSceneSession(const CharacterSceneSession&)=delete;
     unsigned advance(double seconds,CharacterSceneInput);
     void step(CharacterSceneInput);
@@ -46,6 +58,7 @@ public:
     std::size_t pending_abilities()const;
     MotorVec prediction_visual_offset()const;
     ObserverAbilitySample observer(StableId,double render_tick)const;
+    std::optional<ObserverAbilitySample> observer_if_ready(StableId,double render_tick)const;
     std::span<const AbilityCommitUpdate> commitments()const;
     const EffectPresentation* effects(StableId)const;
     std::span<const EffectCueUpdate> effect_cues()const;

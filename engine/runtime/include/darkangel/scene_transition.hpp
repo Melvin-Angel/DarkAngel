@@ -77,6 +77,15 @@ public:
     // The owner of Play drops what hangs off the session before it is destroyed, and builds it again once a session
     // exists (the destination, or the source after a failed swap). An exception from loaded fails the swap.
     std::function<void()> unloading,loaded;
+    // Optional network construction: null means still working; an exception rebuilds the source.
+    // Resources and external transports are owned by the caller and must outlive the returned session.
+    std::function<std::unique_ptr<CharacterSceneSession>(PreparedScene&,StableId,const SceneStart&,std::span<const ScenePlayer>)> build_session;
+    // The external party's acknowledgement barrier replaces the default in-process check.
+    std::function<bool(CharacterSceneSession&)> ready;
+    std::function<void()> resumed;
+    std::function<void(std::string_view)> cancelled;
+    std::function<std::string()> construction_text;
+    std::function<std::size_t()> party_size;
     // The loading screen stays at least this long, so a fast load does not flash.
     double minimum_seconds{.3};
     // Fault injection for tests and gates: the next swap fails after the source session is gone.

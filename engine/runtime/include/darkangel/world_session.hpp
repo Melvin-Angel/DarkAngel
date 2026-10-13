@@ -19,7 +19,8 @@ enum class SessionReadiness { Handshake, ContentReady, Bootstrap, CatchUp, Ready
 // body_radius: the collision stream carries, for a peer that owns a character, only the character bodies within this
 // distance of it (its own always): a body further away cannot be touched before the next frame arrives. Level bodies
 // (boxes, meshes) always travel.
-struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};double relevance_radius{12};unsigned far_interval{3};double body_radius{5};};
+// With wall_clock_timeouts, deadline ticks are elapsed 1/60 seconds; packet work and resend cadence remain bounded per pump.
+struct SessionLimits {std::size_t objects{128},peers{4},packets_per_tick{16};unsigned timeout_ticks{600},collision_timeout_ticks{30};double relevance_radius{12};unsigned far_interval{3};double body_radius{5};bool wall_clock_timeouts{};};
 struct CollisionStreamDiagnostics {std::uint64_t sent_packets{},sent_bytes{},decoded{},ack_tick{},ack_topology{},expired{},superseded{};std::size_t partial_chunks{};bool has_ack{},needs_resync{};};
 struct AbilityCorrection {std::uint64_t network{},session_epoch{},world_revision{};MotorState motor;AbilityOwnerSnapshot ability;};
 // The wire frame carries the ability snapshot and the avatar epoch, not the motor state: a client pairs it with the
@@ -56,6 +57,7 @@ public:
     WorldSession& operator=(const WorldSession&)=delete;
     void attach(Transport&,ConnectionHandle);
     void detach(ConnectionHandle);
+    bool attached(ConnectionHandle)const;
     void tick();
     std::uint64_t create(ObjectData);
     void move(std::uint64_t,const Transform&);
@@ -114,7 +116,8 @@ public:
     std::vector<AbilityActionUpdate> drain_ability_actions();
     void retire_ability_operations(AbilityOwnerHandle,std::uint64_t through);
     // Explicit server ownership; movement commands never grant authority.
-    void own_motor(std::uint64_t,ConnectionHandle);
+    // consumed_tick: the tick the owner's commands start after, for a motor that enters a session already running.
+    void own_motor(std::uint64_t id,ConnectionHandle peer,std::uint64_t consumed_tick=0);
     bool submit_motor(std::uint64_t,const MotorInput&);
     bool motor_input_ready(std::uint64_t,std::uint64_t) const;
     MotorInput consume_motor(std::uint64_t,std::uint64_t simulation_tick,std::uint64_t epoch);

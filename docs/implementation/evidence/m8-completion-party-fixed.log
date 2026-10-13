@@ -1,0 +1,6 @@
+party-combat-d3d12 passed
+party-interaction-d3d12 passed
+party-mismatch-d3d12 passed
+party-travel-d3d12 passed
+party-live-d3d12 passed
+All 7 party network gates passed in 284.3 seconds

@@ -8,6 +8,7 @@
 
 namespace darkangel::scene_detail {
 inline void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+inline SessionLimits session_limits(SceneTiming timing){SessionLimits out;out.wall_clock_timeouts=timing==SceneTiming::Independent;return out;}
 // The frozen local ability behind an owner snapshot's running action.
 inline const AbilityDefinition& definition(const CharacterSceneCombat* combat,const AbilityOwnerSnapshot& snapshot){
     require(combat&&snapshot.active&&snapshot.action,"Active combat correction required");for(const auto& ability:combat->abilities)if(ability->id==snapshot.ability){require(ability->generation==snapshot.ability_generation&&ability->action->id==snapshot.action_definition&&ability->action->generation==snapshot.action->generation,"Combat correction frozen generation mismatch");return *ability;}throw std::runtime_error("Combat correction missing local ability");

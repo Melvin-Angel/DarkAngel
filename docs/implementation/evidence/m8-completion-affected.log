@@ -1,0 +1,37 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+      Start 25: M4.royal_mesh_collision
+ 1/11 Test #25: M4.royal_mesh_collision ..........   Passed   10.65 sec
+      Start 27: M8.party_scene
+ 2/11 Test #27: M8.party_scene ...................   Passed    4.43 sec
+      Start 28: M8.scene_delay
+ 3/11 Test #28: M8.scene_delay ...................   Passed    6.80 sec
+      Start 29: M8.scene_transition
+ 4/11 Test #29: M8.scene_transition ..............   Passed   10.06 sec
+      Start 32: M5.observed_character_pose
+ 5/11 Test #32: M5.observed_character_pose .......   Passed    1.80 sec
+      Start 33: M5.reaction_presentation
+ 6/11 Test #33: M5.reaction_presentation .........   Passed    2.13 sec
+      Start 34: M5.royal_heavy_scene
+ 7/11 Test #34: M5.royal_heavy_scene .............   Passed    4.84 sec
+      Start 35: M5.character_scene
+ 8/11 Test #35: M5.character_scene ...............   Passed    2.85 sec
+      Start 57: M5.hud
+ 9/11 Test #57: M5.hud ...........................   Passed    0.30 sec
+      Start 83: M8.world_ledger
+10/11 Test #83: M8.world_ledger ..................   Passed    0.12 sec
+      Start 84: M8.party_control
+11/11 Test #84: M8.party_control .................   Passed    0.14 sec
+
+100% tests passed out of 11
+
+Label Time Summary:
+M5              =   7.08 sec*proc (4 tests)
+M8              =  21.43 sec*proc (4 tests)
+animation       =   6.78 sec*proc (3 tests)
+effects         =   2.13 sec*proc (1 test)
+network         =  24.28 sec*proc (5 tests)
+physics         =   2.85 sec*proc (1 test)
+presentation    =   4.23 sec*proc (3 tests)
+ui              =   0.30 sec*proc (1 test)
+
+Total Test time (real) =  45.53 sec

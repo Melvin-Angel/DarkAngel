@@ -19,6 +19,8 @@ public:
     // Bootstrap: true once the first state of the player and of every character it knows has arrived; start() then
     // builds prediction and presentation from it.
     bool bootstrapped()const;
+    // Diagnostic receipt for a stalled bootstrap; contains only this client's received state.
+    std::string bootstrap_status()const;
     void start();
     // Independent mode: receive, reconcile older corrections, then predict/present fixed ticks. Clock debt is
     // retained when the wire lead bound prevents another step. One-shot inputs survive frames with no step.
@@ -45,6 +47,12 @@ public:
     std::size_t characters()const;
     const World& presentation()const;
     const MotorState& predicted_motor()const;
+    // Latest coherent confirmed state, retained while a world revision bootstraps.
+    const MotorState& confirmed_motor()const;
+    // Current replicated NPCs described by the locally prepared content. No authority state is consulted.
+    std::vector<StableId> actors()const;
+    const CharacterSceneActor* actor(StableId)const;
+    std::optional<StableId> actor_encounter(StableId)const;
     const GraphState& graph()const;
     const GraphPoseInputs& graph_inputs()const;
     const std::vector<JointMatrix>& pose()const;
@@ -52,11 +60,14 @@ public:
     const GraphPoseInputs* graph_inputs(StableId actor)const;
     std::size_t pending_prediction()const;
     unsigned resynchronizations()const;
+    // A member admitted to the running scene: its character is described as a party member when it arrives.
+    void admit(StableId member);
     const AbilityOwnerSnapshot* ability()const;
     const AbilityOwnerSnapshot* predicted_ability()const;
     std::size_t pending_abilities()const;
     MotorVec prediction_visual_offset()const;
     ObserverAbilitySample observer(StableId,double render_tick)const;
+    std::optional<ObserverAbilitySample> observer_if_ready(StableId,double render_tick)const;
     const EffectPresentation* effects(StableId)const;
     std::span<const EffectCueUpdate> effect_cues()const;
     std::span<const ActionCueUpdate> action_cues()const;

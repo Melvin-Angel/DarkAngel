@@ -4,9 +4,20 @@
 #include <limits>
 #include <deque>
 #include <stdexcept>
+#include <chrono>
+#include <thread>
 using namespace darkangel;
 void check(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 template<class F>void rejects(F&& action){bool rejected=false;try{action();}catch(const std::exception&){rejected=true;}check(rejected,"Expected transport rejection");}
+void deadline_basis(){
+    SessionHandshake hello{1,std::string(64,'a'),std::string(64,'b'),23};
+    {auto pair=create_loopback(hello);pair.host->open(hello);auto peer=pair.client->open(hello);SessionLimits limits;limits.wall_clock_timeouts=true;WorldSession client(SessionRole::Client,hello,limits);client.attach(*pair.client,peer);
+        for(unsigned n=0;n<1000;++n)client.tick();check(pair.client->connected(),"Render-rate packet work consumed an elapsed bootstrap deadline");}
+    {auto pair=create_loopback(hello);pair.host->open(hello);auto peer=pair.client->open(hello);WorldSession client(SessionRole::Client,hello);client.attach(*pair.client,peer);
+        for(unsigned n=0;n<600;++n)client.tick();rejects([&]{client.tick();});check(!pair.client->connected(),"Strict pump-count bootstrap deadline changed");}
+    {auto pair=create_loopback(hello);pair.host->open(hello);auto peer=pair.client->open(hello);SessionLimits limits;limits.wall_clock_timeouts=true;limits.timeout_ticks=12;WorldSession client(SessionRole::Client,hello,limits);client.attach(*pair.client,peer);client.tick();
+        std::this_thread::sleep_for(std::chrono::milliseconds(230));rejects([&]{client.tick();});check(!pair.client->connected(),"An elapsed bootstrap deadline did not expire");}
+}
 // Exercise the contract that control and bootstrap have no mutual ordering.
 // Delay actual control packets; do not reproduce the session encoder in tests.
 class Reordered final:public Transport {
@@ -27,6 +38,7 @@ void traffic_order(){SessionHandshake hello{1,std::string(64,'a'),std::string(64
     transport.hold_control=true;server.tick();client.tick();Transform t;t.x=12;server.move(id,t);for(unsigned i=0;i<10;++i){server.tick();client.tick();}check(client.revision()==2 && client.readiness(cp)==SessionReadiness::CatchUp,"Control hold failed to exercise cross-class ordering");transport.hold_control=false;client.tick();check(client.readiness(cp)==SessionReadiness::Ready && client.objects().at(id).transform.x==12,"Obsolete Ready overtook a newer bootstrap revision");
 }
 void authority(){
+    deadline_basis();
     SessionHandshake hello{1,std::string(64,'a'),std::string(64,'b'),99};
     WorldSession server(SessionRole::Server,hello),client(SessionRole::Client,hello);
     auto pair=create_loopback(hello,{2,1000,2000});auto hp=pair.host->open(hello),cp=pair.client->open(hello);

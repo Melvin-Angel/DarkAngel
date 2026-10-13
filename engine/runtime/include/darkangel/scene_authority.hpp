@@ -24,6 +24,11 @@ public:
     // Every persistent object of the scene into the world ledger, as an unload does before the scene is destroyed.
     void capture();
     void remove_collision(std::uint64_t);
+    bool remove_member(StableId);
+    // Independent timing: a member joins the running scene. Its avatar enters at the head of the next tick, in formation
+    // around the first member; a seat that finds no place there is reported once by take_refused().
+    void add_member(const SceneSeat&);
+    std::vector<std::pair<StableId,std::string>> take_refused();
     // Party members in seat order, and every character (members, then actors) by network identity.
     std::span<const StableId> party()const;
     std::vector<std::uint64_t> characters()const;

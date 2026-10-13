@@ -4,6 +4,7 @@
 #include <darkangel/assets.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/assembly.hpp>
+#include <darkangel/character_scene.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <cmath>
@@ -103,12 +104,35 @@ int main(){try{
         SceneAuthority authority(descriptor,objects,seat,collision,scene,{},SceneTiming::Independent);SceneClient view(descriptor,remote,cp,one,roster,collision,cooked.stance.plan,rig.definition,rig.archive,scene,SceneTiming::Independent);
         auto deliver=[&]{for(unsigned n=0;n<8;++n){authority.pump();view.receive();}};deliver();check(view.bootstrapped(),"Encounter client bootstrap failed");view.start();server.delay=2;remote.delay=3;
         RecordedCue sink;CuePlayer cues([](std::string_view key,AssetId)->std::optional<CueDefinition>{CueDefinition cue;cue.key=std::string(key);cue.audio="test";cue.predictable=true;cue.tail_ticks=0;return cue;},nullptr,&sink);view.present_cues(&cues);
-        authority.emit_world_event("delay.spawn");bool seen{};
+        check(!view.observer_if_ready(actor,double(now)),"Unspawned observer must be unavailable");authority.emit_world_event("delay.spawn");bool seen{};
         bool bootstrap_refusal{};for(unsigned n=0;n<40;++n){++now;CharacterSceneInput input;if(n==0)input.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};if(n==1)input.combat_events={{8,InputEdge::Released,2000,0,0,false},{8,InputEdge::Tapped,2000,0,1,false}};view.advance(1./60,input);authority.step(authority.tick()+1);deliver();seen|=view.pose(actor)!=nullptr;if(view.ability())for(const auto& operation:view.ability()->operations)bootstrap_refusal|=operation.failure==AbilityFailure::InputExpired;}
-        check(seen&&authority.actors().size()==1,"Delayed encounter spawn was not prepared and presented");
+        check(seen&&authority.actors().size()==1,"Delayed encounter spawn was not prepared and presented");check(bool(view.observer_if_ready(actor,double(now))),"Prepared delayed encounter observer must be available");
         check(bootstrap_refusal,"In-flight ability during world bootstrap was not refused coherently");
         for(unsigned n=0;n<100;++n){++now;CharacterSceneInput input;if(n==0)input.combat_events={{8,InputEdge::Pressed,1000,0,1,false}};if(n==1)input.combat_events={{8,InputEdge::Released,2000,0,0,false},{8,InputEdge::Tapped,2000,0,1,false}};view.advance(1./60,input);authority.step(authority.tick()+1);deliver();}
         check(authority.actors().empty()&&!view.pose(actor)&&view.tick()+8>=authority.tick(),"Delayed corpse removal left an actor or prevented client recovery");check(sink.starts>0&&sink.stops>0&&sink.releases>0,"Delayed scene did not drive cue lifecycle");view.present_cues(nullptr);
     }
-    std::cout<<"Independent scene delay, retained inputs, combat, observers, host fallback, history rebase and topology passed\n";return 0;
+    // The editor-facing composition can have remote seats without local mirror clients, or be a client alone.
+    {auto descriptor=hello;descriptor.session_epoch+=3;auto link=create_loopback(descriptor);const auto hp=link.host->open(descriptor),cp=link.client->open(descriptor);auto again=create_loopback(descriptor);const auto hp2=again.host->open(descriptor),cp2=again.client->open(descriptor);
+        const std::array<SceneSeat,1> remote{{{two,link.host.get(),hp,{2,0,0},0}}};const std::array<StableId,2> roster{one,two};
+        CharacterSceneSession host(descriptor,objects,one,collision,cooked.stance.plan,rig.definition,rig.archive,*configured,{}, {},remote,SceneTiming::Independent);
+        CharacterSceneSession guest(descriptor,*link.client,cp,two,roster,collision,cooked.stance.plan,rig.definition,rig.archive,*configured);
+        for(unsigned n=0;n<32&&!guest.bootstrapped();++n){host.pump();guest.pump();}
+        check(host.hosting()&&!guest.hosting()&&host.bootstrapped()&&guest.bootstrapped(),"Host/client-only compositions did not bootstrap");
+        check(host.client(one)&&!host.client(two)&&!guest.client(one)&&guest.client(two),"A remote seat constructed an in-process mirror client");
+        bool denied{};try{guest.authority();}catch(const std::exception&){denied=true;}check(denied,"Guest acquired a SceneAuthority");denied=false;try{guest.capture();}catch(const std::exception&){denied=true;}check(denied,"Guest captured shared world state");
+        for(unsigned n=0;n<120;++n){guest.advance(1./60,{.4,0,0});host.advance(1./60,{});guest.pump();host.pump();}
+        check(host.authority().motor(two)->position.x>2.5&&guest.motor().tick+8>=host.motor().tick&&guest.pose(one),"Client-only movement and remote player presentation failed");
+        link.client->disconnect(cp);for(unsigned n=0;n<16;++n)host.pump();
+        check(host.bootstrapped()&&host.players().size()==1&&!host.authority().network(two),"A held host lost its coherent baseline or kept the member when a guest left");for(unsigned n=0;n<8&&host.pose(two);++n)host.advance(1./60,{});
+        check(host.players().size()==1&&!host.authority().network(two)&&!host.pose(two),"Disconnected guest left a simulated or presented avatar");
+        // Live admission: the same member comes back into the running scene on a fresh connection, at the tick the scene has reached.
+        const auto before=host.motor().tick;host.add_member({two,again.host.get(),hp2,{},0});bool repeated{};try{host.add_member({two,again.host.get(),hp2,{},0});}catch(const std::exception&){repeated=true;}check(repeated,"A member was admitted twice");
+        CharacterSceneSession late(descriptor,*again.client,cp2,two,roster,collision,cooked.stance.plan,rig.definition,rig.archive,*configured);
+        for(unsigned n=0;n<240&&!(late.bootstrapped()&&host.bootstrapped()&&host.pose(two));++n){host.advance(1./60,{});late.pump();host.pump();}
+        check(late.bootstrapped()&&host.bootstrapped()&&host.take_refused().empty()&&host.players().size()==2&&host.authority().network(two)&&host.motor().tick>before,"A member was not admitted to the running scene");
+        const auto entered=*host.authority().motor(two);check(std::hypot(entered.position.x-host.motor().position.x,entered.position.z-host.motor().position.z)<4&&entered.tick+2>=host.motor().tick,"The admitted member did not enter beside the party at the current tick");
+        for(unsigned n=0;n<120;++n){late.advance(1./60,{.4,0,0});host.advance(1./60,{});late.pump();host.pump();}
+        check(host.authority().motor(two)->position.x>entered.position.x+.3&&late.motor().tick+8>=host.motor().tick&&late.pose(one)&&host.pose(two)&&late.players().size()==2,"The admitted member did not move or was not presented");
+    }
+    std::cout<<"Independent scene delay, retained inputs, combat, observers, host fallback, history rebase, topology, client-only composition and live admission passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<"Independent scene failure: "<<e.what()<<'\n';return 1;}}

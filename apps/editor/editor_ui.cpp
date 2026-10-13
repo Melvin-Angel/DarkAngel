@@ -193,6 +193,16 @@ void Shell::remove_object(Controller& editor,StableId object){
 }
 ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const char* backend,std::uint64_t generation,double seconds,ImTextureID scene_texture){
     forward=lateral=turn=0;walk=jump=false;controls_acquired=false;
+    if(client_only){
+        workspace=Workspace::Game;second_view=false;
+        ImGui::SetNextWindowPos({0,0});ImGui::SetNextWindowSize({float(width),float(height)});
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,{0,0});ImGui::Begin("Party player",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
+        const auto at=ImGui::GetCursorScreenPos();const auto available=ImGui::GetContentRegionAvail();ViewArea area{at.x,at.y,available.x,available.y};
+        ImGui::Image(scene_texture,available);controls_focus=ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)&&!ImGui::GetIO().WantTextInput;
+        if(game_overlay)game_overlay(ImGui::GetWindowDrawList(),area);
+        if(!client_status.empty())ImGui::GetWindowDrawList()->AddText({at.x+24,at.y+24},IM_COL32(255,255,255,255),client_status.c_str());
+        ImGui::End();ImGui::PopStyleVar();return area;
+    }
     const auto menu_height=ImGui::GetFrameHeight();const auto toolbar_height=ImGui::GetFrameHeight()+ImGui::GetStyle().WindowPadding.y*2;const auto workspace_top=menu_height+toolbar_height;
     if(ImGui::BeginMainMenuBar()){ImGui::TextColored({.25f,.75f,.95f,1},"DarkAngel");ImGui::Separator();ImGui::BeginDisabled(dragging);
         {const bool file_open=ImGui::BeginMenu("File");probe("menu-file");if(file_open){ImGui::BeginDisabled(!editor.assets||editor.preview.active()!=nullptr);if(ImGui::MenuItem("Import asset..."))choose_asset_import();ImGui::EndDisabled();if(ImGui::MenuItem("New Scene"))action(editor,[&]{editor.demo();});if(ImGui::MenuItem("Open..."))action(editor,[&]{auto path=dialog(false);if(!path.empty())editor.open(path);});if(ImGui::MenuItem("Save Scene"))action(editor,[&]{editor.save(editor.path);});ImGui::BeginDisabled(editor.preview.active()!=nullptr);if(ImGui::MenuItem("Save All"))action(editor,[&]{

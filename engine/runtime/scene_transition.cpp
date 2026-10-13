@@ -11,7 +11,7 @@ const char* transition_phase_text(TransitionPhase phase){
 struct SceneTransitionCoordinator::Impl {
     SceneTransitionCoordinator& owner;SceneProvider& provider;WorldLedger& ledger;std::vector<StableId> companions;
     // The running scene, and the entry the party last came in by (nil: the scene's own start).
-    std::unique_ptr<PreparedScene> current;std::unique_ptr<CharacterSceneSession> session;StableId arrived_by;
+    std::unique_ptr<PreparedScene> source,current;StableId source_entry;bool swap_started{},rollback{},initial{};std::string swap_failure;std::unique_ptr<CharacterSceneSession> session;StableId arrived_by;
     TransitionPhase phase{};TransitionRequest asked;std::unique_ptr<PreparedScene> pending;double elapsed{},progress{};std::string text;
     std::vector<TransitionPhase> log;std::optional<TransitionOutcome> outcome;bool fatal{},fail_swap{},loading{};
     Impl(SceneTransitionCoordinator& self,SceneProvider& source,WorldLedger& world,std::vector<StableId> others):owner(self),provider(source),ledger(world),companions(std::move(others)){require(companions.size()<scene_party_limit,"A party is at most four players");}
@@ -19,7 +19,7 @@ struct SceneTransitionCoordinator::Impl {
     // The destination's content is tied to its scene asset, so its objects' persistent identities are.
     static void adopt(PreparedScene& scene){require(scene.scene!=AssetId{}&&bool(scene.player)&&!scene.objects.empty(),"A prepared scene names its asset, its player object and its objects");if(scene.combat)scene.combat->scene=scene.scene;}
     const SceneEntry* entry(const PreparedScene& scene,StableId id)const{for(const auto& known:scene.entries)if(known.id==id)return &known;return nullptr;}
-    std::unique_ptr<CharacterSceneSession> build(const PreparedScene& scene,StableId by){
+    std::unique_ptr<CharacterSceneSession> build(PreparedScene& scene,StableId by){
         SceneStart start;start.ledger=&ledger;
         if(by){const auto* at=entry(scene,by);require(at!=nullptr,"The scene has no such entry point");start.arrival=SceneArrival{at->position,at->yaw};}
         // Without an entry point the first member stands where the scene's player object is; companions form up around it.
@@ -27,24 +27,27 @@ struct SceneTransitionCoordinator::Impl {
         std::vector<ScenePlayer> others;for(const auto id:companions)others.push_back({id,{},0});
         // What resets on entering a scene is gone before its objects read the ledger.
         ledger.reset(LedgerReset::SceneEntry,scene.scene);
+        if(owner.build_session){auto session=owner.build_session(scene,by,start,others);require(!session||session->hosting(),"Scene transition construction requires a host");return session;}
         return std::make_unique<CharacterSceneSession>(scene.hello,scene.objects,scene.player,scene.collision,scene.plan,scene.rig,scene.rig_archive,scene.combat,others,start);
     }
-    void finish(TransitionOutcome result){outcome=std::move(result);pending.reset();loading=false;phase=TransitionPhase::Idle;progress=0;text=outcome->arrived?std::string():outcome->failure;}
+    void finish(TransitionOutcome result){source.reset();swap_started=rollback=initial=false;swap_failure.clear();outcome=std::move(result);pending.reset();loading=false;phase=TransitionPhase::Idle;progress=0;text=outcome->arrived?std::string():outcome->failure;}
     // A failure before the swap: the source session never stopped. Input returns and the reason is reported.
-    void cancel(std::string reason){if(loading)provider.cancel();finish({false,asked.scene,asked.entry,std::move(reason),false});}
+    void cancel(std::string reason){if(loading)provider.cancel();if(owner.cancelled)owner.cancelled(reason);finish({false,asked.scene,asked.entry,std::move(reason),false});}
     void swap(){
-        if(owner.unloading)owner.unloading();
-        session.reset();auto source=std::move(current);const auto came_by=arrived_by;
+        if(!swap_started){if(owner.unloading)owner.unloading();session.reset();source=std::move(current);source_entry=arrived_by;swap_started=true;}
         try{
-            if(fail_swap){fail_swap=false;throw std::runtime_error("Injected failure while building the destination");}
-            session=build(*pending,asked.entry);current=std::move(pending);arrived_by=asked.entry;
-            if(owner.loaded)owner.loaded();
-            enter(TransitionPhase::Placing);return;
+            if(rollback&&session){if(owner.ready&&!owner.ready(*session))return;if(owner.resumed)owner.resumed();const auto reason=swap_failure;finish({false,asked.scene,asked.entry,"The destination could not be entered ("+reason+"); the party is back in the scene it left",true});return;}
+            if(fail_swap&&!rollback){fail_swap=false;throw std::runtime_error("Injected failure while building the destination");}
+            auto& target=rollback?source:pending;require(bool(target),"Scene construction has no prepared scene");
+            session=build(*target,rollback?source_entry:asked.entry);
+            if(!session){text=owner.construction_text?owner.construction_text():"Waiting for players";return;}
+            if(rollback){current=std::move(source);arrived_by=source_entry;if(owner.loaded)owner.loaded();
+                if(owner.ready&&!owner.ready(*session))return;if(owner.resumed)owner.resumed();const auto reason=swap_failure;finish({false,asked.scene,asked.entry,"The destination could not be entered ("+reason+"); the party is back in the scene it left",true});return;}
+            current=std::move(pending);arrived_by=asked.entry;if(owner.loaded)owner.loaded();enter(TransitionPhase::Placing);
         }catch(const std::exception& error){
-            // The source is gone. It is built again from the ledger, the party where it last came in.
-            const std::string reason=error.what();session.reset();pending.reset();
-            try{session=build(*source,came_by);current=std::move(source);if(owner.loaded)owner.loaded();finish({false,asked.scene,asked.entry,"The destination could not be entered ("+reason+"); the party is back in the scene it left",true});}
-            catch(const std::exception& again){session.reset();current.reset();fatal=true;finish({false,asked.scene,asked.entry,"The destination could not be entered ("+reason+") and the scene the party left could not be built again ("+again.what()+"); Play cannot continue",false});}
+            const auto reason=std::string(error.what());session.reset();current.reset();pending.reset();
+            if(rollback||initial||!source){fatal=true;const auto first=swap_failure;finish({false,asked.scene,asked.entry,first.empty()?"Play could not start: "+reason:"The destination could not be entered ("+first+") and the scene the party left could not be built again ("+reason+"); Play cannot continue",false});return;}
+            swap_failure=reason;rollback=true;progress=0;text="Rebuilding the source scene";
         }
     }
     void update(double seconds){
@@ -64,8 +67,8 @@ struct SceneTransitionCoordinator::Impl {
             if(pending->scene!=asked.scene)cancel("The provider prepared another scene than the one asked for");
             else if(asked.entry&&!entry(*pending,asked.entry))cancel("The destination scene has no entry point "+asked.entry.text());
             else if(std::none_of(pending->objects.begin(),pending->objects.end(),[&](const ObjectData& object){return object.id==pending->player;}))cancel("The destination scene has no player start");
-            else if(!companions.empty()&&!pending->combat)cancel("The destination scene cannot hold a party of several players");
-            else if(pending->combat&&scene_actor_demand(*pending->combat)+companions.size()+1>session_character_capacity)cancel("The party does not fit the destination scene's character capacity");
+            else if((owner.party_size?owner.party_size():companions.size()+1)>1&&!pending->combat)cancel("The destination scene cannot hold a party of several players");
+            else if(pending->combat&&scene_actor_demand(*pending->combat)+(owner.party_size?owner.party_size():companions.size()+1)>session_character_capacity)cancel("The party does not fit the destination scene's character capacity");
             else enter(TransitionPhase::Capturing);
             break;
         case TransitionPhase::Capturing:
@@ -75,19 +78,27 @@ struct SceneTransitionCoordinator::Impl {
         case TransitionPhase::Placing:enter(TransitionPhase::AwaitingReady);break;
         case TransitionPhase::AwaitingReady:{
             // In-process clients are bootstrapped by the session's construction. A client in another process acknowledges here.
-            bool ready=session!=nullptr;if(ready)for(const auto player:session->players())ready&=session->client(player)!=nullptr;
-            if(ready&&elapsed>=owner.minimum_seconds)enter(TransitionPhase::Resumed);
+            try{bool ready=session!=nullptr;if(ready&&owner.ready)ready=owner.ready(*session);else if(ready)for(const auto player:session->players())ready&=session->client(player)!=nullptr;
+                if(ready&&elapsed>=owner.minimum_seconds)enter(TransitionPhase::Resumed);
+            }catch(const std::exception& error){
+                if(owner.unloading)owner.unloading();session.reset();current.reset();
+                if(initial||!source){fatal=true;finish({false,asked.scene,asked.entry,std::string("The scene could not become ready: ")+error.what(),false});}
+                else{swap_failure=error.what();rollback=true;enter(TransitionPhase::Swapping);text="Rebuilding the source scene";}
+            }
             break;}
-        case TransitionPhase::Resumed:finish({true,asked.scene,asked.entry,{},false});break;
+        case TransitionPhase::Resumed:if(owner.resumed)owner.resumed();finish({true,asked.scene,asked.entry,{},false});break;
         default:break;}
     }
 };
 SceneTransitionCoordinator::SceneTransitionCoordinator(SceneProvider& provider,WorldLedger& ledger,std::vector<StableId> companions):impl_(std::make_unique<Impl>(*this,provider,ledger,std::move(companions))){}
 SceneTransitionCoordinator::~SceneTransitionCoordinator(){if(impl_->loading)impl_->provider.cancel();}
-void SceneTransitionCoordinator::start(std::unique_ptr<PreparedScene> scene,StableId entry){auto& p=*impl_;require(!p.session&&p.phase==TransitionPhase::Idle&&scene!=nullptr,"Play starts once, with a prepared scene");Impl::adopt(*scene);p.session=p.build(*scene,entry);p.current=std::move(scene);p.arrived_by=entry;p.fatal=false;p.outcome.reset();p.log.clear();}
-void SceneTransitionCoordinator::stop(){auto& p=*impl_;if(p.loading)p.provider.cancel();p.loading=false;p.pending.reset();p.phase=TransitionPhase::Idle;if(p.session){p.session->capture();if(unloading)unloading();}p.session.reset();p.current.reset();}
+void SceneTransitionCoordinator::start(std::unique_ptr<PreparedScene> scene,StableId entry){auto& p=*impl_;require(!p.session&&p.phase==TransitionPhase::Idle&&scene!=nullptr,"Play starts once, with a prepared scene");Impl::adopt(*scene);p.fatal=false;p.outcome.reset();p.log.clear();p.arrived_by=entry;p.session=p.build(*scene,entry);
+    if(!p.session){require(bool(build_session),"Scene builder returned no session");p.asked={scene->scene,entry,"Play"};p.pending=std::move(scene);p.initial=p.swap_started=true;p.elapsed=p.progress=0;p.enter(TransitionPhase::Swapping);return;}
+    p.current=std::move(scene);if(build_session){p.asked={p.current->scene,entry,"Play"};p.initial=true;p.elapsed=p.progress=0;p.enter(TransitionPhase::Placing);}}
+
+void SceneTransitionCoordinator::stop(){auto& p=*impl_;if(p.loading)p.provider.cancel();p.loading=false;p.pending.reset();p.phase=TransitionPhase::Idle;if(p.session){p.session->capture();if(unloading)unloading();}p.session.reset();p.current.reset();p.source.reset();p.swap_started=p.rollback=p.initial=false;}
 CharacterSceneSession* SceneTransitionCoordinator::session()const{return impl_->session.get();}
-const PreparedScene* SceneTransitionCoordinator::scene()const{return impl_->current.get();}
+const PreparedScene* SceneTransitionCoordinator::scene()const{return impl_->current?impl_->current.get():impl_->source?impl_->source.get():impl_->pending.get();}
 bool SceneTransitionCoordinator::request(TransitionRequest asked){auto& p=*impl_;if(p.phase!=TransitionPhase::Idle||!p.session||asked.scene==AssetId{})return false;p.asked=std::move(asked);p.log.clear();p.outcome.reset();p.elapsed=0;p.progress=0;p.enter(TransitionPhase::Requested);return true;}
 void SceneTransitionCoordinator::update(double seconds){require(seconds>=0&&seconds<=10,"Transition clock delta bounds");impl_->update(seconds);}
 bool SceneTransitionCoordinator::busy()const{return impl_->phase!=TransitionPhase::Idle;}
