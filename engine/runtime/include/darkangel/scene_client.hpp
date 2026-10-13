@@ -11,7 +11,7 @@ class SceneClient {
 public:
     // party names every member of the session, this client's player among them.
     SceneClient(SessionHandshake,Transport&,ConnectionHandle,StableId player,std::span<const StableId> party,const CollisionDefinition&,
-        std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::shared_ptr<const CharacterSceneCombat>);
+        std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::shared_ptr<const CharacterSceneCombat>,SceneTiming = SceneTiming::Lockstep);
     ~SceneClient();
     SceneClient(const SceneClient&)=delete;
     // One round of packet work: receive, prepare the newest collision frame for prediction and acknowledge it, send.
@@ -20,6 +20,12 @@ public:
     // builds prediction and presentation from it.
     bool bootstrapped()const;
     void start();
+    // Independent mode: receive, reconcile older corrections, then predict/present fixed ticks. Clock debt is
+    // retained when the wire lead bound prevents another step. One-shot inputs survive frames with no step.
+    unsigned advance(double seconds,CharacterSceneInput);
+    std::uint64_t tick()const;
+    unsigned input_lead()const;
+    double debt()const;
     // Combat input is routed and kept until the next begin.
     void enqueue(std::span<const InputEvent>);
     // The owner's side of a tick before authority's answer: submit the command and intents, predict.

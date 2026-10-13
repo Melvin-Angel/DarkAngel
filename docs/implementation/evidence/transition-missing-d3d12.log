@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802050e0000
 [39mViewport foreground pixels=860050 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
-Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=f35ae390-efb5-48d1-89c3-10d0693d3ea8 document=f35ae390-efb5-48d1-89c3-10d0693d3ea8 authoring=f35ae390-efb5-48d1-89c3-10d0693d3ea8 lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_94c9e3f9-b79a-49c6-ba4c-06d48dc608f4_is_in_the_project
+Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=56a2462c-994c-457f-a2c3-1ef43efca324 document=56a2462c-994c-457f-a2c3-1ef43efca324 authoring=56a2462c-994c-457f-a2c3-1ef43efca324 lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_5bb5c53c-5c0a-4939-a01b-95595ba36b55_is_in_the_project
 DarkAngel editor rendered 220 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 22/256

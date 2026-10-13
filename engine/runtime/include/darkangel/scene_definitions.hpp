@@ -13,6 +13,7 @@
 #include <optional>
 
 namespace darkangel {
+enum class SceneTiming {Lockstep,Independent};
 struct ReactionSample;
 struct CharacterSceneInput {double x{},z{},yaw{};bool jump{},crouch{};std::vector<InputEvent> combat_events;
     // Aim elevation in radians; see CharacterSceneSession::aim.

@@ -12,10 +12,11 @@ namespace darkangel {
 using scene_detail::require;
 struct SceneAuthority::Impl {
     WorldSession server;
+    SceneTiming timing;
     PhysicsWorld authoritative;
     // A party member: its character's authoritative motor and ability owner, the connection that owns it, and this tick's
     // accepted command and action motion. Kept in seat order, which is ascending network identity.
-    struct Member {StableId identity;std::uint64_t id{};ConnectionHandle peer;MotorVec foot{};double yaw{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;MotorInput accepted;MotionRequest motion;AbilityOwnerSnapshot before;};
+    struct Member {StableId identity;std::uint64_t id{};ConnectionHandle peer;MotorVec foot{};double yaw{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;MotorInput accepted,held;MotionRequest motion;AbilityOwnerSnapshot before;};
     // A server-driven actor: its scene configuration, authoritative motor and ability owner, the latest controller
     // press and chosen target. Kept in ascending network identity.
     struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<Perception> perception;std::optional<std::size_t> encounter;std::uint64_t died{};bool recorded{};double hold_x{},hold_z{};std::optional<double> hold_face;};
@@ -79,8 +80,8 @@ struct SceneAuthority::Impl {
             if(std::none_of(taken.begin(),taken.end(),[&](const MotorVec& other){return std::hypot(other.x-at.x,other.z-at.z)<1.&&std::abs(other.y-at.y)<2.5;}))return at;}
         return fallback;
     }
-    Impl(SessionHandshake hello,std::span<const ObjectData> objects,std::span<const SceneSeat> party,const CollisionDefinition& collision,std::shared_ptr<const CharacterSceneCombat> configured,const SceneStart& start)
-        :server(SessionRole::Server,hello),combat(std::move(configured)){
+    Impl(SessionHandshake hello,std::span<const ObjectData> objects,std::span<const SceneSeat> party,const CollisionDefinition& collision,std::shared_ptr<const CharacterSceneCombat> configured,const SceneStart& start,SceneTiming mode)
+        :server(SessionRole::Server,hello),timing(mode),combat(std::move(configured)){
         require((hello.protocol==2||hello.protocol==3)&&(!combat||hello.protocol==3),"Character scene requires wire2 and the initial human profile");require(!objects.empty()&&objects.size()<=128&&!party.empty()&&party.size()<=scene_party_limit&&party.front().id,"Character scene object/player bounds");
         if(combat&&combat->scene!=AssetId{})ledger=start.ledger;
         for(const auto& seat:party){require(seat.transport&&bool(seat.id)&&std::count_if(party.begin(),party.end(),[&](const auto& other){return other.id==seat.id;})==1,"Scene party seat");server.attach(*seat.transport,seat.peer);Member member;member.identity=seat.id;member.peer=seat.peer;member.foot=seat.position;member.yaw=seat.yaw;members.push_back(std::move(member));member_identities.push_back(seat.id);}
@@ -294,7 +295,7 @@ struct SceneAuthority::Impl {
         require(tick==authoritative.tick()+1,"Scene authority tick order");
         auto mark=std::chrono::steady_clock::now();auto lap=[&](double& phase){const auto now=std::chrono::steady_clock::now();phase+=std::chrono::duration<double,std::micro>(now-mark).count();mark=now;};
         server.tick();
-        for(auto& known:members){require(server.motor_input_ready(known.id,tick),"Character scene owner command unavailable");known.accepted=server.consume_motor(known.id,tick,known.motor->state().epoch);known.motion={};}
+        for(auto& known:members){const bool arrived=server.motor_input_ready(known.id,tick);require(arrived||timing==SceneTiming::Independent,"Character scene owner command unavailable");known.accepted=server.consume_motor(known.id,tick,known.motor->state().epoch);if(arrived)known.held=known.accepted;else if(timing==SceneTiming::Independent){known.accepted.x=known.held.x;known.accepted.z=known.held.z;known.accepted.yaw=known.held.sequence?known.held.yaw:known.motor->state().yaw;known.accepted.pitch=known.held.pitch;known.accepted.crouch=known.held.crouch;}known.motion={};}
         lap(profile.replication);if(combat)run_world(tick);lap(profile.world);
         for(std::size_t index=0;index<actors.size();++index){const auto& motor=actors[index].motor->state();actor_commands[index]=MotorInput{tick,tick,motor.epoch,0,0,motor.yaw};actor_motions[index]={};}
         if(combat){
@@ -317,8 +318,8 @@ struct SceneAuthority::Impl {
     }
 };
 std::size_t scene_actor_demand(const CharacterSceneCombat& combat){std::size_t planned=combat.actors.size();for(const auto& encounter:combat.encounters)planned+=encounter.definition.concurrent();return planned;}
-SceneAuthority::SceneAuthority(SessionHandshake hello,std::span<const ObjectData> objects,std::span<const SceneSeat> party,const CollisionDefinition& collision,std::shared_ptr<const CharacterSceneCombat> combat,const SceneStart& start)
-    :impl_(std::make_unique<Impl>(std::move(hello),objects,party,collision,std::move(combat),start)){}
+SceneAuthority::SceneAuthority(SessionHandshake hello,std::span<const ObjectData> objects,std::span<const SceneSeat> party,const CollisionDefinition& collision,std::shared_ptr<const CharacterSceneCombat> combat,const SceneStart& start,SceneTiming timing)
+    :impl_(std::make_unique<Impl>(std::move(hello),objects,party,collision,std::move(combat),start,timing)){}
 SceneAuthority::~SceneAuthority()=default;
 void SceneAuthority::step(std::uint64_t tick){impl_->step(tick);}
 void SceneAuthority::pump(){impl_->server.tick();}

@@ -13,6 +13,7 @@ namespace darkangel {
 using scene_detail::require;
 struct SceneClient::Impl {
     Transport& transport;
+    SceneTiming timing;
     WorldSession client;
     ConnectionHandle peer;
     std::unique_ptr<PhysicsWorld> prediction=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);
@@ -20,7 +21,7 @@ struct SceneClient::Impl {
     std::shared_ptr<const CharacterSceneCombat> combat;
     // Another character this client presents: an actor or another player. What it is comes from the prepared scene
     // content by its scene identity; the pose is built once its first public frame has arrived. Kept by network identity.
-    struct Remote {StableId identity;const std::vector<AttributeDefinition>* attributes{};bool hostile{};std::unique_ptr<ObservedCharacterPose> pose;};
+    struct Remote {StableId identity;const std::vector<AttributeDefinition>* attributes{};bool hostile{};std::unique_ptr<ObservedCharacterPose> pose;std::uint64_t pose_tick{};};
     std::map<std::uint64_t,Remote> remotes;std::set<std::uint64_t> scenery;
     // Scene identity of every character the content can put in the session beside the party: the scene's actors and
     // each enemy an encounter can spawn.
@@ -40,6 +41,10 @@ struct SceneClient::Impl {
     std::unique_ptr<ActionCueTracker> cue_tracker;std::vector<ActionCueUpdate> action_cue_updates;std::vector<ActionCueCut> action_cue_cuts;CuePlayer* cue_player{};FootstepTracker footstep_tracker;std::vector<FootstepUpdate> footstep_updates;
     // Collision frames as this client received and prepared them: what its reconciliation replays against.
     CollisionHistory history;
+    std::deque<CollisionFrame> received_collision;
+    std::optional<CollisionFrame> held_collision;
+    std::uint64_t reconciled_tick{};unsigned lead{2},timely{};double clock_debt{};
+    bool queued_jump{};std::optional<StableId> queued_interact;
     std::vector<CollisionMesh> prepared_geometry;
     std::shared_ptr<const AnimationGraphPlan> presentation_plan;
     AnimationGraphInstance graph;
@@ -62,8 +67,8 @@ struct SceneClient::Impl {
         if(definition.mode==EncounterMode::Timed)return definition.timed_npc;for(const auto& wave:definition.waves){if(index<wave.count)return wave.npc;index-=wave.count;}return {};
     }
     Impl(SessionHandshake hello,Transport& link,ConnectionHandle handle,StableId identity,std::span<const StableId> members,const CollisionDefinition& collision,
-         std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::shared_ptr<const CharacterSceneCombat> configured)
-        :transport(link),client(SessionRole::Client,hello),peer(handle),combat(std::move(configured)),party(members.begin(),members.end()),rig_archive(archive),presentation_plan(plan),graph(std::move(plan)),rig(std::move(definition),archive),player_identity(identity){
+         std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::shared_ptr<const CharacterSceneCombat> configured,SceneTiming mode)
+        :transport(link),timing(mode),client(SessionRole::Client,hello),peer(handle),combat(std::move(configured)),party(members.begin(),members.end()),rig_archive(archive),presentation_plan(plan),graph(std::move(plan)),rig(std::move(definition),archive),player_identity(identity){
         require((hello.protocol==2||hello.protocol==3)&&(!combat||hello.protocol==3)&&rig.definition().human,"Character scene requires wire2 and the initial human profile");require(bool(identity)&&std::find(party.begin(),party.end(),identity)!=party.end(),"Character scene object/player bounds");
         if(auto tags=graph.tag_dictionary())require(combat&&combat->tags&&combat->tags->registry()==tags->registry()&&combat->tags->generation()==tags->generation(),"Character graph/actor tag registry mismatch");
         client.attach(transport,peer);
@@ -97,6 +102,13 @@ struct SceneClient::Impl {
         if(!player)arm();if(!player)return;
         sync();
         if(client.collisions().empty())return;
+        if(timing==SceneTiming::Independent){
+            for(const auto& incoming:client.collisions())if(received_collision.empty()||incoming.tick>received_collision.back().tick){
+                auto frame=prepare_collision_frame(incoming,prepared_geometry);received_collision.push_back(frame);held_collision=std::move(frame);
+                while(received_collision.size()>31)received_collision.pop_front();client.acknowledge_collision(incoming.tick);
+            }
+            return;
+        }
         // Native geometry is prepared before acknowledging any frame.
         auto frame=prepare_collision_frame(client.collisions().back(),prepared_geometry);
         auto snapshot=client.motors().find(player);if(snapshot==client.motors().end()||snapshot->second.tick!=frame.tick)return;
@@ -113,18 +125,36 @@ struct SceneClient::Impl {
         client.acknowledge_collision(tick);
     }
     bool remotes_public()const{for(const auto& [id,remote]:remotes)if(!client.public_abilities().contains(id))return false;return true;}
+    bool paired(std::uint64_t id)const{auto a=client.public_abilities().find(id);auto m=client.motors().find(id);auto index=client.public_index().find(id);return a!=client.public_abilities().end()&&m!=client.motors().end()&&m->second.tick>=a->second.ability.tick&&m->second.epoch==a->second.avatar_epoch&&(m->second.tick==a->second.ability.tick||(index!=client.public_index().end()&&index->second.tick>=m->second.tick&&index->second.content==public_ability_content(a->second.ability)));}
+    const MotorState* correction_motor()const{if(combat){auto found=client.ability_corrections().find(player);return found==client.ability_corrections().end()?nullptr:&found->second.motor;}auto found=client.motors().find(player);return found==client.motors().end()?nullptr:&found->second;}
+    const CollisionFrame* collision_at(std::uint64_t tick)const{for(auto i=received_collision.rbegin();i!=received_collision.rend();++i)if(i->tick<=tick)return &*i;return nullptr;}
+    bool coherent_baseline()const{const auto* state=correction_motor();const auto* frame=state?collision_at(state->tick):nullptr;return state&&frame&&state->tick-frame->tick<=30&&frame->topology==state->topology&&std::any_of(frame->actors.begin(),frame->actors.end(),[&](const auto& a){return a.id==player&&a.epoch==state->epoch;});}
+    // Rebuild privately from a wire baseline; never restore a late joiner from its object transform.
+    void rebase(){
+        require(coherent_baseline(),"Independent scene baseline is incomplete");const auto state=*correction_motor();auto frame=*collision_at(state.tick);frame.tick=state.tick;
+        auto replacement=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);replacement->load(frame,player);
+        auto motor=std::make_unique<CharacterMotor>(*replacement,state.position,player,state.crouched);replacement->load(frame,player);motor->restore(state);
+        std::unique_ptr<OwnerAbilityPrediction> abilities;
+        if(combat){const auto& baseline=client.ability_corrections().at(player).ability;abilities=std::make_unique<OwnerAbilityPrediction>(baseline,combat->attributes,combat->kit,combat->input,combat->abilities,state.epoch,combat->tags,combat->loadouts);next_operation=std::max(next_operation,baseline.highest_operation+1);}
+        owner.reset();owner_motor.reset();prediction=std::move(replacement);owner_motor=std::move(motor);owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);ability_prediction=std::move(abilities);
+        semantic_commands.clear();predicted_locks.clear();history=CollisionHistory{};latest=state.tick;reconciled_tick=state.tick;
+        auto graph_state=graph.state();graph_state.tick=state.tick;graph.restore(graph_state);predicted_cue_definition={};predicted_cue_action.reset();
+        if(started)++resynchronizations;if(combat)client.acknowledge_ability_correction(player);
+    }
     bool bootstrapped()const{
         if(!player||client.readiness(peer)!=SessionReadiness::Ready||!client.collision_control_ready()||!client.motors().contains(player))return false;
+        if(timing==SceneTiming::Independent)return coherent_baseline()&&(!combat||paired(player));
         return !combat||(client.ability_corrections().contains(player)&&client.public_abilities().contains(player)&&remotes_public());
     }
     void start(){
         require(!started&&player&&client.readiness(peer)==SessionReadiness::Ready&&client.collision_control_ready()&&client.motors().contains(player),"Character scene bootstrap/control work limit");
+        if(timing==SceneTiming::Independent)rebase();
         if(combat){require(client.ability_corrections().contains(player),"Combat prediction bootstrap work limit");ability_prediction=std::make_unique<OwnerAbilityPrediction>(client.ability_corrections().at(player).ability,combat->attributes,combat->kit,combat->input,combat->abilities,client.ability_corrections().at(player).motor.epoch,combat->tags,combat->loadouts);
             for(const auto& ability:combat->abilities)prepared_actions.push_back(ability->action);cue_tracker=std::make_unique<ActionCueTracker>(prepared_actions);
             require(client.public_abilities().contains(player),"Combat public bootstrap work limit");{auto observed=std::make_unique<ObserverAbility>(combat->attributes,combat->health,combat->maximum_health,prepared_actions,combat->tags);observed->push(shown(player));observers.emplace(player,std::move(observed));}
             if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(player,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(combat->attributes),combat->tags,combat->effects));}
             action_mixer=std::make_unique<ActionPoseMixer>(*presentation_plan,rig.definition(),prepared_actions);reactions=std::make_unique<ReactionPresentation>(rig.definition(),combat->effects,combat->clips);if(combat->death)player_death=std::make_unique<DeathPresentation>(rig.definition(),combat->death,combat->clips);
-            for(auto& [id,remote]:remotes)present(id,remote);
+            for(auto& [id,remote]:remotes)if(timing==SceneTiming::Lockstep||paired(id))present(id,remote);
         }
         GraphParameters initial_parameters;if(graph.tag_dictionary())initial_parameters.tags=&client.ability_corrections().at(player).ability.tags;
         graph_inputs=graph.evaluate(initial_parameters);matrices=rig.blend(graph_inputs.span());latest=prediction->tick();started=true;
@@ -143,11 +173,17 @@ struct SceneClient::Impl {
     // A far character's motor state arrives every third tick, so its newest state may be up to two ticks old.
     bool public_current(std::uint64_t id,std::uint64_t tick)const{auto listed=client.public_index().find(id);auto held=client.public_abilities().find(id);auto motor=client.motors().find(id);return listed!=client.public_index().end()&&held!=client.public_abilities().end()&&motor!=client.motors().end()&&listed->second.tick==tick&&motor->second.tick+3>tick&&(held->second.ability.tick==tick||listed->second.content==public_ability_content(held->second.ability));}
     AbilityPublicFrame shown(std::uint64_t id)const{auto frame=client.public_abilities().at(id);auto motor=client.motors().find(id);if(motor!=client.motors().end()&&motor->second.tick>=frame.ability.tick&&motor->second.epoch==frame.avatar_epoch){frame.motor=motor->second;frame.ability=public_ability_at(frame.ability,motor->second.tick);}else throw std::runtime_error("A public frame arrived without the motor state of its tick; resynchronize");return frame;}
+    // A delayed action stays on its last valid pose until a confirmed completion arrives. Never invent a gameplay end.
+    void display_at(AbilityPublicFrame& frame,std::uint64_t tick,std::optional<double> action_clock={})const{
+        if(frame.ability.tick<tick)frame.ability=public_ability_at(frame.ability,tick);frame.motor.tick=frame.ability.tick;
+        if(frame.ability.action&&timing==SceneTiming::Independent){auto found=std::find_if(prepared_actions.begin(),prepared_actions.end(),[&](const auto& action){return action->id==frame.ability.action_definition;});require(found!=prepared_actions.end(),"Independent observer action resource missing");const auto last=std::uint64_t((*found)->duration)*(*found)->loops-1;frame.ability.action->clock=std::min(last,action_clock?std::uint64_t(std::max(0.,*action_clock)):frame.ability.action->clock);}
+    }
+    std::unique_ptr<ObservedCharacterPose> remote_pose()const{return std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),rig_archive,prepared_actions,combat->clips,combat->tags,combat->effects,combat->death);}
     // Observer, effect view and pose of another character, once its first public frame has arrived.
     void present(std::uint64_t id,Remote& remote){
         require(client.public_abilities().contains(id),"Combat public bootstrap work limit");auto observed=std::make_unique<ObserverAbility>(*remote.attributes,combat->health,combat->maximum_health,prepared_actions,combat->tags);const auto first=shown(id);observed->push(first);observers.emplace(id,std::move(observed));
         if(!combat->effects.empty()){require(bool(combat->tags),"Scene effect preparation needs a tag registry");effect_views.emplace(id,std::make_unique<EffectPresentation>(AttributeVisibility::Public,AttributeSet(*remote.attributes),combat->tags,combat->effects));}
-        remote.pose=std::make_unique<ObservedCharacterPose>(presentation_plan,rig.definition(),rig_archive,prepared_actions,combat->clips,combat->tags,combat->effects,combat->death);remote.pose->sample(observers.at(id)->sample(double(first.ability.tick)).frame,effect_frame(id));
+        remote.pose=remote_pose();remote.pose->sample(observers.at(id)->sample(double(first.ability.tick)).frame,effect_frame(id));remote.pose_tick=first.ability.tick;
     }
     const Remote* find(StableId identity)const{for(const auto& [id,remote]:remotes)if(remote.identity==identity)return &remote;return nullptr;}
     // Soft-lock candidates for the owner: every live hostile character, from its confirmed public view (motor snapshot
@@ -167,6 +203,7 @@ struct SceneClient::Impl {
     void begin(std::uint64_t tick,const CharacterSceneInput& input){
         require(started,"Character scene requires a fresh synchronized session");require(!input.crouch,"Character scene posture animation is not in the initial standing profile");require(std::isfinite(input.x)&&std::isfinite(input.z)&&std::isfinite(input.yaw)&&std::isfinite(input.pitch),"Character scene input finite");
         const auto mark=std::chrono::steady_clock::now();
+        if(timing==SceneTiming::Independent){require(held_collision&&held_collision->topology==prediction->topology(),"Independent scene awaits topology baseline");auto held=*held_collision;held.tick=prediction->tick();require(prediction->update_prediction(held,*owner_motor),"Independent held collision preparation failed");}
         MotorInput command{tick,tick,owner_motor->state().epoch,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch};validate_motor_input(command);
         require(client.collision_control_ready()&&client.submit_motor(player,command),"Character scene control unavailable; resynchronize");
         std::vector<AbilityPredictionInput> prediction_input;
@@ -182,42 +219,68 @@ struct SceneClient::Impl {
     }
     bool public_ready(std::uint64_t tick)const{if(!public_current(player,tick))return false;for(const auto& [id,remote]:remotes)if(!public_current(id,tick))return false;return true;}
     bool ready(std::uint64_t tick)const{return client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick&&client.collision_control_ready()&&(!combat||(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick&&public_ready(tick)));}
+    bool independent_correction(){
+        const auto* baseline=correction_motor();if(!baseline||baseline->tick<=reconciled_tick)return false;
+        if(!coherent_baseline())return false;
+        if(baseline->tick>owner_motor->state().tick||baseline->epoch!=owner_motor->state().epoch||baseline->topology!=prediction->topology()||owner_motor->state().tick-baseline->tick>30||owner->needs_resync()||(ability_prediction&&ability_prediction->needs_resync())){rebase();return false;}
+        // Original host frames through the correction, held copies for the still-unconfirmed future.
+        CollisionHistory replay;for(auto tick=baseline->tick;tick<=owner_motor->state().tick;++tick){const auto* source=collision_at(tick);if(!source||source->topology!=baseline->topology){rebase();return false;}auto frame=*source;frame.tick=tick;replay.retain(std::move(frame));}history=std::move(replay);
+        if(baseline->sequence<baseline->tick){lead=std::min(6u,lead+1);timely=0;}else if(++timely>=120){lead=std::max(2u,lead-1);timely=0;}
+        return true;
+    }
+    unsigned advance(double seconds,CharacterSceneInput input){
+        require(timing==SceneTiming::Independent&&started,"Independent scene clock requires a started client");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Independent scene clock delta bounds");
+        enqueue(input.combat_events);input.combat_events.clear();queued_jump|=input.jump;if(input.interact)queued_interact=input.interact;clock_debt+=seconds;
+        receive();finish(owner_motor->state().tick);unsigned steps{};
+        while(steps<4){const auto* confirmed=correction_motor();if(!confirmed||!held_collision||held_collision->topology!=prediction->topology()||!client.collision_control_ready())break;
+            const auto tick=owner_motor->state().tick+1;const bool catchup=tick<=confirmed->tick+lead;
+            if((clock_debt+1e-9<1./60&&!catchup)||tick>confirmed->tick+8||owner->pending()>=30)break;
+            input.jump=queued_jump;input.interact=queued_interact;begin(tick,input);queued_jump=false;queued_interact.reset();
+            if(clock_debt+1e-9>=1./60)clock_debt=std::max(0.,clock_debt-1./60);finish(tick);++steps;
+        }
+        flush();settle(latest);return steps;
+    }
+    void flush(){client.tick();}
     void finish(std::uint64_t tick){
+        const bool independent=timing==SceneTiming::Independent;const bool reconcile=!independent||independent_correction();
+        if(independent)tick=owner_motor->state().tick;
         auto mark=std::chrono::steady_clock::now();auto lap=[&](double& phase){const auto now=std::chrono::steady_clock::now();phase+=std::chrono::duration<double,std::micro>(now-mark).count();mark=now;};
-        require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
-        if(combat){const auto& correction=client.ability_corrections().at(player);require(correction.ability.tick==tick&&correction.motor.tick==tick,"Atomic combat correction clock");if(correction.ability.active)definition(correction.ability);}
+        if(!independent)require(client.motors().contains(player)&&client.motors().at(player).tick==tick&&!client.collisions().empty()&&client.collisions().back().tick==tick,"Character scene snapshot delivery bound");
+        if(combat){const auto& correction=client.ability_corrections().at(player);require(correction.ability.tick==correction.motor.tick&&(independent||correction.motor.tick==tick),"Atomic combat correction clock");if(correction.ability.active)definition(correction.ability);}
         lap(profile.replication);
+        if(reconcile)try{
         if(combat){auto candidate=*ability_prediction;for(const auto& receipt:client.drain_ability_receipts())candidate.receipt(receipt);const auto& correction=client.ability_corrections().at(player);candidate.reconcile(correction.ability);std::vector<MotorCommand> regenerated;double replay_yaw=correction.motor.yaw;
             for(const auto& replay:candidate.replay_motion()){auto found=std::find_if(semantic_commands.begin(),semantic_commands.end(),[&](const auto& value){return value.tick==replay.tick;});require(found!=semantic_commands.end(),"Combat correction missing motor input history");auto replay_input=*found;if(replay.face_movement)scene_detail::face(replay_input,replay_yaw,replay.started);auto request=predicted_motion(replay,replay_input);replay_yaw=replay_input.yaw;if(predicted_restricted(replay.tick))scene_detail::restrict(replay_input,request);if(request.warp.active){const auto candidates=client_candidates();auto locked=predicted_locks.find(replay.tick);auto chosen=std::find_if(candidates.begin(),candidates.end(),[&](const auto& other){return locked!=predicted_locks.end()&&other.id==locked->second;});if(chosen!=candidates.end())request.warp.point=chosen->position;else request.warp={};}regenerated.push_back({replay_input,request});}
             require(owner->reconcile(correction.motor,history,regenerated)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene atomic combat/motor correction failed; resynchronize");*ability_prediction=std::move(candidate);
         }else require(owner->reconcile(client.motors().at(player),history)==ReplayResult::Applied&&!owner->needs_resync(),"Character scene isolated correction failed; resynchronize");
-        std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=client.motors().at(player).tick;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=client.motors().at(player).tick;});
+        const auto confirmed=correction_motor()->tick;std::erase_if(semantic_commands,[&](const auto& input){return input.tick<=confirmed;});std::erase_if(predicted_locks,[&](const auto& item){return item.first<=confirmed;});reconciled_tick=confirmed;if(combat)client.acknowledge_ability_correction(player);
+        }catch(...){if(!independent)throw;rebase();tick=latest;}
         lap(profile.prediction);
-        if(combat){require(public_ready(tick),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,remote]:remotes)if(!remote.pose)present(id,remote);for(auto& [id,observer]:observers)observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}
+        if(combat){if(!independent)require(public_ready(tick),"Combat public snapshot delivery bound; resynchronize");for(auto& [id,remote]:remotes)if(!remote.pose&&(!independent||paired(id)))present(id,remote);for(auto& [id,observer]:observers)if(!independent||paired(id))observer->push(shown(id));effect_cue_updates.clear();for(auto& [id,view]:effect_views){require(!client.effect_frame_needs_resync(id,AttributeVisibility::Public),"Scene effect state requires resynchronization");auto found=client.effect_frames(AttributeVisibility::Public).find(id);if(found!=client.effect_frames(AttributeVisibility::Public).end())view->push(found->second);auto cues=view->drain_cues();effect_cue_updates.insert(effect_cue_updates.end(),std::make_move_iterator(cues.begin()),std::make_move_iterator(cues.end()));require(effect_cue_updates.size()<=1024,"Scene persistent cue work bound");}
             // Action cues. The owner's action is seen twice, confirmed and predicted; every other character's once, from its public frame at this tick.
             {const auto& correction=client.ability_corrections().at(player);cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerConfirmed,correction.ability.action_definition,correction.ability.action);cue_tracker->observe(player,correction.motor.epoch,CueTiming::OwnerPredicted,predicted_cue_definition,predicted_cue_action);
-                for(const auto& [id,remote]:remotes)if(remote.pose){auto frame=shown(id);if(frame.ability.tick<tick)frame.ability=public_ability_at(frame.ability,tick);cue_tracker->observe(id,frame.avatar_epoch,CueTiming::Observed,frame.ability.action_definition,frame.ability.action);footstep_tracker.observe(id,frame.avatar_epoch,frame.motor.position.x,frame.motor.position.z,frame.motor.grounded);}
+                for(const auto& [id,remote]:remotes)if(remote.pose&&(!independent||paired(id))){auto frame=shown(id);display_at(frame,tick);cue_tracker->observe(id,frame.avatar_epoch,CueTiming::Observed,frame.ability.action_definition,frame.ability.action);footstep_tracker.observe(id,frame.avatar_epoch,frame.motor.position.x,frame.motor.position.z,frame.motor.grounded);}
                 // The owner hears its own steps from its predicted motor.
                 {const auto& walked=owner_motor->state();footstep_tracker.observe(player,correction.motor.epoch,walked.position.x,walked.position.z,walked.grounded);}footstep_updates=footstep_tracker.drain();
                 action_cue_updates=cue_tracker->drain_cues();action_cue_cuts=cue_tracker->drain_cuts();}
             if(cue_player){for(const auto& update:effect_cue_updates)cue_player->effect(update,tick);for(const auto& update:action_cue_updates)cue_player->action(update.network,update.avatar_epoch,update.event,tick,update.timing);for(const auto& cut:action_cue_cuts)cue_player->rejected(cut.network,cut.activation,tick);for(const auto& step:footstep_updates)cue_player->moment(step.network,step.avatar_epoch,footstep_cue_key,step.serial,tick);cue_player->advance(tick);}}
         // A far character's newest state can be a tick or two old; its pose still advances every tick, holding that state
         // while a running action's clock advances (the index has confirmed its content for this tick).
-        for(auto& [id,remote]:remotes)if(remote.pose){auto frame=observers.at(id)->sample(double(tick)).frame;if(frame.ability.tick<tick){frame.ability=public_ability_at(frame.ability,tick);frame.motor.tick=tick;}remote.pose->sample(frame,effect_frame(id));}
+        for(auto& [id,remote]:remotes)if(remote.pose){const auto pose_tick=independent?std::max(tick,remote.pose_tick):tick;const double render_tick=independent?double(reconciled_tick>2?reconciled_tick-2:0):double(tick);auto sample=observers.at(id)->sample(render_tick);auto frame=sample.frame;display_at(frame,pose_tick,independent?std::optional<double>(sample.action_clock):std::nullopt);if(independent&&frame.motor.tick>remote.pose_tick+1)remote.pose=remote_pose();remote.pose->sample(frame,effect_frame(id));remote.pose_tick=frame.motor.tick;}
         // The owner's own pose follows its confirmed motor state for the tick.
-        const auto& state=client.motors().at(player);double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
+        const auto& state=independent?owner_motor->state():client.motors().at(player);double x=state.achieved.x*60-state.support_velocity.x,z=state.achieved.z*60-state.support_velocity.z;
         GraphParameters parameters;parameters.speed=float(std::hypot(x,z));parameters.forward=float(std::sin(state.yaw)*x+std::cos(state.yaw)*z);parameters.lateral=float(std::cos(state.yaw)*x-std::sin(state.yaw)*z);
-        if(graph.tag_dictionary())parameters.tags=&client.ability_corrections().at(player).ability.tags;
+        if(graph.tag_dictionary())parameters.tags=independent?&ability_prediction->view().tags:&client.ability_corrections().at(player).ability.tags;
         auto selected=graph.evaluate(parameters);double stride{};
         for(const auto& layer:selected.span()){const auto& clip=layer.clip->definition();const auto& end=clip.root.back();stride+=layer.weight*std::hypot(end[0],end[2])*60/clip.ticks;}
         if(parameters.speed>.01&&stride>.01)parameters.playback_rate=float(std::clamp(parameters.speed/stride,0.,4.));
-        graph_inputs=graph.advance(tick,parameters);
-        if(combat){require(client.ability_corrections().contains(player)&&client.ability_corrections().at(player).ability.tick==tick,"Combat correction delivery bound");const auto& correction=client.ability_corrections().at(player);require(correction.motor.tick==tick,"Combat motor/action atomic clock");bool alive=true;for(const auto& attribute:correction.ability.attributes)if(attribute.id==correction.ability.health_attribute)alive=attribute.value>0;
+        graph_inputs=independent&&tick==graph.state().tick?graph.evaluate(parameters):graph.advance(tick,parameters);
+        if(combat){require(client.ability_corrections().contains(player)&&(independent||client.ability_corrections().at(player).ability.tick==tick),"Combat correction delivery bound");const auto& correction=client.ability_corrections().at(player);require(independent||correction.motor.tick==tick,"Combat motor/action atomic clock");const auto& shown_owner=independent?ability_prediction->view():correction.ability;bool alive=true;for(const auto& attribute:shown_owner.attributes)if(attribute.id==shown_owner.health_attribute)alive=attribute.value>0;
             // Confirmed owner state and the checked public effect instances choose the reaction; gameplay interruption already arrived through the correction.
             player_reaction=reactions->select(effect_frame(player),player,correction.session_epoch,correction.motor.epoch,tick,alive,bool(correction.ability.active));
             player_death_tick=player_death?player_death->update(alive,tick,correction.motor.epoch):std::nullopt;
             if(player_death_tick)matrices=rig.sample(player_death->clip(),*player_death_tick);
-            else if(correction.ability.active){const auto& ability=definition(correction.ability);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(correction.ability.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());client.acknowledge_ability_correction(player);lap(profile.presentation);client.drain_ability_receipts();
+            else if(shown_owner.active){const auto& ability=definition(shown_owner);matrices=action_mixer->sample(rig,graph_inputs,*ability.action,*combat->clips.at(ability.action->motion->clip.id),double(shown_owner.action->clock%ability.action->duration)/action_tick_units);}else if(player_reaction&&player_reaction->suppressed==ReactionSuppression::None)matrices=rig.sample(*player_reaction->clip,player_reaction->tick);else matrices=rig.blend(graph_inputs.span());if(!independent)client.acknowledge_ability_correction(player);lap(profile.presentation);if(!independent)client.drain_ability_receipts();
         }else{matrices=rig.blend(graph_inputs.span());lap(profile.presentation);}
         latest=tick;++profile.ticks;
     }
@@ -230,12 +293,16 @@ struct SceneClient::Impl {
             interaction_outcome=InteractionOutcome{notice.object,static_cast<InteractionResult>(notice.result),tick};if(interaction_outcome->result==InteractionResult::Accepted)for(const auto& item:combat->interactables)if(item.id==notice.object&&item.definition.once)interactables_seen_used.insert(notice.object);}
     }
 };
-SceneClient::SceneClient(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> party,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::shared_ptr<const CharacterSceneCombat> combat)
-    :impl_(std::make_unique<Impl>(std::move(hello),transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,std::move(combat))){}
+SceneClient::SceneClient(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> party,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::shared_ptr<const CharacterSceneCombat> combat,SceneTiming timing)
+    :impl_(std::make_unique<Impl>(std::move(hello),transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,std::move(combat),timing)){}
 SceneClient::~SceneClient()=default;
 void SceneClient::receive(){impl_->receive();}
 bool SceneClient::bootstrapped()const{return impl_->bootstrapped();}
 void SceneClient::start(){impl_->start();}
+unsigned SceneClient::advance(double seconds,CharacterSceneInput input){return impl_->advance(seconds,std::move(input));}
+std::uint64_t SceneClient::tick()const{return impl_->latest;}
+unsigned SceneClient::input_lead()const{return impl_->lead;}
+double SceneClient::debt()const{return impl_->clock_debt;}
 void SceneClient::enqueue(std::span<const InputEvent> events){impl_->enqueue(events);}
 void SceneClient::begin(std::uint64_t tick,const CharacterSceneInput& input){impl_->begin(tick,input);}
 bool SceneClient::ready(std::uint64_t tick){return impl_->ready(tick);}
