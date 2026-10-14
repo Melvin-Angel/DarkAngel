@@ -13,7 +13,7 @@
   "client": "readiness=4 revision=9 player=7 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [host ahead]=1",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-6f254c36-708\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-c9b1a2a5-2de\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
     "Prepared current scene and combat kit for a fresh Play session.",
     "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
@@ -29,10 +29,10 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 671,
+  "frame": 646,
   "highest_operation": 0,
   "owner": "0277daf836539698323a9e7e131074c0",
-  "pending_motor": 4,
+  "pending_motor": 3,
   "players": [
     {
       "health": 100.0,
@@ -61,8 +61,8 @@
     0.49999991059303284,
     2.1758313179016113
   ],
-  "predicted_tick": 1255,
-  "process": 24296,
+  "predicted_tick": 1231,
+  "process": 22284,
   "ready": true,
   "rebases": 1,
   "refused": 0,
@@ -74,7 +74,7 @@
   "schema": 1,
   "script_count": 3,
   "script_steps": 3,
-  "tick": 1251,
+  "tick": 1228,
   "travel_failures": 0,
   "world": {
     "collected": [],

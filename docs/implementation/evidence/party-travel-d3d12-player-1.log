@@ -5,10 +5,10 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39mParty guest bootstrap readiness=0 revision=0 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
-[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205210000
+[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80207560000
 [39mParty guest bootstrap readiness=2 revision=0 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
 Party guest bootstrap readiness=3 revision=9 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
-[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205310000
+[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80207660000
 [39mParty guest bootstrap readiness=4 revision=9 player=9 collision=0 motors=1 corrections=1 public=3 frames=0 coherent=0 paired=1
 Party guest bootstrap readiness=4 revision=9 player=9 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party guest prepared epoch=1 owner=0277daf836539698323a9e7e131074c0
@@ -16,20 +16,20 @@ Party guest held=1
 Party guest held=0
 Party guest bootstrap readiness=2 revision=0 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
 Party guest bootstrap readiness=3 revision=8 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
+Party guest bootstrap readiness=4 revision=8 player=8 collision=0 motors=1 corrections=1 public=0 frames=0 coherent=0 paired=0
 Party guest bootstrap readiness=4 revision=8 player=8 collision=0 motors=1 corrections=1 public=3 frames=0 coherent=0 paired=1
 Party guest bootstrap readiness=4 revision=8 player=8 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party guest prepared epoch=2 owner=0277daf836539698323a9e7e131074c0
 Party guest held=1
 Party guest held=0
-Party guest bootstrap readiness=0 revision=0 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
 Party guest bootstrap readiness=2 revision=0 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
 Party guest bootstrap readiness=3 revision=9 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
 Party guest bootstrap readiness=4 revision=9 player=9 collision=0 motors=1 corrections=1 public=3 frames=0 coherent=0 paired=1
 Party guest bootstrap readiness=4 revision=9 player=9 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party guest prepared epoch=3 owner=0277daf836539698323a9e7e131074c0
 Script quit requested tick=120 steps=7/7
-Viewport foreground pixels=534045 capture=C:\DarkAngel\docs\implementation\evidence\party-travel-d3d12-player-1.png
-DarkAngel editor rendered 13359 frames with d3d12
+Viewport foreground pixels=534027 capture=C:\DarkAngel\docs\implementation\evidence\party-travel-d3d12-player-1.png
+DarkAngel editor rendered 13928 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 16/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

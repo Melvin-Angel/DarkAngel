@@ -32,8 +32,19 @@
 #include "exercises/preview_results.hpp"
 #include "exercises/gameplay_results.hpp"
 #include "exercises/synthetic_input.hpp"
+#include "exercises/acceptance.hpp"
+#ifdef DAE_CHARACTER_SCENE
+#include "exercises/media_exercises.hpp"
+#include "exercises/navigation_exercises.hpp"
+#endif
 #endif
 #include "editor_theme.hpp"
+#include "render/render_system.hpp"
+#include "package_file.hpp"
+#include "vfx_workspace.hpp"
+#ifdef DAE_AUDIO
+#include "audio_workspace.hpp"
+#endif
 #include "gameplay_debug.hpp"
 #include "cue_debug.hpp"
 #include "vfx_cue_sink.hpp"
@@ -85,14 +96,19 @@
 using namespace Diligent;
 #ifdef DAE_NAVIGATION
 #include <darkangel/navigation.hpp>
+#include "navigation_tool.hpp"
 #endif
 #ifdef DAE_BEHAVIOR
 #include <darkangel/behavior_tree.hpp>
 #endif
 using namespace darkangel;
+using darkangel::editor_app::render::Constants;using darkangel::editor_app::render::GpuMesh;using darkangel::editor_app::render::Material;using darkangel::editor_app::render::UploadedModel;using darkangel::editor_app::render::pipeline;using darkangel::editor_app::render::texture;using darkangel::editor_app::render::capture;using darkangel::editor_app::render::upload;using darkangel::editor_app::render::shader_text;using darkangel::editor_app::render::shader_source;
+#ifdef DAE_ANIMATION
+using darkangel::editor_app::render::UploadedSkin;using darkangel::editor_app::render::skin_shader;using darkangel::editor_app::render::upload_skin;using darkangel::editor_app::render::upload_palette;
+#endif
 namespace {
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
-struct ComposerPackageFile {std::filesystem::path path;~ComposerPackageFile(){std::error_code ignored;std::filesystem::remove(path,ignored);}};
+using darkangel::editor_app::ComposerPackageFile;
 struct ComApartment {ComApartment(){require(SUCCEEDED(CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED)),"Editor COM initialization failed");}~ComApartment(){DirectX::SetWICFactory(nullptr);CoUninitialize();}};
 #ifdef DAE_CHARACTER_SCENE
 // The editor's scene provider: Play's own preparation, for the scene the party travels to.
@@ -104,106 +120,17 @@ struct EditorSceneProvider final:darkangel::SceneProvider {
     void cancel()override{on_cancel();}
 };
 #endif
-darkangel::editor_app::NativeInput* window_input{};ImGuiImplWin32* window_gui{};unsigned resize_width{},resize_height{};
-LRESULT CALLBACK window_proc(HWND window,UINT message,WPARAM wparam,LPARAM lparam){
-    if(window_input)window_input->message(message,wparam,lparam);
-    if(window_gui && window_gui->Win32_ProcHandler(window,message,wparam,lparam))return 1;
-    if(message==WM_SIZE){resize_width=LOWORD(lparam);resize_height=HIWORD(lparam);return 0;}
-    if(message==WM_CLOSE){DestroyWindow(window);return 0;}if(message==WM_DESTROY){PostQuitMessage(0);return 0;}return DefWindowProcW(window,message,wparam,lparam);
-}
-struct Constants {DirectX::XMFLOAT4X4 mvp,rotation;DirectX::XMFLOAT4 color,surface;};
-struct GpuMesh {RefCntAutoPtr<IBuffer> vertices,indices;std::vector<MeshPart> parts;std::array<float,4> color{1,1,1,1};};
-constexpr const char* shader_source=R"(
-cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;float4 Tint;float4 Surface;};
-struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
-struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;};
-VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.UV=vertex.UV;return result;}
-Texture2D Albedo;SamplerState Albedo_sampler;
-float4 PSMain(VertexOutput vertex):SV_TARGET {
-    float3 normal=normalize(vertex.Normal);float3 light=normalize(float3(.4,.7,.8));
-    float diffuse=saturate(dot(normal,light));float bands=floor(diffuse*3.999)/3;
-    float specular=pow(saturate(dot(normal,normalize(light+float3(0,0,1)))),lerp(40,4,Surface.x));
-    float3 color=Albedo.Sample(Albedo_sampler,vertex.UV).rgb*Tint.rgb;
-    return float4(color*(.22+.78*bands)+specular*.08*lerp(float3(1,1,1),color,Surface.y),1);
-}
-)";
-RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device,IBuffer* constants,TEXTURE_FORMAT color,TEXTURE_FORMAT depth,bool cull,const char* source=shader_source,IBuffer* bones=nullptr){
-    ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=source;
-    RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel stylized prop VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);
-    shader.Desc.Name="DarkAngel stylized prop PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(vs && ps,"Pinned DXC shader compilation failed");
-    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel stylized static prop";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;
-    auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;
-    LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};graphics.InputLayout.LayoutElements=layout;graphics.InputLayout.NumElements=bones?5:3;
-    ShaderResourceVariableDesc variables[]={{SHADER_TYPE_PIXEL,"Albedo",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};ci.PSODesc.ResourceLayout.Variables=variables;ci.PSODesc.ResourceLayout.NumVariables=1;
-    SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_WRAP;sampler.AddressV=TEXTURE_ADDRESS_WRAP;
-    ImmutableSamplerDesc samplers[]={{SHADER_TYPE_PIXEL,"Albedo",sampler}};ci.PSODesc.ResourceLayout.ImmutableSamplers=samplers;ci.PSODesc.ResourceLayout.NumImmutableSamplers=1;
-    RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Pipeline creation failed");
-    auto* vertex_frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"Frame");require(vertex_frame && pixel_frame,"Shader changed the declared Frame resource contract");vertex_frame->Set(constants);pixel_frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Missing GPU skin palette contract");skeleton->Set(bones);}return result;
-}
-RefCntAutoPtr<ITexture> texture(IRenderDevice* device,const CookedTexture& cooked){require(!cooked.mips.empty(),"Missing texture mips");TextureDesc desc;desc.Name="Cooked DarkAngel sRGB color";desc.Type=RESOURCE_DIM_TEX_2D;desc.Width=cooked.mips[0].width;desc.Height=cooked.mips[0].height;desc.MipLevels=static_cast<Uint32>(cooked.mips.size());desc.Format=TEX_FORMAT_RGBA8_UNORM_SRGB;desc.Usage=USAGE_IMMUTABLE;desc.BindFlags=BIND_SHADER_RESOURCE;
-    std::vector<TextureSubResData> subresources;for(const auto& mip:cooked.mips){TextureSubResData data;data.pData=mip.rgba.data();data.Stride=mip.width*4;subresources.push_back(data);}TextureData data;data.pSubResources=subresources.data();data.NumSubresources=static_cast<Uint32>(subresources.size());RefCntAutoPtr<ITexture> result;device->CreateTexture(desc,&data,&result);require(result,"Cooked texture upload failed");return result;
-}
-void capture(IRenderDevice* device,IDeviceContext* context,ITexture* source,const std::filesystem::path& path,const darkangel::editor_app::ViewArea& viewport){
-    TextureDesc desc=source->GetDesc();desc.Name="DarkAngel capture readback";desc.BindFlags=BIND_NONE;desc.Usage=USAGE_STAGING;desc.CPUAccessFlags=CPU_ACCESS_READ;
-    RefCntAutoPtr<ITexture> staging;device->CreateTexture(desc,nullptr,&staging);require(staging,"Readback texture creation failed");context->SetRenderTargets(0,nullptr,nullptr,RESOURCE_STATE_TRANSITION_MODE_NONE);CopyTextureAttribs copy{source,RESOURCE_STATE_TRANSITION_MODE_TRANSITION,staging,RESOURCE_STATE_TRANSITION_MODE_TRANSITION};context->CopyTexture(copy);context->Flush();context->WaitForIdle();
-    MappedTextureSubresource mapped;context->MapTextureSubresource(staging,0,0,MAP_READ,MAP_FLAG_DO_NOT_WAIT,nullptr,mapped);require(mapped.pData,"GPU readback failed");
-    std::vector<std::uint8_t> pixels(static_cast<std::size_t>(desc.Width)*desc.Height*4);for(unsigned y=0;y<desc.Height;++y)std::memcpy(pixels.data()+static_cast<std::size_t>(y)*desc.Width*4,static_cast<const std::uint8_t*>(mapped.pData)+y*mapped.Stride,desc.Width*4);context->UnmapTextureSubresource(staging,0,0);
-    // The viewport area excludes the inspector; UI pixels alone cannot satisfy this gate.
-    std::size_t changed{};auto left=static_cast<unsigned>(std::clamp(viewport.x,0.f,static_cast<float>(desc.Width-1))),top=static_cast<unsigned>(std::clamp(viewport.y,0.f,static_cast<float>(desc.Height-1)));auto right=static_cast<unsigned>(std::clamp(viewport.x+viewport.width,0.f,static_cast<float>(desc.Width))),bottom=static_cast<unsigned>(std::clamp(viewport.y+viewport.height,0.f,static_cast<float>(desc.Height)));require(right>left+40 && bottom>top+40,"Viewport too small for capture gate");auto ref=(static_cast<std::size_t>(top+10)*desc.Width+left+10)*4;
-    for(unsigned y=top+20;y+20<bottom;++y)for(unsigned x=left+20;x+20<right;++x){auto at=(static_cast<std::size_t>(y)*desc.Width+x)*4;unsigned delta{};for(unsigned c=0;c<3;++c)delta+=static_cast<unsigned>(std::abs(static_cast<int>(pixels[at+c])-pixels[ref+c]));if(delta>40)++changed;}
-    require(changed>2000,"Viewport did not draw foreground geometry");std::filesystem::create_directories(path.parent_path());DirectX::Image image{desc.Width,desc.Height,DXGI_FORMAT_R8G8B8A8_UNORM,static_cast<std::size_t>(desc.Width)*4,pixels.size(),pixels.data()};// Encoded in memory and then written, trying again for two seconds: another program (a thumbnailer, an indexer) may briefly hold a capture that was just replaced.
-    DirectX::Blob encoded;require(SUCCEEDED(DirectX::SaveToWICMemory(image,DirectX::WIC_FLAGS_NONE,GUID_ContainerFormatPng,encoded)),"PNG capture failed");
-    bool written=false;for(unsigned attempt=0;attempt<40&&!written;++attempt){{std::ofstream out(path,std::ios::binary|std::ios::trunc);if(out){out.write(reinterpret_cast<const char*>(encoded.GetBufferPointer()),static_cast<std::streamsize>(encoded.GetBufferSize()));out.close();written=!out.fail();}}if(!written)std::this_thread::sleep_for(std::chrono::milliseconds(50));}
-    require(written,"The capture could not be written: its file is held by another program");std::cout<<"Viewport foreground pixels="<<changed<<" capture="<<path.string()<<'\n';
-}
-struct Material {CookedMaterial value;RefCntAutoPtr<IShaderResourceBinding> binding;};
-struct UploadedModel {
-    std::vector<GpuMesh> meshes;std::map<AssetId,RefCntAutoPtr<ITexture>> textures;
-    std::map<AssetId,Material> materials;RefCntAutoPtr<ITexture> fallback;
-    std::array<float,3> center{},half{};float radius{};
-};
-UploadedModel upload(IRenderDevice* device,const RuntimeModel& model,IPipelineState* pso,IPipelineState* pso_cull){
-    require(!model.meshes.empty(),"Empty cooked model");UploadedModel out;auto minimum=model.meshes[0].minimum,maximum=model.meshes[0].maximum;
-    for(const auto& mesh:model.meshes){GpuMesh gpu;gpu.parts=mesh.parts;BufferDesc desc;desc.Name="Cooked static vertices";desc.Usage=USAGE_IMMUTABLE;desc.BindFlags=BIND_VERTEX_BUFFER;desc.Size=mesh.vertices.size()*sizeof(Vertex);BufferData data{mesh.vertices.data(),desc.Size};device->CreateBuffer(desc,&data,&gpu.vertices);desc.Name="Cooked static indices";desc.BindFlags=BIND_INDEX_BUFFER;desc.Size=mesh.indices.size()*sizeof(std::uint32_t);data={mesh.indices.data(),desc.Size};device->CreateBuffer(desc,&data,&gpu.indices);require(gpu.vertices && gpu.indices,"Mesh upload failed");out.meshes.push_back(std::move(gpu));for(unsigned c=0;c<3;++c){minimum[c]=std::min(minimum[c],mesh.minimum[c]);maximum[c]=std::max(maximum[c],mesh.maximum[c]);}}
-    CookedTexture white;white.mips.push_back({1,1,{255,255,255,255}});out.fallback=texture(device,white);for(const auto& [id,cooked]:model.textures)out.textures.emplace(id,texture(device,cooked));
-    for(const auto& material:model.materials){Material gpu;gpu.value=material;auto* chosen=material.double_sided?pso:pso_cull;chosen->CreateShaderResourceBinding(&gpu.binding,true);require(gpu.binding,"Material binding creation failed");auto* variable=gpu.binding->GetVariableByName(SHADER_TYPE_PIXEL,"Albedo");require(variable,"Shader changed the declared Albedo resource contract");auto* view=(material.has_texture?out.textures.at(material.texture):out.fallback)->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);variable->Set(view);out.materials.emplace(material.id,std::move(gpu));}
-    for(unsigned c=0;c<3;++c){out.center[c]=(minimum[c]+maximum[c])*.5f;out.half[c]=(maximum[c]-minimum[c])*.5f;out.radius=std::max(out.radius,out.half[c]);}require(out.radius>1e-6f,"Model has zero bounds");return out;
-}
-std::string shader_text(){std::ifstream in("games/AshenRoots/shaders/stylized_prop.hlsl",std::ios::binary|std::ios::ate);if(!in)return shader_source;require(in.tellg()>=0 && in.tellg()<=256*1024,"Shader source byte limit");in.seekg(0);return {std::istreambuf_iterator<char>(in),{}};}
-
-#ifdef DAE_ANIMATION
-std::string skin_shader(){std::string source=shader_source;auto replace=[&](std::string_view from,std::string_view to){auto at=source.find(from);require(at!=source.npos,"Native skin shader template mismatch");source.replace(at,from.size(),to);};
-    replace("struct VertexInput", "cbuffer Skeleton {row_major float4x4 Bones[256];};\nstruct VertexInput");
-    replace("float2 UV:ATTRIB2;", "float2 UV:ATTRIB2;uint4 Joints:ATTRIB3;float4 Weights:ATTRIB4;");
-    replace("result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);", "float4 position=0;float3 normal=0;[unroll]for(uint i=0;i<4;++i){position+=mul(float4(vertex.Position,1),Bones[vertex.Joints[i]])*vertex.Weights[i];normal+=mul(vertex.Normal,(float3x3)Bones[vertex.Joints[i]])*vertex.Weights[i];}result.Position=mul(position,Mvp);result.Normal=mul(normal,(float3x3)Rotation);");return source;
-}
-struct UploadedSkin {RuntimeSkinnedModel model;UploadedModel gpu;std::unique_ptr<RigPose> pose;};
-UploadedSkin upload_skin(IRenderDevice* device,RuntimeSkinnedModel model,IPipelineState* pso,IPipelineState* cull,const AnimationClip* clip=nullptr,double tick=0,bool reference=false){
-    RigPose reference_pose(model.rig.definition,model.rig.archive);const auto& sampled=clip?reference_pose.sample(*clip,tick):reference_pose.rest_pose();std::vector<std::array<float,16>> matrices(sampled.size());for(unsigned joint=0;joint<sampled.size();++joint)for(unsigned col=0;col<4;++col)for(unsigned row=0;row<4;++row)for(unsigned k=0;k<4;++k)matrices[joint][col*4+row]+=sampled[joint].values[k*4+row]*model.inverse_bind[joint][col*4+k];
-    static_assert(sizeof(SkinnedVertex)==64);require(model.inverse_bind.size()<=256,"GPU skin joint limit");RuntimeModel visible;visible.id=model.id;
-    CookedMaterial material;material.id=model.id;material.double_sided=true;material.roughness=.85f;material.has_texture=model.textured;material.texture=model.id;visible.materials.push_back(material);if(model.textured)visible.textures.emplace_back(model.id,model.texture);
-    for(const auto& skin:model.meshes){CookedMesh mesh;mesh.indices=skin.indices;mesh.minimum={1e9f,1e9f,1e9f};mesh.maximum={-1e9f,-1e9f,-1e9f};for(const auto& vertex:skin.vertices){auto geometry=vertex.geometry;if(reference){geometry.position={};geometry.normal={};for(unsigned influence=0;influence<4;++influence){const auto& matrix=matrices[vertex.joints[influence]];for(unsigned axis=0;axis<3;++axis){float position=matrix[12+axis],normal=0;for(unsigned component=0;component<3;++component){position+=matrix[component*4+axis]*vertex.geometry.position[component];normal+=matrix[component*4+axis]*vertex.geometry.normal[component];}geometry.position[axis]+=position*vertex.weights[influence];geometry.normal[axis]+=normal*vertex.weights[influence];}}}mesh.vertices.push_back(geometry);for(unsigned c=0;c<3;++c){mesh.minimum[c]=std::min(mesh.minimum[c],vertex.geometry.position[c]);mesh.maximum[c]=std::max(mesh.maximum[c],vertex.geometry.position[c]);}}mesh.parts.push_back({model.id,0,static_cast<unsigned>(mesh.indices.size())});visible.meshes.push_back(std::move(mesh));}
-    UploadedSkin result;result.gpu=upload(device,visible,pso,cull);for(unsigned index=0;index<model.meshes.size();++index)result.gpu.meshes[index].color=model.meshes[index].color;if(!reference)for(unsigned index=0;index<model.meshes.size();++index){const auto& mesh=model.meshes[index];BufferDesc desc;desc.Name="Canonical four-influence skin vertices";desc.Usage=USAGE_IMMUTABLE;desc.BindFlags=BIND_VERTEX_BUFFER;desc.Size=mesh.vertices.size()*sizeof(SkinnedVertex);BufferData data{mesh.vertices.data(),desc.Size};device->CreateBuffer(desc,&data,&result.gpu.meshes[index].vertices);require(result.gpu.meshes[index].vertices,"GPU skin vertex upload failed");}
-    result.pose=std::make_unique<RigPose>(model.rig.definition,model.rig.archive);result.model=std::move(model);return result;
-}
-void upload_palette(IDeviceContext* context,IBuffer* buffer,UploadedSkin& skin,const AnimationClip* clip,double tick,const std::vector<JointMatrix>* gameplay=nullptr){const auto& matrices=gameplay?*gameplay:(clip?skin.pose->sample(*clip,tick):skin.pose->rest_pose());require(matrices.size()==skin.model.inverse_bind.size(),"Gameplay pose skin layout mismatch");std::array<std::array<float,16>,256> palette{};for(unsigned joint=0;joint<matrices.size();++joint)for(unsigned col=0;col<4;++col)for(unsigned row=0;row<4;++row)for(unsigned k=0;k<4;++k)palette[joint][col*4+row]+=matrices[joint].values[k*4+row]*skin.model.inverse_bind[joint][col*4+k];void* mapped{};context->MapBuffer(buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"GPU skin palette map failed");std::memcpy(mapped,palette.data(),sizeof(palette));context->UnmapBuffer(buffer,MAP_WRITE);}
-#endif
 
 }
 int main(int argc,char** argv){try{
     auto args=darkangel::editor_app::parse_editor_options(argc,argv);auto id=AssetId::parse(args.model);ModelStore store;auto lease=store.prepare(args.registry,args.cas,id);store.publish(lease);
     ComApartment apartment;SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-    WNDCLASSW wc{};wc.lpfnWndProc=window_proc;wc.hInstance=GetModuleHandleW(nullptr);wc.lpszClassName=L"DarkAngelM2Editor";wc.hCursor=LoadCursorW(nullptr,IDC_ARROW);require(RegisterClassW(&wc),"Window class registration failed");
-    RECT rect{0,0,static_cast<LONG>(args.width),static_cast<LONG>(args.height)};AdjustWindowRect(&rect,WS_OVERLAPPEDWINDOW,FALSE);HWND window=CreateWindowW(wc.lpszClassName,L"DarkAngel Editor",WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,CW_USEDEFAULT,rect.right-rect.left,rect.bottom-rect.top,nullptr,nullptr,wc.hInstance,nullptr);require(window,"Editor window creation failed");
-    RefCntAutoPtr<IRenderDevice> device;RefCntAutoPtr<IDeviceContext> context;RefCntAutoPtr<ISwapChain> swap;
-    RECT initial_client{};require(GetClientRect(window,&initial_client)&&initial_client.right>0&&initial_client.bottom>0,"Editor client size unavailable");SwapChainDesc swap_desc;swap_desc.Width=static_cast<unsigned>(initial_client.right);swap_desc.Height=static_cast<unsigned>(initial_client.bottom);swap_desc.ColorBufferFormat=TEX_FORMAT_RGBA8_UNORM_SRGB;swap_desc.DepthBufferFormat=TEX_FORMAT_D32_FLOAT;NativeWindow native(window);
-    if(args.backend=="d3d12"){auto* factory=GetEngineFactoryD3D12();EngineD3D12CreateInfo ci;ci.pDxCompilerPath=DAE_DXC_DLL;ci.EnableValidation=true;factory->CreateDeviceAndContextsD3D12(ci,&device,&context);require(device && context,"D3D12 device initialization failed");factory->CreateSwapChainD3D12(device,context,swap_desc,FullScreenModeDesc{},native,&swap);}
-    else{auto* factory=GetEngineFactoryVk();EngineVkCreateInfo ci;ci.pDxCompilerPath=DAE_DXC_DLL;ci.EnableValidation=true;factory->CreateDeviceAndContextsVk(ci,&device,&context);require(device && context,"Vulkan device initialization failed");factory->CreateSwapChainVk(device,context,swap_desc,native,&swap);}require(swap,"Swap chain creation failed");
-    auto gui=ImGuiImplWin32::Create(ImGuiDiligentCreateInfo{device,swap->GetDesc()},window);window_gui=gui.get();ImGui::GetIO().ConfigFlags|=ImGuiConfigFlags_DockingEnable;ImGui::GetIO().IniFilename=nullptr;
+    // The render system is made first and shut down after the frame loop; every device resource below lives between.
+    darkangel::editor_app::RenderSystem render(args.width,args.height,args.backend);
+    auto& window=render.window;auto& device=render.device;auto& context=render.context;auto& swap=render.swap;auto& swap_desc=render.swap_desc;auto& gui=render.gui;
+    auto& window_input=render.input;auto& resize_width=render.resize_width;auto& resize_height=render.resize_height;
     darkangel::editor_app::initialize_theme(GetDpiForWindow(window)/96.f);if(!args.hidden)ShowWindow(window,SW_SHOW);
-    BufferDesc cb;cb.Name="DarkAngel frame constants";cb.Size=sizeof(Constants);cb.Usage=USAGE_DYNAMIC;cb.BindFlags=BIND_UNIFORM_BUFFER;cb.CPUAccessFlags=CPU_ACCESS_WRITE;RefCntAutoPtr<IBuffer> constant_buffer;device->CreateBuffer(cb,nullptr,&constant_buffer);require(constant_buffer,"Constant buffer creation failed");
-    auto source=shader_text();auto pso=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,false,source.c_str());auto pso_cull=pipeline(device,constant_buffer,swap_desc.ColorBufferFormat,swap_desc.DepthBufferFormat,true,source.c_str());
+    render.create_frame_pipelines();BufferDesc cb=render.constants_desc;auto& constant_buffer=render.constant_buffer;auto& pso=render.pso;auto& pso_cull=render.pso_cull;
     // A projectile in flight is drawn as a small arrow-like solid built here, not from an asset.
     UploadedModel projectile_gpu;std::size_t projectiles_seen{};
     {RuntimeModel shape;shape.id=AssetId::random();CookedMaterial material;material.id=shape.id;material.color={3.2f,2.3f,.6f,1.f};material.roughness=.4f;material.double_sided=true;shape.materials.push_back(material);
@@ -242,104 +169,23 @@ int main(int argc,char** argv){try{
     // for the visual and the audio service until they exist. Declared before the session, which must not outlive its cue player.
     std::optional<std::vector<darkangel::CueDefinition>> play_cues;std::size_t play_cue_closure{};darkangel::editor_app::RecordingCueSink cue_visual{true},cue_audio{false};bool cue_debug_selected{};
     // Visual effects: one service on this device, the effect asset behind each cue visual, and the sink that plays them. The recording sink stays behind it for the Cues tab.
-    std::unique_ptr<darkangel::VfxService> vfx;std::map<std::string,AssetId> play_effects;std::map<std::string,std::string> play_effect_generations;darkangel::editor_app::PrimitiveCueSink cue_primitives{&cue_visual};std::map<AssetId,darkangel::TrailDefinition> play_trails;std::map<AssetId,darkangel::DecalDefinition> play_decals;darkangel::editor_app::VfxCueSink cue_effects{&cue_primitives};std::uint64_t vfx_tick{};std::string vfx_failed;
-    try{vfx=std::make_unique<darkangel::VfxService>(device,context,int(swap_desc.ColorBufferFormat),int(swap_desc.DepthBufferFormat));}catch(const std::exception& error){vfx_failed=error.what();editor.log(std::string("Visual effects unavailable: ")+error.what(),darkangel::editor_app::ConsoleSeverity::Warning);}
+    darkangel::editor_app::VfxWorkspace vfx_workspace(editor);auto& vfx=vfx_workspace.service;std::map<std::string,AssetId> play_effects;std::map<std::string,std::string> play_effect_generations;darkangel::editor_app::PrimitiveCueSink cue_primitives{&cue_visual};std::map<AssetId,darkangel::TrailDefinition> play_trails;std::map<AssetId,darkangel::DecalDefinition> play_decals;darkangel::editor_app::VfxCueSink cue_effects{&cue_primitives};std::uint64_t vfx_tick{};auto& vfx_failed=vfx_workspace.failed;
+    vfx_workspace.start(device,context,int(swap_desc.ColorBufferFormat),int(swap_desc.DepthBufferFormat));
 #ifdef DAE_AUDIO
-    // Sounds: one audio service for the process, made when the first Play needs it. A hidden run and --no-audio use the silent driver. The recording sink stays behind it for the Cues tab.
-    std::unique_ptr<darkangel::AudioService> audio;std::map<std::string,AssetId> play_sounds;darkangel::editor_app::AudioCueSink cue_sounds{&cue_audio};std::string audio_failed;bool audio_tried{};
-    // Music and ambience: one director while a Play session or a profile audition lasts. The mixer is the project's audio/project.damix,
-    // read from its open draft when there is one so that a slider moved in the Audio tab is heard at once.
-    std::unique_ptr<darkangel::AudioDirector> audio_director;std::map<AssetId,darkangel::AudioProfile> play_profiles;std::map<StableId,AssetId> encounter_profiles;std::optional<darkangel::AudioMix> audio_applied;bool audio_in_play{};std::map<AssetId,std::string> audio_generations;
-    struct AudioTab {AssetId sound,profile;std::uint64_t audition{};bool profile_audition{};char sound_name[49]{"new_sound"},profile_name[49]{"new_profile"},import_path[512]{};std::string error;darkangel::AudioMix file_mix;std::filesystem::file_time_type file_seen{};bool file_known{};} audio_tab;
-    const std::string audio_mix_path="audio/project.damix";
-    auto project_mix=[&]()->darkangel::AudioMix{if(!editor.assets)return {};
-        try{for(const auto& asset:editor.asset_inventory)if(asset.path==audio_mix_path){if(const auto draft=editor.authoring.drafts.find(asset.id);draft!=editor.authoring.drafts.end())return darkangel::decode_audio_mix(draft->second.value.dump()).mix;}
-            const auto file=editor.assets->source_root()/audio_mix_path;std::error_code ignored;const auto written=std::filesystem::last_write_time(file,ignored);if(ignored){audio_tab.file_known=false;return {};}
-            if(!audio_tab.file_known||written!=audio_tab.file_seen){std::ifstream in(file,std::ios::binary);const std::string text{std::istreambuf_iterator<char>(in),{}};audio_tab.file_mix=darkangel::decode_audio_mix(text).mix;audio_tab.file_seen=written;audio_tab.file_known=true;}
-            return audio_tab.file_mix;}
-        catch(const std::exception&){return audio_tab.file_known?audio_tab.file_mix:darkangel::AudioMix{};}};
-    // The service is made when something first needs to be heard, and made again when the mixer's limiter or ducking changed and nothing is playing.
-    auto ensure_audio=[&]{if(!editor.assets)return false;const auto mix=project_mix();
-        if(audio&&!mix.same_structure(audio->started_mix())&&!audio_in_play&&!audio_director&&audio->stats().playing==0){cue_sounds.bind(nullptr,nullptr,{});audio.reset();audio_tried=false;audio_applied.reset();}
-        if(!audio&&!audio_tried){audio_tried=true;try{darkangel::AudioOptions options;options.device=!args.hidden&&!args.no_audio;options.work=editor.assets->cas_path().parent_path();options.mix=mix;audio=std::make_unique<darkangel::AudioService>(options);audio_applied=mix;audio_failed.clear();}catch(const std::exception& error){audio_failed=error.what();editor.log(std::string("Audio unavailable: ")+error.what(),darkangel::editor_app::ConsoleSeverity::Warning);}}
-        return bool(audio);};
-    // Cooks and loads sounds by identity: WAVs (default settings), sound definitions, and whole profiles with the definitions they carry. Returns the profiles.
-    auto load_audio=[&](std::vector<AssetId> wanted){std::map<AssetId,darkangel::AudioProfile> profiles;if(!audio||!editor.assets)return profiles;std::map<AssetId,std::string> paths;for(const auto& asset:editor.assets->assets())paths[asset.id]=asset.path;
-        std::vector<AssetId> roots;for(const auto id:wanted)if(paths.contains(id)&&std::find(roots.begin(),roots.end(),id)==roots.end())roots.push_back(id);if(roots.empty())return profiles;require(roots.size()<=64,"At most 64 sounds and profiles are loaded at once");
-        const auto registry=editor.assets->cas_path().parent_path()/("audio-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};darkangel::editor_app::package_authoring(*editor.assets,roots,registry);
-        std::deque<darkangel::CookedSound> waves;std::deque<darkangel::CookedSoundDefinition> definitions;std::vector<darkangel::AudioSound> sounds;std::set<AssetId> listed;
-        const auto define=[&](darkangel::CookedSoundDefinition cooked){if(!listed.insert(cooked.definition.id).second)return;definitions.push_back(std::move(cooked));const auto& held=definitions.back();sounds.push_back({held.definition.id,held.generation,&held.wave,held.definition.settings});};
-        for(const auto id:roots){const auto extension=std::filesystem::path(paths.at(id)).extension();
-            if(extension==".wav"){if(!listed.insert(id).second)continue;waves.push_back(darkangel::load_cooked_sound(registry,editor.assets->cas_path(),id));sounds.push_back({id,waves.back().generation,&waves.back(),{}});}
-            else if(extension==".dasound")define(darkangel::load_cooked_sound_definition(registry,editor.assets->cas_path(),id));
-            else if(extension==".daaudioprofile"){auto cooked=darkangel::load_cooked_audio_profile(registry,editor.assets->cas_path(),id);for(auto& held:cooked.sounds)define(std::move(held));profiles[id]=std::move(cooked.profile);}}
-        for(const auto& sound:sounds)audio_generations[sound.id]=sound.generation;audio->load(sounds);return profiles;};
+    // Sounds, music and the Audio tab: one workspace for the process, its service made when the first Play or audition needs it.
+    darkangel::editor_app::AudioWorkspace audio_workspace(editor,args,cue_audio);
+    auto& audio=audio_workspace.service;auto& play_sounds=audio_workspace.play_sounds;auto& cue_sounds=audio_workspace.cue_sounds;auto& audio_failed=audio_workspace.failed;
+    auto& audio_director=audio_workspace.director;auto& play_profiles=audio_workspace.play_profiles;auto& encounter_profiles=audio_workspace.encounter_profiles;
+    auto& audio_applied=audio_workspace.applied;auto& audio_in_play=audio_workspace.in_play;auto& audio_generations=audio_workspace.generations;auto& audio_tab=audio_workspace.state;
+    const auto& audio_mix_path=audio_workspace.mix_path;auto project_mix=[&]{return audio_workspace.project_mix();};auto ensure_audio=[&]{return audio_workspace.ensure();};
+    auto load_audio=[&](std::vector<AssetId> wanted){return audio_workspace.load(std::move(wanted));};
 #endif
     // The VFX tab: the selected effect is cooked and played in a loop in the preview, and cooked again whenever its source file changes on disk
     // (that is how an edit saved in Effekseer shows up). A refusal by the cooker is shown as it is.
-    struct VfxPreview {AssetId selected;std::string path,error,generation;std::filesystem::file_time_type seen{};bool cooked{};std::uint64_t handle{};float yaw{.6f},distance{4.5f},height{1.f};char name[49]{"new_effect"};AssetId cue,primitive;char cue_name[49]{"new_cue"},primitive_name[49]{"new_trail"};std::string cue_error;double idle{};std::size_t textures{};unsigned cooks{};} vfx_preview;
-    auto vfx_effects=[&]{std::vector<darkangel::AssetInfo> found;for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension==".efkproj"||extension==".efkefc")found.push_back(asset);}return found;};
-    auto vfx_cook=[&]{auto& preview=vfx_preview;preview.cooked=false;preview.error.clear();if(!vfx||!editor.assets||preview.selected==AssetId{})return;if(preview.handle){vfx->kill(preview.handle);preview.handle=0;}
-        try{std::error_code ignored;preview.seen=std::filesystem::last_write_time(editor.assets->source_root()/preview.path,ignored);const auto registry=editor.assets->cas_path().parent_path()/("vfx-preview-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};const std::array roots{preview.selected};darkangel::editor_app::package_authoring(*editor.assets,roots,registry);
-            const auto cooked=darkangel::load_cooked_vfx(registry,editor.assets->cas_path(),preview.selected);vfx->load(cooked);preview.generation=cooked.generation;preview.textures=cooked.textures.size();preview.cooked=true;++preview.cooks;preview.idle=0;}
-        catch(const std::exception& error){preview.error=error.what();}};
-    auto vfx_select=[&](const darkangel::AssetInfo& asset){vfx_preview.selected=asset.id;vfx_preview.path=asset.path;vfx_cook();};
-    // Cues in the VFX tab: the project's cue sources as ordinary native drafts (Undo, Redo, Save All), edited in a small form.
-    auto vfx_cues=[&]{auto& preview=vfx_preview;const auto red=[](const std::string& text){ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1.f,.45f,.35f,1.f));ImGui::TextWrapped("%s",text.c_str());ImGui::PopStyleColor();};
-        ImGui::SeparatorText("Cues");ImGui::TextWrapped("A cue is what gameplay asks for by key: an effect, a sound or both, played on the actor.");
-        std::vector<darkangel::AssetInfo> cues,sounds,trail_assets,decal_assets;for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension==".dacue")cues.push_back(asset);else if(extension==".wav"||extension==".dasound")sounds.push_back(asset);else if(extension==".datrail")trail_assets.push_back(asset);else if(extension==".dadecal")decal_assets.push_back(asset);}
-        if(cues.empty())ImGui::TextDisabled("This project has no cues yet.");
-        for(const auto& asset:cues){const auto draft=editor.authoring.drafts.find(asset.id);const bool dirty=draft!=editor.authoring.drafts.end()&&draft->second.dirty();if(ImGui::Selectable((asset.path+(dirty?" *":"")+"##cue").c_str(),asset.id==preview.cue)){preview.cue=asset.id;preview.cue_error.clear();}}
-        ImGui::SetNextItemWidth(220);ImGui::InputText("##cue-name",preview.cue_name,sizeof(preview.cue_name));ImGui::SameLine();
-        if(ImGui::Button("New cue")){try{preview.cue=editor.authoring.create_cue(*editor.assets,preview.cue_name);editor.refresh_assets();preview.cue_error.clear();}catch(const std::exception& error){preview.cue_error=error.what();}}
-        if(preview.cue!=AssetId{}){darkangel::editor_app::NativeDraft* draft{};try{draft=&editor.authoring.open(*editor.assets,preview.cue);}catch(const std::exception& error){preview.cue_error=error.what();preview.cue=AssetId{};}
-            if(draft){auto& value=draft->value;ImGui::SeparatorText("Selected cue");ImGui::TextWrapped("%s",draft->asset.path.c_str());
-                const auto field=[&](const char* label,const char* name){char buffer[65]{};const auto current=value.value(name,std::string{});std::snprintf(buffer,sizeof(buffer),"%s",current.c_str());if(ImGui::InputText(label,buffer,sizeof(buffer)))value[name]=std::string(buffer);};
-                field("Name##cue","name");field("Key##cue","key");
-                const auto pick=[&](const char* label,const char* name,const std::vector<darkangel::AssetInfo>& choices,bool effect){const auto current=value.value(name,std::string{});if(ImGui::BeginCombo(label,current.empty()?"(none)":current.c_str())){if(ImGui::Selectable("(none)",current.empty()))value[name]="";for(const auto& choice:choices)if(ImGui::Selectable(choice.path.c_str(),choice.path==current)){value[name]=choice.path;if(effect)vfx_select(choice);}ImGui::EndCombo();}};
-                pick("Effect##cue","visual",vfx_effects(),true);pick("Sound##cue","audio",sounds,false);
-                // A trail and a decal are optional fields of the cue: absent when none is chosen.
-                const auto optional=[&](const char* label,const char* name,const std::vector<darkangel::AssetInfo>& choices){const auto current=value.value(name,std::string{});if(ImGui::BeginCombo(label,current.empty()?"(none)":current.c_str())){if(ImGui::Selectable("(none)",current.empty()))value.erase(name);for(const auto& choice:choices)if(ImGui::Selectable(choice.path.c_str(),choice.path==current)){value[name]=choice.path;preview.primitive=choice.id;}ImGui::EndCombo();}};
-                optional("Weapon trail##cue","trail",trail_assets);optional("Decal##cue","decal",decal_assets);
-                int tail=int(value.value("tail_ticks",30u));if(ImGui::InputInt("Tail (ticks)##cue",&tail))value["tail_ticks"]=unsigned(std::clamp(tail,0,600));
-                bool predictable=value.value("predictable",false);if(ImGui::Checkbox("Starts on prediction (the owner's own cue)",&predictable))value["predictable"]=predictable;
-                std::string problem;try{darkangel::decode_cue(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
-                ImGui::BeginDisabled(!draft->dirty()||!problem.empty());if(ImGui::Button("Save cue")){try{const auto path=draft->asset.path;editor.authoring.save(*editor.assets,preview.cue);editor.refresh_assets();play_cues.reset();preview.cue_error.clear();editor.log("Saved "+path);}catch(const std::exception& error){preview.cue_error=error.what();}}ImGui::EndDisabled();
-                if(args.exercise_cue_form)ImGui::SetScrollHereY(1.f);
-                try{editor.authoring.record_changes(*editor.assets,"Edit cue",ImGui::IsAnyItemActive());}catch(const std::exception& error){preview.cue_error=error.what();}}}
-        if(!preview.cue_error.empty())red(preview.cue_error);
-        // Weapon trails and decals: native, small, and edited here because a cue is what names them.
-        ImGui::SeparatorText("Trails and decals");ImGui::TextWrapped("A weapon trail is a strip swept by two points on a socket while its cue is live. A decal is a soft disc laid under the actor when its cue starts.");
-        for(const auto* list:{&trail_assets,&decal_assets})for(const auto& asset:*list){const auto draft=editor.authoring.drafts.find(asset.id);const bool dirty=draft!=editor.authoring.drafts.end()&&draft->second.dirty();if(ImGui::Selectable((asset.path+(dirty?" *":"")+"##primitive").c_str(),asset.id==preview.primitive)){preview.primitive=asset.id;preview.cue_error.clear();}}
-        ImGui::SetNextItemWidth(160);ImGui::InputText("##primitive-name",preview.primitive_name,sizeof(preview.primitive_name));ImGui::SameLine();
-        if(ImGui::Button("New trail")){try{preview.primitive=editor.authoring.create_trail(*editor.assets,preview.primitive_name);editor.refresh_assets();preview.cue_error.clear();}catch(const std::exception& error){preview.cue_error=error.what();}}ImGui::SameLine();
-        if(ImGui::Button("New decal")){try{preview.primitive=editor.authoring.create_decal(*editor.assets,preview.primitive_name);editor.refresh_assets();preview.cue_error.clear();}catch(const std::exception& error){preview.cue_error=error.what();}}
-        if(preview.primitive!=AssetId{}){darkangel::editor_app::NativeDraft* draft{};try{draft=&editor.authoring.open(*editor.assets,preview.primitive);}catch(const std::exception& error){preview.cue_error=error.what();preview.primitive=AssetId{};}
-            if(draft){auto& value=draft->value;const bool trail=value.value("kind",std::string{})=="trail";ImGui::SeparatorText(trail?"Selected trail":"Selected decal");ImGui::TextWrapped("%s",draft->asset.path.c_str());
-                const auto text=[&](const char* label,const char* name){char buffer[65]{};std::snprintf(buffer,sizeof(buffer),"%s",value.value(name,std::string{}).c_str());if(ImGui::InputText(label,buffer,sizeof(buffer)))value[name]=std::string(buffer);};
-                const auto floats=[&](const char* label,const char* name,int count,float least,float most){float numbers[4]{};for(int index=0;index<count;++index)numbers[index]=value[name].is_array()&&value[name].size()==std::size_t(count)&&value[name][index].is_number()?value[name][index].get<float>():0.f;bool changed=count==3?ImGui::DragFloat3(label,numbers,.01f,least,most,"%.2f"):ImGui::ColorEdit4(label,numbers);if(changed){value[name]=nlohmann::json::array();for(int index=0;index<count;++index)value[name].push_back(double(std::round(std::clamp(numbers[index],least,most)*1000)/1000));}};
-                const auto whole=[&](const char* label,const char* name,int least,int most){int number=int(value.value(name,unsigned(least)));if(ImGui::InputInt(label,&number))value[name]=unsigned(std::clamp(number,least,most));};
-                text("Name##primitive","name");
-                if(trail){text("Socket or joint##primitive","socket");floats("Base offset (m)##primitive","base",3,-5,5);floats("Tip offset (m)##primitive","tip",3,-5,5);whole("Lifetime (ticks)##primitive","lifetime_ticks",1,120);whole("Points##primitive","max_points",2,64);floats("Colour##primitive","color",4,0,1);}
-                else{float size=value.value("size",1.f);if(ImGui::SliderFloat("Size (m)##primitive",&size,.05f,10,"%.2f"))value["size"]=double(std::round(size*100)/100);whole("Lifetime (ticks)##primitive","lifetime_ticks",1,3600);whole("Fade (ticks)##primitive","fade_ticks",0,3600);floats("Colour##primitive","color",4,0,1);}
-                std::string problem;try{if(trail)darkangel::decode_trail(value.dump());else darkangel::decode_decal(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
-                ImGui::BeginDisabled(!draft->dirty()||!problem.empty());if(ImGui::Button("Save##primitive")){try{const auto path=draft->asset.path;editor.authoring.save(*editor.assets,preview.primitive);editor.refresh_assets();play_cues.reset();preview.cue_error.clear();editor.log("Saved "+path);}catch(const std::exception& error){preview.cue_error=error.what();}}ImGui::EndDisabled();
-                try{editor.authoring.record_changes(*editor.assets,"Edit trail or decal",ImGui::IsAnyItemActive());}catch(const std::exception& error){preview.cue_error=error.what();}}}};
-    if(editor.assets)shell.draw_vfx_panel=[&]{auto& preview=vfx_preview;
-        ImGui::TextWrapped("Effects are built in Effekseer. Pick one to preview it as the game draws it; \"Edit in Effekseer\" opens it there, and saving it there updates the preview.");
-        if(!vfx){ImGui::TextWrapped("Visual effects are unavailable: %s",vfx_failed.c_str());return;}
-        ImGui::SeparatorText("Effects");const auto effects=vfx_effects();if(effects.empty())ImGui::TextDisabled("This project has no effects yet.");for(const auto& asset:effects)if(ImGui::Selectable(asset.path.c_str(),asset.id==preview.selected))vfx_select(asset);
-        ImGui::SeparatorText("New effect");ImGui::SetNextItemWidth(220);ImGui::InputText("##vfx-name",preview.name,sizeof(preview.name));ImGui::SameLine();
-        {const std::string name(preview.name);const bool valid=!name.empty()&&name.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789_")==name.npos;const auto root=editor.assets->source_root();const auto relative="vfx/"+name+".efkproj";const auto starter=root/"vfx/placeholder/hit_spark.efkproj";
-            ImGui::BeginDisabled(!valid||std::filesystem::exists(root/relative)||!std::filesystem::exists(starter));if(ImGui::Button("Create")){try{std::filesystem::create_directories(root/"vfx/Texture");if(!std::filesystem::exists(root/"vfx/Texture/glow.png"))std::filesystem::copy_file(root/"vfx/placeholder/Texture/glow.png",root/"vfx/Texture/glow.png");std::filesystem::copy_file(starter,root/relative);editor.assets->adopt(relative);editor.refresh_assets();for(const auto& asset:vfx_effects())if(asset.path==relative)vfx_select(asset);editor.log("Created "+relative+" from the placeholder spark. Open it in Effekseer to build the effect.");}catch(const std::exception& error){preview.error=error.what();}}ImGui::EndDisabled();
-            if(!valid)ImGui::TextDisabled("Lowercase letters, digits and underscores.");else if(std::filesystem::exists(root/relative))ImGui::TextDisabled("An effect with this name exists.");}
-        if(preview.selected==AssetId{}){vfx_cues();return;}ImGui::SeparatorText("Selected");ImGui::TextWrapped("%s",preview.path.c_str());
-        if(ImGui::Button("Edit in Effekseer")){const auto tool=darkangel::effekseer_tool();const auto file=(editor.assets->source_root()/preview.path).make_preferred();if(!std::filesystem::is_regular_file(tool))preview.error="The Effekseer tool is missing from .tools";else{const std::wstring arguments=L"\""+file.wstring()+L"\"";const auto started=reinterpret_cast<std::intptr_t>(ShellExecuteW(nullptr,L"open",tool.wstring().c_str(),arguments.c_str(),tool.parent_path().wstring().c_str(),SW_SHOWNORMAL));if(started<=32)preview.error="Effekseer could not be started";else editor.log("Opened "+preview.path+" in Effekseer. Save it there to update the preview.");}}
-        ImGui::SameLine();if(ImGui::Button("Cook again"))vfx_cook();ImGui::SameLine();if(ImGui::Button("Restart")&&preview.cooked){if(preview.handle)vfx->kill(preview.handle);preview.handle=0;preview.idle=1;}
-        if(!preview.error.empty()){ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1.f,.45f,.35f,1.f));ImGui::TextWrapped("Not cooked: %s",preview.error.c_str());ImGui::PopStyleColor();ImGui::TextWrapped("The preview keeps the last version that cooked.");}
-        else if(preview.cooked)ImGui::TextWrapped("Cooked %u time(s) this session; %zu texture(s); product %.12s.",preview.cooks,preview.textures,preview.generation.c_str());
-        {const auto drawn=vfx->stats();ImGui::Text("%zu particle(s), %u quad(s) in %u draw(s)",drawn.instances,drawn.quads,drawn.draws);if(drawn.unsupported)ImGui::TextWrapped("%u batch(es) skipped: they need shading the renderer does not have.",drawn.unsupported);}
-        ImGui::SeparatorText("Preview camera");ImGui::SliderFloat("Turn",&preview.yaw,-3.14f,3.14f);ImGui::SliderFloat("Distance",&preview.distance,1.f,20.f);ImGui::SliderFloat("Height",&preview.height,0.f,3.f);vfx_cues();};
+    auto& vfx_preview=vfx_workspace.state;
+    auto vfx_effects=[&]{return vfx_workspace.effects();};auto vfx_cook=[&]{vfx_workspace.cook();};auto vfx_select=[&](const darkangel::AssetInfo& asset){vfx_workspace.select(asset);};
+    vfx_workspace.reveal_cue_form=args.exercise_cue_form;vfx_workspace.on_cue_sources_saved=[&]{play_cues.reset();};
+    if(editor.assets)shell.draw_vfx_panel=[&]{vfx_workspace.draw_panel();};
     if(args.vfx_workspace){shell.select_workspace(darkangel::editor_app::Workspace::Vfx);if(editor.assets)editor.refresh_assets();for(const auto& asset:vfx_effects())if(asset.path==args.vfx_select)vfx_select(asset);}
     std::unique_ptr<darkangel::CuePlayer> cue_player;
     // Presentation-only camera brain for the Play actor; rebuilt for each Play session.
@@ -365,88 +211,8 @@ int main(int argc,char** argv){try{
     struct TravelLoad {AssetId scene;unsigned step{};bool parked{};std::filesystem::path path;std::unique_ptr<darkangel::EditorDocument> document;std::unique_ptr<darkangel::PreparedScene> prepared;} travel_load;std::unique_ptr<darkangel::SceneSession::Prepared> travel_preview;
     unsigned travel_arrivals{},travel_failures{},travel_overlay_frames{};std::string travel_failure;std::unique_ptr<darkangel::editor_app::CharacterPreviewResources> character_resources;CharacterSceneInput character_input;std::vector<InputEvent> combat_events;
 #ifdef DAE_AUDIO
-    if(editor.assets)shell.draw_audio_panel=[&]{auto& tab=audio_tab;const auto red=[](const std::string& text){ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1.f,.45f,.35f,1.f));ImGui::TextWrapped("%s",text.c_str());ImGui::PopStyleColor();};
-        const auto guarded=[&](auto operation){try{operation();}catch(const std::exception& error){tab.error=error.what();}};const auto act=[&](auto operation){try{operation();tab.error.clear();}catch(const std::exception& error){tab.error=error.what();}};
-        const auto root=editor.assets->source_root();const bool playing=bool(character);const char* bus_names[]{"master","music","ambient","player","npc","ui"};const char* bus_labels[]{"Master","Music","Ambient","Player","NPC","UI"};
-        std::vector<darkangel::AssetInfo> waves,definitions,profiles;AssetId mix_id;for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension==".wav")waves.push_back(asset);else if(extension==".dasound")definitions.push_back(asset);else if(extension==".daaudioprofile")profiles.push_back(asset);if(asset.path==audio_mix_path)mix_id=asset.id;}
-        const auto path_of=[&](const std::string& id)->std::string{if(id.empty())return "(none)";for(const auto& asset:editor.asset_inventory)if(asset.id.text()==id)return asset.path;return "(missing) "+id;};
-        const auto dirty=[&](AssetId id){const auto draft=editor.authoring.drafts.find(id);return draft!=editor.authoring.drafts.end()&&draft->second.dirty();};
-        const auto save_draft=[&](AssetId id){const auto path=editor.authoring.drafts.at(id).asset.path;editor.authoring.save(*editor.assets,id);editor.refresh_assets();play_cues.reset();editor.log("Saved "+path);};
-        if(!audio_failed.empty())red("Audio is unavailable: "+audio_failed);if(!tab.error.empty())red(tab.error);
-        if(audio){const auto heard=audio->stats();ImGui::TextDisabled("Audio engine: %s driver, %zu sound(s) loaded, %zu playing.%s",heard.driver.c_str(),heard.sounds,heard.playing,project_mix().same_structure(audio->started_mix())?"":" The limiter or ducking changed: it applies when audio restarts, the next time something is played while nothing else is.");}
-        else ImGui::TextDisabled("The audio engine starts the first time something is played.");
-        const float column=std::max(260.f,(ImGui::GetContentRegionAvail().x-16)/3);
-        // ---- Sounds
-        ImGui::BeginChild("Audio sounds",{column,0},ImGuiChildFlags_Borders);ImGui::SeparatorText("Sounds");
-        ImGui::TextWrapped("WAV files, and sound definitions that say how a WAV is played: bus, volume, pitch, looping, positioned or flat, range and one effect.");
-        ImGui::SetNextItemWidth(-90);ImGui::InputTextWithHint("##audio-import","Path of a .wav file to import",tab.import_path,sizeof(tab.import_path));ImGui::SameLine();
-        if(ImGui::Button("Import"))act([&]{const std::filesystem::path from(tab.import_path);require(std::filesystem::is_regular_file(from)&&from.extension()==".wav","Give the path of an existing .wav file");const auto stem=from.stem().string();require(!stem.empty()&&stem.size()<=48&&stem.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")==stem.npos,"The file name may hold letters, digits, '_' and '-'");
-            const auto relative="audio/"+stem+".wav";require(!std::filesystem::exists(root/relative),"A sound with this name is already in the project");std::filesystem::create_directories(root/"audio");std::filesystem::copy_file(from,root/relative);try{editor.assets->adopt(relative);editor.assets->cook(relative);}catch(...){std::error_code ignored;std::filesystem::remove(root/relative,ignored);std::filesystem::remove(root/(relative+".daimport"),ignored);throw;}
-            editor.refresh_assets();for(const auto& asset:editor.asset_inventory)if(asset.path==relative)tab.sound=asset.id;tab.import_path[0]=0;editor.log("Imported "+relative);});
-        for(const auto& asset:waves)if(ImGui::Selectable((asset.path+"##wave").c_str(),asset.id==tab.sound))tab.sound=asset.id;
-        for(const auto& asset:definitions)if(ImGui::Selectable((asset.path+(dirty(asset.id)?" *":"")+"##definition").c_str(),asset.id==tab.sound))tab.sound=asset.id;
-        // Audition plays through the real service. A definition is played as its draft has it, saved or not.
-        const auto audition=[&](AssetId wave,AssetId as,const darkangel::SoundSettings& settings,const std::string& settings_text){if(!ensure_audio())throw std::runtime_error(audio_failed.empty()?"Audio is unavailable":audio_failed);std::string wave_path;for(const auto& asset:editor.asset_inventory)if(asset.id==wave)wave_path=asset.path;require(!wave_path.empty(),"The sound's WAV is not in the project");
-            const auto registry=editor.assets->cas_path().parent_path()/("audition-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};const std::array roots{wave};darkangel::editor_app::package_authoring(*editor.assets,roots,registry);const auto cooked=darkangel::load_cooked_sound(registry,editor.assets->cas_path(),wave);
-            const std::array<darkangel::AudioSound,1> one{{{as,darkangel::sha256(cooked.generation+settings_text),&cooked,settings}}};audio->load(one);if(tab.audition)audio->stop(tab.audition,0);audio->listener({0,0,0},{0,0,1},{0,1,0});tab.audition=audio->play(as,{0,0,1.5f});require(tab.audition!=0,"The sound did not start");};
-        if(tab.sound!=AssetId{}){const auto selected=std::find_if(editor.asset_inventory.begin(),editor.asset_inventory.end(),[&](const auto& asset){return asset.id==tab.sound;});
-            if(selected==editor.asset_inventory.end())tab.sound=AssetId{};
-            else if(std::filesystem::path(selected->path).extension()==".wav"){ImGui::SeparatorText("Selected WAV");ImGui::TextWrapped("%s",selected->path.c_str());
-                if(ImGui::Button("Play##wave"))act([&]{audition(selected->id,selected->id,{},"plain");});ImGui::SameLine();if(ImGui::Button("Stop##wave")&&audio&&tab.audition){audio->stop(tab.audition,.05);tab.audition=0;}
-                ImGui::SetNextItemWidth(180);ImGui::InputText("##definition-name",tab.sound_name,sizeof(tab.sound_name));ImGui::SameLine();if(ImGui::Button("New definition"))act([&]{const auto wave=*selected;tab.sound=editor.authoring.create_sound_definition(*editor.assets,wave.id,wave.path,tab.sound_name);editor.refresh_assets();});}
-            else guarded([&]{auto& draft=editor.authoring.open(*editor.assets,tab.sound);auto& value=draft.value;ImGui::SeparatorText("Selected definition");ImGui::TextWrapped("%s",draft.asset.path.c_str());ImGui::TextDisabled("WAV: %s",path_of(value.value("wave",std::string{})).c_str());
-                {char buffer[65]{};std::snprintf(buffer,sizeof(buffer),"%s",value.value("name",std::string{}).c_str());if(ImGui::InputText("Name##sound",buffer,sizeof(buffer)))value["name"]=std::string(buffer);}
-                {const auto current=value.value("bus",std::string("player"));if(ImGui::BeginCombo("Bus##sound",current.c_str())){for(int bus=1;bus<6;++bus)if(ImGui::Selectable(bus_labels[bus],current==bus_names[bus]))value["bus"]=bus_names[bus];ImGui::EndCombo();}}
-                const auto slider=[&](const char* label,nlohmann::json& field,float least,float most,const char* format="%.2f"){float number=field.is_number()?field.get<float>():least;if(ImGui::SliderFloat(label,&number,least,most,format))field=double(std::round(number*1000)/1000);};
-                slider("Volume##sound",value["gain"],0,4);slider("Pitch##sound",value["pitch"],.25f,4);{bool loop=value.value("loop",false);if(ImGui::Checkbox("Loops",&loop))value["loop"]=loop;}ImGui::SameLine();{bool positioned=value.value("positioned",true);if(ImGui::Checkbox("Positioned in the world",&positioned))value["positioned"]=positioned;}
-                if(value.value("positioned",true))slider("Silent beyond (m)##sound",value["range"],1,500,"%.0f");
-                {auto& effect=value["effect"];const auto current=effect.value("kind",std::string("none"));const auto kinds=darkangel::sound_effect_kinds();const auto known=std::find_if(kinds.begin(),kinds.end(),[&](const auto& kind){return current==kind.kind;});
-                    if(ImGui::BeginCombo("Effect##sound",known!=kinds.end()?known->label:current.c_str())){for(const auto& kind:kinds)if(ImGui::Selectable(kind.label,current==kind.kind)){effect={{"kind",kind.kind},{"parameters",nlohmann::json::object()}};for(const auto& parameter:kind.parameters)effect["parameters"][parameter.name]=double(parameter.initial);}ImGui::EndCombo();}
-                    if(known!=kinds.end())for(const auto& parameter:known->parameters){if(!effect["parameters"].contains(parameter.name))effect["parameters"][parameter.name]=double(parameter.initial);slider((std::string(parameter.name)+"##effect").c_str(),effect["parameters"][parameter.name],parameter.least,parameter.most);}}
-                std::string problem;darkangel::SoundDefinitionAsset decoded;try{decoded=darkangel::decode_sound_definition(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
-                ImGui::BeginDisabled(!problem.empty());if(ImGui::Button("Play##definition")){const auto text=value.dump();act([&]{audition(decoded.wave,decoded.id,decoded.settings,text);});}ImGui::EndDisabled();ImGui::SameLine();if(ImGui::Button("Stop##definition")&&audio&&tab.audition){audio->stop(tab.audition,.05);tab.audition=0;}
-                ImGui::SameLine();ImGui::BeginDisabled(!draft.dirty()||!problem.empty());if(ImGui::Button("Save##definition")){const auto id=tab.sound;act([&]{save_draft(id);});}ImGui::EndDisabled();});}
-        ImGui::EndChild();ImGui::SameLine();
-        // ---- Mixer
-        ImGui::BeginChild("Audio mixer",{column,0},ImGuiChildFlags_Borders);ImGui::SeparatorText("Mixer");
-        if(mix_id==AssetId{}){ImGui::TextWrapped("This project has no mixer yet. Without one every bus plays at full volume.");if(ImGui::Button("Create the project mixer"))act([&]{editor.authoring.create_audio_mix(*editor.assets);editor.refresh_assets();});}
-        else guarded([&]{auto& draft=editor.authoring.open(*editor.assets,mix_id);auto& value=draft.value;ImGui::TextWrapped("Volumes and mutes are heard at once, also during Play. Master is over the other five.");
-            for(int bus=0;bus<6;++bus){auto& entry=value["buses"][bus_names[bus]];float volume=entry.value("volume",1.f);ImGui::SetNextItemWidth(170);if(ImGui::SliderFloat((std::string(bus_labels[bus])+"##volume").c_str(),&volume,0,2,"%.2f"))entry["volume"]=double(std::round(volume*100)/100);ImGui::SameLine();bool mute=entry.value("mute",false);if(ImGui::Checkbox((std::string("Mute##")+bus_names[bus]).c_str(),&mute))entry["mute"]=mute;}
-            ImGui::SeparatorText("Loudness");{bool limit=value.value("limit_each_sound",false);if(ImGui::Checkbox("Limit each sound to",&limit))value["limit_each_sound"]=limit;ImGui::SameLine();float threshold=value.value("threshold_db",-1.f);ImGui::SetNextItemWidth(120);if(ImGui::SliderFloat("dB##limit",&threshold,-40,0,"%.1f"))value["threshold_db"]=double(std::round(threshold*10)/10);}
-            ImGui::TextDisabled("The audio engine limits sounds one by one, not their sum.");
-            ImGui::SeparatorText("Ducking");ImGui::TextWrapped("While a sound plays on the first bus, the second is lowered.");auto& ducking=value["ducking"];
-            const auto bus_combo=[&](const char* label,nlohmann::json& field){const auto current=field.is_string()?field.get<std::string>():std::string("music");ImGui::SetNextItemWidth(90);if(ImGui::BeginCombo(label,current.c_str())){for(int bus=1;bus<6;++bus)if(ImGui::Selectable(bus_names[bus],current==bus_names[bus]))field=bus_names[bus];ImGui::EndCombo();}};
-            for(unsigned index=0;index<ducking.size();++index){ImGui::PushID(int(index));auto& rule=ducking[index];bus_combo("##when",rule["when"]);ImGui::SameLine();ImGui::TextUnformatted("lowers");ImGui::SameLine();bus_combo("##lower",rule["lower"]);ImGui::SameLine();float to=rule.value("to",.5f);ImGui::SetNextItemWidth(70);if(ImGui::SliderFloat("to",&to,0,1,"%.2f"))rule["to"]=double(std::round(to*100)/100);ImGui::SameLine();const bool remove=ImGui::SmallButton("Remove");ImGui::PopID();if(remove){ducking.erase(index);break;}}
-            if(ducking.size()<8&&ImGui::Button("Add a ducking rule"))ducking.push_back({{"when","ui"},{"lower","music"},{"to",.5},{"fade_in",.2},{"fade_out",.5}});
-            std::string problem;try{darkangel::decode_audio_mix(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
-            ImGui::BeginDisabled(!draft.dirty()||!problem.empty());if(ImGui::Button("Save##mixer"))act([&]{save_draft(mix_id);});ImGui::EndDisabled();});
-        ImGui::EndChild();ImGui::SameLine();
-        // ---- Scene audio
-        ImGui::BeginChild("Audio profiles",{0,0},ImGuiChildFlags_Borders);ImGui::SeparatorText("Scene audio");
-        const auto scene_profile=darkangel::editor_app::scene_audio_profile(editor);ImGui::TextWrapped("This scene uses: %s",path_of(scene_profile==AssetId{}?std::string{}:scene_profile.text()).c_str());
-        ImGui::TextWrapped("A profile is music, ambient loops and bus offsets. The scene's starts with Play; an encounter can layer its own while it runs (set in the encounter's Inspector).");
-        for(const auto& asset:profiles)if(ImGui::Selectable((asset.path+(dirty(asset.id)?" *":"")+(asset.id==scene_profile?"  (this scene)":"")+"##profile").c_str(),asset.id==tab.profile))tab.profile=asset.id;
-        ImGui::SetNextItemWidth(180);ImGui::InputText("##profile-name",tab.profile_name,sizeof(tab.profile_name));ImGui::SameLine();if(ImGui::Button("New profile"))act([&]{tab.profile=editor.authoring.create_audio_profile(*editor.assets,tab.profile_name);editor.refresh_assets();});
-        if(tab.profile!=AssetId{})guarded([&]{auto& draft=editor.authoring.open(*editor.assets,tab.profile);auto& value=draft.value;const auto before=value;ImGui::SeparatorText("Selected profile");ImGui::TextWrapped("%s",draft.asset.path.c_str());
-            {char buffer[65]{};std::snprintf(buffer,sizeof(buffer),"%s",value.value("name",std::string{}).c_str());if(ImGui::InputText("Name##profile",buffer,sizeof(buffer)))value["name"]=std::string(buffer);}
-            const auto slider=[&](const char* label,nlohmann::json& field,float least,float most,const char* format="%.2f"){float number=field.is_number()?field.get<float>():least;ImGui::SetNextItemWidth(170);if(ImGui::SliderFloat(label,&number,least,most,format))field=double(std::round(number*100)/100);};
-            {const auto current=value["music"].is_string()?value["music"].get<std::string>():std::string{};if(ImGui::BeginCombo("Music##profile",path_of(current).c_str())){if(ImGui::Selectable("(none)",current.empty()))value["music"]=nullptr;for(const auto& asset:definitions)if(ImGui::Selectable(asset.path.c_str(),asset.id.text()==current))value["music"]=asset.id.text();ImGui::EndCombo();}}
-            slider("Music volume##profile",value["music_volume"],0,2);ImGui::SeparatorText("Ambient loops");auto& ambient=value["ambient"];
-            for(unsigned index=0;index<ambient.size();++index){ImGui::PushID(int(index));ImGui::TextWrapped("%s",path_of(ambient[index].value("sound",std::string{})).c_str());slider("Volume",ambient[index]["volume"],0,2);ImGui::SameLine();const bool remove=ImGui::SmallButton("Remove");ImGui::PopID();if(remove){ambient.erase(index);break;}}
-            if(ambient.size()<8&&ImGui::BeginCombo("##add-ambient","Add an ambient loop")){for(const auto& asset:definitions){const bool listed=std::any_of(ambient.begin(),ambient.end(),[&](const auto& loop){return loop.value("sound",std::string{})==asset.id.text();});if(ImGui::Selectable(asset.path.c_str(),false,listed?ImGuiSelectableFlags_Disabled:0))ambient.push_back({{"sound",asset.id.text()},{"volume",1.0}});}ImGui::EndCombo();}
-            ImGui::SeparatorText("Bus offsets (dB)");for(int bus=0;bus<6;++bus)slider((std::string(bus_labels[bus])+"##offset").c_str(),value["bus_offsets_db"][bus_names[bus]],-60,12,"%.1f");slider("Crossfade (s)##profile",value["crossfade_seconds"],0,30,"%.1f");
-            // The locators of the sounds it names are kept with the names.
-            if(value!=before){nlohmann::json located=nlohmann::json::object();const auto locate=[&](const nlohmann::json& id){if(!id.is_string())return;for(const auto& asset:definitions)if(asset.id.text()==id.get<std::string>())located[asset.id.text()]=asset.path;};locate(value["music"]);for(const auto& loop:value["ambient"])locate(loop["sound"]);value["sources"]={{"sounds",located}};}
-            std::string problem;try{darkangel::decode_audio_profile(value.dump());}catch(const std::exception& error){problem=error.what();}if(!problem.empty())red(problem);
-            const bool unsaved=draft.dirty();ImGui::BeginDisabled(!unsaved||!problem.empty());if(ImGui::Button("Save##profile")){const auto id=tab.profile;act([&]{save_draft(id);});}ImGui::EndDisabled();
-            ImGui::SameLine();ImGui::BeginDisabled(playing||unsaved||tab.profile==scene_profile);if(ImGui::Button("Use for this scene"))act([&]{darkangel::editor_app::set_scene_audio_profile(editor,tab.profile);});ImGui::EndDisabled();
-            ImGui::SameLine();ImGui::BeginDisabled(playing||scene_profile==AssetId{});if(ImGui::Button("Scene uses none"))act([&]{darkangel::editor_app::set_scene_audio_profile(editor,AssetId{});});ImGui::EndDisabled();
-            // Audition of the whole profile, as saved.
-            ImGui::BeginDisabled(playing||unsaved);if(ImGui::Button(tab.profile_audition?"Restart audition":"Audition"))act([&]{const auto id=tab.profile;if(!ensure_audio())throw std::runtime_error(audio_failed.empty()?"Audio is unavailable":audio_failed);audio_director.reset();auto loaded=load_audio({id});require(loaded.contains(id),"The profile did not cook");audio_director=std::make_unique<darkangel::AudioDirector>(*audio,project_mix());audio_applied=project_mix();audio_director->scene(loaded.at(id));tab.profile_audition=true;});ImGui::EndDisabled();
-            ImGui::SameLine();ImGui::BeginDisabled(playing||!tab.profile_audition);if(ImGui::Button("Stop audition")){audio_director.reset();tab.profile_audition=false;}ImGui::EndDisabled();
-            if(unsaved)ImGui::TextDisabled("Save the profile to audition it or to use it for the scene.");});
-        ImGui::EndChild();
-        try{editor.authoring.record_changes(*editor.assets,"Edit audio",ImGui::IsAnyItemActive());}catch(const std::exception& error){tab.error=error.what();}};
+    audio_workspace.on_cue_sources_saved=[&]{play_cues.reset();};
+    if(editor.assets)shell.draw_audio_panel=[&]{audio_workspace.draw_panel(bool(character));};
     if(args.audio_workspace){shell.select_workspace(darkangel::editor_app::Workspace::Audio);if(editor.assets)editor.refresh_assets();}
 #endif
     // Navigation and behaviour facts of the latest Play session, for readouts.
@@ -477,34 +243,14 @@ int main(int argc,char** argv){try{
         hud_target=best;return hud_target;};
 #ifdef DAE_NAVIGATION
     // Tools > Navigation: an explicit bake of the scene's cooked collision that Play reuses while the collision is unchanged.
-    struct NavigationBake {darkangel::NavigationSettings settings,baked_settings;std::shared_ptr<const darkangel::NavigationMesh> mesh;std::string key,error;double milliseconds{};std::size_t triangles{};unsigned reused{};bool shown{};std::vector<darkangel::NavigationMesh::Edge> outline;} navigation;
-    auto navigation_key=[](const darkangel::CollisionDefinition& collision){std::string key=std::to_string(collision.boxes.size());for(const auto& mesh:collision.meshes)key+=':'+std::to_string(mesh.id)+':'+(mesh.data?mesh.data->signature:std::string{});return key;};
-    auto same_settings=[](const darkangel::NavigationSettings& a,const darkangel::NavigationSettings& b){return a.cell_size==b.cell_size&&a.cell_height==b.cell_height&&a.agent_height==b.agent_height&&a.agent_radius==b.agent_radius&&a.agent_climb==b.agent_climb&&a.slope_degrees==b.slope_degrees;};
-    auto bake_navigation=[&]{
-        navigation.error.clear();
-        try{require(character_resources&&character_resources->collision,"Navigation baking needs a scene with cooked collision (--character-collision)");const auto& collision=*character_resources->collision;const auto start=std::chrono::steady_clock::now();auto mesh=std::make_shared<const darkangel::NavigationMesh>(collision,navigation.settings);
-            navigation.milliseconds=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();navigation.triangles=0;for(const auto& box:collision.boxes)if(!box.moving&&!box.dynamic&&!box.sensor)navigation.triangles+=12;for(const auto& source:collision.meshes)if(source.data)navigation.triangles+=source.data->triangles.size();
-            navigation.mesh=std::move(mesh);navigation.outline=navigation.mesh->outline();navigation.key=navigation_key(collision);navigation.baked_settings=navigation.settings;}
-        catch(const std::exception& error){navigation.error=error.what();}
-    };
-    // Play asks here: the bake when it matches the session's collision, otherwise a mesh built on demand with the current settings.
-    auto navigation_for=[&](const darkangel::CollisionDefinition& collision){if(navigation.mesh&&navigation.key==navigation_key(collision)){++navigation.reused;return navigation.mesh;}return std::make_shared<const darkangel::NavigationMesh>(collision,navigation.settings);};
+    darkangel::editor_app::NavigationTool navigation;
+    auto navigation_key=[](const darkangel::CollisionDefinition& collision){return darkangel::editor_app::NavigationTool::collision_key(collision);};
+    auto bake_navigation=[&]{navigation.bake(character_resources?character_resources->collision.get():nullptr);};
+    auto navigation_for=[&](const darkangel::CollisionDefinition& collision){return navigation.mesh_for(collision);};
     // The project's save slot lives beside its asset cache. Saving is the host's: a capture of the ledger and inventories at a safe point.
     if(editor.assets)play_saves=std::make_unique<darkangel::editor_app::PlaySaves>(editor.assets->cas_path().parent_path()/"saves"/"project.dasave");
     shell.draw_saves_tool=[&]{if(!play_saves){ImGui::TextDisabled("Saves need a project with an asset cache.");return;}play_saves->draw(character&&travel&&!travel->busy(),[&]{if(save_play)save_play("Saved from Tools > Saves");});};
-    shell.draw_navigation_tool=[&]{
-        ImGui::TextWrapped("Bakes one navigation mesh from the scene's cooked static collision. NPC controllers use it to find paths; movement and collision stay with the motor. While the collision is unchanged, Play uses this bake; otherwise it builds a mesh on demand with these settings.");
-        ImGui::SeparatorText("Agent and voxel settings");auto field=[](const char* label,double& value,double low,double high){ImGui::SetNextItemWidth(160);if(ImGui::InputDouble(label,&value,0,0,"%.2f"))value=std::clamp(value,low,high);};
-        field("Cell size (m)",navigation.settings.cell_size,.05,2);field("Cell height (m)",navigation.settings.cell_height,.05,2);field("Agent height (m)",navigation.settings.agent_height,.5,4);field("Agent radius (m)",navigation.settings.agent_radius,.1,2);field("Step height (m)",navigation.settings.agent_climb,0,1);field("Walkable slope (deg)",navigation.settings.slope_degrees,1,89);
-        if(ImGui::Button("Use defaults"))navigation.settings={};
-        ImGui::SeparatorText("Bake");const bool available=character_resources&&character_resources->collision;ImGui::BeginDisabled(!available);if(ImGui::Button("Bake navigation mesh"))bake_navigation();ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(!navigation.mesh);if(ImGui::Button("Clear bake")){navigation.mesh.reset();navigation.outline.clear();navigation.key.clear();}ImGui::EndDisabled();
-        ImGui::Checkbox("Show in the viewports",&navigation.shown);if(ImGui::IsItemHovered())ImGui::SetTooltip("Draws the baked mesh's polygon edges over the Scene and Game viewports; the mesh's border is brighter.");if(navigation.shown&&!navigation.mesh){ImGui::SameLine();ImGui::TextDisabled("Nothing to show until a mesh is baked.");}
-        if(!available)ImGui::TextDisabled("This session has no cooked scene collision to bake.");
-        if(!navigation.error.empty())ImGui::TextColored({1.f,.55f,.3f,1.f},"Bake failed: %s",navigation.error.c_str());
-        if(navigation.mesh){const bool current=available&&navigation.key==navigation_key(*character_resources->collision);ImGui::Text("Polygons: %u",navigation.mesh->polygons());ImGui::Text("Source triangles: %zu",navigation.triangles);ImGui::Text("Bake time: %.1f ms",navigation.milliseconds);ImGui::Text("Used by Play sessions: %u",navigation.reused);
-            if(!current)ImGui::TextColored({1.f,.55f,.3f,1.f},"Stale: the scene collision changed since this bake. Bake again.");else if(!same_settings(navigation.settings,navigation.baked_settings))ImGui::TextColored({1.f,.55f,.3f,1.f},"Settings changed since this bake. Bake again to apply them.");else ImGui::TextDisabled("Current: the next Play session uses this bake.");}
-        else ImGui::TextDisabled("Not baked. Play builds a mesh on demand when an NPC needs one.");
-    };
+    shell.draw_navigation_tool=[&]{navigation.draw_panel(character_resources?character_resources->collision.get():nullptr);};
 #endif
 #ifdef DAE_HUD
     // Runtime HUD: the game's RmlUi document over the Game viewport, fed by a native view model of confirmed
@@ -1002,8 +748,23 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
     };
 #endif
     auto scene_editing_exercise=darkangel::editor_app::exercises::make_scene_editing({args,editor,shell,import_baseline,import_count});
+    auto acceptance_exercise=darkangel::editor_app::exercises::make_acceptance({args,editor,store,id,reload_model,reload_shader});
     #ifdef DAE_CHARACTER_SCENE
     auto authoring_source_exercise=darkangel::editor_app::exercises::make_authoring_sources({args,editor,shell,character_resources,character,import_baseline});
+    auto media_exercise=darkangel::editor_app::exercises::make_media_exercises({args,editor,shell,vfx_workspace,
+#ifdef DAE_AUDIO
+        &audio_workspace,
+#else
+        nullptr,
+#endif
+        character});
+    auto navigation_exercise=darkangel::editor_app::exercises::make_navigation_exercises({args,shell,
+#ifdef DAE_NAVIGATION
+        &navigation,
+#else
+        nullptr,
+#endif
+        [&]()->const darkangel::CollisionDefinition*{return character_resources?character_resources->collision.get():nullptr;},navigation_drawn});
 #endif
     bool running=true;unsigned frame{};while(running && (!args.frames || frame<args.frames)){
         MSG message{};while(PeekMessageW(&message,nullptr,0,0,PM_REMOVE)){if(message.message==WM_QUIT)running=false;TranslateMessage(&message);DispatchMessageW(&message);}if(!running)break;
@@ -1011,31 +772,8 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
         if(resize_width && resize_height&&(resize_width!=swap->GetDesc().Width||resize_height!=swap->GetDesc().Height)){context->WaitForIdle();swap->Resize(resize_width,resize_height);resize_width=resize_height=0;}
         auto now=std::chrono::steady_clock::now();auto elapsed_seconds=std::chrono::duration<double>(now-last).count();auto seconds=elapsed_seconds;last=now;seconds=std::clamp(seconds,0.,.1);
 #ifdef DAE_CHARACTER_SCENE
-        if(args.exercise_composer&&frame==0){
-            auto& value=editor.authoring.open(*editor.assets,shell.authored_selection).value;
-            auto clip=AssetId::parse(value.at("motion").at("clip").get<std::string>());
-            auto duration=value.at("duration").get<unsigned>();
-            shell.prepare_action_pose(shell.authored_selection);shell.composer_clip=clip;shell.composer_duration=duration;
-            shell.composer_asset=shell.authored_selection;shell.composer_tick=args.composer_tick;shell.composer_playing=args.composer_playback;shell.composer_block=2;
-        }
-#endif
-#ifdef DAE_CHARACTER_SCENE
         if(args.exercise_cues){shell.focus_gameplay_inspector=true;cue_debug_selected=true;}
-        // Stands in for saving the effect in Effekseer: the source file changes on disk while the VFX tab shows it.
-#ifdef DAE_AUDIO
-        // The Audio tab without Play: a sound definition auditioned, a mixer volume moved in its draft, a whole profile auditioned.
-        if(args.exercise_audio&&args.audio_workspace){const auto named=[&](const char* path){for(const auto& asset:editor.asset_inventory)if(asset.path==path)return asset.id;throw std::runtime_error(std::string("The audio exercise needs ")+path);};
-            if(frame==3){require(ensure_audio(),"The audio exercise needs the audio service");const auto wind=named("audio/wind.dasound");load_audio({wind});audio_tab.sound=wind;audio_tab.audition=audio->play(wind,{0,0,1});require(audio_tab.audition!=0,"The auditioned sound did not start");}
-            if(frame==6){auto& value=editor.authoring.open(*editor.assets,named("audio/project.damix")).value;value["buses"]["music"]["volume"]=0.3;editor.authoring.record_changes(*editor.assets,"Edit audio");}
-            if(frame==9){const auto calm=named("audio/profiles/royal_calm.daaudioprofile");auto loaded=load_audio({calm});require(loaded.contains(calm),"The audio profile did not cook");audio_director=std::make_unique<darkangel::AudioDirector>(*audio,project_mix());audio_applied=project_mix();audio_director->scene(loaded.at(calm));audio_tab.profile=calm;audio_tab.profile_audition=true;}}
-        // During Play: the NPC bus turned down in the mixer's draft.
-        if(args.exercise_audio&&!args.audio_workspace&&frame==20&&editor.assets){for(const auto& asset:editor.asset_inventory)if(asset.path==audio_mix_path){auto& value=editor.authoring.open(*editor.assets,asset.id).value;value["buses"]["npc"]["volume"]=0.25;editor.authoring.record_changes(*editor.assets,"Edit audio");}}
-#endif
-        // The cue form's own path: a new cue staged as a draft, its fields set the way the form sets them, saved, and read back cooked.
-        if(args.exercise_cue_form&&frame==3){require(bool(editor.assets),"The cue form exercise needs the project's sources");vfx_preview.cue=editor.authoring.create_cue(*editor.assets,"gate_"+AssetId::random().text().substr(0,8));editor.refresh_assets();}
-        if(args.exercise_cue_form&&frame==6){auto& value=editor.authoring.open(*editor.assets,vfx_preview.cue).value;value["name"]="Gate cue";value["visual"]="vfx/placeholder/hit_spark.efkproj";value["audio"]="audio/placeholder/hit.wav";value["tail_ticks"]=20;editor.authoring.record_changes(*editor.assets,"Edit cue");require(editor.authoring.can_undo()&&editor.authoring.drafts.at(vfx_preview.cue).dirty(),"The cue edit is not an undoable draft");
-            editor.authoring.save(*editor.assets,vfx_preview.cue);editor.refresh_assets();}
-        if(args.exercise_vfx_edit&&frame==5){require(editor.assets&&!vfx_preview.path.empty(),"The VFX edit exercise needs a selected effect");std::ofstream changed(editor.assets->source_root()/vfx_preview.path,std::ios::binary|std::ios::app);changed<<"\n";require(bool(changed),"The effect source could not be changed");}
+        media_exercise->frame(frame);
         if(args.exercise_game_debug){shell.focus_gameplay_inspector=true;shell.select_effect_debug=true;if(frame==29){auto status=character?character->effects(first_actor()):nullptr;require(status&&status->current()&&!status->current()->effects.empty(),"Game debug needs active target effect");auto& effect=status->current()->effects.front();require(effect.credit.source_network&&effect.credit.activation,"Game debug missing captured source attribution");std::cout<<"Game inspector effect="<<effect.handle<<" source="<<effect.credit.source_network<<" activation="<<effect.credit.activation<<"\n";}}
         authoring_source_exercise->frame(frame);
         // Senses exercise: the player stands for a second, then walks forward. Records when the first actor's controller first has a target.
@@ -1047,15 +785,9 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
         // leave their fixtures as they are, except the exercise that drops a new source into the project and waits for it.
         if(args.join.empty()&&!args.hidden&&!editor.preview.active()&&frame%30==29)editor.cook_pending(1);
         scene_editing_exercise->frame(frame);
-        if(args.exercise && frame==1){auto baseline=editor.document->world().serialize();editor.play();editor.step();require(editor.document->world().serialize()==baseline,"Play mutated authoring data");editor.stop();auto selected=editor.selected;auto handle=editor.document->world().find(selected);PropertyChange change{selected,1,1,.2};auto command=editor.document->prepare(editor.document->revision(),{&change,1});editor.document->commit(command);editor.document->undo(editor.document->revision());editor.document->redo(editor.document->revision());editor.save(".cache/editor/AcceptanceScene.dascene");editor.open(".cache/editor/AcceptanceScene.dascene");require(!editor.document->world().valid(handle),"Open/restart reused old world handle");
-            auto generation=store.acquire().number;bool failed=false;try{store.prepare(".cache/editor/missing.registry",args.cas,id);}catch(...){failed=true;}require(failed && store.acquire().number==generation,"Failed model candidate replaced active generation");reload_model();failed=false;try{reload_shader("deliberate shader syntax failure");}catch(...){failed=true;}require(failed,"Invalid shader candidate accepted");editor.log("Acceptance: Play isolation, Step, undo/redo, save/open, model generation and failed shader preservation passed.");}
+        acceptance_exercise->frame(frame);
 #ifdef DAE_CHARACTER_SCENE
-#ifdef DAE_NAVIGATION
-        if(args.exercise_navigation_bake&&frame==0)bake_navigation();
-        if(args.exercise_navigation_overlay&&frame==0){bake_navigation();navigation.shown=true;}
-#else
-        require(!args.exercise_navigation_bake,"This build has no navigation library");
-#endif
+        navigation_exercise->frame(frame);
         // Gate authoring: world objects placed through the Scene tab's own paths and saved, before Play starts.
         if(!args.world_place.empty()&&frame==0){std::ifstream plan(args.world_place);require(bool(plan),"--world-place plan missing");darkangel::editor_app::place_world_plan(editor,shell,nlohmann::json::parse(plan));if(editor.prepare_play_resources)editor.prepare_play_resources();}
         if(args.play_from_save&&frame==0&&play_saves)play_saves->play_from_slot=true;
@@ -1338,35 +1070,11 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
     window_input=nullptr;
     darkangel::editor_app::exercises::check_preview_results({args,editor,shell,import_baseline,character,composer_pose.get(),graph_pose.get(),authoring_skin.has_value(),composer_matrices.size()});
     // Presentation checks read what the frame loop drew; they run before gameplay checks stop Play.
-#ifdef DAE_NAVIGATION
-    if(args.exercise_navigation_overlay){
-#ifdef DAE_NAVIGATION
-        unsigned border=0;for(const auto& edge:navigation.outline)border+=edge.border?1:0;require(navigation.error.empty()&&bool(navigation.mesh)&&navigation.shown&&border>=3&&navigation.outline.size()>=navigation.mesh->polygons()&&navigation_drawn>0,navigation.error.empty()?"Editor Scene: the baked navigation mesh was not drawn over the viewport":navigation.error.c_str());
-        std::cout<<"Editor navigation_overlay polygons="<<navigation.mesh->polygons()<<" edges="<<navigation.outline.size()<<" border="<<border<<" drawn="<<navigation_drawn<<"\n";
-#else
-        require(false,"This build has no navigation library");
-#endif
-    }
-    if(args.exercise_navigation_bake){require(navigation.error.empty()&&bool(navigation.mesh)&&navigation.mesh->polygons()>0&&navigation.triangles>0&&character_resources&&character_resources->collision&&navigation.key==navigation_key(*character_resources->collision)&&shell.workspace==darkangel::editor_app::Workspace::Tools&&shell.tool==darkangel::editor_app::ToolView::Navigation,navigation.error.empty()?"Navigation tool did not bake the scene collision":navigation.error.c_str());
-        // Play must reuse this bake for a session over the same collision, and fall back to an on-demand mesh otherwise.
-        const auto before=navigation.reused;auto reused=navigation_for(*character_resources->collision);darkangel::CollisionDefinition other;other.id=darkangel::AssetId::random();other.schema=2;other.boxes={{1,{0,-.5,0},{8,.5,8}}};auto fresh=navigation_for(other);
-        require(reused==navigation.mesh&&navigation.reused==before+1&&fresh!=navigation.mesh&&fresh->polygons()>0,"Play did not reuse the bake for unchanged collision or did not rebuild for different collision");
-        std::cout<<"Navigation bake polygons="<<navigation.mesh->polygons()<<" source_triangles="<<navigation.triangles<<" play_reuses_bake=1 on_demand_for_other_collision=1\n";}
-#endif
+    navigation_exercise->finish();
     if(args.exercise_spline){const auto built=build_splines();std::size_t points=0,expected=0;for(const auto& spline:built){points+=spline.points.size();if(spline.curve&&spline.definition.scatter)expected+=darkangel::scatter_along(*spline.curve,*spline.definition.scatter,spline.definition.closed).size();}
         require(!built.empty()&&splines_drawn==built.size()&&points>=2&&expected>=2&&scatter_drawn==expected,"Editor Scene: the scene's spline was not drawn, or its scattered models were not");std::cout<<"Editor spline splines="<<built.size()<<" points="<<points<<" length="<<(built.front().curve?built.front().curve->length():0.)<<" scatter="<<scatter_drawn<<"\n";}
     if(args.select_encounter){require(volumes_drawn>0,"Editor Scene: the encounter's volumes were not drawn");std::cout<<"Editor encounter_scene volumes_drawn="<<volumes_drawn<<"\n";}
-#ifdef DAE_AUDIO
-    if(args.exercise_audio){require(bool(audio),"The audio exercise ended without an audio service");const auto heard=audio->stats();const auto held=audio_director?audio_director->stats():darkangel::AudioDirectorStats{};const auto text=[](AssetId id){return id==AssetId{}?std::string("none"):id.text();};
-        std::size_t waves{},definitions{},profiles{},mixers{};for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();waves+=extension==".wav";definitions+=extension==".dasound";profiles+=extension==".daaudioprofile";mixers+=extension==".damix";}
-        std::cout<<"Editor audio workspace="<<(shell.workspace==darkangel::editor_app::Workspace::Audio?1:0)<<" waves="<<waves<<" definitions="<<definitions<<" profiles="<<profiles<<" mixers="<<mixers<<" driver="<<heard.driver<<" loaded="<<heard.sounds<<" playing="<<heard.playing<<" started="<<heard.started<<" audition="<<(audio->alive(audio_tab.audition)?1:0)
-            <<" bus_music="<<heard.bus_gain[1]<<" bus_ambient="<<heard.bus_gain[2]<<" bus_npc="<<heard.bus_gain[4]<<" limit="<<(heard.limit?1:0)<<" director="<<(audio_director?1:0)<<" profile="<<text(held.profile)<<" music="<<text(held.music)<<" ambient="<<held.ambient<<" layers="<<held.layers<<" missing="<<held.missing<<"\n";}
-#endif
-    if(args.exercise_cue_form){require(bool(editor.assets)&&vfx_preview.cue!=AssetId{},"The cue form exercise did not make a cue");const auto registry=editor.assets->cas_path().parent_path()/("cue-form-"+AssetId::random().text()+".json");ComposerPackageFile cleanup{registry};const std::array roots{vfx_preview.cue};darkangel::editor_app::package_authoring(*editor.assets,roots,registry);const auto cooked=darkangel::load_cooked_cues(registry,editor.assets->cas_path());require(cooked.size()==1,"The saved cue did not cook");
-        std::size_t cues{};std::string path;for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".dacue"){++cues;if(asset.id==vfx_preview.cue)path=asset.path;}
-        std::cout<<"Editor cue_form cues="<<cues<<" path="<<path<<" saved="<<(editor.authoring.drafts.at(vfx_preview.cue).dirty()?0:1)<<" tail="<<cooked[0].tail_ticks<<" visual_resolved="<<(cooked[0].visual_asset!=AssetId{}?1:0)<<" audio_resolved="<<(cooked[0].audio_asset!=AssetId{}?1:0)<<"\n";}
-    if(args.vfx_workspace){const auto drawn=vfx?vfx->stats():darkangel::VfxStats{};require(shell.workspace==darkangel::editor_app::Workspace::Vfx&&!character,"The VFX tab was left during its exercise");
-        std::cout<<"Editor vfx_tab effects="<<vfx_effects().size()<<" selected="<<(vfx_preview.path.empty()?std::string("none"):vfx_preview.path)<<" cooked="<<(vfx_preview.cooked?1:0)<<" cooks="<<vfx_preview.cooks<<" textures="<<vfx_preview.textures<<" playing="<<(vfx&&vfx->alive(vfx_preview.handle)?1:0)<<" particles="<<drawn.instances<<" quads="<<drawn.quads<<" unsupported="<<drawn.unsupported<<" refused="<<(vfx_preview.error.empty()?0:1)<<"\n";if(!vfx_preview.error.empty())std::cout<<"Editor vfx_tab error: "<<vfx_preview.error<<"\n";}
+    media_exercise->finish();
     if(args.exercise_cues){require(bool(character)&&bool(cue_player)&&bool(play_cues),"Cue exercise needs a combat session with a cue player");const auto list=[](const std::vector<std::string>& keys){std::string all;for(const auto& key:keys)all+=(all.empty()?"":",")+key;return all.empty()?std::string("none"):all;};
         // What the sinks hold is exactly what the player holds for them, and nothing was dropped.
         std::size_t visual_live=0,audio_live=0;for(const auto& [instance,held]:cue_visual.held()){(void)instance;require(character->identity(held.network).has_value(),"A live visual cue names an actor that is not in the session");++visual_live;}for(const auto& [instance,held]:cue_audio.held()){(void)instance;require(character->identity(held.network).has_value(),"A live audio cue names an actor that is not in the session");++audio_live;}
@@ -1393,5 +1101,5 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
     #ifdef DAE_CHARACTER_SCENE
     authoring_source_exercise->finish();
 #endif
-    context->Flush();context->WaitForIdle();window_gui=nullptr;gui.reset();if(IsWindow(window))DestroyWindow(window);std::cout<<"DarkAngel editor rendered "<<frame<<" frames with "<<args.backend<<'\n';return 0;
+    render.shutdown();std::cout<<"DarkAngel editor rendered "<<frame<<" frames with "<<args.backend<<'\n';return 0;
 }catch(const std::exception& e){std::cerr<<"DarkAngelEditor: "<<e.what()<<'\n';return 1;}}

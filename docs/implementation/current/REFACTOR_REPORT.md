@@ -167,3 +167,48 @@ Step 1 is nearly complete. What remains in main uses main-local types, so it mov
 - the presentation result checks.
 
 Next: step 2, `EditorApp` with service ownership (render system, Play controller, editor UI, exercise runner, asset workspace, party networking, plus the existing runtime inventory, altar and saves). The local types `vfx_preview`, `audio_tab`, the navigation bake state and the cue sinks become service-owned, so the remaining exercises can take narrow contexts. Before step 2's final commit the prompt requires full CTest (NativeAuthoringTests alone), slice, party and items gates. Protected content is unchanged: the two Royal scene sources and their untracked `.records/` folders.
+
+## Step 2 (first part): editor services, verified
+
+Continued by Claude Code. Four services now own state that lived in `main()` as locals and capture-everything lambdas. `main()` keeps its local names as references into them, so the dense frame loop and the closures that still read those names are unchanged.
+
+| Service | Owns | Created and destroyed |
+| --- | --- | --- |
+| `render/RenderSystem` | Window class and window, device, context, swap chain, ImGui backend, frame constants, both prop pipelines, the native-input and resize hooks of the window procedure | First in `main()`. `shutdown()` after the frame loop flushes, releases ImGui and destroys the window, at the point main used to; an exception path releases pipelines, constants and ImGui in main's old reverse order without destroying the window. |
+| `render/gpu_resources` (functions) | Prop shader source and pipelines, texture/model/skin upload, skin palette, viewport capture | Stateless helpers; results are owned by their callers. |
+| `AudioWorkspace` | AudioService, music/ambience director, loaded-sound generations, mixer resolution, the Audio tab | Where the audio locals were; members in the old declaration order, so destruction order is unchanged. |
+| `VfxWorkspace` | VfxService, the VFX tab's preview, cooking and cue/trail/decal forms | Where `vfx` was declared, so the service still outlives the Play cue sinks that hold it. |
+| `NavigationTool` | Tools > Navigation settings, bake, Play's mesh lookup, the panel | Where the bake state was; field names unchanged. |
+
+Saving a cue, trail, decal or sound source used to reset the Play cue list directly. The workspaces now call `on_cue_sources_saved`, which `main()` wires to that reset. The VFX tab gets one `reveal_cue_form` flag rather than the options object. `ComposerPackageFile` is a shared header (`package_file.hpp`) instead of a local in main.
+
+Exercises that were waiting for these services moved out of main:
+- `exercises/media_exercises`: Audio tab and Play mixer edits, cue form, external VFX source change, and their end checks, through AudioWorkspace/VfxWorkspace commands.
+- `exercises/navigation_exercises`: bake and overlay requests and their checks, through NavigationTool and the session's collision.
+- `exercises/acceptance`: the original `--exercise` acceptance, through Controller, the model store and the shader reload function.
+- The Composer frame-0 setup joined `AuthoringSources` at the start of its frame; nothing else in that frame touches it.
+
+Each module runs at its original frame and end-of-run position.
+
+| Metric | Step 1c | Step 2 first part |
+| --- | ---: | ---: |
+| main.cpp bytes | 246,533 | 177,183 |
+| `args.exercise_*`/`select_*`/`vfx_workspace` references in main | 34 | 19 |
+
+main.cpp is 50.9% below the 360,947-byte baseline. The 19 references left are Play-side: the scripted input timing (camera look, heavy fixed step), two-player networking choice, the Play trigger, refused activation, cue and game-debug inspector focus, senses and spawn/encounter drawing checks, and the cue result check. They belong to step 3's PlayController.
+
+**Not done in this part:** an `EditorApp` type that owns these services. Their construction is still interleaved with Controller and Play locals (the Controller needs the uploaded model's radius, the audio workspace needs a recording cue sink declared among the Play locals). Aggregating them is easier once step 3 has pulled Play orchestration out. Until then, `main()`'s declaration order is the ownership order, and the table above records it.
+
+### Verification of step 2 (first part)
+
+The runner is `.cache/refactor_2_verify.py`; the receipt is `evidence/refactor-2.json`. All results are on the formatted tree.
+
+- Guarded full build (53 s) and M8/M6/M5.hud CTest 14/14 (35 s).
+- `verify_effect_reaction.py` passes in full (985 s). It covers the Audio tab and Play mixer, cue form, VFX tab, navigation tool and overlay, and every Play gate on the new render system.
+- `verify_items_world_ui.py` passes straight after it, including nested network party 7/7.
+- Composer preview and playback pass editor-only (the Composer setup moved).
+- `verify_character_editor.py` passes; it runs the acceptance exercise.
+- The window/device gates of `verify_input_workflows.py` pass on D3D12 and Vulkan.
+- Fresh `verify_m8_slice.py` passes 6/6 (267 s).
+
+Not run: `verify_royal_renderer.py` stops at `import PIL` because Pillow is not installed on this machine. Its acceptance exercise is the one `verify_character_editor.py` passed. Full CTest is not rerun because no native or test source changed. The prompt requires it, with NativeAuthoringTests alone, before the final step-2 commit, which still needs the EditorApp aggregation.

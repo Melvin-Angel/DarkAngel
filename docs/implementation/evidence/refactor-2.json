@@ -1,0 +1,54 @@
+{
+  "results": {
+    "build": {
+      "exit": 0,
+      "seconds": 52.828,
+      "log": "docs\\implementation\\evidence\\refactor-2-build.log"
+    },
+    "ctest": {
+      "exit": 0,
+      "seconds": 34.906,
+      "log": "docs\\implementation\\evidence\\refactor-2-ctest.log"
+    },
+    "exercises": {
+      "exit": 0,
+      "seconds": 984.828,
+      "log": "docs\\implementation\\evidence\\refactor-2-exercises.log"
+    },
+    "items-world-ui": {
+      "exit": 0,
+      "seconds": 235.172,
+      "log": "docs\\implementation\\evidence\\refactor-2-items-world-ui.log"
+    },
+    "composer-preview": {
+      "exit": 0,
+      "seconds": 38.344,
+      "log": "docs\\implementation\\evidence\\refactor-2-composer-preview.log"
+    },
+    "composer-playback": {
+      "exit": 0,
+      "seconds": 51.062,
+      "log": "docs\\implementation\\evidence\\refactor-2-composer-playback.log"
+    },
+    "character-editor": {
+      "exit": 0,
+      "seconds": 11.391,
+      "log": "docs\\implementation\\evidence\\refactor-2-character-editor.log"
+    },
+    "royal-renderer": {
+      "exit": 1,
+      "seconds": 0.109,
+      "log": "docs\\implementation\\evidence\\refactor-2-royal-renderer.log"
+    },
+    "input-workflows": {
+      "exit": 0,
+      "seconds": 21.578,
+      "log": "docs\\implementation\\evidence\\refactor-2-input-workflows.log"
+    },
+    "slice": {
+      "exit": 0,
+      "seconds": 267.172,
+      "log": "docs\\implementation\\evidence\\refactor-2-slice.log"
+    }
+  }
+}

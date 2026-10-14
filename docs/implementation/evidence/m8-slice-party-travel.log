@@ -13,7 +13,7 @@ Altar menu opened Training Altar tick=52
 Party host bootstrap readiness=4 revision=8 player=4 collision=1 motors=2 corrections=1 public=2 frames=1 coherent=1 paired=1
 Party host prepared epoch=2 players=2
 Party host resumed epoch=2 players=2
-Altar menu opened Village Altar tick=56
+Altar menu opened Village Altar tick=54
 Party host prepared epoch=3 players=2
 Party host resumed epoch=3 players=2
 Altar menu opened Village Altar tick=15
@@ -25,10 +25,10 @@ Script downed seat 1 tick=13
 Party host bootstrap readiness=4 revision=8 player=4 collision=1 motors=2 corrections=1 public=2 frames=1 coherent=1 paired=1
 Party host prepared epoch=5 players=2
 Party host resumed epoch=5 players=2
-Script party tick=25 seat0=100 seat1=100
-Script quit requested tick=26 steps=27/27
-Viewport foreground pixels=195892 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party-travel.png
-DarkAngel editor rendered 15357 frames with d3d12
+Script party tick=23 seat0=100 seat1=100
+Script quit requested tick=23 steps=27/27
+Viewport foreground pixels=195877 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party-travel.png
+DarkAngel editor rendered 16492 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

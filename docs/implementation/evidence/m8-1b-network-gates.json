@@ -3,39 +3,39 @@
     {
       "name": "party-combat-d3d12",
       "exit": 0,
-      "seconds": 28.859
+      "seconds": 29.016
     },
     {
       "name": "party-interaction-d3d12",
       "exit": 0,
-      "seconds": 26.578
+      "seconds": 25.796
     },
     {
       "name": "party-mismatch-d3d12",
       "exit": 0,
-      "seconds": 18.454
+      "seconds": 16.734
     },
     {
       "name": "party-travel-temple-d3d12",
       "exit": 0,
-      "seconds": 6.703
+      "seconds": 6.922
     },
     {
       "name": "party-travel-gate-d3d12",
       "exit": 0,
-      "seconds": 6.984
+      "seconds": 6.0
     },
     {
       "name": "party-travel-d3d12",
       "exit": 0,
-      "seconds": 63.734
+      "seconds": 59.219
     },
     {
       "name": "party-live-d3d12",
       "exit": 0,
-      "seconds": 36.984
+      "seconds": 33.703
     }
   ],
-  "seconds": 188.4,
+  "seconds": 177.5,
   "transport": "GameNetworkingSockets UDP, 127.0.0.1, separate editor processes"
 }

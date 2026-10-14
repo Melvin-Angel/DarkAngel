@@ -1,23 +1,23 @@
 {
   "schema": 1,
-  "base_head": "796d83037c914f1ef0a12ddd233ccde25b983899",
+  "base_head": "92a5048a3b77c7d750d370cd154fa00a519c3890",
   "scope": "Native editor viewport drives WorldSession/motor/achieved-movement graph and GPU pose for120 fixed ticks on D3D12/Vulkan; native Play/Step/undo/redo/save/open/reload preservation. Standing locomotion and generated solid box proxies; precise mesh collision, actual action/ability integration and broader milestone gates remain open.",
   "gates": [
     {
       "name": "character-editor-d3d12",
       "exit": 0,
-      "seconds": 1.656
+      "seconds": 1.828
     },
     {
       "name": "character-editor-vulkan",
       "exit": 0,
-      "seconds": 1.281
+      "seconds": 2.25
     },
     {
       "name": "editor-regression",
       "exit": 0
     }
   ],
-  "binary_sha256": "3393fa327bbfd2ac9d7a35c4963ca84c7b8268736d1d522b77018d46aa44c717",
+  "binary_sha256": "d713b01ccee1b7cbf257f1bb99f4e194d0c94d3f2d41532576565527dec6ab00",
   "online": "EOS blocked; no new independent GNS scene claim"
 }

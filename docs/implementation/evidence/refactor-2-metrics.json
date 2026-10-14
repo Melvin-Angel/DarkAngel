@@ -1,0 +1,54 @@
+{
+  "main_bytes": 177183,
+  "main_lines": 1105,
+  "exercise_spellings": 0,
+  "hub_headers": {
+    "world_session.hpp": {
+      "objects": 70,
+      "targets": 45
+    },
+    "scene_definitions.hpp": {
+      "objects": 37,
+      "targets": 16
+    },
+    "character_scene.hpp": {
+      "objects": 33,
+      "targets": 16
+    },
+    "scene_client.hpp": {
+      "objects": 35,
+      "targets": 16
+    },
+    "scene_authority.hpp": {
+      "objects": 34,
+      "targets": 16
+    }
+  },
+  "latest_recorded_editor_edges": [
+    {
+      "output": "CMakeFiles/DarkAngelEditor.dir/apps/editor/main.cpp.obj",
+      "seconds": 22.073
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 27.866
+    },
+    {
+      "output": "CMakeFiles/DarkAngelEditor.dir/apps/editor/main.cpp.obj",
+      "seconds": 26.919
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 27.753
+    },
+    {
+      "output": "CMakeFiles/DarkAngelEditor.dir/apps/editor/main.cpp.obj",
+      "seconds": 33.106
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 27.783
+    }
+  ],
+  "note": "Recorded edges are historical, not controlled incremental benchmarks."
+}

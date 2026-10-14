@@ -13,7 +13,7 @@
   "client": "readiness=4 revision=8 player=4 collision=1 motors=2 corrections=1 public=2 frames=31 coherent=1 paired=1 [world revision]=2",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-6f254c36-708\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-c9b1a2a5-2de\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
     "Prepared current scene and combat kit for a fresh Play session.",
     "Party host listening at 127.0.0.1:26420",
@@ -32,7 +32,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 6171,
+  "frame": 6039,
   "fullest": {
     "accepted": 0,
     "active_mask_slot": 0,
@@ -48,7 +48,7 @@
     "client": "readiness=4 revision=7 player=4 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [world revision]=1",
     "console": [
       "Created two linked Spinner placements; authoring is idle.",
-      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-6f254c36-708\\s\\royal_district\\RoyalTraining.dascene",
+      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-c9b1a2a5-2de\\s\\royal_district\\RoyalTraining.dascene",
       "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
       "Prepared current scene and combat kit for a fresh Play session.",
       "Party host listening at 127.0.0.1:26420",
@@ -66,7 +66,7 @@
     ],
     "error": "",
     "failures": 0,
-    "frame": 5400,
+    "frame": 5220,
     "highest_operation": 0,
     "movers": [],
     "owner": "b6a022aef5f944b11efb60f0b13e86a2",
@@ -87,9 +87,9 @@
         "id": "0277daf836539698323a9e7e131074c0",
         "pose": true,
         "position": [
-          1.087564468383789,
+          1.082804560661316,
           0.4999995529651642,
-          3.830528497695923
+          3.8224310874938965
         ]
       }
     ],
@@ -99,8 +99,8 @@
       0.4999997019767761,
       3.0
     ],
-    "predicted_tick": 222,
-    "process": 29736,
+    "predicted_tick": 213,
+    "process": 9252,
     "ready": true,
     "rebases": 1,
     "refused": 0,
@@ -112,7 +112,7 @@
     "schema": 1,
     "script_count": 4,
     "script_steps": 2,
-    "tick": 220,
+    "tick": 211,
     "travel_failures": 0,
     "world": {
       "collected": [],
@@ -150,8 +150,8 @@
         "health_bar": false,
         "label": "Player 2 (Client)",
         "percent": 100.0,
-        "width": 185.05551147460938,
-        "x": 268.04754638671875,
+        "width": 185.33847045898438,
+        "x": 268.14703369140625,
         "y": 107.68940734863281
       }
     ]
@@ -179,7 +179,7 @@
     3.0
   ],
   "predicted_tick": 332,
-  "process": 29736,
+  "process": 9252,
   "ready": true,
   "rebases": 2,
   "refused": 0,
