@@ -1,0 +1,145 @@
+{
+  "results": {
+    "build": {
+      "exit": 0,
+      "seconds": 146.281,
+      "log": "docs\\implementation\\evidence\\refactor-1c-build.log"
+    },
+    "ctest": {
+      "exit": 0,
+      "seconds": 28.328,
+      "log": "docs\\implementation\\evidence\\refactor-1c-ctest.log"
+    },
+    "exercises": {
+      "exit": 0,
+      "seconds": 984.594,
+      "log": "docs\\implementation\\evidence\\refactor-1c-exercises.log"
+    },
+    "nav-reference-draft-state": {
+      "exit": 0,
+      "seconds": 6.688,
+      "log": "docs\\implementation\\evidence\\refactor-1c-nav-reference-draft-state.log"
+    },
+    "nav-player-kit-play": {
+      "exit": 0,
+      "seconds": 33.14,
+      "log": "docs\\implementation\\evidence\\refactor-1c-nav-player-kit-play.log"
+    },
+    "actor-workflow": {
+      "exit": 0,
+      "seconds": 77.469,
+      "log": "docs\\implementation\\evidence\\refactor-1c-actor-workflow.log"
+    },
+    "backup-actor": {
+      "exit": 0,
+      "seconds": 0.625,
+      "log": "docs\\implementation\\evidence\\refactor-1c-backup-actor.log"
+    },
+    "pending-creation": {
+      "exit": 0,
+      "seconds": 84.0,
+      "log": "docs\\implementation\\evidence\\refactor-1c-pending-creation.log"
+    },
+    "backup-pending": {
+      "exit": 0,
+      "seconds": 0.234,
+      "log": "docs\\implementation\\evidence\\refactor-1c-backup-pending.log"
+    },
+    "history-view": {
+      "exit": 0,
+      "seconds": 1.938,
+      "log": "docs\\implementation\\evidence\\refactor-1c-history-view.log"
+    },
+    "composer-preview": {
+      "exit": 0,
+      "seconds": 40.156,
+      "log": "docs\\implementation\\evidence\\refactor-1c-composer-preview.log"
+    },
+    "composer-playback": {
+      "exit": 0,
+      "seconds": 53.922,
+      "log": "docs\\implementation\\evidence\\refactor-1c-composer-playback.log"
+    },
+    "graph-preview": {
+      "exit": 0,
+      "seconds": 41.188,
+      "log": "docs\\implementation\\evidence\\refactor-1c-graph-preview.log"
+    },
+    "graph-result": {
+      "exit": 0,
+      "seconds": 22.234,
+      "log": "docs\\implementation\\evidence\\refactor-1c-graph-result.log"
+    },
+    "character-preview": {
+      "exit": 1,
+      "seconds": 0.203,
+      "log": "docs\\implementation\\evidence\\refactor-1c-character-preview.log"
+    },
+    "upper-body": {
+      "exit": 0,
+      "seconds": 533.109,
+      "log": "docs\\implementation\\evidence\\refactor-1c-upper-body.log"
+    },
+    "creation-vertical": {
+      "exit": 0,
+      "seconds": 27.625,
+      "log": "docs\\implementation\\evidence\\refactor-1c-creation-vertical.log"
+    },
+    "backup-vertical": {
+      "exit": 0,
+      "seconds": 0.157,
+      "log": "docs\\implementation\\evidence\\refactor-1c-backup-vertical.log"
+    },
+    "player-defaults": {
+      "exit": 0,
+      "seconds": 67.953,
+      "log": "docs\\implementation\\evidence\\refactor-1c-player-defaults.log"
+    },
+    "backup-defaults": {
+      "exit": 0,
+      "seconds": 0.156,
+      "log": "docs\\implementation\\evidence\\refactor-1c-backup-defaults.log"
+    },
+    "graph-authoring": {
+      "exit": 0,
+      "seconds": 33.016,
+      "log": "docs\\implementation\\evidence\\refactor-1c-graph-authoring.log"
+    },
+    "player-input": {
+      "exit": 1,
+      "seconds": 48.406,
+      "log": "docs\\implementation\\evidence\\refactor-1c-player-input.log"
+    },
+    "authoring-checkpoint": {
+      "exit": 0,
+      "seconds": 516.562,
+      "log": "docs\\implementation\\evidence\\refactor-1c-authoring-checkpoint.log"
+    },
+    "input-workflows": {
+      "exit": 1,
+      "seconds": 0.657,
+      "log": "docs\\implementation\\evidence\\refactor-1c-input-workflows.log"
+    },
+    "external-import": {
+      "exit": 1,
+      "seconds": 0.187,
+      "log": "docs\\implementation\\evidence\\refactor-1c-external-import.log"
+    },
+    "items-world-ui": {
+      "exit": 1,
+      "seconds": 52.219,
+      "log": "docs\\implementation\\evidence\\refactor-1c-items-world-ui.log"
+    },
+    "slice": {
+      "exit": 0,
+      "seconds": 227.781,
+      "log": "docs\\implementation\\evidence\\refactor-1c-slice.log"
+    },
+    "party": {
+      "exit": 1,
+      "seconds": 21.422,
+      "log": "docs\\implementation\\evidence\\refactor-1c-party.log"
+    }
+  },
+  "qualification": "Native authoring/test binaries unchanged by this step; authoring suites run editor-only on the fixture verify_effect_reaction regenerated."
+}

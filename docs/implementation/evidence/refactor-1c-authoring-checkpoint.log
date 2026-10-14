@@ -1,0 +1,5 @@
+Editor-only verify_authoring_checkpoint.py ; skipped ['authoring-checkpoint-build']
+authoring-checkpoint-AssetTests passed
+authoring-checkpoint-NativeSourceEditTests passed
+authoring-checkpoint-NativeAuthoringTests passed
+authoring-checkpoint-fresh-play passed

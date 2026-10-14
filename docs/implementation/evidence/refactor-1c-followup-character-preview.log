@@ -1,0 +1,13 @@
+character-preview-build passed
+character-preview-native passed
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\verify_character_preview.py", line 16, in <module>
+    character=json.loads((s/'characters/gui_character.dacharacter').read_text(encoding='utf-8'))['asset'];clip=json.loads((s/'royal_district/clips/attack.glb.daimport').read_text(encoding='utf-8'))['id']
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-6f254c36-708\\s\\characters\\gui_character.dacharacter'

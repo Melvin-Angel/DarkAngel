@@ -1,0 +1,6 @@
+Editor-only verify_pending_creation.py ; skipped ['pending-creation-build', 'pending-creation-native']
+pending-creation-assets passed
+pending-creation-fresh-play passed
+pending-creation-character passed
+pending-creation-player passed
+pending-creation-drafts passed

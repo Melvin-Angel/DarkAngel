@@ -1,0 +1,39 @@
+{
+  "results": {
+    "exercises": {
+      "exit": 0,
+      "seconds": 1044.328,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-exercises.log"
+    },
+    "items-world-ui": {
+      "exit": 0,
+      "seconds": 247.532,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-items-world-ui.log"
+    },
+    "character-preview": {
+      "exit": 1,
+      "seconds": 37.156,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-character-preview.log"
+    },
+    "backup-input": {
+      "exit": 0,
+      "seconds": 0.235,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-backup-input.log"
+    },
+    "player-input": {
+      "exit": 0,
+      "seconds": 80.953,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-player-input.log"
+    },
+    "input-workflows": {
+      "exit": 0,
+      "seconds": 20.828,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-input-workflows.log"
+    },
+    "external-import": {
+      "exit": 0,
+      "seconds": 16.203,
+      "log": "docs\\implementation\\evidence\\refactor-1c-followup-external-import.log"
+    }
+  }
+}

@@ -13,7 +13,7 @@
   "client": "readiness=4 revision=7 player=6 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [host ahead]=1 [world revision]=1",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-b4573d4f-8c5\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-6f254c36-708\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
     "Prepared current scene and combat kit for a fresh Play session.",
     "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
@@ -29,10 +29,10 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 786,
+  "frame": 804,
   "highest_operation": 3,
   "owner": "0277daf836539698323a9e7e131074c0",
-  "pending_motor": 6,
+  "pending_motor": 4,
   "players": [
     {
       "health": 100.0,
@@ -49,20 +49,20 @@
       "id": "0277daf836539698323a9e7e131074c0",
       "pose": true,
       "position": [
-        0.012827259488403797,
-        0.4999995529651642,
-        3.944664716720581
+        0.017581691965460777,
+        0.4999995231628418,
+        3.9433374404907227
       ]
     }
   ],
   "playing": true,
   "predicted_position": [
-    0.012827259488403797,
-    0.4999995529651642,
-    3.944664716720581
+    0.017581691965460777,
+    0.4999995231628418,
+    3.9433374404907227
   ],
-  "predicted_tick": 827,
-  "process": 4748,
+  "predicted_tick": 708,
+  "process": 8988,
   "ready": true,
   "rebases": 2,
   "refused": 0,
@@ -74,7 +74,7 @@
   "schema": 1,
   "script_count": 4,
   "script_steps": 4,
-  "tick": 821,
+  "tick": 704,
   "travel_failures": 0,
   "world": {
     "collected": [],
@@ -104,17 +104,17 @@
       "health_bar": true,
       "label": "Training Dummy",
       "percent": 75.0,
-      "width": 135.1265411376953,
-      "x": 573.875732421875,
-      "y": 265.8802795410156
+      "width": 135.09832763671875,
+      "x": 574.4193115234375,
+      "y": 265.8775329589844
     },
     {
       "health_bar": false,
       "label": "Player 1 (Host)",
       "percent": 100.0,
-      "width": 179.17599487304688,
-      "x": 552.3224487304688,
-      "y": 229.88027954101563
+      "width": 179.132568359375,
+      "x": 552.9583740234375,
+      "y": 229.87753295898438
     }
   ]
 }

@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802050e0000
 [39mViewport foreground pixels=845343 capture=C:\DarkAngel\docs\implementation\evidence\transition-no-entry-d3d12.png
-Editor transition tick=260 players=2 arrivals=0 failures=1 phase=Idle scene=e85df15a-bd35-4a6c-879f-b8e57b0926d4 document=e85df15a-bd35-4a6c-879f-b8e57b0926d4 authoring=e85df15a-bd35-4a6c-879f-b8e57b0926d4 lever_used=1 first_prompt=0 overlay_frames=5 loading=0 ledger_records=1 scripts=6/6,0/0 pending=0 failure=The_destination_scene_has_no_entry_point_000000000000000000000000000000ff
+Editor transition tick=260 players=2 arrivals=0 failures=1 phase=Idle scene=ef3d7e51-6eeb-41b1-b7af-30d9d02bb197 document=ef3d7e51-6eeb-41b1-b7af-30d9d02bb197 authoring=ef3d7e51-6eeb-41b1-b7af-30d9d02bb197 lever_used=1 first_prompt=0 overlay_frames=5 loading=0 ledger_records=1 scripts=6/6,0/0 pending=0 failure=The_destination_scene_has_no_entry_point_000000000000000000000000000000ff
 DarkAngel editor rendered 260 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256

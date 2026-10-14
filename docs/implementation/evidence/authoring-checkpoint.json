@@ -1,47 +1,42 @@
 {
   "schema": 1,
-  "base_head": "08f64e9d5d9514c17dd0b7742c962ded9205a1ec",
+  "base_head": "796d83037c914f1ef0a12ddd233ccde25b983899",
   "scope": "Focused shared asset/source/coordinated Save and D3D12 authored fresh-Play integration after Composer/attribute chunks",
   "gates": [
     {
-      "name": "authoring-checkpoint-build",
-      "exit": 0,
-      "seconds": 12.062
-    },
-    {
       "name": "authoring-checkpoint-AssetTests",
       "exit": 0,
-      "seconds": 0.27
+      "seconds": 0.453
     },
     {
       "name": "authoring-checkpoint-NativeSourceEditTests",
       "exit": 0,
-      "seconds": 0.376
+      "seconds": 1.203
     },
     {
       "name": "authoring-checkpoint-NativeAuthoringTests",
       "exit": 0,
-      "seconds": 16.806
+      "seconds": 488.532
     },
     {
       "name": "authoring-checkpoint-fresh-play",
       "exit": 0,
-      "seconds": 5.617
+      "seconds": 25.968
     }
   ],
   "source_sha256": {
-    "engine/assets/asset_service.cpp": "56935d741bd00ce480a4563cfd81bacb1c6cdd5d1b5c9c29df62993d475a8aa1",
-    "apps/editor/native_authoring.cpp": "c19270180843154c5c3610d75ae53b15532bdb2ffc06c270ca262e1ee408564a",
-    "apps/editor/editor_authoring.cpp": "2410fbc97c670e1554990aaee8e5598c8939366950912a2fe51d1a73117a38a6",
-    "apps/editor/editor_composer.cpp": "27377c7e92ca1783243373bd5214f450bd2663285786c5e4902e9d93a88e7a1f",
-    "apps/editor/main.cpp": "162187d9d6e39f33d169e405227f051256e5639935d0dabffbf80e89a697e0ec",
-    "scripts/verify_authoring_checkpoint.py": "7e644345bc765a79883cfd479533d3207e395e9db628c007c8795bc9799ded7a"
+    "engine/assets/asset_service.cpp": "d4c3cc04bb01922371a301a1828e69aa856c7eb165a79c2fef407cc03cef5580",
+    "apps/editor/native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
+    "apps/editor/editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps/editor/editor_composer.cpp": "5c92623ecfc234c308d8ca47b39bf98211a0b2a52cda7f28eba38518c7d87d1c",
+    "apps/editor/main.cpp": "e86c7e3c67485909600d49d794dde089d328d0568d671444f6b96dbff146985d",
+    "scripts/verify_authoring_checkpoint.py": "97c204231b369e688256dd56b132ca05992df83c1d61004f2d0382bea22a33c2"
   },
   "binary_sha256": {
-    "DarkAngelEditor": "d977ce5be46678a969c34df8a1e8249ae3e038769110d5fd83b8bb4d11e4ef38",
-    "NativeAuthoringTests": "b14c28bfde05f46091e1bad2f0560525ff34e8377f91e8cee3254df643c6daea",
-    "AssetTests": "6a9a0b3bfbdc2ce9c8f4cd6464e6575394710628719d5fa449d75740b185011f",
-    "NativeSourceEditTests": "8b049d5932ace8280c265be6c2c91044c0597f49c783df25ec26f82a386d48fb"
+    "DarkAngelEditor": "3393fa327bbfd2ac9d7a35c4963ca84c7b8268736d1d522b77018d46aa44c717",
+    "NativeAuthoringTests": "a1dffa058f7498b296c034e15c403807e85441d3375c56e5dedb6e0c3c46125d",
+    "AssetTests": "c3251edf757075b411e3d0ac3e0fd9d5bd0888df757d6288f9efc63d7cda645b",
+    "NativeSourceEditTests": "012563d22d0fee584781c2236427cb1426c8947847d9499e280219c291b7eb9e"
   },
   "limitations": [
     "One D3D12 authored edit/history/Save/fresh Play case; no GNS/Vulkan/full historical matrix.",

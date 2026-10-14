@@ -1,0 +1,5 @@
+Editor-only verify_player_input.py ; skipped ['player-input-build', 'player-input-native']
+player-input-assets passed
+player-input-fresh-play passed
+player-input-panel passed
+player-input-mapper passed

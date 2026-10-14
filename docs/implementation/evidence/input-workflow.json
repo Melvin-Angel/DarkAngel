@@ -1,97 +1,72 @@
 {
   "schema": 1,
-  "base_head": "d7de3298405c006efb9bebddc6022b9ba5f7cb1c",
+  "base_head": "796d83037c914f1ef0a12ddd233ccde25b983899",
   "scope": "Native semantic input/chords and frozen profile; Win32 message adapter with synthetic source; full editor Game/Scene/Assets/Tools/Settings workflows and mapped Loopback character movement. One editor product; feature-disabled targets are shared-library checks only.",
   "gates": [
     {
-      "name": "input-workflow-editor-build",
-      "exit": 0,
-      "seconds": 32.706
-    },
-    {
-      "name": "input-workflow-native-build",
-      "exit": 0,
-      "seconds": 0.067
-    },
-    {
-      "name": "input-workflow-library-build",
-      "exit": 0,
-      "seconds": 0.07
-    },
-    {
       "name": "input-workflow-core",
       "exit": 0,
-      "seconds": 1.467
+      "seconds": 0.172
     },
     {
       "name": "input-workflow-platform",
       "exit": 0,
-      "seconds": 0.019
-    },
-    {
-      "name": "input-workflow-affected",
-      "exit": 0,
-      "seconds": 5.404
-    },
-    {
-      "name": "input-workflow-library",
-      "exit": 0,
-      "seconds": 1.466
+      "seconds": 0.015
     },
     {
       "name": "input-workflow-royal-regression",
       "exit": 0,
-      "seconds": 3.326
+      "seconds": 10.922
     },
     {
       "name": "input-workflow-game-d3d12",
       "exit": 0,
-      "seconds": 0.707
+      "seconds": 1.375
     },
     {
       "name": "input-workflow-switch-d3d12",
       "exit": 0,
-      "seconds": 0.738
+      "seconds": 1.328
     },
     {
       "name": "input-workflow-game-vulkan",
       "exit": 0,
-      "seconds": 0.644
+      "seconds": 2.0
     },
     {
       "name": "input-workflow-switch-vulkan",
       "exit": 0,
-      "seconds": 0.75
+      "seconds": 1.094
     },
     {
       "name": "input-workflow-scene",
       "exit": 0,
-      "seconds": 0.604
+      "seconds": 1.688
     },
     {
       "name": "input-workflow-bindings",
       "exit": 0,
-      "seconds": 0.473
+      "seconds": 1.218
     },
     {
       "name": "input-workflow-settings",
       "exit": 0,
-      "seconds": 0.52
+      "seconds": 0.672
     }
   ],
-  "binary_sha256": "90a44afbd97873bb35689938c808d1b294f1ebe501775fba7734f948c8b3ccdc",
+  "binary_sha256": "3393fa327bbfd2ac9d7a35c4963ca84c7b8268736d1d522b77018d46aa44c717",
   "implementation_sha256": {
-    "CMakeLists.txt": "6ef129bcf3e599a6e7b45ed2d4c79ffd75d56bc31d3478713a6a1fe028372abf",
+    "CMakeLists.txt": "532d873ed59918d5db8010e3c35de4283509f0ad73339df40d9953c843466b37",
     "engine/runtime/input.cpp": "94a7f47883eae9e0747da0ab78eaaf24e5695d9501b0f5a2655a8519f60056d4",
     "engine/runtime/include/darkangel/input.hpp": "162bf9075cbd5fb9143ec6a53e0497779c95cb10668f742f9fc42886332aac23",
-    "engine/assets/input_cooker.cpp": "fd16091d33dab1dca66f7eaa30907604046342fc4412cc4856a1fb2a44d69a46",
-    "tools/editor/editor_document.cpp": "e7ded254c4dee6d792d628638c4014a77a0ea52b6cbebf3e3533fe225c6b7364",
-    "content/input/royal_player.dainput": "da11f3e2c9dfd2ca6c4d38ae5700da3570e0814bf1737ae46e19015d064a9432",
-    "apps/editor/main.cpp": "54e78fae80e8034ef880a67dda33cb4ba5807f390cb0938ce5512bdb0e664e4c",
+    "engine/assets/input_cooker.cpp": "e1869126cc13a582714ebaf662b7474f4330185ff347c63ee59ef1d70e702ff0",
+    "tools/editor/editor_document.cpp": "943ab83ff4dd8f5ee7a6cbd22ed54a17fd0ccdeec5747efc047d0210351aee9e",
+    "content/input/royal_player.dainput": "164066877a6ae8f3a1f2f5d692bc10a4df995f85a2373f0c7b851a8408eba8c0",
+    "apps/editor/main.cpp": "e86c7e3c67485909600d49d794dde089d328d0568d671444f6b96dbff146985d",
     "apps/editor/native_input.cpp": "10380c9cb19e821905ee1366f1b862cf6a2386f78cca920e4bce4a474e362af3",
     "apps/editor/native_input.hpp": "0dfbe3bda78364553eda193af15497095e33629ff2df04fbbaf52b9aaa2103ad",
-    "apps/editor/editor_ui.cpp": "6c910aa8fb5012b7540b59f0f7e1992f82986070e147cee91f16ee946e93e429",
-    "apps/editor/editor_workspaces.cpp": "7b10aff975de86be9a1f2a00cb4890ccd5d61241b607c2d981ad94907902ac51"
+    "apps/editor/editor_ui.cpp": "62eedc057b322ab0ff615881f71baea7a15fe109503bbc722fa5ff1c07b847e5",
+    "apps/editor/editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f"
   },
   "limitations": [
     "Physical gamepad hardware/rebinding UI and camera-mode/player/NPC authoring remain open.",

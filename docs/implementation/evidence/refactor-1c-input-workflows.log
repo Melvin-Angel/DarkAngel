@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\verify_input_workflows.py", line 23, in <module>
+    run('input-workflow-affected',[CMAKE.parent/'ctest.exe','--test-dir','build/m5-relwithdebinfo','--output-on-failure','-R',r'^(M4.input_actions|M4.motor|M2.asset_pipeline|M2.editor_transactions|M5.character_scene|M5.renderable_human|M5.external_import)$'])
+  File "C:\DarkAngel\scripts\verify_input_workflows.py", line 14, in run
+    if result.returncode:raise RuntimeError((result.stdout+result.stderr)[-5000:])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Failed to change working directory to "C:/DarkAngel/build/m5-relwithdebinfo": No such file or directory
+

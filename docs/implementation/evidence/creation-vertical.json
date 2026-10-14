@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
+  "base_head": "796d83037c914f1ef0a12ddd233ccde25b983899",
   "scope": "Six new native authoring sources, deferred Composer commit, ordinary effect binding, coordinated publication and complete fresh Player Play",
   "gates": [
     {
       "name": "creation-vertical-d3d12",
       "exit": 0,
-      "seconds": 35.203
+      "seconds": 27.422
     }
   ],
   "source_sha256": {
-    "apps/editor/main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "apps/editor/main.cpp": "e86c7e3c67485909600d49d794dde089d328d0568d671444f6b96dbff146985d",
     "apps/editor/native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
     "apps/editor/native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
     "apps/editor/editor_controller.cpp": "a5cf3a2e9755639bc7aec1d7dd595fafd8f3001cbcf7d22bd8ff2bc0074810de",

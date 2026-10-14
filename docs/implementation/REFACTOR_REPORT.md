@@ -108,3 +108,62 @@ Verified implementation commits: `873799e` baseline timer repair; `0ea18a0` regi
 Resume by reading this report and `CODEX_REFACTOR_PROMPT.md`, checking git/process/cache state, and selecting the next bounded step-1 extraction. There is no authorization or product decision pending. Protected content remains the two Royal scene sources and their untracked `.records/` folders; do not stage them. Build command remains pinned CMake with `env=msvc_environment.activate()`, a dry-run first and one heavy job at a time. The reusable local verification helpers in `.cache/refactor_work.py` and `.cache/refactor_authoring_work.py` are diagnostic working files, not product APIs; the fresh normal gate scripts remain the reproducible acceptance paths.
 
 Two verifier assumptions needed correction during this increment. Actor and pending-creation suites normally regenerate their fixture independently; when retaining the native fixture, the first suite's published `gui_*` files must be backed up before the second reuses those names. Only three owned test-fixture files were moved into `.cache/refactor-actor-generated-backup/`, with resolved paths checked under the build fixture. The animation verifier now obtains its action from the current kit's heavy binding rather than assuming `heavy.daaction`; other composer modes retain their original fixture. Initial failure logs are retained separately.
+
+## Step 1c: scene editing, synthetic input and result checks, verified
+
+Continued by Claude Code from checkpoint `796d830`. Four new modules under `apps/editor/exercises/`, each with a narrow context and no device, renderer, networking adapter or save database:
+
+| Module | Moved from main | Context |
+| --- | --- | --- |
+| `scene_editing` (Exercise) | Frame-phase cook sweep, encounter placement, Place panel and outliner mouse/key exercise, File > Save All, Mask Editor field, Place/delete/undo, workspace switching, import dialog, GUI ability/effect authoring, party travel placement | options, Controller, Shell, scene baseline, import count |
+| `synthetic_input` | The fixed-step predicate (four copies) and the scripted control pattern of every fixed-step Play exercise | options, frame, control |
+| `preview_results` | End-of-run checks for Composer, graph and Character previews, Mask Editor, typed navigation, pending creation and history drafts | options, Controller, Shell, scene baseline, session pointer, CPU preview pose pointers, skin readiness, joint count |
+| `gameplay_results` | End-of-run checks for combat, heavy, death, mask switch, ranged, soft lock, dodge, aim and look cameras, senses, attacked, encounter, interaction, transition and two players, actor workflow and Player Kit Play | options, Controller, Shell, scene baseline, session pointer, preview resources, camera director, travel coordinator, HUD, ledger, both script runners, two target callbacks and `GameplayObservations` (const references to the frame loop's counters) |
+
+The exercises still act through Shell Place/remove, Inspector and transition edits, Controller Save/Play/Stop, native authoring commands and ImGui input events. The scripted controls still pass through the editor's InputManager. Exercise state that main held in function-level `static` locals, or in the two travel placement IDs, is now owned by the scene editing exercise.
+
+Ordering. Within each module the original order is unchanged. Two deliberate moves:
+- The senses observation now runs ahead of the scene editing exercise in the frame. Neither reads nor changes what the other does.
+- At the end of a run, preview checks run first, then the presentation checks still in main (navigation, spline, encounter volumes, audio, cue form, VFX tab, cues, senses drawing), then gameplay checks. Preview checks require a stopped session and gameplay checks stop it. The presentation checks do not change state that gameplay checks read. A scan of every gate script finds no command that combines a presentation flag with a check that used to stop Play before it (Player Kit Play, actor workflow, death, mask switch, ranged, soft lock, transition, two players). The combinations that do exist (`--exercise-encounter --exercise-audio`, and cues with combat, character or reaction) keep their relative order.
+
+Remaining in main because they use main-local types or render state (`vfx_preview`, `audio_tab`, `navigation`, cue sinks, built splines): frame-phase Composer setup, cue/VFX/audio edits, game-debug focus, navigation bake triggers, the acceptance exercise (model store, shader reload), and the presentation checks listed above. Those move with the EditorApp services of step 2, not before.
+
+| Metric | Step 1b | Step 1c |
+| --- | ---: | ---: |
+| main.cpp bytes | 298,511 | 246,533 |
+| `args.exercise_*` references in main | 141 | 34 |
+| Exercise CLI spellings in main | 0 | 0 |
+| world_session.hpp dependent objects | 67 | 69 |
+
+main.cpp is 31.7% smaller than the 360,947-byte baseline. No CLI spelling or prerequisite changed, since the registry is untouched. Header fan-out grows by two objects, the two result modules, which include `character_preview.hpp`. Narrowing that is step 4's job. The last recorded main compilation is 24.0 s, a normal rebuild observation, not a controlled benchmark.
+
+Formatting. The eight new files are formatted with the repository policy (include order preserved). They are committed in a separate formatting-only commit after the move commit, which carries the unformatted text. Verification below ran on the formatted tree; the two differ only in whitespace.
+
+### Verification of step 1c
+
+The serial runner is `.cache/refactor_1c_verify.py`, with follow-up `.cache/refactor_1c_followup.py`; receipts are `evidence/refactor-1c.json` and `refactor-1c-followup.json`. Every gate that sets a moved flag has a passing run on the final binaries:
+
+- Guarded full build (146 s) and M8/M6/M5.hud CTest 14/14 (28 s).
+- `verify_effect_reaction.py` passes in full twice (985 s and 1,044 s), each time regenerating the fixture with NativeAuthoringTests. Its 57 editor gates cover every gameplay result check, the scene editing exercises (Place, mouse placement, Save All, Mask Editor field, cook sweep, encounter placement, travel placement) and the presentation checks still in main.
+- Authoring suites, run editor-only on the regenerated fixture with their build/native steps skipped (native binaries unchanged by this step): typed navigation, Player Kit Play, actor workflow, pending creation, history view, Composer preview and playback, graph preview and result, Character preview, upper body, creation vertical, Player defaults, graph authoring, Player input, authoring checkpoint (GUI authoring exercise).
+- Workspace switching and the import dialog: the editor gates of `verify_input_workflows.py` and `verify_external_import.py` pass on D3D12 and Vulkan. Their CTest steps in `build/m5-relwithdebinfo` and `build/m2-relwithdebinfo` were skipped because those build trees no longer exist on this machine.
+- Fresh `verify_m8_slice.py` 6/6 (228 s). `verify_items_world_ui.py` passes, including its nested `verify_network_party.py`, 7/7 in 188 s.
+
+Six first-pass failures were verifier ordering, not product behaviour; each passed on rerun:
+- Network party, alone and inside the items run: a later authoring suite had regenerated the fixture without the lever/gate scenes that `verify_effect_reaction.py` writes ("Document missing/oversized").
+- Character preview: the gate needs `gui_character`, which ActorAssetTests publishes; my backup step had moved it aside.
+- Player input: graph authoring had already published the same `gui_*` source names ("Source name already exists").
+- Input workflows and external import: the missing build trees.
+
+The follow-up reran the exercise suite for a fresh fixture, then items/party, Player input after a backup, the two editor-only scripts, and Character preview once ActorAssetTests had published its source. First-pass logs are kept as `evidence/refactor-1c-*.log`.
+
+Not rerun: full CTest and NativeAuthoringTests (no native or test source changed; the effect-reaction runs executed NativeAuthoringTests and its sibling native tests twice and passed). Network evidence remains same-machine UDP/D3D12.
+
+## Continuation after step 1c
+
+Step 1 is nearly complete. What remains in main uses main-local types, so it moves with step 2:
+- frame-phase Composer setup, cue/VFX/audio edits, game-debug focus and navigation bake triggers;
+- the acceptance exercise;
+- the presentation result checks.
+
+Next: step 2, `EditorApp` with service ownership (render system, Play controller, editor UI, exercise runner, asset workspace, party networking, plus the existing runtime inventory, altar and saves). The local types `vfx_preview`, `audio_tab`, the navigation bake state and the cue sinks become service-owned, so the remaining exercises can take narrow contexts. Before step 2's final commit the prompt requires full CTest (NativeAuthoringTests alone), slice, party and items gates. Protected content is unchanged: the two Royal scene sources and their untracked `.records/` folders.

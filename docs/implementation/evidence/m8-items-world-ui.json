@@ -3,32 +3,32 @@
     {
       "name": "items-assets",
       "exit": 0,
-      "seconds": 15.75
+      "seconds": 15.235
     },
     {
       "name": "world-ui-native",
       "exit": 0,
-      "seconds": 4.938
+      "seconds": 2.531
     },
     {
       "name": "items-inventory",
       "exit": 0,
-      "seconds": 4.594
+      "seconds": 2.453
     },
     {
       "name": "items-consumable-d3d12",
       "exit": 0,
-      "seconds": 6.25
+      "seconds": 2.937
     },
     {
       "name": "items-mask-d3d12",
       "exit": 0,
-      "seconds": 5.25
+      "seconds": 4.094
     },
     {
       "name": "party-regression",
       "exit": 0,
-      "seconds": 173.046
+      "seconds": 188.406
     },
     {
       "name": "world-ui-host-d3d12",
@@ -48,19 +48,5 @@
     "D3D12 and same-machine GNS only.",
     "Item native authoring commands/form captures; physical pointer workflow not qualified.",
     "Inventory host/wire, runtime inventory menu and pickups remain Stage 2 work."
-  ],
-  "native_regression": {
-    "initial_passed": 100,
-    "initial_total": 101,
-    "failed": "ItemAssetTests fixture attempted existing model adoption",
-    "affected_rerun_passed": 1,
-    "retained_slow_authoring_gates": 3
-  },
-  "source_hashes": {
-    "engine\\assets\\item_cooker.cpp": "720ae6de8aa0e0a83ffde1adcaf427586749b91b854ca9370699e6f13509bd4d",
-    "apps\\editor\\editor_items.cpp": "906461ece9bdc4141dd00010de873ab7f95077beeacfade228797b0331e15f30",
-    "apps\\editor\\world_ui_presenter.cpp": "7a7aca689fe986a10128edebe6a9c7268234afd2005e032ed153c488225dbb31",
-    "engine\\runtime\\world_session.cpp": "cad1964c71a2b26f4e2bf8771ce3d79b90b295f0dcbe5f6f9537e1b45d7622d2",
-    "games\\AshenRoots\\ui\\hud.rml": "567636db07ab9e1a7279a590742cee8a6454e84ca73e797e44d94a14412349e1"
-  }
+  ]
 }

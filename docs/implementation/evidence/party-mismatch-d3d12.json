@@ -13,7 +13,7 @@
   "client": "readiness=4 revision=5 player=4 collision=1 motors=2 corrections=1 public=2 frames=31 coherent=1 paired=1",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-b4573d4f-8c5\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-6f254c36-708\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
     "Prepared current scene and combat kit for a fresh Play session.",
     "Party host listening at 127.0.0.1:26164",
@@ -32,7 +32,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 2559,
+  "frame": 3469,
   "highest_operation": 0,
   "movers": [],
   "owner": "b6a022aef5f944b11efb60f0b13e86a2",
@@ -56,7 +56,7 @@
     3.0
   ],
   "predicted_tick": 152,
-  "process": 5832,
+  "process": 16872,
   "ready": true,
   "rebases": 0,
   "refused": 0,

@@ -1,0 +1,4 @@
+Editor-only verify_player_defaults.py ; skipped ['player-defaults-build', 'player-defaults-native']
+player-defaults-assets passed
+player-defaults-fresh-play passed
+player-defaults-panel passed

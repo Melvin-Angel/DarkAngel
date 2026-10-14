@@ -1,0 +1,40 @@
+party-combat-d3d12 passed
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\verify_network_party.py", line 65, in <module>
+    log,hosted,(guest,),(guest_log,)=host(name,'npc_registry','RoyalLever.dascene',26132,'2','await-tick:270;capture;await-tick:370;quit','walk-to:1.5,2;walk-to:1.2,3.8;use;await-tick:300;quit')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\DarkAngel\scripts\verify_network_party.py", line 38, in host
+    if result.returncode:fail(name,'the host exited with %d'%result.returncode,log)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\DarkAngel\scripts\verify_network_party.py", line 16, in fail
+    def fail(name,why,*seen):raise RuntimeError(name+': '+why+'\n'+'\n'.join(json.dumps(x,indent=1)[:3000] if isinstance(x,dict) else str(x)[-3000:] for x in seen))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: party-interaction-d3d12: the host exited with 1
+[39mDiligent Engine: Info: D3D12-capable adapter found: Intel(R) Iris(R) Xe Graphics (128 MB)
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80200080000
+[39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
+[39m[39mDiligent Engine: Info: Max device shader model: 6_7
+[39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
+[39m[39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
+[39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
+[39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
+                       Peak used/aligned/allocated size: 0 Bytes / 0 Bytes / 0 Bytes (0 pages). Peak efficiency (used/aligned): 0.0%. Peak utilization (used/allocated): 0.0%
+[39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
+                       Total allocated memory: 1.00 MB
+[39m[39mDiligent Engine: Info: D3D12 query manager peak usage:
+QUERY_TYPE_OCCLUSION          :    0/ 128
+QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
+QUERY_TYPE_TIMESTAMP          :    0/ 512
+QUERY_TYPE_PIPELINE_STATISTICS:    0/ 128
+QUERY_TYPE_DURATION           :    0/ 512
+[39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
+[39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
+[39m[39mDiligent Engine: Info: Command list manager: created 8 allocators
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 2/16384 (0.01%) | 0/8192 (0.00%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 1/1024 (0.10%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 4/8192 (0.05%).
+[39mDarkAngelEditor: Document missing/oversized
+

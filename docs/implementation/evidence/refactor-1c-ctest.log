@@ -1,0 +1,40 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+      Start 11: M8.persistence
+ 1/14 Test #11: M8.persistence ...................   Passed    0.26 sec
+      Start 28: M8.party_scene
+ 2/14 Test #28: M8.party_scene ...................   Passed    2.36 sec
+      Start 29: M8.scene_delay
+ 3/14 Test #29: M8.scene_delay ...................   Passed    1.43 sec
+      Start 30: M8.scene_transition
+ 4/14 Test #30: M8.scene_transition ..............   Passed    1.69 sec
+      Start 31: M6.navigation
+ 5/14 Test #31: M6.navigation ....................   Passed    1.30 sec
+      Start 32: M6.behavior_tree
+ 6/14 Test #32: M6.behavior_tree .................   Passed    6.01 sec
+      Start 58: M5.hud
+ 7/14 Test #58: M5.hud ...........................   Passed    0.14 sec
+      Start 83: M6.encounters
+ 8/14 Test #83: M6.encounters ....................   Passed    0.06 sec
+      Start 84: M8.item_assets
+ 9/14 Test #84: M8.item_assets ...................   Passed   14.18 sec
+      Start 85: M8.inventory
+10/14 Test #85: M8.inventory .....................   Passed    0.08 sec
+      Start 86: M8.inventory_session
+11/14 Test #86: M8.inventory_session .............   Passed    0.29 sec
+      Start 87: M8.world_ledger
+12/14 Test #87: M8.world_ledger ..................   Passed    0.07 sec
+      Start 88: M8.world_objects
+13/14 Test #88: M8.world_objects .................   Passed    0.08 sec
+      Start 89: M8.party_control
+14/14 Test #89: M8.party_control .................   Passed    0.06 sec
+
+100% tests passed out of 14
+
+Label Time Summary:
+M5              =   0.14 sec*proc (1 test)
+M8              =   5.83 sec*proc (5 tests)
+network         =   5.83 sec*proc (5 tests)
+presentation    =   0.14 sec*proc (1 test)
+ui              =   0.14 sec*proc (1 test)
+
+Total Test time (real) =  28.25 sec
