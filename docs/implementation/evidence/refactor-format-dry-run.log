@@ -1,0 +1,36 @@
+[1/36] Scanning C:\DarkAngel\apps\editor\editor_options.cpp for CXX dependencies
+[2/36] Scanning C:\DarkAngel\apps\editor\exercises\registry.cpp for CXX dependencies
+[3/36] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[4/36] Scanning C:\DarkAngel\apps\editor\exercises\world_place_exercise.cpp for CXX dependencies
+[5/36] Scanning C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp for CXX dependencies
+[6/36] Scanning C:\DarkAngel\apps\editor\exercises\script_runner.cpp for CXX dependencies
+[7/36] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[8/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_options.cpp.obj
+[9/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\registry.cpp.obj
+[10/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_items.cpp.obj
+[11/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\item_authoring.cpp.obj
+[12/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+[13/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+[14/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+[15/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_world_objects.cpp.obj
+[16/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_saves.cpp.obj
+[17/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\world_place_exercise.cpp.obj
+[18/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_collision.cpp.obj
+[19/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_assets.cpp.obj
+[20/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+[21/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[22/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_authoring.cpp.obj
+[23/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_workspaces.cpp.obj
+[24/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_input.cpp.obj
+[25/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_theme.cpp.obj
+[26/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\third_party\imguizmo\src\ImGuizmo.cpp.obj
+[27/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+[28/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\script_runner.cpp.obj
+[29/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[30/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\inventory_resources.cpp.obj
+[31/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\network_play.cpp.obj
+[32/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\hud_overlay.cpp.obj
+[33/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\world_ui_presenter.cpp.obj
+[34/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_inventory.cpp.obj
+[35/36] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_altar.cpp.obj
+[36/36] Linking CXX executable DarkAngelEditor.exe

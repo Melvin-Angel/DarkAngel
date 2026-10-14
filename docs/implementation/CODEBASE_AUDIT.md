@@ -1,6 +1,20 @@
 # Codebase audit and refactor proposals (14 October 2026)
 
-Requested by the user: "begin an audit of the project and suggest refactors to keep the code base clean, modular and scalable, e.g. reducing the size of main.cpp". This is a read-only audit with proposals in priority order. Nothing here has been refactored yet. Every proposal keeps behaviour unchanged and can be landed alone, with the existing gates as the safety net.
+Requested by the user: "begin an audit of the project and suggest refactors to keep the code base clean, modular and scalable, e.g. reducing the size of main.cpp". The original audit was read-only. Implementation progress is recorded below and in [REFACTOR_REPORT.md](REFACTOR_REPORT.md); the original measurements remain historical. Every proposal preserves behavior and can be landed in verified increments.
+
+## Implementation checkpoint, 14 October 2026
+
+| Proposal | Current state |
+| --- | --- |
+| 1. EditorApp and feature services | Pending. Main is 298,511 bytes, down 17.3%; it still owns lifecycle/services and substantial exercise, gameplay and rendering code. |
+| 2. Exercise harness | Partial. All 77 CLI spellings and their prerequisite flags are in a compatibility registry; ScriptRunner and world placement are extracted; an Exercise interface and authoring-source scenario implementation use narrow contexts. Other scenario bodies, input synthesis and assertions remain in main. |
+| 3. Hub headers | Pending. Measured world_session object fan-out is 67 after the two new exercise translation units, versus 65 at the fresh baseline. |
+| 4. Runtime responsibility splits | Pending. No runtime subsystem split is claimed. |
+| 5. Formatting and shared utilities | Partial. `.clang-format` added; foundation `check.hpp` is used by new exercise/option units. Extracted files receive a separate formatting-only commit; repository-wide formatting and JSON helpers are deferred. |
+| 6. Inspector building blocks | Pending. No prefab, Add component or Scene camera feature was implemented. |
+| 7. CMake, tests and PCH | Pending. CMake only registers the new editor translation units. Native authoring executables and compiler/linker policy are unchanged. |
+
+Fresh baseline closes the previously open M8 party-travel gate. Step 1a passes the guarded build, 14-test native subset, all 67 exercise cases with explicit retained-native qualification, fresh 6-gate M8 slice and 7 separate-process party gates. Step 1b passes its affected authoring/UI/creation/preview checks. Detailed timings, failed and final receipts, ownership boundaries and remaining work are in the refactor report. The full refactor is incomplete.
 
 ## Measurements
 
