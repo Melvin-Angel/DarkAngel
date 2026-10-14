@@ -16,6 +16,7 @@ Tooling reads or writes these by path, so they stay at this level: [PACKAGING.md
 
 - [M8_REPORT.md](current/M8_REPORT.md): world state, inventory, scene transitions and co-op progression, the latest milestone. [M8_BRIEF.md](current/M8_BRIEF.md) is the user's scope for it.
 - [REFACTOR_REPORT.md](current/REFACTOR_REPORT.md): the audit-driven refactor in progress, with step results, metrics and what remains. The task itself is [CODEX_REFACTOR_PROMPT.md](current/CODEX_REFACTOR_PROMPT.md), the findings it acts on are [CODEBASE_AUDIT.md](current/CODEBASE_AUDIT.md) and [BUILD_PERFORMANCE_REPORT.md](current/BUILD_PERFORMANCE_REPORT.md).
+- [EXTENSIBILITY_AUDIT.md](current/EXTENSIBILITY_AUDIT.md): how hard a second game (for example a third-person shooter) would be on this engine, and what to change first.
 - [BOOTSTRAP.md](current/BOOTSTRAP.md) and [LATER_DEPENDENCY_RECIPES.md](current/LATER_DEPENDENCY_RECIPES.md): how the toolchain and dependencies are reproduced.
 - [ROYAL_SCENE.md](current/ROYAL_SCENE.md): the Royal District scene target the gates and hand tests use.
 
