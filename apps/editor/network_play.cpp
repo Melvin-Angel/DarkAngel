@@ -103,6 +103,7 @@ void EditorPartyHost::resume(){check(impl_->party.resume(),"Party resumed before
 void EditorPartyHost::cancel(std::string_view){/* No scene offer has been sent before the coordinator swaps. */}
 std::string EditorPartyHost::status()const{const auto& p=*impl_;return !p.settled?"Waiting for players":p.pending?"Connecting players to the scene":"Waiting for players to prepare";}
 std::size_t EditorPartyHost::members()const{return impl_->party.members().size();}
+std::vector<PartyMember> EditorPartyHost::roster()const{return impl_->party.members();}
 std::vector<PartyDrop> EditorPartyHost::drain_drops(){auto value=std::move(impl_->drops);impl_->drops.clear();return value;}
 std::uint64_t EditorPartyHost::epoch()const{return impl_->epoch;}
 void EditorPartyHost::stop(){auto& p=*impl_;if(p.stopped)return;for(auto& child:p.children)if(child)child->stop();p.stopped=true;p.pending.reset();p.active.reset();for(auto& link:p.controls)link.reset();}
@@ -134,6 +135,7 @@ void EditorPartyGuest::pump(){auto& p=*impl_;if(p.finished)return;p.party->pump(
 }
 CharacterSceneSession* EditorPartyGuest::session()const{return impl_->session.get();}
 const PreparedScene* EditorPartyGuest::scene()const{return impl_->prepared.get();}
+std::vector<PartyMember> EditorPartyGuest::roster()const{const auto& offer=impl_->party->offer();return offer?offer->destination.members:std::vector<PartyMember>{};}
 StableId EditorPartyGuest::owner()const{return impl_->owner;}
 bool EditorPartyGuest::running()const{return impl_->party->phase()==PartyPhase::Running&&!impl_->party->held()&&impl_->session&&impl_->session->bootstrapped();}
 bool EditorPartyGuest::held()const{return impl_->party->held();}

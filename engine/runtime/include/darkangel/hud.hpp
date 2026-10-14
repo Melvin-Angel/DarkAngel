@@ -3,9 +3,14 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace Rml {class RenderInterface;}
 namespace darkangel {
+struct HudWorldMarker {
+    std::string label;float x{},y{},width{},font{},height{},percent{};bool health_bar{};
+    bool operator==(const HudWorldMarker&)const=default;
+};
 // Native view model of the combat HUD: plain values copied from the owner's confirmed
 // snapshot and the public target state. The HUD presents it and decides nothing.
 struct HudViewModel {
@@ -24,6 +29,7 @@ struct HudViewModel {
     std::string prompt;
     // The party is travelling between scenes: a full-screen loading panel with a status line and progress 0 to 1.
     bool loading{};std::string loading_text;double loading_progress{};
+    std::vector<HudWorldMarker> world_markers;
     bool operator==(const HudViewModel&)const=default;
 };
 // One runtime HUD: an RmlUi context, one game-owned document and a data model bound to

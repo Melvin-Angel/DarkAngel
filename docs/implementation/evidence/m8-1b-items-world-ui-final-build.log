@@ -1,0 +1,132 @@
+[1/270] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[2/268] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
+[3/266] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[4/264] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[5/262] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[6/260] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[7/258] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
+[8/256] Generating CXX dyndep file CMakeFiles\PhysicsQuerySensorTests.dir\CXX.dd
+[9/254] Generating CXX dyndep file CMakeFiles\MotorBudgetTests.dir\CXX.dd
+[10/252] Generating CXX dyndep file CMakeFiles\PlatformAxesTests.dir\CXX.dd
+[11/250] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[12/248] Generating CXX dyndep file CMakeFiles\EditorCli.dir\CXX.dd
+[13/246] Generating CXX dyndep file CMakeFiles\NativeSourceEditTests.dir\CXX.dd
+[14/245] Generating CXX dyndep file CMakeFiles\TagCodegenTests.dir\CXX.dd
+[15/244] Generating CXX dyndep file CMakeFiles\AnimationTests.dir\CXX.dd
+[16/243] Generating CXX dyndep file CMakeFiles\AnimationClipTests.dir\CXX.dd
+[17/242] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
+[18/241] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
+[19/240] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
+[20/239] Generating CXX dyndep file CMakeFiles\AuthoredEffectGnsTests.dir\CXX.dd
+[21/238] Generating CXX dyndep file CMakeFiles\GameplayDebugTests.dir\CXX.dd
+[22/236] Generating CXX dyndep file CMakeFiles\ActorAssetTests.dir\CXX.dd
+[23/235] Generating CXX dyndep file CMakeFiles\AttributeAuthoringTests.dir\CXX.dd
+[24/233] Generating CXX dyndep file CMakeFiles\ComposerStructureTests.dir\CXX.dd
+[25/231] Generating CXX dyndep file CMakeFiles\ComposerPreviewTests.dir\CXX.dd
+[26/228] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[27/225] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
+[28/222] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[29/221] Generating CXX dyndep file CMakeFiles\SceneDelayTests.dir\CXX.dd
+[30/220] Generating CXX dyndep file CMakeFiles\PartySceneTests.dir\CXX.dd
+[31/219] Generating CXX dyndep file CMakeFiles\SceneTransitionTests.dir\CXX.dd
+[32/218] Generating CXX dyndep file CMakeFiles\NavigationTests.dir\CXX.dd
+[33/217] Generating CXX dyndep file CMakeFiles\BehaviorTreeTests.dir\CXX.dd
+[34/216] Generating CXX dyndep file CMakeFiles\ObservedCharacterPoseTests.dir\CXX.dd
+[35/215] Generating CXX dyndep file CMakeFiles\ReactionPresentationTests.dir\CXX.dd
+[36/214] Generating CXX dyndep file CMakeFiles\RoyalHeavySceneTests.dir\CXX.dd
+[37/213] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[38/212] Generating CXX dyndep file CMakeFiles\JointMaskTests.dir\CXX.dd
+[39/211] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[40/210] Generating CXX dyndep file CMakeFiles\EffectAssetTests.dir\CXX.dd
+[41/209] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[42/208] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[43/207] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
+[44/206] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
+[45/205] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
+[46/204] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[47/202] Generating CXX dyndep file CMakeFiles\CollisionObserverTests.dir\CXX.dd
+[48/200] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[49/199] Generating CXX dyndep file CMakeFiles\ExternalImportTests.dir\CXX.dd
+[50/198] Generating CXX dyndep file CMakeFiles\AttributeTests.dir\CXX.dd
+[51/196] Generating CXX dyndep file CMakeFiles\CombatKitTests.dir\CXX.dd
+[52/194] Generating CXX dyndep file CMakeFiles\InputTests.dir\CXX.dd
+[53/193] Generating CXX dyndep file CMakeFiles\CueAssetTests.dir\CXX.dd
+[54/192] Generating CXX dyndep file CMakeFiles\PresentationPrimitiveTests.dir\CXX.dd
+[55/191] Generating CXX dyndep file CMakeFiles\VfxAssetTests.dir\CXX.dd
+[56/190] Generating CXX dyndep file CMakeFiles\RendererProbe.dir\CXX.dd
+[57/188] Generating CXX dyndep file CMakeFiles\AudioTests.dir\CXX.dd
+[58/187] Generating CXX dyndep file CMakeFiles\AudioAuthoringTests.dir\CXX.dd
+[59/186] Generating CXX dyndep file CMakeFiles\NativeInputTests.dir\CXX.dd
+[60/183] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[61/181] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[62/179] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[63/177] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[64/175] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[65/173] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[66/171] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[67/169] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
+[68/167] Generating CXX dyndep file CMakeFiles\EffectGnsTests.dir\CXX.dd
+[69/165] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[70/163] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
+[71/161] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
+[72/159] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[73/157] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[74/155] Generating CXX dyndep file CMakeFiles\EffectTests.dir\CXX.dd
+[75/153] Generating CXX dyndep file CMakeFiles\EffectBudgetTests.dir\CXX.dd
+[76/151] Generating CXX dyndep file CMakeFiles\AbilityTagTests.dir\CXX.dd
+[77/149] Generating CXX dyndep file CMakeFiles\ActionTagTests.dir\CXX.dd
+[78/147] Generating CXX dyndep file CMakeFiles\EncounterTests.dir\CXX.dd
+[79/145] Generating CXX dyndep file CMakeFiles\WorldLedgerTests.dir\CXX.dd
+[80/143] Generating CXX dyndep file CMakeFiles\CameraTests.dir\CXX.dd
+[81/141] Generating CXX dyndep file CMakeFiles\InventoryTests.dir\CXX.dd
+[82/139] Generating CXX dyndep file CMakeFiles\PartyControlTests.dir\CXX.dd
+[83/137] Generating CXX dyndep file CMakeFiles\CuePlayerTests.dir\CXX.dd
+[84/135] Generating CXX dyndep file CMakeFiles\EffectReplicationTests.dir\CXX.dd
+[85/133] Generating CXX dyndep file CMakeFiles\AbilityReservationTests.dir\CXX.dd
+[86/131] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[87/129] Generating CXX dyndep file CMakeFiles\CombatEffectTests.dir\CXX.dd
+[88/127] Linking CXX executable NativeSourceEditTests.exe
+[89/127] Linking CXX executable AnimationClipTests.exe
+[90/127] Linking CXX executable TagCodegenTests.exe
+[91/127] Linking CXX executable AnimationTests.exe
+[92/127] Linking CXX executable AnimationGraphTests.exe
+[93/127] Linking CXX executable GraphAssetTests.exe
+[94/127] Linking CXX executable CombatKitAssetTests.exe
+[95/127] Linking CXX executable AuthoredEffectGnsTests.exe
+FAILED: [code=4294967295] AuthoredEffectGnsTests.exe 
+C:\Windows\system32\cmd.exe /C "cd . && C:\DarkAngel\.tools\cmake\cmake-4.4.4-windows-x86_64\bin\cmake.exe -E vs_link_exe --msvc-ver=1951 --intdir=CMakeFiles\AuthoredEffectGnsTests.dir --rc="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\rc.exe" --mt="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\mt.exe" --manifests  -- "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe" /nologo @CMakeFiles\AuthoredEffectGnsTests.rsp  /out:AuthoredEffectGnsTests.exe /implib:AuthoredEffectGnsTests.lib /pdb:AuthoredEffectGnsTests.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console && C:\Windows\system32\cmd.exe /C "cd /D C:\DarkAngel\build\m5-editor-relwithdebinfo && C:\DarkAngel\.tools\vcpkg\vcpkg.exe z-applocal --target-binary=C:/DarkAngel/build/m5-editor-relwithdebinfo/AuthoredEffectGnsTests.exe --installed-bin-dir=C:/DarkAngel/build/m5-editor-relwithdebinfo/vcpkg_installed/x64-windows-darkangel/bin""
+LINK Pass 1: command "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\AuthoredEffectGnsTests.rsp /out:AuthoredEffectGnsTests.exe /implib:AuthoredEffectGnsTests.lib /pdb:AuthoredEffectGnsTests.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console /MANIFEST /MANIFESTFILE:CMakeFiles\AuthoredEffectGnsTests.dir/intermediate.manifest CMakeFiles\AuthoredEffectGnsTests.dir/manifest.res" failed (exit code 1103) with the following output:
+libprotobuf.lib(feature_resolver.cc.obj) : fatal error LNK1103: debugging information corrupt; recompile module
+[96/127] Linking CXX executable ActorAssetTests.exe
+[97/127] Linking CXX executable AttributeAuthoringTests.exe
+[98/127] Linking CXX executable ComposerStructureTests.exe
+[99/127] Linking CXX executable ComposerPreviewTests.exe
+[100/127] Linking CXX executable NativeAuthoringTests.exe
+[101/127] Linking CXX executable RoyalCollisionTests.exe
+[102/127] Linking CXX executable SceneDelayTests.exe
+[103/127] Linking CXX executable CharacterCombatSceneTests.exe
+[104/127] Linking CXX executable PartySceneTests.exe
+[105/127] Linking CXX executable BehaviorTreeTests.exe
+[106/127] Linking CXX executable SceneTransitionTests.exe
+[107/127] Linking CXX executable ObservedCharacterPoseTests.exe
+[108/127] Linking CXX executable NavigationTests.exe
+[109/127] Linking CXX executable ReactionPresentationTests.exe
+[110/127] Linking CXX executable RoyalHeavySceneTests.exe
+[111/127] Linking CXX executable CharacterSceneTests.exe
+[112/127] Linking CXX executable RenderableHumanTests.exe
+[113/127] Linking CXX executable JointMaskTests.exe
+[114/127] Linking CXX executable AbilityAssetTests.exe
+[115/127] Linking CXX executable EffectAssetTests.exe
+[116/127] Linking CXX executable ActionClipBindingTests.exe
+[117/127] Linking CXX executable CollisionAssetTests.exe
+[118/127] Linking CXX executable CollisionMeshTests.exe
+[119/127] Linking CXX executable AssetTests.exe
+[120/127] Linking CXX executable ActionTimelineTests.exe
+[121/127] Linking CXX executable ExternalImportTests.exe
+[122/127] Linking CXX executable CueAssetTests.exe
+[123/127] Linking CXX executable InputTests.exe
+[124/127] Linking CXX executable PresentationPrimitiveTests.exe
+[125/127] Linking CXX executable AudioAuthoringTests.exe
+[126/127] Linking CXX executable VfxAssetTests.exe
+[127/127] Linking CXX executable AudioTests.exe
+ninja: build stopped: cannot make progress due to previous errors.

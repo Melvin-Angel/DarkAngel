@@ -10,7 +10,8 @@ nlohmann::json reference(AssetId value){return value==AssetId{}?nlohmann::json(n
 ItemDefinition decode_item_definition(std::string_view text){
     require(text.size()<=16384,"Item source size bound");
     const auto data=nlohmann::json::parse(text,[](int depth,nlohmann::json::parse_event_t,nlohmann::json&){require(depth<=4,"Item source depth bound");return true;});
-    require(data.is_object()&&data.size()==13&&data.at("schema")==1&&data.at("kind")=="item","Item source schema/shape");
+    require(data.is_object()&&data.size()==13+unsigned(data.contains("sources"))&&data.at("schema")==1&&data.at("kind")=="item","Item source schema/shape");
+    if(data.contains("sources"))require(data.at("sources").is_object()&&data.at("sources").size()<=3,"Item source locator bound");
     require(data.at("stack_limit").is_number_unsigned(),"Item stack limit must be unsigned");
     const auto stack=data.at("stack_limit").get<std::uint64_t>();require(stack&&stack<=1000000,"Item stack limit bound");
     ItemDefinition result;result.id=AssetId::parse(data.at("asset").get<std::string>());result.name=data.at("name").get<std::string>();result.description=data.at("description").get<std::string>();result.classification=data.at("classification").get<std::string>();

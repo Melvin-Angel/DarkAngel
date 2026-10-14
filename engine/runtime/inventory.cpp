@@ -18,7 +18,7 @@ void shape(const InventorySnapshot& value){
 }
 }
 ItemCatalog::ItemCatalog(){
-    register_kind({"key"});register_kind({"material"});register_kind({"quest"});
+    register_kind({"regular"});register_kind({"key"});register_kind({"material"});register_kind({"quest"});
     register_kind({"consumable",true});register_kind({"mask",false,true,true});
 }
 void ItemCatalog::register_kind(ItemKind kind){

@@ -24,9 +24,19 @@ div { display: block; }
 #loading-text { position: absolute; left: 0px; right: 0px; top: 50%; text-align: center; font-size: 15px; color: #b9b2a6; }
 #loading-bar { position: absolute; left: 30%; width: 40%; top: 57%; height: 8px; background-color: #1d2128; border: 1px #000000a0; }
 .progress { background-color: #c9a45c; }
+.world-marker { position: absolute; text-align: center; color: #f2ede4; pointer-events: none; }
+.world-caption { background-color: #101216c8; border-radius: 3px; padding: 2px; }
+.world-health { position: relative; background-color: #101216d8; border: 1px #000000a0; margin-top: 3px; }
+.world-fill { background-color: #c4762a; height: 100%; }
 </style>
 </head>
 <body data-model="hud">
+<div id="world-ui" data-if="!loading">
+<div class="world-marker" data-for="marker, marker_index : world_markers" data-attr-id="'world-marker-' + marker_index" data-style-left="marker.x + 'px'" data-style-top="marker.y + 'px'" data-style-width="marker.width + 'px'" data-style-font-size="marker.font + 'px'">
+<div class="world-caption">{{marker.label}}</div>
+<div class="world-health" data-if="marker.health_bar" data-style-height="marker.height + 'px'"><div class="world-fill" data-style-width="marker.percent + '%'"></div></div>
+</div>
+</div>
 <div id="target" class="panel" data-if="has_target">
 	<div id="target-name" class="caption">{{target_name}}</div>
 	<div id="target-bar" class="bar"><div id="target-fill" class="fill enemy" data-style-width="target_percent + '%'"></div><div id="target-text" class="label">{{target_text}}</div></div>

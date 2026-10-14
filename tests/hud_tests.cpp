@@ -1,4 +1,5 @@
 #include <darkangel/hud.hpp>
+#include <darkangel/world_ui.hpp>
 #include <ashen_roots/royal_hud.hpp>
 #include <RmlUi/Core/RenderInterface.h>
 #include <cmath>
@@ -31,10 +32,13 @@ int main(){try{
     auto mapped=ashen_roots::royal_hud(owner,schema,Health{100,60});
     check(mapped==HudViewModel{75,100,85,100,true,true,60,100},"Royal state did not map to the HUD view model");
     check(!ashen_roots::royal_hud(owner,schema,std::nullopt).has_target,"HUD invented a target");
+    WorldUiCamera camera;camera.width=800;camera.height=600;camera.view={1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};camera.projection={1,0,0,0,0,1,0,0,0,0,-1,-1,0,0,-.1f,0};
+    auto projected=project_world_ui(camera,0,0,-6);check(projected&&near(projected->x,400)&&near(projected->y,300)&&near(projected->scale,1),"World UI centre projection failed");auto further=project_world_ui(camera,1,1,-12);check(further&&further->x>400&&further->y<300&&further->scale<projected->scale,"World UI distance/translation failed");check(!project_world_ui(camera,0,0,1)&&!project_world_ui(camera,100,0,-6)&&!project_world_ui(camera,0,0,-.01),"World UI behind/offscreen/near clipping failed");camera.width=400;camera.height=300;check(near(project_world_ui(camera,0,0,-6)->x,200),"World UI viewport resize failed");
     Recorder recorder;
     {
         Hud hud(recorder,document,font,1280,720);
         bool second=false;try{Hud other(recorder,document,font,1280,720);}catch(const std::exception&){second=true;}check(second,"A second HUD was allowed");
+        {auto world=mapped;world.world_markers={{"Royal Guard",300,100,140,13,7,75,true},{"Player 2 (Client)",600,160,160,13,7,0,false}};hud.update(world);hud.render();auto first=hud.box("world-marker-0"),second=hud.box("world-marker-1");check(first&&second&&near(first->x,300)&&near(first->y,100)&&near(first->width,140),"Projected world UI Rml layout failed");world.world_markers[0].x=250;world.world_markers[0].width=70;hud.update(world);check(near(hud.box("world-marker-0")->x,250)&&near(hud.box("world-marker-0")->width,70),"World UI movement/scaling failed");world.loading=true;hud.update(world);check(!hud.box("world-marker-0"),"World UI remained visible while loading");world.loading=false;world.world_markers.clear();hud.update(world);check(!hud.box("world-marker-0"),"World UI retained despawned markers");}
         hud.update(mapped);hud.render();check(hud.text("target-name")=="Target"&&!hud.box("crosshair"),"HUD target caption fallback or stray crosshair");{auto aimed=mapped;aimed.crosshair=true;hud.update(aimed);auto mark=hud.box("crosshair");check(mark&&near(mark->x+mark->width/2,640,2.f),"HUD crosshair is not at the screen centre while aiming");hud.update(mapped);}{auto named=mapped;named.target_name="Royal Guard";hud.update(named);check(hud.text("target-name")=="Royal Guard","HUD does not show the target name");hud.update(mapped);}
         auto bar=hud.box("health-bar"),fill=hud.box("health-fill"),player=hud.box("player"),target=hud.box("target"),stamina=hud.box("stamina-fill"),enemy=hud.box("target-fill");
         check(bar&&fill&&player&&target&&stamina&&enemy,"HUD document lost a bound element");

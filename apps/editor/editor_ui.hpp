@@ -10,7 +10,7 @@
 #include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio};
+enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -25,7 +25,7 @@ public:
     struct PlaceItem {AssetId id;std::string name,category;bool npc{};int gameplay{};};
     std::vector<PlaceItem> place_items;std::size_t place_signature{};std::string place_category;char place_filter[64]{};
     // Height of the ground plane a drop lands on, and the scene camera of the latest frame for turning a drop position into a point on it.
-    double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{};bool scene_camera{};
+    double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{},game_view_second{},game_projection_second{};bool scene_camera{};
     void refresh_place_items(Controller&);
     // Places one item as a new scene object at a ground position and selects it; one document edit, so Undo removes it.
     // Without a height the object lands on the scene collision below (x, z), or at place_height where there is none.
@@ -102,6 +102,8 @@ public:
     std::function<void()> draw_vfx_panel;
     // The Audio tab: supplied by the host, which owns the audio service.
     std::function<void()> draw_audio_panel;
+    void draw_items(Controller&,unsigned,unsigned,float);
+    AssetId item_selection,item_create_mask;int item_create_kind{};char item_name[129]{"New item"},item_filter[129]{};
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).
     std::function<void(ImDrawList*,ViewArea)> game_overlay;

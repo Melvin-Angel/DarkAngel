@@ -95,6 +95,8 @@ public:
     PreparedNativeEdit prepare_native(std::span<const NativeSourceEdit>,std::span<const AssetId> scene_roots={});
     std::vector<CookResult> commit_native(const PreparedNativeEdit&);
     CookResult create_native(std::string_view relative_source,std::string_view draft); // fresh owned UUID/path; validates before cook
+    // Unreferenced item only. Stale writes reject; source bytes are archived in the cache.
+    std::filesystem::path delete_item(std::string_view relative_source,std::string_view expected_source_sha256);
     void package(AssetId root,const std::filesystem::path& registry,std::span<const AssetId> additional_roots={}) const;
     std::filesystem::path cas_path() const;
     std::uint64_t conversion_count() const;

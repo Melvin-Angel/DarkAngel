@@ -1,0 +1,244 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+        Start   1: M5.ability_motor_prediction
+  1/101 Test   #1: M5.ability_motor_prediction ......   Passed    0.10 sec
+        Start   2: M4.session
+  2/101 Test   #2: M4.session .......................   Passed    0.33 sec
+        Start   3: M4.faults
+  3/101 Test   #3: M4.faults ........................   Passed    0.35 sec
+        Start   4: M4.motor
+  4/101 Test   #4: M4.motor .........................   Passed    0.11 sec
+        Start   5: M4.actor_history
+  5/101 Test   #5: M4.actor_history .................   Passed    0.11 sec
+        Start   6: M4.dynamic_proxies
+  6/101 Test   #6: M4.dynamic_proxies ...............   Passed    0.08 sec
+        Start   7: M5.authoritative_melee
+  7/101 Test   #7: M5.authoritative_melee ...........   Passed    0.24 sec
+        Start   8: M4.queries_sensors
+  8/101 Test   #8: M4.queries_sensors ...............   Passed    0.10 sec
+        Start   9: M4.local_budgets
+  9/101 Test   #9: M4.local_budgets .................   Passed    0.26 sec
+        Start  10: M4.platform_axes
+ 10/101 Test  #10: M4.platform_axes .................   Passed    0.13 sec
+        Start  11: M5.tag_constants
+ 11/101 Test  #11: M5.tag_constants .................   Passed    0.22 sec
+        Start  12: M5.native_source_edit
+ 12/101 Test  #12: M5.native_source_edit ............   Passed    1.20 sec
+        Start  13: M5.canonical_rig
+ 13/101 Test  #13: M5.canonical_rig .................   Passed    1.30 sec
+        Start  14: M5.clips
+ 14/101 Test  #14: M5.clips .........................   Passed    1.90 sec
+        Start  15: M5.omni_clips
+ 15/101 Test  #15: M5.omni_clips ....................   Passed    1.53 sec
+        Start  16: M5.combat_kit_assets
+ 16/101 Test  #16: M5.combat_kit_assets .............   Passed    2.27 sec
+        Start  17: M5.graph_assets
+ 17/101 Test  #17: M5.graph_assets ..................   Passed    1.69 sec
+        Start  18: M5.graph_runtime
+ 18/101 Test  #18: M5.graph_runtime .................   Passed    0.64 sec
+        Start  19: M5.gameplay_debug
+ 19/101 Test  #19: M5.gameplay_debug ................   Passed    0.05 sec
+        Start  20: M5.composer_structure
+ 20/101 Test  #20: M5.composer_structure ............   Passed   16.56 sec
+        Start  21: M5.composer_preview
+ 21/101 Test  #21: M5.composer_preview ..............   Passed    0.31 sec
+        Start  22: M4.royal_mesh_collision
+ 22/101 Test  #22: M4.royal_mesh_collision ..........   Passed    5.24 sec
+        Start  23: M5.character_combat_scene
+ 23/101 Test  #23: M5.character_combat_scene ........   Passed    5.82 sec
+        Start  24: M8.party_scene
+ 24/101 Test  #24: M8.party_scene ...................   Passed    1.38 sec
+        Start  25: M8.scene_delay
+ 25/101 Test  #25: M8.scene_delay ...................   Passed    1.67 sec
+        Start  26: M8.scene_transition
+ 26/101 Test  #26: M8.scene_transition ..............   Passed    1.67 sec
+        Start  27: M6.navigation
+ 27/101 Test  #27: M6.navigation ....................   Passed    1.27 sec
+        Start  28: M6.behavior_tree
+ 28/101 Test  #28: M6.behavior_tree .................   Passed    6.73 sec
+        Start  29: M5.observed_character_pose
+ 29/101 Test  #29: M5.observed_character_pose .......   Passed    0.26 sec
+        Start  30: M5.reaction_presentation
+ 30/101 Test  #30: M5.reaction_presentation .........   Passed    0.31 sec
+        Start  31: M5.royal_heavy_scene
+ 31/101 Test  #31: M5.royal_heavy_scene .............   Passed    1.79 sec
+        Start  32: M5.character_scene
+ 32/101 Test  #32: M5.character_scene ...............   Passed    1.26 sec
+        Start  33: M5.joint_masks
+ 33/101 Test  #33: M5.joint_masks ...................   Passed    0.64 sec
+        Start  34: M5.renderable_human
+ 34/101 Test  #34: M5.renderable_human ..............   Passed    0.73 sec
+        Start  35: M5.effect_assets
+ 35/101 Test  #35: M5.effect_assets .................   Passed    0.70 sec
+        Start  36: M5.ability_assets
+ 36/101 Test  #36: M5.ability_assets ................   Passed    0.99 sec
+        Start  37: M4.collision_assets
+ 37/101 Test  #37: M4.collision_assets ..............   Passed    0.31 sec
+        Start  38: M5.action_clip_binding
+ 38/101 Test  #38: M5.action_clip_binding ...........   Passed    0.68 sec
+        Start  39: M5.action_timeline
+ 39/101 Test  #39: M5.action_timeline ...............   Passed    0.32 sec
+        Start  40: M4.collision_meshes
+ 40/101 Test  #40: M4.collision_meshes ..............   Passed    0.30 sec
+        Start  41: M4.collision_stream
+ 41/101 Test  #41: M4.collision_stream ..............   Passed    0.22 sec
+        Start  42: M4.collision_observer
+ 42/101 Test  #42: M4.collision_observer ............   Passed    0.09 sec
+        Start  43: M2.asset_pipeline
+ 43/101 Test  #43: M2.asset_pipeline ................   Passed    0.48 sec
+        Start  44: M5.external_import
+ 44/101 Test  #44: M5.external_import ...............   Passed    2.30 sec
+        Start  45: M5.attributes
+ 45/101 Test  #45: M5.attributes ....................   Passed    0.08 sec
+        Start  46: M5.combat_kit
+ 46/101 Test  #46: M5.combat_kit ....................   Passed    0.06 sec
+        Start  47: M4.input_actions
+ 47/101 Test  #47: M4.input_actions .................   Passed    0.24 sec
+        Start  48: M7.cue_assets
+ 48/101 Test  #48: M7.cue_assets ....................   Passed    0.68 sec
+        Start  49: M7.presentation_primitives
+ 49/101 Test  #49: M7.presentation_primitives .......   Passed    0.38 sec
+        Start  50: M7.vfx_assets
+ 50/101 Test  #50: M7.vfx_assets ....................   Passed    7.89 sec
+        Start  51: M2.real_prop
+ 51/101 Test  #51: M2.real_prop .....................   Passed    0.93 sec
+        Start  52: M7.audio
+ 52/101 Test  #52: M7.audio .........................   Passed    2.35 sec
+        Start  53: M7.audio_authoring
+ 53/101 Test  #53: M7.audio_authoring ...............   Passed    7.95 sec
+        Start  54: M5.hud
+ 54/101 Test  #54: M5.hud ...........................   Passed    0.13 sec
+        Start  55: M4.native_input
+ 55/101 Test  #55: M4.native_input ..................   Passed    0.07 sec
+        Start  56: M2.device_d3d12
+ 56/101 Test  #56: M2.device_d3d12 ..................   Passed    0.21 sec
+        Start  57: M2.device_vulkan
+ 57/101 Test  #57: M2.device_vulkan .................   Passed    0.25 sec
+        Start  58: M2.editor_transactions
+ 58/101 Test  #58: M2.editor_transactions ...........   Passed    0.16 sec
+        Start  59: FlecsProbe
+ 59/101 Test  #59: FlecsProbe .......................   Passed    0.60 sec
+        Start  60: LuauProbe
+ 60/101 Test  #60: LuauProbe ........................   Passed    0.07 sec
+        Start  61: SQLiteProbe
+ 61/101 Test  #61: SQLiteProbe ......................   Passed    0.13 sec
+        Start  62: HeadlessSmoke
+ 62/101 Test  #62: HeadlessSmoke ....................   Passed    0.08 sec
+        Start  63: M1.identity
+ 63/101 Test  #63: M1.identity ......................   Passed    0.08 sec
+        Start  64: M1.scene
+ 64/101 Test  #64: M1.scene .........................   Passed    0.03 sec
+        Start  65: M1.phases
+ 65/101 Test  #65: M1.phases ........................   Passed    0.02 sec
+        Start  66: M1.scripts
+ 66/101 Test  #66: M1.scripts .......................   Passed    0.09 sec
+        Start  67: M1.reload
+ 67/101 Test  #67: M1.reload ........................   Passed    0.06 sec
+        Start  68: M1.limits
+ 68/101 Test  #68: M1.limits ........................   Passed    0.06 sec
+        Start  69: M2.assemblies
+ 69/101 Test  #69: M2.assemblies ....................   Passed    0.16 sec
+        Start  70: M2.cook_scene_fixture
+ 70/101 Test  #70: M2.cook_scene_fixture ............   Passed    0.06 sec
+        Start  71: M2.cooked_scene_headless
+ 71/101 Test  #71: M2.cooked_scene_headless .........   Passed    0.06 sec
+        Start  72: M5.effect_gns
+ 72/101 Test  #72: M5.effect_gns ....................   Passed    1.63 sec
+        Start  73: M5.ability_observer
+ 73/101 Test  #73: M5.ability_observer ..............   Passed    0.24 sec
+        Start  74: M5.ability_prediction
+ 74/101 Test  #74: M5.ability_prediction ............   Passed    0.09 sec
+        Start  75: M5.ability_intent
+ 75/101 Test  #75: M5.ability_intent ................   Passed    0.17 sec
+        Start  76: M5.ability_correction
+ 76/101 Test  #76: M5.ability_correction ............   Passed    0.15 sec
+        Start  77: M5.effect_budget
+ 77/101 Test  #77: M5.effect_budget .................   Passed    0.12 sec
+        Start  78: M5.camera
+ 78/101 Test  #78: M5.camera ........................   Passed    0.06 sec
+        Start  79: M6.encounters
+ 79/101 Test  #79: M6.encounters ....................   Passed    0.04 sec
+        Start  80: M8.item_assets
+ 80/101 Test  #80: M8.item_assets ...................***Failed    1.21 sec
+Asset already has metadata; preserve its identity
+
+        Start  81: M8.inventory
+ 81/101 Test  #81: M8.inventory .....................   Passed    0.07 sec
+        Start  82: M8.world_ledger
+ 82/101 Test  #82: M8.world_ledger ..................   Passed    0.05 sec
+        Start  83: M8.party_control
+ 83/101 Test  #83: M8.party_control .................   Passed    0.04 sec
+        Start  84: M7.cue_player
+ 84/101 Test  #84: M7.cue_player ....................   Passed    0.04 sec
+        Start  85: M5.combat_effects
+ 85/101 Test  #85: M5.combat_effects ................   Passed    0.17 sec
+        Start  86: M5.ability_reservations
+ 86/101 Test  #86: M5.ability_reservations ..........   Passed    0.35 sec
+        Start  87: M5.effect_replication
+ 87/101 Test  #87: M5.effect_replication ............   Passed    0.34 sec
+        Start  88: M5.action_tags
+ 88/101 Test  #88: M5.action_tags ...................   Passed    0.51 sec
+        Start  89: M5.ability_tags
+ 89/101 Test  #89: M5.ability_tags ..................   Passed    0.52 sec
+        Start  90: M5.owned_effects
+ 90/101 Test  #90: M5.owned_effects .................   Passed    0.66 sec
+        Start  91: M5.ability_commit
+ 91/101 Test  #91: M5.ability_commit ................   Passed    0.96 sec
+        Start  92: M3.authority
+ 92/101 Test  #92: M3.authority .....................   Passed    0.97 sec
+        Start  93: M3.loopback
+ 93/101 Test  #93: M3.loopback ......................   Passed    0.03 sec
+        Start  94: M3.gns_lan
+ 94/101 Test  #94: M3.gns_lan .......................   Passed    0.66 sec
+        Start  95: M1.imports
+ 95/101 Test  #95: M1.imports .......................   Passed    0.37 sec
+        Start  96: M1.tasks
+ 96/101 Test  #96: M1.tasks .........................   Passed    0.16 sec
+        Start  97: M1.cooked
+ 97/101 Test  #97: M1.cooked ........................   Passed    0.17 sec
+        Start  98: M1.state
+ 98/101 Test  #98: M1.state .........................   Passed    0.35 sec
+        Start  99: M1.bindings
+ 99/101 Test  #99: M1.bindings ......................   Passed    0.38 sec
+        Start 100: M1.cook_fixture
+100/101 Test #100: M1.cook_fixture ..................   Passed    0.25 sec
+        Start 101: M1.cooked_headless
+101/101 Test #101: M1.cooked_headless ...............   Passed    0.11 sec
+
+99% tests passed, 1 tests failed out of 101
+
+Label Time Summary:
+M0               =   0.80 sec*proc (3 tests)
+M1               =   2.14 sec*proc (13 tests)
+M2               =   2.31 sec*proc (8 tests)
+M3               =   1.66 sec*proc (3 tests)
+M4               =   1.42 sec*proc (6 tests)
+M5               =  26.46 sec*proc (16 tests)
+M7               =  18.87 sec*proc (4 tests)
+M8               =   4.77 sec*proc (4 tests)
+ability          =   0.96 sec*proc (1 test)
+animation        =   6.98 sec*proc (9 tests)
+asset            =  31.30 sec*proc (11 tests)
+audio            =  10.30 sec*proc (2 tests)
+authoring        =   0.64 sec*proc (1 test)
+combat           =   0.14 sec*proc (2 tests)
+cue              =   0.68 sec*proc (1 test)
+dependency       =   0.80 sec*proc (3 tests)
+device           =   0.45 sec*proc (2 tests)
+editor           =  17.17 sec*proc (4 tests)
+effects          =   1.94 sec*proc (2 tests)
+foundation       =   0.14 sec*proc (2 tests)
+input            =   0.32 sec*proc (2 tests)
+local-fixture    =   0.93 sec*proc (1 test)
+network          =   9.00 sec*proc (9 tests)
+physics          =   1.37 sec*proc (2 tests)
+platform         =   0.07 sec*proc (1 test)
+presentation     =   0.70 sec*proc (3 tests)
+session          =   0.96 sec*proc (1 test)
+ui               =   0.13 sec*proc (1 test)
+vfx              =   7.89 sec*proc (1 test)
+
+Total Test time (real) =  99.99 sec
+
+The following tests FAILED:
+	 80 - M8.item_assets (Failed)
+Errors while running CTest

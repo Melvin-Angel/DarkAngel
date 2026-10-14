@@ -53,6 +53,8 @@ public:
     void assign_player_kit(AssetService&,AssetId player,AssetId kit);
     // Masks: a Mask owns a kit and its worn visual; a Player equips up to four and selects one.
     AssetId create_mask(AssetService&,std::string_view name,AssetId kit,AssetId visual={});
+    AssetId create_item(AssetService&,std::string_view name,std::string_view classification,AssetId mask={});
+    void delete_item(AssetService&,AssetId);
     void equip_mask(AssetService&,AssetId player,unsigned slot,AssetId mask);
     void select_mask(AssetService&,AssetId player,unsigned slot);
     // Visual models of a Player's equipped masks; Play packages them as loadable roots.

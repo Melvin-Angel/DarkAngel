@@ -25,6 +25,7 @@ public:
     void cancel(std::string_view reason);
     std::string status()const;
     std::size_t members()const;
+    std::vector<PartyMember> roster()const;
     std::vector<PartyDrop> drain_drops();
     std::uint64_t epoch()const;
     void stop();
@@ -41,6 +42,7 @@ public:
     CharacterSceneSession* session()const;
     const PreparedScene* scene()const;
     StableId owner()const;
+    std::vector<PartyMember> roster()const;
     bool running()const;
     bool held()const;
     bool finished()const;
