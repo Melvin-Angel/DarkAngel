@@ -1,0 +1,110 @@
+{
+  "gates": [
+    {
+      "name": "native",
+      "exit": 0,
+      "seconds": 0.078
+    },
+    {
+      "name": "transactions",
+      "exit": 0,
+      "seconds": 0.015
+    },
+    {
+      "name": "session-authority",
+      "exit": 0,
+      "seconds": 0.547
+    },
+    {
+      "name": "gns-two-process",
+      "host_exit": 0,
+      "client_exit": 0,
+      "seconds": 1.375
+    }
+  ],
+  "source_hashes": {
+    "CMakeLists.txt": "620f990851715f30aa51309995a00b3d810e0a873d35e4e28f53766325ed83c9",
+    "apps/editor/main.cpp": "531316cd6568f68d800cd17ac05d110d5b2dee84d6775d70d3936bf0c2996f07",
+    "engine/runtime/world_session.cpp": "cf532b52e5237fd3b142c26a2e9faf3afc52e721c8218d60369e2a76c7a99462",
+    "engine/runtime/include/darkangel/world_session.hpp": "4cf49f557501ee0aa2724c9ad5b4a4872ac3937f64dc558842fb0221f7f3ff03",
+    "engine/runtime/owner_mailbox.hpp": "01480cc2c2e8b2031c1cf8de8b512b8dc853a75dfc589c5a3fde2c9067e0542c",
+    "engine/runtime/owner_mailbox.cpp": "1e8d44d8da5ce096173c56ae439c84f0f8434e8e13a93b76b894b6d95c538fc9",
+    "engine/runtime/include/darkangel/party_inventory.hpp": "60667bbf666ea21497257dbca5eee21102ea32eb7272bf61fb02ff261d6a1202",
+    "engine/runtime/party_inventory.cpp": "8ecfbb5a46c6058803f0a843d2ea16de6c33ba7f509eca0512b46bbe9ff559d2",
+    "engine/runtime/include/darkangel/inventory_session.hpp": "f9208f615f0b2d27ec38ddaf0bf2bde0ead88ea0ff5059db3eaee6f25a11e990",
+    "engine/runtime/inventory_session.cpp": "ac5d8278c4f4e72729a9cac859c6f4cbb61dfa164fc184fb9ebaff00a8e5eed5",
+    "tests/inventory_session_tests.cpp": "bcc986a7899ed3949fdef5efe5c3cee03d327b209dacb566ef2ae2ec786adc82",
+    "tests/inventory_gns_tests.cpp": "2f544f178f88391a6db844c589906db5518ddaaac085fe69a8c7c96d15cedf46",
+    "scripts/verify_inventory_session.py": "5298539d1b28c379ea0c1cf2faf193db02fb9a42bf06fc4c8d924242875965cd"
+  },
+  "limits": [
+    "Native store/gameplay adapter; editor party and SceneAuthority wiring pending.",
+    "Mask slot ownership only; gameplay loadout publication pending.",
+    "Same-machine UDP GNS only, no two-machine/EOS or latency/loss qualification.",
+    "No runtime inventory document, typed use effects, pickups or durable slot writes."
+  ],
+  "base_commit": "778286d700352ce1ed0fbb85515ae64ff3299f7c",
+  "build": {
+    "full": {
+      "exit": 0,
+      "seconds": 482.2,
+      "log": "m8-1b-inventory-session-build.log"
+    },
+    "editor_shutdown_fix": {
+      "exit": 0,
+      "seconds": 99.0,
+      "log": "m8-inventory-shutdown-build.log"
+    },
+    "final_confirmation": {
+      "exit": 0,
+      "seconds": 0.2,
+      "log": "m8-1b-inventory-final-build.log"
+    }
+  },
+  "regressions": {
+    "selected_ctest": {
+      "passed": 102,
+      "failed": 0,
+      "seconds": 117.3,
+      "log": "m8-inventory-regressions.log",
+      "retained_not_rerun": [
+        "M5.native_authoring",
+        "M5.actor_assets",
+        "M5.attribute_authoring"
+      ],
+      "timing": "Before editor-only shutdown change; native sources unchanged thereafter."
+    },
+    "editor_party": {
+      "passed": 7,
+      "failed": 0,
+      "seconds": 157.1,
+      "receipt": "m8-inventory-party-final/m8-1b-network-gates.json",
+      "log": "m8-inventory-party-final-run.log",
+      "scope": "Same-machine GNS, D3D12, final editor binary."
+    }
+  },
+  "failed_attempts": [
+    {
+      "gate": "adapter-native",
+      "reason": "Premature send before baseline identity; fixed to wait until Ready."
+    },
+    {
+      "gate": "adapter-GNS",
+      "reason": "Harness stopped pumping with final reply queued; fixed by receipt-delivery fence."
+    },
+    {
+      "gate": "editor-combat",
+      "reason": "Unready final receipt during scripted shutdown; coherent quit replaces arbitrary two frames, unchanged assertions pass.",
+      "log": "m8-inventory-party-run.log",
+      "evidence": "m8-inventory-party/"
+    }
+  ],
+  "visually_checked": [
+    "m8-inventory-party-final/party-combat-d3d12-player-1.png"
+  ],
+  "binary_hashes": {
+    "InventorySessionTests.exe": "16d463984a59ebd1848ebbacef924899cb6bae6a59221a44a84a82deda29c4d5",
+    "InventoryGnsTests.exe": "871f7344fb95c254b395ec563c3176ab7e79d50abc659bb21dbae29acaed58c6",
+    "DarkAngelEditor.exe": "0e9a03a4aefe3ac81c3ff7fa531e596a5e1608986ec8959a324a9e19cd0e47a3"
+  }
+}

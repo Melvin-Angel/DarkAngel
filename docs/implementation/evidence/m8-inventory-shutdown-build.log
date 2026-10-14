@@ -1,0 +1,40 @@
+[1/20] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[2/20] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(980): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(981): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1010): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1011): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1019): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1021): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1030): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(205): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1042): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(205): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1125): warning C4456: declaration of 'last' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(923): note: see declaration of 'last'
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1317): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1373): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1424): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1424): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1486): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1509): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(194): note: see declaration of 'id'
+[4/4] Linking CXX executable DarkAngelEditor.exe

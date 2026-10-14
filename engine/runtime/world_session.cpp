@@ -1,6 +1,7 @@
 #include <darkangel/world_session.hpp>
 #include "ability_state.hpp"
 #include "session_wire.hpp"
+#include "owner_mailbox.hpp"
 #include "ability_wire.hpp"
 #include "effect_wire.hpp"
 #include <algorithm>
@@ -17,7 +18,7 @@ namespace darkangel {
 namespace {
 using namespace session_detail;
 void require(bool ok,const char* error){if(!ok)throw std::runtime_error(error);}
-enum class Kind:std::uint64_t { Hello=1,ContentReady,Baseline,Ack,Ready,Resync,MotorCommand,MotorSnapshot,CollisionSnapshot,CollisionAck,AbilityCorrection,AbilityCorrectionAck,AbilityCommand,AbilityReceipt,AbilityPublic,EffectOwner,EffectPublic,Projectiles,MotorBatch,PublicIndex,PublicBatch,MotorRemote,Interact,InteractReceipt };
+enum class Kind:std::uint64_t { Hello=1,ContentReady,Baseline,Ack,Ready,Resync,MotorCommand,MotorSnapshot,CollisionSnapshot,CollisionAck,AbilityCorrection,AbilityCorrectionAck,AbilityCommand,AbilityReceipt,AbilityPublic,EffectOwner,EffectPublic,Projectiles,MotorBatch,PublicIndex,PublicBatch,MotorRemote,Interact,InteractReceipt,OwnerService };
 // Motor states packed into one state packet; three fit the packet limit.
 constexpr std::size_t motor_batch_states=3;
 // What an observer uses of a character it does not own is 104 bytes (128 on a moving support); nine fit a packet.
@@ -62,7 +63,8 @@ struct WorldSession::Impl {
     std::vector<Projectile> projectiles;std::vector<ProjectileView> projectile_views;std::uint64_t next_projectile{1},projectile_revision{},projectile_tick{};
     // Server-only: actors of one team never damage each other. Absent means no team.
     std::map<std::uint64_t,std::uint32_t> teams;
-    struct Peer {Transport* transport;ConnectionHandle handle;SessionReadiness state{SessionReadiness::Handshake};std::uint64_t progress{},sent_revision{},acked_revision{};bool greeting{},content_sent{},await_ack{},ready_sent{},collision_required{},ever_ready{};std::size_t next_chunk{},total{},chunks{};std::vector<ObjectData> sending;std::map<std::uint64_t,ObjectData> receiving;std::uint64_t receiving_revision{};std::map<std::uint64_t,std::pair<std::uint64_t,std::uint64_t>> motor_sent;
+    std::map<std::uint32_t,StableId> owner_channels;std::vector<OwnerMessage> owner_messages;
+    struct Peer {OwnerMailbox owner_mailbox;Transport* transport;ConnectionHandle handle;SessionReadiness state{SessionReadiness::Handshake};std::uint64_t progress{},sent_revision{},acked_revision{};bool greeting{},content_sent{},await_ack{},ready_sent{},collision_required{},ever_ready{};std::size_t next_chunk{},total{},chunks{};std::vector<ObjectData> sending;std::map<std::uint64_t,ObjectData> receiving;std::uint64_t receiving_revision{};std::map<std::uint64_t,std::pair<std::uint64_t,std::uint64_t>> motor_sent;
         std::optional<CollisionStreamFrame> collision_sending;unsigned collision_next{};std::uint64_t collision_revision{},collision_last_tick{},collision_last_revision{};bool collision_sent{};
         std::map<std::uint64_t,AbilitySending> ability_sending;std::map<std::uint64_t,std::pair<std::uint64_t,std::uint64_t>> ability_sent;std::map<std::uint64_t,AbilityPartial> ability_parts;std::deque<std::tuple<std::uint64_t,std::uint64_t,std::uint64_t,std::uint64_t>> ability_sent_frames;
         std::map<std::uint64_t,PublicSending> public_sending;std::map<std::uint64_t,std::tuple<std::uint64_t,std::uint64_t,std::uint64_t>> public_sent;std::map<std::uint64_t,PublicPartial> public_parts;
@@ -116,6 +118,7 @@ struct WorldSession::Impl {
     }
 
     void release_ability_control(ConnectionHandle peer){
+        std::erase_if(owner_messages,[&](const auto& message){return message.source==peer;});
         if(role!=SessionRole::Server)return;std::map<std::uint64_t,std::unique_ptr<AbilityState>> prepared;std::vector<AbilityActionUpdate> updates;
         for(const auto& [id,input]:motor_inputs)if(input.owner==peer&&abilities.contains(id)){auto state=std::make_unique<AbilityState>(*abilities.at(id));auto cleanup=state->disconnect();updates.insert(updates.end(),cleanup.begin(),cleanup.end());prepared.emplace(id,std::move(state));}
         auto queue=queue_actions(updates);auto commitments=queue_commitments(prepared);bool changed=false;
@@ -131,6 +134,16 @@ struct WorldSession::Impl {
     void thread() const{require(owner==std::this_thread::get_id(),"Session owner thread mismatch");}
     void authority() const{thread();require(role==SessionRole::Server,"Client cannot mutate authoritative state");require(revision<std::numeric_limits<std::uint64_t>::max(),"Session revision exhausted");}
     std::unique_ptr<World> build(const std::map<std::uint64_t,ObjectData>& values) const{auto candidate=std::make_unique<World>(role==SessionRole::Server?WorldDomain::Server:WorldDomain::ClientPresentation,limits.objects);std::set<StableId> ids;for(const auto& [id,o]:values){require(id>0 && o.network.value==id && ids.insert(o.id).second,"Invalid/duplicate replicated identity");candidate->create(o);}return candidate;}
+    void pump_owner(Peer& p){
+        if(p.state!=SessionReadiness::Ready)return;
+        const auto* value=p.owner_mailbox.front();if(!value)return;
+        // Despawning/losing ownership must never disclose an old owner's payload.
+        if(role==SessionRole::Server){auto owner=motor_inputs.find(value->network);require(owner!=motor_inputs.end()&&owner->second.owner==p.handle,"Queued owner service lost ownership");}
+        auto w=header(Kind::OwnerService,hello,value->serial,value->network,(value->bytes.size()+owner_fragment_bytes-1)/owner_fragment_bytes,value->bytes.size());
+        w.u64(value->channel);w.u64(value->part);const auto first=value->part*owner_fragment_bytes;
+        w.bytes.insert(w.bytes.end(),value->bytes.begin()+first,value->bytes.begin()+std::min(first+owner_fragment_bytes,value->bytes.size()));
+        if(send(p,std::move(w)))p.owner_mailbox.sent();
+    }
     bool send(Peer& p,Writer w,Delivery delivery=Delivery::ReliableOrdered){if(p.packet_work>=limits.packets_per_tick)return false;if(!p.transport->send(p.handle,delivery,w.bytes))return false;++p.packet_work;++p.packets_sent;{Reader r{w.bytes};r.u64();const auto kind=r.u64();if(kind<p.packets_by_kind.size())++p.packets_by_kind[kind];}return true;}
     void receive(Peer& p,const TransportMessage& m){
         require(m.sender==p.handle && m.bytes.size()<=packet_limit,"Invalid session source/channel/size");Reader r{m.bytes};require(r.u64()==0x3253454144,"Session wire version mismatch");auto kind=static_cast<Kind>(r.u64());require(m.delivery==(kind==Kind::Baseline?Delivery::ReliableBootstrap:((kind==Kind::MotorSnapshot||kind==Kind::CollisionSnapshot||kind==Kind::AbilityCorrection||kind==Kind::AbilityPublic||kind==Kind::EffectOwner||kind==Kind::EffectPublic||kind==Kind::Projectiles||kind==Kind::MotorBatch||kind==Kind::MotorRemote||kind==Kind::PublicIndex||kind==Kind::PublicBatch)?Delivery::UnreliableState:Delivery::ReliableOrdered)),"Session traffic class mismatch");require(r.u64()==hello.session_epoch,"Stale gameplay session epoch");auto rev=r.u64(),index=r.u64(),chunks=r.u64(),total=r.u64();
@@ -171,6 +184,14 @@ struct WorldSession::Impl {
             require(role==SessionRole::Server&&chunks==0&&total==0,"Collision ACK direction/header");auto topology=r.u64();r.end();if(rev<revision)return;require(rev==revision&&p.state==SessionReadiness::Ready,"Collision ACK lifecycle revision");
             if(!p.collision_sent_frames.empty()&&index<std::get<0>(p.collision_sent_frames.front()))return;
             auto found=std::find(p.collision_sent_frames.begin(),p.collision_sent_frames.end(),std::tuple{index,rev,topology});require(found!=p.collision_sent_frames.end(),"Collision ACK not sent/retained");if(!p.collision_stats.has_ack||index>p.collision_stats.ack_tick){p.collision_stats.has_ack=true;p.collision_stats.ack_tick=index;p.collision_stats.ack_topology=topology;}
+        }
+        else if(kind==Kind::OwnerService){
+            require(p.state==SessionReadiness::Ready||p.ever_ready,"Owner service before bootstrap");
+            const auto channel=r.u64(),part=r.u64();require(channel<=UINT32_MAX&&owner_channels.contains(std::uint32_t(channel)),"Unregistered owner service");
+            if(role==SessionRole::Server){auto owner=motor_inputs.find(index);require(owner!=motor_inputs.end()&&owner->second.owner==p.handle,"Owner service ownership denied");}
+            else require(objects.contains(index)&&objects.at(index).id==owner_channels.at(std::uint32_t(channel)),"Owner service audience denied");
+            auto message=p.owner_mailbox.receive(p.handle,rev,index,std::uint32_t(channel),part,chunks,total,r.bytes.subspan(r.at));
+            if(message){require(owner_messages.size()<32,"Owner service inbox exhausted; drain before receive");owner_messages.push_back(std::move(*message));}
         }
         else if(kind==Kind::Interact){
             // A request to use a placed interactable. It names the object and claims nothing; the host resolves it from its own state.
@@ -353,10 +374,11 @@ struct WorldSession::Impl {
 };
 WorldSession::WorldSession(SessionRole r,SessionHandshake h,SessionLimits l):impl_(std::make_unique<Impl>(r,std::move(h),l)){}
 WorldSession::~WorldSession()=default;
-void WorldSession::attach(Transport& t,ConnectionHandle h){auto& s=*impl_;s.thread();require(t.limits().payload_bytes>=packet_limit && t.limits().queued_bytes>=packet_limit,"Provider payload/queue too small for session protocol");for(const auto& [handle,peer]:s.peers)require(peer.transport!=&t,"Transport already attached to this session");require(t.valid(h) && h.transport && h.epoch && h.peer && !s.peers.contains(h) && s.peers.size()<s.limits.peers && (s.role==SessionRole::Server || s.peers.empty()),"Invalid session peer");s.peers.emplace(h,Impl::Peer{&t,h,SessionReadiness::Handshake,s.timeout_clock()});}
+void WorldSession::attach(Transport& t,ConnectionHandle h){auto& s=*impl_;s.thread();require(t.limits().payload_bytes>=packet_limit && t.limits().queued_bytes>=packet_limit,"Provider payload/queue too small for session protocol");for(const auto& [handle,peer]:s.peers)require(peer.transport!=&t,"Transport already attached to this session");require(t.valid(h) && h.transport && h.epoch && h.peer && !s.peers.contains(h) && s.peers.size()<s.limits.peers && (s.role==SessionRole::Server || s.peers.empty()),"Invalid session peer");s.peers.emplace(h,Impl::Peer{{},&t,h,SessionReadiness::Handshake,s.timeout_clock()});}
 bool WorldSession::attached(ConnectionHandle h)const{impl_->thread();return impl_->peers.contains(h);}
 void WorldSession::detach(ConnectionHandle h){impl_->thread();require(impl_->peers.contains(h),"Unknown session peer");impl_->release_ability_control(h);for(auto& [id,q]:impl_->motor_inputs)if(q.owner==h){q.pending.clear();q.last={};q.owner={};}require(impl_->peers.erase(h)==1,"Unknown session peer");if(impl_->role==SessionRole::Client){impl_->objects.clear();impl_->motor_states.clear();impl_->collision_states.clear();impl_->ability_corrections.clear();impl_->public_abilities.clear();impl_->public_resync.clear();impl_->owner_effect_frames.clear();impl_->public_effect_frames.clear();impl_->effect_resync.clear();impl_->ability_ack_pending.clear();impl_->received_ability_notices.clear();impl_->view=impl_->build({});impl_->revision=0;}}
-void WorldSession::tick(){auto& s=*impl_;s.thread();++s.clock;for(auto it=s.peers.begin();it!=s.peers.end();){auto& p=it->second;p.packet_work=0;try{require(p.transport->connected(),"Session peer disconnected");if(!p.collision_parts.empty()&&s.timeout_clock()-p.collision_partial_birth>s.limits.collision_timeout_ticks){p.collision_parts.clear();++p.collision_stats.expired;p.collision_stats.needs_resync=true;}for(auto partial=p.ability_parts.begin();partial!=p.ability_parts.end();)if(s.timeout_clock()-partial->second.birth>s.limits.collision_timeout_ticks){partial=p.ability_parts.erase(partial);s.ability_resync=true;}else ++partial;for(auto partial=p.public_parts.begin();partial!=p.public_parts.end();)if(s.timeout_clock()-partial->second.birth>s.limits.collision_timeout_ticks){s.public_resync.insert(partial->first);partial=p.public_parts.erase(partial);}else ++partial;for(auto partial=p.effect_parts.begin();partial!=p.effect_parts.end();)if(s.timeout_clock()-partial->second.birth>s.limits.collision_timeout_ticks){s.effect_resync.insert(partial->first);partial=p.effect_parts.erase(partial);}else ++partial;for(const auto& m:p.transport->poll(std::min(s.limits.packets_per_tick,p.transport->limits().packets)))s.receive(p,m);s.pump(p);require(p.state==SessionReadiness::Ready || s.timeout_clock()-p.progress<=s.limits.timeout_ticks,"Bootstrap timeout");if(s.role==SessionRole::Server&&p.state==SessionReadiness::Ready){s.pump_ability_notices(p);s.pump_interaction_notices(p);s.pump_effects(p);s.pump_abilities(p);s.pump_public_abilities(p);s.pump_public_index(p);s.pump_projectiles(p);{std::vector<std::uint64_t> due;
+void WorldSession::disconnect(ConnectionHandle h){auto& s=*impl_;s.thread();auto& peer=s.peers.at(h);if(peer.transport->valid(h))peer.transport->disconnect(h);detach(h);}
+void WorldSession::tick(){auto& s=*impl_;s.thread();++s.clock;for(auto it=s.peers.begin();it!=s.peers.end();){auto& p=it->second;p.packet_work=0;try{require(p.transport->connected(),"Session peer disconnected");if(!p.collision_parts.empty()&&s.timeout_clock()-p.collision_partial_birth>s.limits.collision_timeout_ticks){p.collision_parts.clear();++p.collision_stats.expired;p.collision_stats.needs_resync=true;}for(auto partial=p.ability_parts.begin();partial!=p.ability_parts.end();)if(s.timeout_clock()-partial->second.birth>s.limits.collision_timeout_ticks){partial=p.ability_parts.erase(partial);s.ability_resync=true;}else ++partial;for(auto partial=p.public_parts.begin();partial!=p.public_parts.end();)if(s.timeout_clock()-partial->second.birth>s.limits.collision_timeout_ticks){s.public_resync.insert(partial->first);partial=p.public_parts.erase(partial);}else ++partial;for(auto partial=p.effect_parts.begin();partial!=p.effect_parts.end();)if(s.timeout_clock()-partial->second.birth>s.limits.collision_timeout_ticks){s.effect_resync.insert(partial->first);partial=p.effect_parts.erase(partial);}else ++partial;for(const auto& m:p.transport->poll(std::min(s.limits.packets_per_tick,p.transport->limits().packets)))s.receive(p,m);s.pump(p);s.pump_owner(p);require(p.state==SessionReadiness::Ready || s.timeout_clock()-p.progress<=s.limits.timeout_ticks,"Bootstrap timeout");if(s.role==SessionRole::Server&&p.state==SessionReadiness::Ready){s.pump_ability_notices(p);s.pump_interaction_notices(p);s.pump_effects(p);s.pump_abilities(p);s.pump_public_abilities(p);s.pump_public_index(p);s.pump_projectiles(p);{std::vector<std::uint64_t> due;
         // Relevance: the peer's own character and those near it are due every tick, the rest every far_interval-th tick. Near ones go first.
         const MotorState* own=s.owned_motor(p);
         std::vector<std::pair<double,std::uint64_t>> ordered;
@@ -391,7 +413,7 @@ void WorldSession::destroy(std::uint64_t id){
     auto queue=s.queue_actions(cleanup_updates);std::vector<AbilityState*> states;for(const auto& [network,state]:affected)states.push_back(state.get());if(retired)states.push_back(retired.get());auto commitments=s.queue_commitments(states);
     s.view->destroy(s.view->find(s.objects.at(id).id),Authority::Server);
     for(auto& [network,state]:affected){auto health=state->health();s.view->apply_server_health(state->owner().entity,health);candidate.at(network).health=health;s.abilities.at(network)=std::move(state);}
-    s.objects=std::move(candidate);s.motor_inputs.erase(id);s.motor_states.erase(id);s.abilities.erase(id);s.ability_inputs.erase(id);s.ability_actions=std::move(queue);s.ability_commitments=std::move(commitments);++s.revision;
+    s.objects=std::move(candidate);std::erase_if(s.owner_messages,[&](const auto& message){return message.network==id;});s.motor_inputs.erase(id);s.motor_states.erase(id);s.abilities.erase(id);s.ability_inputs.erase(id);s.ability_actions=std::move(queue);s.ability_commitments=std::move(commitments);++s.revision;
 }
 const World& WorldSession::world() const{impl_->thread();return *impl_->view;}
 const std::map<std::uint64_t,ObjectData>& WorldSession::objects() const{impl_->thread();return impl_->objects;}
@@ -596,4 +618,17 @@ bool WorldSession::submit_ability_intent(const AbilityIntent& intent){
     auto w=header(Kind::AbilityCommand,s.hello,0,intent.network);w.u64(1);for(auto value:{intent.operation,intent.tick,intent.avatar_epoch,intent.grant_generation,std::uint64_t(intent.slot),std::uint64_t(intent.edge),std::uint64_t(intent.cancelled)|std::uint64_t(intent.replace_active)*2})w.u64(value);return s.send(peer,std::move(w));
 }
 std::vector<AbilityOperationNotice> WorldSession::drain_ability_receipts(){auto& s=*impl_;s.thread();require(s.role==SessionRole::Client,"Ability wire receipts are a client view");auto result=std::move(s.received_ability_notices);s.received_ability_notices.clear();for(auto& notice:result){auto object=s.objects.find(notice.network);notice.receipt.handle.owner.entity=object==s.objects.end()?EntityHandle{}:s.view->find(object->second.id);}return result;}
+}
+
+namespace darkangel {
+void WorldSession::register_owner_channel(std::uint32_t channel,StableId avatar){auto& s=*impl_;s.thread();require(s.peers.empty()&&channel&&s.owner_channels.size()<8&&(s.role==SessionRole::Client?bool(avatar):!bool(avatar)),"Owner channel registration role/lifetime/bounds");require(s.owner_channels.emplace(channel,avatar).second,"Duplicate owner channel");}
+bool WorldSession::send_owner_message(std::uint64_t network,std::uint32_t channel,std::span<const std::byte> bytes){
+    auto& s=*impl_;s.thread();require(s.owner_channels.contains(channel),"Unregistered owner channel");
+    require(network&&!bytes.empty()&&bytes.size()<=session_detail::owner_message_bytes,"Owner message identity/size");
+    if(s.role==SessionRole::Server){auto owner=s.motor_inputs.find(network);if(owner==s.motor_inputs.end()||!s.peers.contains(owner->second.owner))return false;auto& peer=s.peers.at(owner->second.owner);if(peer.state!=SessionReadiness::Ready)return false;return peer.owner_mailbox.queue(network,channel,bytes);}
+    if(s.peers.empty()||s.peers.begin()->second.state!=SessionReadiness::Ready)return false;
+    require(s.objects.contains(network)&&s.objects.at(network).id==s.owner_channels.at(channel),"Owner message avatar denied");
+    return s.peers.begin()->second.owner_mailbox.queue(network,channel,bytes);
+}
+std::vector<OwnerMessage> WorldSession::drain_owner_messages(std::uint32_t channel){auto& s=*impl_;s.thread();require(s.owner_channels.contains(channel),"Unregistered owner channel");std::vector<OwnerMessage> result;for(auto it=s.owner_messages.begin();it!=s.owner_messages.end();)if(it->channel==channel){result.push_back(std::move(*it));it=s.owner_messages.erase(it);}else ++it;return result;}
 }

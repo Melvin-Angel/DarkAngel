@@ -47,6 +47,9 @@ inline constexpr std::size_t projectile_capacity=16;
 // and the server's answer to it (an InteractionResult number). The request claims nothing; the host resolves it.
 struct InteractionRequest {std::uint64_t network{};StableId object;};
 struct InteractionNotice {std::uint64_t network{};StableId object;std::uint8_t result{};};
+// Bounded reliable messages for owner services. The session authenticates the motor
+// owner and scene epoch; a service still validates its own schema and permissions.
+struct OwnerMessage {ConnectionHandle source;std::uint64_t network{};std::uint32_t channel{};std::vector<std::byte> bytes;};
 // All providers carry the same bounded, versioned protocol. Only the server
 // creates identities and publishes state. Client worlds are read-only views.
 class WorldSession {
@@ -57,6 +60,8 @@ public:
     WorldSession& operator=(const WorldSession&)=delete;
     void attach(Transport&,ConnectionHandle);
     void detach(ConnectionHandle);
+    // Protocol/service rejection: close transport and release authenticated ownership.
+    void disconnect(ConnectionHandle);
     bool attached(ConnectionHandle)const;
     void tick();
     std::uint64_t create(ObjectData);
@@ -76,6 +81,13 @@ public:
     std::vector<InteractionRequest> drain_interactions();
     void answer_interaction(std::uint64_t network,StableId object,std::uint8_t result);
     std::vector<InteractionNotice> drain_interaction_receipts();
+    // Register before attaching. Client registrations name its own avatar, never a
+    // profile claimed on the wire. Server registrations leave avatar empty.
+    void register_owner_channel(std::uint32_t channel,StableId avatar={});
+    // Up to eight queued 32 KiB messages per peer, fragmented inside the ordinary
+    // packet budget. False means not ready or backpressure; caller retains work.
+    bool send_owner_message(std::uint64_t network,std::uint32_t channel,std::span<const std::byte>);
+    std::vector<OwnerMessage> drain_owner_messages(std::uint32_t channel);
     AbilityFailure can_activate(const AbilityRequest&)const;
     AbilityReceipt request_ability(const AbilityRequest&);
     // Fault injection for tests and tools: authority refuses this owner's next pressed ability intent with the given

@@ -343,7 +343,7 @@ int main(int argc,char** argv){try{
     // Presentation-only camera brain for the Play actor; rebuilt for each Play session.
     // Further local players of this Play, the second one's camera, and the script that drives it when one was given:
     // steps "walk-to:x,z", "interact" and "wait:frames", separated by ';'.
-    std::unique_ptr<CameraDirector> director_second;std::vector<StableId> companions;struct ScriptStep {std::string verb;double x{},z{};unsigned frames{};};std::vector<ScriptStep> script,player_script;std::size_t script_at{},player_script_at{};bool script_capture{},script_captured{};std::uint64_t guest_arrived_epoch{};unsigned script_interactions{},player_script_interactions{};
+    std::unique_ptr<CameraDirector> director_second;std::vector<StableId> companions;struct ScriptStep {std::string verb;double x{},z{};unsigned frames{};};std::vector<ScriptStep> script,player_script;std::size_t script_at{},player_script_at{};bool script_capture{},script_captured{},script_quit{};std::uint64_t guest_arrived_epoch{};unsigned script_interactions{},player_script_interactions{};
     {require(args.players>=1&&args.players<=4,"--players is 1 to 4");shell.players=int(args.players);for(auto* parsed:{&script,&player_script}){std::stringstream steps(parsed==&script?args.input_script:args.player_script);std::string item;while(std::getline(steps,item,';')){if(item.empty())continue;ScriptStep step;const auto colon=item.find(':');step.verb=item.substr(0,colon);const std::string value=colon==std::string::npos?std::string():item.substr(colon+1);
             if(step.verb=="walk-to"){const auto comma=value.find(',');require(comma!=std::string::npos,"--input-script walk-to needs x,z");step.x=std::stod(value.substr(0,comma));step.z=std::stod(value.substr(comma+1));}else if(step.verb=="wait"||step.verb=="await-scene"||step.verb=="await-tick"||step.verb=="await-players")step.frames=unsigned(std::stoul(value));else require(step.verb=="interact"||step.verb=="use"||step.verb=="attack"||step.verb=="capture"||step.verb=="quit","Script steps are walk-to:x,z, interact, use, attack, wait:frames, await-scene:arrivals, await-tick:tick, await-players:count, capture and quit");parsed->push_back(step);}}}
     std::unique_ptr<CameraDirector> director;std::vector<std::string> camera_held;std::vector<TagId> camera_tags;float camera_fov=DirectX::XM_PIDIV4;
@@ -924,7 +924,7 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
 #ifdef DAE_EDITOR_GNS
     nlohmann::json party_last_running,party_fullest;
     auto party_receipt=[&](unsigned frame){if(args.party_report.empty())return;
-        nlohmann::json value{{"schema",1},{"process",GetCurrentProcessId()},{"role",args.join.empty()?"host":"guest"},{"frame",frame},{"scene",globals_scene.text()},{"epoch",std::uint64_t(party_guest?party_guest->epoch():party_host?party_host->epoch():0)},{"playing",bool(editor.preview.active())},{"running",bool(party_guest?party_guest->running():party_host&&travel&&!travel->busy())},{"ready",character&&character->bootstrapped()},{"players",nlohmann::json::array()},{"actors",nlohmann::json::array()},{"arrivals",travel_arrivals},{"failures",travel_failures},{"error",party_guest?party_guest->error():travel_failure}};
+        nlohmann::json value{{"schema",1},{"process",GetCurrentProcessId()},{"role",args.join.empty()?"host":"guest"},{"frame",frame},{"scene",globals_scene.text()},{"epoch",std::uint64_t(party_guest?party_guest->epoch():party_host?party_host->epoch():0)},{"playing",bool(editor.preview.active())},{"running",bool(party_guest?party_guest->running():party_host&&travel&&!travel->busy())},{"ready",character&&character->bootstrapped()},{"players",nlohmann::json::array()},{"actors",nlohmann::json::array()},{"arrivals",travel_arrivals},{"failures",travel_failures},{"script_steps",player_script_at},{"script_count",player_script.size()},{"error",party_guest?party_guest->error():travel_failure}};
 #ifdef DAE_HUD
         value["world_ui"]=nlohmann::json::array();if(hud&&!hud_failed)for(const auto& marker:hud->model().world_markers)value["world_ui"].push_back({{"label",marker.label},{"x",marker.x},{"y",marker.y},{"width",marker.width},{"health_bar",marker.health_bar},{"percent",marker.percent}});
 #endif
@@ -1201,7 +1201,7 @@ std::unique_ptr<AgentEndpoint> agent;EditorDocument* agent_document{};auto poll_
                 // use waits until something is offered; interact asks for what is offered now, if anything.
                 else if(step.verb=="use"){if(const auto offered=who.interaction_prompt()){out.interact=offered->id;++asked;++at_step;}}
                 else if(step.verb=="capture"){script_capture=true;++at_step;}
-                else if(step.verb=="quit"){args.frames=frame+2;++at_step;}
+                else if(step.verb=="quit"){script_quit=true;++at_step;std::cout<<"Script quit requested tick="<<character->motor().tick<<" steps="<<at_step<<"/"<<steps.size()<<std::endl;}
                 else if(step.frames)--step.frames;else ++at_step;};
             if(character&&player_script_at<player_script.size()){character_input={0,0,character->predicted_motor().yaw};run_script(player_script,player_script_at,player_script_interactions,*character->client(character_player),character_input);}
             // A second local player: a script when one was given (gates), otherwise the keyboard and mouse while its viewport has control.
@@ -1402,6 +1402,12 @@ if(shell.draft && editor.selected==object_id)pose=*shell.draft;
             if(audio){audio->listener(shown.eye,shown.forward,{0,1,0});cue_sounds.follow();}
 #endif
             try{vfx->draw(shown);}catch(const std::exception& error){editor.log(std::string("Visual effects stopped: ")+error.what(),darkangel::editor_app::ConsoleSeverity::Error);cue_effects.bind(nullptr,nullptr,{});vfx.reset();}}
+#endif
+        // Scripted shutdown waits for a coherent final view. A baseline refresh can
+        // start during the same frame as quit; two arbitrary render frames are not a
+        // delivery fence and would publish an unready final receipt.
+#ifdef DAE_CHARACTER_SCENE
+        if(script_quit&&character&&character->bootstrapped())args.frames=frame+1;
 #endif
         auto* back=swap->GetCurrentBackBufferRTV();context->SetRenderTargets(1,&back,nullptr,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearRenderTarget(back,background,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);gui->Render(context);if(script_capture)script_captured=true;if(!args.capture.empty() && (script_capture||(args.frames && frame+1==args.frames&&!script_captured)))capture(device,context,back->GetTexture(),args.capture,args.capture_workspace?darkangel::editor_app::ViewArea{0,0,static_cast<float>(desc.Width),static_cast<float>(desc.Height)}:area);swap->Present(args.hidden?0:1);++frame;
     }
