@@ -1,5 +1,5 @@
 """Authored effect reaction: native binding, frozen closure, checked public flinch and fresh Play."""
-import argparse,hashlib,json,subprocess,time
+import argparse,hashlib,json,subprocess,time,uuid
 from pathlib import Path
 from msvc_environment import activate
 ROOT=Path(__file__).resolve().parents[1];BUILD=ROOT/'build/m5-editor-relwithdebinfo';EVIDENCE=ROOT/'docs/implementation/evidence'
@@ -14,6 +14,15 @@ if args.build:
 # NativeAuthoringTests writes the disposable copied fixture the later gates read.
 for name,binary in [('effect-reaction-authoring','NativeAuthoringTests'),('effect-reaction-presentation','ReactionPresentationTests'),('effect-reaction-public-pose','ObservedCharacterPoseTests'),('effect-reaction-effect-assets','EffectAssetTests'),('effect-reaction-kit-assets','CombatKitAssetTests'),('effect-reaction-replication','EffectReplicationTests'),('effect-reaction-combat-effects','CombatEffectTests'),('camera-rig','CameraTests'),('scripted-attacker','CharacterCombatSceneTests'),('royal-heavy-scene','RoyalHeavySceneTests'),('runtime-hud','HudTests'),('motor-warp','MotorTests'),('navigation','NavigationTests'),('behavior-tree','BehaviorTreeTests')]:run(name,[BUILD/(binary+'.exe')])
 f=json.loads((BUILD/'authoring-fixture.json').read_text());source=Path(f['source']);cache=Path(f['cache']);model=json.loads((source/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text())['id'];collision=json.loads((source/'royal_district/collision/environment.dacollision').read_text())['asset']
+
+def write_fixture_scene(name, scene):
+    # A copied scene owns a distinct collision asset, derived from its scene identity.
+    made = json.loads(json.dumps(scene))
+    old, root = made['root'], str(uuid.uuid4())
+    made['root'] = root
+    made['sources'][root] = made['sources'].pop(old)
+    made['sources'][root]['asset'] = root
+    (source/'royal_district'/name).write_text(json.dumps(made, indent=2)+chr(10))
 common=[BUILD/'DarkAngelEditor.exe','--registry',f['reaction_registry'],'--cas',cache/'cas','--model',model,'--scene',source/'royal_district/RoyalTraining.dascene','--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--sources',source,'--asset-cache',cache,'--backend','d3d12','--hidden','--capture-workspace']
 run('effect-reaction-form',common+['--ability-workspace','--authoring-asset',f['reaction_effect'],'--height','1500','--frames','5','--capture',EVIDENCE/'effect-reaction-form.png'])
 run('effect-reaction-d3d12',common+['--exercise-reaction','--frames','30','--capture',EVIDENCE/'effect-reaction-d3d12.png'])
@@ -24,7 +33,7 @@ run('kit-death-d3d12',death+['--exercise-death','--frames','210','--capture',EVI
 duel_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());duel_root=duel_source['root']
 for entity in duel_source['sources'][duel_root]['entities'].values():
     if 'spawn' in entity:entity['spawn']['npc']=f['npc']
-(source/'royal_district/RoyalDuel.dascene').write_text(json.dumps(duel_source,indent=2)+chr(10))
+write_fixture_scene('RoyalDuel.dascene', duel_source)
 def scene(arguments,name):
     out=[x for x in arguments];out[out.index('--scene')+1]=source/('royal_district/'+name);return out
 # A spawned Royal Guard attacks through its behaviour tree: the player is hit, flinches and dies on its own confirmed pose.
@@ -46,7 +55,7 @@ if 'camera=Aim' not in log or 'pending=0 hud_crosshair=1' not in log:raise Runti
 range_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());range_root=range_source['root']
 for entity in range_source['sources'][range_root]['entities'].values():
     if 'spawn' in entity:entity['types']['1']['fields']['4']=17.0
-(source/'royal_district/RoyalRange.dascene').write_text(json.dumps(range_source,indent=2)+chr(10))
+write_fixture_scene('RoyalRange.dascene', range_source)
 log=run('projectile-flight-d3d12',[source/'royal_district/RoyalRange.dascene' if str(x).endswith('RoyalTraining.dascene') else x for x in common]+['--exercise-ranged','--frames','48','--capture',EVIDENCE/'projectile-flight-d3d12.png'])
 if 'projectile=1 in_flight=1' not in log or 'target_health=100' not in log:raise RuntimeError('Editor Play did not show a projectile in flight: '+log[-400:])
 # Melee soft lock: strafe aside, push toward the target and press Light; the swing turns and closes on it.
@@ -121,14 +130,14 @@ guards_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_te
 for key in [key for key,entity in guards_entities.items() if 'spawn' in entity]:
     first=guards_entities[key];first['name']='Royal Guard spawn';first['spawn']['npc']=f['npc'];first['types']['1']['fields'].update({'2':-1.5,'4':9})
     second=json.loads(json.dumps(first));second['name']='Royal Guard spawn 2';second['types']['1']['fields'].update({'2':2,'4':10});guards_entities['00000000000000000000000000000006']=second
-(source/'royal_district/RoyalGuards.dascene').write_text(json.dumps(guards_source,indent=2)+chr(10))
+write_fixture_scene('RoyalGuards.dascene', guards_source)
 log=run('npc-spawn-points-d3d12',scene(guarded,'RoyalGuards.dascene')+['--exercise-attacked','--frames','260','--capture',EVIDENCE/'npc-spawn-points-d3d12.png'])
 if not(marker(log,'player_health')<100 and marker(log,'actors')>=2 and marker(log,'nav_polygons')>0 and marker(log,'behavior')=='Guard_Melee'):raise RuntimeError('Editor Play did not run two spawned Royal Guards: '+log[-400:])
 # NPC ranged attack: a Royal Archer spawned 12 m away looses arrows at the player through its behaviour tree.
 archer_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text())
 for entity in archer_source['sources'][archer_source['root']]['entities'].values():
     if 'spawn' in entity:entity['spawn']['npc']=f['archer'];entity['types']['1']['fields']['4']=15.0
-(source/'royal_district/RoyalArcher.dascene').write_text(json.dumps(archer_source,indent=2)+chr(10))
+write_fixture_scene('RoyalArcher.dascene', archer_source)
 log=run('npc-archer-d3d12',scene(guarded,'RoyalArcher.dascene')+['--exercise-attacked','--frames','110','--capture',EVIDENCE/'npc-archer-d3d12.png'])
 if not(marker(log,'player_health')==80 and marker(log,'actors')==1 and marker(log,'behavior')=='Archer_Ranged' and marker(log,'hud_target_name')=='Royal_Archer'):raise RuntimeError('Editor Play did not run the Royal Archer: '+log[-400:])
 # The same scene in the Scene tab: both spawn points preview their NPC's Character.
@@ -139,7 +148,7 @@ if not marker(log,'drawn','Editor senses_scene ')==1:raise RuntimeError('The Sce
 senses_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text())
 for entity in senses_source['sources'][senses_source['root']]['entities'].values():
     if 'spawn' in entity:entity['spawn']['npc']=f['npc'];entity['types']['1']['fields'].update({'1':0.0,'2':6.0,'4':3.0})
-(source/'royal_district/RoyalSenses.dascene').write_text(json.dumps(senses_source,indent=2)+chr(10))
+write_fixture_scene('RoyalSenses.dascene', senses_source)
 log=run('npc-senses-d3d12',scene(guarded,'RoyalSenses.dascene')+['--exercise-senses','--frames','330','--capture',EVIDENCE/'npc-senses-d3d12.png'])
 if not(marker(log,'noticed_tick','Editor senses ')>60 and marker(log,'noticed_z','Editor senses ')>4.5 and marker(log,'sensors','Editor senses ')==2 and marker(log,'senses_drawn','Editor senses ')==1):raise RuntimeError('Editor Play did not show a guard noticing the player in its cone: '+log[-400:])
 # Tools > Navigation: bake the Royal scene collision on demand; Play reuses the bake.
@@ -162,7 +171,7 @@ def gameplay_entity(name,x,z,**component):
 encounter_entities['00000000000000000000000000000007']=gameplay_entity('Gate trigger',0.0,6.0,trigger={'event':'gate.entered','half':[3.0,2.0,1.0],'once':True})
 encounter_entities['00000000000000000000000000000008']=gameplay_entity('Gate fight',0.0,14.0,encounter={'trigger':{'event':'gate.entered'},'mode':'waves','waves':[{'npc':f['npc'],'count':2},{'npc':f['npc'],'count':1}],'placement':'random','emits':{'started':'gate.fight_started','completed':'gate.cleared'},'tag':'gate.fight_active'})
 encounter_entities['00000000000000000000000000000009']=gameplay_entity('Gate fight volume',0.0,14.0,volume={'encounter':'00000000000000000000000000000008','half':[4.0,2.0,3.0]})
-(source/'royal_district/RoyalEncounter.dascene').write_text(json.dumps(encounter_source,indent=2)+chr(10))
+write_fixture_scene('RoyalEncounter.dascene', encounter_source)
 log=run('encounter-scene-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--select-encounter','--frames','6','--capture',EVIDENCE/'encounter-scene-d3d12.png'])
 if 'Editor encounter_place encounters=2 volumes=3 triggers=2 undo_redo=1' not in log or marker(log,'volumes_drawn','Editor encounter_scene ')<4:raise RuntimeError('The Scene tab did not draw or place encounter volumes: '+log[-400:])
 log=run('encounter-d3d12',scene(guarded,'RoyalEncounter.dascene')+['--exercise-encounter','--frames','200','--capture',EVIDENCE/'encounter-d3d12.png'])
@@ -171,9 +180,9 @@ if not('Editor encounter fired=1 spawned=2 ' in log and 'events=play.started,gat
 audio_source=json.loads(json.dumps(encounter_source));audio_entities=audio_source['sources'][audio_source['root']]['entities']
 audio_entities['00000000000000000000000000000008']['encounter']['audio_profile']=asset_id('audio/profiles/royal_battle.daaudioprofile')
 audio_entities['0000000000000000000000000000000a']=gameplay_entity('Scene audio',0.0,0.0,audio={'profile':asset_id('audio/profiles/royal_calm.daaudioprofile')})
-(source/'royal_district/RoyalEncounterAudio.dascene').write_text(json.dumps(audio_source,indent=2)+chr(10))
+write_fixture_scene('RoyalEncounterAudio.dascene', audio_source)
 # Without the trigger volume the fight never starts, so only the scene's profile plays.
-quiet_source=json.loads(json.dumps(audio_source));del quiet_source['sources'][quiet_source['root']]['entities']['00000000000000000000000000000007'];(source/'royal_district/RoyalQuietAudio.dascene').write_text(json.dumps(quiet_source,indent=2)+chr(10))
+quiet_source=json.loads(json.dumps(audio_source));del quiet_source['sources'][quiet_source['root']]['entities']['00000000000000000000000000000007'];write_fixture_scene('RoyalQuietAudio.dascene', quiet_source)
 seen=audio(run('audio-play-d3d12',scene(guarded,'RoyalQuietAudio.dascene')+['--exercise-character','--exercise-audio','--frames','40','--capture',EVIDENCE/'audio-play-d3d12.png']))
 if not(seen['director']=='1' and seen['profile']==asset_id('audio/profiles/royal_calm.daaudioprofile') and seen['music']==asset_id('audio/music_calm.dasound') and seen['ambient']=='1' and seen['layers']=='0' and seen['missing']=='0' and abs(float(seen['bus_ambient'])-1.0)<1e-3):raise RuntimeError('Play did not start the scene audio profile: '+str(seen))
 log=run('audio-encounter-d3d12',scene(guarded,'RoyalEncounterAudio.dascene')+['--exercise-encounter','--exercise-audio','--frames','200','--capture',EVIDENCE/'audio-encounter-d3d12.png']);seen=audio(log)
@@ -183,7 +192,7 @@ if not('Editor encounter fired=1 spawned=2 ' in log and seen['profile']==asset_i
 lever_source=json.loads(json.dumps(encounter_source));lever_entities=lever_source['sources'][lever_source['root']]['entities'];del lever_entities['00000000000000000000000000000007']
 lever_entities['0000000000000000000000000000000a']=gameplay_entity('Gate lever',0.0,5.0,interactable={'prompt':'Pull the lever','event':'lever.pulled','radius':2.0,'once':True})
 lever_entities['00000000000000000000000000000008']['encounter']['trigger']={'event':'lever.pulled'}
-(source/'royal_district/RoyalLever.dascene').write_text(json.dumps(lever_source,indent=2)+chr(10))
+write_fixture_scene('RoyalLever.dascene', lever_source)
 log=run('interaction-d3d12',scene(guarded,'RoyalLever.dascene')+['--exercise-interaction','--frames','200','--capture',EVIDENCE/'interaction-d3d12.png'])
 if not('Editor interaction asked=1 result=Accepted used=1 ' in log and 'lever.pulled' in log):raise RuntimeError('Editor Play did not use the lever through the server: '+log[-400:])
 # Two local players in one Play of the lever scene: one authority, a client per player on its own loopback pair, a Game viewport each.
@@ -224,7 +233,7 @@ spline_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_te
 hut=[entity['model'] for entity in spline_entities.values() if entity.get('model') and 'MudHut' in entity.get('name','')][0]
 spline_entities['0000000000000000000000000000000b']=gameplay_entity('Hut row',-12.0,-11.0,spline={'closed':False,'scatter':{'model':hut,'spacing':7.0,'jitter':0.0,'seed':3,'align':True}})
 for index,(x,z) in enumerate([(-12.0,-11.0),(-4.0,-13.0),(4.0,-13.0),(12.0,-11.0)]):spline_entities['000000000000000000000000000000%02x'%(0x10+index)]=gameplay_entity('Hut row point',x,z,spline_point={'spline':'0000000000000000000000000000000b','index':index})
-(source/'royal_district/RoyalSpline.dascene').write_text(json.dumps(spline_source,indent=2)+chr(10))
+write_fixture_scene('RoyalSpline.dascene', spline_source)
 log=run('spline-d3d12',scene(common,'RoyalSpline.dascene')+['--exercise-spline','--frames','5','--capture',EVIDENCE/'spline-d3d12.png'])
 if not('Editor spline splines=1 points=4 ' in log and ' scatter=4' in log):raise RuntimeError('Editor Scene did not draw the spline and its scatter: '+log[-400:])
 # Background cooking: a source copied into the project (not through Import) is listed as uncooked and the sweep cooks it.
