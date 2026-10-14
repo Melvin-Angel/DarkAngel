@@ -17,6 +17,10 @@ void deadline_basis(){
         for(unsigned n=0;n<600;++n)client.tick();rejects([&]{client.tick();});check(!pair.client->connected(),"Strict pump-count bootstrap deadline changed");}
     {auto pair=create_loopback(hello);pair.host->open(hello);auto peer=pair.client->open(hello);SessionLimits limits;limits.wall_clock_timeouts=true;limits.timeout_ticks=12;WorldSession client(SessionRole::Client,hello,limits);client.attach(*pair.client,peer);client.tick();
         std::this_thread::sleep_for(std::chrono::milliseconds(230));rejects([&]{client.tick();});check(!pair.client->connected(),"An elapsed bootstrap deadline did not expire");}
+{SessionHandshake hello{1,std::string(64,'a'),std::string(64,'b'),24};auto pair=create_loopback(hello);auto hp=pair.host->open(hello),cp=pair.client->open(hello);SessionLimits limits;limits.wall_clock_timeouts=true;limits.timeout_ticks=12;WorldSession server(SessionRole::Server,hello),client(SessionRole::Client,hello,limits);server.attach(*pair.host,hp);client.attach(*pair.client,cp);client.tick();server.tick();
+      // A valid reply is queued while the client's frame is occupied by local asset/GPU work.
+      std::this_thread::sleep_for(std::chrono::milliseconds(230));client.tick();for(unsigned n=0;n<16;++n){server.tick();client.tick();}check(client.readiness(cp)==SessionReadiness::Ready,"Queued bootstrap progress was rejected before receive after a local stall");}
+
 }
 // Exercise the contract that control and bootstrap have no mutual ordering.
 // Delay actual control packets; do not reproduce the session encoder in tests.
