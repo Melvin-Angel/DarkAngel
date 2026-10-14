@@ -1,0 +1,182 @@
+{
+  "accepted": 0,
+  "active_mask_slot": 0,
+  "actors": [
+    {
+      "health": 100.0,
+      "id": "70d5dcbd87564d11507e09a0925777f6",
+      "pose": true
+    }
+  ],
+  "arrivals": 3,
+  "authority": true,
+  "client": "readiness=4 revision=10 player=4 collision=1 motors=2 corrections=1 public=2 frames=0 coherent=0 paired=1",
+  "console": [
+    "Play activated an isolated Preview world; authoring remains unchanged.",
+    "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+    "Prepared current scene and combat kit for a fresh Play session.",
+    "The party arrived in RoyalVillage.dascene.",
+    "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+    "Prepared current scene and combat kit for a fresh Play session.",
+    "The party arrived in RoyalTraining.dascene.",
+    "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+    "Prepared current scene and combat kit for a fresh Play session.",
+    "The party arrived in RoyalTraining.dascene.",
+    "Saving the game.",
+    "Saved (revision 1)."
+  ],
+  "downed": false,
+  "epoch": 0,
+  "equipped_masks": [
+    "0fa58675-c41b-4fd8-856e-4f367ebe02c2",
+    "1b9e05e4-43a0-46ad-a97b-7fd8417672d5",
+    "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82",
+    "7bcfa11e-f08b-4371-8e47-474d74b98fe1"
+  ],
+  "error": "",
+  "failures": 0,
+  "frame": 3313,
+  "highest_operation": 0,
+  "inventory": {
+    "entries": [
+      {
+        "instance": 1,
+        "item": "ea62664c-8140-4195-a557-a01bab1ae615",
+        "quantity": 1
+      },
+      {
+        "instance": 2,
+        "item": "5cf71364-b1ee-42b9-b171-c900f76598a1",
+        "quantity": 1
+      },
+      {
+        "instance": 3,
+        "item": "8096c138-3101-43cd-98e1-7b9feaf6a36c",
+        "quantity": 1
+      },
+      {
+        "instance": 4,
+        "item": "b2787760-908a-404d-a920-ec2164f0fa33",
+        "quantity": 1
+      },
+      {
+        "instance": 5,
+        "item": "94a81491-da8b-478f-9d4e-e78cfcd46092",
+        "quantity": 1
+      },
+      {
+        "instance": 6,
+        "item": "8c600aed-a2f8-4b9b-8e37-4c21d389cd1f",
+        "quantity": 2
+      }
+    ],
+    "equipped": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "next_instance": 7,
+    "profile": "129755deabf843c3a94e6c80881a6333",
+    "revision": 12,
+    "schema": 1
+  },
+  "inventory_failure": 0,
+  "inventory_operation": 0,
+  "inventory_pending": false,
+  "movers": [
+    {
+      "at": [
+        -3.0,
+        2.0,
+        6.0
+      ],
+      "id": "9c8bc74c0c36158ce3593d2bcbaeec77"
+    }
+  ],
+  "owner": "b6a022aef5f944b11efb60f0b13e86a2",
+  "pending_motor": 0,
+  "players": [
+    {
+      "health": 100.0,
+      "id": "b6a022aef5f944b11efb60f0b13e86a2",
+      "pose": true,
+      "position": [
+        -3.0,
+        0.4999995231628418,
+        2.5
+      ]
+    }
+  ],
+  "playing": true,
+  "predicted_position": [
+    -3.0,
+    0.4999995231628418,
+    2.5
+  ],
+  "predicted_tick": 20,
+  "process": 7336,
+  "ready": true,
+  "rebases": 1,
+  "refused": 0,
+  "role": "host",
+  "running": false,
+  "save_status": "Saved (revision 1).",
+  "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+  "scene_now": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+  "schema": 1,
+  "script_count": 27,
+  "script_steps": 27,
+  "tick": 20,
+  "travel_failures": 0,
+  "world": {
+    "checkpoint": {
+      "altar": "35988a1faaaf5a4b7a2d770acb826d0b",
+      "name": "Training Altar",
+      "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559"
+    },
+    "collected": [
+      "5887605db227f47e6f1b8e880e3dbd56"
+    ],
+    "destinations": [
+      {
+        "altar": "5887605db227f47e6f1b8e880e3dbd56",
+        "name": "Village Altar",
+        "scene": "492cd837-3bf6-45d7-b640-b0470c5cec82"
+      },
+      {
+        "altar": "35988a1faaaf5a4b7a2d770acb826d0b",
+        "name": "Training Altar",
+        "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559"
+      }
+    ],
+    "discovered": [
+      "35988a1faaaf5a4b7a2d770acb826d0b"
+    ],
+    "members": [
+      {
+        "network": 4,
+        "revive": 0.0,
+        "state": 0
+      }
+    ],
+    "open": [],
+    "revision": 1,
+    "schema": 1,
+    "unlocked": [
+      "9c8bc74c0c36158ce3593d2bcbaeec77"
+    ],
+    "wipe": 0.0,
+    "wiped": false
+  },
+  "world_ui": [
+    {
+      "health_bar": true,
+      "label": "Training Dummy",
+      "percent": 100.0,
+      "width": 139.11651611328125,
+      "x": 175.36148071289063,
+      "y": 143.94967651367188
+    }
+  ]
+}

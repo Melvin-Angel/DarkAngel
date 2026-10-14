@@ -1,0 +1,17 @@
+{
+  "main": {
+    "exit": 0,
+    "seconds": 70.89,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-touch-main.log"
+  },
+  "world-session": {
+    "exit": 0,
+    "seconds": 121.218,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-touch-world-session.log"
+  },
+  "inspector": {
+    "exit": 0,
+    "seconds": 45.188,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-touch-inspector.log"
+  }
+}

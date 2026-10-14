@@ -1,0 +1,12 @@
+{
+  "build": {
+    "exit": 0,
+    "seconds": 13.89,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-build.log"
+  },
+  "slice": {
+    "exit": 1,
+    "seconds": 92.718,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-slice.log"
+  }
+}

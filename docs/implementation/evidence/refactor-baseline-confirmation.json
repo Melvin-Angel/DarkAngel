@@ -1,0 +1,17 @@
+{
+  "build": {
+    "exit": 0,
+    "seconds": 64.968,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-confirmation-build.log"
+  },
+  "ctest": {
+    "exit": 0,
+    "seconds": 23.594,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-confirmation-ctest.log"
+  },
+  "slice": {
+    "exit": 0,
+    "seconds": 201.86,
+    "log": "docs\\implementation\\evidence\\refactor-baseline-confirmation-slice.log"
+  }
+}

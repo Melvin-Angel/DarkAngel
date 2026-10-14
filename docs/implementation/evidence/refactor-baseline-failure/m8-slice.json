@@ -1,0 +1,20 @@
+{
+  "gates": [
+    {
+      "name": "m8-slice-load",
+      "exit": 0,
+      "seconds": 32.735
+    },
+    {
+      "name": "m8-slice-party",
+      "exit": 0,
+      "seconds": 90.515
+    }
+  ],
+  "work": "C:\\DarkAngel\\.cache\\m8-slice-9a91430d",
+  "limits": [
+    "Same-machine UDP and D3D12 only.",
+    "Scenes share one collision profile (Q1 not used by Play yet).",
+    "Revive progress is asserted through the completed revive and respawn, not through the HUD capture."
+  ]
+}

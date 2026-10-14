@@ -726,3 +726,9 @@ The user left the machine running and asked for work to continue. Later the user
   - The Royal scenes' first Play after this change writes `RoyalCombat.dacollision` / `RoyalTraining.dacollision` into `content/`.
 
 **Not committed.** The user's hand-test edits to `content/royal_district/RoyalCombat.dascene` and `RoyalTraining.dascene` (and their `.records` folders) are left in the working tree for the user to keep or discard. They include deleted Royal Guard spawns and test altars and transitions.
+
+## Fresh refactor baseline (14 October 2026)
+
+The audit-driven refactor's fresh baseline passes all six `verify_m8_slice.py` gates, including the previously open `m8-slice-party-travel`. Both host and guest report five arrivals, with fast travel preserving the Village checkpoint and a wipe in Training respawning both members in Village. The disposable Training and Village scenes each baked their own collision. M8/M6/HUD CTest passes 14/14; guarded build passes. This is same-machine UDP/D3D12 evidence.
+
+The first fresh run exposed a timing fault in the scripted revive hold: 420 rendered frames could finish before three seconds of simulation. `hold-interact` now counts simulation ticks while sending the same Interact requests. The unchanged full fresh slice passes after this repair. Failed and final evidence and controlled rebuild measurements are in [REFACTOR_REPORT.md](REFACTOR_REPORT.md). The user's scene sources and record folders remain untouched.
