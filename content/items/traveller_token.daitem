@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "kind": "item",
+  "asset": "94a81491-da8b-478f-9d4e-e78cfcd46092",
+  "name": "Traveller's Token",
+  "description": "A travelling keepsake.",
+  "classification": "regular",
+  "icon": null,
+  "model": null,
+  "stack_limit": 20,
+  "unique": false,
+  "usable": false,
+  "equippable": false,
+  "properties": {},
+  "sources": {}
+}

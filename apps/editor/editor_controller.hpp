@@ -35,6 +35,8 @@ public:
     std::vector<AssetInfo> asset_inventory;
     NativeAuthoring authoring;AssetId authoring_kit,authoring_player;
     std::function<void()> prepare_play_resources;
+    // Called after the scene was saved: the host rebakes what is derived from it (its static collision).
+    std::function<void()> scene_saved;
     std::function<std::vector<AssetId>()> authoring_roots;
     std::function<void(AssetId)> prepare_model;
     std::function<void(const SpawnPlan&,const World&)> prepare_gameplay;

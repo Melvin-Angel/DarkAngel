@@ -58,7 +58,7 @@ StableId local_player_profile(unsigned slot){
 }
 
 struct EditorPartyHost::Impl {
-    PartyHost party;unsigned expected;Address bind;std::string address;std::array<std::unique_ptr<Transport>,4> controls;std::array<ConnectionHandle,4> handles;std::array<bool,4> attached{};std::array<std::unique_ptr<Child>,4> children;
+    std::unique_ptr<PartyInventory> inventory;PartyHost party;unsigned expected;Address bind;std::string address;std::array<std::unique_ptr<Transport>,4> controls;std::array<ConnectionHandle,4> handles;std::array<bool,4> attached{};std::array<std::unique_ptr<Child>,4> children;
     std::unique_ptr<Gameplay> pending,active;std::uint64_t epoch{};bool settled{},stopped{},local_ready{},held{};double age{};std::array<unsigned,4> admission{};std::array<double,4> reopen{};std::vector<PartyDrop> drops;std::string bootstrap;
     Impl(StableId profile,unsigned count,std::string requested):party(profile,{120,60}),expected(count){
         check(count>=1&&count<=scene_party_limit,"Editor Players must be between 1 and 4");
@@ -83,7 +83,7 @@ void EditorPartyHost::pump(double seconds,CharacterSceneSession* running,bool tr
         if(!travelling)for(const auto& member:p.party.members()){const auto seat=member.seat;if(!seat||member.avatar||p.admission[seat]||running->authority().network(party_member(seat)))continue;
             try{game.links[seat].reset();const auto endpoint=p.bind.at(p.bind.port+8+unsigned((p.epoch-1)%128)*4+seat-1);game.links[seat]=create_gns_host(endpoint,game.destination.hello);game.handles[seat]=game.links[seat]->open(game.destination.hello);p.party.admit(seat,party_member(seat),endpoint);p.admission[seat]=1;std::cout<<"Party host admitting seat="<<seat<<" epoch="<<p.epoch<<std::endl;}
             catch(const std::exception& error){p.party.expel(seat,bounded(error.what()));}}
-        for(unsigned seat=1;seat<4;++seat)if(p.admission[seat]==1&&game.links[seat]&&game.links[seat]->connected()){try{running->add_member({party_member(seat),game.links[seat].get(),game.handles[seat],{},0});p.admission[seat]=2;}catch(const std::exception& error){p.admission[seat]=0;p.party.expel(seat,bounded(error.what()));}}
+        for(unsigned seat=1;seat<4;++seat)if(p.admission[seat]==1&&game.links[seat]&&game.links[seat]->connected()){try{auto roster=p.party.members();auto member=std::find_if(roster.begin(),roster.end(),[&](const auto& m){return m.seat==seat;});check(member!=roster.end(),"Inventory profile missing for admission");running->add_member({party_member(seat),game.links[seat].get(),game.handles[seat],{},0,member->profile});p.admission[seat]=2;}catch(const std::exception& error){p.admission[seat]=0;p.party.expel(seat,bounded(error.what()));}}
         for(const auto& [avatar,reason]:running->take_refused())for(unsigned seat=1;seat<4;++seat)if(party_member(seat)==avatar){p.admission[seat]=0;p.party.expel(seat,bounded(reason));}
     }
     if(!p.settled&&p.party.joined()&&p.party.members().size()>=p.expected)p.settled=true;if(!p.settled&&p.age>120){p.settled=true;p.drops.push_back({0,{},"Some players did not join before the timeout"});}
@@ -94,14 +94,15 @@ std::unique_ptr<CharacterSceneSession> EditorPartyHost::build(PreparedScene& sce
         for(auto& member:destination.members){member.avatar=member.seat?party_member(member.seat):scene.player;if(member.seat){const auto port=p.bind.port+8+unsigned((p.epoch-1)%128)*4+member.seat-1;destination.endpoints[member.seat]=p.bind.at(port);next->links[member.seat]=create_gns_host(destination.endpoints[member.seat],scene.hello);next->handles[member.seat]=next->links[member.seat]->open(scene.hello);}}
         p.party.prepare(destination);p.pending=std::move(next);p.local_ready=false;p.held=false;p.admission={};}
     const auto roster=p.party.members();for(const auto& member:roster)if(member.seat&&!p.pending->links[member.seat]->connected())return {};
-    std::vector<SceneSeat> seats;for(const auto& member:roster)if(member.seat)seats.push_back({party_member(member.seat),p.pending->links[member.seat].get(),p.pending->handles[member.seat],{},0});
-    SceneStart placed=start;if(!placed.arrival&&!seats.empty())for(const auto& object:scene.objects)if(object.id==scene.player)placed.arrival=SceneArrival{{object.transform.x,object.transform.y,object.transform.z},object.transform.yaw};
+    std::vector<SceneSeat> seats;for(const auto& member:roster)if(member.seat)seats.push_back({party_member(member.seat),p.pending->links[member.seat].get(),p.pending->handles[member.seat],{},0,member.profile});
+    SceneStart placed=start;if(scene.combat&&scene.combat->inventory){if(!p.inventory)p.inventory=std::make_unique<PartyInventory>(scene.combat->inventory->catalog);placed.inventory=p.inventory.get();for(const auto& member:roster)placed.profiles[member.seat?party_member(member.seat):scene.player]=member.profile;}if(!placed.arrival&&!seats.empty())for(const auto& object:scene.objects)if(object.id==scene.player)placed.arrival=SceneArrival{{object.transform.x,object.transform.y,object.transform.z},object.transform.yaw};
     auto session=std::make_unique<CharacterSceneSession>(scene.hello,scene.objects,scene.player,scene.collision,scene.plan,scene.rig,scene.rig_archive,scene.combat,std::span<const ScenePlayer>{},placed,seats,SceneTiming::Independent);p.active=std::move(p.pending);return session;
 }
 bool EditorPartyHost::ready(CharacterSceneSession& session){auto& p=*impl_;session.pump();if(!p.local_ready){auto status=session.client(session.players().front())->bootstrap_status();if(status!=p.bootstrap){p.bootstrap=std::move(status);std::cout<<"Party host bootstrap "<<p.bootstrap<<std::endl;}}if(!p.active||!session.bootstrapped())return false;if(!p.local_ready){p.party.local_ready(p.active->destination.scene,p.active->destination.hello);p.local_ready=true;std::cout<<"Party host prepared epoch="<<p.epoch<<" players="<<p.party.members().size()<<std::endl;}return p.party.ready();}
 void EditorPartyHost::resume(){check(impl_->party.resume(),"Party resumed before all players were ready");std::cout<<"Party host resumed epoch="<<impl_->epoch<<" players="<<impl_->party.members().size()<<std::endl;}
 void EditorPartyHost::cancel(std::string_view){/* No scene offer has been sent before the coordinator swaps. */}
 std::string EditorPartyHost::status()const{const auto& p=*impl_;return !p.settled?"Waiting for players":p.pending?"Connecting players to the scene":"Waiting for players to prepare";}
+PartyInventory* EditorPartyHost::inventory()const{return impl_->inventory.get();}
 std::size_t EditorPartyHost::members()const{return impl_->party.members().size();}
 std::vector<PartyMember> EditorPartyHost::roster()const{return impl_->party.members();}
 std::vector<PartyDrop> EditorPartyHost::drain_drops(){auto value=std::move(impl_->drops);impl_->drops.clear();return value;}
@@ -128,7 +129,7 @@ void EditorPartyGuest::pump(){auto& p=*impl_;if(p.finished)return;p.party->pump(
         if(!p.gameplay){p.gameplay=create_gns_client(offer->endpoint,p.prepared->hello);p.game_peer=p.gameplay->open(p.prepared->hello);p.text="Connecting to the scene";}
         if(!p.gameplay->connected())return;
         if(!p.session){// Every avatar a member of this scene can have: the host's, and one per seat for those here or admitted later.
-            std::vector<StableId> party;for(const auto& member:offer->destination.members)if(!member.seat)party.push_back(member.avatar);for(unsigned seat=1;seat<scene_party_limit;++seat)party.push_back(party_member(seat));auto& scene=*p.prepared;p.session=std::make_unique<CharacterSceneSession>(scene.hello,*p.gameplay,p.game_peer,p.owner,party,scene.collision,scene.plan,scene.rig,scene.rig_archive,scene.combat);}
+            std::vector<StableId> party;for(const auto& member:offer->destination.members)if(!member.seat)party.push_back(member.avatar);for(unsigned seat=1;seat<scene_party_limit;++seat)party.push_back(party_member(seat));auto& scene=*p.prepared;p.session=std::make_unique<CharacterSceneSession>(scene.hello,*p.gameplay,p.game_peer,p.owner,party,scene.collision,scene.plan,scene.rig,scene.rig_archive,scene.combat,p.profile);}
         p.session->pump();if(!p.reported){auto status=p.session->client(p.owner)->bootstrap_status();if(status!=p.bootstrap){p.bootstrap=std::move(status);std::cout<<"Party guest bootstrap "<<p.bootstrap<<std::endl;}}
         if(p.session->bootstrapped()&&!p.reported){p.party->ready(p.prepared->scene,p.prepared->hello);p.reported=true;std::cout<<"Party guest prepared epoch="<<p.prepared->hello.session_epoch<<" owner="<<p.owner.text()<<std::endl;if(loaded)loaded();}p.text=p.party->phase()!=PartyPhase::Running?"Waiting for the party":p.party->held()?"The party is travelling":"";
     }catch(const std::exception& e){p.error=bounded(e.what());p.text=p.error;p.failed=true;std::cout<<"Party guest failed: "<<p.error<<std::endl;p.party->failed(p.error);p.party->pump();}

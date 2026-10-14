@@ -11,7 +11,8 @@ const char* transition_phase_text(TransitionPhase phase){
 struct SceneTransitionCoordinator::Impl {
     SceneTransitionCoordinator& owner;SceneProvider& provider;WorldLedger& ledger;std::vector<StableId> companions;
     // The running scene, and the entry the party last came in by (nil: the scene's own start).
-    std::unique_ptr<PreparedScene> source,current;StableId source_entry;bool swap_started{},rollback{},initial{};std::string swap_failure;std::unique_ptr<CharacterSceneSession> session;StableId arrived_by;
+    std::unique_ptr<PartyInventory> inventory;StableId local_profile;std::unique_ptr<PreparedScene> source,current;StableId source_entry;bool swap_started{},rollback{},initial{};std::string swap_failure;std::unique_ptr<CharacterSceneSession> session;StableId arrived_by;
+    AssetId origin_scene;StableId origin_entry;std::vector<InventorySnapshot> restored;
     TransitionPhase phase{};TransitionRequest asked;std::unique_ptr<PreparedScene> pending;double elapsed{},progress{};std::string text;
     std::vector<TransitionPhase> log;std::optional<TransitionOutcome> outcome;bool fatal{},fail_swap{},loading{};
     Impl(SceneTransitionCoordinator& self,SceneProvider& source,WorldLedger& world,std::vector<StableId> others):owner(self),provider(source),ledger(world),companions(std::move(others)){require(companions.size()<scene_party_limit,"A party is at most four players");}
@@ -27,6 +28,10 @@ struct SceneTransitionCoordinator::Impl {
         std::vector<ScenePlayer> others;for(const auto id:companions)others.push_back({id,{},0});
         // What resets on entering a scene is gone before its objects read the ledger.
         ledger.reset(LedgerReset::SceneEntry,scene.scene);
+        if(!owner.build_session&&scene.combat&&scene.combat->inventory){
+            if(!inventory){inventory=std::make_unique<PartyInventory>(scene.combat->inventory->catalog);local_profile=owner.inventory_profile?owner.inventory_profile:scene.player;if(!restored.empty()){inventory->restore(restored);restored.clear();}}
+            start.inventory=inventory.get();start.profiles[scene.player]=local_profile;for(auto id:companions)start.profiles[id]=id;
+        }
         if(owner.build_session){auto session=owner.build_session(scene,by,start,others);require(!session||session->hosting(),"Scene transition construction requires a host");return session;}
         return std::make_unique<CharacterSceneSession>(scene.hello,scene.objects,scene.player,scene.collision,scene.plan,scene.rig,scene.rig_archive,scene.combat,others,start);
     }
@@ -51,7 +56,7 @@ struct SceneTransitionCoordinator::Impl {
         }
     }
     void update(double seconds){
-        if(phase==TransitionPhase::Idle){if(session)if(const auto raised=session->take_transition())owner.request({raised->scene,raised->entry,"scene transition trigger "+raised->source.text()});return;}
+        if(phase==TransitionPhase::Idle){if(session)if(const auto raised=session->take_transition())owner.request({raised->scene==AssetId{}?origin_scene:raised->scene,raised->scene==AssetId{}?origin_entry:raised->entry,raised->reset?"party respawn or rest at "+raised->source.text():"scene transition trigger "+raised->source.text(),raised->reset,raised->save});return;}
         elapsed+=seconds;
         switch(phase){
         case TransitionPhase::Requested:
@@ -72,7 +77,8 @@ struct SceneTransitionCoordinator::Impl {
             else enter(TransitionPhase::Capturing);
             break;
         case TransitionPhase::Capturing:
-            try{session->capture();enter(TransitionPhase::Swapping);}catch(const std::exception& error){cancel(std::string("The scene's state could not be captured: ")+error.what());}
+            // A rest or a wipe resets every scene's records after the source has been captured, in a fixed trigger order.
+            try{session->capture();for(const auto trigger:{LedgerReset::Rest,LedgerReset::PartyWipe})if(asked.reset&std::uint8_t(trigger))ledger.reset(trigger);enter(TransitionPhase::Swapping);}catch(const std::exception& error){cancel(std::string("The scene's state could not be captured: ")+error.what());}
             break;
         case TransitionPhase::Swapping:swap();break;
         case TransitionPhase::Placing:enter(TransitionPhase::AwaitingReady);break;
@@ -86,19 +92,22 @@ struct SceneTransitionCoordinator::Impl {
                 else{swap_failure=error.what();rollback=true;enter(TransitionPhase::Swapping);text="Rebuilding the source scene";}
             }
             break;}
-        case TransitionPhase::Resumed:if(owner.resumed)owner.resumed();finish({true,asked.scene,asked.entry,{},false});break;
+        case TransitionPhase::Resumed:if(owner.resumed)owner.resumed();finish({true,asked.scene,asked.entry,{},false,asked.reset,asked.save});break;
         default:break;}
     }
 };
 SceneTransitionCoordinator::SceneTransitionCoordinator(SceneProvider& provider,WorldLedger& ledger,std::vector<StableId> companions):impl_(std::make_unique<Impl>(*this,provider,ledger,std::move(companions))){}
 SceneTransitionCoordinator::~SceneTransitionCoordinator(){if(impl_->loading)impl_->provider.cancel();}
-void SceneTransitionCoordinator::start(std::unique_ptr<PreparedScene> scene,StableId entry){auto& p=*impl_;require(!p.session&&p.phase==TransitionPhase::Idle&&scene!=nullptr,"Play starts once, with a prepared scene");Impl::adopt(*scene);p.fatal=false;p.outcome.reset();p.log.clear();p.arrived_by=entry;p.session=p.build(*scene,entry);
+void SceneTransitionCoordinator::start(std::unique_ptr<PreparedScene> scene,StableId entry){auto& p=*impl_;require(!p.session&&p.phase==TransitionPhase::Idle&&scene!=nullptr,"Play starts once, with a prepared scene");Impl::adopt(*scene);p.fatal=false;p.outcome.reset();p.log.clear();p.arrived_by=entry;p.origin_scene=scene->scene;p.origin_entry=entry;p.session=p.build(*scene,entry);
     if(!p.session){require(bool(build_session),"Scene builder returned no session");p.asked={scene->scene,entry,"Play"};p.pending=std::move(scene);p.initial=p.swap_started=true;p.elapsed=p.progress=0;p.enter(TransitionPhase::Swapping);return;}
     p.current=std::move(scene);if(build_session){p.asked={p.current->scene,entry,"Play"};p.initial=true;p.elapsed=p.progress=0;p.enter(TransitionPhase::Placing);}}
 
 void SceneTransitionCoordinator::stop(){auto& p=*impl_;if(p.loading)p.provider.cancel();p.loading=false;p.pending.reset();p.phase=TransitionPhase::Idle;if(p.session){p.session->capture();if(unloading)unloading();}p.session.reset();p.current.reset();p.source.reset();p.swap_started=p.rollback=p.initial=false;}
 CharacterSceneSession* SceneTransitionCoordinator::session()const{return impl_->session.get();}
 const PreparedScene* SceneTransitionCoordinator::scene()const{return impl_->current?impl_->current.get():impl_->source?impl_->source.get():impl_->pending.get();}
+std::pair<AssetId,StableId> SceneTransitionCoordinator::origin()const{return {impl_->origin_scene,impl_->origin_entry};}
+PartyInventory* SceneTransitionCoordinator::inventory()const{return impl_->inventory.get();}
+void SceneTransitionCoordinator::restore_inventory(std::vector<InventorySnapshot> saved){auto& p=*impl_;require(!p.session&&!p.inventory,"Saved inventories are restored before Play starts");p.restored=std::move(saved);}
 bool SceneTransitionCoordinator::request(TransitionRequest asked){auto& p=*impl_;if(p.phase!=TransitionPhase::Idle||!p.session||asked.scene==AssetId{})return false;p.asked=std::move(asked);p.log.clear();p.outcome.reset();p.elapsed=0;p.progress=0;p.enter(TransitionPhase::Requested);return true;}
 void SceneTransitionCoordinator::update(double seconds){require(seconds>=0&&seconds<=10,"Transition clock delta bounds");impl_->update(seconds);}
 bool SceneTransitionCoordinator::busy()const{return impl_->phase!=TransitionPhase::Idle;}

@@ -13,7 +13,7 @@ struct CharacterSceneSession::Impl {
     std::unique_ptr<SceneAuthority> authority;std::vector<std::unique_ptr<SceneClient>> clients;std::vector<StableId> party;
     // A companion's input as last given, by seat; the first player's comes with advance and step.
     std::vector<CharacterSceneInput> held;mutable std::vector<StableId> guest_actors;std::vector<StableId> candidates;
-    SimulationClock clock;SceneTiming timing{SceneTiming::Lockstep};bool started{},pending_jump{},failed{};CharacterSceneProfile profile;double pumping{};
+    SimulationClock clock;SceneTiming timing{SceneTiming::Lockstep};bool started{},pending_jump{},failed{};std::optional<StableId> pending_interact;CharacterSceneProfile profile;double pumping{};
     Impl(SessionHandshake hello,std::span<const ObjectData> objects,StableId identity,const CollisionDefinition& collision,
          std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::optional<CharacterSceneCombat> configured,std::span<const ScenePlayer> companions,const SceneStart& start,std::span<const SceneSeat> remote,SceneTiming mode):timing(mode){
         if(configured)combat=std::make_shared<const CharacterSceneCombat>(std::move(*configured));
@@ -23,7 +23,7 @@ struct CharacterSceneSession::Impl {
         seat(identity,{},0);for(const auto& companion:companions)seat(companion.id,companion.position,companion.yaw);
         for(const auto& other:remote){seats.push_back(other);party.push_back(other.id);}
         authority=std::make_unique<SceneAuthority>(hello,objects,seats,collision,combat,start,mode);
-        for(std::size_t index=0;index<peers.size();++index)clients.push_back(std::make_unique<SceneClient>(hello,*links[index].client,peers[index],party[index],party,collision,plan,definition,archive,combat,mode));
+        for(std::size_t index=0;index<peers.size();++index)clients.push_back(std::make_unique<SceneClient>(hello,*links[index].client,peers[index],party[index],party,collision,plan,definition,archive,combat,mode,start.profiles.contains(party[index])?start.profiles.at(party[index]):party[index]));
         auto bootstrapped=[&]{if(mode==SceneTiming::Lockstep&&!synchronized())return false;for(const auto& client:clients)if(!client->bootstrapped())return false;return true;};
         for(unsigned work=0;work<32&&!bootstrapped();++work)pump();
         if(mode==SceneTiming::Lockstep||bootstrapped()){for(auto& client:clients)client->start();started=true;}
@@ -31,9 +31,9 @@ struct CharacterSceneSession::Impl {
         held.resize(clients.size());for(std::size_t index=1;index<clients.size();++index)held[index].yaw=authority->motor(party[index])->yaw;
     }
     Impl(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> members,const CollisionDefinition& collision,
-         std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> configured):party(members.begin(),members.end()),candidates(members.begin(),members.end()),timing(SceneTiming::Independent){
+         std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> configured,StableId profile):party(members.begin(),members.end()),candidates(members.begin(),members.end()),timing(SceneTiming::Independent){
         if(configured)combat=std::make_shared<const CharacterSceneCombat>(std::move(*configured));
-        clients.push_back(std::make_unique<SceneClient>(hello,transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,combat,SceneTiming::Independent));held.resize(1);
+        clients.push_back(std::make_unique<SceneClient>(hello,transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,combat,SceneTiming::Independent,profile));held.resize(1);
     }
     bool bootstrapped()const{for(const auto& client:clients)if(!client->bootstrapped())return false;return !clients.empty();}
     void start_if_ready(){if(!started&&bootstrapped()){for(auto& client:clients)client->start();started=true;}}
@@ -90,13 +90,13 @@ const PerceivedActor* last_lost_hostile(const ControllerView& view){
 }
 CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,std::span<const ObjectData> objects,StableId player,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat,std::span<const ScenePlayer> companions,const SceneStart& start,std::span<const SceneSeat> remote,SceneTiming timing)
     :impl_(std::make_unique<Impl>(std::move(hello),objects,player,collision,std::move(plan),std::move(rig),archive,std::move(combat),companions,start,remote,timing)){}
-CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> party,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat)
-    :impl_(std::make_unique<Impl>(std::move(hello),transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,std::move(combat))){}
+CharacterSceneSession::CharacterSceneSession(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> party,const CollisionDefinition& collision,std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> combat,StableId profile)
+    :impl_(std::make_unique<Impl>(std::move(hello),transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,std::move(combat),profile)){}
 CharacterSceneSession::~CharacterSceneSession()=default;
 bool CharacterSceneSession::hosting()const{return bool(impl_->authority);}
 bool CharacterSceneSession::bootstrapped()const{return impl_->started&&impl_->bootstrapped();}
 void CharacterSceneSession::pump(){impl_->pump();impl_->start_if_ready();}
-unsigned CharacterSceneSession::advance(double seconds,CharacterSceneInput input){auto& p=*impl_;if(p.timing==SceneTiming::Independent){require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});try{return p.independent(seconds,std::move(input));}catch(...){p.failed=true;throw;}}require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});p.enqueue(input.combat_events);input.combat_events.clear();p.pending_jump|=input.jump;auto steps=p.clock.advance(seconds);for(unsigned index=0;index<steps;++index){input.jump=p.pending_jump;try{p.step(input);}catch(...){p.failed=true;throw;}p.pending_jump=false;input.interact.reset();}return steps;}
+unsigned CharacterSceneSession::advance(double seconds,CharacterSceneInput input){auto& p=*impl_;if(p.timing==SceneTiming::Independent){require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});try{return p.independent(seconds,std::move(input));}catch(...){p.failed=true;throw;}}require(!p.failed,"Character scene requires a fresh synchronized session");require(std::isfinite(seconds)&&seconds>=0&&seconds<=10,"Character scene clock delta bounds");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});p.enqueue(input.combat_events);input.combat_events.clear();p.pending_jump|=input.jump;if(input.interact)p.pending_interact=input.interact;auto steps=p.clock.advance(seconds);for(unsigned index=0;index<steps;++index){input.jump=p.pending_jump;input.interact=p.pending_interact;try{p.step(input);}catch(...){p.failed=true;throw;}p.pending_jump=false;p.pending_interact.reset();}return steps;}
 void CharacterSceneSession::step(CharacterSceneInput input){if(impl_->timing==SceneTiming::Independent){advance(1./60,std::move(input));return;}try{impl_->enqueue(input.combat_events);input.combat_events.clear();impl_->step(input);}catch(...){impl_->failed=true;throw;}}
 void CharacterSceneSession::input(StableId companion,CharacterSceneInput input){auto& p=*impl_;std::size_t local=1;while(local<p.clients.size()&&p.clients[local]->player()!=companion)++local;require(local<p.clients.size(),"Input names a local companion");validate_motor_input({1,1,1,input.x,input.z,input.yaw,input.jump,input.crouch,input.pitch});p.clients[local]->enqueue(input.combat_events);auto& held=p.held[local];const bool jump=held.jump||input.jump;const auto interact=input.interact?input.interact:held.interact;input.combat_events.clear();held=std::move(input);held.jump=jump;held.interact=interact;}
 bool CharacterSceneSession::remove_member(StableId member){auto& p=*impl_;require(hosting(),"Guest cannot remove a party member");if(client(member)||!p.authority->remove_member(member))return false;const auto members=p.authority->party();p.party.assign(members.begin(),members.end());return true;}
@@ -154,6 +154,8 @@ std::optional<StableId> CharacterSceneSession::actor_encounter(StableId actor)co
 std::optional<InteractionPrompt> CharacterSceneSession::interaction_prompt()const{return impl_->clients.front()->interaction_prompt();}
 const InteractionOutcome* CharacterSceneSession::last_interaction()const{return impl_->clients.front()->last_interaction();}
 std::optional<unsigned> CharacterSceneSession::interactable_used(StableId id)const{return impl_->authority?impl_->authority->interactable_used(id):std::nullopt;}
+bool CharacterSceneSession::down_member(StableId member){return impl_->authority&&impl_->authority->down_member(member);}
+std::optional<InventoryReceipt> CharacterSceneSession::grant_item(StableId member,AssetId item,unsigned quantity){return impl_->authority?impl_->authority->grant_item(member,item,quantity):std::nullopt;}
 std::optional<unsigned> CharacterSceneSession::trigger_fired(StableId id)const{return impl_->authority?impl_->authority->trigger_fired(id):std::nullopt;}
 const CharacterSceneActor* CharacterSceneSession::actor(StableId id)const{return impl_->authority?impl_->authority->actor(id):impl_->clients.front()->actor(id);}
 const Perception* CharacterSceneSession::perception(StableId actor)const{return impl_->authority?impl_->authority->perception(actor):nullptr;}

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "kind": "item",
+  "asset": "b2787760-908a-404d-a920-ec2164f0fa33",
+  "name": "Air Mask",
+  "description": "A air mask. Equip it in a mask slot to use its combat kit.",
+  "classification": "mask",
+  "icon": null,
+  "model": null,
+  "stack_limit": 1,
+  "unique": true,
+  "usable": false,
+  "equippable": true,
+  "properties": {
+    "mask": "7bcfa11e-f08b-4371-8e47-474d74b98fe1"
+  },
+  "sources": {
+    "mask": "masks/air.dafacemask"
+  }
+}

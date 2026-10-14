@@ -3,6 +3,7 @@
 #include <darkangel/camera.hpp>
 #include <darkangel/behavior.hpp>
 #include <darkangel/perception.hpp>
+#include <darkangel/item_assets.hpp>
 namespace darkangel {
 // Initial authored references only; never a live actor or a gameplay inheritance tree.
 struct CharacterDefinition {AssetId id,skin;std::string generation;};
@@ -16,7 +17,9 @@ inline constexpr unsigned mask_slot_count=4;
 struct ActorLoadoutDefinition {AssetId kit;std::vector<AbilityAttributeValue> starting_attributes;std::array<AssetId,mask_slot_count> masks{};unsigned active_mask{};bool masked{};};
 struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
 // cameras: the Player's virtual camera rig; the built-in FreeLook + Aim rig when not authored.
-struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};};
+struct PlayerStartingInventory {std::vector<InventoryStartingItem> items;std::array<AssetId,4> equipped{};unsigned active{};};
+PlayerStartingInventory decode_player_inventory(std::string_view);
+struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};std::optional<PlayerStartingInventory> inventory;};
 // Typed Player "cameras" array (also used by the editor's authoring preview).
 CameraRigDefinition decode_camera_rig(std::string_view json);
 // Decodes and validates the "senses" object of an NPC source; the cooker reads it with the same rules.
@@ -28,7 +31,7 @@ SensesDefinition decode_npc_senses(std::string_view json);
 struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;SensesDefinition senses;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
-struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;};
+struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;CookedCombatKit base_kit;std::vector<CookedItem> items;};
 struct CookedNpc {std::array<std::optional<CookedMask>,mask_slot_count> masks;NpcDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;std::optional<BehaviorDefinition> behavior;};
 std::vector<AttributeDefinition> resolve_actor_attributes(const AttributeAsset&,std::span<const AbilityAttributeValue>);
 CookedCharacter load_cooked_character(const std::filesystem::path&,const std::filesystem::path&,AssetId);

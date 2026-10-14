@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "kind": "item",
+  "asset": "8096c138-3101-43cd-98e1-7b9feaf6a36c",
+  "name": "Water Mask",
+  "description": "A water mask. Equip it in a mask slot to use its combat kit.",
+  "classification": "mask",
+  "icon": null,
+  "model": null,
+  "stack_limit": 1,
+  "unique": true,
+  "usable": false,
+  "equippable": true,
+  "properties": {
+    "mask": "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82"
+  },
+  "sources": {
+    "mask": "masks/water.dafacemask"
+  }
+}

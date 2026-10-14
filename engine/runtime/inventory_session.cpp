@@ -28,7 +28,7 @@ std::vector<std::byte> encode_state(const InventoryOwnerState& state){
 }
 InventoryOwnerState decode_state(std::span<const std::byte> bytes,const ItemCatalog& catalog,StableId profile){
     Reader r{bytes};require(r.u64()==1&&r.u64()==2,"Inventory state schema/type");InventoryOwnerState result;auto& value=result.inventory;value.profile={r.u64(),r.u64()};require(value.profile==profile,"Inventory snapshot owner mismatch");
-    value.revision=r.u64();value.next_instance=r.u64();result.highest_operation=r.u64();result.receipt.operation=r.u64();result.receipt.revision=r.u64();result.receipt.failure=InventoryFailure(bounded(r,unsigned(InventoryFailure::Equipped)));
+    value.revision=r.u64();value.next_instance=r.u64();result.highest_operation=r.u64();result.receipt.operation=r.u64();result.receipt.revision=r.u64();result.receipt.failure=InventoryFailure(bounded(r,unsigned(InventoryFailure::Unavailable)));
     require((result.receipt.operation<=result.highest_operation||result.receipt.failure==InventoryFailure::Invalid)&&result.receipt.revision<=value.revision,"Inventory receipt revision/operation");const auto count=bounded(r,128);
     for(unsigned i=0;i<count;++i)value.entries.push_back({r.u64(),item(r),bounded(r,1000000)});for(auto& id:value.equipped)id=r.u64();r.end();
     Inventory validator(profile);validator.restore(catalog,value);return result;
@@ -36,10 +36,10 @@ InventoryOwnerState decode_state(std::span<const std::byte> bytes,const ItemCata
 }
 struct InventoryHostSession::Impl {
     struct Binding {StableId profile;bool synced{};std::optional<std::pair<std::uint64_t,std::uint64_t>> sent;std::deque<InventoryOwnerState> answers;};
-    WorldSession& session;PartyInventory& store;std::map<std::uint64_t,Binding> bindings;
-    Impl(WorldSession& s,PartyInventory& value):session(s),store(value){session.register_owner_channel(inventory_channel);}
+    WorldSession& session;PartyInventory& store;Resolve resolve;std::map<std::uint64_t,Binding> bindings;
+    Impl(WorldSession& s,PartyInventory& value,Resolve handler):session(s),store(value),resolve(std::move(handler)){session.register_owner_channel(inventory_channel);}
 };
-InventoryHostSession::InventoryHostSession(WorldSession& s,PartyInventory& store):impl_(std::make_unique<Impl>(s,store)){}
+InventoryHostSession::InventoryHostSession(WorldSession& s,PartyInventory& store,Resolve handler):impl_(std::make_unique<Impl>(s,store,std::move(handler))){}
 InventoryHostSession::~InventoryHostSession()=default;
 void InventoryHostSession::bind(std::uint64_t network,StableId profile){auto& p=*impl_;require(network&&p.store.contains(profile)&&p.bindings.size()<4&&!p.bindings.contains(network),"Inventory avatar/profile binding");for(const auto& [id,binding]:p.bindings)require(binding.profile!=profile,"Profile already controls another avatar");p.bindings.emplace(network,Impl::Binding{profile});}
 void InventoryHostSession::unbind(std::uint64_t network){impl_->bindings.erase(network);}
@@ -52,7 +52,7 @@ void InventoryHostSession::pump(){
             require(binding.answers.size()<16,"Inventory answer backlog");
             // Construct a full answer before enqueuing. An identical retry recovers
             // the retained result if sending stalls after an authoritative commit.
-            auto answer=request?p.store.request(binding.profile,*request):p.store.state(binding.profile);
+            auto answer=request?(p.resolve?p.resolve(message.network,binding.profile,*request):p.store.request(binding.profile,*request)):p.store.state(binding.profile);
             binding.answers.push_back(std::move(answer));binding.synced=true;
         }catch(...){p.session.disconnect(message.source);}
     }

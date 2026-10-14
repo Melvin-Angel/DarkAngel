@@ -11,7 +11,7 @@ class SceneClient {
 public:
     // party names every member of the session, this client's player among them.
     SceneClient(SessionHandshake,Transport&,ConnectionHandle,StableId player,std::span<const StableId> party,const CollisionDefinition&,
-        std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::shared_ptr<const CharacterSceneCombat>,SceneTiming = SceneTiming::Lockstep);
+        std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::shared_ptr<const CharacterSceneCombat>,SceneTiming = SceneTiming::Lockstep,StableId profile={});
     ~SceneClient();
     SceneClient(const SceneClient&)=delete;
     // One round of packet work: receive, prepare the newest collision frame for prediction and acknowledge it, send.
@@ -64,6 +64,20 @@ public:
     void admit(StableId member);
     const AbilityOwnerSnapshot* ability()const;
     const AbilityOwnerSnapshot* predicted_ability()const;
+    const InventoryOwnerState* inventory()const;
+    bool inventory_pending()const;
+    bool inventory_request(InventoryRequest);
+    // The latest view of the scene's world objects and the party (downed members, revive progress, wipe, altars,
+    // fast-travel destinations, checkpoint); null until the host has sent one.
+    const WorldStateView* world_state()const;
+    // The prepared scene content this client presents (altars, pickups, movers among it); null without combat.
+    const CharacterSceneCombat* combat()const;
+    // Each mover's box centre in the newest collision frame received; empty before one has arrived.
+    std::vector<std::pair<StableId,MotorVec>> movers()const;
+    // Rest or fast travel from an altar's menu; false when it could not be sent yet.
+    bool world_request(const WorldRequest&);
+    // This client's player is downed (Health 0 while the party lives on).
+    bool downed()const;
     std::size_t pending_abilities()const;
     MotorVec prediction_visual_offset()const;
     ObserverAbilitySample observer(StableId,double render_tick)const;

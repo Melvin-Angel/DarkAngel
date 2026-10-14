@@ -4,6 +4,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <darkangel/inventory_ui.hpp>
+#include <darkangel/altar_ui.hpp>
 
 namespace Rml {class RenderInterface;}
 namespace darkangel {
@@ -29,6 +31,9 @@ struct HudViewModel {
     std::string prompt;
     // The party is travelling between scenes: a full-screen loading panel with a status line and progress 0 to 1.
     bool loading{};std::string loading_text;double loading_progress{};
+    // The party lifecycle: the owner is downed; the party is wiped (the respawn follows); a revive in progress, the
+    // owner's own or one it gives, with its caption and progress 0 to 1.
+    bool downed{},wiped{};std::string revive_text;double revive_progress{};
     std::vector<HudWorldMarker> world_markers;
     bool operator==(const HudViewModel&)const=default;
 };
@@ -50,6 +55,13 @@ public:
     struct Box {float x{},y{},width{},height{};};
     std::optional<Box> box(const std::string& id)const;
     std::string text(const std::string& id)const;
+    void update_inventory(const InventoryUiModel&);
+    const InventoryUiModel& inventory()const;
+    std::vector<InventoryUiAction> drain_inventory_actions();
+    void update_altar(const AltarUiModel&);
+    const AltarUiModel& altar()const;
+    std::vector<AltarUiAction> drain_altar_actions();
+    void pointer(int x,int y,bool pressed,bool released,float wheel=0);
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
 }

@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "kind": "item",
+  "asset": "5cf71364-b1ee-42b9-b171-c900f76598a1",
+  "name": "Earth Mask",
+  "description": "A earth mask. Equip it in a mask slot to use its combat kit.",
+  "classification": "mask",
+  "icon": null,
+  "model": null,
+  "stack_limit": 1,
+  "unique": true,
+  "usable": false,
+  "equippable": true,
+  "properties": {
+    "mask": "1b9e05e4-43a0-46ad-a97b-7fd8417672d5"
+  },
+  "sources": {
+    "mask": "masks/earth.dafacemask"
+  }
+}

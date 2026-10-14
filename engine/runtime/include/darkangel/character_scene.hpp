@@ -16,7 +16,7 @@ public:
     // Independent client-only composition. The transport and prepared resources outlive this session. party lists every
     // avatar that may be a member of this scene; players() are those of them that are in the replicated world.
     CharacterSceneSession(SessionHandshake,Transport&,ConnectionHandle,StableId player,std::span<const StableId> party,
-        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {});
+        const CollisionDefinition&,std::shared_ptr<const AnimationGraphPlan>,RigDefinition,std::string_view rig_archive,std::optional<CharacterSceneCombat> = {},StableId profile={});
     ~CharacterSceneSession();
     bool hosting()const;
     bool bootstrapped()const;
@@ -125,6 +125,10 @@ public:
     std::optional<InteractionPrompt> interaction_prompt()const;
     const InteractionOutcome* last_interaction()const;
     std::optional<unsigned> interactable_used(StableId)const;
+    // Host only: see SceneAuthority::grant_item. Empty on a guest or without inventories.
+    std::optional<InventoryReceipt> grant_item(StableId member,AssetId item,unsigned quantity);
+    // Host only: SceneAuthority::down_member.
+    bool down_member(StableId member);
     // Name and faction of any server-driven actor, spawned enemies included.
     const CharacterSceneActor* actor(StableId)const;
 private:struct Impl;std::unique_ptr<Impl> impl_;

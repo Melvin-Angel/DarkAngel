@@ -4,7 +4,7 @@
 namespace darkangel {
 // One party member's place in a scene session: its identity and the connection its client holds. The first seat is the
 // scene's player object; a later seat's character is created at its position.
-struct SceneSeat {StableId id;Transport* transport{};ConnectionHandle peer;MotorVec position{};double yaw{};};
+struct SceneSeat {StableId id;Transport* transport{};ConnectionHandle peer;MotorVec position{};double yaw{};StableId profile;};
 // The host half of a scene session: the server WorldSession, the authoritative physics world, the party members'
 // characters, every server-driven actor, world events, interactables, trigger volumes and encounters. It reads nothing
 // from a client but what arrives through a Transport, and a client reads nothing from it but what it publishes.
@@ -49,6 +49,13 @@ public:
     std::optional<StableId> actor_encounter(StableId actor)const;
     std::optional<unsigned> trigger_fired(StableId)const;
     std::optional<unsigned> interactable_used(StableId)const;
+    // Host-only debug and gameplay grant into a member's persistent inventory (its profile). Empty without inventories.
+    std::optional<InventoryReceipt> grant_item(StableId member,AssetId item,unsigned quantity);
+    // The world view sent to the party (pickups, movers, altars, downed members, wipe), and movers' current box centres.
+    const WorldStateView& world_state()const;
+    // Tools and gates: takes all of a member's Health (it is downed, or the party wipes). False for a non-member.
+    bool down_member(StableId member);
+    std::vector<std::pair<StableId,MotorVec>> movers()const;
     std::uint64_t server_packets(StableId member)const;
     std::vector<std::uint64_t> server_packet_kinds(StableId member)const;
     const CharacterSceneProfile& profile()const;

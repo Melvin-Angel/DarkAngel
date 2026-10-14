@@ -104,6 +104,10 @@ public:
     EffectHandle apply_effect(AbilityOwnerHandle target,AbilityOwnerHandle source,const EffectDefinition&,double power,std::uint64_t source_activation=0);
     void remove_effect(AbilityOwnerHandle,EffectHandle);
     void cleanse_effects(AbilityOwnerHandle,const TagRequirement&);
+    // Server-only: restores Health (clamped to its maximum), for revives, consumables and rests.
+    void heal(AbilityOwnerHandle,double amount);
+    // Server-only: takes Health away outside any ability (tools and gates).
+    void damage(AbilityOwnerHandle,double amount);
     std::vector<EffectSnapshot> ability_effects(AbilityOwnerHandle)const;
     std::vector<TagId> ability_tags(AbilityOwnerHandle,AttributeVisibility=AttributeVisibility::Server)const;
     std::vector<EffectOutcome> drain_effect_outcomes();

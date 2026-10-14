@@ -1,5 +1,6 @@
 #include <darkangel/inventory.hpp>
 #include <nlohmann/json.hpp>
+#include <cmath>
 #include <stdexcept>
 namespace darkangel {
 namespace {
@@ -18,6 +19,7 @@ ItemDefinition decode_item_definition(std::string_view text){
     result.icon=reference(data.at("icon"));result.model=reference(data.at("model"));result.stack_limit=unsigned(stack);result.unique=data.at("unique").get<bool>();result.usable=data.at("usable").get<bool>();result.equippable=data.at("equippable").get<bool>();
     const auto& properties=data.at("properties");require(properties.is_object(),"Item classification properties must be an object");
     if(result.classification=="mask"){require(properties.size()==1,"Mask item property shape");result.mask=reference(properties.at("mask"));}
+    else if(result.classification=="consumable"&&!properties.empty()){require(properties.size()==1&&properties.contains("restore_health")&&properties.at("restore_health").is_number(),"Consumable item property shape");result.restore_health=properties.at("restore_health").get<double>();require(std::isfinite(result.restore_health)&&result.restore_health>=0&&result.restore_health<=100000,"Consumable restore Health is 0 to 100000");}
     else require(properties.empty(),"Unsupported item classification properties");
     // The catalog owns registered classification capability validation. The codec
     // checks universal bounds without preventing a caller from registering a new kind.
@@ -26,7 +28,7 @@ ItemDefinition decode_item_definition(std::string_view text){
     require(result.classification=="mask"?(result.mask!=AssetId{}&&result.equippable&&result.stack_limit==1):(result.mask==AssetId{}),"Item mask reference rule");return result;
 }
 std::string encode_item_definition(const ItemDefinition& value){
-    nlohmann::json properties=nlohmann::json::object();if(value.classification=="mask")properties["mask"]=reference(value.mask);
+    nlohmann::json properties=nlohmann::json::object();if(value.classification=="mask")properties["mask"]=reference(value.mask);if(value.classification=="consumable"&&value.restore_health>0)properties["restore_health"]=value.restore_health;
     auto result=nlohmann::json{{"schema",1},{"kind","item"},{"asset",value.id.text()},{"name",value.name},{"description",value.description},{"classification",value.classification},{"icon",reference(value.icon)},{"model",reference(value.model)},{"stack_limit",value.stack_limit},{"unique",value.unique},{"usable",value.usable},{"equippable",value.equippable},{"properties",properties}}.dump();
     decode_item_definition(result);return result;
 }

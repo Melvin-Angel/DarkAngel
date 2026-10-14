@@ -511,6 +511,8 @@ EffectHandle WorldSession::apply_effect(AbilityOwnerHandle target,AbilityOwnerHa
 }
 void WorldSession::remove_effect(AbilityOwnerHandle target,EffectHandle handle){auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(target));state->remove_effect(handle);auto cleanup=state->damage(0);s.commit_ability(target.network,std::move(state),cleanup);}
 void WorldSession::cleanse_effects(AbilityOwnerHandle target,const TagRequirement& tags){auto& s=*impl_;s.authority();auto state=std::make_unique<AbilityState>(s.ability(target));state->cleanse_effects(tags);auto cleanup=state->damage(0);s.commit_ability(target.network,std::move(state),cleanup);}
+void WorldSession::damage(AbilityOwnerHandle target,double amount){auto& s=*impl_;s.authority();require(std::isfinite(amount)&&amount>=0,"Damage amount");auto state=std::make_unique<AbilityState>(s.ability(target));auto cleanup=state->damage(std::min(amount,state->health().current));s.commit_ability(target.network,std::move(state),cleanup);}
+void WorldSession::heal(AbilityOwnerHandle target,double amount){auto& s=*impl_;s.authority();require(std::isfinite(amount)&&amount>=0,"Heal amount");auto state=std::make_unique<AbilityState>(s.ability(target));state->heal(amount);s.commit_ability(target.network,std::move(state),{});}
 std::vector<EffectSnapshot> WorldSession::ability_effects(AbilityOwnerHandle owner)const{auto result=impl_->ability(owner).effects().snapshot();for(auto& state:result)state.handle.owner=owner;return result;}
 std::vector<TagId> WorldSession::ability_tags(AbilityOwnerHandle owner,AttributeVisibility audience)const{return impl_->ability(owner).effects().tags().values(audience);}
 std::vector<EffectOutcome> WorldSession::drain_effect_outcomes(){auto& s=*impl_;s.authority();auto results=std::move(s.effect_outcomes);s.effect_outcomes.clear();return results;}
@@ -588,7 +590,7 @@ const std::map<std::uint64_t,PublicIndexEntry>& WorldSession::public_index()cons
 std::vector<std::uint64_t> WorldSession::packets_by_kind(ConnectionHandle peer)const{impl_->thread();auto found=impl_->peers.find(peer);require(found!=impl_->peers.end(),"Unknown session peer");return {found->second.packets_by_kind.begin(),found->second.packets_by_kind.end()};}
 std::uint64_t public_ability_content(const AbilityPublicSnapshot& snapshot){
     std::uint64_t hash=1469598103934665603ull;auto mix=[&](std::uint64_t value){for(unsigned byte=0;byte<8;++byte){hash^=(value>>(byte*8))&0xff;hash*=1099511628211ull;}};
-    mix(snapshot.loadout);mix(snapshot.attributes.size());for(const auto& attribute:snapshot.attributes){mix(attribute.id);mix(std::bit_cast<std::uint64_t>(attribute.value));}
+    mix(snapshot.loadout);for(auto mask:snapshot.equipped_masks)for(auto byte:mask.bytes)mix(byte);mix(snapshot.attributes.size());for(const auto& attribute:snapshot.attributes){mix(attribute.id);mix(std::bit_cast<std::uint64_t>(attribute.value));}
     mix(snapshot.tags.values.size());for(auto tag:snapshot.tags.values)mix(std::uint64_t(tag));
     mix(snapshot.active?snapshot.active->activation:0);if(snapshot.action){mix(snapshot.action->activation);mix(snapshot.action->clock-std::uint64_t(snapshot.action->rate)*snapshot.action->tick);mix(snapshot.action->rate);mix(std::uint64_t(snapshot.action->phase));}
     return hash;

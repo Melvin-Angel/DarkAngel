@@ -11,6 +11,9 @@
 #include <darkangel/world_ledger.hpp>
 #include <functional>
 #include <optional>
+#include <darkangel/scene_inventory.hpp>
+#include <darkangel/world_objects.hpp>
+#include <darkangel/party_lifecycle.hpp>
 
 namespace darkangel {
 enum class SceneTiming {Lockstep,Independent};
@@ -50,19 +53,29 @@ struct CharacterSceneEncounter {
 // A placed interactable: the scene object, its component and where it stands.
 struct CharacterSceneInteractable {StableId id;InteractableDefinition definition;MotorVec position{};};
 // What the owner's HUD offers, and how authority answered the owner's latest request. Presentation only.
-struct InteractionPrompt {StableId id;std::string prompt;};
+// hold: the prompt is used by holding Interact (a revive), not by one press.
+struct InteractionPrompt {StableId id;std::string prompt;bool hold{};};
 struct InteractionOutcome {StableId object;InteractionResult result{};std::uint64_t tick{};};
 struct CharacterSceneTrigger {StableId id;TriggerDefinition definition;MotorVec center{};double yaw{};};
 // A placed scene transition trigger: the scene object, its component and where its box stands.
 struct CharacterSceneTransition {StableId id;TransitionDefinition definition;MotorVec center{};double yaw{};};
+// Placed M8 world objects. A mover's start is its box centre at the start end, its definition's offset already turned
+// into the scene's axes; yaw turns the box. An altar's arrival is where the party stands when it arrives or respawns there.
+struct CharacterScenePickup {StableId id;PickupDefinition definition;MotorVec position{};};
+struct CharacterSceneAltar {StableId id;AltarDefinition definition;MotorVec position{};double yaw{};MotorVec arrival{};};
+struct CharacterSceneMover {StableId id;MoverDefinition definition;MotorVec start{};double yaw{};};
 // Party travel that authority asked for on its latest tick: the trigger that raised it and where it leads. It names
 // no player: the whole party travels. The owner of Play (the transition coordinator) carries it out.
-struct SceneTransitionRequest {StableId source;AssetId scene;StableId entry;};
+// reset: ledger reset triggers (LedgerReset bits) the coordinator runs over every scene after capturing the source, as a
+// rest or a party wipe does; save: the owner of Play saves once the party has arrived. A nil scene is the party's own
+// start (the scene and entry Play began with): a wipe with no checkpoint respawns there.
+struct SceneTransitionRequest {StableId source;AssetId scene;StableId entry;std::uint8_t reset{};bool save{};};
 // Where the party enters a scene: the first member stands on the point, the others around it.
 struct SceneArrival {MotorVec position{};double yaw{};};
 // The session carries session_character_capacity characters; one of them is the player.
 constexpr std::size_t character_scene_actor_limit=session_character_capacity-1;
 struct CharacterSceneCombat {
+    std::shared_ptr<const SceneInventoryDefinition> inventory;
     std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;
     std::vector<AttributeDefinition> attributes;AttributeId health{},maximum_health{};
     std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
@@ -89,6 +102,8 @@ struct CharacterSceneCombat {
     // Scene transition triggers, at most 16, and the scene asset this content was prepared from: the scene half of the
     // persistent identity of its objects in the world ledger. A scene with no asset identity records nothing.
     std::vector<CharacterSceneTransition> transitions;AssetId scene;
+    // Pickups (at most 64), altars and movers (at most 16 each), and the party's downed/revive/wipe rules.
+    std::vector<CharacterScenePickup> pickups;std::vector<CharacterSceneAltar> altars;std::vector<CharacterSceneMover> movers;PartyRules party;
     // Time slicing: per tick, at most this many controllers decide, this many actors sense and this many enemies enter.
     // The rest keep their latest decision (movement and facing) and perception until their turn, in ascending order
     // from where the previous tick stopped. An actor without a controller neither senses nor decides.
@@ -111,7 +126,7 @@ struct ScenePlayer {StableId id;MotorVec position{};double yaw{};};
 // at the player object and the companions' own places. ledger: the host's world ledger; authority restores the
 // scene's persistent objects from it before the first tick and writes to it in the tick a persistent fact changes.
 // It must outlive the session.
-struct SceneStart {std::optional<SceneArrival> arrival;WorldLedger* ledger{};};
+struct SceneStart {std::optional<SceneArrival> arrival;WorldLedger* ledger{};PartyInventory* inventory{};std::map<StableId,StableId> profiles;};
 // The characters a scene's content needs places for beside the party: its actors and the most each encounter can have alive at once.
 std::size_t scene_actor_demand(const CharacterSceneCombat&);
 // The most players one scene session carries (WorldSession's peer limit).

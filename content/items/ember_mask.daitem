@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "kind": "item",
+  "asset": "ea62664c-8140-4195-a557-a01bab1ae615",
+  "name": "Ember Mask",
+  "description": "A ember mask. Equip it in a mask slot to use its combat kit.",
+  "classification": "mask",
+  "icon": null,
+  "model": null,
+  "stack_limit": 1,
+  "unique": true,
+  "usable": false,
+  "equippable": true,
+  "properties": {
+    "mask": "0fa58675-c41b-4fd8-856e-4f367ebe02c2"
+  },
+  "sources": {
+    "mask": "masks/ember.dafacemask"
+  }
+}

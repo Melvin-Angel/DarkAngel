@@ -32,6 +32,7 @@ public:
     std::vector<PendingHit> pending_hits;
     bool remember_hit(const PendingHit&,std::uint64_t target,std::uint64_t epoch);
     std::vector<AbilityActionUpdate> damage(double);
+    void heal(double);
     Health health()const;
     AbilityOwnerHandle owner()const{return owner_;}
     void configure_tags(std::shared_ptr<const TagDictionary>);
@@ -66,6 +67,7 @@ private:
     std::vector<AbilityCommitUpdate> commitments_;
     struct Loadout {std::shared_ptr<const CombatKitDefinition> kit;std::shared_ptr<const InputProfile> input;std::array<std::shared_ptr<const AbilityDefinition>,combat_slot_count> grants;};
     std::array<std::optional<Loadout>,loadout_slot_count> loadouts_;unsigned active_loadout_{};
+    std::array<AssetId,loadout_slot_count> equipped_masks_{};
     Loadout prepare_loadout(std::shared_ptr<const CombatKitDefinition>,const InputProfile&,std::span<const std::shared_ptr<const AbilityDefinition>>)const;
     std::vector<AbilityActionUpdate> install_loadout(const Loadout&);
     std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> select_loadout(const AbilityIntent&,std::optional<AbilityFailure>);

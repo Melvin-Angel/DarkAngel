@@ -13,6 +13,8 @@ struct ItemKind {std::string name;bool usable{},equippable{},mask{};};
 struct ItemDefinition {
     AssetId id;std::string name,description,classification;
     AssetId icon,model,mask;unsigned stack_limit{1};bool unique{},usable{},equippable{};
+    // Consumable: Health restored when used (0 to 100000).
+    double restore_health{};
 };
 // Canonical .daitem schema-1 source codec. Cooking will resolve these asset references
 // into the existing CAS closure; this codec does not load source files at runtime.
@@ -24,11 +26,13 @@ public:
     void register_kind(ItemKind);
     void insert(ItemDefinition);
     const ItemDefinition& get(AssetId)const;
+    const std::map<AssetId,ItemDefinition>& items()const{return items_;}
 private:
     std::map<std::string,ItemKind,std::less<>> kinds_;
     std::map<AssetId,ItemDefinition> items_;
 };
 struct InventoryEntry {std::uint64_t instance{};AssetId item;unsigned quantity{};bool operator==(const InventoryEntry&)const=default;};
+struct InventoryStartingItem {AssetId item;unsigned quantity{};};
 struct InventorySnapshot {
     unsigned schema{1};StableId profile;std::uint64_t revision{},next_instance{1};
     std::vector<InventoryEntry> entries;std::array<std::uint64_t,4> equipped{};
@@ -40,7 +44,7 @@ struct InventoryRequest {
     std::uint64_t instance{};unsigned quantity{},slot{};
     bool operator==(const InventoryRequest&)const=default;
 };
-enum class InventoryFailure {None,Invalid,Capacity,Unique,Missing,NotUsable,NotMask,Equipped};
+enum class InventoryFailure {None,Invalid,Capacity,Unique,Missing,NotUsable,NotMask,Equipped,Unavailable};
 struct InventoryReceipt {std::uint64_t operation{},revision{};InventoryFailure failure{};bool operator==(const InventoryReceipt&)const=default;};
 // Host-owned per-profile state, deliberately independent of SceneAuthority and avatar
 // epochs. The caller supplies the authenticated profile, never an untrusted wire field.

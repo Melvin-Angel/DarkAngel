@@ -38,12 +38,14 @@ public:
 enum class TransitionPhase:std::uint8_t{Idle,Requested,Preparing,Validating,Capturing,Swapping,Placing,AwaitingReady,Resumed};
 const char* transition_phase_text(TransitionPhase);
 // entry: the destination entry point, or nil for the scene's own start. reason is for logs.
-struct TransitionRequest {AssetId scene;StableId entry;std::string reason;};
+// reset and save: see SceneTransitionRequest. A nil scene is refused; a session's respawn with no checkpoint is mapped
+// to origin() before it is requested.
+struct TransitionRequest {AssetId scene;StableId entry;std::string reason;std::uint8_t reset{};bool save{};};
 struct TransitionStatus {TransitionPhase phase{};double progress{};std::string text;};
 // How the latest transition ended. arrived: the party is in the destination. Otherwise failure says why, and the
 // party is in the scene it left: untouched when the failure came before the swap, rebuilt from the ledger when it
 // came during it (rebuilt true).
-struct TransitionOutcome {bool arrived{};AssetId scene;StableId entry;std::string failure;bool rebuilt{};};
+struct TransitionOutcome {bool arrived{};AssetId scene;StableId entry;std::string failure;bool rebuilt{};std::uint8_t reset{};bool save{};};
 // Owns the running scene session of a Play and replaces it when the party travels. One transition at a time; party
 // travel is whole-party by definition. What crosses a transition is the party and the world ledger, nothing else.
 // The session is never left with no scene: a failure before the swap cancels, a failure during it builds the source
@@ -55,6 +57,7 @@ public:
     // companions: the party members beyond the first, in seat order. The provider and the ledger outlive the coordinator.
     SceneTransitionCoordinator(SceneProvider&,WorldLedger&,std::vector<StableId> companions={});
     ~SceneTransitionCoordinator();
+    StableId inventory_profile; // optional persistent local profile; party hosts supply their roster mapping
     SceneTransitionCoordinator(const SceneTransitionCoordinator&)=delete;
     // Starts Play in a scene: the party at the entry point, or at the scene's own start.
     void start(std::unique_ptr<PreparedScene>,StableId entry={});
@@ -62,6 +65,12 @@ public:
     void stop();
     CharacterSceneSession* session()const;
     const PreparedScene* scene()const;
+    // The scene and entry Play began with: where a party with no checkpoint respawns.
+    std::pair<AssetId,StableId> origin()const;
+    // The party's persistent inventories when the coordinator owns them (in-process Play); null otherwise.
+    PartyInventory* inventory()const;
+    // Inventories restored from a save, used instead of fresh starting inventories. Before start().
+    void restore_inventory(std::vector<InventorySnapshot>);
     // Asks for party travel. False, and nothing changes, while another transition is running or no scene is.
     bool request(TransitionRequest);
     // Once per frame, after the session's ticks: takes travel the session's own triggers raised, then advances the

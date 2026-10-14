@@ -28,6 +28,8 @@ public:
     std::vector<PartyMember> roster()const;
     std::vector<PartyDrop> drain_drops();
     std::uint64_t epoch()const;
+    // The party's persistent inventories (created with the first scene that has them); null before.
+    PartyInventory* inventory()const;
     void stop();
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };

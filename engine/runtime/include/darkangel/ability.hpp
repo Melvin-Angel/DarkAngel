@@ -69,7 +69,7 @@ MotionWarp ability_warp_between(const AbilityDefinition&,std::uint64_t from_cloc
 // ability intent whose slot value lies just past the ability slots, so it shares the
 // operation ledger, receipts, prediction and replay of every other request.
 inline constexpr unsigned loadout_slot_count=4;
-struct AbilityLoadout {std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;std::vector<std::shared_ptr<const AbilityDefinition>> abilities;};
+struct AbilityLoadout {std::shared_ptr<const CombatKitDefinition> kit;InputProfile input;std::vector<std::shared_ptr<const AbilityDefinition>> abilities;AssetId mask;};
 inline CombatSlot loadout_select_slot(unsigned index){return static_cast<CombatSlot>(combat_slot_count+index);}
 struct AbilityOwnerHandle {
     EntityHandle entity;std::uint64_t session_epoch{},network{};
@@ -118,6 +118,7 @@ struct AbilityPublicSnapshot {
     AssetId action_definition;
     ActorTagSnapshot tags;
     unsigned loadout{};
+    std::array<AssetId,loadout_slot_count> equipped_masks{};
 };
 struct AbilityOwnerSnapshot {
     AbilityOwnerHandle owner;std::uint64_t tick{},grant_generation{},revision{};
@@ -140,5 +141,6 @@ struct AbilityOwnerSnapshot {
     std::optional<AbilityReservationSnapshot> reservation;
     // Index of the active prepared loadout; zero without configured loadouts.
     unsigned loadout{};
+    std::array<AssetId,loadout_slot_count> equipped_masks{};
 };
 }

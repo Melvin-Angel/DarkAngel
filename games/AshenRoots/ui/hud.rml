@@ -18,7 +18,9 @@ div { display: block; }
 #crosshair { position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; margin-left: -12px; margin-top: -14px; text-align: center; font-size: 22px; color: #ffffffd0; }
 .lock { font-size: 13px; color: #f0c674; margin-top: 4px; text-align: center; }
 #prompt { position: absolute; left: 0px; right: 0px; top: 62%; text-align: center; font-size: 18px; color: #f0e6d2; }
-#state { position: absolute; left: 0px; right: 0px; top: 36%; text-align: center; font-size: 36px; color: #e8dccb; }
+#state, #downed, #wiped { position: absolute; left: 0px; right: 0px; top: 36%; text-align: center; font-size: 36px; color: #e8dccb; }
+#wiped { color: #e05a4a; }
+#revive { position: absolute; left: 35%; width: 30%; top: 68%; text-align: center; }
 #loading { position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-color: #0b0d11f8; }
 #loading-title { position: absolute; left: 0px; right: 0px; top: 40%; text-align: center; font-size: 30px; color: #e8dccb; }
 #loading-text { position: absolute; left: 0px; right: 0px; top: 50%; text-align: center; font-size: 15px; color: #b9b2a6; }
@@ -44,7 +46,10 @@ div { display: block; }
 </div>
 <div id="crosshair" data-if="crosshair">+</div>
 <div id="prompt" data-if="has_prompt">{{prompt}}</div>
-<div id="state" data-if="dead">Defeated</div>
+<div id="state" data-if="dead &amp;&amp; !downed &amp;&amp; !wiped">Defeated</div>
+<div id="downed" data-if="downed &amp;&amp; !wiped">Downed<div class="caption">A teammate can revive you by holding Interact</div></div>
+<div id="wiped" data-if="wiped &amp;&amp; !loading">Party defeated<div class="caption">Returning to the last altar</div></div>
+<div id="revive" data-if="reviving &amp;&amp; !loading"><div id="revive-text" class="caption">{{revive_text}}</div><div id="revive-bar" class="bar"><div id="revive-fill" class="fill progress" data-style-width="revive_percent + '%'"></div></div></div>
 <div id="player" class="panel">
 	<div id="mask" class="mask" data-if="has_mask">{{mask}}</div>
 	<div id="stagger" class="caption" data-if="staggered">Staggered</div>

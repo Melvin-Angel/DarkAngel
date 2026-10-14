@@ -28,6 +28,11 @@ struct SpawnPlan {
     std::map<StableId,std::string> splines;std::map<StableId,SplinePoint> spline_points;
     // The scene's audio profile: the one object with an "audio" component, and the profile asset it names. Presentation only.
     std::map<StableId,AssetId> audio_profiles;
+    // M8 world objects: each holds the object's validated "pickup", "altar" or "mover" component JSON. A pickup or mover
+    // may also be a placed model: that model is drawn, never baked into static collision (a mover has its own box).
+    std::map<StableId,std::string> pickups,altars,movers;
+    // The scene's collision profile: the one object with a "collision" component and the collision asset it names.
+    std::map<StableId,AssetId> collision_profiles;
     std::map<StableId,std::string> encounters,triggers;std::map<StableId,Volume> volumes;std::map<StableId,StableId> spawn_owners;
     std::string serialize() const;
     static SpawnPlan deserialize(std::string_view);

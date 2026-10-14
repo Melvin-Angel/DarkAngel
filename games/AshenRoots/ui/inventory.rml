@@ -1,0 +1,54 @@
+<rml>
+<head><title>Inventory</title><style>
+body { font-family: HUD; font-size: 17px; color: #eee; margin: 0; width: 100%; height: 100%; }
+button { background-color: #282d35; border: 1px #69727e; padding: 9px 13px; color: #eee; cursor: pointer; }
+button:hover { background-color: #444c57; border-color: #c99550; }
+button:disabled { color: #777; background-color: #15181d; cursor: default; }
+#inventory-toggle { position: absolute; right: 24px; bottom: 24px; }
+#inventory-backdrop { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color: #000b; }
+#inventory-panel { position: absolute; left: 5%; top: 7%; width: 90%; height: 86%; background-color: #10151ef5; border: 1px #8d7956; }
+.heading { height: 52px; padding: 14px 22px; border-bottom: 1px #343c48; }
+.title { font-size: 27px; color: #e8c89b; }
+#inventory-close { position: absolute; right: 18px; top: 14px; }
+.content { position: absolute; left: 20px; right: 20px; top: 92px; bottom: 58px; }
+.items { position: absolute; left: 0; top: 0; bottom: 0; width: 43%; overflow-y: auto; }
+.item { display: block; width: 94%; margin-bottom: 8px; padding: 10px; text-align: left; }
+.selected { border-color: #efbc72; background-color: #3b342b; }
+.minor { color: #aab3be; font-size: 14px; }
+.details { position: absolute; left: 47%; right: 0; top: 0; bottom: 0; overflow-y: auto; }
+.description { margin-top: 10px; margin-bottom: 18px; }
+.slots-title { color: #e8c89b; font-size: 21px; margin-top: 18px; margin-bottom: 10px; }
+.slot { border: 1px #343c48; padding: 8px; margin-bottom: 8px; }
+.slot-label { margin-bottom: 6px; }
+.slot button { padding: 5px 8px; font-size: 15px; }
+.status { position: absolute; left: 22px; right: 22px; bottom: 16px; color: #c8b595; font-size: 15px; }
+</style></head>
+<body data-model="inventory">
+<button id="inventory-toggle" data-if="!open" data-event-click="toggle()">Inventory [I]</button>
+<div id="inventory-backdrop" data-if="open">
+ <div id="inventory-panel">
+  <div class="heading"><span class="title">Inventory</span><button id="inventory-close" data-event-click="close()">Close [I / Esc]</button></div>
+  <div class="content">
+   <div class="items">
+    <div class="minor" data-if="empty">Your inventory is empty.</div>
+    <button class="item" data-for="item : items" data-attr-id="item.element" data-class-selected="selected == item.key" data-event-click="select(item.key)">
+     <div>{{item.name}}</div><div class="minor">{{item.kind}} · {{item.quantity}}</div><div class="minor" data-if="item.equipped &gt;= 0">Equipped in slot {{item.equipped + 1}}</div>
+    </button>
+   </div>
+   <div class="details">
+    <div class="title" id="inventory-selected-name">{{selected_name}}</div>
+    <div class="minor">{{selected_kind}}</div><div class="description" id="inventory-description">{{selected_description}}</div>
+    <button id="inventory-use" data-if="selected_usable" data-attr-disabled="!ready || busy" data-event-click="use()">Use</button>
+    <div class="minor" data-if="selected != '' &amp;&amp; !selected_mask &amp;&amp; !selected_usable">This item can be viewed here.</div>
+    <div class="slots-title">Mask slots</div>
+    <div class="slot" data-for="slot : slots" data-attr-id="slot.element">
+     <div class="slot-label">{{slot.name}}: {{slot.label}}</div>
+     <button data-attr-id="slot.equip_element" data-if="selected_mask" data-attr-disabled="!ready || busy" data-event-click="equip(slot.index)">Equip selected mask</button>
+     <button data-attr-id="slot.unequip_element" data-if="!slot.empty" data-attr-disabled="!ready || busy" data-event-click="unequip(slot.index)">Unequip</button>
+    </div>
+   </div>
+  </div>
+  <div id="inventory-status" class="status">{{status}}</div>
+ </div>
+</div>
+</body></rml>

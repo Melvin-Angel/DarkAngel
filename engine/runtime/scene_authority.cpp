@@ -1,6 +1,8 @@
 #include <darkangel/scene_authority.hpp>
+#include <darkangel/inventory_session.hpp>
 #include <darkangel/assembly.hpp>
 #include "scene_shared.hpp"
+#include "scene_world_objects.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -11,12 +13,14 @@
 namespace darkangel {
 using scene_detail::require;
 struct SceneAuthority::Impl {
-    WorldSession server;
+    // Pickups, altars and movers; the party's downed/revive/wipe state; the world view last sent to each member.
+    std::unique_ptr<scene_detail::SceneWorldObjects> world_objects;std::unique_ptr<PartyLifecycleCoordinator> lifecycle;WorldStateView view_now;std::map<std::uint64_t,std::uint64_t> view_sent;bool respawn_raised{};
+    WorldSession server;std::unique_ptr<PartyInventory> owned_inventory;PartyInventory* inventory_store{};std::unique_ptr<InventoryHostSession> inventory_session;
     SceneTiming timing;
     PhysicsWorld authoritative;
     // A party member: its character's authoritative motor and ability owner, the connection that owns it, and this tick's
     // accepted command and action motion. Kept in seat order, which is ascending network identity.
-    struct Member {StableId identity;std::uint64_t id{};ConnectionHandle peer;MotorVec foot{};double yaw{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;MotorInput accepted,held;MotionRequest motion;AbilityOwnerSnapshot before;};
+    struct Member {StableId identity,profile;std::uint64_t id{};ConnectionHandle peer;MotorVec foot{};double yaw{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;MotorInput accepted,held;MotionRequest motion;AbilityOwnerSnapshot before;};
     // A server-driven actor: its scene configuration, authoritative motor and ability owner, the latest controller
     // press and chosen target. Kept in ascending network identity.
     struct Actor {StableId identity;std::uint64_t id{};const CharacterSceneActor* config{};MotorVec foot{};double yaw{};std::uint32_t faction{};std::unique_ptr<CharacterMotor> motor;AbilityOwnerHandle owner;std::uint64_t operation{1};std::optional<AbilityReceipt> receipt;std::optional<StableId> chosen,locked;std::unique_ptr<Perception> perception;std::optional<std::size_t> encounter;std::uint64_t died{};bool recorded{};double hold_x{},hold_z{};std::optional<double> hold_face;};
@@ -49,7 +53,7 @@ struct SceneAuthority::Impl {
     // starts again when its scene is built again: a half-fought encounter restarts, it is not resumed mid-wave.
     struct EncounterState final:PersistentObject {EncounterDirector& director;explicit EncounterState(EncounterDirector& held):director(held){}
         std::string_view kind()const override{return "encounter";}
-        void capture(LedgerWriter& out)const override{const LedgerPolicy policy{LedgerScope::Save,LedgerReset::Rest|LedgerReset::PartyWipe};const auto phase=director.status().phase;if(phase==EncounterPhase::Complete)out.set("completed",true,policy);else if(phase==EncounterPhase::Running)out.set("started",true,policy);}
+        void capture(LedgerWriter& out)const override{const LedgerPolicy policy=director.definition().completed_policy;const auto phase=director.status().phase;if(phase==EncounterPhase::Complete)out.set("completed",true,policy);else if(phase==EncounterPhase::Running)out.set("started",true,policy);}
         void restore(const LedgerReader& in)override{if(in.flag("completed").value_or(false))director.restore(EncounterPhase::Complete);else if(in.flag("started").value_or(false))director.restore(EncounterPhase::Running);}};
     // A scene actor (a spawn point's NPC, a placed dummy) that was defeated is not created again until a rest or a party wipe.
     struct ActorState final:PersistentObject {bool defeated{};
@@ -65,6 +69,15 @@ struct SceneAuthority::Impl {
         if(!ledger)return;
         for(std::size_t index=0;index<interactables.size();++index)record_interactable(index);for(std::size_t index=0;index<triggers.size();++index)record_trigger(index);for(std::size_t index=0;index<directors.size();++index)record_encounter(index);
         for(auto& actor:actors)if(!actor.encounter&&actor.recorded){ActorState state;state.defeated=true;ledger->capture(persistent(actor.identity),state);}
+        if(world_objects)world_objects->capture();
+    }
+    scene_detail::SceneWorldObjects::Who who(const Member& m)const{return {m.id,m.profile,m.motor->state().position,living(m.id)&&(!lifecycle||lifecycle->state(m.id)==PartyMemberState::Alive),&m==&members.front()};}
+    scene_detail::SceneWorldObjects::Context context()const{return {world,[this](StableId id){for(std::size_t index=0;index<directors.size();++index)if(encounter_identities[index]==id)return directors[index].status().phase==EncounterPhase::Complete;return false;}};}
+    // The view every member's client holds: sent when it changes, and again to a member that has not received it.
+    void publish_view(){
+        if(!world_objects)return;WorldStateView view;world_objects->view(view);view.members=lifecycle->view();for(auto& m:view.members)m.revive=std::floor(m.revive*10)/10;view.wiped=lifecycle->wiped();
+        view.revision=view_now.revision;if(view!=view_now){view.revision=view_now.revision+1;view_now=std::move(view);}
+        const auto bytes=world_bytes(encode_world_state(view_now));for(const auto& m:members){auto& sent=view_sent[m.id];if(sent!=view_now.revision&&server.send_owner_message(m.id,world_state_channel,bytes))sent=view_now.revision;}
     }
     // The party enters in a fixed formation: the first member on the point, the others on a ring of 1.2 m around it in
     // seat order, starting behind it. Each place is put on the ground under it and, while a scene actor or an earlier
@@ -84,7 +97,23 @@ struct SceneAuthority::Impl {
         :server(SessionRole::Server,hello,scene_detail::session_limits(mode)),timing(mode),combat(std::move(configured)){
         require((hello.protocol==2||hello.protocol==3)&&(!combat||hello.protocol==3),"Character scene requires wire2 and the initial human profile");require(!objects.empty()&&objects.size()<=128&&!party.empty()&&party.size()<=scene_party_limit&&party.front().id,"Character scene object/player bounds");
         if(combat&&combat->scene!=AssetId{})ledger=start.ledger;
-        for(const auto& seat:party){require(seat.transport&&bool(seat.id)&&std::count_if(party.begin(),party.end(),[&](const auto& other){return other.id==seat.id;})==1,"Scene party seat");server.attach(*seat.transport,seat.peer);Member member;member.identity=seat.id;member.peer=seat.peer;member.foot=seat.position;member.yaw=seat.yaw;members.push_back(std::move(member));member_identities.push_back(seat.id);}
+        if(combat&&combat->inventory){inventory_store=start.inventory;if(!inventory_store){owned_inventory=std::make_unique<PartyInventory>(combat->inventory->catalog);inventory_store=owned_inventory.get();}
+            inventory_session=std::make_unique<InventoryHostSession>(server,*inventory_store,[this](std::uint64_t network,StableId profile,const InventoryRequest& request){
+                return inventory_store->request(profile,request,[&](const InventorySnapshot& held,const InventorySnapshot& after){
+                    auto found=std::find_if(members.begin(),members.end(),[&](const auto& m){return m.id==network;});require(found!=members.end(),"Inventory member missing");
+                    // Using a consumable: only a living member, only an item that does something; its Health comes back now.
+                    if(request.mutation==InventoryMutation::Consume){if(server.ability_available(found->owner,combat->health)<=0)return InventoryFailure::Unavailable;auto entry=std::find_if(held.entries.begin(),held.entries.end(),[&](const auto& e){return e.instance==request.instance;});if(entry==held.entries.end())return InventoryFailure::Missing;
+                        const auto& item=inventory_store->catalog().get(entry->item);if(item.restore_health<=0)return InventoryFailure::NotUsable;server.heal(found->owner,item.restore_health*request.quantity);return InventoryFailure::None;}
+                    const auto before=server.ability_snapshot(found->owner);if(before.active||server.ability_available(found->owner,combat->health)<=0)return InventoryFailure::Unavailable;
+                    const auto masks=inventory_masks(after,inventory_store->catalog());if(masks==before.equipped_masks)return InventoryFailure::None;
+                    auto active=before.loadout;auto loadouts=inventory_loadouts(*combat->inventory,masks,active);server.configure_ability_loadouts(found->owner,loadouts,active);return InventoryFailure::None;
+                },false);
+            });
+        }
+        // The party's world view travels on its own owner channel; altar menus answer on it.
+        if(combat)server.register_owner_channel(world_state_channel);
+
+        for(const auto& seat:party){require(seat.transport&&bool(seat.id)&&std::count_if(party.begin(),party.end(),[&](const auto& other){return other.id==seat.id;})==1,"Scene party seat");server.attach(*seat.transport,seat.peer);Member member;member.identity=seat.id;member.profile=seat.profile?seat.profile:start.profiles.contains(seat.id)?start.profiles.at(seat.id):seat.id;member.peer=seat.peer;member.foot=seat.position;member.yaw=seat.yaw;members.push_back(std::move(member));member_identities.push_back(seat.id);}
         for(const auto& box:collision.boxes)require(!box.moving&&!box.dynamic&&!box.sensor,"Character scene initial profile requires static collision");
         authoritative.load_scene(collision);
         const auto identity=party.front().id;const ObjectData* first=nullptr;
@@ -114,7 +143,7 @@ struct SceneAuthority::Impl {
             server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));if(combat->combat_damage)server.register_combat_evaluator(combat->evaluator,combat->combat_damage);else server.register_damage_evaluator(combat->evaluator,combat->damage);for(const auto& [id,evaluator]:combat->effect_evaluators)server.register_effect_evaluator(id,evaluator);
             if(!combat->loadouts.empty())require(combat->loadouts.size()==loadout_slot_count&&combat->active_loadout<loadout_slot_count&&combat->loadouts[combat->active_loadout],"Scene loadouts need four slots and an equipped active slot");
             // Every member is equipped from the session's player definition.
-            for(auto& member:members){member.owner=server.configure_abilities(member.id,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(member.owner,combat->tags);if(combat->loadouts.empty())server.equip_combat_kit(member.owner,combat->kit,combat->input,combat->abilities);else server.configure_ability_loadouts(member.owner,combat->loadouts,combat->active_loadout);}
+            for(auto& member:members){member.owner=server.configure_abilities(member.id,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(member.owner,combat->tags);if(inventory_session){inventory_store->join(member.profile,combat->inventory->starting,combat->inventory->equipped);auto active=combat->inventory->active;auto loadouts=inventory_loadouts(*combat->inventory,inventory_masks(inventory_store->state(member.profile).inventory,inventory_store->catalog()),active);server.configure_ability_loadouts(member.owner,loadouts,active);inventory_session->bind(member.id,member.profile);}else if(combat->loadouts.empty())server.equip_combat_kit(member.owner,combat->kit,combat->input,combat->abilities);else server.configure_ability_loadouts(member.owner,combat->loadouts,combat->active_loadout);}
             // Every actor gets its own motor and ability owner; one with a kit is equipped with it.
             for(auto& actor:actors)arm(actor);
             {require(scene_actor_demand(*combat)<=actor_limit(),"The scene's spawn points and the most its encounters can have alive at once are more actors than one session holds");require(combat->decision_budget>=1&&combat->sense_budget>=1&&combat->spawn_budget>=1,"Time slicing budgets are at least 1");}
@@ -123,6 +152,7 @@ struct SceneAuthority::Impl {
             for(const auto& trigger:combat->triggers)triggers.emplace_back(trigger.definition,trigger.center,trigger.yaw);
             require(combat->interactables.size()<=64,"Scene interactable limit");for(const auto& item:combat->interactables){require(bool(item.id)&&std::count_if(combat->interactables.begin(),combat->interactables.end(),[&](const auto& other){return other.id==item.id;})==1,"Interactable identity");interactables.emplace_back(item.definition,item.position);}
             require(combat->transitions.size()<=16,"Scene transition limit");for(const auto& item:combat->transitions){validate_transition(item.definition);require(bool(item.id)&&std::count_if(combat->transitions.begin(),combat->transitions.end(),[&](const auto& other){return other.id==item.id;})==1&&std::none_of(combat->interactables.begin(),combat->interactables.end(),[&](const auto& other){return other.id==item.id;}),"Scene transition identity");portals.push_back({EncounterVolume{item.center,item.yaw,item.definition.half},false});}
+            world_objects=std::make_unique<scene_detail::SceneWorldObjects>(combat,authoritative,ledger,inventory_store);lifecycle=std::make_unique<PartyLifecycleCoordinator>(combat->party);
             // Persistent objects take their state from the ledger before the first tick.
             if(ledger){for(std::size_t index=0;index<interactables.size();++index){InteractableState state(interactables[index]);ledger->restore(persistent(combat->interactables[index].id),state);}for(std::size_t index=0;index<triggers.size();++index){TriggerState state(triggers[index]);ledger->restore(persistent(combat->triggers[index].id),state);}for(std::size_t index=0;index<directors.size();++index){EncounterState state(directors[index]);ledger->restore(persistent(encounter_identities[index]),state);}}
             for(const auto& director:directors)director_phases.push_back(director.status().phase);
@@ -196,13 +226,19 @@ struct SceneAuthority::Impl {
     void run_world(std::uint64_t tick){
         world.begin_tick(tick);
         // Interaction requests, each resolved for the member that sent it from authoritative state. Every request is answered.
-        for(const auto& request:server.drain_interactions()){auto result=InteractionResult::Unknown;if(const auto* sender=member(request.network)){
+        for(const auto& request:server.drain_interactions()){auto result=InteractionResult::Unknown;if(const auto* sender=member(request.network)){bool handled=false;
+                // Holding Interact on a downed teammate revives it; any other world object answers for itself.
+                if(const auto* target=member(request.object);target&&lifecycle){handled=true;result=lifecycle->state(sender->id)==PartyMemberState::Alive&&living(sender->id)&&lifecycle->state(target->id)==PartyMemberState::Downed?InteractionResult::Accepted:InteractionResult::Unavailable;if(result==InteractionResult::Accepted)lifecycle->hold(sender->id,target->id);}
+                else if(world_objects)if(auto answered=world_objects->interact(who(*sender),request.object,context(),travel)){handled=true;result=*answered;}
                 // A single-use interactable that was just spent is recorded, and the other members' clients are told.
-                for(std::size_t index=0;index<interactables.size();++index)if(combat->interactables[index].id==request.object){result=interactables[index].use(world,sender->motor->state().position,living(sender->id));if(result==InteractionResult::Accepted&&interactables[index].definition().once){record_interactable(index);for(const auto& other:members)if(other.id!=sender->id)server.answer_interaction(other.id,request.object,std::uint8_t(InteractionResult::UsedUp));}break;}
+                if(!handled)for(std::size_t index=0;index<interactables.size();++index)if(combat->interactables[index].id==request.object){result=interactables[index].use(world,sender->motor->state().position,living(sender->id));if(result==InteractionResult::Accepted&&interactables[index].definition().once){record_interactable(index);for(const auto& other:members)if(other.id!=sender->id)server.answer_interaction(other.id,request.object,std::uint8_t(InteractionResult::UsedUp));}break;}
                 // A scene transition used on purpose is the same request; what it raises is travel for the whole party.
-                for(std::size_t index=0;index<portals.size();++index){const auto& item=combat->transitions[index];if(item.id!=request.object||item.definition.activation!=TransitionActivation::Interact)continue;const auto& at=sender->motor->state().position;const double dx=at.x-item.center.x,dy=at.y-item.center.y,dz=at.z-item.center.z;
+                if(!handled)for(std::size_t index=0;index<portals.size();++index){const auto& item=combat->transitions[index];if(item.id!=request.object||item.definition.activation!=TransitionActivation::Interact)continue;const auto& at=sender->motor->state().position;const double dx=at.x-item.center.x,dy=at.y-item.center.y,dz=at.z-item.center.z;
                     result=!living(sender->id)?InteractionResult::Dead:dx*dx+dy*dy+dz*dz>item.definition.radius*item.definition.radius?InteractionResult::OutOfReach:travel?InteractionResult::Unavailable:InteractionResult::Accepted;if(result==InteractionResult::Accepted)travel=SceneTransitionRequest{item.id,item.definition.scene,item.definition.entry};break;}}
             server.answer_interaction(request.network,request.object,std::uint8_t(result));}
+        // Altar menus: rest and fast travel, decided here. A malformed request closes its sender.
+        if(world_objects)for(const auto& message:server.drain_owner_messages(world_state_channel)){if(!server.attached(message.source))continue;const auto* sender=member(message.network);
+            try{require(sender!=nullptr,"World request from a non-member");world_objects->request(who(*sender),decode_world_request(world_text(message.bytes)),travel);}catch(const std::exception&){server.disconnect(message.source);}}
         for(auto& actor:actors)if(actor.encounter&&!actor.died&&!living(actor.id))actor.died=tick;
         for(auto& actor:actors)if(!actor.encounter&&!actor.recorded&&!living(actor.id)){actor.recorded=true;if(ledger){ActorState state;state.defeated=true;ledger->capture(persistent(actor.identity),state);}}
         for(std::size_t position=actors.size();position-->0;){const auto& actor=actors[position];if(!actor.encounter||!actor.died)continue;const auto keep=std::uint64_t(std::llround(combat->encounters[*actor.encounter].definition.corpse_seconds*60));if(keep&&tick-actor.died>=keep)retire(position);}
@@ -223,6 +259,12 @@ struct SceneAuthority::Impl {
             // A blocked place is tried again on later ticks, a little further out each time.
             if(next.attempts){const double angle=2.399963229728653*next.attempts,reach=.45*next.attempts;request.position.x+=std::sin(angle)*reach;request.position.z+=std::cos(angle)*reach;}
             if(!spawn(next.first,request)){require(next.attempts<12,"An encounter found no free place to bring an enemy in");++next.attempts;spawn_queue.push_back(next);break;}}
+        if(world_objects)world_objects->step(1./60,world);
+        if(lifecycle){std::vector<PartyLifecycleCoordinator::Member> party;for(const auto& m:members)party.push_back({m.id,m.motor->state().position,server.objects().at(m.id).health.current,server.attached(m.peer)});
+            const auto outcome=lifecycle->step(party,1./60);
+            for(const auto id:outcome.revived)for(const auto& m:members)if(m.id==id){const auto& health=server.objects().at(id).health;server.heal(m.owner,std::max(1.,health.maximum*combat->party.revive_health));}
+            if(outcome.wipe)world.emit("party.wiped");
+            if(lifecycle->respawn_due()&&!respawn_raised){respawn_raised=true;auto respawn=world_objects->respawn();respawn.source=members.front().identity;travel=respawn;}}
     }
     const Actor* find(StableId identity)const{for(const auto& actor:actors)if(actor.identity==identity)return &actor;return nullptr;}
     // Soft-lock candidates for a party member: every live actor of another faction, from authority's own state.
@@ -305,20 +347,20 @@ struct SceneAuthority::Impl {
     // The same setup as a member that entered with the session, at the tick the scene has reached.
     void enter(const SceneSeat& seat){
         const auto& lead=members.front().motor->state();std::vector<MotorVec> taken;for(const auto& known:members)taken.push_back(known.motor->state().position);for(const auto& actor:actors)taken.push_back(actor.motor->state().position);
-        Member entering;entering.identity=seat.id;entering.peer=seat.peer;entering.foot=formation(SceneArrival{lead.position,lead.yaw},members.size(),taken);entering.yaw=lead.yaw;
+        Member entering;entering.identity=seat.id;entering.profile=seat.profile?seat.profile:seat.id;entering.peer=seat.peer;entering.foot=formation(SceneArrival{lead.position,lead.yaw},members.size(),taken);entering.yaw=lead.yaw;
         ObjectData object;object.id=seat.id;object.transform=member_template.transform;object.transform.x=entering.foot.x;object.transform.y=entering.foot.y;object.transform.z=entering.foot.z;object.transform.yaw=entering.yaw;object.health=member_template.health;
         entering.id=server.create(object);
         try{require(members.back().id<entering.id,"A party member's network identity is out of order");server.assign_team(entering.id,player_faction);
             entering.motor=std::make_unique<CharacterMotor>(authoritative,entering.foot,entering.id);auto state=entering.motor->state();state.yaw=entering.yaw;state.tick=state.sequence=authoritative.tick();entering.motor->restore(state);
-            entering.owner=server.configure_abilities(entering.id,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(entering.owner,combat->tags);if(combat->loadouts.empty())server.equip_combat_kit(entering.owner,combat->kit,combat->input,combat->abilities);else server.configure_ability_loadouts(entering.owner,combat->loadouts,combat->active_loadout);
+            entering.owner=server.configure_abilities(entering.id,combat->attributes,combat->health,combat->maximum_health);if(combat->tags)server.configure_ability_tags(entering.owner,combat->tags);if(inventory_session){inventory_store->join(entering.profile,combat->inventory->starting,combat->inventory->equipped);auto active=combat->inventory->active;auto loadouts=inventory_loadouts(*combat->inventory,inventory_masks(inventory_store->state(entering.profile).inventory,inventory_store->catalog()),active);server.configure_ability_loadouts(entering.owner,loadouts,active);inventory_session->bind(entering.id,entering.profile);}else if(combat->loadouts.empty())server.equip_combat_kit(entering.owner,combat->kit,combat->input,combat->abilities);else server.configure_ability_loadouts(entering.owner,combat->loadouts,combat->active_loadout);
             server.attach(*seat.transport,seat.peer);server.own_motor(entering.id,entering.peer,authoritative.tick());server.publish_motor(entering.id,entering.motor->state());
             for(std::size_t index=0;index<interactables.size();++index)if(interactables[index].definition().once&&interactables[index].used())server.answer_interaction(entering.id,combat->interactables[index].id,std::uint8_t(InteractionResult::UsedUp));
-        }catch(...){entering.motor.reset();if(server.attached(seat.peer))server.detach(seat.peer);server.destroy(entering.id);throw;}
+        }catch(...){if(inventory_session)inventory_session->unbind(entering.id);entering.motor.reset();if(server.attached(seat.peer))server.detach(seat.peer);server.destroy(entering.id);throw;}
         members.push_back(std::move(entering));member_identities.push_back(seat.id);
     }
     void admit_arrivals(){for(const auto& seat:arriving)try{enter(seat);}catch(const std::exception& error){refused.push_back({seat.id,error.what()});}arriving.clear();}
-    bool remove_member(StableId id){require(timing==SceneTiming::Independent,"Member removal requires independent scene timing");for(std::size_t index=1;index<members.size();++index)if(members[index].identity==id){const auto peer=members[index].peer;const auto network=members[index].id;if(server.attached(peer))server.detach(peer);departed.push_back({network,std::move(members[index].motor)});members.erase(members.begin()+std::ptrdiff_t(index));member_identities.erase(member_identities.begin()+std::ptrdiff_t(index));return true;}return false;}
-    void pump(){try{server.tick();}catch(...){if(timing!=SceneTiming::Independent)throw;std::vector<StableId> lost;for(std::size_t index=1;index<members.size();++index)if(!server.attached(members[index].peer))lost.push_back(members[index].identity);if(lost.empty())throw;for(auto member:lost)remove_member(member);}}
+    bool remove_member(StableId id){require(timing==SceneTiming::Independent,"Member removal requires independent scene timing");for(std::size_t index=1;index<members.size();++index)if(members[index].identity==id){const auto peer=members[index].peer;const auto network=members[index].id;if(inventory_session)inventory_session->unbind(network);if(server.attached(peer))server.detach(peer);departed.push_back({network,std::move(members[index].motor)});members.erase(members.begin()+std::ptrdiff_t(index));member_identities.erase(member_identities.begin()+std::ptrdiff_t(index));return true;}return false;}
+    void pump(){try{server.tick();if(inventory_session)inventory_session->pump();}catch(...){if(timing!=SceneTiming::Independent)throw;std::vector<StableId> lost;for(std::size_t index=1;index<members.size();++index)if(!server.attached(members[index].peer))lost.push_back(members[index].identity);if(lost.empty())throw;for(auto member:lost)remove_member(member);}}
     void step(std::uint64_t tick){
         require(tick==authoritative.tick()+1,"Scene authority tick order");retire_departed();admit_arrivals();
         auto mark=std::chrono::steady_clock::now();auto lap=[&](double& phase){const auto now=std::chrono::steady_clock::now();phase+=std::chrono::duration<double,std::micro>(now-mark).count();mark=now;};
@@ -344,6 +386,7 @@ struct SceneAuthority::Impl {
         lap(profile.abilities);
         for(auto& known:members)known.motor->step(known.accepted,known.motion);for(std::size_t index=0;index<actors.size();++index)actors[index].motor->step(actor_commands[index],actor_motions[index]);authoritative.step();for(auto& known:members)known.motor->post_physics();for(auto& actor:actors)actor.motor->post_physics();authoritative.finish_tick();lap(profile.motors);
         auto frame=authoritative.capture();for(const auto& known:members)server.publish_motor(known.id,known.motor->state());for(const auto& actor:actors)server.publish_motor(actor.id,actor.motor->state());lap(profile.replication);if(combat){server.resolve_ability_hits(tick);commitment_updates=server.drain_ability_commitments();server.drain_effect_outcomes();}lap(profile.hits);server.publish_collision(collision_stream(frame));lap(profile.replication);
+        publish_view();
         ++profile.ticks;
     }
 };
@@ -378,6 +421,10 @@ std::span<const StableId> SceneAuthority::encounters()const{return impl_->encoun
 std::optional<EncounterStatus> SceneAuthority::encounter(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.directors.size();++index)if(p.encounter_identities[index]==id)return p.directors[index].status();return std::nullopt;}
 std::optional<StableId> SceneAuthority::actor_encounter(StableId actor)const{const auto* found=impl_->find(actor);if(found&&found->encounter)return impl_->encounter_identities[*found->encounter];return std::nullopt;}
 std::optional<unsigned> SceneAuthority::trigger_fired(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.triggers.size();++index)if(p.combat->triggers[index].id==id)return p.triggers[index].fired();return std::nullopt;}
+const WorldStateView& SceneAuthority::world_state()const{return impl_->view_now;}
+bool SceneAuthority::down_member(StableId id){auto& p=*impl_;if(!p.combat)return false;for(const auto& m:p.members)if(m.identity==id){p.server.damage(m.owner,1e9);return true;}return false;}
+std::vector<std::pair<StableId,MotorVec>> SceneAuthority::movers()const{return impl_->world_objects?impl_->world_objects->movers():std::vector<std::pair<StableId,MotorVec>>{};}
+std::optional<InventoryReceipt> SceneAuthority::grant_item(StableId id,AssetId item,unsigned quantity){auto& p=*impl_;if(!p.inventory_session)return std::nullopt;for(const auto& known:p.members)if(known.identity==id)return p.inventory_store->grant(known.profile,item,quantity);return std::nullopt;}
 std::optional<unsigned> SceneAuthority::interactable_used(StableId id)const{const auto& p=*impl_;for(std::size_t index=0;index<p.interactables.size();++index)if(p.combat->interactables[index].id==id)return p.interactables[index].used();return std::nullopt;}
 std::uint64_t SceneAuthority::server_packets(StableId member)const{const auto* found=impl_->member(member);require(found,"Unknown party member");return impl_->server.packets_sent(found->peer);}
 std::vector<std::uint64_t> SceneAuthority::server_packet_kinds(StableId member)const{const auto* found=impl_->member(member);require(found,"Unknown party member");return impl_->server.packets_by_kind(found->peer);}

@@ -1,4 +1,5 @@
 #pragma once
+#include <darkangel/world_ledger.hpp>
 #include <darkangel/asset_id.hpp>
 #include <darkangel/character_motor.hpp>
 #include <darkangel/world_events.hpp>
@@ -29,6 +30,8 @@ struct EncounterDefinition {
     double corpse_seconds{6};
     // Presentation only: an audio profile layered over the scene's while the encounter runs. The simulation never reads it.
     AssetId audio_profile;
+    // Persistence of "completed" (and "started"): by default kept in the save and reset on rest and party wipe.
+    LedgerPolicy completed_policy{LedgerScope::Save,LedgerReset::Rest|LedgerReset::PartyWipe};
     // How many enemies it spawns over its whole life.
     unsigned enemies()const;
     // The most that can be alive at once.

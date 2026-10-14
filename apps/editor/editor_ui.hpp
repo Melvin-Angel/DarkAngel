@@ -11,7 +11,7 @@
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
 enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items};
-enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation};
+enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation,Saves};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
 public:
@@ -85,7 +85,7 @@ public:
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
     char history_source_filter[128]{};bool history_pending_only{};std::optional<NativeSourceComparison> last_source_comparison;std::optional<NativeValidationSummary> last_validation;
     char author_name[65]{"new_ability"};std::string author_diagnostic;
-    Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{};
+    Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{},inventory_open{};
     void select_workspace(Workspace);
     void open_native_asset(Controller&,AssetId);
     void open_tool(ToolView);
@@ -98,6 +98,8 @@ public:
     std::function<std::string()> gameplay_metrics;
     // Tools > Navigation: supplied by the host where the navigation library is built.
     std::function<void()> draw_navigation_tool;
+    // Tools > Saves: supplied by the host, which owns Play and the save slot.
+    std::function<void()> draw_saves_tool;
     // The VFX tab's left panel: supplied by the host, which owns the visual effect service. The preview beside it is the scene render target.
     std::function<void()> draw_vfx_panel;
     // The Audio tab: supplied by the host, which owns the audio service.

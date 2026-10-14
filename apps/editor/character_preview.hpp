@@ -17,7 +17,7 @@ struct WornMask {AssetId mask,model;std::string name;std::array<float,4> tint{1,
 struct PreparedSpawn {StableId point,actor;AssetId npc,skin;std::string name;std::optional<BehaviorDefinition> behavior;BehaviorTuning tuning;};
 // An NPC definition an encounter can spawn, prepared for Play: the actor each enemy is made from, and what its controller needs.
 struct PreparedEncounterNpc {CharacterSceneActor actor;PreparedSpawn spawn;};
-struct CharacterPreviewResources {std::map<AssetId,PreparedEncounterNpc> encounter_npcs;CameraRigDefinition cameras{default_camera_rig()};std::array<std::optional<WornMask>,mask_slot_count> masks;std::optional<WornMask> mask;std::array<std::string,mask_slot_count> mask_names;unsigned active_mask{};AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::vector<PreparedSpawn> spawns;std::string spawn_generation;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
+struct CharacterPreviewResources {std::map<AssetId,WornMask> inventory_masks;std::map<AssetId,std::string> inventory_mask_names;std::map<AssetId,PreparedEncounterNpc> encounter_npcs;CameraRigDefinition cameras{default_camera_rig()};std::array<std::optional<WornMask>,mask_slot_count> masks;std::optional<WornMask> mask;std::array<std::string,mask_slot_count> mask_names;unsigned active_mask{};AssetId skin;CookedRig rig;std::shared_ptr<const AnimationGraphPlan> graph;StableId player;std::vector<PreparedSpawn> spawns;std::string spawn_generation;std::optional<CharacterSceneCombat> combat;std::shared_ptr<const CollisionDefinition> collision;};
 // Authoring-only pose sampling. Owns independent Ozz buffers and never creates
 // a WorldSession, action activation, motor request or gameplay event.
 class ComposerPosePreview {
@@ -53,3 +53,5 @@ PreparedScene prepare_character_scene(const SpawnPlan&,const World&,const Charac
 // The session itself. companions: further local players, in formation around the scene's player object.
 std::pair<StableId,std::unique_ptr<CharacterSceneSession>> prepare_character_preview(const SpawnPlan&,const World&,const CharacterPreviewResources&,const std::function<RuntimeModel(AssetId)>&,const std::function<std::shared_ptr<ActorController>(const PreparedSpawn&,const CollisionDefinition&)>& controller={},std::span<const StableId> companions={});
 }
+
+namespace darkangel::editor_app {void prepare_player_inventory(const std::filesystem::path&,const std::filesystem::path&,const CookedPlayer&,CharacterPreviewResources&);}

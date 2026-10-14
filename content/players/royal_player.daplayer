@@ -4,23 +4,53 @@
   "asset": "a52ffaac-05d3-4987-a972-7364a1c47f32",
   "character": "dd24e3ea-575b-446a-9e5e-a1f6186b7cdc",
   "loadout": {
-    "kit": "eecbc589-b6df-4e48-a4dd-38e3ec629d35",
-    "masks": [
-      "0fa58675-c41b-4fd8-856e-4f367ebe02c2",
-      "1b9e05e4-43a0-46ad-a97b-7fd8417672d5",
-      "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82",
-      "7bcfa11e-f08b-4371-8e47-474d74b98fe1"
-    ],
-    "active_mask": 0
+    "kit": "eecbc589-b6df-4e48-a4dd-38e3ec629d35"
   },
   "sources": {
     "character": "characters/royal_human.dacharacter",
     "kit": "royal_district/combat/player.dakit",
-    "masks": {
-      "0fa58675-c41b-4fd8-856e-4f367ebe02c2": "masks/ember.dafacemask",
-      "1b9e05e4-43a0-46ad-a97b-7fd8417672d5": "masks/earth.dafacemask",
-      "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82": "masks/water.dafacemask",
-      "7bcfa11e-f08b-4371-8e47-474d74b98fe1": "masks/air.dafacemask"
+    "items": {
+      "ea62664c-8140-4195-a557-a01bab1ae615": "items/ember_mask.daitem",
+      "5cf71364-b1ee-42b9-b171-c900f76598a1": "items/earth_mask.daitem",
+      "8096c138-3101-43cd-98e1-7b9feaf6a36c": "items/water_mask.daitem",
+      "b2787760-908a-404d-a920-ec2164f0fa33": "items/air_mask.daitem",
+      "94a81491-da8b-478f-9d4e-e78cfcd46092": "items/traveller_token.daitem",
+      "8c600aed-a2f8-4b9b-8e37-4c21d389cd1f": "items/field_ration.daitem"
     }
+  },
+  "inventory": {
+    "items": [
+      {
+        "item": "ea62664c-8140-4195-a557-a01bab1ae615",
+        "quantity": 1
+      },
+      {
+        "item": "5cf71364-b1ee-42b9-b171-c900f76598a1",
+        "quantity": 1
+      },
+      {
+        "item": "8096c138-3101-43cd-98e1-7b9feaf6a36c",
+        "quantity": 1
+      },
+      {
+        "item": "b2787760-908a-404d-a920-ec2164f0fa33",
+        "quantity": 1
+      },
+      {
+        "item": "94a81491-da8b-478f-9d4e-e78cfcd46092",
+        "quantity": 1
+      },
+      {
+        "item": "8c600aed-a2f8-4b9b-8e37-4c21d389cd1f",
+        "quantity": 2
+      }
+    ],
+    "equipped": [
+      "ea62664c-8140-4195-a557-a01bab1ae615",
+      "5cf71364-b1ee-42b9-b171-c900f76598a1",
+      "8096c138-3101-43cd-98e1-7b9feaf6a36c",
+      "b2787760-908a-404d-a920-ec2164f0fa33"
+    ],
+    "active": 0
   }
 }

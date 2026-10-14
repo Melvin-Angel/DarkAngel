@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "kind": "item",
+  "asset": "8c600aed-a2f8-4b9b-8e37-4c21d389cd1f",
+  "name": "Field Ration",
+  "description": "A packed meal for the road.",
+  "classification": "consumable",
+  "icon": null,
+  "model": null,
+  "stack_limit": 20,
+  "unique": false,
+  "usable": true,
+  "equippable": false,
+  "properties": {
+    "restore_health": 25.0
+  },
+  "sources": {}
+}

@@ -119,7 +119,7 @@ std::vector<AbilityActionUpdate> AbilityState::equip(std::shared_ptr<const Comba
 std::vector<AbilityActionUpdate> AbilityState::configure_loadouts(std::span<const std::optional<AbilityLoadout>> loadouts,unsigned active){
     require(loadouts.size()==loadout_slot_count&&active<loadout_slot_count&&loadouts[active],"Ability loadouts need four slots and an equipped active slot");
     std::array<std::optional<Loadout>,loadout_slot_count> prepared;for(unsigned index=0;index<loadout_slot_count;++index)if(loadouts[index])prepared[index]=prepare_loadout(loadouts[index]->kit,loadouts[index]->input,loadouts[index]->abilities);
-    auto updates=install_loadout(*prepared[active]);loadouts_=std::move(prepared);active_loadout_=active;return updates;
+    auto updates=install_loadout(*prepared[active]);loadouts_=std::move(prepared);active_loadout_=active;for(unsigned slot=0;slot<loadout_slot_count;++slot)equipped_masks_[slot]=loadouts[slot]?loadouts[slot]->mask:AssetId{};return updates;
 }
 std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> AbilityState::select_loadout(const AbilityIntent& intent,std::optional<AbilityFailure> failure){
     const auto index=static_cast<unsigned>(intent.slot)-combat_slot_count;
@@ -304,6 +304,7 @@ std::vector<AbilityActionUpdate> AbilityState::damage(double amount){
     attributes_.transact(std::array<ResourceDelta,1>{{{health_,-amount}}},false);++revision_;
     if(health().current<=0){effects_.death(attributes_);return stop(AbilityActionReason::Death);}return {};
 }
+void AbilityState::heal(double amount){require(std::isfinite(amount)&&amount>=0,"Invalid heal magnitude");if(!amount)return;attributes_.transact(std::array<ResourceDelta,1>{{{health_,amount}}},false);++revision_;}
 std::vector<AbilityActionUpdate> AbilityState::disconnect(){auto result=stop(AbilityActionReason::Disconnected);held_.fill({});rearm_.fill(true);++revision_;return result;}
 void AbilityState::retire(std::uint64_t through){
     require(through>=retired_through_&&through<=highest_operation_,"Ability operation retirement range");
@@ -318,7 +319,7 @@ AbilityOwnerSnapshot AbilityState::snapshot()const{
     if(active_){result.active_operation=active_->operation;if(active_->cost_phase==AbilityCommitPhase::Reserved)result.reservation=AbilityReservationSnapshot{active_->definition->deferred_commit_block,reserved_costs(*active_->definition),active_->definition->cooldown_group,active_->definition->cooldown_ticks};}
     for(const auto& cooldown:cooldowns_)result.cooldowns.push_back(cooldown);
     result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;result.retained_operations=records_.size();result.highest_operation=highest_operation_;result.retired_through=retired_through_;
-    result.next_activation=next_activation_;result.loadout=active_loadout_;
+    result.next_activation=next_activation_;result.loadout=active_loadout_;result.equipped_masks=equipped_masks_;
     for(unsigned i=0;i<combat_slot_count;++i)result.input[i]={held_[i].active,held_[i].hold_sent,rearm_[i],held_[i].pressed,held_[i].released,held_[i].duration};
     for(const auto& [operation,record]:records_)result.operations.push_back({operation,record.receipt.failure,record.receipt.handle.activation,record.receipt.committed});return result;
 }
@@ -326,13 +327,14 @@ AbilityOwnerSnapshot AbilityState::owner_snapshot()const{
     auto result=snapshot();result.tags=effects_.tags().snapshot(AttributeVisibility::Owner);auto external=effects_.external_tags(AttributeVisibility::Owner);result.action_only_tags.clear();std::set_difference(result.tags.values.begin(),result.tags.values.end(),external.begin(),external.end(),std::back_inserter(result.action_only_tags));std::erase_if(result.attributes,[&](const auto& value){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& definition){return definition.id==value.id;})->visibility==AttributeVisibility::Server;});if(result.reservation)std::erase_if(result.reservation->costs,[&](const auto& cost){auto schema=attributes_.definitions();return std::find_if(schema.begin(),schema.end(),[&](const auto& d){return d.id==cost.attribute;})->visibility==AttributeVisibility::Server;});return result;
 }
 AbilityPublicSnapshot AbilityState::public_snapshot()const{
-    AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.loadout=active_loadout_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
+    AbilityPublicSnapshot result;result.owner=owner_;result.tick=tick_;result.revision=revision_;result.loadout=active_loadout_;result.equipped_masks=equipped_masks_;result.health_attribute=health_;result.maximum_health_attribute=maximum_health_;
     result.tags=effects_.tags().snapshot(AttributeVisibility::Public);
     for(const auto& definition:attributes_.definitions())if(definition.visibility==AttributeVisibility::Public||definition.id==health_||definition.id==maximum_health_)result.attributes.push_back({definition.id,attributes_.value(definition.id)});
     if(active_){result.active=AbilityActivationHandle{owner_,active_->timeline.state().activation};result.action=active_->timeline.state();result.action_definition=active_->definition->action->id;}return result;
 }
 void AbilityState::restore_prediction(const AbilityOwnerSnapshot& source){
     // The authoritative loadout decides which prepared kit and grants the rest is checked against.
+    require(source.equipped_masks==equipped_masks_,"Prediction equipment catalogue mismatch");
     if(source.loadout!=active_loadout_){require(source.loadout<loadout_slot_count&&loadouts_[source.loadout],"Prediction loadout unavailable");const auto& loadout=*loadouts_[source.loadout];kit_.emplace(loadout.kit,*loadout.input);grants_=loadout.grants;for(unsigned i=0;i<combat_slot_count;++i){auto action=std::find_if(loadout.input->actions.begin(),loadout.input->actions.end(),[&](const auto& a){return a.id==loadout.kit->slots[i].input_action;});input_[i]=action!=loadout.input->actions.end()?*action:InputActionDefinition{};}active_loadout_=source.loadout;}
     auto effects=effects_;auto external=source.tags;effects.tags().dictionary().validate_snapshot(source.tags,AttributeVisibility::Owner);
     require(source.action_only_tags.size()<=16,"Prediction action tag provenance bound");std::set<TagId> only;

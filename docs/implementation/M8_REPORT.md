@@ -598,3 +598,131 @@ Build logs: `m8-1b-inventory-session-build.log`, `m8-inventory-shutdown-build.lo
 5. Add pickup authoring and authoritative interaction on the established path. Prepare the inventory grant and PersistentId/LedgerPolicy collected state together; capacity failure leaves availability intact. Test concurrent/replayed claims, transition preservation and reset policies before calling Stage 2 complete.
 
 Limits: this is a tested native store/gameplay adapter, not yet an editor or SceneAuthority inventory feature. No graphical inventory interaction, gameplay loadout change, pickup collection or durable save has been claimed. Same-machine UDP GNS only; physical machines, latency/loss and EOS remain unverified. Stage 2 is In progress; no architectural decision or intervention is needed.
+
+
+## Stages 2 to 5 implementation push, UNTESTED (14 October 2026, Claude session)
+
+**Status: code written and mostly compiled; not tested beyond the items below. Nothing committed.** The session ended at the user's request before verification. Treat everything in this section as unverified until the "Next session" list is done.
+
+### What was verified
+
+- Codex's uncommitted inventory/menu work (owner inventory wired into SceneAuthority/SceneClient, Player starting inventory, mask equip publishing into the live loadout, the RmlUi inventory menu) had one compile error in `main.cpp` (inventory receipt code pasted into the Gameplay Inspector). Fixed. The full guarded build then passed, and these CTest entries passed on that build: M4.actor_history, M5.actor_assets, M8.party_scene, M8.scene_delay, M8.scene_transition, M8.item_assets, M8.inventory, M8.inventory_session, M8.world_ledger, M8.party_control (11/11). M5.native_authoring was stopped (about 24 minutes) and was not run.
+- After that, the stage 2 to 4 engine and editor code below compiled in one full build (exit 0). The last batch (Tools > Saves, persistence library, visuals, encounter policies, placement exercise, gate verbs) was still building when the session ended. Its first attempt failed on a name clash (`EncounterDefinition::completed` already existed as an event name), now renamed `completed_policy`. **Whether the final build passes is not known.**
+- No new test (WorldObjectsTests, PersistenceTests) has run. No editor Play session or gate has run with any of this code.
+
+### What was built
+
+Runtime (engine/runtime):
+
+- `world_objects.hpp/.cpp`: component definitions and codecs for **pickups**, **altars** and **movers** (one state machine for doors, gates and movable platforms: activation interact/event/auto; behaviour toggle/return/loop; locked plus a reusable `Requirement` of item with optional consume, world tag and completed encounter; optional travel to another scene). Per-property `LedgerPolicy` authored as `{"scope","resets"}`, with defaults per kind: pickup collected = save/never; door unlocked = save/never, open = save/reset on rest; platform open = session/reset on scene entry. `WorldStateView` (collected, unlocked, open, discovered altars, fast-travel destinations, checkpoint, member states with revive progress, wipe) and `WorldRequest` (rest, fast travel) codecs on owner channel `world_state_channel`. Party-level ledger records for the checkpoint and discovered altars.
+- `party_lifecycle.hpp/.cpp`: **PartyLifecycleCoordinator**. Alive/Downed per member from Health; hold-to-revive with range, hold time and grace; shared progress, so two revivers complete once; any interruption resets it; wipe when every connected member is downed (disconnected members do not count; solo wipes at once); respawn due after the wipe time. `PartyRules` are code defaults (2.5 m, 3 s, 50% Health, 3 s wipe); there is no party rules asset yet.
+- `scene_world_objects.hpp/.cpp` (internal): the host side. A pickup grants and marks itself collected in the same tick; a capacity failure leaves it available; a second simultaneous claim gets UsedUp. Altars are discovered into the ledger, with an optional checkpoint on discovery. Movers are kinematic boxes in the authoritative PhysicsWorld moved with `set_platform` (ids `1<<40 + index`), restored at their logical end from the ledger, never mid-movement. Locked doors check the requirement and consume the key atomically with unlocking. A rest request writes the checkpoint (if configured) and raises a transition to the same scene at the altar with `reset=Rest` and the altar's `save` flag. Fast travel is host-only, to discovered destinations, and leaves the checkpoint alone. A wipe respawns at the checkpoint altar, or at the party's own start (nil scene).
+- `SceneAuthority`: routes interactions (revive holds name a party member; then world objects; then the existing interactables and portals), drains altar-menu requests, steps movers and the lifecycle each tick, heals revived members, emits `party.wiped`, raises the respawn travel once, and publishes the world view to every member when it changes. Consumables: `Consume` requests are now allowed; the publish callback heals by the item's new optional `restore_health` and refuses dead users. New calls: `grant_item` (host debug Grant item), `down_member` (tools and gates), `world_state()`, `movers()`.
+- `SceneClient`: receives the world view; `world_state()`, `world_request()`, `downed()`, `combat()`, `movers()` (box centres from the newest collision frame); prompts for pickups, altars, movers (locked prompt) and "Hold to revive" (`InteractionPrompt::hold`); revive holds are sent at 10 Hz.
+- `SceneTransitionCoordinator`: requests carry `reset` (ledger triggers run over every scene after the source is captured) and `save`; a nil scene means the party's own start (`origin()`); `inventory()` and `restore_inventory()` serve saves; the outcome reports reset and save.
+- `WorldSession::heal` and `damage`, `AbilityState::heal`, `PartyInventory::take` (all-or-nothing trusted removal) and `quantity`.
+- Assembly: `pickup`, `altar`, `mover` and `collision` (Q1, the scene's collision profile: **parsed only, not used by Play yet**) components in `SpawnPlan`, with serialization. Encounters accept `"policies":{"completed":...}` (a boss that stays defeated).
+- HUD: downed, party defeated and revive progress elements in `hud.rml`; a new game-owned **altar menu** (`altar.rml`, `AltarDocument`, `AltarUiModel`) with Rest and the fast-travel list (the host chooses). The inventory menu has **Use** for consumables.
+- `engine/persistence` (DAE-020): `PersistenceService`, one SQLite file per slot, a worker thread, snapshot and head in one transaction, head and previous kept, digest check with recovery to the previous snapshot, stale revision refusal, a repeated operation answered once, injectable write failure, migrations on load, backup through SQLite's backup API.
+
+Editor (apps/editor):
+
+- `editor_world_objects.cpp`: Inspector sections and Place items for **Item pickup, Altar, Door or gate, Movable platform**, including requirement editing, travel destination and per-property persistence (scope and reset triggers, Use default). The Encounter section gained the Completed policy.
+- `character_preview.cpp`: Play prepares pickups, altars (also entry points at their arrival point) and movers (offset along the object's own axes); models on these objects are kept out of static collision. `inventory_resources.cpp`: Play's item catalogue is every cooked item of the project (`load_cooked_items`), and every mask item's loadout is prepared; every `.daitem` is a package root.
+- `runtime_inventory.cpp`: Gameplay Inspector inventory section with host-only **Grant item**; Use handling.
+- `runtime_altar.cpp`: the altar menu adapter (opens on an accepted altar use; closes on leaving, Esc or loading) and the party lifecycle HUD fill. Holding Interact drives revive holds.
+- `play_saves.cpp`: the save payload (ledger, inventories, scene), **Tools > Saves** (Play from this slot, Save now, Verify, Back up, Delete, a snapshot and record browser), a save after resting at an altar that saves, and Play from slot starting at the checkpoint (in the same scene, or travelling there). Slot file: `<asset cache>/saves/project.dasave`. A network host saves its party inventory; restoring a save into a network party is not handled.
+- `main.cpp`: collected pickups are hidden, mover models ride their boxes, world-debug drawing and picking for the new objects, receipts include the world view, scene, arrivals, save status and mover positions. Script verbs `altar-await/rest/travel/close`, `inventory-use`, `hold-interact:frames`, `down:seat`; options `--world-place <plan.json>` (places objects through the Scene tab's own Place and Inspector paths, then saves: `world_place_exercise.cpp`) and `--play-from-save`.
+- Tests written but never run: `tests/world_objects_tests.cpp` (M8.world_objects), `tests/persistence_tests.cpp` (M8.persistence).
+
+### Known gaps and risks
+
+- Nothing here is tested end to end. Likely first failures: tests that build a HUD from a directory without `altar.rml`; `item_definition.cpp` is a cooker input, so the cooker build hash changed and asset caches re-cook.
+- The wire handshake string was not bumped for the world-state channel.
+- Q1 per-scene collision is parsed but Play still uses `--character-collision`. The acceptance slice should use scenes that share the Royal district geometry (RoyalCombat as Scene A, RoyalTraining as Scene B).
+- No party rules asset; altar, door and platform models have no animation beyond following their box.
+- The acceptance gate `scripts/verify_m8_slice.py` is not written.
+- `main.cpp` grew further. The codebase audit and refactor proposals the user asked for were not started.
+
+### Next session, in order
+
+1. Confirm the build: guarded build through `scripts/msvc_environment.py` `activate()` (see the build-guard memory). Fix compile errors.
+2. Run `WorldObjectsTests` and `PersistenceTests`, then the M8 CTest subset (`-R "M8\."`), HudTests and M5.hud. Fix.
+3. Smoke Play by hand on RoyalCombat: place a pickup, a door locked by the Traveller Token, an altar and a transition to RoyalTraining; use them.
+4. Write `scripts/verify_m8_slice.py`: copy the authoring fixture; `--world-place` plans for Scene A (RoyalCombat: key pickup, locked door consuming it, altar, transition, entry) and Scene B (RoyalTraining: altar, platform, entry); a solo scripted run (pickup, door, altar discovery, travel, fast travel back, rest and save); a `--play-from-save` restart; then two GNS processes for revive (`down:1`, `hold-interact`) and wipe and respawn (`down:0`, `down:1`).
+5. Full CTest (including NativeAuthoringTests) and the existing gate scripts, then commit.
+6. Then the codebase audit and refactor proposals, starting with the size of `main.cpp`.
+
+
+## Stages 2 to 5 verification (14 October 2026, evening, same Claude session)
+
+The user left the machine running and asked for work to continue. Later the user tested fast travel and cross-scene respawn by hand in the editor and asked to record that as tested, noting that the automated gate for it is not yet fully verified. This section supersedes the "What was verified" and "Next session" lists of the UNTESTED section above. Everything below is local, D3D12, same-machine UDP only.
+
+### Results
+
+- Full guarded build passes.
+- New native tests pass: `M8.world_objects` (component codecs and defaults, mover state machine, world view/request codecs, party ledger records, downed/revive/wipe including two revivers completing once, a disconnected member not blocking a wipe, solo wipe, trusted take) and `M8.persistence` (commit, head and previous kept, stale revision refused, repeated operation answered once, damaged head recovering to previous, injected write failure keeping the previous head, migration v1 to v2 and a failing migration leaving the slot untouched, newer save refused, backup).
+- M8, M6 and M5.hud CTest subset: 14/14 after one fix (below).
+- **Acceptance gate `scripts/verify_m8_slice.py`: all gates pass** (`evidence/m8-slice*.{json,log,png}`):
+  - `m8-slice-place-a/-b`: both scenes' world objects placed through the Scene tab's own Place and Inspector paths (`--world-place`) and saved. Scene A is RoyalTraining, Scene B is RoyalVillage; they share the Royal district collision (Q1 is still not used by Play).
+  - `m8-slice-solo`: key pickup collected; the locked gate refuses without the key, then unlocks, opens and consumes it; altar discovered and its menu opened through the RmlUi document; travel to B through an interact transition; village altar discovered; fast travel back to A through the menu; rest at A: the gate is unlocked but closed again (open resets on rest), the key stays collected, the checkpoint is the training altar, the token count is exactly 1 (start 1, pickup +1, gate −1), both altars are fast-travel destinations, and the save committed.
+  - `m8-slice-load`: an editor restart with `--play-from-save` places the party at the checkpoint altar's arrival point with the saved ledger (pickup collected, gate unlocked) and the saved inventory (same revision).
+  - `m8-slice-party`: two editor processes over localhost GNS. The host downs the guest, walks to it and holds Interact: the guest is revived to 50 Health (`Script party ... seat1=50`). Downing both wipes the party; after the wipe time the party respawns together through the transition coordinator with both players at full Health.
+- Full CTest before the fixes below: 98/107. Failures: M5.ability_reservations and M5.ability_tags asserted the old wire schemas (Codex's equipped-mask change moved the ability correction to schema 7 and the public frame to schema 4); the assertions are updated and both pass. M5.native_authoring hit its timeout after about 3 hours because it ran alongside the editor gates on a heat-limited laptop; run alone it passes in about 18 minutes, and the six tests it gates then pass (M5.attribute_authoring needs about 154 s, beyond its 90 s CTest limit, as recorded before). Every one of the 107 tests now has a passing execution.
+
+### Bugs found and fixed by the gates
+
+- **Interact pressed on a frame with no simulation tick was dropped** in lockstep (in-process) Play: jump was kept pending, interact was not. Pre-existing; affected keyboard use too. `CharacterSceneSession::advance` now keeps it pending like jump.
+- **Interaction requests were silently dropped** when the client session was not Ready (e.g. during a world-revision bootstrap). `SceneClient` now retries an unsent request for up to 60 ticks.
+- **A long first frame at Play start** (cooking every item and mask) exceeded the 10 s clock guard and stopped Play. The editor now feeds gameplay at most 0.25 s per frame.
+- **Mask item visuals were not package roots** once the Player's masks came from inventory items (Codex's change), so Play failed with "Runtime registry mismatch". Mask-item visuals are now roots.
+- Play with a Player not in the start registry failed at startup; with a project mount it is now packaged at Play like everything else.
+- Save completion was only noticed while Tools > Saves was open; it is now polled every frame and logged.
+- The editor's diagnostic receipt writer aborted the editor when the evidence file was briefly locked; it now retries and skips one update.
+- A transient RmlUi world-marker binding warning disabled the whole runtime HUD through the inventory/altar update checks; menu updates now drop the HUD document's transient warnings.
+- `SceneTransitionCoordinator::request` keeps refusing a nil scene; only a session-raised respawn with no checkpoint is mapped to the party's own start.
+
+### Brief acceptance checklist (section 11)
+
+| Item | Status |
+|---|---|
+| Both players transition together | Covered by the stage 1b party gates and the party respawn here |
+| Each player keeps their own inventory and masks | Native inventory session tests; not asserted per player in the slice |
+| Shared progression survives transitions | Yes (solo gate) |
+| One-time items cannot be duplicated | Collected state persists through travel, rest and load; simultaneous claims are not exercised in a gate |
+| Doors and gates restore their configured states | Yes (unlocked kept, open reset on rest) |
+| Activated altars remain discovered | Yes |
+| Fast travel does not overwrite the checkpoint | **Hand-verified by the user in the editor** (solo: rest at the Royal Combat altar, fast travel to Royal Training, death there respawned in Royal Combat). The automated gate `m8-slice-party-travel` has not passed in full yet |
+| A downed player can be revived by holding Interact | Yes (two processes) |
+| All downed → wipe and respawn together | Yes (two processes) |
+| Respawn in another scene | **Hand-verified by the user** (same run). Automated gate not yet passed in full |
+| Enemies and objects reset by policy | Objects yes; enemy respawn on rest is covered by the stage 1 ledger tests, not by this slice |
+| Progression survives save, load and restart | Yes |
+| No duplicate grants or inconsistent client states | No errors seen; not proven exhaustively |
+
+### Still open
+
+- Two-player travel to a different scene: the guest editor was dropped with "cannot prepare another scene for Play" (seen by the user and by the gate). Two causes, both fixed and built but **not yet re-tested**: the host did not forward `--player-asset` to guest editors, and a guest launched after its host prepared Play with a Player received `--character-clips player:<id>`, which it did not recognise (it only handled `kit:`). Re-test with Players = 2 across a scene change, then run the full fresh `scripts/verify_m8_slice.py`, including `m8-slice-party-travel`.
+- Editor findings from the user's hand test: the Place panel drops gameplay objects on whatever surface is under the cursor (a transition landed 7 m up on geometry and silently never prompted); placing extra models breaks Play because the baked mesh collision must match placements exactly and the editor has no re-bake yet.
+- Q1 per-scene collision is parsed but not used by Play; no party rules asset; altar/door/platform visuals follow boxes only.
+- Nothing committed yet.
+
+
+## Two-player scene changes confirmed, and scene collision rebaking (14 October 2026, late evening)
+
+**Two-player travel.** The user re-tested in the editor with Players = 2 after the guest fixes (the host now forwards `--player-asset` to guest editors; a guest accepts `--character-clips player:<id>` and selects that Player, so it can prepare later scenes). The guest now follows the party into another scene. Recorded as hand-verified by the user; the automated `m8-slice-party-travel` gate still needs a full fresh run.
+
+**Scene collision rebaking** (user request: rebake on placement or on Save; Save and Play were chosen, see below).
+
+- Problem: Play used one collision asset from the command line, baked offline (`bake-scene-collision` in the cooker tool), and refused any scene whose model placements differed from it ("collision is stale"). Placing, moving or deleting a model therefore broke Play, as the user found in the hand test.
+- Now every scene can own its collision: `<scene>.dacollision` next to the scene file, with an asset identity derived from the scene's own (UUIDv4 from a SHA-256 of the scene ID), so every editor process of a party finds the same asset without a scene edit. A scene `collision` component (Q1, already parsed by the scene plan) overrides it; a scene with neither still uses the command-line collision.
+- **When it bakes:** on scene Save (`Controller::scene_saved`: package the Play roots, bake, publish, cook) and during Play preparation (after packaging, before the resources are reloaded), so Play never runs with stale collision even if the scene was not saved. Only the host bakes; a party guest uses the file its host wrote. Async baking on every placement was not chosen: it would race Play preparation and is not needed, since a bake of the Royal scenes takes well under a second.
+- **What is baked:** every placed model except the Player's skin and the models of pickups, altars, doors and platforms (those are not static; movers have their own kinematic boxes). At most 16 bodies per scene (the existing collision source limit). Mesh body identities are derived from the collision asset, the placed object and the model, so the same placements give byte-identical sources; an unchanged bake does not rewrite the file.
+- Files: `apps/editor/scene_collision.{hpp,cpp}`; wiring in `main.cpp` (`scene_collision_for`, `editor.scene_saved`) and `editor_controller.{hpp,cpp}`. The placement exercise (`--world-place`) gained a plain `model` kind for gates.
+- Verified: on a fresh fixture copy, an extra hut was placed in RoyalVillage through the editor's placement path and saved. Play then baked `RoyalVillage.dacollision` with 4 bodies (ground, the two original huts, the new one) and ran (previously it failed with "collision is stale"). Not yet run: the full slice gate and the party gates with per-scene collision, and a travel between two scenes that both have their own baked collision.
+- Known follow-ups:
+  - The navigation mesh is still baked from Tools > Navigation and keyed to the collision; a rebaked scene needs its navigation mesh baked again. NPCs fall back as before when it is missing.
+  - The Place panel can still drop objects on rooftops.
+  - The Royal scenes' first Play after this change writes `RoyalCombat.dacollision` / `RoyalTraining.dacollision` into `content/`.
+
+**Not committed.** The user's hand-test edits to `content/royal_district/RoyalCombat.dascene` and `RoyalTraining.dascene` (and their `.records` folders) are left in the working tree for the user to keep or discard. They include deleted Royal Guard spawns and test altars and transitions.

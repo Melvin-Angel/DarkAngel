@@ -8,7 +8,8 @@ namespace darkangel {
 // PartyInventory outlives this scene's bridge; avatar ownership remains in WorldSession.
 class InventoryHostSession {
 public:
-    InventoryHostSession(WorldSession&,PartyInventory&);
+    using Resolve=std::function<InventoryOwnerState(std::uint64_t,StableId,const InventoryRequest&)>;
+    InventoryHostSession(WorldSession&,PartyInventory&,Resolve={});
     ~InventoryHostSession();
     void bind(std::uint64_t network,StableId profile);
     void unbind(std::uint64_t network);

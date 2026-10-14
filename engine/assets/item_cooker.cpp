@@ -35,6 +35,11 @@ Import import_item(const std::filesystem::path& root,const std::filesystem::path
 }
 }
 namespace darkangel {
+std::vector<CookedItem> load_cooked_items(const std::filesystem::path& registry,const std::filesystem::path& cas){
+    using namespace assets_detail;auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array(),"Item registry schema");std::vector<CookedItem> items;
+    for(const auto& record:manifest.at("assets"))if(record.at("kind")=="item"){require(items.size()<1024,"Item registry limit");items.push_back(load_cooked_item(registry,cas,AssetId::parse(record.at("id").get<std::string>())));}
+    return items;
+}
 CookedItem load_cooked_item(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
     using namespace assets_detail;const auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Item registry bound");std::map<AssetId,Json> records;
     for(const auto& record:manifest.at("assets"))require(records.emplace(AssetId::parse(record.at("id").get<std::string>()),record).second,"Item duplicate registry identity");

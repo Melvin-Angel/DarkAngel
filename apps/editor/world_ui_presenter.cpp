@@ -14,8 +14,10 @@ std::vector<HudWorldMarker> character_world_ui(const CharacterSceneSession& sess
         const float width=(bar?140.f:160.f)*at->scale;float top=at->y-26.f*at->scale;const float left=at->x-width*.5f;for(const auto& placed:result)if(left<placed.x+placed.width&&left+width>placed.x&&std::abs(top-placed.y)<36.f)top=placed.y-36.f;if(top<0)return;result.push_back({label.substr(0,64),left,top,width,13.f*at->scale,7.f*at->scale,health.maximum>0?float(std::clamp(health.current/health.maximum,0.,1.)*100):0.f,bar});
     };
     for(auto id:session.actors())if(const auto* actor=session.actor(id))marker(id,actor->name,true);
-    if(!roster.empty()){for(const auto& member:roster)marker(member.avatar,"Player "+std::to_string(member.seat+1)+(member.seat==0?" (Host)":" (Client)"),false);}
-    else {unsigned seat{};for(auto id:session.players()){++seat;marker(id,"Player "+std::to_string(seat)+(seat==1?" (Host)":" (Client)"),false);}}
+    // A downed teammate says so above its head, from the host's world view.
+    auto downed=[&](StableId id){if(const auto* state=client.world_state())for(const auto& m:state->members)if(m.state==PartyMemberState::Downed&&client.identity(m.network)==id)return std::string(" - Downed");return std::string();};
+    if(!roster.empty()){for(const auto& member:roster)marker(member.avatar,"Player "+std::to_string(member.seat+1)+(member.seat==0?" (Host)":" (Client)")+downed(member.avatar),false);}
+    else {unsigned seat{};for(auto id:session.players()){++seat;marker(id,"Player "+std::to_string(seat)+(seat==1?" (Host)":" (Client)")+downed(id),false);}}
     return result;
 }
 }
