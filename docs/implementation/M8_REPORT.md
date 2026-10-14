@@ -703,7 +703,7 @@ The user left the machine running and asked for work to continue. Later the user
 ### Still open
 
 - Two-player travel to a different scene: the guest editor was dropped with "cannot prepare another scene for Play" (seen by the user and by the gate). Two causes, both fixed and built but **not yet re-tested**: the host did not forward `--player-asset` to guest editors, and a guest launched after its host prepared Play with a Player received `--character-clips player:<id>`, which it did not recognise (it only handled `kit:`). Re-test with Players = 2 across a scene change, then run the full fresh `scripts/verify_m8_slice.py`, including `m8-slice-party-travel`.
-- Editor findings from the user's hand test: the Place panel drops gameplay objects on whatever surface is under the cursor (a transition landed 7 m up on geometry and silently never prompted); placing extra models breaks Play because the baked mesh collision must match placements exactly and the editor has no re-bake yet.
+- Editor findings from the user's hand test: placing extra models broke Play because the baked mesh collision had to match placements exactly (fixed later the same evening by per-scene collision baking). Dropping objects onto geometry such as rooftops is intended (user, 14 October); the real problem was the fixed Scene camera, now a TODO in EDITOR_UX_BACKLOG.md (Orbit and Free look camera modes).
 - Q1 per-scene collision is parsed but not used by Play; no party rules asset; altar/door/platform visuals follow boxes only.
 - Nothing committed yet.
 
@@ -722,7 +722,7 @@ The user left the machine running and asked for work to continue. Later the user
 - Verified: on a fresh fixture copy, an extra hut was placed in RoyalVillage through the editor's placement path and saved. Play then baked `RoyalVillage.dacollision` with 4 bodies (ground, the two original huts, the new one) and ran (previously it failed with "collision is stale"). Not yet run: the full slice gate and the party gates with per-scene collision, and a travel between two scenes that both have their own baked collision.
 - Known follow-ups:
   - The navigation mesh is still baked from Tools > Navigation and keyed to the collision; a rebaked scene needs its navigation mesh baked again. NPCs fall back as before when it is missing.
-  - The Place panel can still drop objects on rooftops.
+  - The Scene tab's camera is fixed; Orbit and Free look modes are a TODO in EDITOR_UX_BACKLOG.md (user, 14 October).
   - The Royal scenes' first Play after this change writes `RoyalCombat.dacollision` / `RoyalTraining.dacollision` into `content/`.
 
 **Not committed.** The user's hand-test edits to `content/royal_district/RoyalCombat.dascene` and `RoyalTraining.dascene` (and their `.records` folders) are left in the working tree for the user to keep or discard. They include deleted Royal Guard spawns and test altars and transitions.
