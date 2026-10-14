@@ -31,17 +31,23 @@ struct ScriptContext {
     std::function<bool(std::string_view, unsigned)> menu;
 };
 class ScriptRunner {
-public:
+  public:
     explicit ScriptRunner(std::string_view text);
     void frame(const ScriptContext&, unsigned frame, CharacterSceneInput&);
-    std::vector<ScriptStep>& steps() { return steps_; }
-    std::size_t& cursor() { return at_; }
-    unsigned& interactions() { return interactions_; }
+    std::vector<ScriptStep>& steps() {
+        return steps_;
+    }
+    std::size_t& cursor() {
+        return at_;
+    }
+    unsigned& interactions() {
+        return interactions_;
+    }
 
-private:
+  private:
     std::vector<ScriptStep> steps_;
     std::size_t at_{};
     unsigned interactions_{};
 };
-}
-}
+} // namespace editor_app::exercises
+} // namespace darkangel

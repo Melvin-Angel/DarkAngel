@@ -20,6 +20,6 @@ struct AuthoringSourceContext {
     const std::string& scene_baseline;
 };
 std::unique_ptr<Exercise> make_authoring_sources(AuthoringSourceContext);
-}
-}
-}
+} // namespace exercises
+} // namespace editor_app
+} // namespace darkangel
