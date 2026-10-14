@@ -16,10 +16,10 @@ The finished environment enables modular players and NPCs, stance-based eight-sl
 | [Architecture decision log](../architecture/Decision_Log.txt) and its original DOCX | Locked DAE-001–021 contracts and rationale |
 | [Actor gameplay design supplement](../architecture/Actor_Gameplay_Design.md) | Confirmed actor/state ownership, rationale, capability traceability and unresolved design questions |
 | [Implementation handoff / M0–M9 roadmap](../architecture/DarkAngel_Implementation_Handoff.md) | Milestone responsibilities, dependencies and acceptance |
-| [Editor workflow plan](../implementation/EDITOR_WORKFLOW_PLAN.md) | Incremental workflow delivery and focused authoring gates |
+| [Editor workflow plan](../implementation/legacy/plans/EDITOR_WORKFLOW_PLAN.md) | Incremental workflow delivery and focused authoring gates |
 | [STATUS](../implementation/STATUS.md) | Current milestone state and links to current evidence |
 | Implementation reports and evidence | Implemented boundaries, measured verification and limitations at each checkpoint |
-| [CONTINUE](../implementation/CONTINUE.md), [Royal continuation](../implementation/ROYAL_CONTINUE.md), [ability authoring continuation](../implementation/ABILITY_AUTHORING_CONTINUE.md) | Immediate tasks, commands and blockers; current header supersedes older chronological entries |
+| [CONTINUE](../implementation/CONTINUE.md), [Royal continuation](../implementation/legacy/prompts/ROYAL_CONTINUE.md), [ability authoring continuation](../implementation/legacy/prompts/ABILITY_AUTHORING_CONTINUE.md) | Immediate tasks, commands and blockers; current header supersedes older chronological entries |
 
 Implemented means code is present; Verified means the named checks passed for their stated profile. Planned and deferred work has no implementation claim. A verified increment does not promote its enclosing milestone. Update milestone status, an implementation report and continuation instructions for significant implementation changes. Update this vision only when the intended product changes. Preserve historical receipts and label superseded checkpoint descriptions; do not maintain competing milestone status tables.
 
