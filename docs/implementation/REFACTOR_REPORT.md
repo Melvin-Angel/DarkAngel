@@ -85,4 +85,14 @@ flowchart LR
 
 ## Verification boundary
 
-The baseline and timer repair are freshly verified as described above. No source extraction or refactor improvement is claimed yet. The broader 107-test checkpoint remains historical; the current subset is 14 tests. Network gates establish same-machine UDP/D3D12 behavior only.
+The baseline, timer repair and completed extraction increments are freshly verified as described above. The broader 107-test checkpoint remains historical; the current subset is 14 tests. Network gates establish same-machine UDP/D3D12 behavior only. Step 1 and the full refactor remain incomplete.
+
+## Step 1b: authoring scenario module, verified
+
+`exercises/exercise.hpp` defines the frame, finish, done and result interface. `AuthoringSources` implements it with the existing source comparison, effect preview, reference navigation, graph canvas, creation, history and actor authoring frame commands. It also owns the final revision, validation and history-validation assertions. Its six-field context contains options, Controller, Shell, the prepared character-resource holder, current gameplay-session pointer and immutable authoring-scene baseline. It has no device, rendering resources, networking adapter or save database.
+
+The source body and frame order are preserved. Main calls the exercise at its original pre-UI frame phase and completes its revision, validation and history checks in `finish()`. Main measures 298,511 bytes before formatting: down 17.3% from the verified baseline. The new translation unit compiles in 8.495 s; the accompanying main compilation is 42.077 s during the guarded full build, sharing the machine with other first-party work. These are Ninja edge times, not a controlled incremental comparison.
+
+Guarded full build and M8/M6/HUD subset pass (14/14). All 20 binding/navigation prefix gates pass, including effect preview failures/reprepare/correction, source comparison, kit publication and fresh Play. Actor and pending-creation suites pass fresh Play, Character/Player panels and draft isolation; history panel and animation workflow pass. Their unchanged native authoring API checks are retained from verified checkpoint `0ea18a0`; this change only moves editor scenario code. Results: `evidence/refactor-authoring.json`. Additional scenario/input/render assertions remain in main; step 1 is not complete.
+
+Two verifier assumptions needed correction during this increment. Actor and pending-creation suites normally regenerate their fixture independently; when retaining the native fixture, the first suite's published `gui_*` files must be backed up before the second reuses those names. Only three owned test-fixture files were moved into `.cache/refactor-actor-generated-backup/`, with resolved paths checked under the build fixture. The animation verifier now obtains its action from the current kit's heavy binding rather than assuming `heavy.daaction`; other composer modes retain their original fixture. Initial failure logs are retained separately.

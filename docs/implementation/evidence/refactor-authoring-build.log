@@ -1,0 +1,221 @@
+[1/327] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/325] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/323] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/321] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/318] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/316] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[7/314] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[8/311] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[9/306] Generating CXX dyndep file CMakeFiles\MotorTests.dir\CXX.dd
+[10/305] Generating CXX dyndep file CMakeFiles\AbilityMotorPredictionTests.dir\CXX.dd
+[11/304] Generating CXX dyndep file CMakeFiles\MotorSessionTests.dir\CXX.dd
+[12/303] Generating CXX dyndep file CMakeFiles\MotorActorHistoryTests.dir\CXX.dd
+[13/302] Generating CXX dyndep file CMakeFiles\MotorFaultTests.dir\CXX.dd
+[14/301] Generating CXX dyndep file CMakeFiles\MotorDynamicTests.dir\CXX.dd
+[15/300] Generating CXX dyndep file CMakeFiles\PhysicsQuerySensorTests.dir\CXX.dd
+[16/299] Generating CXX dyndep file CMakeFiles\MeleeTests.dir\CXX.dd
+[17/298] Generating CXX dyndep file CMakeFiles\MotorBudgetTests.dir\CXX.dd
+[18/297] Generating CXX dyndep file CMakeFiles\PlatformAxesTests.dir\CXX.dd
+[19/296] Generating CXX dyndep file CMakeFiles\DarkAngelHeadless.dir\CXX.dd
+[20/295] Generating CXX dyndep file CMakeFiles\PersistenceTests.dir\CXX.dd
+[21/294] Generating CXX dyndep file CMakeFiles\EditorCli.dir\CXX.dd
+[22/293] Generating CXX dyndep file CMakeFiles\TagCodegenTests.dir\CXX.dd
+[23/292] Generating CXX dyndep file CMakeFiles\NativeSourceEditTests.dir\CXX.dd
+[24/291] Generating CXX dyndep file CMakeFiles\AnimationClipTests.dir\CXX.dd
+[25/290] Generating CXX dyndep file CMakeFiles\AnimationTests.dir\CXX.dd
+[26/289] Generating CXX dyndep file CMakeFiles\CombatKitAssetTests.dir\CXX.dd
+[27/288] Generating CXX dyndep file CMakeFiles\GraphAssetTests.dir\CXX.dd
+[28/287] Generating CXX dyndep file CMakeFiles\AnimationGraphTests.dir\CXX.dd
+[29/286] Generating CXX dyndep file CMakeFiles\AuthoredEffectGnsTests.dir\CXX.dd
+[30/285] Generating CXX dyndep file CMakeFiles\GameplayDebugTests.dir\CXX.dd
+[31/284] Generating CXX dyndep file CMakeFiles\ActorAssetTests.dir\CXX.dd
+[32/283] Generating CXX dyndep file CMakeFiles\AttributeAuthoringTests.dir\CXX.dd
+[33/281] Generating CXX dyndep file CMakeFiles\ComposerStructureTests.dir\CXX.dd
+[34/279] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[35/275] Generating CXX dyndep file CMakeFiles\RoyalCollisionTests.dir\CXX.dd
+[36/271] Generating CXX dyndep file CMakeFiles\ComposerPreviewTests.dir\CXX.dd
+[37/267] Generating CXX dyndep file CMakeFiles\CharacterCombatSceneTests.dir\CXX.dd
+[38/266] Generating CXX dyndep file CMakeFiles\PartySceneTests.dir\CXX.dd
+[39/265] Generating CXX dyndep file CMakeFiles\SceneTransitionTests.dir\CXX.dd
+[40/264] Generating CXX dyndep file CMakeFiles\SceneDelayTests.dir\CXX.dd
+[41/263] Generating CXX dyndep file CMakeFiles\NavigationTests.dir\CXX.dd
+[42/262] Generating CXX dyndep file CMakeFiles\ObservedCharacterPoseTests.dir\CXX.dd
+[43/261] Generating CXX dyndep file CMakeFiles\BehaviorTreeTests.dir\CXX.dd
+[44/260] Generating CXX dyndep file CMakeFiles\ReactionPresentationTests.dir\CXX.dd
+[45/259] Generating CXX dyndep file CMakeFiles\RoyalHeavySceneTests.dir\CXX.dd
+[46/258] Generating CXX dyndep file CMakeFiles\CharacterSceneTests.dir\CXX.dd
+[47/257] Generating CXX dyndep file CMakeFiles\JointMaskTests.dir\CXX.dd
+[48/256] Generating CXX dyndep file CMakeFiles\RenderableHumanTests.dir\CXX.dd
+[49/255] Generating CXX dyndep file CMakeFiles\EffectAssetTests.dir\CXX.dd
+[50/254] Generating CXX dyndep file CMakeFiles\CollisionAssetTests.dir\CXX.dd
+[51/253] Generating CXX dyndep file CMakeFiles\AbilityAssetTests.dir\CXX.dd
+[52/252] Generating CXX dyndep file CMakeFiles\ActionClipBindingTests.dir\CXX.dd
+[53/251] Generating CXX dyndep file CMakeFiles\ActionTimelineTests.dir\CXX.dd
+[54/250] Generating CXX dyndep file CMakeFiles\CollisionMeshTests.dir\CXX.dd
+[55/249] Generating CXX dyndep file CMakeFiles\CollisionStreamTests.dir\CXX.dd
+[56/248] Generating CXX dyndep file CMakeFiles\CollisionObserverTests.dir\CXX.dd
+[57/247] Generating CXX dyndep file CMakeFiles\AssetTests.dir\CXX.dd
+[58/246] Generating CXX dyndep file CMakeFiles\ExternalImportTests.dir\CXX.dd
+[59/245] Generating CXX dyndep file CMakeFiles\AttributeTests.dir\CXX.dd
+[60/244] Generating CXX dyndep file CMakeFiles\InputTests.dir\CXX.dd
+[61/243] Generating CXX dyndep file CMakeFiles\CombatKitTests.dir\CXX.dd
+[62/242] Generating CXX dyndep file CMakeFiles\CueAssetTests.dir\CXX.dd
+[63/241] Generating CXX dyndep file CMakeFiles\PresentationPrimitiveTests.dir\CXX.dd
+[64/240] Generating CXX dyndep file CMakeFiles\VfxAssetTests.dir\CXX.dd
+[65/239] Generating CXX dyndep file CMakeFiles\RendererProbe.dir\CXX.dd
+[66/237] Generating CXX dyndep file CMakeFiles\AudioTests.dir\CXX.dd
+[67/236] Generating CXX dyndep file CMakeFiles\AudioAuthoringTests.dir\CXX.dd
+[68/235] Generating CXX dyndep file CMakeFiles\HudTests.dir\CXX.dd
+[69/234] Generating CXX dyndep file CMakeFiles\NativeInputTests.dir\CXX.dd
+[70/232] Generating CXX dyndep file CMakeFiles\EditorTests.dir\CXX.dd
+[71/231] Generating CXX dyndep file CMakeFiles\FlecsProbe.dir\CXX.dd
+[72/229] Generating CXX dyndep file CMakeFiles\LuauProbe.dir\CXX.dd
+[73/227] Generating CXX dyndep file CMakeFiles\SQLiteProbe.dir\CXX.dd
+[74/225] Generating CXX dyndep file CMakeFiles\FoundationTests.dir\CXX.dd
+[75/224] Generating CXX dyndep file CMakeFiles\ScriptPackageTests.dir\CXX.dd
+[76/223] Generating CXX dyndep file CMakeFiles\AssemblyTests.dir\CXX.dd
+[77/222] Generating CXX dyndep file CMakeFiles\AbilityIntentGnsTests.dir\CXX.dd
+[78/221] Generating CXX dyndep file CMakeFiles\EffectGnsTests.dir\CXX.dd
+[79/220] Generating CXX dyndep file CMakeFiles\AbilityIntentTests.dir\CXX.dd
+[80/219] Generating CXX dyndep file CMakeFiles\AbilityPredictionTests.dir\CXX.dd
+[81/218] Generating CXX dyndep file CMakeFiles\AbilityObserverTests.dir\CXX.dd
+[82/217] Generating CXX dyndep file CMakeFiles\AbilityCorrectionTests.dir\CXX.dd
+[83/216] Generating CXX dyndep file CMakeFiles\AbilityTests.dir\CXX.dd
+[84/215] Generating CXX dyndep file CMakeFiles\EffectTests.dir\CXX.dd
+[85/214] Generating CXX dyndep file CMakeFiles\EffectBudgetTests.dir\CXX.dd
+[86/213] Generating CXX dyndep file CMakeFiles\AbilityTagTests.dir\CXX.dd
+[87/212] Generating CXX dyndep file CMakeFiles\ActionTagTests.dir\CXX.dd
+[88/211] Generating CXX dyndep file CMakeFiles\CameraTests.dir\CXX.dd
+[89/210] Generating CXX dyndep file CMakeFiles\EncounterTests.dir\CXX.dd
+[90/209] Generating CXX dyndep file CMakeFiles\WorldLedgerTests.dir\CXX.dd
+[91/208] Generating CXX dyndep file CMakeFiles\ItemAssetTests.dir\CXX.dd
+[92/205] Generating CXX dyndep file CMakeFiles\InventoryTests.dir\CXX.dd
+[93/204] Generating CXX dyndep file CMakeFiles\InventorySessionTests.dir\CXX.dd
+[94/203] Generating CXX dyndep file CMakeFiles\InventoryGnsTests.dir\CXX.dd
+[95/202] Generating CXX dyndep file CMakeFiles\WorldObjectsTests.dir\CXX.dd
+[96/201] Generating CXX dyndep file CMakeFiles\CuePlayerTests.dir\CXX.dd
+[97/200] Generating CXX dyndep file CMakeFiles\PartyControlTests.dir\CXX.dd
+[98/199] Generating CXX dyndep file CMakeFiles\EffectReplicationTests.dir\CXX.dd
+[99/198] Generating CXX dyndep file CMakeFiles\AbilityReservationTests.dir\CXX.dd
+[100/197] Generating CXX dyndep file CMakeFiles\CombatEffectTests.dir\CXX.dd
+[101/196] Generating CXX dyndep file CMakeFiles\SessionTests.dir\CXX.dd
+[102/195] Generating CXX dyndep file CMakeFiles\GnsTests.dir\CXX.dd
+[103/194] Linking CXX executable MotorTests.exe
+[104/194] Linking CXX executable AbilityMotorPredictionTests.exe
+[105/194] Linking CXX executable MotorActorHistoryTests.exe
+[106/194] Linking CXX executable MotorDynamicTests.exe
+[107/194] Linking CXX executable MotorFaultTests.exe
+[108/194] Linking CXX executable MotorSessionTests.exe
+[109/194] Linking CXX executable PhysicsQuerySensorTests.exe
+[110/194] Linking CXX executable MotorBudgetTests.exe
+[111/194] Linking CXX executable PlatformAxesTests.exe
+[112/194] Linking CXX executable MeleeTests.exe
+[113/194] Linking CXX executable PersistenceTests.exe
+[114/194] Linking CXX executable DarkAngelHeadless.exe
+[115/194] Linking CXX executable EditorCli.exe
+[116/194] Linking CXX executable TagCodegenTests.exe
+[117/194] Linking CXX executable NativeSourceEditTests.exe
+[118/194] Linking CXX executable AnimationTests.exe
+[119/194] Linking CXX executable AnimationClipTests.exe
+[120/194] Linking CXX executable CombatKitAssetTests.exe
+[121/194] Linking CXX executable GraphAssetTests.exe
+[122/194] Linking CXX executable AnimationGraphTests.exe
+[123/194] Linking CXX executable GameplayDebugTests.exe
+[124/194] Linking CXX executable ActorAssetTests.exe
+[125/194] Linking CXX executable AuthoredEffectGnsTests.exe
+[126/194] Linking CXX executable AttributeAuthoringTests.exe
+[127/194] Linking CXX executable ComposerStructureTests.exe
+[128/194] Linking CXX executable ComposerPreviewTests.exe
+[129/194] Linking CXX executable NativeAuthoringTests.exe
+[130/194] Linking CXX executable RoyalCollisionTests.exe
+[131/194] Linking CXX executable CharacterCombatSceneTests.exe
+[132/194] Linking CXX executable SceneDelayTests.exe
+[133/194] Linking CXX executable PartySceneTests.exe
+[134/194] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(992): warning C4456: declaration of 'at' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(984): note: see declaration of 'at'
+C:\DarkAngel\apps\editor\main.cpp(1043): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(202): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1126): warning C4456: declaration of 'last' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(975): note: see declaration of 'last'
+C:\DarkAngel\apps\editor\main.cpp(1302): warning C4457: declaration of 'viewer' hides function parameter
+C:\DarkAngel\apps\editor\main.cpp(1295): note: see declaration of 'viewer'
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1329): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1386): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(191): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1437): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(191): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1437): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(191): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1499): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(191): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1522): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(191): note: see declaration of 'id'
+[135/194] Linking CXX executable SceneTransitionTests.exe
+[136/194] Linking CXX executable NavigationTests.exe
+[137/194] Linking CXX executable BehaviorTreeTests.exe
+[138/194] Linking CXX executable ObservedCharacterPoseTests.exe
+[139/194] Linking CXX executable ReactionPresentationTests.exe
+[140/194] Linking CXX executable RoyalHeavySceneTests.exe
+[141/194] Linking CXX executable RenderableHumanTests.exe
+[142/194] Linking CXX executable JointMaskTests.exe
+[143/194] Linking CXX executable CharacterSceneTests.exe
+[144/194] Linking CXX executable EffectAssetTests.exe
+[145/194] Linking CXX executable ActionClipBindingTests.exe
+[146/194] Linking CXX executable AbilityAssetTests.exe
+[147/194] Linking CXX executable CollisionAssetTests.exe
+[148/194] Linking CXX executable CollisionObserverTests.exe
+[149/194] Linking CXX executable CollisionStreamTests.exe
+[150/194] Linking CXX executable ActionTimelineTests.exe
+[151/194] Linking CXX executable CollisionMeshTests.exe
+[152/194] Linking CXX executable AttributeTests.exe
+[153/194] Linking CXX executable AssetTests.exe
+[154/194] Linking CXX executable CombatKitTests.exe
+[155/194] Linking CXX executable ExternalImportTests.exe
+[156/194] Linking CXX executable CueAssetTests.exe
+[157/194] Linking CXX executable PresentationPrimitiveTests.exe
+[158/194] Linking CXX executable VfxAssetTests.exe
+[159/194] Linking CXX executable InputTests.exe
+[160/194] Linking CXX executable HudTests.exe
+[161/194] Linking CXX executable AudioTests.exe
+[162/194] Linking CXX executable AudioAuthoringTests.exe
+[163/194] Linking CXX executable NativeInputTests.exe
+[164/194] Linking CXX executable FoundationTests.exe
+[165/194] Linking CXX executable ScriptPackageTests.exe
+[166/194] Linking CXX executable EditorTests.exe
+[167/194] Linking CXX executable AssemblyTests.exe
+[168/194] Linking CXX executable AbilityIntentTests.exe
+[169/194] Linking CXX executable AbilityIntentGnsTests.exe
+[170/194] Linking CXX executable EffectGnsTests.exe
+[171/194] Linking CXX executable AbilityPredictionTests.exe
+[172/194] Linking CXX executable AbilityObserverTests.exe
+[173/194] Linking CXX executable AbilityCorrectionTests.exe
+[174/194] Linking CXX executable AbilityTests.exe
+[175/194] Linking CXX executable EffectTests.exe
+[176/194] Linking CXX executable EffectBudgetTests.exe
+[177/194] Linking CXX executable AbilityTagTests.exe
+[178/194] Linking CXX executable CameraTests.exe
+[179/194] Linking CXX executable WorldLedgerTests.exe
+[180/194] Linking CXX executable EncounterTests.exe
+[181/194] Linking CXX executable ActionTagTests.exe
+[182/194] Linking CXX executable InventoryTests.exe
+[183/194] Linking CXX executable ItemAssetTests.exe
+[184/194] Linking CXX executable InventorySessionTests.exe
+[185/194] Linking CXX executable WorldObjectsTests.exe
+[186/194] Linking CXX executable PartyControlTests.exe
+[187/194] Linking CXX executable CuePlayerTests.exe
+[188/194] Linking CXX executable InventoryGnsTests.exe
+[189/194] Linking CXX executable EffectReplicationTests.exe
+[190/194] Linking CXX executable AbilityReservationTests.exe
+[191/194] Linking CXX executable CombatEffectTests.exe
+[192/194] Linking CXX executable SessionTests.exe
+[193/194] Linking CXX executable GnsTests.exe
+[194/194] Linking CXX executable DarkAngelEditor.exe

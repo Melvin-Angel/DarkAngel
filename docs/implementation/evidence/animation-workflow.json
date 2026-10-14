@@ -1,29 +1,24 @@
 {
   "schema": 1,
-  "base_head": "d14d2adf66ca63f8a286d4d8943e6ea6c9b2ca45",
+  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
   "scope": "Focused Animation workflow using shared native Composer/clip preview, related Ability navigation and preserved draft/history context",
   "gates": [
     {
-      "name": "animation-workflow-build",
-      "exit": 0,
-      "seconds": 41.41
-    },
-    {
       "name": "animation-workflow",
       "exit": 0,
-      "seconds": 1.174
+      "seconds": 15.828
     }
   ],
   "source_sha256": {
-    "apps/editor/editor_composer.cpp": "27377c7e92ca1783243373bd5214f450bd2663285786c5e4902e9d93a88e7a1f",
-    "apps/editor/editor_authoring.cpp": "02c5cfdeb6107879d2b87e7851b3a893c637b6b830cbf3e640d5506aec91302c",
-    "apps/editor/editor_ui.hpp": "0416d1f9d59865ece0b2e95766abd9bd9bc8dfa28ac4115e7672a62e93aa1964",
-    "scripts/verify_composer.py": "b563d68b6f40af47c7fe3cf6ed8494c5116fd05de24bbc98d88bb17dbae9bbeb",
-    "apps/editor/main.cpp": "162187d9d6e39f33d169e405227f051256e5639935d0dabffbf80e89a697e0ec",
-    "apps/editor/editor_ui.cpp": "b8c2071d89292121cfe59efd4db275cca47705355be70a8103145a83943a1121",
-    "scripts/open_royal_scene.ps1": "80d8e0e4119c9796533fc01c675d71fce8853120a11bc4056d83c1a5c830cc38"
+    "apps/editor/editor_composer.cpp": "5c92623ecfc234c308d8ca47b39bf98211a0b2a52cda7f28eba38518c7d87d1c",
+    "apps/editor/editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps/editor/editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "scripts/verify_composer.py": "4ad41c36f6224f796b909d23b99d51382ddb40c0cf046dedc96628cae09862f2",
+    "apps/editor/main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "apps/editor/editor_ui.cpp": "62eedc057b322ab0ff615881f71baea7a15fe109503bbc722fa5ff1c07b847e5",
+    "scripts/open_royal_scene.ps1": "53b7c1b0034b7c90f41c8ea945e36075d1f14768857092d959a25b893e03daea"
   },
-  "binary_sha256": "4f1bab54ad317325e019f493cb8d901d7cce856aef6c277da5f4b5a9b9392438",
+  "binary_sha256": "ab8b1ad823d669881ceb325f46e5dd06bdec08161bac1acf20693806de95cb92",
   "limitations": [
     "One D3D12 scripted navigation/edit/Undo/pose capture; not physical input automation.",
     "Animation Graph/layer/mask/skeleton designers and persistent configurable layouts remain open.",

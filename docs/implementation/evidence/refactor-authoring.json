@@ -1,0 +1,180 @@
+{
+  "results": {
+    "build": {
+      "exit": 0,
+      "seconds": 143.157,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-build.log"
+    },
+    "ctest": {
+      "exit": 0,
+      "seconds": 28.437,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-ctest.log"
+    },
+    "blend-space": {
+      "exit": 0,
+      "seconds": 6.813,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-blend-space.log"
+    },
+    "graph-canvas": {
+      "exit": 0,
+      "seconds": 4.203,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-graph-canvas.log"
+    },
+    "independent-ability": {
+      "exit": 0,
+      "seconds": 8.187,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-independent-ability.log"
+    },
+    "pending-reference-selection": {
+      "exit": 0,
+      "seconds": 5.422,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-pending-reference-selection.log"
+    },
+    "kit-copy-recovery": {
+      "exit": 0,
+      "seconds": 5.86,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-kit-copy-recovery.log"
+    },
+    "binding-links-view": {
+      "exit": 0,
+      "seconds": 5.578,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-binding-links-view.log"
+    },
+    "reference-draft-state": {
+      "exit": 0,
+      "seconds": 6.359,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-reference-draft-state.log"
+    },
+    "player-kit-copy": {
+      "exit": 0,
+      "seconds": 12.188,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-player-kit-copy.log"
+    },
+    "player-kit-context": {
+      "exit": 0,
+      "seconds": 11.796,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-player-kit-context.log"
+    },
+    "play-player-navigation": {
+      "exit": 0,
+      "seconds": 12.204,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-play-player-navigation.log"
+    },
+    "effect-source-preview": {
+      "exit": 0,
+      "seconds": 7.625,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-source-preview.log"
+    },
+    "effect-preview-results": {
+      "exit": 0,
+      "seconds": 8.188,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-preview-results.log"
+    },
+    "effect-preview-failure": {
+      "exit": 0,
+      "seconds": 8.328,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-preview-failure.log"
+    },
+    "effect-preview-reset": {
+      "exit": 0,
+      "seconds": 9.282,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-preview-reset.log"
+    },
+    "effect-preview-reprepare": {
+      "exit": 0,
+      "seconds": 9.765,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-preview-reprepare.log"
+    },
+    "effect-preview-corrected": {
+      "exit": 0,
+      "seconds": 17.016,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-preview-corrected.log"
+    },
+    "source-disk-comparison": {
+      "exit": 0,
+      "seconds": 6.828,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-source-disk-comparison.log"
+    },
+    "history-source-comparison": {
+      "exit": 0,
+      "seconds": 6.547,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-history-source-comparison.log"
+    },
+    "history-source-filter": {
+      "exit": 0,
+      "seconds": 7.094,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-history-source-filter.log"
+    },
+    "player-kit-play": {
+      "exit": 0,
+      "seconds": 31.281,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-player-kit-play.log"
+    },
+    "verify_actor_workflow": {
+      "exit": 0,
+      "seconds": 68.062,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_actor_workflow.log"
+    },
+    "pending_creation_initial": {
+      "exit": 1,
+      "seconds": 47.563,
+      "log": "docs/implementation/evidence/refactor-authoring-pending-first-failure.log"
+    },
+    "verify_pending_creation": {
+      "exit": 0,
+      "seconds": 77.125,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_pending_creation.log"
+    },
+    "verify_authoring_history_view": {
+      "exit": 0,
+      "seconds": 3.109,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_authoring_history_view.log"
+    },
+    "animation_initial": {
+      "exit": 1,
+      "seconds": 20.906,
+      "log": "docs/implementation/evidence/refactor-authoring-animation-first-failure.log"
+    },
+    "verify_composer": {
+      "exit": 0,
+      "seconds": 15.859,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_composer.log"
+    },
+    "validation": {
+      "exit": 0,
+      "seconds": 16.891,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-validation.log"
+    },
+    "validation-error": {
+      "exit": 0,
+      "seconds": 22.187,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-validation-error.log"
+    },
+    "history-validation": {
+      "exit": 0,
+      "seconds": 20.375,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-history-validation.log"
+    },
+    "effect-revision": {
+      "exit": 0,
+      "seconds": 18.735,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-effect-revision.log"
+    },
+    "verify_graph_preview.py": {
+      "exit": 0,
+      "seconds": 74.64,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_graph_preview.log"
+    },
+    "verify_character_preview.py": {
+      "exit": 0,
+      "seconds": 16.172,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_character_preview.log"
+    },
+    "verify_creation_vertical.py": {
+      "exit": 0,
+      "seconds": 35.594,
+      "log": "docs\\implementation\\evidence\\refactor-authoring-verify_creation_vertical.log"
+    }
+  },
+  "qualification": "Native authoring checkpoint retained from 0ea18a0; new editor source module, fresh affected UI gates."
+}

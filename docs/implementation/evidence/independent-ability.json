@@ -5,25 +5,23 @@
       "exit": 0
     },
     {
-      "name": "independent-ability-native",
-      "exit": 0
-    },
-    {
       "name": "independent-ability-d3d12",
       "exit": 0
     }
   ],
   "scope": "independent-ability",
-  "base_head": "00bcfbaa2ec0974f4f89100af2a51acb40de3b0e",
+  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
   "source_sha256": {
-    "apps\\editor\\editor_authoring.cpp": "d42b5708f5d3a84e31e57f916c54e1ee09e5b57a4095f3d0cfb773f0b749bfbf",
-    "apps\\editor\\editor_workspaces.cpp": "75d671f9412aef363e785d2c358956771e85971c4db68cd75144404ee31a97e9",
-    "apps\\editor\\editor_ui.hpp": "70e75fd93c189c0d7219f9ac14a80c855969025bfc41c96a5570e699e33cb506",
-    "apps\\editor\\main.cpp": "80f38cde8e4b642de5ac3e0e06e76dc7568dbf00525c2ec91916a7ed78bf5e17",
-    "apps\\editor\\native_authoring.cpp": "cde679722dce219e3411642ef991402e64879cb3f0ce40d8216b04176b7016e1",
-    "apps\\editor\\native_authoring.hpp": "fd6f491e2b10543fdf7a55062a204f35b5431f4e006f20d8ae8a61207aee3ed6",
-    "tests\\native_authoring_tests.cpp": "c6653970b5b101c14c3304859aaa0b4762231a16af6299ba8a5f7e3bfebb6252",
-    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf"
+    "apps\\editor\\editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps\\editor\\editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
+    "apps\\editor\\editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "apps\\editor\\main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "apps\\editor\\native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
+    "apps\\editor\\native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
+    "tests\\native_authoring_tests.cpp": "fa014abfd42712da246481e3c7f52e8e75d6754ee411be3d6af58a003443b56e",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
+    "apps\\editor\\graph_canvas.hpp": "579aec31544bbc3a93fcf6bfef9624fae8eefcee8a86ac633e134c6564d0c8df",
+    "apps\\editor\\blend_space.hpp": "283c1972b0da4567398cb7e240af0c78bc93eae8ed4d003a4c6e97489984f978"
   },
   "limitations": [
     "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",

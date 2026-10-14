@@ -1,65 +1,54 @@
 {
   "schema": 1,
-  "base_head": "272cdb31a2f00be707eb3d1eddc75e0ca685baf7",
+  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
   "scope": "Pending native creation drafts/history/selectors, coordinated new-source publication and complete frozen Player fresh Play",
   "gates": [
     {
-      "name": "pending-creation-build",
-      "exit": 0,
-      "seconds": 39.949,
-      "note": "Final editor form refresh build; native/actor gates retained from unchanged tested sources."
-    },
-    {
-      "name": "pending-creation-native",
-      "exit": 0,
-      "seconds": 33.867
-    },
-    {
       "name": "pending-creation-assets",
       "exit": 0,
-      "seconds": 13.672
+      "seconds": 46.359
     },
     {
       "name": "pending-creation-fresh-play",
       "exit": 0,
-      "seconds": 5.665
+      "seconds": 20.453
     },
     {
       "name": "pending-creation-character",
       "exit": 0,
-      "seconds": 0.77
+      "seconds": 1.391
     },
     {
       "name": "pending-creation-player",
       "exit": 0,
-      "seconds": 1.307
+      "seconds": 1.875
     },
     {
       "name": "pending-creation-drafts",
       "exit": 0,
-      "seconds": 2.244
+      "seconds": 6.812
     }
   ],
   "source_sha256": {
-    "apps/editor/editor_controller.cpp": "988c40dcfe38b3aa67f72ae82c7f953aa51306366c11743712ff284ac4f9235f",
-    "apps/editor/editor_assets.cpp": "5197baa09445c63b2f3ef7d741adcbbbd1dfbf1885af2096e8bb48914edaba65",
-    "apps/editor/editor_workspaces.cpp": "88ebc96d3b344af0b2ae4424ba00c3d8a3a4c2ca752544a99a1e36184c7a9093",
-    "apps/editor/effect_preview.hpp": "02d7b235c686a55169c25d271af52a774841e7a44a287afee66702b97fc73946",
-    "tests/native_authoring_tests.cpp": "8c6cd98a6e0ed69fdc8907c6a70cac51c65e633c1a765ec0f13eb27ac666e37f",
-    "engine/assets/include/darkangel/assets.hpp": "fd51554eacb2136c17ad0bc82233d5874c5f2e31a77910b373551e3b3c32b408",
-    "engine/assets/asset_service.cpp": "ffa11ace4649237b23cd69721cc111be33f8ecf4537c1ae80ba47b8bf926f7c6",
+    "apps/editor/editor_controller.cpp": "a5cf3a2e9755639bc7aec1d7dd595fafd8f3001cbcf7d22bd8ff2bc0074810de",
+    "apps/editor/editor_assets.cpp": "4fa0cb31bea1a06109209b6fc122821ffc82af4deddb0290efeb971aed50d3ec",
+    "apps/editor/editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
+    "apps/editor/effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
+    "tests/native_authoring_tests.cpp": "fa014abfd42712da246481e3c7f52e8e75d6754ee411be3d6af58a003443b56e",
+    "engine/assets/include/darkangel/assets.hpp": "a6611e5748afbb816e02db791f98566250fc73c3a97861aa519915ef64ef6c3d",
+    "engine/assets/asset_service.cpp": "d4c3cc04bb01922371a301a1828e69aa856c7eb165a79c2fef407cc03cef5580",
     "tests/actor_asset_tests.cpp": "b660148e0bd1514768a15d93fe587fba9ec0f5d700d89d17a35616fb329757f4",
-    "apps/editor/native_authoring.cpp": "49dff55f635cd87315413e23b4ba3b899c86cadc4015ecd5b692d5bf6733e933",
-    "apps/editor/native_authoring.hpp": "7568ffd6763094f74d83907199e97eb82687c99bdefbb3a8ba74f9d6a09fb994",
-    "apps/editor/character_preview.cpp": "18b20026fb6b2b7d0c786fb65a937b21cc50c76df835ed4b4d9f913ad71107e2",
-    "apps/editor/editor_authoring.cpp": "cc0d0c1e14490973ba43565b91b55d8f7bac5ff14b6e4b25414e45986860cafb",
-    "apps/editor/editor_ui.cpp": "3234548a097f57623f846e75c50336c08016a287d6d04d234fd85dac2aec90f1",
-    "apps/editor/editor_ui.hpp": "ad465de50ba0d57f5fcb431c33e55896b028763cb48d4a8e8afb721a0cd26433",
-    "apps/editor/editor_controller.hpp": "d0b3c1d38629cd767f544d2bf21336ec9b4b5c650e34c0ed8225be475f2174e0",
+    "apps/editor/native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
+    "apps/editor/native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
+    "apps/editor/character_preview.cpp": "368c8ea812ac4bdaf147cc37c8e2d9205b62084b2f6e5a74d979ed244cd0cafa",
+    "apps/editor/editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps/editor/editor_ui.cpp": "62eedc057b322ab0ff615881f71baea7a15fe109503bbc722fa5ff1c07b847e5",
+    "apps/editor/editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "apps/editor/editor_controller.hpp": "407c5e307acb72112f5072b558b3a9e507e9d5412dbe50af706b76552b870da6",
     "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
-    "apps/editor/main.cpp": "0651bbbfe8fd6d1b043f3c6ed99d7979a71547f052afb2eedcdc7b9a241320a5",
-    "scripts/open_royal_scene.ps1": "a4842b5e476d1bbbeabfafa5165678f198fb699a418708f41f75aff433d1621f",
-    "scripts/verify_pending_creation.py": "668988630d033ae047bebfdb4f82caf7caee75c0efaafe3adc9ac5a84fd95627"
+    "apps/editor/main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "scripts/open_royal_scene.ps1": "53b7c1b0034b7c90f41c8ea945e36075d1f14768857092d959a25b893e03daea",
+    "scripts/verify_pending_creation.py": "83e0d18e99289f975b61cd735c0743e0b6a465954c05ec8ed58d31e356224218"
   },
   "limitations": [
     "One scripted D3D12 creation/navigation/history/fresh Play and rendered panels; no physical pointer automation.",

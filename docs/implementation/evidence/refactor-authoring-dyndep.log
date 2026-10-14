@@ -1,0 +1,19 @@
+[1/109] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[2/105] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[3/102] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[4/62] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[5/59] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[6/56] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[7/53] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[8/46] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[9/46] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[10/45] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[11/41] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[12/18] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[13/18] Linking CXX static library DarkAngelFoundation.lib
+[14/18] Linking CXX executable AssetTool.exe
+[15/18] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[16/18] Scanning C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp for CXX dependencies
+[17/18] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[18/18] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd

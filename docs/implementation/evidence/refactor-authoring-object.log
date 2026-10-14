@@ -1,0 +1,5 @@
+[1/1] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(70): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(23): warning C4189: 'character': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(23): warning C4189: 'import_baseline': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(88): warning C4189: 'character_resources': local variable is initialized but not referenced

@@ -10,14 +10,21 @@
     }
   ],
   "scope": "reference-draft-state",
-  "base_head": "b0e82c92abfed9513d01979d84b4da799e759e1f",
+  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
   "source_sha256": {
-    "apps\\editor\\editor_authoring.cpp": "be214087931faca29981ca3bd29162c94ba18f79df85d4a1b36088b60b08a2fd",
-    "apps\\editor\\editor_ui.hpp": "74c1b0f338fc6a896d942348d42e3a52429da3edadb56ee996f39598f0869ce4",
-    "apps\\editor\\main.cpp": "5d22a258402d250fe3edd59a4422908102d62c6a7b358b7a7a38a4471124ba4d"
+    "apps\\editor\\editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps\\editor\\editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
+    "apps\\editor\\editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "apps\\editor\\main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "apps\\editor\\native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
+    "apps\\editor\\native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
+    "tests\\native_authoring_tests.cpp": "fa014abfd42712da246481e3c7f52e8e75d6754ee411be3d6af58a003443b56e",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
+    "apps\\editor\\graph_canvas.hpp": "579aec31544bbc3a93fcf6bfef9624fae8eefcee8a86ac633e134c6564d0c8df",
+    "apps\\editor\\blend_space.hpp": "283c1972b0da4567398cb7e240af0c78bc93eae8ed4d003a4c6e97489984f978"
   },
   "limitations": [
     "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",
-    "No cook/publication/runtime change; M4/M5 In progress."
+    "Designated Player Kit Play prefix exercises coordinated source publication and full fresh Play in its disposable fixture; other prefixes remain private. M4/M5 In progress."
   ]
 }

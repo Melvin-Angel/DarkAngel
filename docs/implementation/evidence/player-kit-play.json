@@ -5,24 +5,23 @@
       "exit": 0
     },
     {
-      "name": "player-kit-play-native",
-      "exit": 0
-    },
-    {
       "name": "player-kit-play-d3d12",
       "exit": 0
     }
   ],
   "scope": "player-kit-play",
-  "base_head": "56317953f8f4b430100793c705d5f770c7e02bfb",
+  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
   "source_sha256": {
-    "apps\\editor\\editor_authoring.cpp": "b26e4f93bb8fdab87e3b8596daa5d358c9065cb839c3a6cfe54c244ceefd6206",
-    "apps\\editor\\editor_ui.hpp": "6f54219ef4437ead6248f6d87ecd7d8f7d3fe182b0f034fbd300f04ceff85fba",
-    "apps\\editor\\main.cpp": "0da680372ffe6e55629a114820ef4f1f16a37105420f30f1f507ae6d64ac835b",
-    "apps\\editor\\native_authoring.cpp": "4ade6b55d2706f9b459a64eeded0085f59e6d5b320c456709fa759254591f722",
-    "apps\\editor\\native_authoring.hpp": "372503d38c5df7adf5da48f06b416d3757ce519b8dfdfca6134027effde5f41d",
-    "tests\\native_authoring_tests.cpp": "6289ca695474fff228df1968d1605acc0adf4dea660d2e7c65d749ccab0e727d",
-    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf"
+    "apps\\editor\\editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps\\editor\\editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
+    "apps\\editor\\editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "apps\\editor\\main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "apps\\editor\\native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
+    "apps\\editor\\native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
+    "tests\\native_authoring_tests.cpp": "fa014abfd42712da246481e3c7f52e8e75d6754ee411be3d6af58a003443b56e",
+    "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
+    "apps\\editor\\graph_canvas.hpp": "579aec31544bbc3a93fcf6bfef9624fae8eefcee8a86ac633e134c6564d0c8df",
+    "apps\\editor\\blend_space.hpp": "283c1972b0da4567398cb7e240af0c78bc93eae8ed4d003a4c6e97489984f978"
   },
   "limitations": [
     "Normal form draw and designated prefix route/history exercises; no physical pointer navigation claim.",

@@ -535,7 +535,7 @@ if(DAE_RENDERER_SPIKE)
       # Cache optimized Diligent code generation between editor-only relinks.
       target_link_options(DarkAngelEditor PRIVATE /LTCG:INCREMENTAL /INCREMENTAL:NO)
       if(TARGET DarkAngelCharacterScene)
-        target_sources(DarkAngelEditor PRIVATE apps/editor/exercises/script_runner.cpp apps/editor/character_preview.cpp apps/editor/inventory_resources.cpp)
+        target_sources(DarkAngelEditor PRIVATE apps/editor/exercises/authoring_sources.cpp apps/editor/exercises/script_runner.cpp apps/editor/character_preview.cpp apps/editor/inventory_resources.cpp)
         target_link_libraries(DarkAngelEditor PRIVATE AshenRootsCombat)
         target_link_libraries(DarkAngelEditor PRIVATE DarkAngelCharacterScene)
         target_compile_definitions(DarkAngelEditor PRIVATE DAE_CHARACTER_SCENE=1)

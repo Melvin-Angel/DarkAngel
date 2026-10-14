@@ -10,17 +10,17 @@
     }
   ],
   "scope": "blend-space",
-  "base_head": "be4f36e37af733af328ad2d9748f4744f3b1cc5c",
+  "base_head": "0ea18a0293eb7051d2730191fc840bf93bb784fc",
   "source_sha256": {
-    "apps\\editor\\editor_authoring.cpp": "6a93cee1978f723047116173ebee39b6f4a5c175bc0aba74bfc2c1a11d6ac401",
-    "apps\\editor\\editor_workspaces.cpp": "75d671f9412aef363e785d2c358956771e85971c4db68cd75144404ee31a97e9",
-    "apps\\editor\\editor_ui.hpp": "c8902be8c9b865f24feca576b0075b5b7b5d83123f9cc9a177e0c8d1ecf7d3aa",
-    "apps\\editor\\main.cpp": "5fa847a412698e7c6ada28e4ae393077815dcb244d3bd3e2190abc8be67278a6",
-    "apps\\editor\\native_authoring.cpp": "c165022f659b20ef3642de61d312c8e029b186d2dd69b3a536f280b933ae43b7",
-    "apps\\editor\\native_authoring.hpp": "86cfc3177ce2b48144c98c240acca758ae2d370821c42caf4090c0241910b096",
-    "tests\\native_authoring_tests.cpp": "4168f56fe9ec96d858806ff7e1e19b99b2e31d3fd34b8dac0bd5778a119343a1",
+    "apps\\editor\\editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
+    "apps\\editor\\editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
+    "apps\\editor\\editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "apps\\editor\\main.cpp": "ed99c90e5794b12ee3220b33da054f931a1c74bfc7d7ce9f9662923c3badefa3",
+    "apps\\editor\\native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
+    "apps\\editor\\native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
+    "tests\\native_authoring_tests.cpp": "fa014abfd42712da246481e3c7f52e8e75d6754ee411be3d6af58a003443b56e",
     "apps\\editor\\effect_preview.hpp": "1e54b9b6d4f748714b02b2ee1704086fc9accc4280fdf89ad3d95415476fbdaf",
-    "apps\\editor\\graph_canvas.hpp": "b0269366fa4de36db181f97066c541238066c422415a0dcbe3dffbc6169b2e45",
+    "apps\\editor\\graph_canvas.hpp": "579aec31544bbc3a93fcf6bfef9624fae8eefcee8a86ac633e134c6564d0c8df",
     "apps\\editor\\blend_space.hpp": "283c1972b0da4567398cb7e240af0c78bc93eae8ed4d003a4c6e97489984f978"
   },
   "limitations": [
