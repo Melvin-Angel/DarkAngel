@@ -1,5 +1,6 @@
 {
   "accepted": 0,
+  "active_mask_slot": 0,
   "actors": [
     {
       "health": 75.0,
@@ -12,7 +13,7 @@
   "client": "readiness=4 revision=8 player=4 collision=1 motors=2 corrections=1 public=2 frames=31 coherent=1 paired=1 [world revision]=2",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8f1b6609-a49\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-b4573d4f-8c5\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
     "Prepared current scene and combat kit for a fresh Play session.",
     "Party host listening at 127.0.0.1:26100",
@@ -21,12 +22,20 @@
     "The party arrived in RoyalTraining.dascene.",
     "Player 1: Guest disconnected"
   ],
+  "downed": false,
   "epoch": 1,
+  "equipped_masks": [
+    null,
+    null,
+    null,
+    null
+  ],
   "error": "",
   "failures": 0,
-  "frame": 4389,
+  "frame": 5772,
   "fullest": {
     "accepted": 0,
+    "active_mask_slot": 0,
     "actors": [
       {
         "health": 75.0,
@@ -39,7 +48,7 @@
     "client": "readiness=4 revision=7 player=4 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [world revision]=1",
     "console": [
       "Created two linked Spinner placements; authoring is idle.",
-      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8f1b6609-a49\\s\\royal_district\\RoyalTraining.dascene",
+      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-b4573d4f-8c5\\s\\royal_district\\RoyalTraining.dascene",
       "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
       "Prepared current scene and combat kit for a fresh Play session.",
       "Party host listening at 127.0.0.1:26100",
@@ -47,13 +56,21 @@
       "Play activated an isolated Preview world; authoring remains unchanged.",
       "The party arrived in RoyalTraining.dascene."
     ],
+    "downed": false,
     "epoch": 1,
+    "equipped_masks": [
+      null,
+      null,
+      null,
+      null
+    ],
     "error": "",
     "failures": 0,
-    "frame": 4080,
+    "frame": 5160,
     "highest_operation": 0,
+    "movers": [],
     "owner": "b6a022aef5f944b11efb60f0b13e86a2",
-    "pending_motor": 3,
+    "pending_motor": 2,
     "players": [
       {
         "health": 100.0,
@@ -70,9 +87,9 @@
         "id": "0277daf836539698323a9e7e131074c0",
         "pose": true,
         "position": [
-          0.017812568694353104,
-          0.4999995231628418,
-          3.942871570587158
+          0.014952651225030422,
+          0.49999958276748657,
+          3.9442334175109863
         ]
       }
     ],
@@ -82,17 +99,44 @@
       0.499999463558197,
       4.949224472045898
     ],
-    "predicted_tick": 243,
-    "process": 4256,
+    "predicted_tick": 242,
+    "process": 12840,
     "ready": true,
     "rebases": 1,
     "refused": 0,
     "role": "host",
     "running": true,
+    "save_status": "",
     "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+    "scene_now": "92c7496a-31b5-4a3f-84df-a63d62a60559",
     "schema": 1,
+    "script_count": 4,
     "script_steps": 2,
-    "tick": 241,
+    "tick": 240,
+    "travel_failures": 0,
+    "world": {
+      "collected": [],
+      "destinations": [],
+      "discovered": [],
+      "members": [
+        {
+          "network": 4,
+          "revive": 0.0,
+          "state": 0
+        },
+        {
+          "network": 6,
+          "revive": 0.0,
+          "state": 0
+        }
+      ],
+      "open": [],
+      "revision": 1,
+      "schema": 1,
+      "unlocked": [],
+      "wipe": 0.0,
+      "wiped": false
+    },
     "world_ui": [
       {
         "health_bar": true,
@@ -107,12 +151,13 @@
         "label": "Player 2 (Client)",
         "percent": 100.0,
         "width": 208.0,
-        "x": 338.6533203125,
+        "x": 338.9937438964844,
         "y": 107.49583435058594
       }
     ]
   },
   "highest_operation": 0,
+  "movers": [],
   "owner": "b6a022aef5f944b11efb60f0b13e86a2",
   "pending_motor": 2,
   "players": [
@@ -134,16 +179,38 @@
     4.949224472045898
   ],
   "predicted_tick": 332,
-  "process": 4256,
+  "process": 12840,
   "ready": true,
   "rebases": 2,
   "refused": 0,
   "role": "host",
   "running": true,
+  "save_status": "",
   "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+  "scene_now": "92c7496a-31b5-4a3f-84df-a63d62a60559",
   "schema": 1,
+  "script_count": 4,
   "script_steps": 4,
   "tick": 330,
+  "travel_failures": 0,
+  "world": {
+    "collected": [],
+    "destinations": [],
+    "discovered": [],
+    "members": [
+      {
+        "network": 4,
+        "revive": 0.0,
+        "state": 0
+      }
+    ],
+    "open": [],
+    "revision": 2,
+    "schema": 1,
+    "unlocked": [],
+    "wipe": 0.0,
+    "wiped": false
+  },
   "world_ui": [
     {
       "health_bar": true,

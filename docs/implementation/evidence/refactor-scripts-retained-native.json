@@ -1,0 +1,37 @@
+{
+  "retained_native_cases": [
+    "effect-reaction-authoring",
+    "effect-reaction-presentation",
+    "effect-reaction-public-pose",
+    "effect-reaction-effect-assets",
+    "effect-reaction-kit-assets",
+    "effect-reaction-replication",
+    "effect-reaction-combat-effects",
+    "camera-rig",
+    "scripted-attacker",
+    "royal-heavy-scene",
+    "runtime-hud",
+    "motor-warp",
+    "navigation",
+    "behavior-tree"
+  ],
+  "binary_sha256": {
+    "NativeAuthoringTests": "853275b97eba8171978496ab8ef5d843498336511f7d50d08b3497b5eaf48bf6",
+    "ReactionPresentationTests": "d30ce3a38035e94334c39cdb2d35b38d9cc7ff1f1f4a9bedc221b9009bfc88a9",
+    "ObservedCharacterPoseTests": "334baca5dddf0679cceb145ff0d6ee9f6a05294e29685536c810b7b3b742b3a5",
+    "EffectAssetTests": "b8b36c805212cb39dc86f84a52688bfb3cd46a674864318d4194c233446c1447",
+    "CombatKitAssetTests": "ebdaa3cad35ad14141df19cc1ab09b52c69585fffeb3bbab0e8575377729146c",
+    "EffectReplicationTests": "a9ea9668ae85da29a3c6dcfada7f86147f4dccb5565451402405f9de117ba783",
+    "CombatEffectTests": "a122f3a66d1a682f9f8ff41f3f23a53ffc42dbe0d8290423c2a747238f5a92a4",
+    "CameraTests": "9aacbfd2a282259efbb3af5427b3ff3d0d70ef949c7beb68b316e661576ba4ef",
+    "CharacterCombatSceneTests": "1bd8b43bf72f348622335aeff7dac39431deb576dc6d3d0ec7fd86a7f591e930",
+    "RoyalHeavySceneTests": "31830013f773b0eabb6345381ef1dd3b45ccba0ed065f93da0979faaea914420",
+    "HudTests": "550d064095567f38ecf5082436ffcbce32fba73c4707c84748eadf28604939e9",
+    "MotorTests": "b78bb15c0837c4c982392d8c2bc40f8d83db382bd0866280d942fb7fcab8a8bb",
+    "NavigationTests": "420be1d03146fe008ae1fcf88ce5b472e3c12097222107df64e98003ff290d0b",
+    "BehaviorTreeTests": "04449d5559741a079db56b032921bddb67f94c208eaf10c4727678d83371063d"
+  },
+  "fixture_sha256": "8f29a47bcde96067f91d47ca6b2ecc8dea7c32816a7e5d0ed897850ac18d77ae",
+  "previous_log": "refactor-scripts-exercises-first-failure.log",
+  "qualification": "Native cases passed before the fixture-only repair, with these same binaries; all editor gates rerun."
+}

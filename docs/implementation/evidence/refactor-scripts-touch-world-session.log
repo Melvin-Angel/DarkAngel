@@ -1,0 +1,114 @@
+[1/110] Scanning C:\DarkAngel\engine\runtime\owner_mailbox.cpp for CXX dependencies
+[2/110] Scanning C:\DarkAngel\engine\runtime\ability_observer.cpp for CXX dependencies
+[3/110] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
+[4/110] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[5/110] Scanning C:\DarkAngel\engine\runtime\inventory_session.cpp for CXX dependencies
+[6/110] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[7/108] Scanning C:\DarkAngel\engine\runtime\scene_authority.cpp for CXX dependencies
+[8/108] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[9/108] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[10/73] Scanning C:\DarkAngel\engine\runtime\scene_transition.cpp for CXX dependencies
+[11/73] Scanning C:\DarkAngel\engine\runtime\scene_client.cpp for CXX dependencies
+[12/73] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\owner_mailbox.cpp.obj
+[13/73] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\inventory_session.cpp.obj
+[14/73] Scanning C:\DarkAngel\engine\runtime\scene_world_objects.cpp for CXX dependencies
+[15/73] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
+[16/73] Scanning C:\DarkAngel\engine\runtime\character_presentation.cpp for CXX dependencies
+[17/73] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[18/73] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[19/73] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[20/73] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority.cpp.obj
+C:\DarkAngel\engine\runtime\scene_authority.cpp(327): warning C4458: declaration of 'refused' hides class member
+C:\DarkAngel\engine\runtime\scene_authority.cpp(340): note: see declaration of 'darkangel::SceneAuthority::Impl::refused'
+[21/73] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+C:\DarkAngel\engine\runtime\world_session.cpp(141): warning C4458: declaration of 'owner' hides class member
+C:\DarkAngel\engine\runtime\world_session.cpp(57): note: see declaration of 'darkangel::WorldSession::Impl::owner'
+C:\DarkAngel\engine\runtime\world_session.cpp(191): warning C4458: declaration of 'owner' hides class member
+C:\DarkAngel\engine\runtime\world_session.cpp(57): note: see declaration of 'darkangel::WorldSession::Impl::owner'
+C:\DarkAngel\engine\runtime\world_session.cpp(266): warning C4458: declaration of 'view' hides class member
+C:\DarkAngel\engine\runtime\world_session.cpp(58): note: see declaration of 'darkangel::WorldSession::Impl::view'
+C:\DarkAngel\engine\runtime\world_session.cpp(343): warning C4458: declaration of 'view' hides class member
+C:\DarkAngel\engine\runtime\world_session.cpp(58): note: see declaration of 'darkangel::WorldSession::Impl::view'
+[22/73] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj
+C:\DarkAngel\engine\runtime\scene_transition.cpp(35): warning C4458: declaration of 'session' hides class member
+C:\DarkAngel\engine\runtime\scene_transition.cpp(14): note: see declaration of 'darkangel::SceneTransitionCoordinator::Impl::session'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(87): warning C4458: declaration of 'ready' hides class member
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(93): note: see declaration of 'darkangel::SceneTransitionCoordinator::ready'
+[23/73] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_client.cpp.obj
+C:\DarkAngel\engine\runtime\scene_client.cpp(178): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(71): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(255): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(71): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(277): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(71): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+[24/73] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_world_objects.cpp.obj
+[25/73] Linking CXX static library DarkAngelRuntime.lib
+[26/73] Linking CXX static library DarkAngelInventorySession.lib
+[27/73] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_presentation.cpp.obj
+[28/73] Linking CXX static library DarkAngelCharacterScene.lib
+[29/73] Linking CXX executable AssetTool.exe
+[30/73] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[31/72] Scanning C:\DarkAngel\games\AshenRoots\royal_combat.cpp for CXX dependencies
+[32/72] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[33/71] Scanning C:\DarkAngel\apps\editor\exercises\script_runner.cpp for CXX dependencies
+[34/71] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[35/71] Scanning C:\DarkAngel\apps\editor\inventory_resources.cpp for CXX dependencies
+[36/71] Scanning C:\DarkAngel\apps\editor\world_ui_presenter.cpp for CXX dependencies
+[37/71] Scanning C:\DarkAngel\apps\editor\network_play.cpp for CXX dependencies
+[38/71] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[39/71] Scanning C:\DarkAngel\apps\editor\runtime_inventory.cpp for CXX dependencies
+[40/71] Scanning C:\DarkAngel\apps\editor\runtime_altar.cpp for CXX dependencies
+[41/71] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[42/52] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_combat.cpp.obj
+[43/52] Linking CXX static library AshenRootsCombat.lib
+[44/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\script_runner.cpp.obj
+[45/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\inventory_resources.cpp.obj
+[46/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[47/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\network_play.cpp.obj
+C:\DarkAngel\apps\editor\network_play.cpp(53): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+[48/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\world_ui_presenter.cpp.obj
+[49/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_altar.cpp.obj
+[50/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_inventory.cpp.obj
+[51/52] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+C:\DarkAngel\apps\editor\main.cpp(991): warning C4456: declaration of 'at' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(983): note: see declaration of 'at'
+C:\DarkAngel\apps\editor\main.cpp(1036): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1037): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1066): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1067): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1075): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1077): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1086): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(201): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1098): warning C4456: declaration of 'source' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(201): note: see declaration of 'source'
+C:\DarkAngel\apps\editor\main.cpp(1181): warning C4456: declaration of 'last' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(974): note: see declaration of 'last'
+C:\DarkAngel\apps\editor\main.cpp(1357): warning C4457: declaration of 'viewer' hides function parameter
+C:\DarkAngel\apps\editor\main.cpp(1350): note: see declaration of 'viewer'
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\main.cpp(1441): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1492): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1492): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1554): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+C:\DarkAngel\apps\editor\main.cpp(1577): warning C4456: declaration of 'id' hides previous local declaration
+C:\DarkAngel\apps\editor\main.cpp(190): note: see declaration of 'id'
+[52/52] Linking CXX executable DarkAngelEditor.exe

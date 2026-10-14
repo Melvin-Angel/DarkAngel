@@ -1,0 +1,24 @@
+{
+  "scene_roots": {
+    "7ef3766f-ac08-40fa-9e23-21515d2b873c": "RoyalArcher.dascene",
+    "6b91b527-31be-4b15-aa9c-2c0b9970457b": "RoyalCombat.dascene",
+    "7b8d04f2-6f2d-4b28-9937-2a1f6a6ceba1": "RoyalDuel.dascene",
+    "a0080344-79d4-4d20-8ff0-8ff92e0c4e1e": "RoyalEncounter.dascene",
+    "86c22c14-e59e-47f4-862a-b3ebb862b8d5": "RoyalEncounterAudio.dascene",
+    "e85df15a-bd35-4a6c-879f-b8e57b0926d4": "RoyalGate.dascene",
+    "6bacf86b-373f-4fbe-b751-160467ee86e3": "RoyalGuards.dascene",
+    "ce00f040-4b97-411b-a143-4d23e7b88f6a": "RoyalLever.dascene",
+    "dc2381a6-1309-40c4-a621-2a7dab38d175": "RoyalQuietAudio.dascene",
+    "394113dd-9ea1-4634-8383-5e6ac7d179a4": "RoyalRange.dascene",
+    "668d2eee-73fc-4ffe-9c02-c6febcc6f79a": "RoyalSenses.dascene",
+    "caa0d0cb-1493-4078-8270-298f5e1c8014": "RoyalSpline.dascene",
+    "13a400d0-1d5f-4baa-94da-c7027d645769": "RoyalTemple.dascene",
+    "92c7496a-31b5-4a3f-84df-a63d62a60559": "RoyalTraining.dascene",
+    "492cd837-3bf6-45d7-b640-b0470c5cec82": "RoyalVillage.dascene"
+  },
+  "spline": {
+    "exit": 0,
+    "seconds": 1.438,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-spline-confirmation.log"
+  }
+}

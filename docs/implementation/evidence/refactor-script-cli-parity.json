@@ -1,0 +1,328 @@
+{
+  "baseline": "873799e",
+  "boolean_spellings": 76,
+  "import_option_preserved": true,
+  "prerequisites_identical": true,
+  "main_exercise_cli_spellings": 0,
+  "limits": "Static compatibility comparison; end-to-end gate verification is recorded separately.",
+  "enabled": {
+    "--exercise-two-players": [
+      "exercise_two_players",
+      "exercise_heavy"
+    ],
+    "--exercise-transition": [
+      "exercise_transition",
+      "exercise_two_players",
+      "exercise_heavy"
+    ],
+    "--exercise-travel-place": [
+      "exercise_travel_place"
+    ],
+    "--exercise-place": [
+      "exercise_place"
+    ],
+    "--exercise-navigation-bake": [
+      "exercise_navigation_bake",
+      "navigation_tool"
+    ],
+    "--exercise-ranged": [
+      "exercise_ranged",
+      "exercise_heavy"
+    ],
+    "--exercise-navigation-overlay": [
+      "exercise_navigation_overlay"
+    ],
+    "--exercise-soft-lock": [
+      "exercise_soft_lock",
+      "exercise_heavy"
+    ],
+    "--exercise-upper-body": [
+      "exercise_upper_body",
+      "exercise_heavy"
+    ],
+    "--exercise-camera-look": [
+      "exercise_camera_look",
+      "exercise_heavy"
+    ],
+    "--exercise-aim": [
+      "exercise_aim",
+      "exercise_heavy"
+    ],
+    "--exercise-camera-preview": [
+      "exercise_camera_preview"
+    ],
+    "--exercise-dodge": [
+      "exercise_dodge",
+      "exercise_heavy"
+    ],
+    "--exercise-cues": [
+      "exercise_cues"
+    ],
+    "--exercise-reject": [
+      "exercise_reject"
+    ],
+    "--exercise-vfx-edit": [
+      "exercise_vfx_edit"
+    ],
+    "--exercise-cue-form": [
+      "exercise_cue_form"
+    ],
+    "--exercise-audio": [
+      "exercise_audio"
+    ],
+    "--exercise-mask-switch": [
+      "exercise_mask_switch",
+      "exercise_heavy"
+    ],
+    "--exercise-attacked": [
+      "exercise_attacked",
+      "exercise_heavy"
+    ],
+    "--exercise-senses": [
+      "exercise_senses",
+      "exercise_attacked",
+      "exercise_heavy"
+    ],
+    "--exercise-place-mouse": [
+      "exercise_place_mouse"
+    ],
+    "--exercise-mask-field": [
+      "exercise_mask_field"
+    ],
+    "--exercise-save-all": [
+      "exercise_save_all"
+    ],
+    "--exercise-spline": [
+      "exercise_spline"
+    ],
+    "--exercise-interaction": [
+      "exercise_interaction",
+      "exercise_attacked",
+      "exercise_heavy"
+    ],
+    "--exercise-encounter": [
+      "exercise_encounter",
+      "exercise_attacked",
+      "exercise_heavy"
+    ],
+    "--exercise-cook-sweep": [
+      "exercise_cook_sweep"
+    ],
+    "--exercise-death": [
+      "exercise_death",
+      "exercise_heavy"
+    ],
+    "--exercise-reaction": [
+      "exercise_reaction",
+      "exercise_upper_body",
+      "exercise_heavy"
+    ],
+    "--exercise-graph-result": [
+      "exercise_graph_result",
+      "exercise_graph_preview",
+      "animation_workspace"
+    ],
+    "--exercise-blend-space": [
+      "exercise_blend_space",
+      "exercise_graph_canvas",
+      "animation_workspace"
+    ],
+    "--exercise-graph-canvas": [
+      "exercise_graph_canvas",
+      "animation_workspace"
+    ],
+    "--exercise-independent-vertical": [
+      "exercise_independent_ability",
+      "exercise_creation_vertical",
+      "exercise_actor_workflow",
+      "ability_workspace"
+    ],
+    "--exercise-independent-ability": [
+      "exercise_independent_ability",
+      "ability_workspace"
+    ],
+    "--exercise-history-source-filter": [
+      "exercise_history_source_filter",
+      "exercise_native_navigation",
+      "player_workspace"
+    ],
+    "--exercise-history-source-compare": [
+      "exercise_history_source_compare",
+      "exercise_source_compare",
+      "ability_workspace"
+    ],
+    "--exercise-source-compare": [
+      "exercise_source_compare",
+      "ability_workspace"
+    ],
+    "--exercise-player-kit-play": [
+      "exercise_player_kit_play",
+      "exercise_player_kit_copy",
+      "player_workspace"
+    ],
+    "--exercise-effect-preview-corrected": [
+      "exercise_effect_preview_corrected",
+      "exercise_effect_preview_reprepare",
+      "exercise_effect_source_preview",
+      "ability_workspace"
+    ],
+    "--exercise-effect-preview-reprepare": [
+      "exercise_effect_preview_reprepare",
+      "exercise_effect_source_preview",
+      "ability_workspace"
+    ],
+    "--exercise-effect-preview-reset": [
+      "exercise_effect_preview_reset",
+      "exercise_effect_source_preview",
+      "ability_workspace"
+    ],
+    "--exercise-effect-preview-failure": [
+      "exercise_effect_preview_failure",
+      "exercise_effect_source_preview",
+      "ability_workspace"
+    ],
+    "--exercise-effect-source-preview": [
+      "exercise_effect_source_preview",
+      "ability_workspace"
+    ],
+    "--exercise-play-player-navigation": [
+      "exercise_play_player_navigation",
+      "exercise_player_kit_context",
+      "exercise_player_kit_copy",
+      "player_workspace"
+    ],
+    "--exercise-player-kit-context": [
+      "exercise_player_kit_context",
+      "exercise_player_kit_copy",
+      "player_workspace"
+    ],
+    "--exercise-player-kit-copy": [
+      "exercise_player_kit_copy",
+      "player_workspace"
+    ],
+    "--exercise-binding-links": [
+      "exercise_binding_links",
+      "ability_workspace"
+    ],
+    "--exercise-kit-copy-undo": [
+      "exercise_kit_copy_undo",
+      "ability_workspace"
+    ],
+    "--exercise-pending-selection": [
+      "exercise_pending_selection",
+      "ability_workspace"
+    ],
+    "--exercise-creation-vertical": [
+      "exercise_creation_vertical",
+      "exercise_actor_workflow",
+      "ability_workspace"
+    ],
+    "--exercise-game-debug": [
+      "exercise_game_debug",
+      "exercise_authoring",
+      "exercise_heavy"
+    ],
+    "--exercise-history-validation": [
+      "exercise_history_validation",
+      "exercise_validation",
+      "exercise_native_navigation",
+      "player_workspace"
+    ],
+    "--exercise-effect-revision": [
+      "exercise_effect_revision",
+      "ability_workspace"
+    ],
+    "--exercise-validation-error": [
+      "exercise_validation_error",
+      "exercise_validation",
+      "exercise_native_navigation",
+      "player_workspace"
+    ],
+    "--exercise-validation": [
+      "exercise_validation",
+      "exercise_native_navigation",
+      "player_workspace"
+    ],
+    "--exercise-native-navigation": [
+      "exercise_native_navigation",
+      "player_workspace"
+    ],
+    "--exercise-creation-drafts": [
+      "exercise_creation_drafts",
+      "character_workspace"
+    ],
+    "--exercise-history-view": [
+      "exercise_history_view",
+      "ability_workspace"
+    ],
+    "--exercise-graph-preview": [
+      "exercise_graph_preview",
+      "animation_workspace"
+    ],
+    "--exercise-graph-authoring": [
+      "exercise_graph_authoring",
+      "exercise_actor_workflow",
+      "animation_workspace"
+    ],
+    "--exercise-player-input": [
+      "exercise_player_input",
+      "exercise_actor_workflow",
+      "player_workspace"
+    ],
+    "--exercise-player-defaults": [
+      "exercise_player_defaults",
+      "exercise_actor_workflow",
+      "player_workspace"
+    ],
+    "--exercise-character-preview": [
+      "exercise_character_preview",
+      "character_workspace"
+    ],
+    "--exercise-actor-workflow": [
+      "exercise_actor_workflow",
+      "player_workspace"
+    ],
+    "--exercise-effect-preview": [
+      "exercise_effect_preview",
+      "ability_workspace"
+    ],
+    "--exercise-animation-workflow": [
+      "animation_workspace",
+      "exercise_animation_workflow",
+      "exercise_composer"
+    ],
+    "--exercise-composer-playback": [
+      "composer_playback",
+      "exercise_composer",
+      "ability_workspace"
+    ],
+    "--exercise-composer": [
+      "exercise_composer",
+      "ability_workspace"
+    ],
+    "--exercise-authored-replay": [
+      "authoring_replay",
+      "exercise_authoring",
+      "exercise_heavy"
+    ],
+    "--exercise-authoring": [
+      "exercise_authoring",
+      "exercise_heavy"
+    ],
+    "--exercise-workspaces": [
+      "exercise_workspaces"
+    ],
+    "--exercise-heavy": [
+      "exercise_heavy"
+    ],
+    "--exercise-combat": [
+      "exercise_combat"
+    ],
+    "--exercise-character": [
+      "exercise_character"
+    ],
+    "--exercise": [
+      "exercise"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "configure": {
+    "exit": 0,
+    "seconds": 9.687,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-configure.log"
+  },
+  "build": {
+    "exit": 0,
+    "seconds": 159.094,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-build.log"
+  },
+  "ctest": {
+    "exit": 0,
+    "seconds": 30.469,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-ctest.log"
+  },
+  "exercises_initial": {
+    "exit": 1,
+    "seconds": 533.937,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-exercises.log"
+  },
+  "exercises_resumed": {
+    "exit": 0,
+    "seconds": 444.921,
+    "log": "docs/implementation/evidence/refactor-scripts-exercises-resumed.log",
+    "qualification": "53 fresh editor gates; 14 native gates retained from the initial pass on unchanged native binaries."
+  },
+  "slice_initial": {
+    "exit": 1,
+    "seconds": 85.953,
+    "log": "docs/implementation/evidence/refactor-scripts-slice-first-failure.log"
+  },
+  "spline_confirmation": {
+    "exit": 0,
+    "seconds": 1.438,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-spline-confirmation.log"
+  },
+  "slice": {
+    "exit": 0,
+    "seconds": 241.406,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-slice.log"
+  },
+  "party": {
+    "exit": 0,
+    "seconds": 195.922,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-party.log"
+  }
+}

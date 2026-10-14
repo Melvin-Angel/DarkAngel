@@ -5,12 +5,12 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
-[39mViewport foreground pixels=864687 capture=C:\DarkAngel\docs\implementation\evidence\cues-footsteps-d3d12.png
+[39mViewport foreground pixels=861856 capture=C:\DarkAngel\docs\implementation\evidence\cues-footsteps-d3d12.png
 Editor cues tick=120 assets=4 closure=2 live=2 visual_live=0 audio_live=2 refused=0 visual_starts=0 audio_starts=18 audio_stops=18 unresolved=0 visual=none audio=Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep,Footstep vfx_loaded=2 vfx_playing=0 vfx_particles=0 vfx_quads=0 vfx_draws=0 vfx_unsupported=0 vfx_missing=0 trails=0 trail_points=0 decals=0 primitive_quads=0 primitive_missing=0 effect_generations=vfx/placeholder/burn_aura.efkproj:8582eb1f611f;vfx/placeholder/hit_spark.efkproj:2dfc0fdec910 sound_generations=audio/placeholder/hit.wav:834794ce560a;audio/placeholder/step.wav:4bfbee2697fe;audio/placeholder/swing.wav:f80311d4264d audio_service=1 audio_device=0 audio_loaded=3 audio_played=18 audio_missing=0
 Native character editor tick=120 foot=4.80148e-18,0.499999,11.7183 graph_phase=0.461988 pending=0
 DarkAngel editor rendered 120 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
-[39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 10/256
+[39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 15/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
                        Peak used/aligned/allocated size: 232.00 KB / 232.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 22.7%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:

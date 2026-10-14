@@ -1,5 +1,6 @@
 {
   "accepted": 0,
+  "active_mask_slot": 0,
   "actors": [
     {
       "health": 100.0,
@@ -9,7 +10,7 @@
   ],
   "arrivals": 3,
   "authority": true,
-  "client": "readiness=4 revision=10 player=4 collision=1 motors=2 corrections=1 public=2 frames=31 coherent=1 paired=1 [host ahead]=1 [world revision]=1",
+  "client": "readiness=4 revision=10 player=4 collision=1 motors=2 corrections=1 public=2 frames=31 coherent=1 paired=1 [world revision]=1",
   "console": [
     "Prepared current scene and combat kit for a fresh Play session.",
     "Party host listening at 127.0.0.1:26196",
@@ -24,12 +25,20 @@
     "The party arrived in RoyalPartyGate.dascene.",
     "Player 1: Guest disconnected"
   ],
+  "downed": false,
   "epoch": 3,
+  "equipped_masks": [
+    null,
+    null,
+    null,
+    null
+  ],
   "error": "",
   "failures": 0,
-  "frame": 6097,
+  "frame": 8095,
   "fullest": {
     "accepted": 0,
+    "active_mask_slot": 0,
     "actors": [
       {
         "health": 100.0,
@@ -54,11 +63,19 @@
       "Prepared current scene and combat kit for a fresh Play session.",
       "The party arrived in RoyalPartyGate.dascene."
     ],
+    "downed": false,
     "epoch": 3,
+    "equipped_masks": [
+      null,
+      null,
+      null,
+      null
+    ],
     "error": "",
     "failures": 0,
-    "frame": 5760,
+    "frame": 7560,
     "highest_operation": 0,
+    "movers": [],
     "owner": "b6a022aef5f944b11efb60f0b13e86a2",
     "pending_motor": 2,
     "players": [
@@ -89,17 +106,44 @@
       0.4999997019767761,
       3.0
     ],
-    "predicted_tick": 111,
-    "process": 13368,
+    "predicted_tick": 123,
+    "process": 18644,
     "ready": true,
     "rebases": 0,
     "refused": 0,
     "role": "host",
     "running": true,
-    "scene": "8d020189-04cb-4787-8b94-c2889923363e",
+    "save_status": "",
+    "scene": "3834575e-1a2a-4f88-8114-93ce3f452377",
+    "scene_now": "3834575e-1a2a-4f88-8114-93ce3f452377",
     "schema": 1,
+    "script_count": 9,
     "script_steps": 7,
-    "tick": 109,
+    "tick": 121,
+    "travel_failures": 0,
+    "world": {
+      "collected": [],
+      "destinations": [],
+      "discovered": [],
+      "members": [
+        {
+          "network": 4,
+          "revive": 0.0,
+          "state": 0
+        },
+        {
+          "network": 9,
+          "revive": 0.0,
+          "state": 0
+        }
+      ],
+      "open": [],
+      "revision": 1,
+      "schema": 1,
+      "unlocked": [],
+      "wipe": 0.0,
+      "wiped": false
+    },
     "world_ui": [
       {
         "health_bar": true,
@@ -120,6 +164,7 @@
     ]
   },
   "highest_operation": 0,
+  "movers": [],
   "owner": "b6a022aef5f944b11efb60f0b13e86a2",
   "pending_motor": 2,
   "players": [
@@ -141,16 +186,38 @@
     3.0
   ],
   "predicted_tick": 222,
-  "process": 13368,
+  "process": 18644,
   "ready": true,
-  "rebases": 2,
+  "rebases": 1,
   "refused": 0,
   "role": "host",
   "running": true,
-  "scene": "8d020189-04cb-4787-8b94-c2889923363e",
+  "save_status": "",
+  "scene": "3834575e-1a2a-4f88-8114-93ce3f452377",
+  "scene_now": "3834575e-1a2a-4f88-8114-93ce3f452377",
   "schema": 1,
+  "script_count": 9,
   "script_steps": 9,
   "tick": 220,
+  "travel_failures": 0,
+  "world": {
+    "collected": [],
+    "destinations": [],
+    "discovered": [],
+    "members": [
+      {
+        "network": 4,
+        "revive": 0.0,
+        "state": 0
+      }
+    ],
+    "open": [],
+    "revision": 2,
+    "schema": 1,
+    "unlocked": [],
+    "wipe": 0.0,
+    "wiped": false
+  },
   "world_ui": [
     {
       "health_bar": true,

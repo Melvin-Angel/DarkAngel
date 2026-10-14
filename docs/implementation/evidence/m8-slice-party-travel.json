@@ -4,7 +4,7 @@
   "actors": [],
   "arrivals": 5,
   "authority": true,
-  "client": "readiness=4 revision=8 player=4 collision=1 motors=2 corrections=1 public=2 frames=28 coherent=1 paired=1",
+  "client": "readiness=4 revision=8 player=4 collision=1 motors=2 corrections=1 public=2 frames=23 coherent=1 paired=1",
   "console": [
     "The party arrived in RoyalVillage.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
@@ -29,7 +29,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 12771,
+  "frame": 16284,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -118,8 +118,8 @@
     0.4999997615814209,
     2.5
   ],
-  "predicted_tick": 29,
-  "process": 23188,
+  "predicted_tick": 24,
+  "process": 35448,
   "ready": true,
   "rebases": 0,
   "refused": 0,
@@ -131,7 +131,7 @@
   "schema": 1,
   "script_count": 27,
   "script_steps": 27,
-  "tick": 27,
+  "tick": 22,
   "travel_failures": 0,
   "world": {
     "checkpoint": {

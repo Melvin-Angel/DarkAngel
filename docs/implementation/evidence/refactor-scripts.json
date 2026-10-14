@@ -1,0 +1,22 @@
+{
+  "configure": {
+    "exit": 0,
+    "seconds": 9.687,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-configure.log"
+  },
+  "build": {
+    "exit": 0,
+    "seconds": 159.094,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-build.log"
+  },
+  "ctest": {
+    "exit": 0,
+    "seconds": 30.469,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-ctest.log"
+  },
+  "exercises": {
+    "exit": 1,
+    "seconds": 533.937,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-exercises.log"
+  }
+}

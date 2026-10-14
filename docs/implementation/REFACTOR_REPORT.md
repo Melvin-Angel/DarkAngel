@@ -41,6 +41,48 @@ Logs and dry-runs are `evidence/refactor-baseline-touch-*.log`; totals are in `r
 
 `main()` owns the platform window/device, renderer resources, editor Controller/Shell, Play session, party adapters, script state, runtime inventory/altar UI and saves. Its closures share these locals. Runtime libraries retain their existing public boundaries. The refactor will replace this implicit sharing with service ownership and narrow contexts, without relocating the entire function into EditorApp.
 
+## Step 1a: exercise registration and scripts, verified
+
+- `editor_options.{hpp,cpp}` owns the editor argument contract and validation. `exercises/registry.{hpp,cpp}` registers all 77 existing exercise spellings and their unchanged prerequisite flags/workspace selections. No exercise CLI spelling remains in main.cpp.
+- `exercises/ScriptRunner` owns parsed steps, cursor, interaction counts and hold timing. Its context exposes the gameplay session, the controlled SceneClient, travel counters, capture/quit signals and a menu command callback. It cannot access device/window resources, the save database or networking adapters. Inventory and altar verbs continue through the existing RmlUi menu adapters. Gameplay verbs continue through the existing owner input/interaction paths; the existing host-only `down` fault-injection command remains host-only.
+- `world_place_exercise.{hpp,cpp}` moved into `exercises/`; it still calls Shell Place, Inspector component editing and Controller Save.
+- Added foundation `check.hpp`; new extracted translation units use it. Other local checks are retained until touched.
+- Main shrank from 360,947 to about 339,100 bytes (about 6%). Frame assertions and scenario bodies remain in main and are the next part of step 1. This increment does not complete exercise extraction or the EditorApp/service split.
+- Ninja's old generated `CXX.dd` named the moved placement object and prevented the initial dry-run. The single stale editor dependency map was backed up, then regenerated through its pinned CMake target before retrying the dry-run. No build tree or dependency cache was deleted; D3D12/SDK/manifest cache values are unchanged.
+- Guarded full build passes (159.094 s); M8/M6/HUD CTest passes 14/14 (30.469 s). Exercise suite: all 67 cases have passing runs on this increment (14 native cases ran alone in the initial pass; 53 editor cases reran after the fixture-only repair, with the spline case confirmed separately). Native binary hashes were retained and checked. The final fresh M8 slice passes 6/6 in 241.406 s; separate-process party verification passes 7/7 in 195.922 s. Raw results are in `evidence/refactor-scripts*.{json,log}`; the confirmation receipt retains both initial failures separately from final passes.
+- Static comparison against `873799e` confirms all 76 boolean exercise options and every prerequisite/workspace assignment are identical, and the value-bearing import option is retained. This is a compatibility mapping check, not a substitute for editor gates; see `evidence/refactor-script-cli-parity.json`.
+
+### Fixture regressions exposed by broader verification
+
+The exercise suite copied Training into Duel, Range, Guards, Archer, Senses, Encounter, audio, Lever and Spline scenes without changing their scene identities. Per-scene collision baking therefore produced duplicate collision UUIDs. A leftover Spline alias also made rest resolve the Training identity to the wrong source path. The test-only `write_fixture_scene` helper now gives each copied scene a distinct root and updates its source asset identity. Gate/Temple travel fixtures already had distinct identities and retain them. All fixture scene roots were audited for uniqueness; the spline gate and fresh slice passed after the last alias was repaired. Runtime identity validation was preserved.
+
+Initial errors are retained in `refactor-scripts-exercises-first-failure.log` and `refactor-scripts-slice-first-failure.log`. The native pass was not repeated for this fixture-only correction: `refactor-scripts-retained-native.json` records its cases and unchanged binary hashes. `effect-reaction.json` explicitly marks the retained native cases.
+
+### Measurements after step 1a
+
+| Metric | Baseline | Step 1a |
+| --- | ---: | ---: |
+| main.cpp bytes | 360,947 | 339,114 |
+| Exercise CLI spellings in main.cpp | 77 | 0 |
+| Touch main, editor rebuild | 70.890 s | 69.047 s |
+| Main compilation for that touch | 39.562 s | 39.431 s |
+| Touch world_session.hpp, editor rebuild | 121.218 s | 112.781 s |
+| Touch inspector, editor rebuild | 45.188 s | 38.141 s |
+| world_session.hpp dependent objects | 65 | 66 |
+
+The main reduction is 6.0%. The compile-time change is negligible; the dominant frame/scenario bodies remain. Header fan-out grows by one object because ScriptRunner is now its own translation unit. Header narrowing is still pending. The indicative 15 KB / 15 s targets are not met. No PCH, compiler or linker optimization was introduced.
+
+```mermaid
+flowchart LR
+    Main[Current main orchestration] --> Options[EditorOptions]
+    Options --> Registry[Exercise option registry]
+    Main --> Runner[ScriptRunner owns script state]
+    Runner --> Input[Session and owner input commands]
+    Runner --> Menu[Inventory and Altar menu commands]
+    Main --> Placement[World placement exercise]
+    Placement --> Commands[Shell Place / Inspector edit / Controller Save]
+```
+
 ## Verification boundary
 
 The baseline and timer repair are freshly verified as described above. No source extraction or refactor improvement is claimed yet. The broader 107-test checkpoint remains historical; the current subset is 14 tests. Network gates establish same-machine UDP/D3D12 behavior only.

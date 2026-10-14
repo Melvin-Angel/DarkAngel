@@ -1,0 +1,17 @@
+{
+  "main": {
+    "exit": 0,
+    "seconds": 69.047,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-touch-main.log"
+  },
+  "world-session": {
+    "exit": 0,
+    "seconds": 112.781,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-touch-world-session.log"
+  },
+  "inspector": {
+    "exit": 0,
+    "seconds": 38.141,
+    "log": "docs\\implementation\\evidence\\refactor-scripts-touch-inspector.log"
+  }
+}

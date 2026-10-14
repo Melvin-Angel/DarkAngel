@@ -1,0 +1,205 @@
+m8-slice-place-b passed
+m8-slice-place-a passed
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\verify_m8_slice.py", line 99, in <module>
+    saved_revision = state['saved_revision'] if reuse else solo()
+                                                           ^^^^^^
+  File "C:\DarkAngel\scripts\verify_m8_slice.py", line 87, in solo
+    if seen.get('arrivals') != 3 or seen.get('travel_failures'): fail(name, 'the party did not arrive three times (travel, fast travel, rest)', seen, log)
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\DarkAngel\scripts\verify_m8_slice.py", line 38, in fail
+    raise RuntimeError(name+': '+why+'\n'+'\n'.join(json.dumps(x, indent=1)[:4000] if isinstance(x, (dict, list)) else str(x)[-4000:] for x in seen))
+RuntimeError: m8-slice-solo: the party did not arrive three times (travel, fast travel, rest)
+{
+ "accepted": 0,
+ "active_mask_slot": 0,
+ "actors": [
+  {
+   "health": 100.0,
+   "id": "70d5dcbd87564d11507e09a0925777f6",
+   "pose": true
+  }
+ ],
+ "arrivals": 2,
+ "authority": true,
+ "client": "readiness=4 revision=10 player=4 collision=1 motors=2 corrections=1 public=2 frames=0 coherent=0 paired=1",
+ "console": [
+  "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+  "Prepared current scene and combat kit for a fresh Play session.",
+  "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
+  "Play activated an isolated Preview world; authoring remains unchanged.",
+  "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+  "Prepared current scene and combat kit for a fresh Play session.",
+  "The party arrived in RoyalVillage.dascene.",
+  "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+  "Prepared current scene and combat kit for a fresh Play session.",
+  "The party arrived in RoyalTraining.dascene.",
+  "Baked the scene's collision from its placed models: royal_district/RoyalSpline.dacollision",
+  "The party did not travel: The destination scene could not be loaded: Duplicate UUID in asset source inventory"
+ ],
+ "downed": false,
+ "epoch": 0,
+ "equipped_masks": [
+  "0fa58675-c41b-4fd8-856e-4f367ebe02c2",
+  "1b9e05e4-43a0-46ad-a97b-7fd8417672d5",
+  "9fc1ddbe-17b1-4938-9f6f-62147e9bfa82",
+  "7bcfa11e-f08b-4371-8e47-474d74b98fe1"
+ ],
+ "error": "The destination scene could not be loaded: Duplicate UUID in asset source inventory",
+ "failures": 1,
+ "frame": 2374,
+ "highest_operation": 0,
+ "interaction": "Accepted",
+ "interaction_object": "35988a1faaaf5a4b7a2d770acb826d0b",
+ "inventory": {
+  "entries": [
+   {
+    "instance": 1,
+    "item": "ea62664c-8140-4195-a557-a01bab1ae615",
+    "quantity": 1
+   },
+   {
+    "instance": 2,
+    "item": "5cf71364-b1ee-42b9-b171-c900f76598a1",
+    "quantity": 1
+   },
+   {
+    "instance": 3,
+    "item": "8096c138-3101-43cd-98e1-7b9feaf6a36c",
+    "quantity": 1
+   },
+   {
+    "instance": 4,
+    "item": "b2787760-908a-404d-a920-ec2164f0fa33",
+    "quantity": 1
+   },
+   {
+    "instance": 5,
+    "item": "94a81491-da8b-478f-9d4e-e78cfcd46092",
+    "quantity": 1
+   },
+   {
+    "instance": 6,
+    "item": "8c600aed-a2f8-4b9b-8e37-4c21d389cd1f",
+    "quantity": 2
+   }
+  ],
+  "equipped": [
+   1,
+   2,
+   3,
+   4
+  ],
+  "next_instance": 7,
+  "profile": "129755deabf843c3a94e6c80881a6333",
+  "revision": 12,
+  "schema": 1
+ },
+ "inventory_failure": 0,
+ "inventory_operation": 0,
+ "inventory_pending": false,
+ "movers": [
+  {
+   "at": [
+    -3.0,
+    5.0,
+    6.0
+   ],
+   "id": "9c8bc74c0c36158ce3593d2bcbaeec77"
+  }
+ ],
+ "owner": "b6a022aef5f944b11efb60f0b13e86a2",
+ "pending_motor": 0,
+ "players": [
+  {
+   "health": 100.0,
+   "id": "b6a022aef5f944b11efb60f0b13e86a2",
+   "pose": true,
+   "position": [
+    -3.0,
+    0.4999995231628418,
+    2.5
+   ]
+  }
+ ],
+ "playing": true,
+ "predicted_position": [
+  -3.0,
+  0.4999995231628418,
+  2.5
+ ],
+ "predicted_tick": 43,
+ "process": 5960,
+ "ready": true,
+ "rebases": 1,
+ "refused": 0,
+ "role": "host",
+ "running": false,
+ "save_status": "",
+ "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+ "scene_now": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+ "schema": 1,
+ "script_count": 27,
+ "script_steps": 27,
+ "tick": 43,
+ "travel_failures": 1,
+ "world": {
+  "checkpoint": {
+   "altar": "35988a1faaaf5a4b7a2d770acb826d0b",
+   "name": "Training Altar",
+   "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559"
+  },
+  "collected": [
+   "5887605db227f47e6f1b8e880e3dbd56"
+  ],
+  "destinations": [
+   {
+    "altar": "5887605db227f47e6f1b8e880e3dbd56",
+    "name": "Village Altar",
+    "scene": "492cd837-3bf6-45d7-b640-b0470c5cec82"
+   },
+   {
+    "altar": "35988a1faaaf5a4b7a2d770acb826d0b",
+    "name": "Training Altar",
+    "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559"
+   }
+  ],
+  "discovered": [
+   "35988a1faaaf5a4b7a2d770acb826d0b"
+  ]
+[39mDiligent Engine: Info: D3D12-capable adapter found: Intel(R) Iris(R) Xe Graphics (128 MB)
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80200080000
+[39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
+[39m[39mDiligent Engine: Info: Max device shader model: 6_7
+[39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
+[39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
+[39mAltar menu opened Training Altar tick=161
+[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80207810000
+[39mAltar menu opened Village Altar tick=50
+Viewport foreground pixels=206699 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-solo.png
+Altar menu opened Training Altar tick=12
+Script quit requested tick=43 steps=27/27
+DarkAngel editor rendered 2374 frames with d3d12
+[39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
+[39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 27/256
+[39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
+                       Peak used/aligned/allocated size: 233.25 KB / 233.25 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 22.8%
+[39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
+                       Total allocated memory: 3.00 MB
+[39m[39mDiligent Engine: Info: D3D12 query manager peak usage:
+QUERY_TYPE_OCCLUSION          :    0/ 128
+QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
+QUERY_TYPE_TIMESTAMP          :    0/ 512
+QUERY_TYPE_PIPELINE_STATISTICS:    0/ 128
+QUERY_TYPE_DURATION           :    0/ 512
+[39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
+[39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
+[39m[39mDiligent Engine: Info: Command list manager: created 118 allocators
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 10/16384 (0.06%) | 768/8192 (9.38%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 5/1024 (0.49%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 36/8192 (0.44%).
+[39m

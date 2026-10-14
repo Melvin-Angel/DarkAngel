@@ -1,5 +1,5 @@
 #pragma once
-#include "editor_ui.hpp"
+#include "../editor_ui.hpp"
 #include <nlohmann/json.hpp>
 #include <map>
 #include <string>

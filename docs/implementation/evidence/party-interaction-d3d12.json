@@ -1,5 +1,6 @@
 {
   "accepted": 0,
+  "active_mask_slot": 0,
   "actors": [
     {
       "health": 60.0,
@@ -14,10 +15,10 @@
   ],
   "arrivals": 1,
   "authority": true,
-  "client": "readiness=4 revision=13 player=4 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [host ahead]=2 [world revision]=4",
+  "client": "readiness=4 revision=13 player=4 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [world revision]=4",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8f1b6609-a49\\s\\royal_district\\RoyalLever.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-b4573d4f-8c5\\s\\royal_district\\RoyalLever.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
     "Prepared current scene and combat kit for a fresh Play session.",
     "Party host listening at 127.0.0.1:26132",
@@ -26,12 +27,20 @@
     "The party arrived in RoyalLever.dascene.",
     "Player 1: Guest disconnected"
   ],
+  "downed": false,
   "epoch": 1,
+  "equipped_masks": [
+    null,
+    null,
+    null,
+    null
+  ],
   "error": "",
   "failures": 0,
-  "frame": 3884,
+  "frame": 5415,
   "fullest": {
     "accepted": 0,
+    "active_mask_slot": 0,
     "actors": [
       {
         "health": 60.0,
@@ -46,10 +55,10 @@
     ],
     "arrivals": 1,
     "authority": true,
-    "client": "readiness=4 revision=12 player=4 collision=1 motors=4 corrections=1 public=4 frames=5 coherent=1 paired=1 [host ahead]=2 [world revision]=3",
+    "client": "readiness=4 revision=12 player=4 collision=1 motors=4 corrections=1 public=4 frames=28 coherent=1 paired=1 [world revision]=3",
     "console": [
       "Created two linked Spinner placements; authoring is idle.",
-      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8f1b6609-a49\\s\\royal_district\\RoyalLever.dascene",
+      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-b4573d4f-8c5\\s\\royal_district\\RoyalLever.dascene",
       "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
       "Prepared current scene and combat kit for a fresh Play session.",
       "Party host listening at 127.0.0.1:26132",
@@ -57,13 +66,21 @@
       "Play activated an isolated Preview world; authoring remains unchanged.",
       "The party arrived in RoyalLever.dascene."
     ],
+    "downed": false,
     "epoch": 1,
+    "equipped_masks": [
+      null,
+      null,
+      null,
+      null
+    ],
     "error": "",
     "failures": 0,
-    "frame": 3660,
+    "frame": 5100,
     "highest_operation": 0,
+    "movers": [],
     "owner": "b6a022aef5f944b11efb60f0b13e86a2",
-    "pending_motor": 4,
+    "pending_motor": 2,
     "players": [
       {
         "health": 100.0,
@@ -80,9 +97,9 @@
         "id": "0277daf836539698323a9e7e131074c0",
         "pose": true,
         "position": [
-          1.2569384574890137,
+          1.2570395469665527,
           0.4999995529651642,
-          3.8783669471740723
+          3.878016471862793
         ]
       }
     ],
@@ -92,25 +109,52 @@
       0.4999997019767761,
       3.0
     ],
-    "predicted_tick": 284,
-    "process": 7368,
+    "predicted_tick": 305,
+    "process": 29352,
     "ready": true,
-    "rebases": 5,
+    "rebases": 3,
     "refused": 0,
     "role": "host",
     "running": true,
-    "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+    "save_status": "",
+    "scene": "ce00f040-4b97-411b-a143-4d23e7b88f6a",
+    "scene_now": "ce00f040-4b97-411b-a143-4d23e7b88f6a",
     "schema": 1,
+    "script_count": 4,
     "script_steps": 2,
-    "tick": 281,
+    "tick": 303,
+    "travel_failures": 0,
+    "world": {
+      "collected": [],
+      "destinations": [],
+      "discovered": [],
+      "members": [
+        {
+          "network": 4,
+          "revive": 0.0,
+          "state": 0
+        },
+        {
+          "network": 8,
+          "revive": 0.0,
+          "state": 0
+        }
+      ],
+      "open": [],
+      "revision": 1,
+      "schema": 1,
+      "unlocked": [],
+      "wipe": 0.0,
+      "wiped": false
+    },
     "world_ui": [
       {
         "health_bar": true,
         "label": "Royal Guard",
         "percent": 100.0,
-        "width": 138.96803283691406,
-        "x": 303.7898254394531,
-        "y": 143.9528350830078
+        "width": 137.77694702148438,
+        "x": 303.24908447265625,
+        "y": 143.88516235351563
       },
       {
         "health_bar": true,
@@ -118,21 +162,22 @@
         "percent": 100.0,
         "width": 63.0,
         "x": 325.53955078125,
-        "y": 107.95283508300781
+        "y": 107.88516235351563
       },
       {
         "health_bar": false,
         "label": "Player 2 (Client)",
         "percent": 50.0,
-        "width": 183.4011993408203,
-        "x": 256.59893798828125,
-        "y": 71.95283508300781
+        "width": 183.41322326660156,
+        "x": 256.5788269042969,
+        "y": 71.88516235351563
       }
     ]
   },
   "highest_operation": 0,
+  "movers": [],
   "owner": "b6a022aef5f944b11efb60f0b13e86a2",
-  "pending_motor": 3,
+  "pending_motor": 2,
   "players": [
     {
       "health": 100.0,
@@ -151,25 +196,47 @@
     0.4999997019767761,
     3.0
   ],
-  "predicted_tick": 373,
-  "process": 7368,
+  "predicted_tick": 372,
+  "process": 29352,
   "ready": true,
-  "rebases": 6,
+  "rebases": 4,
   "refused": 0,
   "role": "host",
   "running": true,
-  "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+  "save_status": "",
+  "scene": "ce00f040-4b97-411b-a143-4d23e7b88f6a",
+  "scene_now": "ce00f040-4b97-411b-a143-4d23e7b88f6a",
   "schema": 1,
+  "script_count": 4,
   "script_steps": 4,
-  "tick": 371,
+  "tick": 370,
+  "travel_failures": 0,
+  "world": {
+    "collected": [],
+    "destinations": [],
+    "discovered": [],
+    "members": [
+      {
+        "network": 4,
+        "revive": 0.0,
+        "state": 0
+      }
+    ],
+    "open": [],
+    "revision": 2,
+    "schema": 1,
+    "unlocked": [],
+    "wipe": 0.0,
+    "wiped": false
+  },
   "world_ui": [
     {
       "health_bar": true,
       "label": "Royal Guard",
       "percent": 100.0,
-      "width": 162.4606170654297,
-      "x": 317.874267578125,
-      "y": 143.4541015625
+      "width": 162.12139892578125,
+      "x": 318.0586242675781,
+      "y": 143.4613037109375
     },
     {
       "health_bar": true,
@@ -177,7 +244,7 @@
       "percent": 100.0,
       "width": 63.0,
       "x": 325.53955078125,
-      "y": 107.4541015625
+      "y": 107.4613037109375
     }
   ]
 }

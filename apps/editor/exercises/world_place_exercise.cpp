@@ -1,5 +1,5 @@
 #include "world_place_exercise.hpp"
-#include "editor_world_objects.hpp"
+#include "../editor_world_objects.hpp"
 #include <darkangel/scene_travel.hpp>
 #include <darkangel/world_objects.hpp>
 #include <algorithm>
