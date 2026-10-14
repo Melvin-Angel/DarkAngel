@@ -27,6 +27,11 @@ if args.build:run('attribute-authoring-build' if args.attributes else 'animation
 fixture=json.loads((BUILD/'authoring-fixture.json').read_text())
 source=Path(fixture['source']);cache=Path(fixture['cache'])
 action=json.loads((source/'royal_district/combat/heavy.daaction').read_text())['asset']
+if args.animation:
+ kit=next(value for p in source.rglob('*.dakit') if (value:=json.loads(p.read_text()))['asset']==fixture['kit'])
+ heavy=next(slot['ability'] for slot in kit['slots'] if slot['slot']=='heavy')
+ ability=next(value for p in source.rglob('*.daability') if (value:=json.loads(p.read_text()))['asset']==heavy)
+ action=ability['action']
 model=json.loads((source/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text())['id']
 collision=json.loads((source/'royal_district/collision/environment.dacollision').read_text())['asset']
 base=[BUILD/'DarkAngelEditor.exe','--registry',fixture['registry'],'--cas',cache/'cas','--model',model,'--scene',source/'royal_district/RoyalTraining.dascene','--character-kit',fixture['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--sources',source,'--asset-cache',cache,'--backend','d3d12','--hidden','--capture-workspace']
