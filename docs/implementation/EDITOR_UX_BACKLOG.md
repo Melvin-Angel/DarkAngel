@@ -2,6 +2,10 @@
 
 Items for the editor-wide UX/UI pass the user has scheduled after M8 and before M9. Each entry records what the user asked for, what the editor does today, and notes for the implementer. Entries are **not implemented** until marked otherwise.
 
+## HIGH PRIORITY TODO: prefab workflow and Add component
+
+The user considers this important for the engine to be usable: reusable prefabs (altars, doors and so on with their own models), an Inspector **Add component** button, and a Prefabs tab or editing mode. The full note is in [PREFABS_AND_COMPONENTS_TODO.md](PREFABS_AND_COMPONENTS_TODO.md). The scene assembly format already supports mounts with per-placement patches, variants and exports; the work is mostly editor workflow.
+
 ## TODO: Scene tab camera — Orbit and Free look modes (requested 14 October 2026)
 
 **User request (paraphrased):** "The main issue is that I can't move and rotate the camera in the scene level design view, so I can't get a good sense of where I place objects. I would like two camera modes in the Scene tab: orbit and free look. In free look we should be able to fly around, similar to Unity; in orbit mode we should orbit the currently selected object or objects."
