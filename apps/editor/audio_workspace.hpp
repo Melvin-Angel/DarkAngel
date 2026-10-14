@@ -30,7 +30,16 @@ class AudioWorkspace {
     // The Audio tab. Profile audition is disabled while Play runs.
     void draw_panel(bool play_running);
 
-    struct State {AssetId sound,profile;std::uint64_t audition{};bool profile_audition{};char sound_name[49]{"new_sound"},profile_name[49]{"new_profile"},import_path[512]{};std::string error;darkangel::AudioMix file_mix;std::filesystem::file_time_type file_seen{};bool file_known{};};
+    struct State {
+        AssetId sound, profile;
+        std::uint64_t audition{};
+        bool profile_audition{};
+        char sound_name[49]{"new_sound"}, profile_name[49]{"new_profile"}, import_path[512]{};
+        std::string error;
+        darkangel::AudioMix file_mix;
+        std::filesystem::file_time_type file_seen{};
+        bool file_known{};
+    };
     std::unique_ptr<AudioService> service;
     std::map<std::string, AssetId> play_sounds;
     AudioCueSink cue_sounds;

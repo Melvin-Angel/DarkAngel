@@ -8,7 +8,14 @@
 namespace darkangel::editor_app {
 // Tools > Navigation: an explicit bake of the scene's cooked collision that Play reuses while the collision is unchanged.
 struct NavigationTool {
-    darkangel::NavigationSettings settings,baked_settings;std::shared_ptr<const darkangel::NavigationMesh> mesh;std::string key,error;double milliseconds{};std::size_t triangles{};unsigned reused{};bool shown{};std::vector<darkangel::NavigationMesh::Edge> outline;
+    darkangel::NavigationSettings settings, baked_settings;
+    std::shared_ptr<const darkangel::NavigationMesh> mesh;
+    std::string key, error;
+    double milliseconds{};
+    std::size_t triangles{};
+    unsigned reused{};
+    bool shown{};
+    std::vector<darkangel::NavigationMesh::Edge> outline;
     // Identifies a collision asset's contents, so a bake knows whether it is still current.
     static std::string collision_key(const CollisionDefinition&);
     static bool same_settings(const NavigationSettings&, const NavigationSettings&);

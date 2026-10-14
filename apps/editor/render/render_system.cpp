@@ -49,7 +49,8 @@ RenderSystem::RenderSystem(unsigned width, unsigned height, const std::string& b
                            rect.bottom - rect.top, nullptr, nullptr, wc.hInstance, nullptr);
     require(window, "Editor window creation failed");
     RECT initial_client{};
-    require(GetClientRect(window, &initial_client) && initial_client.right > 0 && initial_client.bottom > 0, "Editor client size unavailable");
+    require(GetClientRect(window, &initial_client) && initial_client.right > 0 && initial_client.bottom > 0,
+            "Editor client size unavailable");
     swap_desc.Width = static_cast<unsigned>(initial_client.right);
     swap_desc.Height = static_cast<unsigned>(initial_client.bottom);
     swap_desc.ColorBufferFormat = TEX_FORMAT_RGBA8_UNORM_SRGB;

@@ -24,15 +24,28 @@ struct ViewArea;
 namespace render {
 using namespace Diligent;
 // The editor's stylized prop shading and the device resources made from cooked models and skins.
-struct Constants {DirectX::XMFLOAT4X4 mvp,rotation;DirectX::XMFLOAT4 color,surface;};
-struct GpuMesh {RefCntAutoPtr<IBuffer> vertices,indices;std::vector<MeshPart> parts;std::array<float,4> color{1,1,1,1};};
-struct Material {CookedMaterial value;RefCntAutoPtr<IShaderResourceBinding> binding;};
-struct UploadedModel {
-    std::vector<GpuMesh> meshes;std::map<AssetId,RefCntAutoPtr<ITexture>> textures;
-    std::map<AssetId,Material> materials;RefCntAutoPtr<ITexture> fallback;
-    std::array<float,3> center{},half{};float radius{};
+struct Constants {
+    DirectX::XMFLOAT4X4 mvp, rotation;
+    DirectX::XMFLOAT4 color, surface;
 };
-constexpr const char* shader_source=R"(
+struct GpuMesh {
+    RefCntAutoPtr<IBuffer> vertices, indices;
+    std::vector<MeshPart> parts;
+    std::array<float, 4> color{1, 1, 1, 1};
+};
+struct Material {
+    CookedMaterial value;
+    RefCntAutoPtr<IShaderResourceBinding> binding;
+};
+struct UploadedModel {
+    std::vector<GpuMesh> meshes;
+    std::map<AssetId, RefCntAutoPtr<ITexture>> textures;
+    std::map<AssetId, Material> materials;
+    RefCntAutoPtr<ITexture> fallback;
+    std::array<float, 3> center{}, half{};
+    float radius{};
+};
+constexpr const char* shader_source = R"(
 cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;float4 Tint;float4 Surface;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
 struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;};
@@ -46,18 +59,25 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     return float4(color*(.22+.78*bands)+specular*.08*lerp(float3(1,1,1),color,Surface.y),1);
 }
 )";
-RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device,IBuffer* constants,TEXTURE_FORMAT color,TEXTURE_FORMAT depth,bool cull,const char* source=shader_source,IBuffer* bones=nullptr);
-RefCntAutoPtr<ITexture> texture(IRenderDevice* device,const CookedTexture& cooked);
+RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
+                                       const char* source = shader_source, IBuffer* bones = nullptr);
+RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked);
 // Reads the viewport back, requires foreground geometry inside the viewport area and writes a PNG.
-void capture(IRenderDevice* device,IDeviceContext* context,ITexture* source,const std::filesystem::path& path,const ViewArea& viewport);
-UploadedModel upload(IRenderDevice* device,const RuntimeModel& model,IPipelineState* pso,IPipelineState* pso_cull);
+void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, const std::filesystem::path& path, const ViewArea& viewport);
+UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull);
 // The game's prop shader source when present, otherwise the built-in one.
 std::string shader_text();
 #ifdef DAE_ANIMATION
 std::string skin_shader();
-struct UploadedSkin {RuntimeSkinnedModel model;UploadedModel gpu;std::unique_ptr<RigPose> pose;};
-UploadedSkin upload_skin(IRenderDevice* device,RuntimeSkinnedModel model,IPipelineState* pso,IPipelineState* cull,const AnimationClip* clip=nullptr,double tick=0,bool reference=false);
-void upload_palette(IDeviceContext* context,IBuffer* buffer,UploadedSkin& skin,const AnimationClip* clip,double tick,const std::vector<JointMatrix>* gameplay=nullptr);
+struct UploadedSkin {
+    RuntimeSkinnedModel model;
+    UploadedModel gpu;
+    std::unique_ptr<RigPose> pose;
+};
+UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipelineState* pso, IPipelineState* cull,
+                         const AnimationClip* clip = nullptr, double tick = 0, bool reference = false);
+void upload_palette(IDeviceContext* context, IBuffer* buffer, UploadedSkin& skin, const AnimationClip* clip, double tick,
+                    const std::vector<JointMatrix>* gameplay = nullptr);
 #endif
 } // namespace render
 } // namespace darkangel::editor_app

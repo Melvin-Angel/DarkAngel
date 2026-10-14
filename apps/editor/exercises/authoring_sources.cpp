@@ -28,11 +28,16 @@ class AuthoringSources final : public Exercise {
         const auto& character = context_.session;
         const auto& import_baseline = context_.scene_baseline;
         if (args.exercise_composer && frame == 0) {
-            auto& value=editor.authoring.open(*editor.assets,shell.authored_selection).value;
-            auto clip=AssetId::parse(value.at("motion").at("clip").get<std::string>());
-            auto duration=value.at("duration").get<unsigned>();
-            shell.prepare_action_pose(shell.authored_selection);shell.composer_clip=clip;shell.composer_duration=duration;
-            shell.composer_asset=shell.authored_selection;shell.composer_tick=args.composer_tick;shell.composer_playing=args.composer_playback;shell.composer_block=2;
+            auto& value = editor.authoring.open(*editor.assets, shell.authored_selection).value;
+            auto clip = AssetId::parse(value.at("motion").at("clip").get<std::string>());
+            auto duration = value.at("duration").get<unsigned>();
+            shell.prepare_action_pose(shell.authored_selection);
+            shell.composer_clip = clip;
+            shell.composer_duration = duration;
+            shell.composer_asset = shell.authored_selection;
+            shell.composer_tick = args.composer_tick;
+            shell.composer_playing = args.composer_playback;
+            shell.composer_block = 2;
         }
         if (args.exercise_source_compare && frame == 0) {
             auto& draft = editor.authoring.open(*editor.assets, shell.authored_selection);

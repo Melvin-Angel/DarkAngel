@@ -23,7 +23,21 @@ class VfxWorkspace {
     void draw_cues();
     void draw_panel();
 
-    struct State {AssetId selected;std::string path,error,generation;std::filesystem::file_time_type seen{};bool cooked{};std::uint64_t handle{};float yaw{.6f},distance{4.5f},height{1.f};char name[49]{"new_effect"};AssetId cue,primitive;char cue_name[49]{"new_cue"},primitive_name[49]{"new_trail"};std::string cue_error;double idle{};std::size_t textures{};unsigned cooks{};};
+    struct State {
+        AssetId selected;
+        std::string path, error, generation;
+        std::filesystem::file_time_type seen{};
+        bool cooked{};
+        std::uint64_t handle{};
+        float yaw{.6f}, distance{4.5f}, height{1.f};
+        char name[49]{"new_effect"};
+        AssetId cue, primitive;
+        char cue_name[49]{"new_cue"}, primitive_name[49]{"new_trail"};
+        std::string cue_error;
+        double idle{};
+        std::size_t textures{};
+        unsigned cooks{};
+    };
     std::unique_ptr<VfxService> service;
     std::string failed;
     State state;
