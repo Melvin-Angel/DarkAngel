@@ -10,18 +10,18 @@
   ],
   "arrivals": 3,
   "authority": false,
-  "client": "readiness=4 revision=9 player=9 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1",
+  "client": "readiness=4 revision=6 player=6 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-ffb3db5b-e57\\s\\royal_district\\RoyalPartyGate.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-022d4202-4fd\\s\\royal_district\\RoyalPartyGate.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session.",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 138 ms, resources 614 ms).",
     "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
     "Play activated an isolated Preview world; authoring remains unchanged.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session.",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 104 ms, resources 604 ms).",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session."
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 130 ms, resources 1046 ms)."
   ],
   "downed": false,
   "epoch": 3,
@@ -33,7 +33,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 13965,
+  "frame": 7238,
   "highest_operation": 0,
   "owner": "0277daf836539698323a9e7e131074c0",
   "pending_motor": 3,
@@ -66,14 +66,14 @@
     1.7999999523162842
   ],
   "predicted_tick": 123,
-  "process": 12424,
+  "process": 35100,
   "ready": true,
   "rebases": 0,
   "refused": 0,
   "role": "guest",
   "running": true,
   "save_status": "",
-  "scene": "c49b294a-7dae-4242-b49f-937edf6e1b3e",
+  "scene": "8fd28a21-a16c-4f29-a995-0fcafd6a0681",
   "scene_now": "",
   "schema": 1,
   "script_count": 7,
@@ -86,12 +86,12 @@
     "discovered": [],
     "members": [
       {
-        "network": 4,
+        "network": 1,
         "revive": 0.0,
         "state": 0
       },
       {
-        "network": 9,
+        "network": 6,
         "revive": 0.0,
         "state": 0
       }

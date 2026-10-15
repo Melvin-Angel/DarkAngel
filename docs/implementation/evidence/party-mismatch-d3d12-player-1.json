@@ -3,9 +3,9 @@
   "arrivals": 0,
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-ffb3db5b-e57\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-022d4202-4fd\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session.",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 128 ms, resources 568 ms).",
     "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
     "Play activated an isolated Preview world; authoring remains unchanged."
   ],
@@ -15,7 +15,7 @@
   "frame": 3,
   "players": [],
   "playing": true,
-  "process": 6056,
+  "process": 10632,
   "ready": false,
   "role": "guest",
   "running": false,

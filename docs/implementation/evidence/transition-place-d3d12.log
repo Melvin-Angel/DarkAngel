@@ -3,10 +3,10 @@
 [39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
-[39mEditor travel_place scene=d0501b52-96ac-4c18-8c06-3a1fc9d8e6bc entry=5887605db227f47e6f1b8e880e3dbd56 transition=9c8bc74c0c36158ce3593d2bcbaeec77 entries=1 transitions=1
+[39mEditor travel_place scene=17f08d40-0274-4beb-8b90-12681f805e51 entry=5887605db227f47e6f1b8e880e3dbd56 transition=9c8bc74c0c36158ce3593d2bcbaeec77 entries=1 transitions=1
 [93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201860000
-[39mViewport foreground pixels=865880 capture=C:\DarkAngel\docs\implementation\evidence\transition-place-d3d12.png
+[39mViewport foreground pixels=865883 capture=C:\DarkAngel\docs\implementation\evidence\transition-place-d3d12.png
 DarkAngel editor rendered 6 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 3/256
