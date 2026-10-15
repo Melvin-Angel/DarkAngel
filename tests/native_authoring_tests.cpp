@@ -11,394 +11,1907 @@
 #include <set>
 #include <sqlite3.h>
 #include <Windows.h>
-using namespace darkangel;using namespace darkangel::editor_app;using Json=nlohmann::json;
-namespace {void check(bool v,const char* m){if(!v)throw std::runtime_error(m);}template<class F>void rejects(F f){bool failed=false;try{f();}catch(const std::exception&){failed=true;}check(failed,"Expected checked authoring rejection");}template<class F>void rejects_with(F f,std::string_view text){try{f();}catch(const std::exception& e){check(std::string_view(e.what()).find(text)!=std::string_view::npos,"Expected specific checked rejection");return;}throw std::runtime_error("Expected diagnostic rejection");}std::string read(const std::filesystem::path& p){std::ifstream f(p,std::ios::binary);return {std::istreambuf_iterator<char>(f),{}};}}
+using namespace darkangel;
+using namespace darkangel::editor_app;
+using Json = nlohmann::json;
+namespace {
+void check(bool v, const char* m) {
+    if (!v)
+        throw std::runtime_error(m);
+}
+template <class F> void rejects(F f) {
+    bool failed = false;
+    try {
+        f();
+    } catch (const std::exception&) {
+        failed = true;
+    }
+    check(failed, "Expected checked authoring rejection");
+}
+template <class F> void rejects_with(F f, std::string_view text) {
+    try {
+        f();
+    } catch (const std::exception& e) {
+        check(std::string_view(e.what()).find(text) != std::string_view::npos, "Expected specific checked rejection");
+        return;
+    }
+    throw std::runtime_error("Expected diagnostic rejection");
+}
+std::string read(const std::filesystem::path& p) {
+    std::ifstream f(p, std::ios::binary);
+    return {std::istreambuf_iterator<char>(f), {}};
+}
+} // namespace
 void run_native_authoring_commands();
 void run_native_authoring_graph_commands();
 void run_native_authoring_effect_preview();
-int main(int argc,char** argv){try{
- const bool fixture_only=argc==2&&std::string_view(argv[1])=="--fixture-only";
- check(argc==1||fixture_only,"Usage: NativeAuthoringTests [--fixture-only]");
- if(!fixture_only){run_native_authoring_commands();run_native_authoring_graph_commands();run_native_authoring_effect_preview();}
+int main(int argc, char** argv) {
+    try {
+        const bool fixture_only = argc == 2 && std::string_view(argv[1]) == "--fixture-only";
+        check(argc == 1 || fixture_only, "Usage: NativeAuthoringTests [--fixture-only]");
+        if (!fixture_only) {
+            run_native_authoring_commands();
+            run_native_authoring_graph_commands();
+            run_native_authoring_effect_preview();
+        }
 
- check(reference_search("Combat/Heavy.daability","HEAVY")&&!reference_search("Combat/Light.daability","heavy"),"Reference search ignores ASCII case and matches full path");
- check(selectable_attribute(Json{{"kind","resource"}},true)&&!selectable_attribute(Json{{"kind","statistic"}},true)&&selectable_attribute(Json{{"kind","statistic"}},false),"Costs select resources while modifiers retain statistics");
- auto root=std::filesystem::path(DAE_BINARY_DIR)/("author-"+AssetId::random().text().substr(0,12)),source=root/"s",content=std::filesystem::path(DAE_SOURCE_DIR)/"content";check(!std::filesystem::exists(root),"Use a fresh authoring-fixture directory");std::filesystem::create_directories(source);std::filesystem::copy(content,source,std::filesystem::copy_options::recursive);AssetService assets(source,root/"c");assets.scan();NativeAuthoring author;
- Json reaction_fixture;auto id=[&](const char* file){return AssetId::parse(Json::parse(read(source/file))["asset"].get<std::string>());};auto kit=id("royal_district/combat/player.dakit"),heavy=id("royal_district/combat/heavy.daability"),burn=id("royal_district/combat/burn.daeffect"),collision=id("royal_district/collision/environment.dacollision");auto scene=EditorDocument::open(source/"royal_district/RoyalTraining.dascene");auto baseline=scene->world().serialize();auto role=[&](unsigned i){for(const auto& o:scene->plan().origins)if(o.local_path.ends_with("/"+StableId{0,i}.text()))return o.object;throw std::runtime_error("Missing scene role");};
- // The training scene spawns a passive Training Dummy from a spawn point; its actor identity is derived from the spawn point and its NPC is a Play root.
- check(scene->plan().spawns.size()==1&&scene->plan().spawns.contains(role(5))&&!scene->plan().models.contains(role(5)),"Training scene lost its spawn point");const auto target=spawned_actor(role(5));check(target!=role(5)&&target==spawned_actor(role(5))&&bool(target),"Spawned actor identity is not a stable derivation of its spawn point");
- std::set<AssetId> rootset{kit,collision};for(auto [o,a]:scene->plan().models)rootset.insert(a);for(auto [o,a]:scene->plan().spawns)rootset.insert(a);
- // The owned Royal Guard is a root of every fixture registry too, so gates can spawn it in any of them.
- rootset.insert(id("npcs/royal_guard.danpc"));rootset.insert(id("npcs/royal_archer.danpc"));std::vector<AssetId> roots(rootset.begin(),rootset.end());package_authoring(assets,roots,root/"before.json");auto human=AssetId::parse(Json::parse(read(source/"royal_district/character/canonical-human.glb.daimport"))["id"].get<std::string>());auto skin=load_cooked_skinned_model(root/"before.json",assets.cas_path(),human);auto old=load_character_preview(root/"before.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);
+        check(reference_search("Combat/Heavy.daability", "HEAVY") && !reference_search("Combat/Light.daability", "heavy"),
+              "Reference search ignores ASCII case and matches full path");
+        check(selectable_attribute(Json{{"kind", "resource"}}, true) && !selectable_attribute(Json{{"kind", "statistic"}}, true) &&
+                  selectable_attribute(Json{{"kind", "statistic"}}, false),
+              "Costs select resources while modifiers retain statistics");
+        auto root = std::filesystem::path(DAE_BINARY_DIR) / ("author-" + AssetId::random().text().substr(0, 12)), source = root / "s",
+             content = std::filesystem::path(DAE_SOURCE_DIR) / "content";
+        check(!std::filesystem::exists(root), "Use a fresh authoring-fixture directory");
+        std::filesystem::create_directories(source);
+        std::filesystem::copy(content, source, std::filesystem::copy_options::recursive);
+        AssetService assets(source, root / "c");
+        assets.scan();
+        NativeAuthoring author;
+        Json reaction_fixture;
+        auto id = [&](const char* file) { return AssetId::parse(Json::parse(read(source / file))["asset"].get<std::string>()); };
+        auto kit = id("royal_district/combat/player.dakit"), heavy = id("royal_district/combat/heavy.daability"),
+             burn = id("royal_district/combat/burn.daeffect"), collision = id("royal_district/collision/environment.dacollision");
+        auto scene = EditorDocument::open(source / "royal_district/RoyalTraining.dascene");
+        auto baseline = scene->world().serialize();
+        auto role = [&](unsigned i) {
+            for (const auto& o : scene->plan().origins)
+                if (o.local_path.ends_with("/" + StableId{0, i}.text()))
+                    return o.object;
+            throw std::runtime_error("Missing scene role");
+        };
+        // The training scene spawns a passive Training Dummy from a spawn point; its actor identity is derived from the spawn point and its
+        // NPC is a Play root.
+        check(scene->plan().spawns.size() == 1 && scene->plan().spawns.contains(role(5)) && !scene->plan().models.contains(role(5)),
+              "Training scene lost its spawn point");
+        const auto target = spawned_actor(role(5));
+        check(target != role(5) && target == spawned_actor(role(5)) && bool(target),
+              "Spawned actor identity is not a stable derivation of its spawn point");
+        std::set<AssetId> rootset{kit, collision};
+        for (auto [o, a] : scene->plan().models)
+            rootset.insert(a);
+        for (auto [o, a] : scene->plan().spawns)
+            rootset.insert(a);
+        // The owned Royal Guard is a root of every fixture registry too, so gates can spawn it in any of them.
+        rootset.insert(id("npcs/royal_guard.danpc"));
+        rootset.insert(id("npcs/royal_archer.danpc"));
+        std::vector<AssetId> roots(rootset.begin(), rootset.end());
+        package_authoring(assets, roots, root / "before.json");
+        auto human =
+            AssetId::parse(Json::parse(read(source / "royal_district/character/canonical-human.glb.daimport"))["id"].get<std::string>());
+        auto skin = load_cooked_skinned_model(root / "before.json", assets.cas_path(), human);
+        auto old = load_character_preview(root / "before.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4), scene->plan().spawns,
+                                          collision);
 
+        auto copy = author.duplicate(assets, heavy, "authored_heavy"), effect = author.duplicate(assets, burn, "authored_burn");
+        check(copy != heavy && effect != burn, "Duplicates have fresh persistent identities");
+        auto blank_ability = author.duplicate(assets, heavy, "new_ability", true);
+        check(author.open(assets, blank_ability).value["costs"].empty(), "Create ability starts with configurable empty costs");
+        auto blank = author.duplicate(assets, burn, "new_status", true);
+        check(author.open(assets, blank).value["evaluator"] == 0, "Create supports status without a custom execution formula");
+        rejects([&] { author.duplicate(assets, heavy, "authored_heavy"); });
+        rejects([&] { author.duplicate(assets, heavy, "../escape"); });
 
+        auto pending_path = source / author.open(assets, blank).asset.path;
+        check(!std::filesystem::exists(pending_path) && author.open(assets, blank).pending, "Editor creation touched source before Save");
+        author.undo(assets);
+        check(!author.drafts.contains(blank) && !std::filesystem::exists(pending_path), "Creation Undo failed to remove unpublished draft");
+        std::ofstream(pending_path) << "external-creation";
+        rejects([&] { author.redo(assets); });
+        check(read(pending_path) == "external-creation" && !author.drafts.contains(blank), "Creation Redo replaced external work");
+        std::filesystem::remove(pending_path);
+        author.redo(assets);
+        check(author.open(assets, blank).pending && author.open(assets, blank).value["evaluator"] == 0,
+              "Creation Redo lost UUID/type/defaults");
+        check(author.history_changes(false, 0).front().asset == blank, "Creation history lost new source identity");
+        check(author.history().front().creation, "Creation history lost source lifetime kind");
+        auto pending_original = author.open(assets, blank).value;
+        auto altered_pending = pending_original;
+        altered_pending["asset"] = AssetId::random().text();
+        rejects([&] { author.apply(assets, blank, author.revision(), altered_pending, "Invalid pending identity"); });
+        check(author.open(assets, blank).value == pending_original && !std::filesystem::exists(pending_path),
+              "Pending identity rejection changed source/draft");
 
+        auto effect_schema = AssetId::parse(author.open(assets, blank).value.at("attributes").get<std::string>());
+        auto modifier_attribute = author.open(assets, effect_schema).value.at("attributes").front().at("id").get<AttributeId>();
+        auto empty_status = author.open(assets, blank).value;
+        author.add_effect_modifier(assets, blank, modifier_attribute);
+        check(author.open(assets, blank).value.at("modifiers").front().at("attribute") == modifier_attribute,
+              "Modifier ignored referenced schema");
+        auto modified_status = author.open(assets, blank).value;
+        rejects_with([&] { author.add_effect_modifier(assets, blank, 0); }, "effect schema");
+        check(author.open(assets, blank).value == modified_status, "Invalid modifier attribute changed draft");
+        auto& modifier_fields = author.open(assets, effect_schema).value.at("attributes");
+        auto modifier_resource =
+            std::find_if(modifier_fields.begin(), modifier_fields.end(), [](const auto& field) { return field.at("kind") == "resource"; });
+        check(modifier_resource != modifier_fields.end(), "Modifier fixture needs a resource");
+        rejects_with([&] { author.add_effect_modifier(assets, blank, modifier_resource->at("id").get<AttributeId>()); }, "statistic");
+        check(author.open(assets, blank).value == modified_status, "Resource modifier changed draft");
+        author.undo(assets);
+        check(author.open(assets, blank).value == empty_status, "Modifier Undo failed");
+        author.redo(assets);
+        check(author.open(assets, blank).value == modified_status, "Modifier Redo failed");
+        author.undo(assets);
 
+        auto pending_character = author.create_character(assets, human, "pending_shared_character");
+        auto pending_player = author.create_player(assets, pending_character, kit, "pending_shared_player");
+        auto character_path = source / author.open(assets, pending_character).asset.path,
+             player_path = source / author.open(assets, pending_player).asset.path;
+        check(!std::filesystem::exists(character_path) && !std::filesystem::exists(player_path),
+              "Actor creation exposed sources before Save");
+        auto source_inventory = assets.assets();
+        auto preview_clip = old.combat->abilities[1]->action->motion->clip.id;
+        auto pending_pose = prepare_authored_character_pose(assets, author, pending_character, preview_clip);
+        check(pending_pose.pose->sample(20).size() == 81 && !std::filesystem::exists(character_path) &&
+                  !std::filesystem::exists(player_path),
+              "Pending Character preview failed or published sources");
+        auto preview_inventory = assets.assets();
+        check(preview_inventory.size() == source_inventory.size(), "Pending preview registered identities");
+        for (unsigned i = 0; i < source_inventory.size(); ++i)
+            check(source_inventory[i].id == preview_inventory[i].id && source_inventory[i].generation == preview_inventory[i].generation,
+                  "Pending preview published catalog heads");
+        author.undo(assets);
+        check(!author.drafts.contains(pending_player) && author.drafts.contains(pending_character),
+              "Player creation Undo removed shared Character");
+        author.redo(assets);
+        check(author.open(assets, pending_player).value["character"] == pending_character.text(),
+              "Player creation Redo lost shared presentation reference");
+        author.reload(assets, kit);
+        author.undo(assets);
+        check(!author.drafts.contains(pending_player) && author.drafts.contains(pending_character),
+              "Unrelated source reload destroyed pending creation history");
+        author.redo(assets);
+        rejects_with([&] { author.reload(assets, pending_player); }, "no published source");
+        auto pending_initial = author.open(assets, pending_player).value;
+        auto pending_changed = pending_initial;
+        pending_changed["name"] = "edited pending player";
+        author.apply(assets, pending_player, author.revision(), pending_changed, "Pending Player name");
+        author.revert(assets, pending_player);
+        check(author.open(assets, pending_player).pending && author.open(assets, pending_player).value == pending_initial &&
+                  !std::filesystem::exists(player_path),
+              "Pending revert published or lost creation baseline");
+        author.undo(assets);
+        check(author.open(assets, pending_player).value == pending_changed, "Pending revert Undo lost edits");
+        author.undo(assets);
+        check(author.open(assets, pending_player).value == pending_initial, "Pending edit Undo lost creation baseline");
+        auto inventory = author.inventory(assets);
+        auto attributes = author.open(assets, copy).value["attributes"];
+        auto matches = reference_candidates(assets, author, inventory, ".daability", copy.text(), &attributes);
+        check(matches.size() == 1 && matches[0].asset.id == copy && matches[0].diagnostic.empty(),
+              "Picker finds compatible UUID using native catalog");
+        auto& candidate = author.open(assets, copy).value;
+        auto original_attributes = candidate["attributes"];
+        candidate["attributes"] = AssetId::random().text();
+        check(reference_candidates(assets, author, inventory, ".daability", copy.text(), &attributes).empty(),
+              "Picker compatibility reads current draft, not stale disk");
+        candidate["attributes"] = original_attributes;
+        check(reference_candidates(assets, author, inventory, ".daability", "not-a-real-reference", &attributes).empty(),
+              "Unmatched search is empty without changing selection");
+        auto heavy_path = source / "royal_district/combat/heavy.daability";
+        auto heavy_bytes = read(heavy_path);
+        std::ofstream(heavy_path, std::ios::binary) << "{broken";
+        NativeAuthoring disk_only;
+        auto unavailable = reference_candidates(assets, disk_only, inventory, ".daability", heavy.text(), &attributes);
+        std::ofstream(heavy_path, std::ios::binary) << heavy_bytes;
+        check(unavailable.size() == 1 && !unavailable[0].diagnostic.empty(),
+              "Malformed candidate reports disabled diagnostic without aborting picker");
+        auto clips = reference_candidates(assets, author, inventory, ".glb", "canonical-human");
+        check(clips.empty(), "Skinned models are excluded from normalized clip picker");
+        auto nonloop = reference_candidates(assets, author, inventory, ".glb", "attack", nullptr, "clip-gltf-v1", true);
+        check(nonloop.empty(), "Non-looping attack offered as locomotion graph clip");
+        auto looping = reference_candidates(assets, author, inventory, ".glb", "idle", nullptr, "clip-gltf-v1", true);
+        check(!looping.empty() && looping.front().diagnostic.empty(), "Valid looping clip missing from graph picker");
+        auto any_clip = reference_candidates(assets, author, inventory, ".glb", "attack");
+        check(!any_clip.empty(), "Action/Character preview lost non-looping clips");
+        auto loop_path = source / (looping.front().asset.path + ".daimport");
+        auto loop_bytes = read(loop_path);
+        auto loop_metadata = Json::parse(loop_bytes);
+        loop_metadata["loop"] = "broken";
+        std::ofstream(loop_path, std::ios::binary) << loop_metadata.dump();
+        auto broken_loop =
+            reference_candidates(assets, author, inventory, ".glb", looping.front().asset.id.text(), nullptr, "clip-gltf-v1", true);
+        check(broken_loop.size() == 1 && broken_loop.front().diagnostic == "Clip loop metadata is invalid",
+              "Malformed loop metadata silently selected");
+        std::ofstream(loop_path, std::ios::binary) << loop_bytes;
+        auto action = AssetId::parse(author.open(assets, copy).value["action"].get<std::string>());
+        auto independent_action = author.duplicate(assets, action, "authored_action");
+        auto& timeline = author.open(assets, independent_action).value;
+        auto timeline_before = timeline;
+        auto& a = author.open(assets, copy).value;
+        auto ability_before = a;
+        auto effect_before = author.open(assets, effect).value;
+        a["costs"][0]["amount"] = 20;
+        a["melee"][0]["power"] = 40;
+        auto& e = author.open(assets, effect).value;
+        e["duration_ticks"] = 120;
+        e["period_ticks"] = 30;
+        a["action"] = independent_action.text();
+        a["sources"]["action"] = author.open(assets, independent_action).asset.path;
+        timeline["blocks"][1]["end"] = 28 * 1024;
+        author.record_changes(assets, "Author heavy, effect and action");
+        auto edit_revision = author.revision();
+        author.undo(assets);
+        check(a == ability_before && e == effect_before && timeline == timeline_before, "Grouped multi-source Undo restores drafts");
+        author.redo(assets);
+        check(a["costs"][0]["amount"] == 20 && e["period_ticks"] == 30 && timeline["blocks"][1]["end"] == 28 * 1024,
+              "Grouped Redo restores action and source-locator changes");
+        rejects([&] { author.apply(assets, copy, edit_revision, a, "Stale command"); });
+        auto kit_before = author.open(assets, kit).value;
+        author.assign(assets, kit, 1, copy);
+        auto assigned = author.open(assets, kit).value;
+        author.undo(assets);
+        check(author.open(assets, kit).value == kit_before, "Kit Undo restores slot, locators and removed bindings together");
+        author.redo(assets);
+        check(author.open(assets, kit).value == assigned, "Kit Redo is coherent");
+        author.bind(assets, kit, copy, 2, effect, 7);
+        auto bound = author.open(assets, kit).value;
+        author.undo(assets);
+        check(author.open(assets, kit).value == assigned, "Binding Undo restores catalogue and source locator");
+        author.redo(assets);
+        check(author.open(assets, kit).value == bound, "Binding Redo is coherent");
+        // Several widget updates form one command; a new branch discards Redo.
+        e["duration_ticks"] = 121;
+        author.record_changes(assets, "Duration widget", true);
+        e["duration_ticks"] = 122;
+        author.record_changes(assets, "Duration widget", true);
+        author.record_changes(assets, "Duration widget", false);
+        author.undo(assets);
+        check(e["duration_ticks"] == 120, "Continuous numeric edits Undo as one command");
+        e["duration_ticks"] = 123;
+        author.record_changes(assets, "New duration branch");
+        check(!author.can_redo(), "New edit invalidates Redo");
+        author.undo(assets);
+        check(e["duration_ticks"] == 120, "Branch Undo retains intended duration");
+        // A valid earlier effect plus an invalid later ability must never publish.
+        auto intended_ability = a, intended_effect = e;
+        a["costs"][0]["amount"] = -1;
+        e["period_ticks"] = 10;
+        author.record_changes(assets, "Invalid coordinated candidate");
+        rejects([&] { author.save_all(assets, roots); });
+        for (const auto& [draft_id, d] : author.drafts)
+            check((d.pending ? !std::filesystem::exists(source / d.asset.path) : read(source / d.asset.path) == d.saved),
+                  "Failed multi-source candidate preserves every source");
+        assets.package(roots.front(), root / "failed.json", std::span<const AssetId>(roots).subspan(1));
+        check(read(root / "failed.json") == read(root / "before.json"), "Failed coordinated candidate preserves kit/scene heads");
+        author.undo(assets);
+        check(a == intended_ability && e == intended_effect, "Failed Save retains undoable drafts");
+        // Force failure after protected source writes, during catalog publication.
+        std::vector<NativeSourceEdit> edits;
+        for (const auto& [draft_id, d] : author.drafts)
+            if (d.dirty())
+                edits.push_back({d.asset.path, d.pending ? std::string{} : sha256(d.saved), d.value.dump(2) + "\n", d.pending});
+        auto prepared = assets.prepare_native(edits, roots);
+        sqlite3* db{};
+        check(sqlite3_open((root / "c/catalog.sqlite").string().c_str(), &db) == SQLITE_OK, "Open test catalog");
+        auto busy_handle =
+            CreateFileW((source / author.open(assets, burn).asset.path).c_str(), GENERIC_WRITE,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        check(busy_handle != INVALID_HANDLE_VALUE, "Open external writer fixture");
+        rejects([&] { assets.commit_native(prepared); });
+        CloseHandle(busy_handle);
+        for (const auto& [draft_id, d] : author.drafts)
+            check((d.pending ? !std::filesystem::exists(source / d.asset.path) : read(source / d.asset.path) == d.saved),
+                  "Busy external writer rejects before any publication");
+        check(sqlite3_exec(
+                  db,
+                  "CREATE TRIGGER reject_save BEFORE INSERT ON generations BEGIN SELECT RAISE(ABORT,'injected publication failure'); END",
+                  nullptr, nullptr, nullptr) == SQLITE_OK,
+              "Install catalog fault");
+        rejects([&] { assets.commit_native(prepared); });
+        check(sqlite3_exec(db, "DROP TRIGGER reject_save", nullptr, nullptr, nullptr) == SQLITE_OK, "Remove catalog fault");
+        sqlite3_close(db);
+        for (const auto& [draft_id, d] : author.drafts)
+            check((d.pending ? !std::filesystem::exists(source / d.asset.path) : read(source / d.asset.path) == d.saved),
+                  "Catalog failure restores exact source bytes");
+        assets.package(roots.front(), root / "rollback.json", std::span<const AssetId>(roots).subspan(1));
+        check(read(root / "rollback.json") == read(root / "before.json"), "Catalog rollback retains all prior playable heads");
+        check(author.dirty(), "Drafts remain separate from playable generations");
+        author.record_changes(assets, "Capture validation inputs");
+        auto validation_revision = author.revision();
+        auto validation_inventory = assets.assets();
+        auto validation = author.validate(assets, copy, roots);
+        check(validation.sources > 0 && validation.revision == validation_revision && author.revision() == validation_revision,
+              "Validation changed recorded history");
+        auto valid_copy = author.open(assets, copy).value;
+        auto invalid_copy = valid_copy;
+        invalid_copy["costs"][0]["amount"] = -1;
+        author.apply(assets, copy, author.revision(), invalid_copy, "Rejected validation cost");
+        rejects([&] { author.validate(assets, copy, roots); });
+        check(author.open(assets, copy).value == invalid_copy, "Failed validation discarded draft");
+        auto validated_inventory = assets.assets();
+        check(validated_inventory.size() == validation_inventory.size(), "Validation registered pending sources");
+        for (unsigned i = 0; i < validation_inventory.size(); ++i)
+            check(validation_inventory[i].id == validated_inventory[i].id &&
+                      validation_inventory[i].generation == validated_inventory[i].generation,
+                  "Validation published catalog heads");
+        for (const auto& [id, draft] : author.drafts) {
+            if (draft.pending)
+                check(!std::filesystem::exists(source / draft.asset.path), "Validation published pending source");
+            else
+                check(read(source / draft.asset.path) == draft.saved, "Validation published edited source");
+        }
+        author.undo(assets);
+        check(author.open(assets, copy).value == valid_copy, "Validation failure Undo lost valid draft");
+        author.save_all(assets, roots);
+        check(!author.open(assets, blank).pending && std::filesystem::exists(pending_path), "Save did not publish pending creation");
+        for (const auto& entry : author.history())
+            check(!entry.creation, "Published creation remains deletable by Undo");
+        author.undo(assets);
+        check(author.dirty(), "History survives Save; Undo requires another Save before Play");
+        author.redo(assets);
+        check(!author.dirty(), "Save persists native source drafts");
+        package_authoring(assets, roots, root / "after.json");
+        auto fresh = load_character_preview(root / "after.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                            scene->plan().spawns, collision);
+        check(old.combat->kit->generation != fresh.combat->kit->generation, "Dependent kit must get a fresh frozen closure");
+        check(old.combat->abilities[1]->costs[0].amount == 30, "Old playable resources stay immutable");
+        auto run = [&](const char* registry, const CharacterPreviewResources& resources, double initial, double later, double cost) {
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, [&](AssetId asset) {
+                return load_cooked_model(root / registry, assets.cas_path(), asset);
+            });
+            CharacterSceneInput press;
+            press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
+            prepared.second->step(press);
+            while (prepared.second->motor().tick < 30)
+                prepared.second->step({});
+            auto& s = *prepared.second;
+            check(s.presentation().read(s.presentation().find(target)).health.current == initial,
+                  "Fresh authored hit damage is visible on remote presentation");
+            check(s.effects(target)->cues().size() == 1, "Public effect status is synchronized");
+            auto tags = s.observer(target, 30).frame.ability.tags;
+            check(std::find(tags.values.begin(), tags.values.end(), 3) != tags.values.end(), "Observer receives authored Burn tag");
+            double stamina = -1;
+            for (auto attr : s.ability()->attributes)
+                if (attr.id == 3)
+                    stamina = attr.value;
+            check(stamina == 100 - cost, "Authoritative authored cost is confirmed");
+            while (s.motor().tick < 150)
+                s.step({});
+            check(s.presentation().read(s.presentation().find(target)).health.current == later && s.pending_prediction() == 0 &&
+                      s.pending_abilities() == 0,
+                  "Periodic damage converges over existing WorldSession");
+            return std::move(prepared.second);
+        };
+        auto prior = run("before.json", old, 65, 55, 30);
+        auto current = run("after.json", fresh, 60, 39, 20);
+        check(current->effects(target)->cues().empty() && prior->effects(target)->cues().size() == 1,
+              "Fresh duration differs without patching old session");
+        check(scene->world().serialize() == baseline, "Full authoring loop preserves scene authoring world");
+        auto saved = author.open(assets, effect).saved;
+        author.open(assets, effect).value["duration_ticks"] = 0;
+        rejects([&] { author.save(assets, effect); });
+        check(read(source / author.open(assets, effect).asset.path) == saved, "Invalid draft rolls back exact source");
+        author.undo(assets);
+        check(author.open(assets, effect).value == Json::parse(saved), "Invalid Save draft can be undone");
+        auto bytes = read(root / "after.json");
+        auto invalid = author.open(assets, kit).value;
+        invalid["sources"]["abilities"][copy.text()] = "missing.daability";
+        rejects([&] { assets.edit_native(author.open(assets, kit).asset.path, sha256(author.open(assets, kit).saved), invalid.dump()); });
+        check(read(root / "after.json") == bytes, "Failed dependency cannot replace playable package");
+        // Saving an action alone must validate its unchanged ability/kit consumers.
+        auto saved_action = author.open(assets, independent_action).saved;
+        timeline["blocks"][1]["id"] = 9;
+        author.record_changes(assets, "Invalid action consumer");
+        rejects([&] { author.save(assets, independent_action); });
+        check(read(source / author.open(assets, independent_action).asset.path) == saved_action,
+              "Invalid dependent ability preserves action source");
+        author.undo(assets);
+        // Preparation is invisible, then an external edit invalidates its commit.
+        {
+            NativeAuthoring closing;
+            auto original = closing.open(assets, burn).saved;
+            auto value = closing.open(assets, burn).value;
+            value["duration_ticks"] = value.at("duration_ticks").get<unsigned>() + 1;
+            closing.apply(assets, burn, closing.revision(), value, "Close dirty source");
+            rejects_with([&] { closing.close(assets, burn); }, "Save or undo");
+            check(closing.drafts.contains(burn) && read(source / closing.open(assets, burn).asset.path) == original,
+                  "Close discarded dirty source");
+            closing.undo(assets);
+            auto pending = closing.duplicate(assets, burn, "close_pending");
+            rejects_with([&] { closing.close(assets, pending); }, "Save or undo");
+            check(closing.drafts.contains(pending) && !std::filesystem::exists(source / closing.open(assets, pending).asset.path),
+                  "Close discarded or published pending creation");
+            closing.undo(assets);
+            closing.apply(assets, burn, closing.revision(), value, "Close source edit history");
+            closing.apply(assets, burn, closing.revision(), Json::parse(original), "Restore saved baseline before close");
+            auto schema = AssetId::parse(closing.open(assets, burn).value.at("attributes").get<std::string>());
+            auto fields = closing.open(assets, schema).value;
+            fields["attributes"][0]["base"] = fields["attributes"][0]["base"].get<double>() + 1;
+            closing.apply(assets, schema, closing.revision(), fields, "Retain unrelated source history");
+            closing.close(assets, burn);
+            check(!closing.drafts.contains(burn) && closing.history().size() == 1 && closing.history().front().assets.front() == schema,
+                  "Close lost unrelated history");
+            check(closing.open(assets, burn).saved == original, "Closed source could not reopen");
+            auto path = source / closing.open(assets, burn).asset.path;
+            auto alien = Json::parse(original);
+            alien["asset"] = AssetId::random().text();
+            std::ofstream(path, std::ios::binary) << alien.dump();
+            NativeAuthoring malformed;
+            rejects_with([&] { malformed.open(assets, burn); }, "UUID differs");
+            check(malformed.drafts.empty(), "Mismatched UUID entered draft cache");
+            alien = Json::parse(original);
+            alien["kind"] = "ability";
+            std::ofstream(path, std::ios::binary) << alien.dump();
+            rejects_with([&] { malformed.open(assets, burn); }, "kind differs");
+            check(malformed.drafts.empty(), "Mismatched kind entered draft cache");
+            std::ofstream(path, std::ios::binary) << original;
+            check(malformed.open(assets, burn).saved == original, "Restored source could not open");
+        }
+        {
+            NativeAuthoring bounded;
+            bounded.open(assets, burn);
+            for (unsigned index = 0; index < 63; ++index)
+                bounded.create_character(assets, human, "draft_limit_" + std::to_string(index));
+            check(bounded.drafts.size() == 64, "Draft limit setup failed");
+            rejects_with([&] { bounded.create_character(assets, human, "draft_limit_overflow"); }, "draft limit");
+            check(bounded.drafts.size() == 64, "Limit rejection changed draft count");
+            bounded.close(assets, burn);
+            auto fresh = bounded.create_character(assets, human, "draft_limit_released");
+            check(bounded.drafts.size() == 64 && bounded.open(assets, fresh).pending &&
+                      !std::filesystem::exists(source / bounded.open(assets, fresh).asset.path),
+                  "Closing saved source did not release bounded slot");
+        }
+        NativeAuthoring stale;
+        auto& stale_draft = stale.open(assets, effect);
+        auto original = stale_draft.saved;
+        auto candidate_value = stale_draft.value;
+        candidate_value["duration_ticks"] = 125;
+        stale.apply(assets, effect, stale.revision(), candidate_value, "Stale-writer fixture");
+        NativeSourceEdit stale_edit{stale_draft.asset.path, sha256(original), candidate_value.dump(2) + "\n"};
+        auto stale_candidate = assets.prepare_native({&stale_edit, 1}, roots);
+        check(read(source / stale_draft.asset.path) == original, "Prepare never publishes draft source");
+        auto external = Json::parse(original);
+        external["duration_ticks"] = 130;
+        auto external_bytes = external.dump(2) + "\n";
+        std::ofstream(source / stale_draft.asset.path, std::ios::binary) << external_bytes;
+        rejects_with([&] { assets.commit_native(stale_candidate); }, "stale");
+        rejects_with([&] { stale.undo(assets); }, "Stale authoring command");
+        rejects_with([&] { stale.save_all(assets, roots); }, "stale");
+        check(read(source / stale_draft.asset.path) == external_bytes && stale_draft.value == candidate_value,
+              "Stale writers preserve external bytes and existing draft");
+        stale.reload(assets, effect);
+        check(stale_draft.value == external && !stale.can_undo() && !stale.can_redo(),
+              "Reload adopts external bytes and invalidates history");
+        std::ofstream(source / stale_draft.asset.path, std::ios::binary) << original;
+        author.reload(assets, effect);
+        check(author.open(assets, kit).value == bound, "Reload keeps unrelated kit draft intact");
+        auto duplicate_id = Json::parse(saved);
+        rejects([&] { assets.create_native("collision.daeffect", duplicate_id.dump()); });
+        duplicate_id["asset"] = AssetId::random().text();
+        duplicate_id["duration_ticks"] = 0;
+        rejects([&] { assets.create_native("invalid.daeffect", duplicate_id.dump()); });
+        check(!std::filesystem::exists(source / "invalid.daeffect"), "Invalid creation leaves no broken owned source");
 
- auto copy=author.duplicate(assets,heavy,"authored_heavy"),effect=author.duplicate(assets,burn,"authored_burn");check(copy!=heavy&&effect!=burn,"Duplicates have fresh persistent identities");auto blank_ability=author.duplicate(assets,heavy,"new_ability",true);check(author.open(assets,blank_ability).value["costs"].empty(),"Create ability starts with configurable empty costs");auto blank=author.duplicate(assets,burn,"new_status",true);check(author.open(assets,blank).value["evaluator"]==0,"Create supports status without a custom execution formula");rejects([&]{author.duplicate(assets,heavy,"authored_heavy");});rejects([&]{author.duplicate(assets,heavy,"../escape");});
+        auto graph_id = AssetId::parse(author.open(assets, kit).value["locomotion_stance"].get<std::string>());
+        auto& graph = author.open(assets, graph_id).value;
+        auto graph_before = graph;
+        auto old_graph = load_cooked_graph(root / "after.json", assets.cas_path(), graph_id);
+        auto blend = std::find_if(graph["nodes"].begin(), graph["nodes"].end(), [](const auto& node) { return node["kind"] == "blend2d"; });
+        check(blend != graph["nodes"].end(), "Native fixture needs locomotion blend");
+        (*blend)["points"][1]["x"] = 2.25;
+        author.record_changes(assets, "Author locomotion blend point");
+        auto edited_graph = graph;
+        author.undo(assets);
+        check(graph == graph_before, "Graph point Undo failed");
+        author.redo(assets);
+        check(graph == edited_graph, "Graph point Redo failed");
+        author.save_all(assets, roots);
+        package_authoring(assets, roots, root / "after.json");
+        auto new_graph = load_cooked_graph(root / "after.json", assets.cas_path(), graph_id);
+        check(AnimationGraphInstance(old_graph.plan).state().generation != AnimationGraphInstance(new_graph.plan).state().generation,
+              "Edited graph did not publish a fresh frozen plan");
+        auto graph_saved = author.open(assets, graph_id).saved;
+        auto graph_package = read(root / "after.json");
+        for (auto& node : graph["nodes"])
+            if (node["kind"] == "blend2d")
+                node["points"][0]["input"] = node["id"];
+        author.record_changes(assets, "Invalid graph cycle");
+        rejects([&] { author.save_all(assets, roots); });
+        check(read(source / author.open(assets, graph_id).asset.path) == graph_saved && read(root / "after.json") == graph_package,
+              "Rejected graph cycle changed sources/package");
+        author.undo(assets);
+        check(graph == edited_graph && !author.dirty(), "Failed graph Save could not recover with Undo");
+        std::cout << "Native graph authoring history, frozen consumer publication, old plan retention and cyclic draft rollback passed\n";
 
- auto pending_path=source/author.open(assets,blank).asset.path;check(!std::filesystem::exists(pending_path)&&author.open(assets,blank).pending,"Editor creation touched source before Save");author.undo(assets);check(!author.drafts.contains(blank)&&!std::filesystem::exists(pending_path),"Creation Undo failed to remove unpublished draft");std::ofstream(pending_path)<<"external-creation";rejects([&]{author.redo(assets);});check(read(pending_path)=="external-creation"&&!author.drafts.contains(blank),"Creation Redo replaced external work");std::filesystem::remove(pending_path);author.redo(assets);check(author.open(assets,blank).pending&&author.open(assets,blank).value["evaluator"]==0,"Creation Redo lost UUID/type/defaults");check(author.history_changes(false,0).front().asset==blank,"Creation history lost new source identity");check(author.history().front().creation,"Creation history lost source lifetime kind");auto pending_original=author.open(assets,blank).value;auto altered_pending=pending_original;altered_pending["asset"]=AssetId::random().text();rejects([&]{author.apply(assets,blank,author.revision(),altered_pending,"Invalid pending identity");});check(author.open(assets,blank).value==pending_original&&!std::filesystem::exists(pending_path),"Pending identity rejection changed source/draft");
+        auto topology_before = graph;
+        auto duplicate_node = author.duplicate_graph_node(assets, graph_id, 1);
+        author.undo(assets);
+        check(graph == topology_before, "Duplicate node Undo changed graph");
+        auto higher_node = author.duplicate_graph_node(assets, graph_id, 1);
+        check(higher_node > duplicate_node, "Graph node ID reused on history branch");
+        author.remove_graph_node(assets, graph_id, higher_node);
+        check(graph == topology_before, "Clip duplicate removal lost source locators");
+        rejects([&] { author.remove_graph_node(assets, graph_id, 20); });
+        rejects([&] { author.remove_graph_node(assets, graph_id, 1); });
+        check(graph == topology_before, "Rejected root/referenced removal changed draft");
+        auto one = author.add_graph_blend(assets, graph_id, false, 1, 2);
+        author.add_graph_point(assets, graph_id, one, 3, 2, 0);
+        author.remove_graph_point(assets, graph_id, one, 1);
+        auto two = author.add_graph_blend(assets, graph_id, true, 3, 3, 3);
+        author.add_graph_point(assets, graph_id, two, 3, 1, 1);
+        for (auto& node : graph["nodes"])
+            if (node["id"] == 20) {
+                node["points"][0]["input"] = one;
+                node["points"][1]["input"] = two;
+            }
+        author.record_changes(assets, "Connect authored blend nodes");
+        auto incomplete = graph;
+        rejects([&] { author.save_all(assets, roots); });
+        check(read(source / author.open(assets, graph_id).asset.path) == graph_saved, "Incomplete topology published source");
+        author.add_graph_triangle(assets, graph_id, two, {0, 1, 3});
+        author.add_graph_triangle(assets, graph_id, two, {0, 3, 2});
+        author.remove_graph_triangle(assets, graph_id, two, 0);
+        auto complete = graph;
+        author.remove_graph_point(assets, graph_id, two, 3);
+        auto reduced = graph;
+        for (const auto& node : graph["nodes"])
+            if (node["id"] == two)
+                check(node["points"].size() == 3 && node["triangles"].empty(), "Point removal retained incident triangle");
+        author.undo(assets);
+        check(graph == complete, "Point Undo did not restore incident faces");
+        author.redo(assets);
+        check(graph == reduced, "Point Redo did not repair faces");
+        author.undo(assets);
+        author.save_all(assets, roots);
+        package_authoring(assets, roots, root / "after.json");
+        load_cooked_graph(root / "after.json", assets.cas_path(), graph_id);
+        auto final_saved = author.open(assets, graph_id).saved;
+        rejects([&] { author.remove_graph_node(assets, graph_id, one); });
+        check(graph == complete, "Referenced blend removal changed other nodes");
+        rejects([&] { author.add_graph_triangle(assets, graph_id, two, {0, 0, 1}); });
+        rejects([&] { author.add_graph_point(assets, graph_id, two, 9999, 0, 0); });
+        check(read(source / author.open(assets, graph_id).asset.path) == final_saved, "Bad construction modified published source");
+        std::cout
+            << "Graph topology commands: monotonic node IDs, duplicate/create/remove history, root/input fences, point-face repair, incomplete Save retention and completed frozen closure passed\n";
 
- auto effect_schema=AssetId::parse(author.open(assets,blank).value.at("attributes").get<std::string>());auto modifier_attribute=author.open(assets,effect_schema).value.at("attributes").front().at("id").get<AttributeId>();auto empty_status=author.open(assets,blank).value;author.add_effect_modifier(assets,blank,modifier_attribute);check(author.open(assets,blank).value.at("modifiers").front().at("attribute")==modifier_attribute,"Modifier ignored referenced schema");auto modified_status=author.open(assets,blank).value;rejects_with([&]{author.add_effect_modifier(assets,blank,0);},"effect schema");check(author.open(assets,blank).value==modified_status,"Invalid modifier attribute changed draft");auto& modifier_fields=author.open(assets,effect_schema).value.at("attributes");auto modifier_resource=std::find_if(modifier_fields.begin(),modifier_fields.end(),[](const auto& field){return field.at("kind")=="resource";});check(modifier_resource!=modifier_fields.end(),"Modifier fixture needs a resource");rejects_with([&]{author.add_effect_modifier(assets,blank,modifier_resource->at("id").get<AttributeId>());},"statistic");check(author.open(assets,blank).value==modified_status,"Resource modifier changed draft");author.undo(assets);check(author.open(assets,blank).value==empty_status,"Modifier Undo failed");author.redo(assets);check(author.open(assets,blank).value==modified_status,"Modifier Redo failed");author.undo(assets);
-
- auto pending_character=author.create_character(assets,human,"pending_shared_character");auto pending_player=author.create_player(assets,pending_character,kit,"pending_shared_player");auto character_path=source/author.open(assets,pending_character).asset.path,player_path=source/author.open(assets,pending_player).asset.path;check(!std::filesystem::exists(character_path)&&!std::filesystem::exists(player_path),"Actor creation exposed sources before Save");auto source_inventory=assets.assets();auto preview_clip=old.combat->abilities[1]->action->motion->clip.id;auto pending_pose=prepare_authored_character_pose(assets,author,pending_character,preview_clip);check(pending_pose.pose->sample(20).size()==81&&!std::filesystem::exists(character_path)&&!std::filesystem::exists(player_path),"Pending Character preview failed or published sources");auto preview_inventory=assets.assets();check(preview_inventory.size()==source_inventory.size(),"Pending preview registered identities");for(unsigned i=0;i<source_inventory.size();++i)check(source_inventory[i].id==preview_inventory[i].id&&source_inventory[i].generation==preview_inventory[i].generation,"Pending preview published catalog heads");author.undo(assets);check(!author.drafts.contains(pending_player)&&author.drafts.contains(pending_character),"Player creation Undo removed shared Character");author.redo(assets);check(author.open(assets,pending_player).value["character"]==pending_character.text(),"Player creation Redo lost shared presentation reference");author.reload(assets,kit);author.undo(assets);check(!author.drafts.contains(pending_player)&&author.drafts.contains(pending_character),"Unrelated source reload destroyed pending creation history");author.redo(assets);rejects_with([&]{author.reload(assets,pending_player);},"no published source");auto pending_initial=author.open(assets,pending_player).value;auto pending_changed=pending_initial;pending_changed["name"]="edited pending player";author.apply(assets,pending_player,author.revision(),pending_changed,"Pending Player name");author.revert(assets,pending_player);check(author.open(assets,pending_player).pending&&author.open(assets,pending_player).value==pending_initial&&!std::filesystem::exists(player_path),"Pending revert published or lost creation baseline");author.undo(assets);check(author.open(assets,pending_player).value==pending_changed,"Pending revert Undo lost edits");author.undo(assets);check(author.open(assets,pending_player).value==pending_initial,"Pending edit Undo lost creation baseline");
- auto inventory=author.inventory(assets);auto attributes=author.open(assets,copy).value["attributes"];auto matches=reference_candidates(assets,author,inventory,".daability",copy.text(),&attributes);check(matches.size()==1&&matches[0].asset.id==copy&&matches[0].diagnostic.empty(),"Picker finds compatible UUID using native catalog");auto& candidate=author.open(assets,copy).value;auto original_attributes=candidate["attributes"];candidate["attributes"]=AssetId::random().text();check(reference_candidates(assets,author,inventory,".daability",copy.text(),&attributes).empty(),"Picker compatibility reads current draft, not stale disk");candidate["attributes"]=original_attributes;
- check(reference_candidates(assets,author,inventory,".daability","not-a-real-reference",&attributes).empty(),"Unmatched search is empty without changing selection");
- auto heavy_path=source/"royal_district/combat/heavy.daability";auto heavy_bytes=read(heavy_path);std::ofstream(heavy_path,std::ios::binary)<<"{broken";NativeAuthoring disk_only;auto unavailable=reference_candidates(assets,disk_only,inventory,".daability",heavy.text(),&attributes);std::ofstream(heavy_path,std::ios::binary)<<heavy_bytes;check(unavailable.size()==1&&!unavailable[0].diagnostic.empty(),"Malformed candidate reports disabled diagnostic without aborting picker");
- auto clips=reference_candidates(assets,author,inventory,".glb","canonical-human");check(clips.empty(),"Skinned models are excluded from normalized clip picker");
- auto nonloop=reference_candidates(assets,author,inventory,".glb","attack",nullptr,"clip-gltf-v1",true);check(nonloop.empty(),"Non-looping attack offered as locomotion graph clip");auto looping=reference_candidates(assets,author,inventory,".glb","idle",nullptr,"clip-gltf-v1",true);check(!looping.empty()&&looping.front().diagnostic.empty(),"Valid looping clip missing from graph picker");auto any_clip=reference_candidates(assets,author,inventory,".glb","attack");check(!any_clip.empty(),"Action/Character preview lost non-looping clips");auto loop_path=source/(looping.front().asset.path+".daimport");auto loop_bytes=read(loop_path);auto loop_metadata=Json::parse(loop_bytes);loop_metadata["loop"]="broken";std::ofstream(loop_path,std::ios::binary)<<loop_metadata.dump();auto broken_loop=reference_candidates(assets,author,inventory,".glb",looping.front().asset.id.text(),nullptr,"clip-gltf-v1",true);check(broken_loop.size()==1&&broken_loop.front().diagnostic=="Clip loop metadata is invalid","Malformed loop metadata silently selected");std::ofstream(loop_path,std::ios::binary)<<loop_bytes;
- auto action=AssetId::parse(author.open(assets,copy).value["action"].get<std::string>());auto independent_action=author.duplicate(assets,action,"authored_action");auto& timeline=author.open(assets,independent_action).value;auto timeline_before=timeline;auto& a=author.open(assets,copy).value;auto ability_before=a;auto effect_before=author.open(assets,effect).value;a["costs"][0]["amount"]=20;a["melee"][0]["power"]=40;auto& e=author.open(assets,effect).value;e["duration_ticks"]=120;e["period_ticks"]=30;a["action"]=independent_action.text();a["sources"]["action"]=author.open(assets,independent_action).asset.path;timeline["blocks"][1]["end"]=28*1024;
- author.record_changes(assets,"Author heavy, effect and action");auto edit_revision=author.revision();author.undo(assets);check(a==ability_before&&e==effect_before&&timeline==timeline_before,"Grouped multi-source Undo restores drafts");author.redo(assets);check(a["costs"][0]["amount"]==20&&e["period_ticks"]==30&&timeline["blocks"][1]["end"]==28*1024,"Grouped Redo restores action and source-locator changes");rejects([&]{author.apply(assets,copy,edit_revision,a,"Stale command");});
- auto kit_before=author.open(assets,kit).value;author.assign(assets,kit,1,copy);auto assigned=author.open(assets,kit).value;author.undo(assets);check(author.open(assets,kit).value==kit_before,"Kit Undo restores slot, locators and removed bindings together");author.redo(assets);check(author.open(assets,kit).value==assigned,"Kit Redo is coherent");author.bind(assets,kit,copy,2,effect,7);auto bound=author.open(assets,kit).value;author.undo(assets);check(author.open(assets,kit).value==assigned,"Binding Undo restores catalogue and source locator");author.redo(assets);check(author.open(assets,kit).value==bound,"Binding Redo is coherent");
- // Several widget updates form one command; a new branch discards Redo.
- e["duration_ticks"]=121;author.record_changes(assets,"Duration widget",true);e["duration_ticks"]=122;author.record_changes(assets,"Duration widget",true);author.record_changes(assets,"Duration widget",false);author.undo(assets);check(e["duration_ticks"]==120,"Continuous numeric edits Undo as one command");e["duration_ticks"]=123;author.record_changes(assets,"New duration branch");check(!author.can_redo(),"New edit invalidates Redo");author.undo(assets);check(e["duration_ticks"]==120,"Branch Undo retains intended duration");
- // A valid earlier effect plus an invalid later ability must never publish.
- auto intended_ability=a,intended_effect=e;a["costs"][0]["amount"]=-1;e["period_ticks"]=10;author.record_changes(assets,"Invalid coordinated candidate");rejects([&]{author.save_all(assets,roots);});for(const auto& [draft_id,d]:author.drafts)check((d.pending?!std::filesystem::exists(source/d.asset.path):read(source/d.asset.path)==d.saved),"Failed multi-source candidate preserves every source");assets.package(roots.front(),root/"failed.json",std::span<const AssetId>(roots).subspan(1));check(read(root/"failed.json")==read(root/"before.json"),"Failed coordinated candidate preserves kit/scene heads");author.undo(assets);check(a==intended_ability&&e==intended_effect,"Failed Save retains undoable drafts");
- // Force failure after protected source writes, during catalog publication.
- std::vector<NativeSourceEdit> edits;for(const auto& [draft_id,d]:author.drafts)if(d.dirty())edits.push_back({d.asset.path,d.pending?std::string{}:sha256(d.saved),d.value.dump(2)+"\n",d.pending});auto prepared=assets.prepare_native(edits,roots);sqlite3* db{};check(sqlite3_open((root/"c/catalog.sqlite").string().c_str(),&db)==SQLITE_OK,"Open test catalog");auto busy_handle=CreateFileW((source/author.open(assets,burn).asset.path).c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);check(busy_handle!=INVALID_HANDLE_VALUE,"Open external writer fixture");rejects([&]{assets.commit_native(prepared);});CloseHandle(busy_handle);for(const auto& [draft_id,d]:author.drafts)check((d.pending?!std::filesystem::exists(source/d.asset.path):read(source/d.asset.path)==d.saved),"Busy external writer rejects before any publication");check(sqlite3_exec(db,"CREATE TRIGGER reject_save BEFORE INSERT ON generations BEGIN SELECT RAISE(ABORT,'injected publication failure'); END",nullptr,nullptr,nullptr)==SQLITE_OK,"Install catalog fault");rejects([&]{assets.commit_native(prepared);});check(sqlite3_exec(db,"DROP TRIGGER reject_save",nullptr,nullptr,nullptr)==SQLITE_OK,"Remove catalog fault");sqlite3_close(db);for(const auto& [draft_id,d]:author.drafts)check((d.pending?!std::filesystem::exists(source/d.asset.path):read(source/d.asset.path)==d.saved),"Catalog failure restores exact source bytes");assets.package(roots.front(),root/"rollback.json",std::span<const AssetId>(roots).subspan(1));check(read(root/"rollback.json")==read(root/"before.json"),"Catalog rollback retains all prior playable heads");
- check(author.dirty(),"Drafts remain separate from playable generations");author.record_changes(assets,"Capture validation inputs");auto validation_revision=author.revision();auto validation_inventory=assets.assets();auto validation=author.validate(assets,copy,roots);check(validation.sources>0&&validation.revision==validation_revision&&author.revision()==validation_revision,"Validation changed recorded history");auto valid_copy=author.open(assets,copy).value;auto invalid_copy=valid_copy;invalid_copy["costs"][0]["amount"]=-1;author.apply(assets,copy,author.revision(),invalid_copy,"Rejected validation cost");rejects([&]{author.validate(assets,copy,roots);});check(author.open(assets,copy).value==invalid_copy,"Failed validation discarded draft");auto validated_inventory=assets.assets();check(validated_inventory.size()==validation_inventory.size(),"Validation registered pending sources");for(unsigned i=0;i<validation_inventory.size();++i)check(validation_inventory[i].id==validated_inventory[i].id&&validation_inventory[i].generation==validated_inventory[i].generation,"Validation published catalog heads");for(const auto& [id,draft]:author.drafts){if(draft.pending)check(!std::filesystem::exists(source/draft.asset.path),"Validation published pending source");else check(read(source/draft.asset.path)==draft.saved,"Validation published edited source");}author.undo(assets);check(author.open(assets,copy).value==valid_copy,"Validation failure Undo lost valid draft");author.save_all(assets,roots);check(!author.open(assets,blank).pending&&std::filesystem::exists(pending_path),"Save did not publish pending creation");for(const auto& entry:author.history())check(!entry.creation,"Published creation remains deletable by Undo");author.undo(assets);check(author.dirty(),"History survives Save; Undo requires another Save before Play");author.redo(assets);check(!author.dirty(),"Save persists native source drafts");package_authoring(assets,roots,root/"after.json");auto fresh=load_character_preview(root/"after.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);check(old.combat->kit->generation!=fresh.combat->kit->generation,"Dependent kit must get a fresh frozen closure");check(old.combat->abilities[1]->costs[0].amount==30,"Old playable resources stay immutable");
- auto run=[&](const char* registry,const CharacterPreviewResources& resources,double initial,double later,double cost){auto prepared=prepare_character_preview(scene->plan(),scene->world(),resources,[&](AssetId asset){return load_cooked_model(root/registry,assets.cas_path(),asset);});CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};prepared.second->step(press);while(prepared.second->motor().tick<30)prepared.second->step({});auto& s=*prepared.second;check(s.presentation().read(s.presentation().find(target)).health.current==initial,"Fresh authored hit damage is visible on remote presentation");check(s.effects(target)->cues().size()==1,"Public effect status is synchronized");auto tags=s.observer(target,30).frame.ability.tags;check(std::find(tags.values.begin(),tags.values.end(),3)!=tags.values.end(),"Observer receives authored Burn tag");double stamina=-1;for(auto attr:s.ability()->attributes)if(attr.id==3)stamina=attr.value;check(stamina==100-cost,"Authoritative authored cost is confirmed");while(s.motor().tick<150)s.step({});check(s.presentation().read(s.presentation().find(target)).health.current==later&&s.pending_prediction()==0&&s.pending_abilities()==0,"Periodic damage converges over existing WorldSession");return std::move(prepared.second);};
- auto prior=run("before.json",old,65,55,30);auto current=run("after.json",fresh,60,39,20);check(current->effects(target)->cues().empty()&&prior->effects(target)->cues().size()==1,"Fresh duration differs without patching old session");check(scene->world().serialize()==baseline,"Full authoring loop preserves scene authoring world");
- auto saved=author.open(assets,effect).saved;author.open(assets,effect).value["duration_ticks"]=0;rejects([&]{author.save(assets,effect);});check(read(source/author.open(assets,effect).asset.path)==saved,"Invalid draft rolls back exact source");author.undo(assets);check(author.open(assets,effect).value==Json::parse(saved),"Invalid Save draft can be undone");auto bytes=read(root/"after.json");auto invalid=author.open(assets,kit).value;invalid["sources"]["abilities"][copy.text()]="missing.daability";rejects([&]{assets.edit_native(author.open(assets,kit).asset.path,sha256(author.open(assets,kit).saved),invalid.dump());});check(read(root/"after.json")==bytes,"Failed dependency cannot replace playable package");
- // Saving an action alone must validate its unchanged ability/kit consumers.
- auto saved_action=author.open(assets,independent_action).saved;timeline["blocks"][1]["id"]=9;author.record_changes(assets,"Invalid action consumer");rejects([&]{author.save(assets,independent_action);});check(read(source/author.open(assets,independent_action).asset.path)==saved_action,"Invalid dependent ability preserves action source");author.undo(assets);
- // Preparation is invisible, then an external edit invalidates its commit.
- {NativeAuthoring closing;auto original=closing.open(assets,burn).saved;auto value=closing.open(assets,burn).value;value["duration_ticks"]=value.at("duration_ticks").get<unsigned>()+1;closing.apply(assets,burn,closing.revision(),value,"Close dirty source");rejects_with([&]{closing.close(assets,burn);},"Save or undo");check(closing.drafts.contains(burn)&&read(source/closing.open(assets,burn).asset.path)==original,"Close discarded dirty source");closing.undo(assets);auto pending=closing.duplicate(assets,burn,"close_pending");rejects_with([&]{closing.close(assets,pending);},"Save or undo");check(closing.drafts.contains(pending)&&!std::filesystem::exists(source/closing.open(assets,pending).asset.path),"Close discarded or published pending creation");closing.undo(assets);closing.apply(assets,burn,closing.revision(),value,"Close source edit history");closing.apply(assets,burn,closing.revision(),Json::parse(original),"Restore saved baseline before close");auto schema=AssetId::parse(closing.open(assets,burn).value.at("attributes").get<std::string>());auto fields=closing.open(assets,schema).value;fields["attributes"][0]["base"]=fields["attributes"][0]["base"].get<double>()+1;closing.apply(assets,schema,closing.revision(),fields,"Retain unrelated source history");closing.close(assets,burn);check(!closing.drafts.contains(burn)&&closing.history().size()==1&&closing.history().front().assets.front()==schema,"Close lost unrelated history");check(closing.open(assets,burn).saved==original,"Closed source could not reopen");auto path=source/closing.open(assets,burn).asset.path;auto alien=Json::parse(original);alien["asset"]=AssetId::random().text();std::ofstream(path,std::ios::binary)<<alien.dump();NativeAuthoring malformed;rejects_with([&]{malformed.open(assets,burn);},"UUID differs");check(malformed.drafts.empty(),"Mismatched UUID entered draft cache");alien=Json::parse(original);alien["kind"]="ability";std::ofstream(path,std::ios::binary)<<alien.dump();rejects_with([&]{malformed.open(assets,burn);},"kind differs");check(malformed.drafts.empty(),"Mismatched kind entered draft cache");std::ofstream(path,std::ios::binary)<<original;check(malformed.open(assets,burn).saved==original,"Restored source could not open");}
- {NativeAuthoring bounded;bounded.open(assets,burn);for(unsigned index=0;index<63;++index)bounded.create_character(assets,human,"draft_limit_"+std::to_string(index));check(bounded.drafts.size()==64,"Draft limit setup failed");rejects_with([&]{bounded.create_character(assets,human,"draft_limit_overflow");},"draft limit");check(bounded.drafts.size()==64,"Limit rejection changed draft count");bounded.close(assets,burn);auto fresh=bounded.create_character(assets,human,"draft_limit_released");check(bounded.drafts.size()==64&&bounded.open(assets,fresh).pending&&!std::filesystem::exists(source/bounded.open(assets,fresh).asset.path),"Closing saved source did not release bounded slot");}
- NativeAuthoring stale;auto& stale_draft=stale.open(assets,effect);auto original=stale_draft.saved;auto candidate_value=stale_draft.value;candidate_value["duration_ticks"]=125;stale.apply(assets,effect,stale.revision(),candidate_value,"Stale-writer fixture");NativeSourceEdit stale_edit{stale_draft.asset.path,sha256(original),candidate_value.dump(2)+"\n"};auto stale_candidate=assets.prepare_native({&stale_edit,1},roots);check(read(source/stale_draft.asset.path)==original,"Prepare never publishes draft source");auto external=Json::parse(original);external["duration_ticks"]=130;auto external_bytes=external.dump(2)+"\n";std::ofstream(source/stale_draft.asset.path,std::ios::binary)<<external_bytes;rejects_with([&]{assets.commit_native(stale_candidate);},"stale");rejects_with([&]{stale.undo(assets);},"Stale authoring command");rejects_with([&]{stale.save_all(assets,roots);},"stale");check(read(source/stale_draft.asset.path)==external_bytes&&stale_draft.value==candidate_value,"Stale writers preserve external bytes and existing draft");stale.reload(assets,effect);check(stale_draft.value==external&&!stale.can_undo()&&!stale.can_redo(),"Reload adopts external bytes and invalidates history");
- std::ofstream(source/stale_draft.asset.path,std::ios::binary)<<original;author.reload(assets,effect);check(author.open(assets,kit).value==bound,"Reload keeps unrelated kit draft intact");
- auto duplicate_id=Json::parse(saved);rejects([&]{assets.create_native("collision.daeffect",duplicate_id.dump());});duplicate_id["asset"]=AssetId::random().text();duplicate_id["duration_ticks"]=0;rejects([&]{assets.create_native("invalid.daeffect",duplicate_id.dump());});check(!std::filesystem::exists(source/"invalid.daeffect"),"Invalid creation leaves no broken owned source");
-
- auto graph_id=AssetId::parse(author.open(assets,kit).value["locomotion_stance"].get<std::string>());auto& graph=author.open(assets,graph_id).value;auto graph_before=graph;auto old_graph=load_cooked_graph(root/"after.json",assets.cas_path(),graph_id);auto blend=std::find_if(graph["nodes"].begin(),graph["nodes"].end(),[](const auto& node){return node["kind"]=="blend2d";});check(blend!=graph["nodes"].end(),"Native fixture needs locomotion blend");(*blend)["points"][1]["x"]=2.25;author.record_changes(assets,"Author locomotion blend point");auto edited_graph=graph;author.undo(assets);check(graph==graph_before,"Graph point Undo failed");author.redo(assets);check(graph==edited_graph,"Graph point Redo failed");author.save_all(assets,roots);package_authoring(assets,roots,root/"after.json");auto new_graph=load_cooked_graph(root/"after.json",assets.cas_path(),graph_id);check(AnimationGraphInstance(old_graph.plan).state().generation!=AnimationGraphInstance(new_graph.plan).state().generation,"Edited graph did not publish a fresh frozen plan");auto graph_saved=author.open(assets,graph_id).saved;auto graph_package=read(root/"after.json");for(auto& node:graph["nodes"])if(node["kind"]=="blend2d")node["points"][0]["input"]=node["id"];author.record_changes(assets,"Invalid graph cycle");rejects([&]{author.save_all(assets,roots);});check(read(source/author.open(assets,graph_id).asset.path)==graph_saved&&read(root/"after.json")==graph_package,"Rejected graph cycle changed sources/package");author.undo(assets);check(graph==edited_graph&&!author.dirty(),"Failed graph Save could not recover with Undo");std::cout<<"Native graph authoring history, frozen consumer publication, old plan retention and cyclic draft rollback passed\n";
-
- auto topology_before=graph;auto duplicate_node=author.duplicate_graph_node(assets,graph_id,1);author.undo(assets);check(graph==topology_before,"Duplicate node Undo changed graph");auto higher_node=author.duplicate_graph_node(assets,graph_id,1);check(higher_node>duplicate_node,"Graph node ID reused on history branch");author.remove_graph_node(assets,graph_id,higher_node);check(graph==topology_before,"Clip duplicate removal lost source locators");rejects([&]{author.remove_graph_node(assets,graph_id,20);});rejects([&]{author.remove_graph_node(assets,graph_id,1);});check(graph==topology_before,"Rejected root/referenced removal changed draft");
- auto one=author.add_graph_blend(assets,graph_id,false,1,2);author.add_graph_point(assets,graph_id,one,3,2,0);author.remove_graph_point(assets,graph_id,one,1);auto two=author.add_graph_blend(assets,graph_id,true,3,3,3);author.add_graph_point(assets,graph_id,two,3,1,1);for(auto& node:graph["nodes"])if(node["id"]==20){node["points"][0]["input"]=one;node["points"][1]["input"]=two;}author.record_changes(assets,"Connect authored blend nodes");auto incomplete=graph;rejects([&]{author.save_all(assets,roots);});check(read(source/author.open(assets,graph_id).asset.path)==graph_saved,"Incomplete topology published source");author.add_graph_triangle(assets,graph_id,two,{0,1,3});author.add_graph_triangle(assets,graph_id,two,{0,3,2});author.remove_graph_triangle(assets,graph_id,two,0);auto complete=graph;author.remove_graph_point(assets,graph_id,two,3);auto reduced=graph;for(const auto& node:graph["nodes"])if(node["id"]==two)check(node["points"].size()==3&&node["triangles"].empty(),"Point removal retained incident triangle");author.undo(assets);check(graph==complete,"Point Undo did not restore incident faces");author.redo(assets);check(graph==reduced,"Point Redo did not repair faces");author.undo(assets);author.save_all(assets,roots);package_authoring(assets,roots,root/"after.json");load_cooked_graph(root/"after.json",assets.cas_path(),graph_id);auto final_saved=author.open(assets,graph_id).saved;rejects([&]{author.remove_graph_node(assets,graph_id,one);});check(graph==complete,"Referenced blend removal changed other nodes");rejects([&]{author.add_graph_triangle(assets,graph_id,two,{0,0,1});});rejects([&]{author.add_graph_point(assets,graph_id,two,9999,0,0);});check(read(source/author.open(assets,graph_id).asset.path)==final_saved,"Bad construction modified published source");std::cout<<"Graph topology commands: monotonic node IDs, duplicate/create/remove history, root/input fences, point-face repair, incomplete Save retention and completed frozen closure passed\n";
-
- auto history=author.history();if(!history.empty())std::cout<<"Newest history: "<<history.front().label<<" sources="<<history.front().assets.size()<<"\n";check(!history.empty()&&history.front().label=="Remove graph triangle"&&history.front().assets==std::vector<AssetId>{graph_id},"History snapshot lost command/source identity");auto changes=author.history_changes(false,0);check(!changes.empty()&&changes.front().asset==graph_id&&changes.front().path.starts_with("/nodes/"),"History did not expose bounded source changes");auto history_revision=author.revision();auto snapshot=history;author.undo(assets);check(author.history(true).front().label==snapshot.front().label&&author.revision()>history_revision,"History inspection lost Redo semantics");author.redo(assets);check(!author.dirty(),"History inspection altered saved state");check(snapshot.front().label==history.front().label,"History snapshot borrowed invalid command memory");rejects([&]{author.history_changes(false,9999);});std::cout<<"Native history snapshots: command/source identity, typed source diff paths, immutable copies, redo ordering and read-only inspection passed\n";
- {
-  NativeAuthoring windows;auto before=windows.open(assets,copy).value;
-  auto window=windows.add_action_block(assets,independent_action,{0,6,0,8*action_tick_units,ActionBlockKind::Invulnerability,"Authored.Invulnerable"});
-  auto value=before;value["action_tags"].push_back({{"block",window},{"tag",2}});
-  windows.apply(assets,copy,windows.revision(),value,"Bind authored action-window tag");
-  windows.undo(assets);check(windows.open(assets,copy).value==before,"Window tag Undo changed original bindings");
-  windows.redo(assets);check(windows.open(assets,copy).value==value,"Window tag Redo lost binding");
-  auto removed=value;removed["action_tags"].erase(removed["action_tags"].size()-1);
-  windows.apply(assets,copy,windows.revision(),removed,"Remove authored window tag");windows.undo(assets);
-  check(windows.open(assets,copy).value==value,"Remove tag Undo lost binding");
-  auto bad=value;bad["action_tags"].push_back(bad["action_tags"].back());
-  windows.apply(assets,copy,windows.revision(),bad,"Invalid duplicate window binding");
-  auto saved=windows.open(assets,copy).saved;rejects([&]{windows.save_all(assets,roots);});
-  check(read(source/windows.open(assets,copy).asset.path)==saved,"Rejected duplicate binding published source");windows.undo(assets);
-  bad=value;bad["action_tags"].back()["block"]=2;
-  windows.apply(assets,copy,windows.revision(),bad,"Invalid hit-window tag binding");rejects([&]{windows.validate(assets,copy,roots);});windows.undo(assets);
-  windows.save_all(assets,roots);package_authoring(assets,roots,root/"after.json");
-  auto tagged=load_character_preview(root/"after.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);
-  auto make=[&]{return prepare_character_preview(scene->plan(),scene->world(),tagged,[&](AssetId asset){return load_cooked_model(root/"after.json",assets.cas_path(),asset);}).second;};
-  auto has=[](const auto& snapshot){return std::find(snapshot.tags.values.begin(),snapshot.tags.values.end(),2)!=snapshot.tags.values.end();};
-  CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};
-  auto session=make();session->step(press);
-  check(has(*session->ability())&&has(*session->predicted_ability())&&has(session->observer(role(4),1).frame.ability),"Authored window tag did not converge through authority/owner/public paths");
-  while(session->motor().tick<9)session->step({});
-  check(!has(*session->ability())&&!has(*session->predicted_ability())&&!has(session->observer(role(4),9).frame.ability)&&session->pending_prediction()==0,"Authored window tag did not expire on native interval boundary");
-  session=make();session->step(press);CharacterSceneInput release;release.combat_events={{9,InputEdge::Released,2000,0,0,false}};session->step(release);
-  check(!has(*session->ability())&&!has(*session->predicted_ability())&&!session->ability()->active&&scene->world().serialize()==baseline,"Cancellation retained authored action grant or changed scene");
-  check(std::none_of(fresh.combat->abilities[1]->action_tags.begin(),fresh.combat->abilities[1]->action_tags.end(),[&](const auto& binding){return binding.block==window;}),"Previous playable resources changed during binding publication");
-  std::cout<<"Authored action-window tags: history, removal, duplicate/type rejection, Save/frozen closure/fresh Play, authority/owner/public interval expiry and cancellation passed\n";
- }
- {
-  NativeAuthoring selecting;auto graph_id=AssetId::parse(selecting.open(assets,kit).value.at("locomotion_stance").get<std::string>());auto old_graph=selecting.open(assets,graph_id).value;
-  auto tags_id=id("royal_district/combat/state.datags");auto old_root=old_graph.at("root").get<unsigned>();
-  auto selector=selecting.add_graph_tag_select(assets,graph_id,tags_id,2,old_root,old_root);
-  selecting.undo(assets);check(selecting.open(assets,graph_id).value==old_graph,"Tag selector creation Undo lost graph");selecting.redo(assets);
-  auto graph=selecting.open(assets,graph_id).value;graph["root"]=selector;for(auto& node:graph["nodes"])if(node["id"]==selector){node["requirements"]["all"]=Json::array();node["requirements"]["any"]={2,3};}selecting.apply(assets,graph_id,selecting.revision(),graph,"Select tagged graph root");
-  auto clip_node=old_graph.at("nodes").at(1).at("id").get<unsigned>();auto matched_clip=AssetId::parse(old_graph.at("nodes").at(1).at("clip").get<std::string>());selecting.connect_graph_input(assets,graph_id,selector,1,clip_node);
-  auto selected=selecting.open(assets,graph_id).value;auto revision=selecting.revision();rejects([&]{selecting.connect_graph_input(assets,graph_id,selector,0,selector);});rejects([&]{selecting.remove_graph_point(assets,graph_id,selector,0);});check(selecting.revision()==revision,"Rejected selector edits changed history");
-  selecting.validate(assets,graph_id,roots);selecting.save_all(assets,roots);package_authoring(assets,roots,root/"after.json");
-  auto frozen=load_cooked_graph(root/"after.json",assets.cas_path(),graph_id);GraphPosePreview preview(frozen);auto state=preview.state();
-  ActorTagSnapshot present{frozen.plan->tag_dictionary()->registry(),frozen.plan->tag_dictionary()->generation(),{2}};GraphParameters parameters;parameters.tags=&present;preview.sample(20,parameters);check(preview.inputs().count==1&&preview.inputs().layers[0].clip->definition().id==matched_clip,"Tagged graph preview did not resolve matched branch");
-  auto sampled=preview.state();present.generation=sha256("stale graph tags");rejects([&]{preview.sample(30,parameters);});check(preview.state().tick==sampled.tick&&preview.state().phase==sampled.phase,"Rejected tag preview changed sampled clock");
-  auto tagged=load_character_preview(root/"after.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);auto prepared=prepare_character_preview(scene->plan(),scene->world(),tagged,[&](AssetId asset){return load_cooked_model(root/"after.json",assets.cas_path(),asset);});
-  CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};prepared.second->step(press);check(prepared.second->graph_inputs().count==1&&prepared.second->graph_inputs().layers[0].clip->definition().id==matched_clip,"Confirmed action tag did not select live graph branch");while(prepared.second->motor().tick<60)prepared.second->step({});auto target_layers=prepared.second->graph_inputs(target);check(prepared.second->pose(target)&&target_layers&&target_layers->count==1&&target_layers->layers[0].clip->definition().id==matched_clip,"Public Burn did not animate observed target through the shared tagged graph");check(prepared.second->pending_prediction()==0&&!prepared.second->ability()->active&&scene->world().serialize()==baseline,"Tagged graph fresh Play failed authority/correction/isolation");
-  auto bad=selected;for(auto& node:bad["nodes"])if(node["id"]==selector)node["requirements"]["all"]={999};selecting.apply(assets,graph_id,selecting.revision(),bad,"Invalid graph tag");auto saved=selecting.open(assets,graph_id).saved;rejects([&]{selecting.save_all(assets,roots);});check(read(source/selecting.open(assets,graph_id).asset.path)==saved,"Invalid graph tag published source");selecting.undo(assets);
-  auto stale=tagged;auto fields=std::vector<TagDefinition>(stale.combat->tags->definitions().begin(),stale.combat->tags->definitions().end());stale.combat->tags=std::make_shared<const TagDictionary>(fields,tags_id,sha256("wrong actor registry"));rejects([&]{prepare_character_preview(scene->plan(),scene->world(),stale,[&](AssetId asset){return load_cooked_model(root/"after.json",assets.cas_path(),asset);});});
-  std::cout<<"Authored tag graph: selector history, branch/cycle/type fences, frozen tag closure, preview retention, Save/fresh authoritative Play and registry mismatch rejection passed\n";
- }
- {
-  auto mask=Json::parse(read(content/"animation/m5_upper_body.damask"));auto mask_id=AssetId::random();mask["asset"]=mask_id.text();mask["canonical_source"]="animation/canonical_human.daskeleton";auto mask_path=source/"animation/authored_upper.damask";std::ofstream(mask_path)<<mask.dump(2);assets.adopt("animation/authored_upper.damask");assets.scan();
-  NativeAuthoring layered;auto before=layered.open(assets,independent_action).value;auto value=before;value["slot"]="upper-body";value["motion"]["policy"]="none";value["mask"]={{"asset",mask_id.text()},{"source","animation/authored_upper.damask"}};
-  layered.apply(assets,independent_action,layered.revision(),value,"Upper-body presentation");layered.undo(assets);check(layered.open(assets,independent_action).value==before,"Upper-body Undo lost full-body policy");layered.redo(assets);check(layered.open(assets,independent_action).value==value,"Upper-body Redo lost mask");
-  auto saved=layered.open(assets,independent_action).saved;auto bad=value;bad["motion"]["policy"]="motor";layered.apply(assets,independent_action,layered.revision(),bad,"Invalid upper-body root");rejects([&]{layered.save_all(assets,roots);});check(read(source/layered.open(assets,independent_action).asset.path)==saved,"Rejected upper-body root published source");layered.undo(assets);
-  auto wrong=mask;wrong["weights"]["Root_M"]=1;std::ofstream(mask_path)<<wrong.dump(2);rejects([&]{layered.save_all(assets,roots);});check(read(source/layered.open(assets,independent_action).asset.path)==saved,"Rejected mask root published action");std::ofstream(mask_path)<<mask.dump(2);
-  rejects_with([&]{layered.save_all(assets,roots);},"three locomotion layers");check(read(source/layered.open(assets,independent_action).asset.path)==saved,"Four-layer kit rejection published action");
-  auto graph_id=AssetId::parse(layered.open(assets,kit).value.at("locomotion_stance").get<std::string>());auto compatible_graph=layered.open(assets,graph_id).value;auto& graph_nodes=compatible_graph["nodes"];for(auto& node:graph_nodes)if(node["id"]==20){node["points"][0]["input"]=1;node["points"][1]["input"]=3;}graph_nodes.erase(std::remove_if(graph_nodes.begin(),graph_nodes.end(),[](const auto& node){return node["id"]==23||node["id"]==24;}),graph_nodes.end());layered.apply(assets,graph_id,layered.revision(),compatible_graph,"Reserve action layer in fixture locomotion");
-  auto inventory_before=assets.assets();auto isolated=prepare_authored_action_pose(assets,layered,old,independent_action,AssetId::parse(layered.open(assets,kit).value.at("locomotion_stance").get<std::string>()));check(isolated->sample(20).size()==81&&read(source/layered.open(assets,independent_action).asset.path)==saved,"Masked private preview published action");check(assets.assets().size()==inventory_before.size(),"Masked private preview changed catalog identities");
-  layered.save_all(assets,roots);package_authoring(assets,roots,root/"upper.json");
-  auto prior=load_character_preview(root/"after.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);std::filesystem::remove(mask_path);
-  auto resources=load_character_preview(root/"upper.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);std::ofstream(mask_path)<<mask.dump(2);auto frozen_action=resources.combat->abilities[1]->action;check(frozen_action->mask&&frozen_action->upper_body&&!frozen_action->motion->motor_root&&!prior.combat->abilities[1]->action->upper_body,"Frozen action mask/source-free loading/old resource retention failed");
-  auto prepared=prepare_character_preview(scene->plan(),scene->world(),resources,[&](AssetId asset){return load_cooked_model(root/"upper.json",assets.cas_path(),asset);});CharacterSceneInput press;press.z=.2;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};prepared.second->step(press);
-  auto frame=prepared.second->observer(role(4),1).frame;std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:resources.combat->abilities)actions.push_back(ability->action);auto graph=load_cooked_graph(root/"upper.json",assets.cas_path(),resources.combat->kit->locomotion_stance);
-  ObservedCharacterPose observed(graph.plan,resources.rig.definition,resources.rig.archive,actions,resources.combat->clips,resources.combat->tags);observed.sample(frame);
-  RigPose oracle(resources.rig.definition,resources.rig.archive);auto base=oracle.blend(prepared.second->graph_inputs().span());auto clip=resources.combat->clips.at(frozen_action->motion->clip.id);auto composed=prepared.second->pose();bool upper_differs=false;
-  for(unsigned joint=0;joint<base.size();++joint){bool unaffected=true;for(int parent=joint;parent>=0;parent=resources.rig.definition.joints[parent].parent)unaffected&=frozen_action->mask->weights[parent]==0;for(unsigned i=0;i<16;++i){if(unaffected)check(std::abs(base[joint].values[i]-composed[joint].values[i])<2e-5,"Upper-body changed lower-body ancestry");if(frozen_action->mask->weights[joint]>0)upper_differs|=std::abs(base[joint].values[i]-composed[joint].values[i])>.001;}}
-  check(upper_differs&&prepared.second->graph_inputs().count<=3&&action_motion_between(*frozen_action,0,action_tick_units).root.translation==std::array<double,3>{},"Upper-body pose did not replace joints or requested root movement");
-  ActorTagSnapshot empty_tags{resources.combat->tags->registry(),resources.combat->tags->generation(),{}};GraphParameters parameters;parameters.tags=&empty_tags;auto loop_id=AnimationGraphInstance(graph.plan).evaluate(parameters).layers[0].clip->definition().id;auto loop=load_cooked_clip(root/"upper.json",assets.cas_path(),loop_id);std::vector<GraphNode> nodes;
-  for(unsigned index=1;index<=4;++index){auto definition=loop.definition;definition.id=AssetId::random();GraphNode node;node.id=index;node.clip=std::make_shared<const AnimationClip>(definition,loop.archive);nodes.push_back(std::move(node));}
-  for(unsigned index=5;index<=7;++index){GraphNode node;node.id=index;node.kind=GraphNodeKind::Blend1D;node.parameter=GraphParameter::Speed;node.points=index==5?std::vector<GraphPoint>{{1,0,0},{2,1,0}}:index==6?std::vector<GraphPoint>{{3,0,0},{4,1,0}}:std::vector<GraphPoint>{{5,0,0},{6,1,0}};nodes.push_back(std::move(node));}
-  auto crowded=std::make_shared<const AnimationGraphPlan>(sha256("Four locomotion layers"),7,std::move(nodes));check(crowded->active_layer_bound()==4,"Four-layer fixture bound wrong");rejects([&]{ActionPoseMixer mixer(*crowded,resources.rig.definition,actions);});
-  auto mismatch=std::make_shared<ActionDefinition>(*frozen_action);mismatch->mask->signature=sha256("foreign rig");std::array<std::shared_ptr<const ActionDefinition>,1> incompatible{mismatch};rejects([&]{ActionPoseMixer mixer(*graph.plan,resources.rig.definition,incompatible);});
-  auto observed_base=oracle.blend(observed.inputs().span());for(unsigned joint=0;joint<observed_base.size();++joint){bool unaffected=true;for(int parent=joint;parent>=0;parent=resources.rig.definition.joints[parent].parent)unaffected&=frozen_action->mask->weights[parent]==0;if(unaffected)for(unsigned i=0;i<16;++i)check(std::abs(observed_base[joint].values[i]-observed.matrices()[joint].values[i])<2e-5,"Masked public pose changed lower-body ancestry");}
-  auto retained=observed.matrices();auto duplicate_state=observed.graph_state();observed.sample(frame);check(observed.graph_state().phase==duplicate_state.phase,"Duplicate masked public frame advanced locomotion");for(unsigned joint=0;joint<retained.size();++joint)for(unsigned i=0;i<16;++i)check(retained[joint].values[i]==observed.matrices()[joint].values[i],"Duplicate masked pose changed");
-  auto invalid=frame;invalid.ability.action->generation=sha256("stale masked action");rejects([&]{observed.sample(invalid);});check(observed.graph_state().tick==1,"Rejected masked frame advanced graph");
-  while(prepared.second->motor().tick<150)prepared.second->step({});double masked_stamina=-1;for(const auto& attribute:prepared.second->ability()->attributes)if(attribute.id==3)masked_stamina=attribute.value;std::cout<<"Masked tick150 health="<<prepared.second->presentation().read(prepared.second->presentation().find(target)).health.current<<" stamina="<<masked_stamina<<" active="<<bool(prepared.second->ability()->active)<<" pending="<<prepared.second->pending_prediction()<<" scene="<<(scene->world().serialize()==baseline)<<'\n';check(prepared.second->presentation().read(prepared.second->presentation().find(target)).health.current==39&&masked_stamina==80&&!prepared.second->ability()->active&&prepared.second->pending_prediction()==0&&scene->world().serialize()==baseline,"Masked fresh Play failed authority/cost/damage/expiry/isolation");
-  std::cout<<"Upper-body authored mask: Undo/Redo, root policy/root mask rejection, complete Save/source-free frozen closure/fresh Play, lower-body retention, upper replacement, public duplicate/stale retention, unchanged authority and completion passed\n";
- }
- {
-  // One authored public status interrupts and presents a frozen full-body flinch.
-  NativeAuthoring reacting;auto light_action=id("royal_district/combat/light.daaction");
-  auto flinch=reacting.duplicate(assets,burn,"authored_flinch",true);auto status=reacting.open(assets,flinch).value;
-  check(!status.contains("reaction")&&!status["sources"].contains("reaction"),"Blank status starts without a reaction");
-  status["duration_ticks"]=90;status["stacking"]="refresh_per_source";status["interrupt_action"]=true;status["granted_tags"]={6};status["visibility"]="public";
-  reacting.apply(assets,flinch,reacting.revision(),status,"Author flinch status");
-  auto reaction=reacting.create_reaction_action(assets,flinch,light_action,"authored_flinch_reaction");
-  check(reacting.open(assets,light_action).value["motion"]["policy"]=="motor"&&!reacting.open(assets,light_action).dirty()&&reacting.open(assets,reaction).value["motion"]["policy"]=="none","Reaction creation changed its template action or kept root ownership");
-  // Choose the owned converted GetHit clip in the new timeline, as the Composer would.
-  auto retimed=reacting.open(assets,reaction).value;retimed["motion"]["clip"]=Json::parse(read(source/"animation/blink/get-hit.glb.daimport"))["id"];retimed["motion"]["source"]="animation/blink/get-hit.glb";retimed["duration"]=40*action_tick_units;reacting.apply(assets,reaction,reacting.revision(),retimed,"Choose flinch clip");
-  auto bound=reacting.open(assets,flinch).value;auto timeline=reacting.open(assets,reaction).value;auto reaction_path=source/reacting.open(assets,reaction).asset.path,flinch_path=source/reacting.open(assets,flinch).asset.path;
-  check(bound["reaction"]==reaction.text()&&bound["sources"]["reaction"]==reacting.open(assets,reaction).asset.path&&timeline["motion"]["policy"]=="none"&&timeline["loops"]==1&&timeline["slot"]=="full-body"&&!timeline["blocks"].empty()&&std::all_of(timeline["blocks"].begin(),timeline["blocks"].end(),[](const auto& b){return b["kind"]=="cue";}),"Reaction timeline creation kept gameplay blocks, root ownership or lost its binding");
-  reacting.undo(assets);check(reacting.open(assets,reaction).value["duration"]!=40*action_tick_units,"Clip choice Undo kept the new duration");
-  reacting.undo(assets);check(reacting.open(assets,flinch).value==status&&reacting.drafts.contains(reaction),"Reaction binding Undo lost status or removed timeline early");reacting.undo(assets);check(!reacting.drafts.contains(reaction),"Reaction timeline creation Undo retained pending source");
-  reacting.redo(assets);reacting.redo(assets);reacting.redo(assets);check(reacting.open(assets,flinch).value==bound&&reacting.open(assets,reaction).value==timeline,"Reaction Redo is coherent");
-  reacting.bind_effect_reaction(assets,flinch,{});check(reacting.open(assets,flinch).value==status,"Clearing a reaction left its reference or locator");reacting.undo(assets);
-  auto kit_saved=reacting.open(assets,kit).saved;reacting.bind(assets,kit,copy,2,flinch,0);
-  auto unpublished=[&](const char* message){check(!std::filesystem::exists(reaction_path)&&!std::filesystem::exists(flinch_path)&&read(source/reacting.open(assets,kit).asset.path)==kit_saved,message);};
-  auto invalid=timeline;invalid["blocks"].push_back({{"id",40},{"track",5},{"begin",1024},{"end",2048},{"kind","hit"},{"key","Weapon.Right"}});reacting.apply(assets,reaction,reacting.revision(),invalid,"Invalid reaction hit block");rejects_with([&]{reacting.save_all(assets,roots);},"gameplay blocks");unpublished("Rejected reaction gameplay block published sources");reacting.undo(assets);
-  invalid=timeline;invalid["motion"]["policy"]="motor";reacting.apply(assets,reaction,reacting.revision(),invalid,"Invalid reaction root");rejects_with([&]{reacting.save_all(assets,roots);},"root policy none");unpublished("Rejected reaction root ownership published sources");reacting.undo(assets);
-  invalid=timeline;invalid["loops"]=2;reacting.apply(assets,reaction,reacting.revision(),invalid,"Invalid reaction loop");rejects([&]{reacting.validate(assets,flinch,roots);});unpublished("Rejected looping reaction published sources");reacting.undo(assets);
-  auto hidden=bound;hidden["visibility"]="owner";reacting.apply(assets,flinch,reacting.revision(),hidden,"Invalid private reaction");rejects_with([&]{reacting.save_all(assets,roots);},"public");unpublished("Rejected private reaction published sources");reacting.undo(assets);
-  auto inventory_before=assets.assets();reacting.validate(assets,flinch,roots);unpublished("Private reaction validation published sources");check(assets.assets().size()==inventory_before.size(),"Private reaction validation registered pending sources");
-  reacting.save_all(assets,roots);package_authoring(assets,roots,root/"reaction.json");
-  auto loader=[&](AssetId asset){return load_cooked_model(root/"reaction.json",assets.cas_path(),asset);};
-  auto prior=load_character_preview(root/"upper.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);check(std::none_of(prior.combat->effects.begin(),prior.combat->effects.end(),[&](const auto& d){return d->id==flinch;}),"Previous playable resources gained the authored reaction");
-  auto resources=load_character_preview(root/"reaction.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);
-  auto frozen=std::find_if(resources.combat->effects.begin(),resources.combat->effects.end(),[&](const auto& d){return d->id==flinch;});
-  check(frozen!=resources.combat->effects.end()&&(*frozen)->reaction&&(*frozen)->reaction->id==reaction&&(*frozen)->reaction->motion&&!(*frozen)->reaction->motion->motor_root&&resources.combat->clips.contains((*frozen)->reaction->motion->clip.id)&&resources.combat->kit->generation!=prior.combat->kit->generation,"Frozen kit closure lacks the reaction action/clip generation");
-  auto same=[](const std::vector<JointMatrix>& x,const std::vector<JointMatrix>& y){if(x.size()!=y.size())return false;for(unsigned joint=0;joint<x.size();++joint)for(unsigned i=0;i<16;++i)if(std::abs(x[joint].values[i]-y[joint].values[i])>2e-5)return false;return true;};
-  auto prepared=prepare_character_preview(scene->plan(),scene->world(),resources,loader);auto& s=*prepared.second;RigPose oracle(resources.rig.definition,resources.rig.archive);
-  CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};s.step(press);check(!s.reaction(target)&&!s.reaction(role(4)),"Reaction shown before any effect instance");
-  while(!s.reaction(target)&&s.motor().tick<40)s.step({});
-  auto shown=s.reaction(target);check(shown&&shown->suppressed==ReactionSuppression::None&&shown->effect==flinch&&shown->action->id==reaction&&shown->tick==double(s.motor().tick-shown->start)&&shown->tick<=1,"Authored hit did not start the public reaction on its effect clock");
-  auto key=shown->key;auto onset=shown->start;check(same(*s.pose(target),oracle.sample(*shown->clip,shown->tick))&&!same(*s.pose(target),oracle.blend(s.graph_inputs(target)->span())),"Target pose is not the frozen full-body reaction clip");
-  auto has=[&](TagId tag){auto values=s.observer(target,double(s.motor().tick)).frame.ability.tags.values;return std::find(values.begin(),values.end(),tag)!=values.end();};
-  check(!s.reaction(role(4))&&s.ability()->active&&has(6)&&has(3)&&s.effects(target)->current()->effects.size()==2&&s.effects(target)->cues().size()==1,"Reaction leaked to the attacker, cancelled its action or displaced the coexisting Burn");
-  for(unsigned n=0;n<10;++n)s.step({});shown=s.reaction(target);check(shown&&shown->key==key&&shown->start==onset&&shown->tick==double(s.motor().tick-onset)&&same(*s.pose(target),oracle.sample(*shown->clip,shown->tick)),"Reaction clock restarted or drifted from the checked effect instance");
-  auto length=(*frozen)->reaction->duration/action_tick_units;while(s.motor().tick<onset+length)s.step({});
-  check(!s.reaction(target)&&has(6)&&s.effects(target)->current()->effects.size()==2&&same(*s.pose(target),oracle.blend(s.graph_inputs(target)->span())),"Finished one-shot did not return to current locomotion or removed its status");
-  while(s.motor().tick<=onset+90)s.step({});
-  check(!has(6)&&has(3)&&!s.reaction(target)&&s.effects(target)->current()->effects.size()==1&&s.effects(target)->current()->effects[0].definition==effect,"Status expiry removed the unrelated Burn source or kept its own tag");
-  while(s.motor().tick<150)s.step({});double stamina=-1;for(const auto& attribute:s.ability()->attributes)if(attribute.id==3)stamina=attribute.value;auto health=s.presentation().read(s.presentation().find(target)).health.current;
-  std::cout<<"Reaction tick150 health="<<health<<" stamina="<<stamina<<" active="<<bool(s.ability()->active)<<" pending="<<s.pending_prediction()<<" onset="<<onset<<" length="<<length<<'\n';
-  check(health==39&&stamina==80&&!s.ability()->active&&s.pending_prediction()==0&&s.pending_abilities()==0&&scene->world().serialize()==baseline,"Reaction fresh Play changed authority/cost/damage/isolation");
-  // A later invalid candidate keeps the published source, catalog and playable package.
-  auto published=read(reaction_path);auto heads=assets.assets();invalid=timeline;invalid["blocks"].push_back({{"id",41},{"track",5},{"begin",0},{"end",2048},{"kind","movement-lock"},{"key","Motor.Root"}});reacting.apply(assets,reaction,reacting.revision(),invalid,"Invalid published reaction");rejects([&]{reacting.save_all(assets,roots);});
-  auto retained=assets.assets();check(read(reaction_path)==published&&retained.size()==heads.size(),"Failed reaction Save changed published source/catalog");for(unsigned i=0;i<heads.size();++i)check(heads[i].id==retained[i].id&&heads[i].generation==retained[i].generation,"Failed reaction Save moved a catalog head");
-  check(load_character_preview(root/"reaction.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision).combat->kit->generation==resources.combat->kit->generation,"Failed reaction Save changed the playable package");reacting.undo(assets);
-  reaction_fixture={{"reaction_registry",(root/"reaction.json").generic_string()},{"reaction_effect",flinch.text()},{"reaction_action",reaction.text()},{"burn_effect",effect.text()}};
-  std::cout<<"Authored effect reaction: creation/binding Undo/Redo, gameplay-block/root/loop/private rejection without publication, private validation, coordinated Save, frozen action/clip closure, fresh Play public flinch on the effect clock, attacker untouched, Burn coexistence, one-shot completion with status retained, expiry with unrelated source retained, unchanged authority and failed-Save retention passed\n";
- }
- {
-  // Kit-owned presentation-only death timeline using the converted Blink Death clip.
-  NativeAuthoring dying;auto light_action=id("royal_district/combat/light.daaction");auto kit_before=dying.open(assets,kit).value;auto kit_saved=dying.open(assets,kit).saved;
-  auto death=dying.create_presentation_action(assets,light_action,"authored_death");auto death_path=source/dying.open(assets,death).asset.path;
-  auto retimed=dying.open(assets,death).value;retimed["motion"]["clip"]=Json::parse(read(source/"animation/blink/death.glb.daimport"))["id"];retimed["motion"]["source"]="animation/blink/death.glb";retimed["duration"]=100*action_tick_units;dying.apply(assets,death,dying.revision(),retimed,"Choose death clip");
-  dying.bind_kit_death(assets,kit,death);auto bound=dying.open(assets,kit).value;check(bound["death"]==death.text()&&bound["sources"]["death"]==dying.open(assets,death).asset.path,"Kit death binding lost its reference or locator");
-  dying.undo(assets);check(dying.open(assets,kit).value==kit_before,"Kit death binding Undo changed other kit state");dying.redo(assets);check(dying.open(assets,kit).value==bound,"Kit death binding Redo is not coherent");
-  dying.bind_kit_death(assets,kit,{});check(dying.open(assets,kit).value==kit_before,"Clearing the death timeline left its reference or locator");dying.undo(assets);
-  auto unpublished=[&](const char* message){check(!std::filesystem::exists(death_path)&&read(source/dying.open(assets,kit).asset.path)==kit_saved,message);};
-  auto invalid=retimed;invalid["blocks"].push_back({{"id",40},{"track",5},{"begin",1024},{"end",2048},{"kind","hit"},{"key","Weapon.Right"}});dying.apply(assets,death,dying.revision(),invalid,"Invalid death hit block");rejects_with([&]{dying.save_all(assets,roots);},"gameplay blocks");unpublished("Rejected death gameplay block published sources");dying.undo(assets);
-  invalid=retimed;invalid["motion"]["policy"]="motor";dying.apply(assets,death,dying.revision(),invalid,"Invalid death root");rejects_with([&]{dying.save_all(assets,roots);},"root policy none");unpublished("Rejected death root ownership published sources");dying.undo(assets);
-  dying.validate(assets,kit,roots);unpublished("Private death validation published sources");
-  dying.save_all(assets,roots);package_authoring(assets,roots,root/"death.json");
-  auto prior=load_character_preview(root/"reaction.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);check(!prior.combat->death,"Previous playable resources gained a death timeline");
-  auto resources=load_character_preview(root/"death.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);
-  check(resources.combat->death&&resources.combat->death->id==death&&resources.combat->clips.contains(resources.combat->death->motion->clip.id)&&resources.combat->kit->death==death&&resources.combat->kit->generation!=prior.combat->kit->generation,"Frozen kit closure lacks the death timeline/clip");
-  const auto& clip=*resources.combat->clips.at(resources.combat->death->motion->clip.id);const double last=double(clip.definition().ticks-1);
-  auto same=[](const std::vector<JointMatrix>& x,const std::vector<JointMatrix>& y){if(x.size()!=y.size())return false;for(unsigned joint=0;joint<x.size();++joint)for(unsigned i=0;i<16;++i)if(std::abs(x[joint].values[i]-y[joint].values[i])>2e-5)return false;return true;};
-  auto prepared=prepare_character_preview(scene->plan(),scene->world(),resources,[&](AssetId asset){return load_cooked_model(root/"death.json",assets.cas_path(),asset);});auto& s=*prepared.second;RigPose oracle(resources.rig.definition,resources.rig.archive);
-  auto health=[&]{return s.presentation().read(s.presentation().find(target)).health.current;};
-  while(health()>0&&s.motor().tick<600){CharacterSceneInput input;auto phase=s.motor().tick%100;if(phase==0)input.combat_events={{9,InputEdge::Pressed,(s.motor().tick+1)*16667,0,1,false}};else if(phase==70)input.combat_events={{9,InputEdge::Released,(s.motor().tick+1)*16667,70*16667,0,false}};check(!s.death(target),"Death presented while the target is alive");s.step(input);}
-  auto shown=s.death(target);check(health()<=0&&shown&&*shown<=1,"Lethal authored hits did not start the death timeline from the observed transition");const auto onset=s.motor().tick-std::uint64_t(*shown);
-  auto reaction=s.reaction(target);check(same(*s.pose(target),oracle.sample(clip,*shown))&&!s.death(role(4))&&(!reaction||reaction->suppressed==ReactionSuppression::Dead),"Death pose mismatch, leaked to the attacker or lost precedence over a reaction");
-  for(unsigned n=0;n<20;++n)s.step({});shown=s.death(target);check(shown&&*shown==double(s.motor().tick-onset)&&same(*s.pose(target),oracle.sample(clip,*shown)),"Death clock restarted or drifted");
-  while(s.motor().tick<onset+130)s.step({});auto held=*s.pose(target);check(s.death(target)&&*s.death(target)==last&&same(held,oracle.sample(clip,last)),"Finished death timeline did not hold its final pose");for(unsigned n=0;n<5;++n)s.step({});check(same(*s.pose(target),held)&&health()<=0,"Held death pose changed");
-  // Late join after death holds the final pose; it never replays the fall.
-  std::vector<std::shared_ptr<const ActionDefinition>> actions;for(const auto& ability:resources.combat->abilities)actions.push_back(ability->action);
-  ObservedCharacterPose joined(resources.graph,resources.rig.definition,resources.rig.archive,actions,resources.combat->clips,resources.combat->tags,resources.combat->effects,resources.combat->death);joined.sample(s.observer(target,double(s.motor().tick)).frame);
-  check(joined.death()&&*joined.death()==last&&same(joined.matrices(),held),"Late join replayed the death timeline");
-  ObservedCharacterPose without(resources.graph,resources.rig.definition,resources.rig.archive,actions,resources.combat->clips,resources.combat->tags,resources.combat->effects);without.sample(s.observer(target,double(s.motor().tick)).frame);check(!without.death()&&!same(without.matrices(),held),"Unprepared kit invented a death pose");
-  std::cout<<"Death tick="<<s.motor().tick<<" onset="<<onset<<" health="<<health()<<" pending="<<s.pending_prediction()<<" player_active="<<bool(s.ability()->active)<<'\n';
-  check(s.pending_prediction()==0&&scene->world().serialize()==baseline,"Death presentation changed prediction or the authoring scene");
-  reaction_fixture["death_registry"]=(root/"death.json").generic_string();reaction_fixture["death_action"]=death.text();
-  std::cout<<"Authored kit death timeline: creation/binding Undo/Redo/clear, gameplay-block/root rejection without publication, private validation, coordinated Save, frozen closure, fresh Play lethal hits, death clock from the observed transition, terminal precedence, held final pose, late-join hold, attacker untouched and unchanged scene passed\n";
- }
- {
-  // Dodge is an ordinary authored Ability on the kit's utility ingress: dash distance,
-  // facing lock and invulnerability window, through authority, prediction and public state.
-  NativeAuthoring dodging;auto dodge=id("royal_district/combat/dodge.daability");auto kit_value=dodging.open(assets,kit).value;auto dodge_saved=dodging.open(assets,dodge).saved;
-  check(kit_value["dodge"]["ability"]==dodge.text()&&kit_value["dodge"]["input_action"]==6&&kit_value["slots"].size()==8,"Owned kit lost its utility dodge or changed its eight combat slots");
-  dodging.assign_dodge(assets,kit,{});auto cleared=dodging.open(assets,kit).value;check(!cleared.contains("dodge")&&!cleared["sources"]["abilities"].contains(dodge.text()),"Clearing dodge left its reference or locator");
-  dodging.undo(assets);check(dodging.open(assets,kit).value==kit_value,"Dodge clear Undo changed other kit state");dodging.redo(assets);dodging.assign_dodge(assets,kit,dodge);check(dodging.open(assets,kit).value==kit_value,"Dodge assignment is not coherent with the saved kit");
-  auto tuned=dodging.open(assets,dodge).value;auto original=tuned;tuned["dash"]["distance"]=5.0;dodging.apply(assets,dodge,dodging.revision(),tuned,"Tune dodge distance");dodging.undo(assets);check(dodging.open(assets,dodge).value==original,"Dash Undo lost the authored distance");dodging.redo(assets);
-  auto invalid=tuned;invalid["dash"]["distance"]=100.0;dodging.apply(assets,dodge,dodging.revision(),invalid,"Invalid dash speed");rejects_with([&]{dodging.save_all(assets,roots);},"dash");check(read(source/dodging.open(assets,dodge).asset.path)==dodge_saved,"Rejected dash published the ability");dodging.undo(assets);
-  invalid=tuned;invalid["dash"]["end"]=invalid["dash"]["begin"];dodging.apply(assets,dodge,dodging.revision(),invalid,"Invalid dash window");rejects([&]{dodging.validate(assets,dodge,roots);});dodging.undo(assets);
-  {
-   // Targeting is authored on the Ability like the dash: history, private validation and rejection without publication.
-   auto light=id("royal_district/combat/light.daability");auto aimed=dodging.open(assets,light).value;const auto authored=aimed;check(aimed["targeting"]["mode"]=="soft_lock"&&aimed["targeting"]["range"]==4.5,"Owned Light lost its authored soft lock");
-   aimed["targeting"]["range"]=6.0;dodging.apply(assets,light,dodging.revision(),aimed,"Tune soft lock range");dodging.undo(assets);check(dodging.open(assets,light).value==authored,"Soft lock Undo lost the authored range");dodging.redo(assets);check(dodging.open(assets,light).value["targeting"]["range"]==6.0,"Soft lock Redo lost the tuned range");dodging.validate(assets,light,roots);
-   const std::vector<std::pair<const char*,nlohmann::json>> wrong{{"cone_degrees",0.0},{"mode","aim"},{"stop",9.0},{"end",0u}};for(const auto& [key,value]:wrong){auto bad=aimed;bad["targeting"][key]=value;dodging.apply(assets,light,dodging.revision(),bad,"Invalid soft lock");rejects([&]{dodging.validate(assets,light,roots);});dodging.undo(assets);}
-   {auto bad=aimed;bad["dash"]={{"distance",1.0},{"begin",0},{"end",16384}};dodging.apply(assets,light,dodging.revision(),bad,"Soft lock with dash");rejects([&]{dodging.validate(assets,light,roots);});dodging.undo(assets);}
-   dodging.undo(assets);check(dodging.open(assets,light).value==authored,"Soft lock edits were not fully undone");
-  }
-  dodging.save_all(assets,roots);package_authoring(assets,roots,root/"dodge.json");
-  auto prior=load_character_preview(root/"death.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);auto prior_dodge=std::find_if(prior.combat->abilities.begin(),prior.combat->abilities.end(),[&](const auto& a){return a->id==dodge;});check(prior_dodge!=prior.combat->abilities.end()&&(*prior_dodge)->dash&&(*prior_dodge)->dash->distance==4.0,"Previous playable resources changed their dash");
-  auto resources=load_character_preview(root/"dodge.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision);auto frozen=std::find_if(resources.combat->abilities.begin(),resources.combat->abilities.end(),[&](const auto& a){return a->id==dodge;});
-  check(frozen!=resources.combat->abilities.end()&&(*frozen)->face_movement&&(*frozen)->dash&&(*frozen)->dash->distance==5.0&&resources.combat->kit->slots[unsigned(CombatSlot::Dodge)].ability==dodge&&resources.combat->kit->slots[unsigned(CombatSlot::Dodge)].input_action==6,"Frozen kit lacks the dodge ingress, facing or dash");check(std::any_of(resources.combat->abilities.begin(),resources.combat->abilities.end(),[](const auto& a){return a->soft_lock&&a->soft_lock->range==4.5&&a->soft_lock->end==16*action_tick_units;}),"Frozen kit lacks the Light soft lock");
-  auto make=[&]{return prepare_character_preview(scene->plan(),scene->world(),resources,[&](AssetId asset){return load_cooked_model(root/"dodge.json",assets.cas_path(),asset);}).second;};
-  auto stamina=[](const AbilityOwnerSnapshot& state){for(const auto& attribute:state.attributes)if(attribute.id==3)return attribute.value;return -1.;};
-  auto tagged=[](const ActorTagSnapshot& tags,TagId tag){return std::find(tags.values.begin(),tags.values.end(),tag)!=tags.values.end();};
-  const double pi=3.141592653589793;
-  for(auto [lateral,forward]:{std::pair{1.,0.},std::pair{0.,-1.}}){
-   auto session=make();auto& s=*session;{CharacterSceneInput turn;turn.yaw=.7;for(unsigned n=0;n<3;++n)s.step(turn);}const auto yaw=s.motor().yaw;check(std::abs(yaw-.7)<1e-9,"Fixture look yaw was not applied");const auto baseline_resync=s.resynchronizations();const auto origin=s.motor().position;auto target_before=s.observer(target,0).frame.motor.position;
-   CharacterSceneInput press;press.yaw=yaw;press.x=lateral;press.z=forward;press.combat_events={{6,InputEdge::Pressed,1000,0,1,false}};s.step(press);CharacterSceneInput idle;idle.yaw=yaw;
-   const auto facing=std::atan2(lateral,forward);
-   check(s.ability()->active&&s.ability()->ability==dodge&&s.predicted_ability()->active&&s.observer(role(4),double(s.motor().tick)).frame.ability.active&&stamina(*s.ability())==85&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9&&std::abs(std::remainder(s.predicted_motor().yaw-facing,2*pi))<1e-9,"Dodge did not activate through authority/prediction/public state, charge Stamina 15 or face its movement direction");
-   const auto started=s.motor().tick-1;while(s.motor().tick<started+12)s.step(idle);
-   check(tagged(s.ability()->tags,2)&&tagged(s.observer(role(4),double(s.motor().tick)).frame.ability.tags,2)&&tagged(s.ability()->tags,5)&&std::abs(std::remainder(s.motor().yaw-facing,2*pi))<1e-9,"Dodge invulnerability window or facing lock missing mid-dash");
-   while(s.motor().tick<started+31)s.step(idle);
-   auto moved=s.motor().position;const double dx=moved.x-origin.x,dz=moved.z-origin.z,along=dx*std::sin(facing)+dz*std::cos(facing),across=dx*std::cos(facing)-dz*std::sin(facing);
-   auto predicted=s.predicted_motor().position;
-   std::cout<<"Dodge lateral="<<lateral<<" travelled="<<along<<" across="<<across<<" predicted_error="<<std::hypot(predicted.x-moved.x,predicted.z-moved.z)<<" resync_delta="<<s.resynchronizations()-baseline_resync<<'\n';
-   check(std::abs(along-5.0)<.05&&std::abs(across)<.05&&std::hypot(predicted.x-moved.x,predicted.z-moved.z)<1e-6&&s.pending_prediction()==0&&s.resynchronizations()==baseline_resync&&!tagged(s.ability()->tags,2)&&s.ability()->active,"Dash distance/direction, prediction agreement or invulnerability expiry failed");
-   while(s.ability()->active&&s.motor().tick<started+120)s.step(idle);auto rest=s.motor().position;s.step(idle);
-   check(!s.ability()->active&&!s.predicted_ability()->active&&std::abs(std::remainder(s.motor().yaw-yaw,2*pi))<1e-9&&std::hypot(rest.x-moved.x,rest.z-moved.z)<.02&&!tagged(s.ability()->tags,5)&&s.pending_prediction()==0,"After the dodge facing did not return to input rules, the actor kept moving or the lock tag remained");
-   auto target_after=s.observer(target,double(s.motor().tick)).frame.motor.position;check(std::hypot(target_after.x-target_before.x,target_after.z-target_before.z)<1e-6&&s.presentation().read(s.presentation().find(target)).health.current==100&&scene->world().serialize()==baseline,"Dodge affected the other actor or the authoring scene");
-   // Cooldown and cost gate a second dodge authoritatively; no local bypass.
-   CharacterSceneInput release=idle;release.combat_events={{6,InputEdge::Released,2000000,100000,0,false}};s.step(release);
-  }
-  reaction_fixture["dodge_registry"]=(root/"dodge.json").generic_string();reaction_fixture["dodge_ability"]=dodge.text();
-  std::cout<<"Authored dodge ability: kit utility ingress clear/assign Undo/Redo, dash edit history, speed/window rejection without publication, coordinated Save, frozen closure, fresh Play activation through authority/prediction/public state, Stamina 15, movement-direction facing lock, invulnerability window, 5 m dash with exact prediction agreement, facing restored and other actor untouched passed\n";
- }
- {
-  // Masks own a kit and a worn visual; a Player equips up to four and starts with one active.
-  NativeAuthoring masking;auto character=masking.create_character(assets,human,"masked_character");auto player=masking.create_player(assets,character,kit,"masked_player");
-  auto second_kit=masking.duplicate(assets,kit,"mask_second_kit");masking.assign_dodge(assets,second_kit,{});auto visual=AssetId::parse(Json::parse(read(source/"masks/horned-mask.glb.daimport"))["id"].get<std::string>());
-  auto ember=masking.create_mask(assets,"test_ember",kit,visual),air=masking.create_mask(assets,"test_air",second_kit);auto unmasked=masking.open(assets,player).value;
-  masking.equip_mask(assets,player,0,ember);masking.equip_mask(assets,player,2,air);auto first_active=masking.open(assets,player).value;masking.select_mask(assets,player,2);auto equipped=masking.open(assets,player).value;
-  check(equipped["loadout"]["masks"]==Json::array({ember.text(),nullptr,air.text(),nullptr})&&equipped["loadout"]["active_mask"]==2&&equipped["sources"]["masks"].size()==2&&first_active["loadout"]["active_mask"]==0,"Mask slots, active slot or locators are wrong");
-  masking.undo(assets);check(masking.open(assets,player).value==first_active,"Active mask Undo changed slots");masking.redo(assets);check(masking.open(assets,player).value==equipped,"Active mask Redo is not coherent");
-  rejects([&]{masking.equip_mask(assets,player,1,ember);});rejects([&]{masking.select_mask(assets,player,3);});rejects([&]{masking.equip_mask(assets,player,4,air);});check(masking.open(assets,player).value==equipped,"Rejected mask command changed the Player draft");
-  masking.equip_mask(assets,player,2,{});check(masking.open(assets,player).value["loadout"]["active_mask"]==0&&!masking.open(assets,player).value["sources"]["masks"].contains(air.text()),"Unequipping the active mask did not move the active slot or drop its locator");
-  masking.equip_mask(assets,player,0,{});check(masking.open(assets,player).value==unmasked,"Unequipping every mask left mask fields behind");masking.undo(assets);masking.undo(assets);check(masking.open(assets,player).value==equipped,"Unequip Undo lost the loadout");
-  std::vector<AssetId> player_roots=roots;player_roots.push_back(player);for(auto worn_visual:masking.worn_visuals(assets,player))player_roots.push_back(worn_visual);check(player_roots.back()==visual,"Equipped mask visuals are not offered as Play roots");auto ember_path=source/masking.open(assets,ember).asset.path;
-  {auto placed=masking.open(assets,ember).value;placed["tint"]={1.0,0.35,0.18,1.0};placed["attachment"]={{"socket","head"},{"position",{0.04,0.11,0.0}},{"rotation",{0.0,-90.0,0.0}},{"scale",0.01}};masking.apply(assets,ember,masking.revision(),placed,"Place mask on the face socket");}auto mask_value=masking.open(assets,ember).value;auto invalid=mask_value;invalid["tint"]={9.0,0.0,0.0,1.0};masking.apply(assets,ember,masking.revision(),invalid,"Invalid mask tint");rejects([&]{masking.save_all(assets,player_roots);});check(!std::filesystem::exists(ember_path),"Rejected mask published sources");masking.undo(assets);
-  invalid=mask_value;invalid["attachment"]={{"socket","Not A Socket"},{"position",{0.0,0.0,0.0}},{"rotation",{0.0,0.0,0.0}},{"scale",1.0}};masking.apply(assets,ember,masking.revision(),invalid,"Invalid mask socket");rejects([&]{masking.validate(assets,ember,player_roots);});masking.undo(assets);
-  {
-   // Player-owned virtual cameras: free-look default, a tuned aim camera and a tag-driven one.
-   auto camera=[](const char* name,unsigned priority,Json when,double distance,double shoulder,const char* facing){return Json{{"name",name},{"priority",priority},{"when",std::move(when)},{"distance",distance},{"height",1.5},{"shoulder",shoulder},{"fov",55.0},{"pitch_min",-40.0},{"pitch_max",60.0},{"blend_seconds",0.2},{"follow_damping",0.05},{"facing",facing},{"track_look_target",false}};};
-   auto plain=masking.open(assets,player).value;auto filmed=plain;filmed["cameras"]=Json::array({camera("FreeLook",0,Json::object(),4.0,0.0,"movement"),camera("Aim",10,Json{{"input","combat.ranged"}},2.0,0.5,"camera"),camera("Staggered",20,Json{{"tag",6}},3.0,0.0,"movement")});
-   masking.apply(assets,player,masking.revision(),filmed,"Author Player cameras");masking.undo(assets);check(masking.open(assets,player).value==plain,"Camera Undo left a rig behind");masking.redo(assets);check(masking.open(assets,player).value==filmed,"Camera Redo lost the rig");
-   auto broken=filmed;broken["cameras"][0]["when"]=Json{{"input","jump"}};masking.apply(assets,player,masking.revision(),broken,"Camera rig without a default");rejects_with([&]{masking.validate(assets,player,player_roots);},"default");masking.undo(assets);
-   broken=filmed;broken["cameras"][1]["fov"]=170.0;masking.apply(assets,player,masking.revision(),broken,"Camera field of view out of range");rejects([&]{masking.validate(assets,player,player_roots);});masking.undo(assets);
-   broken=filmed;broken["cameras"][1]["name"]="FreeLook";masking.apply(assets,player,masking.revision(),broken,"Duplicate camera name");rejects([&]{masking.validate(assets,player,player_roots);});masking.undo(assets);check(masking.open(assets,player).value==filmed,"Rejected camera drafts changed the valid rig");
-  }
-  masking.validate(assets,player,player_roots);check(!std::filesystem::exists(ember_path),"Private mask validation published sources");
-  masking.save_all(assets,player_roots);package_authoring(assets,player_roots,root/"mask-air.json");
-  auto cooked=load_cooked_player(root/"mask-air.json",assets.cas_path(),player);
-  check(cooked.kit.definition->id==second_kit&&cooked.definition.loadout.kit==kit&&cooked.definition.loadout.active_mask==2&&cooked.masks[0]&&cooked.masks[0]->definition.visual==visual&&cooked.masks[0]->definition.name=="test_ember"&&cooked.masks[2]&&cooked.masks[2]->definition.kit==second_kit&&cooked.masks[2]->kit.definition->id==second_kit&&!cooked.masks[1]&&!cooked.masks[3],"Frozen Player did not resolve its active mask's kit or its four slots");
-  check(cooked.definition.authored_cameras&&cooked.definition.cameras.cameras.size()==3&&cooked.definition.cameras.cameras[1].name=="Aim"&&cooked.definition.cameras.cameras[1].input_action=="combat.ranged"&&cooked.definition.cameras.cameras[1].distance==2.0&&cooked.definition.cameras.cameras[1].facing==CameraFacing::Camera&&cooked.definition.cameras.cameras[2].tag==6&&cooked.definition.cameras.cameras[0].input_action.empty(),"Frozen Player lost its authored camera rig");
-  auto worn_air=load_character_preview(root/"mask-air.json",assets.cas_path(),"player:"+player.text(),skin,role(4),scene->plan().spawns,collision);check(worn_air.combat->kit->id==second_kit&&!worn_air.mask&&worn_air.active_mask==2&&worn_air.mask_names[0]=="test_ember"&&worn_air.mask_names[1].empty(),"Play resources ignored the active mask or invented a visual");
-  masking.select_mask(assets,player,0);masking.save_all(assets,player_roots);package_authoring(assets,player_roots,root/"mask.json");
-  auto worn=load_character_preview(root/"mask.json",assets.cas_path(),"player:"+player.text(),skin,role(4),scene->plan().spawns,collision);
-  check(worn.combat->kit->id==kit&&worn.mask&&worn.mask->model==visual&&worn.mask->mask==ember&&worn.rig.definition.joints[worn.mask->joint].key=="Head_M"&&worn.mask->scale==.01f&&worn.mask->rotation[1]==-90.f&&worn.mask->position[1]==.11f&&worn.mask->tint[1]==.35f&&load_character_preview(root/"mask-air.json",assets.cas_path(),"player:"+player.text(),skin,role(4),scene->plan().spawns,collision).combat->kit->id==second_kit,"Switching the starting mask did not change kit/visual, or the previous package changed");
-  check(worn.cameras.cameras.size()==3&&worn.cameras.cameras[2].name=="Staggered"&&load_character_preview(root/"mask.json",assets.cas_path(),"kit:"+kit.text(),skin,role(4),scene->plan().spawns,collision).cameras.cameras.size()==2,"Play resources did not carry the Player's cameras, or a kit-only Play lost the built-in rig");
-  {CameraDirector director(worn.cameras,0,0);std::vector<std::string> ranged{"combat.ranged"},idle_input;std::vector<TagId> staggered{6};check(director.select(idle_input,{})==0&&director.select(ranged,{})==1&&director.select(ranged,staggered)==2,"Authored camera conditions/priorities do not drive the director");}
-  auto prepared=prepare_character_preview(scene->plan(),scene->world(),worn,[&](AssetId asset){return load_cooked_model(root/"mask.json",assets.cas_path(),asset);});auto& s=*prepared.second;CharacterSceneInput press;press.combat_events={{9,InputEdge::Pressed,1000,0,1,false}};s.step(press);while(s.motor().tick<30)s.step({});
-  check(s.presentation().read(s.presentation().find(target)).health.current==60&&s.pending_prediction()==0&&s.pose(role(4))&&worn.mask->joint<s.pose(role(4))->size()&&scene->world().serialize()==baseline,"Masked Player fresh Play failed its authored Heavy or changed the scene");
-  {
-   // Switching the active mask during Play: an ordinary ability intent on the existing wire,
-   // predicted and reconciled, replacing the kit authoritatively.
-   auto dodge=id("royal_district/combat/dodge.daability");auto session=prepare_character_preview(scene->plan(),scene->world(),worn,[&](AssetId asset){return load_cooked_model(root/"mask.json",assets.cas_path(),asset);}).second;auto& w=*session;
-   auto event=[&](unsigned action,InputEdge edge){CharacterSceneInput input;input.yaw=w.motor().yaw;input.combat_events={{action,edge,(w.motor().tick+1)*16667,edge==InputEdge::Released?16667u:0u,edge==InputEdge::Pressed?1.f:0.f,false}};w.step(input);};
-   auto idle=[&](unsigned ticks){for(unsigned n=0;n<ticks;++n){CharacterSceneInput input;input.yaw=w.motor().yaw;w.step(input);}};auto tap=[&](unsigned action){event(action,InputEdge::Pressed);event(action,InputEdge::Released);idle(2);};
-   auto public_loadout=[&]{return w.observer(role(4),double(w.motor().tick)).frame.ability.loadout;};auto settled=[&]{return w.pending_prediction()==0&&w.pending_abilities()==0;};
-   check(worn.combat->loadouts.size()==4&&worn.combat->loadouts[0]&&worn.combat->loadouts[2]&&!worn.combat->loadouts[1]&&!worn.combat->loadouts[3]&&worn.combat->loadout_actions==std::array<std::uint32_t,4>{16,17,18,19}&&worn.masks[0]&&!worn.masks[2]&&worn.combat->loadouts[2]->kit->id==second_kit&&worn.combat->loadouts[2]->kit->slots[unsigned(CombatSlot::Dodge)].ability==AssetId{}&&w.loadout()==0&&public_loadout()==0,"Play resources did not prepare every equipped mask loadout");
-   auto generation=w.ability()->grant_generation;tap(18);
-   check(w.loadout()==2&&w.predicted_loadout()==2&&public_loadout()==2&&w.ability()->grant_generation>generation&&settled(),"Mask switch did not converge through authority, prediction and public state");
-   generation=w.ability()->grant_generation;tap(17);check(w.loadout()==2&&w.ability()->grant_generation==generation&&settled(),"Selecting an empty mask slot changed the loadout");
-   tap(18);check(w.loadout()==2&&w.ability()->grant_generation==generation&&settled(),"Re-selecting the active mask replaced its grants");
-   tap(6);check(!w.ability()->active&&!w.predicted_ability()->active&&settled(),"The second mask's kit has no dodge, yet a dodge started");
-   tap(16);check(w.loadout()==0&&w.predicted_loadout()==0&&public_loadout()==0&&settled(),"Switching back to the first mask failed");
-   double stamina=-1;event(6,InputEdge::Pressed);check(w.ability()->active&&w.ability()->ability==dodge,"The first mask's kit lost its dodge after switching back");for(const auto& attribute:w.ability()->attributes)if(attribute.id==3)stamina=attribute.value;
-   event(6,InputEdge::Released);tap(18);double after=-1;for(const auto& attribute:w.ability()->attributes)if(attribute.id==3)after=attribute.value;
-   check(w.loadout()==2&&!w.ability()->active&&!w.predicted_ability()->active&&after>=stamina&&after<100&&settled()&&w.resynchronizations()<=1&&scene->world().serialize()==baseline,"Switching during an interruptible action did not cancel it cleanly, refunded its cost or changed the scene");
-   std::cout<<"Mask switch: loadout="<<w.loadout()<<" grant_generation="<<w.ability()->grant_generation<<" stamina="<<after<<" pending="<<w.pending_prediction()<<'\n';
-  }
-  {
-   // NPC definition (M6): the Player's shared Character and Actor Loadout plus a display name and faction, as a full native source.
-   auto guard=masking.create_npc(assets,character,kit,"test_guard","royal_guard");auto fresh=masking.open(assets,guard).value;
-   check(fresh["kind"]=="npc"&&fresh["name"]=="test_guard"&&fresh["faction"]=="royal_guard"&&fresh["character"]==character.text()&&fresh["loadout"]["kit"]==kit.text()&&masking.open(assets,guard).asset.path=="npcs/test_guard.danpc","Created NPC draft is not the shared actor shape");
-   auto armed=fresh;armed["name"]="Test Guard";armed["loadout"]["starting_attributes"]=Json::array({Json{{"attribute",1u},{"value",60.0}},Json{{"attribute",2u},{"value",60.0}}});masking.apply(assets,guard,masking.revision(),armed,"Author NPC name and starting attributes");
-   masking.undo(assets);check(masking.open(assets,guard).value==fresh,"NPC Undo lost the created draft");masking.redo(assets);check(masking.open(assets,guard).value==armed,"NPC Redo lost the authored fields");
-   // Behaviour is its own native source, assigned to the NPC from its tab.
-   auto tree=masking.create_behavior(assets,"test_guard_tree");masking.assign_npc_behavior(assets,guard,tree);auto with_tree=masking.open(assets,guard).value;
-   check(masking.open(assets,tree).value["kind"]=="behavior"&&with_tree["behavior"]==tree.text()&&with_tree["sources"]["behavior"]=="npcs/test_guard_tree.dabehavior","Behaviour was not created and assigned to the NPC");
-   masking.undo(assets);check(masking.open(assets,guard).value==armed,"Behaviour assignment Undo changed other NPC fields");masking.redo(assets);check(masking.open(assets,guard).value==with_tree,"Behaviour assignment Redo lost the reference");
-   masking.assign_npc_behavior(assets,guard,{});check(masking.open(assets,guard).value==armed,"Clearing the behaviour left its reference or locator");masking.undo(assets);rejects([&]{masking.assign_npc_behavior(assets,guard,air);});armed=masking.open(assets,guard).value;check(armed==with_tree,"A rejected behaviour assignment changed the NPC");
-   {
-    // Tree structure edits are authoring commands: bounded, validated and undoable.
-    using Edit=NativeAuthoring::BehaviorEdit;const auto original=masking.open(assets,tree).value;auto shape=[&]{return masking.open(assets,tree).value["tree"];};
-    const std::vector<unsigned> first{0},second{1},attack{0,4},root{};
-    masking.edit_behavior_tree(assets,tree,second,Edit::MoveUp);check(shape()["children"][0]["children"].size()==2&&shape()["children"][1]["children"].size()==6,"Moving a branch up did not swap the two sequences");
-    masking.undo(assets);check(masking.open(assets,tree).value==original,"Tree reorder Undo did not restore the tree");masking.redo(assets);masking.edit_behavior_tree(assets,tree,first,Edit::MoveDown);check(masking.open(assets,tree).value==original,"Moving the branch back down did not restore the order");
-    masking.edit_behavior_tree(assets,tree,second,Edit::AddChild,"recover");check(shape()["children"][1]["children"].size()==3&&shape()["children"][1]["children"][2]==Json{{"type","recover"},{"ticks",60u}},"Add child did not append a default recover node");
-    masking.edit_behavior_tree(assets,tree,std::vector<unsigned>{1,2},Edit::Remove);check(masking.open(assets,tree).value==original,"Removing the added node did not restore the tree");
-    masking.edit_behavior_tree(assets,tree,root,Edit::AddChild,"selector");check(shape()["children"].size()==3&&shape()["children"][2]["children"].size()==1,"Add child did not append a composite with a valid default child");masking.undo(assets);
-    for(auto invalid:{+[](NativeAuthoring& a,AssetService& s,AssetId t){a.edit_behavior_tree(s,t,std::vector<unsigned>{},NativeAuthoring::BehaviorEdit::Remove);},+[](NativeAuthoring& a,AssetService& s,AssetId t){a.edit_behavior_tree(s,t,std::vector<unsigned>{0},NativeAuthoring::BehaviorEdit::MoveUp);},+[](NativeAuthoring& a,AssetService& s,AssetId t){a.edit_behavior_tree(s,t,std::vector<unsigned>{1},NativeAuthoring::BehaviorEdit::MoveDown);},+[](NativeAuthoring& a,AssetService& s,AssetId t){a.edit_behavior_tree(s,t,std::vector<unsigned>{0,4},NativeAuthoring::BehaviorEdit::AddChild,"face");},+[](NativeAuthoring& a,AssetService& s,AssetId t){a.edit_behavior_tree(s,t,std::vector<unsigned>{},NativeAuthoring::BehaviorEdit::AddChild,"teleport");},+[](NativeAuthoring& a,AssetService& s,AssetId t){a.edit_behavior_tree(s,t,std::vector<unsigned>{7},NativeAuthoring::BehaviorEdit::Remove);}})rejects([&]{invalid(masking,assets,tree);});
-    check(masking.open(assets,tree).value==original,"A rejected tree edit changed the behaviour draft");(void)attack;
-   }
-   // The shared loadout commands serve an NPC exactly as they serve a Player.
-   masking.equip_mask(assets,guard,1,air);auto masked=masking.open(assets,guard).value;check(masked["loadout"]["masks"]==Json::array({nullptr,air.text(),nullptr,nullptr})&&masked["loadout"]["active_mask"]==1&&masked["sources"]["masks"].size()==1,"Shared mask command did not equip the NPC");
-   rejects([&]{masking.equip_mask(assets,guard,4,air);});masking.undo(assets);check(masking.open(assets,guard).value==armed,"NPC mask Undo changed other fields");masking.redo(assets);
-   std::vector<AssetId> npc_roots=player_roots;npc_roots.push_back(guard);const auto guard_path=source/masking.open(assets,guard).asset.path;
-   {auto bad=masked;bad["faction"]="Royal Guard";masking.apply(assets,guard,masking.revision(),bad,"Invalid NPC faction");rejects_with([&]{masking.validate(assets,guard,npc_roots);},"faction");masking.undo(assets);}
-   {auto bad=masking.open(assets,tree).value;bad["tree"]["children"][0]["type"]="teleport";masking.apply(assets,tree,masking.revision(),bad,"Unknown behaviour node");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
-   {auto bad=masked;bad["tuning"]={{"preferred_range",0.0},{"recovery_scale",1.0}};masking.apply(assets,guard,masking.revision(),bad,"NPC tuning out of bounds");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
-   {auto bad=masked;bad["senses"]={{"eye_height",1.6},{"forget_seconds",5.0},{"awareness_seconds",0.3},{"sensors",nlohmann::json::array({nlohmann::json{{"type","vision"},{"range",18.0},{"horizontal",200.0},{"vertical",35.0}}})}};masking.apply(assets,guard,masking.revision(),bad,"NPC senses out of bounds");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
-   {auto sensed=masked;sensed["senses"]={{"eye_height",1.7},{"forget_seconds",4.0},{"awareness_seconds",0.25},{"sensors",nlohmann::json::array({nlohmann::json{{"type","vision"},{"range",18.0},{"horizontal",60.0},{"vertical",35.0}},nlohmann::json{{"type","distance"},{"radius",4.0}}})}};masking.apply(assets,guard,masking.revision(),sensed,"Edit NPC senses");masking.undo(assets);check(masking.open(assets,guard).value==masked,"NPC senses Undo left them behind");masking.redo(assets);masked=sensed;}
-   {auto tuned=masked;tuned["tuning"]={{"preferred_range",2.5},{"recovery_scale",0.5}};masking.apply(assets,guard,masking.revision(),tuned,"Tune NPC");masking.undo(assets);check(masking.open(assets,guard).value==masked,"NPC tuning Undo left it behind");masking.redo(assets);masked=tuned;}
-   {auto bad=masked;bad["name"]="";masking.apply(assets,guard,masking.revision(),bad,"Empty NPC name");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
-   {auto bad=masked;bad["input_profile"]=AssetId::random().text();masking.apply(assets,guard,masking.revision(),bad,"NPC with an input profile");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
-   {auto bad=masked;bad["loadout"]["starting_attributes"][1]["value"]=5000.0;masking.apply(assets,guard,masking.revision(),bad,"NPC Health beyond the schema");rejects([&]{masking.validate(assets,guard,npc_roots);});masking.undo(assets);}
-   check(masking.open(assets,guard).value==masked,"Rejected NPC candidates changed the valid draft");masking.validate(assets,guard,npc_roots);check(!std::filesystem::exists(guard_path),"Private NPC validation published its source");
-   masking.save_all(assets,npc_roots);check(std::filesystem::exists(guard_path),"Coordinated Save did not publish the NPC source");package_authoring(assets,npc_roots,root/"npc.json");const auto saved_guard=read(guard_path);
-   auto npc=load_cooked_npc(root/"npc.json",assets.cas_path(),guard);auto owner=load_cooked_player(root/"npc.json",assets.cas_path(),player);
-   auto base=[](const std::vector<AttributeDefinition>& schema,AttributeId attribute){for(const auto& field:schema)if(field.id==attribute)return field.base;return -1.;};
-   check(npc.definition.name=="Test Guard"&&npc.definition.faction=="royal_guard"&&npc.definition.generation.size()==64&&npc.definition.character==character&&npc.character.definition.generation==owner.character.definition.generation,"Frozen NPC lost its name, faction or the Character it shares with the Player");
-   check(base(npc.attributes,2)==60&&base(npc.attributes,1)==60&&base(owner.attributes,2)==100&&base(npc.attributes,3)==base(owner.attributes,3),"NPC starting attributes did not resolve separately from the Player's");
-   check(npc.masks[1]&&!npc.masks[0]&&npc.masks[1]->definition.id==air&&npc.kit.definition->id==second_kit&&owner.kit.definition->id!=npc.kit.definition->id&&npc.kit.attributes.generation==owner.kit.attributes.generation,"NPC does not resolve its own active mask kit over the shared attribute schema");
-   check(npc.behavior&&npc.definition.behavior==tree&&npc.behavior->name=="test_guard_tree"&&npc.behavior->root.children.size()==2&&npc.behavior->generation.size()==64,"Frozen NPC lost its behaviour tree");check(npc.definition.tuning.preferred_range==2.5&&npc.definition.tuning.recovery_scale==.5,"Frozen NPC lost its tuning");check(!npc.definition.senses.everything&&npc.definition.senses.eye_height==1.7&&npc.definition.senses.forget_seconds==4&&npc.definition.senses.awareness_seconds==.25&&npc.definition.senses.sensors.size()==2&&npc.definition.senses.sensors[0].kind==SensorKind::Vision&&npc.definition.senses.sensors[0].horizontal==60&&npc.definition.senses.sensors[1].kind==SensorKind::Distance&&npc.definition.senses.sensors[1].range==4,"Frozen NPC lost its senses");
-   rejects([&]{load_cooked_player(root/"npc.json",assets.cas_path(),guard);});rejects([&]{load_cooked_npc(root/"npc.json",assets.cas_path(),player);});
-   // Failed Save keeps the published source and the frozen product.
-   {auto bad=masked;bad["faction"]="";masking.apply(assets,guard,masking.revision(),bad,"Empty NPC faction");rejects([&]{masking.save_all(assets,npc_roots);});check(read(guard_path)==saved_guard&&load_cooked_npc(root/"npc.json",assets.cas_path(),guard).definition.faction=="royal_guard","Rejected NPC Save changed the source or frozen product");masking.undo(assets);}
-   // Owned content: the Royal Guard shares the owned Player's Character with its own starting attributes.
-   auto royal_guard=id("npcs/royal_guard.danpc"),royal_player=id("players/royal_player.daplayer");std::vector<AssetId> owned_roots=npc_roots;check(std::find(owned_roots.begin(),owned_roots.end(),royal_guard)!=owned_roots.end(),"The Royal Guard is no longer a root of the fixture registries");owned_roots.push_back(royal_player);package_authoring(assets,owned_roots,root/"royal-npc.json");
-   auto royal=load_cooked_npc(root/"royal-npc.json",assets.cas_path(),royal_guard);auto hero=load_cooked_player(root/"royal-npc.json",assets.cas_path(),royal_player);
-   check(royal.definition.name=="Royal Guard"&&royal.definition.faction=="royal_guard"&&royal.definition.character==hero.definition.character&&royal.character.definition.generation==hero.character.definition.generation&&base(royal.attributes,2)==60&&base(hero.attributes,2)==100&&!royal.definition.loadout.masked&&royal.behavior&&royal.behavior->name=="Guard Melee","Owned Royal Guard is not the Player's Character with its own attributes");
-   reaction_fixture["behavior"]=id("npcs/guard_melee.dabehavior").text();
-   reaction_fixture["archer"]=id("npcs/royal_archer.danpc").text();reaction_fixture["npc_registry"]=(root/"royal-npc.json").generic_string();reaction_fixture["npc"]=royal_guard.text();
-   std::cout<<"Authored NPC: creation, name/faction/starting attributes Undo/Redo, behaviour creation/assignment/clear with history and invalid-tree rejection, shared mask loadout command, faction/name/input/schema rejection without publication, private validation, coordinated Save, frozen NPC sharing the Player Character with separate attributes and active mask kit, kind-checked loading, failed Save retention and the owned Royal Guard passed\n";
-  }
-  reaction_fixture["mask_registry"]=(root/"mask.json").generic_string();reaction_fixture["mask_player"]=player.text();
-  std::cout<<"Authored masks: creation, four-slot equip/select/unequip Undo/Redo, Player camera rig authoring/rejection/frozen conditions, duplicate/empty/out-of-range rejection, tint and socket rejection without publication, private validation, coordinated Save, frozen Player resolving the active mask's kit and worn visual on the head socket joint, starting-mask change with previous package retained, fresh Play, and in-Play mask switching (accepted, empty slot, re-select, kit-specific dodge, switch back, mid-action cancel) through authority/prediction/public state passed\n";
- }
- Json receipt={{"source",source.generic_string()},{"cache",(root/"c").generic_string()},{"registry",(root/"after.json").generic_string()},{"upper_registry",(root/"upper.json").generic_string()},{"upper_action",independent_action.text()},{"kit",kit.text()},{"ability",copy.text()},{"effect",effect.text()}};receipt.update(reaction_fixture);std::ofstream(std::filesystem::path(DAE_BINARY_DIR)/"authoring-fixture.json")<<receipt.dump(2);std::cout<<"Native authoring: edit/Undo/Redo/coordinated Save, grouped kit/action history, multi-source failure/catalog rollback/stale-writer conflict, cost20/damage40/Burn7, kit closure, fresh Play Health60->39, Stamina80, public status/expiry, immutable prior Play and failed candidate preservation passed\n";return 0;
-}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+        auto history = author.history();
+        if (!history.empty())
+            std::cout << "Newest history: " << history.front().label << " sources=" << history.front().assets.size() << "\n";
+        check(!history.empty() && history.front().label == "Remove graph triangle" &&
+                  history.front().assets == std::vector<AssetId>{graph_id},
+              "History snapshot lost command/source identity");
+        auto changes = author.history_changes(false, 0);
+        check(!changes.empty() && changes.front().asset == graph_id && changes.front().path.starts_with("/nodes/"),
+              "History did not expose bounded source changes");
+        auto history_revision = author.revision();
+        auto snapshot = history;
+        author.undo(assets);
+        check(author.history(true).front().label == snapshot.front().label && author.revision() > history_revision,
+              "History inspection lost Redo semantics");
+        author.redo(assets);
+        check(!author.dirty(), "History inspection altered saved state");
+        check(snapshot.front().label == history.front().label, "History snapshot borrowed invalid command memory");
+        rejects([&] { author.history_changes(false, 9999); });
+        std::cout
+            << "Native history snapshots: command/source identity, typed source diff paths, immutable copies, redo ordering and read-only inspection passed\n";
+        {
+            NativeAuthoring windows;
+            auto before = windows.open(assets, copy).value;
+            auto window = windows.add_action_block(
+                assets, independent_action, {0, 6, 0, 8 * action_tick_units, ActionBlockKind::Invulnerability, "Authored.Invulnerable"});
+            auto value = before;
+            value["action_tags"].push_back({{"block", window}, {"tag", 2}});
+            windows.apply(assets, copy, windows.revision(), value, "Bind authored action-window tag");
+            windows.undo(assets);
+            check(windows.open(assets, copy).value == before, "Window tag Undo changed original bindings");
+            windows.redo(assets);
+            check(windows.open(assets, copy).value == value, "Window tag Redo lost binding");
+            auto removed = value;
+            removed["action_tags"].erase(removed["action_tags"].size() - 1);
+            windows.apply(assets, copy, windows.revision(), removed, "Remove authored window tag");
+            windows.undo(assets);
+            check(windows.open(assets, copy).value == value, "Remove tag Undo lost binding");
+            auto bad = value;
+            bad["action_tags"].push_back(bad["action_tags"].back());
+            windows.apply(assets, copy, windows.revision(), bad, "Invalid duplicate window binding");
+            auto saved = windows.open(assets, copy).saved;
+            rejects([&] { windows.save_all(assets, roots); });
+            check(read(source / windows.open(assets, copy).asset.path) == saved, "Rejected duplicate binding published source");
+            windows.undo(assets);
+            bad = value;
+            bad["action_tags"].back()["block"] = 2;
+            windows.apply(assets, copy, windows.revision(), bad, "Invalid hit-window tag binding");
+            rejects([&] { windows.validate(assets, copy, roots); });
+            windows.undo(assets);
+            windows.save_all(assets, roots);
+            package_authoring(assets, roots, root / "after.json");
+            auto tagged = load_character_preview(root / "after.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                 scene->plan().spawns, collision);
+            auto make = [&] {
+                return prepare_character_preview(
+                           scene->plan(), scene->world(), tagged,
+                           [&](AssetId asset) { return load_cooked_model(root / "after.json", assets.cas_path(), asset); })
+                    .second;
+            };
+            auto has = [](const auto& snapshot) {
+                return std::find(snapshot.tags.values.begin(), snapshot.tags.values.end(), 2) != snapshot.tags.values.end();
+            };
+            CharacterSceneInput press;
+            press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
+            auto session = make();
+            session->step(press);
+            check(has(*session->ability()) && has(*session->predicted_ability()) && has(session->observer(role(4), 1).frame.ability),
+                  "Authored window tag did not converge through authority/owner/public paths");
+            while (session->motor().tick < 9)
+                session->step({});
+            check(!has(*session->ability()) && !has(*session->predicted_ability()) && !has(session->observer(role(4), 9).frame.ability) &&
+                      session->pending_prediction() == 0,
+                  "Authored window tag did not expire on native interval boundary");
+            session = make();
+            session->step(press);
+            CharacterSceneInput release;
+            release.combat_events = {{9, InputEdge::Released, 2000, 0, 0, false}};
+            session->step(release);
+            check(!has(*session->ability()) && !has(*session->predicted_ability()) && !session->ability()->active &&
+                      scene->world().serialize() == baseline,
+                  "Cancellation retained authored action grant or changed scene");
+            check(std::none_of(fresh.combat->abilities[1]->action_tags.begin(), fresh.combat->abilities[1]->action_tags.end(),
+                               [&](const auto& binding) { return binding.block == window; }),
+                  "Previous playable resources changed during binding publication");
+            std::cout
+                << "Authored action-window tags: history, removal, duplicate/type rejection, Save/frozen closure/fresh Play, authority/owner/public interval expiry and cancellation passed\n";
+        }
+        {
+            NativeAuthoring selecting;
+            auto graph_id = AssetId::parse(selecting.open(assets, kit).value.at("locomotion_stance").get<std::string>());
+            auto old_graph = selecting.open(assets, graph_id).value;
+            auto tags_id = id("royal_district/combat/state.datags");
+            auto old_root = old_graph.at("root").get<unsigned>();
+            auto selector = selecting.add_graph_tag_select(assets, graph_id, tags_id, 2, old_root, old_root);
+            selecting.undo(assets);
+            check(selecting.open(assets, graph_id).value == old_graph, "Tag selector creation Undo lost graph");
+            selecting.redo(assets);
+            auto graph = selecting.open(assets, graph_id).value;
+            graph["root"] = selector;
+            for (auto& node : graph["nodes"])
+                if (node["id"] == selector) {
+                    node["requirements"]["all"] = Json::array();
+                    node["requirements"]["any"] = {2, 3};
+                }
+            selecting.apply(assets, graph_id, selecting.revision(), graph, "Select tagged graph root");
+            auto clip_node = old_graph.at("nodes").at(1).at("id").get<unsigned>();
+            auto matched_clip = AssetId::parse(old_graph.at("nodes").at(1).at("clip").get<std::string>());
+            selecting.connect_graph_input(assets, graph_id, selector, 1, clip_node);
+            auto selected = selecting.open(assets, graph_id).value;
+            auto revision = selecting.revision();
+            rejects([&] { selecting.connect_graph_input(assets, graph_id, selector, 0, selector); });
+            rejects([&] { selecting.remove_graph_point(assets, graph_id, selector, 0); });
+            check(selecting.revision() == revision, "Rejected selector edits changed history");
+            selecting.validate(assets, graph_id, roots);
+            selecting.save_all(assets, roots);
+            package_authoring(assets, roots, root / "after.json");
+            auto frozen = load_cooked_graph(root / "after.json", assets.cas_path(), graph_id);
+            GraphPosePreview preview(frozen);
+            auto state = preview.state();
+            ActorTagSnapshot present{frozen.plan->tag_dictionary()->registry(), frozen.plan->tag_dictionary()->generation(), {2}};
+            GraphParameters parameters;
+            parameters.tags = &present;
+            preview.sample(20, parameters);
+            check(preview.inputs().count == 1 && preview.inputs().layers[0].clip->definition().id == matched_clip,
+                  "Tagged graph preview did not resolve matched branch");
+            auto sampled = preview.state();
+            present.generation = sha256("stale graph tags");
+            rejects([&] { preview.sample(30, parameters); });
+            check(preview.state().tick == sampled.tick && preview.state().phase == sampled.phase,
+                  "Rejected tag preview changed sampled clock");
+            auto tagged = load_character_preview(root / "after.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                 scene->plan().spawns, collision);
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), tagged, [&](AssetId asset) {
+                return load_cooked_model(root / "after.json", assets.cas_path(), asset);
+            });
+            CharacterSceneInput press;
+            press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
+            prepared.second->step(press);
+            check(prepared.second->graph_inputs().count == 1 &&
+                      prepared.second->graph_inputs().layers[0].clip->definition().id == matched_clip,
+                  "Confirmed action tag did not select live graph branch");
+            while (prepared.second->motor().tick < 60)
+                prepared.second->step({});
+            auto target_layers = prepared.second->graph_inputs(target);
+            check(prepared.second->pose(target) && target_layers && target_layers->count == 1 &&
+                      target_layers->layers[0].clip->definition().id == matched_clip,
+                  "Public Burn did not animate observed target through the shared tagged graph");
+            check(prepared.second->pending_prediction() == 0 && !prepared.second->ability()->active &&
+                      scene->world().serialize() == baseline,
+                  "Tagged graph fresh Play failed authority/correction/isolation");
+            auto bad = selected;
+            for (auto& node : bad["nodes"])
+                if (node["id"] == selector)
+                    node["requirements"]["all"] = {999};
+            selecting.apply(assets, graph_id, selecting.revision(), bad, "Invalid graph tag");
+            auto saved = selecting.open(assets, graph_id).saved;
+            rejects([&] { selecting.save_all(assets, roots); });
+            check(read(source / selecting.open(assets, graph_id).asset.path) == saved, "Invalid graph tag published source");
+            selecting.undo(assets);
+            auto stale = tagged;
+            auto fields = std::vector<TagDefinition>(stale.combat->tags->definitions().begin(), stale.combat->tags->definitions().end());
+            stale.combat->tags = std::make_shared<const TagDictionary>(fields, tags_id, sha256("wrong actor registry"));
+            rejects([&] {
+                prepare_character_preview(scene->plan(), scene->world(), stale,
+                                          [&](AssetId asset) { return load_cooked_model(root / "after.json", assets.cas_path(), asset); });
+            });
+            std::cout
+                << "Authored tag graph: selector history, branch/cycle/type fences, frozen tag closure, preview retention, Save/fresh authoritative Play and registry mismatch rejection passed\n";
+        }
+        {
+            auto mask = Json::parse(read(content / "animation/m5_upper_body.damask"));
+            auto mask_id = AssetId::random();
+            mask["asset"] = mask_id.text();
+            mask["canonical_source"] = "animation/canonical_human.daskeleton";
+            auto mask_path = source / "animation/authored_upper.damask";
+            std::ofstream(mask_path) << mask.dump(2);
+            assets.adopt("animation/authored_upper.damask");
+            assets.scan();
+            NativeAuthoring layered;
+            auto before = layered.open(assets, independent_action).value;
+            auto value = before;
+            value["slot"] = "upper-body";
+            value["motion"]["policy"] = "none";
+            value["mask"] = {{"asset", mask_id.text()}, {"source", "animation/authored_upper.damask"}};
+            layered.apply(assets, independent_action, layered.revision(), value, "Upper-body presentation");
+            layered.undo(assets);
+            check(layered.open(assets, independent_action).value == before, "Upper-body Undo lost full-body policy");
+            layered.redo(assets);
+            check(layered.open(assets, independent_action).value == value, "Upper-body Redo lost mask");
+            auto saved = layered.open(assets, independent_action).saved;
+            auto bad = value;
+            bad["motion"]["policy"] = "motor";
+            layered.apply(assets, independent_action, layered.revision(), bad, "Invalid upper-body root");
+            rejects([&] { layered.save_all(assets, roots); });
+            check(read(source / layered.open(assets, independent_action).asset.path) == saved, "Rejected upper-body root published source");
+            layered.undo(assets);
+            auto wrong = mask;
+            wrong["weights"]["Root_M"] = 1;
+            std::ofstream(mask_path) << wrong.dump(2);
+            rejects([&] { layered.save_all(assets, roots); });
+            check(read(source / layered.open(assets, independent_action).asset.path) == saved, "Rejected mask root published action");
+            std::ofstream(mask_path) << mask.dump(2);
+            rejects_with([&] { layered.save_all(assets, roots); }, "three locomotion layers");
+            check(read(source / layered.open(assets, independent_action).asset.path) == saved, "Four-layer kit rejection published action");
+            auto graph_id = AssetId::parse(layered.open(assets, kit).value.at("locomotion_stance").get<std::string>());
+            auto compatible_graph = layered.open(assets, graph_id).value;
+            auto& graph_nodes = compatible_graph["nodes"];
+            for (auto& node : graph_nodes)
+                if (node["id"] == 20) {
+                    node["points"][0]["input"] = 1;
+                    node["points"][1]["input"] = 3;
+                }
+            graph_nodes.erase(std::remove_if(graph_nodes.begin(), graph_nodes.end(),
+                                             [](const auto& node) { return node["id"] == 23 || node["id"] == 24; }),
+                              graph_nodes.end());
+            layered.apply(assets, graph_id, layered.revision(), compatible_graph, "Reserve action layer in fixture locomotion");
+            auto inventory_before = assets.assets();
+            auto isolated =
+                prepare_authored_action_pose(assets, layered, old, independent_action,
+                                             AssetId::parse(layered.open(assets, kit).value.at("locomotion_stance").get<std::string>()));
+            check(isolated->sample(20).size() == 81 && read(source / layered.open(assets, independent_action).asset.path) == saved,
+                  "Masked private preview published action");
+            check(assets.assets().size() == inventory_before.size(), "Masked private preview changed catalog identities");
+            layered.save_all(assets, roots);
+            package_authoring(assets, roots, root / "upper.json");
+            auto prior = load_character_preview(root / "after.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                scene->plan().spawns, collision);
+            std::filesystem::remove(mask_path);
+            auto resources = load_character_preview(root / "upper.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                    scene->plan().spawns, collision);
+            std::ofstream(mask_path) << mask.dump(2);
+            auto frozen_action = resources.combat->abilities[1]->action;
+            check(frozen_action->mask && frozen_action->upper_body && !frozen_action->motion->motor_root &&
+                      !prior.combat->abilities[1]->action->upper_body,
+                  "Frozen action mask/source-free loading/old resource retention failed");
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, [&](AssetId asset) {
+                return load_cooked_model(root / "upper.json", assets.cas_path(), asset);
+            });
+            CharacterSceneInput press;
+            press.z = .2;
+            press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
+            prepared.second->step(press);
+            auto frame = prepared.second->observer(role(4), 1).frame;
+            std::vector<std::shared_ptr<const ActionDefinition>> actions;
+            for (const auto& ability : resources.combat->abilities)
+                actions.push_back(ability->action);
+            auto graph = load_cooked_graph(root / "upper.json", assets.cas_path(), resources.combat->kit->locomotion_stance);
+            ObservedCharacterPose observed(graph.plan, resources.rig.definition, resources.rig.archive, actions, resources.combat->clips,
+                                           resources.combat->tags);
+            observed.sample(frame);
+            RigPose oracle(resources.rig.definition, resources.rig.archive);
+            auto base = oracle.blend(prepared.second->graph_inputs().span());
+            auto clip = resources.combat->clips.at(frozen_action->motion->clip.id);
+            auto composed = prepared.second->pose();
+            bool upper_differs = false;
+            for (unsigned joint = 0; joint < base.size(); ++joint) {
+                bool unaffected = true;
+                for (int parent = joint; parent >= 0; parent = resources.rig.definition.joints[parent].parent)
+                    unaffected &= frozen_action->mask->weights[parent] == 0;
+                for (unsigned i = 0; i < 16; ++i) {
+                    if (unaffected)
+                        check(std::abs(base[joint].values[i] - composed[joint].values[i]) < 2e-5, "Upper-body changed lower-body ancestry");
+                    if (frozen_action->mask->weights[joint] > 0)
+                        upper_differs |= std::abs(base[joint].values[i] - composed[joint].values[i]) > .001;
+                }
+            }
+            check(upper_differs && prepared.second->graph_inputs().count <= 3 &&
+                      action_motion_between(*frozen_action, 0, action_tick_units).root.translation == std::array<double, 3>{},
+                  "Upper-body pose did not replace joints or requested root movement");
+            ActorTagSnapshot empty_tags{resources.combat->tags->registry(), resources.combat->tags->generation(), {}};
+            GraphParameters parameters;
+            parameters.tags = &empty_tags;
+            auto loop_id = AnimationGraphInstance(graph.plan).evaluate(parameters).layers[0].clip->definition().id;
+            auto loop = load_cooked_clip(root / "upper.json", assets.cas_path(), loop_id);
+            std::vector<GraphNode> nodes;
+            for (unsigned index = 1; index <= 4; ++index) {
+                auto definition = loop.definition;
+                definition.id = AssetId::random();
+                GraphNode node;
+                node.id = index;
+                node.clip = std::make_shared<const AnimationClip>(definition, loop.archive);
+                nodes.push_back(std::move(node));
+            }
+            for (unsigned index = 5; index <= 7; ++index) {
+                GraphNode node;
+                node.id = index;
+                node.kind = GraphNodeKind::Blend1D;
+                node.parameter = GraphParameter::Speed;
+                node.points = index == 5   ? std::vector<GraphPoint>{{1, 0, 0}, {2, 1, 0}}
+                              : index == 6 ? std::vector<GraphPoint>{{3, 0, 0}, {4, 1, 0}}
+                                           : std::vector<GraphPoint>{{5, 0, 0}, {6, 1, 0}};
+                nodes.push_back(std::move(node));
+            }
+            auto crowded = std::make_shared<const AnimationGraphPlan>(sha256("Four locomotion layers"), 7, std::move(nodes));
+            check(crowded->active_layer_bound() == 4, "Four-layer fixture bound wrong");
+            rejects([&] { ActionPoseMixer mixer(*crowded, resources.rig.definition, actions); });
+            auto mismatch = std::make_shared<ActionDefinition>(*frozen_action);
+            mismatch->mask->signature = sha256("foreign rig");
+            std::array<std::shared_ptr<const ActionDefinition>, 1> incompatible{mismatch};
+            rejects([&] { ActionPoseMixer mixer(*graph.plan, resources.rig.definition, incompatible); });
+            auto observed_base = oracle.blend(observed.inputs().span());
+            for (unsigned joint = 0; joint < observed_base.size(); ++joint) {
+                bool unaffected = true;
+                for (int parent = joint; parent >= 0; parent = resources.rig.definition.joints[parent].parent)
+                    unaffected &= frozen_action->mask->weights[parent] == 0;
+                if (unaffected)
+                    for (unsigned i = 0; i < 16; ++i)
+                        check(std::abs(observed_base[joint].values[i] - observed.matrices()[joint].values[i]) < 2e-5,
+                              "Masked public pose changed lower-body ancestry");
+            }
+            auto retained = observed.matrices();
+            auto duplicate_state = observed.graph_state();
+            observed.sample(frame);
+            check(observed.graph_state().phase == duplicate_state.phase, "Duplicate masked public frame advanced locomotion");
+            for (unsigned joint = 0; joint < retained.size(); ++joint)
+                for (unsigned i = 0; i < 16; ++i)
+                    check(retained[joint].values[i] == observed.matrices()[joint].values[i], "Duplicate masked pose changed");
+            auto invalid = frame;
+            invalid.ability.action->generation = sha256("stale masked action");
+            rejects([&] { observed.sample(invalid); });
+            check(observed.graph_state().tick == 1, "Rejected masked frame advanced graph");
+            while (prepared.second->motor().tick < 150)
+                prepared.second->step({});
+            double masked_stamina = -1;
+            for (const auto& attribute : prepared.second->ability()->attributes)
+                if (attribute.id == 3)
+                    masked_stamina = attribute.value;
+            std::cout << "Masked tick150 health="
+                      << prepared.second->presentation().read(prepared.second->presentation().find(target)).health.current
+                      << " stamina=" << masked_stamina << " active=" << bool(prepared.second->ability()->active)
+                      << " pending=" << prepared.second->pending_prediction() << " scene=" << (scene->world().serialize() == baseline)
+                      << '\n';
+            check(prepared.second->presentation().read(prepared.second->presentation().find(target)).health.current == 39 &&
+                      masked_stamina == 80 && !prepared.second->ability()->active && prepared.second->pending_prediction() == 0 &&
+                      scene->world().serialize() == baseline,
+                  "Masked fresh Play failed authority/cost/damage/expiry/isolation");
+            std::cout
+                << "Upper-body authored mask: Undo/Redo, root policy/root mask rejection, complete Save/source-free frozen closure/fresh Play, lower-body retention, upper replacement, public duplicate/stale retention, unchanged authority and completion passed\n";
+        }
+        {
+            // One authored public status interrupts and presents a frozen full-body flinch.
+            NativeAuthoring reacting;
+            auto light_action = id("royal_district/combat/light.daaction");
+            auto flinch = reacting.duplicate(assets, burn, "authored_flinch", true);
+            auto status = reacting.open(assets, flinch).value;
+            check(!status.contains("reaction") && !status["sources"].contains("reaction"), "Blank status starts without a reaction");
+            status["duration_ticks"] = 90;
+            status["stacking"] = "refresh_per_source";
+            status["interrupt_action"] = true;
+            status["granted_tags"] = {6};
+            status["visibility"] = "public";
+            reacting.apply(assets, flinch, reacting.revision(), status, "Author flinch status");
+            auto reaction = reacting.create_reaction_action(assets, flinch, light_action, "authored_flinch_reaction");
+            check(reacting.open(assets, light_action).value["motion"]["policy"] == "motor" &&
+                      !reacting.open(assets, light_action).dirty() && reacting.open(assets, reaction).value["motion"]["policy"] == "none",
+                  "Reaction creation changed its template action or kept root ownership");
+            // Choose the owned converted GetHit clip in the new timeline, as the Composer would.
+            auto retimed = reacting.open(assets, reaction).value;
+            retimed["motion"]["clip"] = Json::parse(read(source / "animation/blink/get-hit.glb.daimport"))["id"];
+            retimed["motion"]["source"] = "animation/blink/get-hit.glb";
+            retimed["duration"] = 40 * action_tick_units;
+            reacting.apply(assets, reaction, reacting.revision(), retimed, "Choose flinch clip");
+            auto bound = reacting.open(assets, flinch).value;
+            auto timeline = reacting.open(assets, reaction).value;
+            auto reaction_path = source / reacting.open(assets, reaction).asset.path,
+                 flinch_path = source / reacting.open(assets, flinch).asset.path;
+            check(bound["reaction"] == reaction.text() && bound["sources"]["reaction"] == reacting.open(assets, reaction).asset.path &&
+                      timeline["motion"]["policy"] == "none" && timeline["loops"] == 1 && timeline["slot"] == "full-body" &&
+                      !timeline["blocks"].empty() &&
+                      std::all_of(timeline["blocks"].begin(), timeline["blocks"].end(), [](const auto& b) { return b["kind"] == "cue"; }),
+                  "Reaction timeline creation kept gameplay blocks, root ownership or lost its binding");
+            reacting.undo(assets);
+            check(reacting.open(assets, reaction).value["duration"] != 40 * action_tick_units, "Clip choice Undo kept the new duration");
+            reacting.undo(assets);
+            check(reacting.open(assets, flinch).value == status && reacting.drafts.contains(reaction),
+                  "Reaction binding Undo lost status or removed timeline early");
+            reacting.undo(assets);
+            check(!reacting.drafts.contains(reaction), "Reaction timeline creation Undo retained pending source");
+            reacting.redo(assets);
+            reacting.redo(assets);
+            reacting.redo(assets);
+            check(reacting.open(assets, flinch).value == bound && reacting.open(assets, reaction).value == timeline,
+                  "Reaction Redo is coherent");
+            reacting.bind_effect_reaction(assets, flinch, {});
+            check(reacting.open(assets, flinch).value == status, "Clearing a reaction left its reference or locator");
+            reacting.undo(assets);
+            auto kit_saved = reacting.open(assets, kit).saved;
+            reacting.bind(assets, kit, copy, 2, flinch, 0);
+            auto unpublished = [&](const char* message) {
+                check(!std::filesystem::exists(reaction_path) && !std::filesystem::exists(flinch_path) &&
+                          read(source / reacting.open(assets, kit).asset.path) == kit_saved,
+                      message);
+            };
+            auto invalid = timeline;
+            invalid["blocks"].push_back(
+                {{"id", 40}, {"track", 5}, {"begin", 1024}, {"end", 2048}, {"kind", "hit"}, {"key", "Weapon.Right"}});
+            reacting.apply(assets, reaction, reacting.revision(), invalid, "Invalid reaction hit block");
+            rejects_with([&] { reacting.save_all(assets, roots); }, "gameplay blocks");
+            unpublished("Rejected reaction gameplay block published sources");
+            reacting.undo(assets);
+            invalid = timeline;
+            invalid["motion"]["policy"] = "motor";
+            reacting.apply(assets, reaction, reacting.revision(), invalid, "Invalid reaction root");
+            rejects_with([&] { reacting.save_all(assets, roots); }, "root policy none");
+            unpublished("Rejected reaction root ownership published sources");
+            reacting.undo(assets);
+            invalid = timeline;
+            invalid["loops"] = 2;
+            reacting.apply(assets, reaction, reacting.revision(), invalid, "Invalid reaction loop");
+            rejects([&] { reacting.validate(assets, flinch, roots); });
+            unpublished("Rejected looping reaction published sources");
+            reacting.undo(assets);
+            auto hidden = bound;
+            hidden["visibility"] = "owner";
+            reacting.apply(assets, flinch, reacting.revision(), hidden, "Invalid private reaction");
+            rejects_with([&] { reacting.save_all(assets, roots); }, "public");
+            unpublished("Rejected private reaction published sources");
+            reacting.undo(assets);
+            auto inventory_before = assets.assets();
+            reacting.validate(assets, flinch, roots);
+            unpublished("Private reaction validation published sources");
+            check(assets.assets().size() == inventory_before.size(), "Private reaction validation registered pending sources");
+            reacting.save_all(assets, roots);
+            package_authoring(assets, roots, root / "reaction.json");
+            auto loader = [&](AssetId asset) { return load_cooked_model(root / "reaction.json", assets.cas_path(), asset); };
+            auto prior = load_character_preview(root / "upper.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                scene->plan().spawns, collision);
+            check(std::none_of(prior.combat->effects.begin(), prior.combat->effects.end(), [&](const auto& d) { return d->id == flinch; }),
+                  "Previous playable resources gained the authored reaction");
+            auto resources = load_character_preview(root / "reaction.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                    scene->plan().spawns, collision);
+            auto frozen = std::find_if(resources.combat->effects.begin(), resources.combat->effects.end(),
+                                       [&](const auto& d) { return d->id == flinch; });
+            check(frozen != resources.combat->effects.end() && (*frozen)->reaction && (*frozen)->reaction->id == reaction &&
+                      (*frozen)->reaction->motion && !(*frozen)->reaction->motion->motor_root &&
+                      resources.combat->clips.contains((*frozen)->reaction->motion->clip.id) &&
+                      resources.combat->kit->generation != prior.combat->kit->generation,
+                  "Frozen kit closure lacks the reaction action/clip generation");
+            auto same = [](const std::vector<JointMatrix>& x, const std::vector<JointMatrix>& y) {
+                if (x.size() != y.size())
+                    return false;
+                for (unsigned joint = 0; joint < x.size(); ++joint)
+                    for (unsigned i = 0; i < 16; ++i)
+                        if (std::abs(x[joint].values[i] - y[joint].values[i]) > 2e-5)
+                            return false;
+                return true;
+            };
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, loader);
+            auto& s = *prepared.second;
+            RigPose oracle(resources.rig.definition, resources.rig.archive);
+            CharacterSceneInput press;
+            press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
+            s.step(press);
+            check(!s.reaction(target) && !s.reaction(role(4)), "Reaction shown before any effect instance");
+            while (!s.reaction(target) && s.motor().tick < 40)
+                s.step({});
+            auto shown = s.reaction(target);
+            check(shown && shown->suppressed == ReactionSuppression::None && shown->effect == flinch && shown->action->id == reaction &&
+                      shown->tick == double(s.motor().tick - shown->start) && shown->tick <= 1,
+                  "Authored hit did not start the public reaction on its effect clock");
+            auto key = shown->key;
+            auto onset = shown->start;
+            check(same(*s.pose(target), oracle.sample(*shown->clip, shown->tick)) &&
+                      !same(*s.pose(target), oracle.blend(s.graph_inputs(target)->span())),
+                  "Target pose is not the frozen full-body reaction clip");
+            auto has = [&](TagId tag) {
+                auto values = s.observer(target, double(s.motor().tick)).frame.ability.tags.values;
+                return std::find(values.begin(), values.end(), tag) != values.end();
+            };
+            check(!s.reaction(role(4)) && s.ability()->active && has(6) && has(3) && s.effects(target)->current()->effects.size() == 2 &&
+                      s.effects(target)->cues().size() == 1,
+                  "Reaction leaked to the attacker, cancelled its action or displaced the coexisting Burn");
+            for (unsigned n = 0; n < 10; ++n)
+                s.step({});
+            shown = s.reaction(target);
+            check(shown && shown->key == key && shown->start == onset && shown->tick == double(s.motor().tick - onset) &&
+                      same(*s.pose(target), oracle.sample(*shown->clip, shown->tick)),
+                  "Reaction clock restarted or drifted from the checked effect instance");
+            auto length = (*frozen)->reaction->duration / action_tick_units;
+            while (s.motor().tick < onset + length)
+                s.step({});
+            check(!s.reaction(target) && has(6) && s.effects(target)->current()->effects.size() == 2 &&
+                      same(*s.pose(target), oracle.blend(s.graph_inputs(target)->span())),
+                  "Finished one-shot did not return to current locomotion or removed its status");
+            while (s.motor().tick <= onset + 90)
+                s.step({});
+            check(!has(6) && has(3) && !s.reaction(target) && s.effects(target)->current()->effects.size() == 1 &&
+                      s.effects(target)->current()->effects[0].definition == effect,
+                  "Status expiry removed the unrelated Burn source or kept its own tag");
+            while (s.motor().tick < 150)
+                s.step({});
+            double stamina = -1;
+            for (const auto& attribute : s.ability()->attributes)
+                if (attribute.id == 3)
+                    stamina = attribute.value;
+            auto health = s.presentation().read(s.presentation().find(target)).health.current;
+            std::cout << "Reaction tick150 health=" << health << " stamina=" << stamina << " active=" << bool(s.ability()->active)
+                      << " pending=" << s.pending_prediction() << " onset=" << onset << " length=" << length << '\n';
+            check(health == 39 && stamina == 80 && !s.ability()->active && s.pending_prediction() == 0 && s.pending_abilities() == 0 &&
+                      scene->world().serialize() == baseline,
+                  "Reaction fresh Play changed authority/cost/damage/isolation");
+            // A later invalid candidate keeps the published source, catalog and playable package.
+            auto published = read(reaction_path);
+            auto heads = assets.assets();
+            invalid = timeline;
+            invalid["blocks"].push_back(
+                {{"id", 41}, {"track", 5}, {"begin", 0}, {"end", 2048}, {"kind", "movement-lock"}, {"key", "Motor.Root"}});
+            reacting.apply(assets, reaction, reacting.revision(), invalid, "Invalid published reaction");
+            rejects([&] { reacting.save_all(assets, roots); });
+            auto retained = assets.assets();
+            check(read(reaction_path) == published && retained.size() == heads.size(),
+                  "Failed reaction Save changed published source/catalog");
+            for (unsigned i = 0; i < heads.size(); ++i)
+                check(heads[i].id == retained[i].id && heads[i].generation == retained[i].generation,
+                      "Failed reaction Save moved a catalog head");
+            check(load_character_preview(root / "reaction.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                         scene->plan().spawns, collision)
+                          .combat->kit->generation == resources.combat->kit->generation,
+                  "Failed reaction Save changed the playable package");
+            reacting.undo(assets);
+            reaction_fixture = {{"reaction_registry", (root / "reaction.json").generic_string()},
+                                {"reaction_effect", flinch.text()},
+                                {"reaction_action", reaction.text()},
+                                {"burn_effect", effect.text()}};
+            std::cout
+                << "Authored effect reaction: creation/binding Undo/Redo, gameplay-block/root/loop/private rejection without publication, private validation, coordinated Save, frozen action/clip closure, fresh Play public flinch on the effect clock, attacker untouched, Burn coexistence, one-shot completion with status retained, expiry with unrelated source retained, unchanged authority and failed-Save retention passed\n";
+        }
+        {
+            // Kit-owned presentation-only death timeline using the converted Blink Death clip.
+            NativeAuthoring dying;
+            auto light_action = id("royal_district/combat/light.daaction");
+            auto kit_before = dying.open(assets, kit).value;
+            auto kit_saved = dying.open(assets, kit).saved;
+            auto death = dying.create_presentation_action(assets, light_action, "authored_death");
+            auto death_path = source / dying.open(assets, death).asset.path;
+            auto retimed = dying.open(assets, death).value;
+            retimed["motion"]["clip"] = Json::parse(read(source / "animation/blink/death.glb.daimport"))["id"];
+            retimed["motion"]["source"] = "animation/blink/death.glb";
+            retimed["duration"] = 100 * action_tick_units;
+            dying.apply(assets, death, dying.revision(), retimed, "Choose death clip");
+            dying.bind_kit_death(assets, kit, death);
+            auto bound = dying.open(assets, kit).value;
+            check(bound["death"] == death.text() && bound["sources"]["death"] == dying.open(assets, death).asset.path,
+                  "Kit death binding lost its reference or locator");
+            dying.undo(assets);
+            check(dying.open(assets, kit).value == kit_before, "Kit death binding Undo changed other kit state");
+            dying.redo(assets);
+            check(dying.open(assets, kit).value == bound, "Kit death binding Redo is not coherent");
+            dying.bind_kit_death(assets, kit, {});
+            check(dying.open(assets, kit).value == kit_before, "Clearing the death timeline left its reference or locator");
+            dying.undo(assets);
+            auto unpublished = [&](const char* message) {
+                check(!std::filesystem::exists(death_path) && read(source / dying.open(assets, kit).asset.path) == kit_saved, message);
+            };
+            auto invalid = retimed;
+            invalid["blocks"].push_back(
+                {{"id", 40}, {"track", 5}, {"begin", 1024}, {"end", 2048}, {"kind", "hit"}, {"key", "Weapon.Right"}});
+            dying.apply(assets, death, dying.revision(), invalid, "Invalid death hit block");
+            rejects_with([&] { dying.save_all(assets, roots); }, "gameplay blocks");
+            unpublished("Rejected death gameplay block published sources");
+            dying.undo(assets);
+            invalid = retimed;
+            invalid["motion"]["policy"] = "motor";
+            dying.apply(assets, death, dying.revision(), invalid, "Invalid death root");
+            rejects_with([&] { dying.save_all(assets, roots); }, "root policy none");
+            unpublished("Rejected death root ownership published sources");
+            dying.undo(assets);
+            dying.validate(assets, kit, roots);
+            unpublished("Private death validation published sources");
+            dying.save_all(assets, roots);
+            package_authoring(assets, roots, root / "death.json");
+            auto prior = load_character_preview(root / "reaction.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                scene->plan().spawns, collision);
+            check(!prior.combat->death, "Previous playable resources gained a death timeline");
+            auto resources = load_character_preview(root / "death.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                    scene->plan().spawns, collision);
+            check(resources.combat->death && resources.combat->death->id == death &&
+                      resources.combat->clips.contains(resources.combat->death->motion->clip.id) && resources.combat->kit->death == death &&
+                      resources.combat->kit->generation != prior.combat->kit->generation,
+                  "Frozen kit closure lacks the death timeline/clip");
+            const auto& clip = *resources.combat->clips.at(resources.combat->death->motion->clip.id);
+            const double last = double(clip.definition().ticks - 1);
+            auto same = [](const std::vector<JointMatrix>& x, const std::vector<JointMatrix>& y) {
+                if (x.size() != y.size())
+                    return false;
+                for (unsigned joint = 0; joint < x.size(); ++joint)
+                    for (unsigned i = 0; i < 16; ++i)
+                        if (std::abs(x[joint].values[i] - y[joint].values[i]) > 2e-5)
+                            return false;
+                return true;
+            };
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, [&](AssetId asset) {
+                return load_cooked_model(root / "death.json", assets.cas_path(), asset);
+            });
+            auto& s = *prepared.second;
+            RigPose oracle(resources.rig.definition, resources.rig.archive);
+            auto health = [&] { return s.presentation().read(s.presentation().find(target)).health.current; };
+            while (health() > 0 && s.motor().tick < 600) {
+                CharacterSceneInput input;
+                auto phase = s.motor().tick % 100;
+                if (phase == 0)
+                    input.combat_events = {{9, InputEdge::Pressed, (s.motor().tick + 1) * 16667, 0, 1, false}};
+                else if (phase == 70)
+                    input.combat_events = {{9, InputEdge::Released, (s.motor().tick + 1) * 16667, 70 * 16667, 0, false}};
+                check(!s.death(target), "Death presented while the target is alive");
+                s.step(input);
+            }
+            auto shown = s.death(target);
+            check(health() <= 0 && shown && *shown <= 1,
+                  "Lethal authored hits did not start the death timeline from the observed transition");
+            const auto onset = s.motor().tick - std::uint64_t(*shown);
+            auto reaction = s.reaction(target);
+            check(same(*s.pose(target), oracle.sample(clip, *shown)) && !s.death(role(4)) &&
+                      (!reaction || reaction->suppressed == ReactionSuppression::Dead),
+                  "Death pose mismatch, leaked to the attacker or lost precedence over a reaction");
+            for (unsigned n = 0; n < 20; ++n)
+                s.step({});
+            shown = s.death(target);
+            check(shown && *shown == double(s.motor().tick - onset) && same(*s.pose(target), oracle.sample(clip, *shown)),
+                  "Death clock restarted or drifted");
+            while (s.motor().tick < onset + 130)
+                s.step({});
+            auto held = *s.pose(target);
+            check(s.death(target) && *s.death(target) == last && same(held, oracle.sample(clip, last)),
+                  "Finished death timeline did not hold its final pose");
+            for (unsigned n = 0; n < 5; ++n)
+                s.step({});
+            check(same(*s.pose(target), held) && health() <= 0, "Held death pose changed");
+            // Late join after death holds the final pose; it never replays the fall.
+            std::vector<std::shared_ptr<const ActionDefinition>> actions;
+            for (const auto& ability : resources.combat->abilities)
+                actions.push_back(ability->action);
+            ObservedCharacterPose joined(resources.graph, resources.rig.definition, resources.rig.archive, actions, resources.combat->clips,
+                                         resources.combat->tags, resources.combat->effects, resources.combat->death);
+            joined.sample(s.observer(target, double(s.motor().tick)).frame);
+            check(joined.death() && *joined.death() == last && same(joined.matrices(), held), "Late join replayed the death timeline");
+            ObservedCharacterPose without(resources.graph, resources.rig.definition, resources.rig.archive, actions,
+                                          resources.combat->clips, resources.combat->tags, resources.combat->effects);
+            without.sample(s.observer(target, double(s.motor().tick)).frame);
+            check(!without.death() && !same(without.matrices(), held), "Unprepared kit invented a death pose");
+            std::cout << "Death tick=" << s.motor().tick << " onset=" << onset << " health=" << health()
+                      << " pending=" << s.pending_prediction() << " player_active=" << bool(s.ability()->active) << '\n';
+            check(s.pending_prediction() == 0 && scene->world().serialize() == baseline,
+                  "Death presentation changed prediction or the authoring scene");
+            reaction_fixture["death_registry"] = (root / "death.json").generic_string();
+            reaction_fixture["death_action"] = death.text();
+            std::cout
+                << "Authored kit death timeline: creation/binding Undo/Redo/clear, gameplay-block/root rejection without publication, private validation, coordinated Save, frozen closure, fresh Play lethal hits, death clock from the observed transition, terminal precedence, held final pose, late-join hold, attacker untouched and unchanged scene passed\n";
+        }
+        {
+            // Dodge is an ordinary authored Ability on the kit's utility ingress: dash distance,
+            // facing lock and invulnerability window, through authority, prediction and public state.
+            NativeAuthoring dodging;
+            auto dodge = id("royal_district/combat/dodge.daability");
+            auto kit_value = dodging.open(assets, kit).value;
+            auto dodge_saved = dodging.open(assets, dodge).saved;
+            check(kit_value["dodge"]["ability"] == dodge.text() && kit_value["dodge"]["input_action"] == 6 &&
+                      kit_value["slots"].size() == 8,
+                  "Owned kit lost its utility dodge or changed its eight combat slots");
+            dodging.assign_dodge(assets, kit, {});
+            auto cleared = dodging.open(assets, kit).value;
+            check(!cleared.contains("dodge") && !cleared["sources"]["abilities"].contains(dodge.text()),
+                  "Clearing dodge left its reference or locator");
+            dodging.undo(assets);
+            check(dodging.open(assets, kit).value == kit_value, "Dodge clear Undo changed other kit state");
+            dodging.redo(assets);
+            dodging.assign_dodge(assets, kit, dodge);
+            check(dodging.open(assets, kit).value == kit_value, "Dodge assignment is not coherent with the saved kit");
+            auto tuned = dodging.open(assets, dodge).value;
+            auto original = tuned;
+            tuned["dash"]["distance"] = 5.0;
+            dodging.apply(assets, dodge, dodging.revision(), tuned, "Tune dodge distance");
+            dodging.undo(assets);
+            check(dodging.open(assets, dodge).value == original, "Dash Undo lost the authored distance");
+            dodging.redo(assets);
+            auto invalid = tuned;
+            invalid["dash"]["distance"] = 100.0;
+            dodging.apply(assets, dodge, dodging.revision(), invalid, "Invalid dash speed");
+            rejects_with([&] { dodging.save_all(assets, roots); }, "dash");
+            check(read(source / dodging.open(assets, dodge).asset.path) == dodge_saved, "Rejected dash published the ability");
+            dodging.undo(assets);
+            invalid = tuned;
+            invalid["dash"]["end"] = invalid["dash"]["begin"];
+            dodging.apply(assets, dodge, dodging.revision(), invalid, "Invalid dash window");
+            rejects([&] { dodging.validate(assets, dodge, roots); });
+            dodging.undo(assets);
+            {
+                // Targeting is authored on the Ability like the dash: history, private validation and rejection without publication.
+                auto light = id("royal_district/combat/light.daability");
+                auto aimed = dodging.open(assets, light).value;
+                const auto authored = aimed;
+                check(aimed["targeting"]["mode"] == "soft_lock" && aimed["targeting"]["range"] == 4.5,
+                      "Owned Light lost its authored soft lock");
+                aimed["targeting"]["range"] = 6.0;
+                dodging.apply(assets, light, dodging.revision(), aimed, "Tune soft lock range");
+                dodging.undo(assets);
+                check(dodging.open(assets, light).value == authored, "Soft lock Undo lost the authored range");
+                dodging.redo(assets);
+                check(dodging.open(assets, light).value["targeting"]["range"] == 6.0, "Soft lock Redo lost the tuned range");
+                dodging.validate(assets, light, roots);
+                const std::vector<std::pair<const char*, nlohmann::json>> wrong{
+                    {"cone_degrees", 0.0}, {"mode", "aim"}, {"stop", 9.0}, {"end", 0u}};
+                for (const auto& [key, value] : wrong) {
+                    auto bad = aimed;
+                    bad["targeting"][key] = value;
+                    dodging.apply(assets, light, dodging.revision(), bad, "Invalid soft lock");
+                    rejects([&] { dodging.validate(assets, light, roots); });
+                    dodging.undo(assets);
+                }
+                {
+                    auto bad = aimed;
+                    bad["dash"] = {{"distance", 1.0}, {"begin", 0}, {"end", 16384}};
+                    dodging.apply(assets, light, dodging.revision(), bad, "Soft lock with dash");
+                    rejects([&] { dodging.validate(assets, light, roots); });
+                    dodging.undo(assets);
+                }
+                dodging.undo(assets);
+                check(dodging.open(assets, light).value == authored, "Soft lock edits were not fully undone");
+            }
+            dodging.save_all(assets, roots);
+            package_authoring(assets, roots, root / "dodge.json");
+            auto prior = load_character_preview(root / "death.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                scene->plan().spawns, collision);
+            auto prior_dodge =
+                std::find_if(prior.combat->abilities.begin(), prior.combat->abilities.end(), [&](const auto& a) { return a->id == dodge; });
+            check(prior_dodge != prior.combat->abilities.end() && (*prior_dodge)->dash && (*prior_dodge)->dash->distance == 4.0,
+                  "Previous playable resources changed their dash");
+            auto resources = load_character_preview(root / "dodge.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                                    scene->plan().spawns, collision);
+            auto frozen = std::find_if(resources.combat->abilities.begin(), resources.combat->abilities.end(),
+                                       [&](const auto& a) { return a->id == dodge; });
+            check(frozen != resources.combat->abilities.end() && (*frozen)->face_movement && (*frozen)->dash &&
+                      (*frozen)->dash->distance == 5.0 && resources.combat->kit->slots[unsigned(CombatSlot::Dodge)].ability == dodge &&
+                      resources.combat->kit->slots[unsigned(CombatSlot::Dodge)].input_action == 6,
+                  "Frozen kit lacks the dodge ingress, facing or dash");
+            check(std::any_of(resources.combat->abilities.begin(), resources.combat->abilities.end(),
+                              [](const auto& a) {
+                                  return a->soft_lock && a->soft_lock->range == 4.5 && a->soft_lock->end == 16 * action_tick_units;
+                              }),
+                  "Frozen kit lacks the Light soft lock");
+            auto make = [&] {
+                return prepare_character_preview(
+                           scene->plan(), scene->world(), resources,
+                           [&](AssetId asset) { return load_cooked_model(root / "dodge.json", assets.cas_path(), asset); })
+                    .second;
+            };
+            auto stamina = [](const AbilityOwnerSnapshot& state) {
+                for (const auto& attribute : state.attributes)
+                    if (attribute.id == 3)
+                        return attribute.value;
+                return -1.;
+            };
+            auto tagged = [](const ActorTagSnapshot& tags, TagId tag) {
+                return std::find(tags.values.begin(), tags.values.end(), tag) != tags.values.end();
+            };
+            const double pi = 3.141592653589793;
+            for (auto [lateral, forward] : {std::pair{1., 0.}, std::pair{0., -1.}}) {
+                auto session = make();
+                auto& s = *session;
+                {
+                    CharacterSceneInput turn;
+                    turn.yaw = .7;
+                    for (unsigned n = 0; n < 3; ++n)
+                        s.step(turn);
+                }
+                const auto yaw = s.motor().yaw;
+                check(std::abs(yaw - .7) < 1e-9, "Fixture look yaw was not applied");
+                const auto baseline_resync = s.resynchronizations();
+                const auto origin = s.motor().position;
+                auto target_before = s.observer(target, 0).frame.motor.position;
+                CharacterSceneInput press;
+                press.yaw = yaw;
+                press.x = lateral;
+                press.z = forward;
+                press.combat_events = {{6, InputEdge::Pressed, 1000, 0, 1, false}};
+                s.step(press);
+                CharacterSceneInput idle;
+                idle.yaw = yaw;
+                const auto facing = std::atan2(lateral, forward);
+                check(s.ability()->active && s.ability()->ability == dodge && s.predicted_ability()->active &&
+                          s.observer(role(4), double(s.motor().tick)).frame.ability.active && stamina(*s.ability()) == 85 &&
+                          std::abs(std::remainder(s.motor().yaw - facing, 2 * pi)) < 1e-9 &&
+                          std::abs(std::remainder(s.predicted_motor().yaw - facing, 2 * pi)) < 1e-9,
+                      "Dodge did not activate through authority/prediction/public state, charge Stamina 15 or face its movement direction");
+                const auto started = s.motor().tick - 1;
+                while (s.motor().tick < started + 12)
+                    s.step(idle);
+                check(tagged(s.ability()->tags, 2) && tagged(s.observer(role(4), double(s.motor().tick)).frame.ability.tags, 2) &&
+                          tagged(s.ability()->tags, 5) && std::abs(std::remainder(s.motor().yaw - facing, 2 * pi)) < 1e-9,
+                      "Dodge invulnerability window or facing lock missing mid-dash");
+                while (s.motor().tick < started + 31)
+                    s.step(idle);
+                auto moved = s.motor().position;
+                const double dx = moved.x - origin.x, dz = moved.z - origin.z, along = dx * std::sin(facing) + dz * std::cos(facing),
+                             across = dx * std::cos(facing) - dz * std::sin(facing);
+                auto predicted = s.predicted_motor().position;
+                std::cout << "Dodge lateral=" << lateral << " travelled=" << along << " across=" << across
+                          << " predicted_error=" << std::hypot(predicted.x - moved.x, predicted.z - moved.z)
+                          << " resync_delta=" << s.resynchronizations() - baseline_resync << '\n';
+                check(std::abs(along - 5.0) < .05 && std::abs(across) < .05 &&
+                          std::hypot(predicted.x - moved.x, predicted.z - moved.z) < 1e-6 && s.pending_prediction() == 0 &&
+                          s.resynchronizations() == baseline_resync && !tagged(s.ability()->tags, 2) && s.ability()->active,
+                      "Dash distance/direction, prediction agreement or invulnerability expiry failed");
+                while (s.ability()->active && s.motor().tick < started + 120)
+                    s.step(idle);
+                auto rest = s.motor().position;
+                s.step(idle);
+                check(!s.ability()->active && !s.predicted_ability()->active &&
+                          std::abs(std::remainder(s.motor().yaw - yaw, 2 * pi)) < 1e-9 &&
+                          std::hypot(rest.x - moved.x, rest.z - moved.z) < .02 && !tagged(s.ability()->tags, 5) &&
+                          s.pending_prediction() == 0,
+                      "After the dodge facing did not return to input rules, the actor kept moving or the lock tag remained");
+                auto target_after = s.observer(target, double(s.motor().tick)).frame.motor.position;
+                check(std::hypot(target_after.x - target_before.x, target_after.z - target_before.z) < 1e-6 &&
+                          s.presentation().read(s.presentation().find(target)).health.current == 100 &&
+                          scene->world().serialize() == baseline,
+                      "Dodge affected the other actor or the authoring scene");
+                // Cooldown and cost gate a second dodge authoritatively; no local bypass.
+                CharacterSceneInput release = idle;
+                release.combat_events = {{6, InputEdge::Released, 2000000, 100000, 0, false}};
+                s.step(release);
+            }
+            reaction_fixture["dodge_registry"] = (root / "dodge.json").generic_string();
+            reaction_fixture["dodge_ability"] = dodge.text();
+            std::cout
+                << "Authored dodge ability: kit utility ingress clear/assign Undo/Redo, dash edit history, speed/window rejection without publication, coordinated Save, frozen closure, fresh Play activation through authority/prediction/public state, Stamina 15, movement-direction facing lock, invulnerability window, 5 m dash with exact prediction agreement, facing restored and other actor untouched passed\n";
+        }
+        {
+            // Masks own a kit and a worn visual; a Player equips up to four and starts with one active.
+            NativeAuthoring masking;
+            auto character = masking.create_character(assets, human, "masked_character");
+            auto player = masking.create_player(assets, character, kit, "masked_player");
+            auto second_kit = masking.duplicate(assets, kit, "mask_second_kit");
+            masking.assign_dodge(assets, second_kit, {});
+            auto visual = AssetId::parse(Json::parse(read(source / "masks/horned-mask.glb.daimport"))["id"].get<std::string>());
+            auto ember = masking.create_mask(assets, "test_ember", kit, visual), air = masking.create_mask(assets, "test_air", second_kit);
+            auto unmasked = masking.open(assets, player).value;
+            masking.equip_mask(assets, player, 0, ember);
+            masking.equip_mask(assets, player, 2, air);
+            auto first_active = masking.open(assets, player).value;
+            masking.select_mask(assets, player, 2);
+            auto equipped = masking.open(assets, player).value;
+            check(equipped["loadout"]["masks"] == Json::array({ember.text(), nullptr, air.text(), nullptr}) &&
+                      equipped["loadout"]["active_mask"] == 2 && equipped["sources"]["masks"].size() == 2 &&
+                      first_active["loadout"]["active_mask"] == 0,
+                  "Mask slots, active slot or locators are wrong");
+            masking.undo(assets);
+            check(masking.open(assets, player).value == first_active, "Active mask Undo changed slots");
+            masking.redo(assets);
+            check(masking.open(assets, player).value == equipped, "Active mask Redo is not coherent");
+            rejects([&] { masking.equip_mask(assets, player, 1, ember); });
+            rejects([&] { masking.select_mask(assets, player, 3); });
+            rejects([&] { masking.equip_mask(assets, player, 4, air); });
+            check(masking.open(assets, player).value == equipped, "Rejected mask command changed the Player draft");
+            masking.equip_mask(assets, player, 2, {});
+            check(masking.open(assets, player).value["loadout"]["active_mask"] == 0 &&
+                      !masking.open(assets, player).value["sources"]["masks"].contains(air.text()),
+                  "Unequipping the active mask did not move the active slot or drop its locator");
+            masking.equip_mask(assets, player, 0, {});
+            check(masking.open(assets, player).value == unmasked, "Unequipping every mask left mask fields behind");
+            masking.undo(assets);
+            masking.undo(assets);
+            check(masking.open(assets, player).value == equipped, "Unequip Undo lost the loadout");
+            std::vector<AssetId> player_roots = roots;
+            player_roots.push_back(player);
+            for (auto worn_visual : masking.worn_visuals(assets, player))
+                player_roots.push_back(worn_visual);
+            check(player_roots.back() == visual, "Equipped mask visuals are not offered as Play roots");
+            auto ember_path = source / masking.open(assets, ember).asset.path;
+            {
+                auto placed = masking.open(assets, ember).value;
+                placed["tint"] = {1.0, 0.35, 0.18, 1.0};
+                placed["attachment"] = {
+                    {"socket", "head"}, {"position", {0.04, 0.11, 0.0}}, {"rotation", {0.0, -90.0, 0.0}}, {"scale", 0.01}};
+                masking.apply(assets, ember, masking.revision(), placed, "Place mask on the face socket");
+            }
+            auto mask_value = masking.open(assets, ember).value;
+            auto invalid = mask_value;
+            invalid["tint"] = {9.0, 0.0, 0.0, 1.0};
+            masking.apply(assets, ember, masking.revision(), invalid, "Invalid mask tint");
+            rejects([&] { masking.save_all(assets, player_roots); });
+            check(!std::filesystem::exists(ember_path), "Rejected mask published sources");
+            masking.undo(assets);
+            invalid = mask_value;
+            invalid["attachment"] = {
+                {"socket", "Not A Socket"}, {"position", {0.0, 0.0, 0.0}}, {"rotation", {0.0, 0.0, 0.0}}, {"scale", 1.0}};
+            masking.apply(assets, ember, masking.revision(), invalid, "Invalid mask socket");
+            rejects([&] { masking.validate(assets, ember, player_roots); });
+            masking.undo(assets);
+            {
+                // Player-owned virtual cameras: free-look default, a tuned aim camera and a tag-driven one.
+                auto camera = [](const char* name, unsigned priority, Json when, double distance, double shoulder, const char* facing) {
+                    return Json{{"name", name},
+                                {"priority", priority},
+                                {"when", std::move(when)},
+                                {"distance", distance},
+                                {"height", 1.5},
+                                {"shoulder", shoulder},
+                                {"fov", 55.0},
+                                {"pitch_min", -40.0},
+                                {"pitch_max", 60.0},
+                                {"blend_seconds", 0.2},
+                                {"follow_damping", 0.05},
+                                {"facing", facing},
+                                {"track_look_target", false}};
+                };
+                auto plain = masking.open(assets, player).value;
+                auto filmed = plain;
+                filmed["cameras"] = Json::array({camera("FreeLook", 0, Json::object(), 4.0, 0.0, "movement"),
+                                                 camera("Aim", 10, Json{{"input", "combat.ranged"}}, 2.0, 0.5, "camera"),
+                                                 camera("Staggered", 20, Json{{"tag", 6}}, 3.0, 0.0, "movement")});
+                masking.apply(assets, player, masking.revision(), filmed, "Author Player cameras");
+                masking.undo(assets);
+                check(masking.open(assets, player).value == plain, "Camera Undo left a rig behind");
+                masking.redo(assets);
+                check(masking.open(assets, player).value == filmed, "Camera Redo lost the rig");
+                auto broken = filmed;
+                broken["cameras"][0]["when"] = Json{{"input", "jump"}};
+                masking.apply(assets, player, masking.revision(), broken, "Camera rig without a default");
+                rejects_with([&] { masking.validate(assets, player, player_roots); }, "default");
+                masking.undo(assets);
+                broken = filmed;
+                broken["cameras"][1]["fov"] = 170.0;
+                masking.apply(assets, player, masking.revision(), broken, "Camera field of view out of range");
+                rejects([&] { masking.validate(assets, player, player_roots); });
+                masking.undo(assets);
+                broken = filmed;
+                broken["cameras"][1]["name"] = "FreeLook";
+                masking.apply(assets, player, masking.revision(), broken, "Duplicate camera name");
+                rejects([&] { masking.validate(assets, player, player_roots); });
+                masking.undo(assets);
+                check(masking.open(assets, player).value == filmed, "Rejected camera drafts changed the valid rig");
+            }
+            masking.validate(assets, player, player_roots);
+            check(!std::filesystem::exists(ember_path), "Private mask validation published sources");
+            masking.save_all(assets, player_roots);
+            package_authoring(assets, player_roots, root / "mask-air.json");
+            auto cooked = load_cooked_player(root / "mask-air.json", assets.cas_path(), player);
+            check(cooked.kit.definition->id == second_kit && cooked.definition.loadout.kit == kit &&
+                      cooked.definition.loadout.active_mask == 2 && cooked.masks[0] && cooked.masks[0]->definition.visual == visual &&
+                      cooked.masks[0]->definition.name == "test_ember" && cooked.masks[2] &&
+                      cooked.masks[2]->definition.kit == second_kit && cooked.masks[2]->kit.definition->id == second_kit &&
+                      !cooked.masks[1] && !cooked.masks[3],
+                  "Frozen Player did not resolve its active mask's kit or its four slots");
+            check(cooked.definition.authored_cameras && cooked.definition.cameras.cameras.size() == 3 &&
+                      cooked.definition.cameras.cameras[1].name == "Aim" &&
+                      cooked.definition.cameras.cameras[1].input_action == "combat.ranged" &&
+                      cooked.definition.cameras.cameras[1].distance == 2.0 &&
+                      cooked.definition.cameras.cameras[1].facing == CameraFacing::Camera &&
+                      cooked.definition.cameras.cameras[2].tag == 6 && cooked.definition.cameras.cameras[0].input_action.empty(),
+                  "Frozen Player lost its authored camera rig");
+            auto worn_air = load_character_preview(root / "mask-air.json", assets.cas_path(), "player:" + player.text(), skin, role(4),
+                                                   scene->plan().spawns, collision);
+            check(worn_air.combat->kit->id == second_kit && !worn_air.mask && worn_air.active_mask == 2 &&
+                      worn_air.mask_names[0] == "test_ember" && worn_air.mask_names[1].empty(),
+                  "Play resources ignored the active mask or invented a visual");
+            masking.select_mask(assets, player, 0);
+            masking.save_all(assets, player_roots);
+            package_authoring(assets, player_roots, root / "mask.json");
+            auto worn = load_character_preview(root / "mask.json", assets.cas_path(), "player:" + player.text(), skin, role(4),
+                                               scene->plan().spawns, collision);
+            check(worn.combat->kit->id == kit && worn.mask && worn.mask->model == visual && worn.mask->mask == ember &&
+                      worn.rig.definition.joints[worn.mask->joint].key == "Head_M" && worn.mask->scale == .01f &&
+                      worn.mask->rotation[1] == -90.f && worn.mask->position[1] == .11f && worn.mask->tint[1] == .35f &&
+                      load_character_preview(root / "mask-air.json", assets.cas_path(), "player:" + player.text(), skin, role(4),
+                                             scene->plan().spawns, collision)
+                              .combat->kit->id == second_kit,
+                  "Switching the starting mask did not change kit/visual, or the previous package changed");
+            check(worn.cameras.cameras.size() == 3 && worn.cameras.cameras[2].name == "Staggered" &&
+                      load_character_preview(root / "mask.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
+                                             scene->plan().spawns, collision)
+                              .cameras.cameras.size() == 2,
+                  "Play resources did not carry the Player's cameras, or a kit-only Play lost the built-in rig");
+            {
+                CameraDirector director(worn.cameras, 0, 0);
+                std::vector<std::string> ranged{"combat.ranged"}, idle_input;
+                std::vector<TagId> staggered{6};
+                check(director.select(idle_input, {}) == 0 && director.select(ranged, {}) == 1 && director.select(ranged, staggered) == 2,
+                      "Authored camera conditions/priorities do not drive the director");
+            }
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), worn, [&](AssetId asset) {
+                return load_cooked_model(root / "mask.json", assets.cas_path(), asset);
+            });
+            auto& s = *prepared.second;
+            CharacterSceneInput press;
+            press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
+            s.step(press);
+            while (s.motor().tick < 30)
+                s.step({});
+            check(s.presentation().read(s.presentation().find(target)).health.current == 60 && s.pending_prediction() == 0 &&
+                      s.pose(role(4)) && worn.mask->joint < s.pose(role(4))->size() && scene->world().serialize() == baseline,
+                  "Masked Player fresh Play failed its authored Heavy or changed the scene");
+            {
+                // Switching the active mask during Play: an ordinary ability intent on the existing wire,
+                // predicted and reconciled, replacing the kit authoritatively.
+                auto dodge = id("royal_district/combat/dodge.daability");
+                auto session = prepare_character_preview(scene->plan(), scene->world(), worn, [&](AssetId asset) {
+                                   return load_cooked_model(root / "mask.json", assets.cas_path(), asset);
+                               }).second;
+                auto& w = *session;
+                auto event = [&](unsigned action, InputEdge edge) {
+                    CharacterSceneInput input;
+                    input.yaw = w.motor().yaw;
+                    input.combat_events = {{action, edge, (w.motor().tick + 1) * 16667, edge == InputEdge::Released ? 16667u : 0u,
+                                            edge == InputEdge::Pressed ? 1.f : 0.f, false}};
+                    w.step(input);
+                };
+                auto idle = [&](unsigned ticks) {
+                    for (unsigned n = 0; n < ticks; ++n) {
+                        CharacterSceneInput input;
+                        input.yaw = w.motor().yaw;
+                        w.step(input);
+                    }
+                };
+                auto tap = [&](unsigned action) {
+                    event(action, InputEdge::Pressed);
+                    event(action, InputEdge::Released);
+                    idle(2);
+                };
+                auto public_loadout = [&] { return w.observer(role(4), double(w.motor().tick)).frame.ability.loadout; };
+                auto settled = [&] { return w.pending_prediction() == 0 && w.pending_abilities() == 0; };
+                check(worn.combat->loadouts.size() == 4 && worn.combat->loadouts[0] && worn.combat->loadouts[2] &&
+                          !worn.combat->loadouts[1] && !worn.combat->loadouts[3] &&
+                          worn.combat->loadout_actions == std::array<std::uint32_t, 4>{16, 17, 18, 19} && worn.masks[0] && !worn.masks[2] &&
+                          worn.combat->loadouts[2]->kit->id == second_kit &&
+                          worn.combat->loadouts[2]->kit->slots[unsigned(CombatSlot::Dodge)].ability == AssetId{} && w.loadout() == 0 &&
+                          public_loadout() == 0,
+                      "Play resources did not prepare every equipped mask loadout");
+                auto generation = w.ability()->grant_generation;
+                tap(18);
+                check(w.loadout() == 2 && w.predicted_loadout() == 2 && public_loadout() == 2 &&
+                          w.ability()->grant_generation > generation && settled(),
+                      "Mask switch did not converge through authority, prediction and public state");
+                generation = w.ability()->grant_generation;
+                tap(17);
+                check(w.loadout() == 2 && w.ability()->grant_generation == generation && settled(),
+                      "Selecting an empty mask slot changed the loadout");
+                tap(18);
+                check(w.loadout() == 2 && w.ability()->grant_generation == generation && settled(),
+                      "Re-selecting the active mask replaced its grants");
+                tap(6);
+                check(!w.ability()->active && !w.predicted_ability()->active && settled(),
+                      "The second mask's kit has no dodge, yet a dodge started");
+                tap(16);
+                check(w.loadout() == 0 && w.predicted_loadout() == 0 && public_loadout() == 0 && settled(),
+                      "Switching back to the first mask failed");
+                double stamina = -1;
+                event(6, InputEdge::Pressed);
+                check(w.ability()->active && w.ability()->ability == dodge, "The first mask's kit lost its dodge after switching back");
+                for (const auto& attribute : w.ability()->attributes)
+                    if (attribute.id == 3)
+                        stamina = attribute.value;
+                event(6, InputEdge::Released);
+                tap(18);
+                double after = -1;
+                for (const auto& attribute : w.ability()->attributes)
+                    if (attribute.id == 3)
+                        after = attribute.value;
+                check(w.loadout() == 2 && !w.ability()->active && !w.predicted_ability()->active && after >= stamina && after < 100 &&
+                          settled() && w.resynchronizations() <= 1 && scene->world().serialize() == baseline,
+                      "Switching during an interruptible action did not cancel it cleanly, refunded its cost or changed the scene");
+                std::cout << "Mask switch: loadout=" << w.loadout() << " grant_generation=" << w.ability()->grant_generation
+                          << " stamina=" << after << " pending=" << w.pending_prediction() << '\n';
+            }
+            {
+                // NPC definition (M6): the Player's shared Character and Actor Loadout plus a display name and faction, as a full native
+                // source.
+                auto guard = masking.create_npc(assets, character, kit, "test_guard", "royal_guard");
+                auto fresh = masking.open(assets, guard).value;
+                check(fresh["kind"] == "npc" && fresh["name"] == "test_guard" && fresh["faction"] == "royal_guard" &&
+                          fresh["character"] == character.text() && fresh["loadout"]["kit"] == kit.text() &&
+                          masking.open(assets, guard).asset.path == "npcs/test_guard.danpc",
+                      "Created NPC draft is not the shared actor shape");
+                auto armed = fresh;
+                armed["name"] = "Test Guard";
+                armed["loadout"]["starting_attributes"] =
+                    Json::array({Json{{"attribute", 1u}, {"value", 60.0}}, Json{{"attribute", 2u}, {"value", 60.0}}});
+                masking.apply(assets, guard, masking.revision(), armed, "Author NPC name and starting attributes");
+                masking.undo(assets);
+                check(masking.open(assets, guard).value == fresh, "NPC Undo lost the created draft");
+                masking.redo(assets);
+                check(masking.open(assets, guard).value == armed, "NPC Redo lost the authored fields");
+                // Behaviour is its own native source, assigned to the NPC from its tab.
+                auto tree = masking.create_behavior(assets, "test_guard_tree");
+                masking.assign_npc_behavior(assets, guard, tree);
+                auto with_tree = masking.open(assets, guard).value;
+                check(masking.open(assets, tree).value["kind"] == "behavior" && with_tree["behavior"] == tree.text() &&
+                          with_tree["sources"]["behavior"] == "npcs/test_guard_tree.dabehavior",
+                      "Behaviour was not created and assigned to the NPC");
+                masking.undo(assets);
+                check(masking.open(assets, guard).value == armed, "Behaviour assignment Undo changed other NPC fields");
+                masking.redo(assets);
+                check(masking.open(assets, guard).value == with_tree, "Behaviour assignment Redo lost the reference");
+                masking.assign_npc_behavior(assets, guard, {});
+                check(masking.open(assets, guard).value == armed, "Clearing the behaviour left its reference or locator");
+                masking.undo(assets);
+                rejects([&] { masking.assign_npc_behavior(assets, guard, air); });
+                armed = masking.open(assets, guard).value;
+                check(armed == with_tree, "A rejected behaviour assignment changed the NPC");
+                {
+                    // Tree structure edits are authoring commands: bounded, validated and undoable.
+                    using Edit = NativeAuthoring::BehaviorEdit;
+                    const auto original = masking.open(assets, tree).value;
+                    auto shape = [&] { return masking.open(assets, tree).value["tree"]; };
+                    const std::vector<unsigned> first{0}, second{1}, attack{0, 4}, root{};
+                    masking.edit_behavior_tree(assets, tree, second, Edit::MoveUp);
+                    check(shape()["children"][0]["children"].size() == 2 && shape()["children"][1]["children"].size() == 6,
+                          "Moving a branch up did not swap the two sequences");
+                    masking.undo(assets);
+                    check(masking.open(assets, tree).value == original, "Tree reorder Undo did not restore the tree");
+                    masking.redo(assets);
+                    masking.edit_behavior_tree(assets, tree, first, Edit::MoveDown);
+                    check(masking.open(assets, tree).value == original, "Moving the branch back down did not restore the order");
+                    masking.edit_behavior_tree(assets, tree, second, Edit::AddChild, "recover");
+                    check(shape()["children"][1]["children"].size() == 3 &&
+                              shape()["children"][1]["children"][2] == Json{{"type", "recover"}, {"ticks", 60u}},
+                          "Add child did not append a default recover node");
+                    masking.edit_behavior_tree(assets, tree, std::vector<unsigned>{1, 2}, Edit::Remove);
+                    check(masking.open(assets, tree).value == original, "Removing the added node did not restore the tree");
+                    masking.edit_behavior_tree(assets, tree, root, Edit::AddChild, "selector");
+                    check(shape()["children"].size() == 3 && shape()["children"][2]["children"].size() == 1,
+                          "Add child did not append a composite with a valid default child");
+                    masking.undo(assets);
+                    for (auto invalid :
+                         {+[](NativeAuthoring& a, AssetService& s, AssetId t) {
+                              a.edit_behavior_tree(s, t, std::vector<unsigned>{}, NativeAuthoring::BehaviorEdit::Remove);
+                          },
+                          +[](NativeAuthoring& a, AssetService& s, AssetId t) {
+                              a.edit_behavior_tree(s, t, std::vector<unsigned>{0}, NativeAuthoring::BehaviorEdit::MoveUp);
+                          },
+                          +[](NativeAuthoring& a, AssetService& s, AssetId t) {
+                              a.edit_behavior_tree(s, t, std::vector<unsigned>{1}, NativeAuthoring::BehaviorEdit::MoveDown);
+                          },
+                          +[](NativeAuthoring& a, AssetService& s, AssetId t) {
+                              a.edit_behavior_tree(s, t, std::vector<unsigned>{0, 4}, NativeAuthoring::BehaviorEdit::AddChild, "face");
+                          },
+                          +[](NativeAuthoring& a, AssetService& s, AssetId t) {
+                              a.edit_behavior_tree(s, t, std::vector<unsigned>{}, NativeAuthoring::BehaviorEdit::AddChild, "teleport");
+                          },
+                          +[](NativeAuthoring& a, AssetService& s, AssetId t) {
+                              a.edit_behavior_tree(s, t, std::vector<unsigned>{7}, NativeAuthoring::BehaviorEdit::Remove);
+                          }})
+                        rejects([&] { invalid(masking, assets, tree); });
+                    check(masking.open(assets, tree).value == original, "A rejected tree edit changed the behaviour draft");
+                    (void)attack;
+                }
+                // The shared loadout commands serve an NPC exactly as they serve a Player.
+                masking.equip_mask(assets, guard, 1, air);
+                auto masked = masking.open(assets, guard).value;
+                check(masked["loadout"]["masks"] == Json::array({nullptr, air.text(), nullptr, nullptr}) &&
+                          masked["loadout"]["active_mask"] == 1 && masked["sources"]["masks"].size() == 1,
+                      "Shared mask command did not equip the NPC");
+                rejects([&] { masking.equip_mask(assets, guard, 4, air); });
+                masking.undo(assets);
+                check(masking.open(assets, guard).value == armed, "NPC mask Undo changed other fields");
+                masking.redo(assets);
+                std::vector<AssetId> npc_roots = player_roots;
+                npc_roots.push_back(guard);
+                const auto guard_path = source / masking.open(assets, guard).asset.path;
+                {
+                    auto bad = masked;
+                    bad["faction"] = "Royal Guard";
+                    masking.apply(assets, guard, masking.revision(), bad, "Invalid NPC faction");
+                    rejects_with([&] { masking.validate(assets, guard, npc_roots); }, "faction");
+                    masking.undo(assets);
+                }
+                {
+                    auto bad = masking.open(assets, tree).value;
+                    bad["tree"]["children"][0]["type"] = "teleport";
+                    masking.apply(assets, tree, masking.revision(), bad, "Unknown behaviour node");
+                    rejects([&] { masking.validate(assets, guard, npc_roots); });
+                    masking.undo(assets);
+                }
+                {
+                    auto bad = masked;
+                    bad["tuning"] = {{"preferred_range", 0.0}, {"recovery_scale", 1.0}};
+                    masking.apply(assets, guard, masking.revision(), bad, "NPC tuning out of bounds");
+                    rejects([&] { masking.validate(assets, guard, npc_roots); });
+                    masking.undo(assets);
+                }
+                {
+                    auto bad = masked;
+                    bad["senses"] = {{"eye_height", 1.6},
+                                     {"forget_seconds", 5.0},
+                                     {"awareness_seconds", 0.3},
+                                     {"sensors", nlohmann::json::array({nlohmann::json{
+                                                     {"type", "vision"}, {"range", 18.0}, {"horizontal", 200.0}, {"vertical", 35.0}}})}};
+                    masking.apply(assets, guard, masking.revision(), bad, "NPC senses out of bounds");
+                    rejects([&] { masking.validate(assets, guard, npc_roots); });
+                    masking.undo(assets);
+                }
+                {
+                    auto sensed = masked;
+                    sensed["senses"] = {
+                        {"eye_height", 1.7},
+                        {"forget_seconds", 4.0},
+                        {"awareness_seconds", 0.25},
+                        {"sensors", nlohmann::json::array(
+                                        {nlohmann::json{{"type", "vision"}, {"range", 18.0}, {"horizontal", 60.0}, {"vertical", 35.0}},
+                                         nlohmann::json{{"type", "distance"}, {"radius", 4.0}}})}};
+                    masking.apply(assets, guard, masking.revision(), sensed, "Edit NPC senses");
+                    masking.undo(assets);
+                    check(masking.open(assets, guard).value == masked, "NPC senses Undo left them behind");
+                    masking.redo(assets);
+                    masked = sensed;
+                }
+                {
+                    auto tuned = masked;
+                    tuned["tuning"] = {{"preferred_range", 2.5}, {"recovery_scale", 0.5}};
+                    masking.apply(assets, guard, masking.revision(), tuned, "Tune NPC");
+                    masking.undo(assets);
+                    check(masking.open(assets, guard).value == masked, "NPC tuning Undo left it behind");
+                    masking.redo(assets);
+                    masked = tuned;
+                }
+                {
+                    auto bad = masked;
+                    bad["name"] = "";
+                    masking.apply(assets, guard, masking.revision(), bad, "Empty NPC name");
+                    rejects([&] { masking.validate(assets, guard, npc_roots); });
+                    masking.undo(assets);
+                }
+                {
+                    auto bad = masked;
+                    bad["input_profile"] = AssetId::random().text();
+                    masking.apply(assets, guard, masking.revision(), bad, "NPC with an input profile");
+                    rejects([&] { masking.validate(assets, guard, npc_roots); });
+                    masking.undo(assets);
+                }
+                {
+                    auto bad = masked;
+                    bad["loadout"]["starting_attributes"][1]["value"] = 5000.0;
+                    masking.apply(assets, guard, masking.revision(), bad, "NPC Health beyond the schema");
+                    rejects([&] { masking.validate(assets, guard, npc_roots); });
+                    masking.undo(assets);
+                }
+                check(masking.open(assets, guard).value == masked, "Rejected NPC candidates changed the valid draft");
+                masking.validate(assets, guard, npc_roots);
+                check(!std::filesystem::exists(guard_path), "Private NPC validation published its source");
+                masking.save_all(assets, npc_roots);
+                check(std::filesystem::exists(guard_path), "Coordinated Save did not publish the NPC source");
+                package_authoring(assets, npc_roots, root / "npc.json");
+                const auto saved_guard = read(guard_path);
+                auto npc = load_cooked_npc(root / "npc.json", assets.cas_path(), guard);
+                auto owner = load_cooked_player(root / "npc.json", assets.cas_path(), player);
+                auto base = [](const std::vector<AttributeDefinition>& schema, AttributeId attribute) {
+                    for (const auto& field : schema)
+                        if (field.id == attribute)
+                            return field.base;
+                    return -1.;
+                };
+                check(npc.definition.name == "Test Guard" && npc.definition.faction == "royal_guard" &&
+                          npc.definition.generation.size() == 64 && npc.definition.character == character &&
+                          npc.character.definition.generation == owner.character.definition.generation,
+                      "Frozen NPC lost its name, faction or the Character it shares with the Player");
+                check(base(npc.attributes, 2) == 60 && base(npc.attributes, 1) == 60 && base(owner.attributes, 2) == 100 &&
+                          base(npc.attributes, 3) == base(owner.attributes, 3),
+                      "NPC starting attributes did not resolve separately from the Player's");
+                check(npc.masks[1] && !npc.masks[0] && npc.masks[1]->definition.id == air && npc.kit.definition->id == second_kit &&
+                          owner.kit.definition->id != npc.kit.definition->id &&
+                          npc.kit.attributes.generation == owner.kit.attributes.generation,
+                      "NPC does not resolve its own active mask kit over the shared attribute schema");
+                check(npc.behavior && npc.definition.behavior == tree && npc.behavior->name == "test_guard_tree" &&
+                          npc.behavior->root.children.size() == 2 && npc.behavior->generation.size() == 64,
+                      "Frozen NPC lost its behaviour tree");
+                check(npc.definition.tuning.preferred_range == 2.5 && npc.definition.tuning.recovery_scale == .5,
+                      "Frozen NPC lost its tuning");
+                check(!npc.definition.senses.everything && npc.definition.senses.eye_height == 1.7 &&
+                          npc.definition.senses.forget_seconds == 4 && npc.definition.senses.awareness_seconds == .25 &&
+                          npc.definition.senses.sensors.size() == 2 && npc.definition.senses.sensors[0].kind == SensorKind::Vision &&
+                          npc.definition.senses.sensors[0].horizontal == 60 &&
+                          npc.definition.senses.sensors[1].kind == SensorKind::Distance && npc.definition.senses.sensors[1].range == 4,
+                      "Frozen NPC lost its senses");
+                rejects([&] { load_cooked_player(root / "npc.json", assets.cas_path(), guard); });
+                rejects([&] { load_cooked_npc(root / "npc.json", assets.cas_path(), player); });
+                // Failed Save keeps the published source and the frozen product.
+                {
+                    auto bad = masked;
+                    bad["faction"] = "";
+                    masking.apply(assets, guard, masking.revision(), bad, "Empty NPC faction");
+                    rejects([&] { masking.save_all(assets, npc_roots); });
+                    check(read(guard_path) == saved_guard &&
+                              load_cooked_npc(root / "npc.json", assets.cas_path(), guard).definition.faction == "royal_guard",
+                          "Rejected NPC Save changed the source or frozen product");
+                    masking.undo(assets);
+                }
+                // Owned content: the Royal Guard shares the owned Player's Character with its own starting attributes.
+                auto royal_guard = id("npcs/royal_guard.danpc"), royal_player = id("players/royal_player.daplayer");
+                std::vector<AssetId> owned_roots = npc_roots;
+                check(std::find(owned_roots.begin(), owned_roots.end(), royal_guard) != owned_roots.end(),
+                      "The Royal Guard is no longer a root of the fixture registries");
+                owned_roots.push_back(royal_player);
+                package_authoring(assets, owned_roots, root / "royal-npc.json");
+                auto royal = load_cooked_npc(root / "royal-npc.json", assets.cas_path(), royal_guard);
+                auto hero = load_cooked_player(root / "royal-npc.json", assets.cas_path(), royal_player);
+                check(royal.definition.name == "Royal Guard" && royal.definition.faction == "royal_guard" &&
+                          royal.definition.character == hero.definition.character &&
+                          royal.character.definition.generation == hero.character.definition.generation &&
+                          base(royal.attributes, 2) == 60 && base(hero.attributes, 2) == 100 && !royal.definition.loadout.masked &&
+                          royal.behavior && royal.behavior->name == "Guard Melee",
+                      "Owned Royal Guard is not the Player's Character with its own attributes");
+                reaction_fixture["behavior"] = id("npcs/guard_melee.dabehavior").text();
+                reaction_fixture["archer"] = id("npcs/royal_archer.danpc").text();
+                reaction_fixture["npc_registry"] = (root / "royal-npc.json").generic_string();
+                reaction_fixture["npc"] = royal_guard.text();
+                std::cout
+                    << "Authored NPC: creation, name/faction/starting attributes Undo/Redo, behaviour creation/assignment/clear with history and invalid-tree rejection, shared mask loadout command, faction/name/input/schema rejection without publication, private validation, coordinated Save, frozen NPC sharing the Player Character with separate attributes and active mask kit, kind-checked loading, failed Save retention and the owned Royal Guard passed\n";
+            }
+            reaction_fixture["mask_registry"] = (root / "mask.json").generic_string();
+            reaction_fixture["mask_player"] = player.text();
+            std::cout
+                << "Authored masks: creation, four-slot equip/select/unequip Undo/Redo, Player camera rig authoring/rejection/frozen conditions, duplicate/empty/out-of-range rejection, tint and socket rejection without publication, private validation, coordinated Save, frozen Player resolving the active mask's kit and worn visual on the head socket joint, starting-mask change with previous package retained, fresh Play, and in-Play mask switching (accepted, empty slot, re-select, kit-specific dodge, switch back, mid-action cancel) through authority/prediction/public state passed\n";
+        }
+        Json receipt = {{"source", source.generic_string()},
+                        {"cache", (root / "c").generic_string()},
+                        {"registry", (root / "after.json").generic_string()},
+                        {"upper_registry", (root / "upper.json").generic_string()},
+                        {"upper_action", independent_action.text()},
+                        {"kit", kit.text()},
+                        {"ability", copy.text()},
+                        {"effect", effect.text()}};
+        receipt.update(reaction_fixture);
+        std::ofstream(std::filesystem::path(DAE_BINARY_DIR) / "authoring-fixture.json") << receipt.dump(2);
+        std::cout
+            << "Native authoring: edit/Undo/Redo/coordinated Save, grouped kit/action history, multi-source failure/catalog rollback/stale-writer conflict, cost20/damage40/Burn7, kit closure, fresh Play Health60->39, Stamina80, public status/expiry, immutable prior Play and failed candidate preservation passed\n";
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+}
