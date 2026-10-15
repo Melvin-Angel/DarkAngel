@@ -2,6 +2,9 @@
 #define UNICODE
 #include <Windows.h>
 #include "editor_app.hpp"
+#include "exercises/scene_camera_exercise.hpp"
+#include "exercises/editor_ux_exercise.hpp"
+#include "exercises/live_previews_exercise.hpp"
 #include "editor_controller.hpp"
 #include "editor_theme.hpp"
 #include "editor_ui.hpp"
@@ -79,6 +82,7 @@ EditorApp::EditorApp(EditorOptions options)
     auto& editor = *editor_;
     auto& shell = *shell_;
     select_startup_workspace();
+    shell.initialize_preferences(args.sources,!args.hidden);
     import_count = editor.asset_inventory.size();
     editor.prepare_model = [this](AssetId requested) {
         try {
@@ -92,6 +96,11 @@ EditorApp::EditorApp(EditorOptions options)
     };
     if (!args.scene.empty())
         editor.open(args.scene);
+    shell.navigation_scene=editor.document->root();
+    if (args.scene.empty())
+        shell.scene_navigation.camera.look_from({0,scene_->gpu.radius*.2,scene_->gpu.radius*4.14},{0,0,0});
+    if (args.camera_close)
+        shell.scene_navigation.camera.look_from({4,2.5,8},{0,1.3,3});
     import_baseline = editor.document->world().serialize();
 #ifdef DAE_CHARACTER_SCENE
     // What Play's cue player tells each side, for the Cues tab. Made before the media workspaces, whose sinks forward to it.
@@ -338,6 +347,9 @@ int EditorApp::run() {
     auto& device = render.device;
     auto& context = render.context;
     auto& swap = render.swap;
+    auto editor_ux_exercise=exercises::make_editor_ux(args.exercise_editor_ux,editor,shell);
+    auto live_previews_exercise=exercises::make_live_previews(args.exercise_live_previews,editor,shell);
+    auto scene_camera_exercise = exercises::make_scene_camera(args.exercise_scene_camera,editor,shell);
     auto scene_editing_exercise =
         darkangel::editor_app::exercises::make_scene_editing({args, editor, shell, import_baseline, import_count});
     auto acceptance_exercise = darkangel::editor_app::exercises::make_acceptance(
@@ -395,6 +407,9 @@ int EditorApp::run() {
         // leave their fixtures as they are, except the exercise that drops a new source into the project and waits for it.
         if (args.join.empty() && !args.hidden && !editor.preview.active() && frame % 30 == 29)
             editor.cook_pending(1);
+        editor_ux_exercise->frame(frame);
+        live_previews_exercise->frame(frame);
+        scene_camera_exercise->frame(frame);
         scene_editing_exercise->frame(frame);
         acceptance_exercise->frame(frame);
 #ifdef DAE_CHARACTER_SCENE
@@ -410,12 +425,13 @@ int EditorApp::run() {
         mark(0);
         const auto& desc = swap->GetDesc();
         viewport.prepare_targets();
-        darkangel::editor_app::set_theme_dpi(GetDpiForWindow(render.window) / 96.f);
+        shell.scale_workspace_layouts(GetDpiForWindow(render.window) / 96.f * shell.ui_scale);
+        darkangel::editor_app::set_theme_dpi(GetDpiForWindow(render.window) / 96.f * shell.ui_scale);
         render.gui->NewFrame(desc.Width, desc.Height, desc.PreTransform);
         ImGuizmo::BeginFrame();
         auto image = viewport.scene_texture();
         auto area = shell.draw(editor, desc.Width, desc.Height, args.backend.c_str(), lease.number,
-                               args.composer_playback ? 1. / 60 : elapsed_seconds, image);
+                               (args.composer_playback||args.exercise_scene_camera) ? 1. / 60 : elapsed_seconds, image);
         mark(1);
 #ifdef DAE_CHARACTER_SCENE
         play.poll_input(frame);
@@ -520,6 +536,10 @@ int EditorApp::run() {
 #ifdef DAE_CHARACTER_SCENE
     authoring_source_exercise->finish();
 #endif
+    editor_ux_exercise->finish();
+    live_previews_exercise->finish();
+    scene_camera_exercise->finish();
+    shell.save_preferences();
     render.shutdown();
     std::cout << "DarkAngel editor rendered " << frame << " frames with " << args.backend << '\n';
     return 0;

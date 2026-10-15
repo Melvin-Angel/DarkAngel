@@ -1,0 +1,194 @@
+{
+  "run": "1a7d829784",
+  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-1a7d829784",
+  "gates": [
+    {
+      "name": "scene",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.453,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-scene.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-scene.png"
+    },
+    {
+      "name": "restart",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.047,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-restart.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-restart.png"
+    },
+    {
+      "name": "small",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.985,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-small.png"
+    },
+    {
+      "name": "scale150",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.859,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-scale150.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-scale150.png"
+    },
+    {
+      "name": "assets",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.875,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-assets.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-assets.png"
+    },
+    {
+      "name": "character",
+      "passed": true,
+      "exit": 0,
+      "seconds": 10.516,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-character.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-character.png"
+    },
+    {
+      "name": "player",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.125,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-player.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-player.png"
+    },
+    {
+      "name": "npc",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.968,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-npc.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-npc.png"
+    },
+    {
+      "name": "animation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.922,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-animation.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-animation.png"
+    },
+    {
+      "name": "ability",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.985,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-ability.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-ability.png"
+    },
+    {
+      "name": "items",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.016,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-items.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-items.png"
+    },
+    {
+      "name": "audio",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.0,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-audio.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-audio.png"
+    },
+    {
+      "name": "vfx",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.031,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-vfx.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-vfx.png"
+    },
+    {
+      "name": "game",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.953,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-game.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-game.png"
+    },
+    {
+      "name": "invalid-preferences",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.938,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-invalid-preferences.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-invalid-preferences.png"
+    },
+    {
+      "name": "native-navigation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.86,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-native-navigation.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-native-navigation.png"
+    },
+    {
+      "name": "history-validation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 23.813,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-history-validation.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-history-validation.png"
+    },
+    {
+      "name": "validation-error",
+      "passed": true,
+      "exit": 0,
+      "seconds": 28.438,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-validation-error.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-validation-error.png"
+    },
+    {
+      "name": "binding-links",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.625,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-binding-links.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-binding-links.png"
+    },
+    {
+      "name": "effect-preview-failure",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.344,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-effect-preview-failure.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-effect-preview-failure.png"
+    },
+    {
+      "name": "pending-creation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 8.984,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-pending-creation.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-pending-creation.png"
+    },
+    {
+      "name": "actor-fresh-play",
+      "passed": true,
+      "exit": 0,
+      "seconds": 18.297,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-actor-fresh-play.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-actor-fresh-play.png"
+    },
+    {
+      "name": "audio-audition",
+      "passed": true,
+      "exit": 0,
+      "seconds": 3.625,
+      "log": "docs\\implementation\\evidence\\r2-1a7d829784-audio-audition.log",
+      "capture": "docs\\implementation\\evidence\\r2-1a7d829784-audio-audition.png"
+    }
+  ],
+  "binary_sha256": "1442324473aaafc582018c2a55d0aa8f814f2f3e96f75b2c81263dfa9f9286d1",
+  "qualification": "Synthetic input, local D3D12; DPI uses the editor scale multiplier, not an OS monitor change.",
+  "passed": true,
+  "protected_unchanged": true
+}

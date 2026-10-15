@@ -1,0 +1,62 @@
+{
+  "run": "3a363e1898",
+  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-3a363e1898",
+  "gates": [
+    {
+      "name": "scene",
+      "passed": true,
+      "exit": 0,
+      "seconds": 10.453,
+      "log": "docs\\implementation\\evidence\\r2-3a363e1898-scene.log",
+      "capture": "docs\\implementation\\evidence\\r2-3a363e1898-scene.png"
+    },
+    {
+      "name": "custom-layout",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.766,
+      "log": "docs\\implementation\\evidence\\r2-3a363e1898-custom-layout.log",
+      "capture": "docs\\implementation\\evidence\\r2-3a363e1898-custom-layout.png"
+    },
+    {
+      "name": "restart",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.312,
+      "log": "docs\\implementation\\evidence\\r2-3a363e1898-restart.log",
+      "capture": "docs\\implementation\\evidence\\r2-3a363e1898-restart.png"
+    },
+    {
+      "name": "small",
+      "passed": false,
+      "exit": 1,
+      "seconds": 1.532,
+      "log": "docs\\implementation\\evidence\\r2-3a363e1898-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-3a363e1898-small.png"
+    }
+  ],
+  "binary_sha256": "950d561460218307d73b0219cf5882d88380c4e3ec33f9426a164f82cfb0c007",
+  "qualification": "Synthetic input, local D3D12; DPI uses the editor scale multiplier, not an OS monitor change.",
+  "source_sha256": {
+    "apps/editor/editor_theme.hpp": "8f88fea6386ea9b075f83195145bb495fda7778875a5516ebdb92561d2f96827",
+    "apps/editor/editor_theme.cpp": "1e49dc68bed0e3d2831ca352ce3cdbf323ff453b7361f44f90be12b71f35ad6d",
+    "apps/editor/editor_ui.hpp": "b8b0bac596892093a9348a79717bb5a9160eece379fdb59a5e182cec39c0f1b9",
+    "apps/editor/editor_ui.cpp": "e32552750a959083387c395889caebc1ef5f9918b8ff70fb54addec2def0623a",
+    "apps/editor/editor_preferences.cpp": "1f5bf75b3696da4119130bf42639fc0987bf9634e5b4ecf5f96f2114c6524bb0",
+    "apps/editor/editor_workspaces.cpp": "adcd3c42085e880b77511bd47f035560955bc56e37cf33f8a4b0e17db9fdf5fa",
+    "apps/editor/editor_assets.cpp": "20a2c59119e4e4e2a28aef8a425e2df9d9bb79d771cf76955f23c3f89f0c7e20",
+    "apps/editor/editor_authoring.cpp": "a74916636eb4198bed99b7bc40e38f47c93c9e25552fa61d0567f60abc33cb49",
+    "apps/editor/editor_items.cpp": "ab8388dcdcdd1e42e58986c0d8dea6507cf16c30c42d204bb6e82885bef3a2fe",
+    "apps/editor/editor_composer.cpp": "cbd8efa4e4d17a72ff395902bf6b08305527dda346b0fab654358823d4bcc347",
+    "apps/editor/audio_workspace.cpp": "514090e41df865d6cd0bca6ae264e4d3cace767d9e7838a85f7dca8af5611e3b",
+    "apps/editor/scene_navigation.cpp": "fdde20d7d837a0b370cfa7bb886c4e5d20496e2030cbb8de7f811e75028955a2",
+    "apps/editor/reference_picker.hpp": "9f83cd0321ff10a996fa99bb2d451e650d1bbf825472fb05774fd7bc8c4ee5f6",
+    "apps/editor/editor_app.cpp": "190096bfbac8f59385670ebd32a52d65a045c53805060722f3f7d052d72ed24c",
+    "apps/editor/exercises/authoring_sources.cpp": "484bbae752d5b09f8fddad39052df41e8f1c28f20d964212e802356dea9f5139",
+    "apps/editor/exercises/editor_ux_exercise.cpp": "68184ba98e136039a744dc5c14c071264586377f0f66610fc5044a3c9f8296c8",
+    "apps/editor/exercises/live_previews_exercise.cpp": "11b1d270931552814a4143fd768f81391cafff708dcb63b1609e3e1ef895e05f",
+    "apps/editor/pose_previews.cpp": "f6828590de55484c675ba6a0728eda20907ffefa5f221189d058166966f2539e",
+    "apps/editor/vfx_workspace.cpp": "5f54cc52359bc25f0ea533aa331b38388d8bbd91244fe7391da74b086169d476"
+  },
+  "protected_unchanged": true
+}

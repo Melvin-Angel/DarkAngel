@@ -1,0 +1,343 @@
+{
+  "run": "af6427f4a4",
+  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-af6427f4a4",
+  "gates": [
+    {
+      "name": "scene",
+      "passed": true,
+      "exit": 0,
+      "seconds": 9.141,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-scene.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-scene.png"
+    },
+    {
+      "name": "custom-layout",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.468,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-custom-layout.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-custom-layout.png"
+    },
+    {
+      "name": "restart",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.5,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-restart.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-restart.png"
+    },
+    {
+      "name": "small",
+      "passed": true,
+      "exit": 0,
+      "seconds": 5.235,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-small.png"
+    },
+    {
+      "name": "scale150",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.359,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-scale150.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-scale150.png"
+    },
+    {
+      "name": "minimum",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.266,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-minimum.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-minimum.png"
+    },
+    {
+      "name": "assets",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.203,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-assets.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-assets.png"
+    },
+    {
+      "name": "character",
+      "passed": true,
+      "exit": 0,
+      "seconds": 9.0,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-character.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-character.png"
+    },
+    {
+      "name": "player",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.329,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-player.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-player.png"
+    },
+    {
+      "name": "npc",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.313,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-npc.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-npc.png"
+    },
+    {
+      "name": "animation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 18.937,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-animation.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-animation.png"
+    },
+    {
+      "name": "ability",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.094,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-ability.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-ability.png"
+    },
+    {
+      "name": "items",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.016,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-items.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-items.png"
+    },
+    {
+      "name": "audio",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.031,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-audio.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-audio.png"
+    },
+    {
+      "name": "vfx",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.656,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-vfx.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-vfx.png"
+    },
+    {
+      "name": "game",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.984,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-game.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-game.png"
+    },
+    {
+      "name": "audio-small",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.0,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-audio-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-audio-small.png"
+    },
+    {
+      "name": "invalid-preferences",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.953,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-invalid-preferences.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-invalid-preferences.png"
+    },
+    {
+      "name": "native-navigation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.328,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-native-navigation.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-native-navigation.png"
+    },
+    {
+      "name": "history-validation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 25.234,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-history-validation.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-history-validation.png"
+    },
+    {
+      "name": "validation-error",
+      "passed": true,
+      "exit": 0,
+      "seconds": 32.39,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-validation-error.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-validation-error.png"
+    },
+    {
+      "name": "binding-links",
+      "passed": true,
+      "exit": 0,
+      "seconds": 23.187,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-binding-links.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-binding-links.png"
+    },
+    {
+      "name": "effect-preview-failure",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.75,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-failure.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-failure.png"
+    },
+    {
+      "name": "pending-creation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 8.172,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-pending-creation.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-pending-creation.png"
+    },
+    {
+      "name": "actor-fresh-play",
+      "passed": true,
+      "exit": 0,
+      "seconds": 25.453,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-actor-fresh-play.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-actor-fresh-play.png"
+    },
+    {
+      "name": "animation-workflow",
+      "passed": true,
+      "exit": 0,
+      "seconds": 22.5,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-animation-workflow.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-animation-workflow.png"
+    },
+    {
+      "name": "mask-field",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.563,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-mask-field.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-mask-field.png"
+    },
+    {
+      "name": "save-all",
+      "passed": true,
+      "exit": 0,
+      "seconds": 27.578,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-save-all.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-save-all.png"
+    },
+    {
+      "name": "game-debug",
+      "passed": true,
+      "exit": 0,
+      "seconds": 30.969,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-game-debug.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-game-debug.png"
+    },
+    {
+      "name": "vfx-preview-edit",
+      "passed": true,
+      "exit": 0,
+      "seconds": 4.453,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-vfx-preview-edit.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-vfx-preview-edit.png"
+    },
+    {
+      "name": "cue-authoring",
+      "passed": true,
+      "exit": 0,
+      "seconds": 8.297,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-cue-authoring.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-cue-authoring.png"
+    },
+    {
+      "name": "audio-audition",
+      "passed": true,
+      "exit": 0,
+      "seconds": 3.734,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-audio-audition.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-audio-audition.png"
+    },
+    {
+      "name": "live-previews",
+      "passed": true,
+      "exit": 0,
+      "seconds": 88.218,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-live-previews.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-live-previews.png"
+    },
+    {
+      "name": "composer-preview",
+      "passed": true,
+      "exit": 0,
+      "seconds": 22.765,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-composer-preview.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-composer-preview.png"
+    },
+    {
+      "name": "graph-preview",
+      "passed": true,
+      "exit": 0,
+      "seconds": 22.14,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-graph-preview.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-graph-preview.png"
+    },
+    {
+      "name": "effect-preview-reset",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.844,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-reset.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-reset.png"
+    },
+    {
+      "name": "effect-preview-reprepare",
+      "passed": true,
+      "exit": 0,
+      "seconds": 9.109,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-reprepare.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-reprepare.png"
+    },
+    {
+      "name": "effect-preview-corrected",
+      "passed": true,
+      "exit": 0,
+      "seconds": 15.532,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-corrected.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-effect-preview-corrected.png"
+    },
+    {
+      "name": "camera-preview",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.531,
+      "log": "docs\\implementation\\evidence\\r2-af6427f4a4-camera-preview.log",
+      "capture": "docs\\implementation\\evidence\\r2-af6427f4a4-camera-preview.png"
+    }
+  ],
+  "binary_sha256": "30ba9f1d8a2aa640ef8154e57fb995f4f936d81da04d8ce8aca5de03f12c8b96",
+  "qualification": "Synthetic input, local D3D12; DPI uses the editor scale multiplier, not an OS monitor change.",
+  "source_sha256": {
+    "apps/editor/editor_theme.hpp": "8f88fea6386ea9b075f83195145bb495fda7778875a5516ebdb92561d2f96827",
+    "apps/editor/editor_theme.cpp": "1e49dc68bed0e3d2831ca352ce3cdbf323ff453b7361f44f90be12b71f35ad6d",
+    "apps/editor/editor_ui.hpp": "b8b0bac596892093a9348a79717bb5a9160eece379fdb59a5e182cec39c0f1b9",
+    "apps/editor/editor_ui.cpp": "0e98da30c634e6b4e61e620100e5c4f25944752e32075f636c9c654a806576da",
+    "apps/editor/editor_preferences.cpp": "1f5bf75b3696da4119130bf42639fc0987bf9634e5b4ecf5f96f2114c6524bb0",
+    "apps/editor/editor_workspaces.cpp": "adcd3c42085e880b77511bd47f035560955bc56e37cf33f8a4b0e17db9fdf5fa",
+    "apps/editor/editor_assets.cpp": "20a2c59119e4e4e2a28aef8a425e2df9d9bb79d771cf76955f23c3f89f0c7e20",
+    "apps/editor/editor_authoring.cpp": "a74916636eb4198bed99b7bc40e38f47c93c9e25552fa61d0567f60abc33cb49",
+    "apps/editor/editor_items.cpp": "ab8388dcdcdd1e42e58986c0d8dea6507cf16c30c42d204bb6e82885bef3a2fe",
+    "apps/editor/editor_composer.cpp": "cbd8efa4e4d17a72ff395902bf6b08305527dda346b0fab654358823d4bcc347",
+    "apps/editor/audio_workspace.cpp": "514090e41df865d6cd0bca6ae264e4d3cace767d9e7838a85f7dca8af5611e3b",
+    "apps/editor/scene_navigation.cpp": "fdde20d7d837a0b370cfa7bb886c4e5d20496e2030cbb8de7f811e75028955a2",
+    "apps/editor/reference_picker.hpp": "9f83cd0321ff10a996fa99bb2d451e650d1bbf825472fb05774fd7bc8c4ee5f6",
+    "apps/editor/editor_app.cpp": "190096bfbac8f59385670ebd32a52d65a045c53805060722f3f7d052d72ed24c",
+    "apps/editor/exercises/authoring_sources.cpp": "484bbae752d5b09f8fddad39052df41e8f1c28f20d964212e802356dea9f5139",
+    "apps/editor/exercises/editor_ux_exercise.cpp": "68184ba98e136039a744dc5c14c071264586377f0f66610fc5044a3c9f8296c8",
+    "apps/editor/exercises/live_previews_exercise.cpp": "ded41a66eb74d75d1497b7fb910ec8b4544c6c0a23452172c91e57e9fa869134",
+    "apps/editor/pose_previews.cpp": "f6828590de55484c675ba6a0728eda20907ffefa5f221189d058166966f2539e",
+    "apps/editor/vfx_workspace.cpp": "5f54cc52359bc25f0ea533aa331b38388d8bbd91244fe7391da74b086169d476"
+  },
+  "passed": true,
+  "protected_unchanged": true
+}

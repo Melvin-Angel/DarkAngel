@@ -1,5 +1,7 @@
 #include "editor_ui.hpp"
+#include "editor_theme.hpp"
 #include <darkangel/action.hpp>
+#include <darkangel/hash.hpp>
 #include <algorithm>
 #include <cmath>
 #include <map>
@@ -31,16 +33,16 @@ void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohman
     ImGui::InvisibleButton("Action lanes",{width,height});
     auto* draw=ImGui::GetWindowDrawList();
     const auto x=[&](double tick){return origin.x+label_width+float(tick/duration)*span;};
-    draw->AddRectFilled(origin,{origin.x+width,origin.y+height},IM_COL32(27,29,34,255),4.f);
+    draw->AddRectFilled(origin,{origin.x+width,origin.y+height},ImGui::GetColorU32(theme::background),4.f);
     const unsigned step=std::max(1u,unsigned(std::ceil(duration/8.)));
     for(unsigned tick=0;tick<=unsigned(duration);tick+=step){
-        float px=x(tick);draw->AddLine({px,origin.y+20},{px,origin.y+height},IM_COL32(65,68,76,255));
-        auto label=std::to_string(tick);draw->AddText({px+2,origin.y+3},IM_COL32(185,188,198,255),label.c_str());
+        float px=x(tick);draw->AddLine({px,origin.y+20},{px,origin.y+height},ImGui::GetColorU32(theme::border));
+        auto label=std::to_string(tick);draw->AddText({px+2,origin.y+3},ImGui::GetColorU32(theme::secondary),label.c_str());
     }
     bool hit=false;unsigned row{};
     for(const auto& [track,blocks]:tracks){
         float y=origin.y+ruler_height+row_height*float(row++);
-        auto label="Track "+std::to_string(track);draw->AddText({origin.x+5,y+3},IM_COL32(185,188,198,255),label.c_str());
+        auto label="Track "+std::to_string(track);draw->AddText({origin.x+5,y+3},ImGui::GetColorU32(theme::secondary),label.c_str());
         for(const auto* block:blocks){
             float begin=x(double(block->begin)/action_tick_units),end=x(double(block->end)/action_tick_units);
             const bool marker=block->begin==block->end;
@@ -90,25 +92,49 @@ void Shell::cancel_composer_drag(Controller& controller){
     catch(const std::exception& error){author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}
     composer_dragging=false;composer_drag_changed=false;
 }
+bool Shell::PreviewRefresh::due(const std::string& wanted,bool stale,bool immediate){
+    if(forced){forced=false;pending=wanted;return true;}
+    if(!stale){pending.clear();return false;}
+    if(wanted==failed)return false;
+    const double now=ImGui::GetTime();
+    if(wanted!=pending){pending=wanted;since=now;}
+    if(immediate)return true;
+    // Wait for the author to pause: no active field, drag or held button for a moment.
+    return now-since>=.4&&!ImGui::IsAnyItemActive()&&!ImGui::IsMouseDown(ImGuiMouseButton_Left);
+}
+void Shell::preview_status(PreviewRefresh& refresh,bool stale,const char* refresh_id){
+    if(!refresh.error.empty())ImGui::TextColored(attention,"Preview needs attention: %s",refresh.error.c_str());
+    else ImGui::TextDisabled(stale?"Updating preview...":"Live preview of the current draft.");
+    ImGui::SameLine();ImGui::PushID(refresh_id);
+    if(ImGui::SmallButton("Refresh"))refresh.forced=true;
+    if(ImGui::IsItemHovered())ImGui::SetTooltip("Prepare the preview again from the current drafts.");
+    ImGui::PopID();
+}
 void Shell::draw_action_preview(const nlohmann::json& source){
     if(!source.contains("motion")){ImGui::TextDisabled("This action has no clip binding.");return;}
     if(!prepare_composer){ImGui::TextDisabled("Clip preview requires a configured character scene.");return;}
     auto clip=AssetId::parse(source.at("motion").at("clip").get<std::string>());
     const auto duration=source.at("duration").get<unsigned>();
-    if(ImGui::Button("Prepare character preview")){
-        try{if(prepare_action_pose)prepare_action_pose(composer_asset);else prepare_composer(clip,duration);composer_clip=clip;composer_duration=duration;composer_error.clear();}
-        catch(const std::exception& error){composer_error=error.what();}
+    const auto hash=sha256(source.dump());
+    const bool target=composer_clip==clip&&composer_duration==duration&&composer_preview_action==composer_asset;
+    const bool stale=!target||composer_preview_hash!=hash;
+    const auto wanted=composer_asset.text()+"|"+hash;
+    if(!previews_paused&&action_refresh.due(wanted,stale,!target)){
+        try{if(prepare_action_pose)prepare_action_pose(composer_asset);else prepare_composer(clip,duration);composer_clip=clip;composer_duration=duration;composer_preview_action=composer_asset;composer_preview_hash=hash;composer_error.clear();action_refresh.succeeded();}
+        catch(const std::exception& error){composer_error=error.what();action_refresh.fail(wanted,error.what());}
     }
-    if(!composer_error.empty())ImGui::TextWrapped("Preview needs attention: %s",composer_error.c_str());
-    if(composer_clip!=clip||composer_duration!=duration){ImGui::TextWrapped("Prepare the compatible clip to preview this action. Gameplay stays stopped.");return;}
-    if(source.at("slot")=="upper-body")ImGui::TextWrapped("Reprepare after upper-body edits. Preview retains its frozen action and locomotion graph at rest; gameplay stays stopped.");
+    if(previews_paused){ImGui::TextDisabled("Previews pause during Play. Stop Play to see this action.");return;}
+    preview_status(action_refresh,stale,"action-preview");
+    if(composer_clip!=clip||composer_duration!=duration){ImGui::TextWrapped("Choose a compatible clip for this action to see its preview.");return;}
     draw_pose_preview();
 }
 void Shell::draw_pose_preview(){
     const auto duration=composer_duration;
     try{
         auto image=[&]{
-            auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),170.f);
+            const auto scale=ImGui::GetStyle().FontScaleDpi;
+            const float height=workspace==Workspace::Character||pose_preview_fill?std::max(80.f*scale,ImGui::GetContentRegionAvail().y-120.f*scale):170.f*scale;
+            auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),height);
             const auto pos=ImGui::GetCursorScreenPos();area={pos.x,pos.y,size.x,size.y};
             ImGui::Image(composer_texture,size);
             if(ImGui::IsItemHovered()&&ImGui::IsMouseDragging(ImGuiMouseButton_Right)){

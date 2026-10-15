@@ -1,0 +1,130 @@
+{
+  "run": "c794f97b5e",
+  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-c794f97b5e",
+  "gates": [
+    {
+      "name": "scene",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.25,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-scene.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-scene.png"
+    },
+    {
+      "name": "restart",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.172,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-restart.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-restart.png"
+    },
+    {
+      "name": "small",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.25,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-small.png"
+    },
+    {
+      "name": "scale150",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.969,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-scale150.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-scale150.png"
+    },
+    {
+      "name": "assets",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.937,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-assets.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-assets.png"
+    },
+    {
+      "name": "character",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.953,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-character.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-character.png"
+    },
+    {
+      "name": "player",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.969,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-player.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-player.png"
+    },
+    {
+      "name": "npc",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.937,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-npc.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-npc.png"
+    },
+    {
+      "name": "animation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.985,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-animation.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-animation.png"
+    },
+    {
+      "name": "ability",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.078,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-ability.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-ability.png"
+    },
+    {
+      "name": "items",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.922,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-items.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-items.png"
+    },
+    {
+      "name": "audio",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.015,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-audio.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-audio.png"
+    },
+    {
+      "name": "vfx",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.063,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-vfx.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-vfx.png"
+    },
+    {
+      "name": "game",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.922,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-game.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-game.png"
+    },
+    {
+      "name": "invalid-preferences",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.922,
+      "log": "docs\\implementation\\evidence\\r2-c794f97b5e-invalid-preferences.log",
+      "capture": "docs\\implementation\\evidence\\r2-c794f97b5e-invalid-preferences.png"
+    }
+  ],
+  "binary_sha256": "4c0a53b682affb498220638daeb3fb44e159da25fdb793faa87a5848aeebf39d",
+  "qualification": "Synthetic input, local D3D12; DPI uses the editor scale multiplier, not an OS monitor change.",
+  "passed": true,
+  "protected_unchanged": true
+}

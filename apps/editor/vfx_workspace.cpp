@@ -354,6 +354,9 @@ void VfxWorkspace::draw_panel() {
     const auto effects = vfx_effects();
     if (effects.empty())
         ImGui::TextDisabled("This project has no effects yet.");
+    // Opening the tab shows an effect playing straight away rather than an empty preview.
+    if (preview.selected == AssetId{} && !effects.empty())
+        vfx_select(effects.front());
     for (const auto& asset : effects)
         if (ImGui::Selectable(asset.path.c_str(), asset.id == preview.selected))
             vfx_select(asset);

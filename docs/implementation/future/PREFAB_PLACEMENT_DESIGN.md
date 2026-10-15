@@ -1,5 +1,7 @@
 # Prefab placement, quick finding and instance swapping
 
+**Scheduling: Planned, complete R4 (C + F)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after R3. Adopt the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md). P0–P4 are internal increments of one usable prefab authoring/publication milestone; all are required to close R4.
+
 15 October 2026. **Proposed design; unimplemented.** Companion to the [14 October prefab proposal](../PREFAB_WORKFLOW_PLAN.md), which supplies the detailed source ownership/publication design. Start/resume through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md).
 
 ## The everyday workflow
@@ -77,7 +79,7 @@ Source inspection on 15 October confirms `assembly.cpp` supports bounded mounts,
 4. **Dependency repair.** Keep unresolved patches visible with their original bytes and owner. Invalid candidates cannot Save/cook/Play; retain a last good authoring preview with a clear stale/invalid indication. Never drop patches silently.
 5. **Publication.** Reuse AssetService candidate validation/CAS/recovery, extended to assembly/document sources. Current coordinated native publication does not already cover prefab/scene transactions. Atomic Apply/selection conversion requires that extension.
 
-Frozen Play resources keep their generation until Stop/new Play. Definition saves refresh dependent authoring views and invalidate stale prepare tokens; fresh Play re-resolves, cooks and rebuilds scene collision from that refreshed result. Changed definitions can invalidate old patches: report the affected consumers before publication rather than hiding the break.
+Frozen Play resources keep their generation until Stop/new Play. Definition saves refresh dependent authoring views and invalidate stale prepare tokens; fresh Play re-resolves, cooks and prepares the scene-derived static collision layer from the refreshed placements and per-model collision products; use the completed [scene-scale architecture](../current/SCENE_SCALE_PLAN.md), not the superseded whole-scene bake. Changed definitions can invalidate old patches: report the affected consumers before publication rather than hiding the break.
 
 ## MVP boundaries and sequence
 
@@ -90,10 +92,10 @@ Frozen Play resources keep their generation until Stop/new Play. Definition save
 | P4 | Atomic Apply Selected and Create Prefab from Selection | Scene and definition commit/recover together; converted identities remain stable; failed publication preserves drafts |
 | Later | Nested authoring, variants, multiple members, Unpack and in-context editing | Explicit transforms/member mappings and ownership; no implicit runtime hierarchy |
 
-P0-P3 are the first complete requested place/edit/swap workflow. P4 completes publication conveniences without holding basic swapping for nested-prefab work.
+P0-P3 provide an intermediate place/edit/swap loop; they do not complete R4. P4 Apply Selected and identity-preserving Create Prefab from Selection are required parts of the same milestone. Nested-prefab work remains later.
 
 ## Focused verification and source map
 
 Extend existing assembly/editor/asset test families through public commands: identity across same-kind swaps with different local keys; changed defaults plus local override; incompatible/missing reference rejection; duplicate isolation; stale writers; Undo/Redo; legacy source loading. At resolver integration, check actual model collision and rotated altar arrival/mover paths, plus the existing M8 party/travel gate for host/guest frozen-closure agreement. A D3D12 authoring gate should find an asset in Place, place it, swap it, Save and start fresh Play. Do not rerun broad device/provider matrices for every Inspector field.
 
-Implementation owners: `engine/runtime/assembly.cpp`, `tools/editor/editor_document.cpp`, `apps/editor/editor_ui.*`, `apps/editor/editor_controller.*`, `engine/assets/asset_service.cpp`, `apps/editor/scene_collision.cpp`. Introduce focused `PrefabWorkspace`/component command modules after Claude's refactor checkpoint; do not grow `main.cpp` or make the runtime depend on editor code.
+Implementation owners: `engine/runtime/assembly.cpp`, `tools/editor/editor_document.cpp`, `apps/editor/editor_ui.*`, `apps/editor/editor_controller.*`, `engine/assets/asset_service.cpp`, `apps/editor/scene_collision.cpp`. Introduce focused `PrefabWorkspace`/component command modules using the completed refactor's service boundaries; do not grow `main.cpp` or make the runtime depend on editor code.

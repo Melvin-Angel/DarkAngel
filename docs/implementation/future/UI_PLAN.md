@@ -1,6 +1,6 @@
 # Runtime UI as authored content: plan
 
-**Deferred by the user on 12 October 2026 ("forget the UI stuff for now"). Do not start any stage of this plan, and do not ask its questions again, until the user brings UI back.** The text below is kept as the starting point for that day.
+**Historical design, superseded for scheduling and current-state inventory.** UI was deferred on 12 October and explicitly brought back on 15 October. The [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) schedules R6.1 UI MVP, R6.2 gameplay UI, then R8 world puzzle panels. [UI_AUTHORING_MVP_DESIGN.md](UI_AUTHORING_MVP_DESIGN.md) owns the updated U0–U3 contracts and inventory, including existing inventory/altar UI, pointer input and projected markers. Preserve the requirements below as history; its U1–U6 order and old “no input/one document” inventory are not current. All new UI authoring remains Planned.
 
 Written 12 October 2026 from a user request. Nothing in this file is built. It is a plan to be turned into a design per stage before code, like the other reports.
 
@@ -119,12 +119,12 @@ Each is one chunk: design section first, then build, then one verification pass.
 
 U4 could come before U3 if editing documents by hand in a text editor is in the way sooner; U3 is first here because it delivers the thing asked for (UI over NPCs) with the least new surface.
 
-## Where this sits in the roadmap
+## Historical scheduling (superseded)
 
-The handoff places wider RmlUi authoring in M8's extension row ("extends M5 UI; source/preview first"). This plan starts it earlier, after M7's steps 1 to 4, at the user's request; it does not change M7's or M8's gates. If it should come before the rest of M7, say so and the order in CONTINUE.md changes.
+The original proposal put UI after M7 steps 1–4; this is superseded by R6.1/R6.2 and R8 in the main roadmap. Historical M5 HUD and M8 progression acceptance remain intact. Do not use this paragraph or its old U1–U6 rows to schedule current implementation.
 
-## Questions for the user (none blocking)
+## Historical questions (not a pending permission gate)
 
-1. Order: UI stages after M7 step 4 (the VFX tab), as written, or earlier?
+1. Order is now resolved by the main roadmap; do not use the older M7-relative schedule. Remaining marker/target presentation choices below can be settled during R6 planning; they do not reopen priority.
 2. First world-space document on NPCs: a name, a Health bar and the awareness marker, shown only within a range and only once the NPC has noticed the player or been hit? Or always shown?
 3. Should the target's Health bar leave the HUD and become the target's own world document, or stay at the top of the screen as well?

@@ -7,7 +7,9 @@ placement failures but kept the current architecture.
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
 doors, platforms and pickups stay in the 64-body moving budget.
 
-## Problem
+Roadmap status: agreed implementation is complete except deferred phase 6 GPU instancing. The [main roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) governs next work (R1 navigation); older problem statements, measurements and “Next” notes below describe their dated checkpoints, not remaining phases 0–5/7/8. Deferred reduced-feature/remote/EOS qualification is tracked separately there.
+
+## Problem (historical baseline)
 
 Placing one model the scene has not used before does all of this, synchronously, in `Shell::place` → `prepare_play_resources`
 (apps/editor/play_controller.cpp):

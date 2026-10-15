@@ -5,6 +5,7 @@
 #include "render/render_system.hpp"
 #include "render/scene_resources.hpp"
 #include <darkangel/check.hpp>
+#include <darkangel/hash.hpp>
 #include <imgui.h>
 #include <array>
 #include <cmath>
@@ -64,6 +65,9 @@ void PosePreviews::install() {
         shell.graph_preview_asset = {};
         shell.character_preview_asset = {};
         composer_matrices = std::move(matrices);
+        // Records what this preview shows, so the Composer does not prepare the same draft again.
+        shell.composer_preview_action = action;
+        shell.composer_preview_hash = sha256(editor.authoring.open(*editor.assets, action).value.dump());
         editor.log("Prepared frozen action/locomotion pose preview from private drafts; gameplay stays stopped.");
     };
     shell.scrub_composer = [this](double tick) {

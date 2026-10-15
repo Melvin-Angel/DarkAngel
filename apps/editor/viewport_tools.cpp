@@ -23,6 +23,28 @@ ViewportTools::ViewportTools(ViewportToolsContext context)
       senses_all(context.debug.senses_all), world_debug(context.debug.world_debug) {}
 ViewportTools::~ViewportTools() = default;
 void ViewportTools::install() {
+    shell.scene_object_bounds = [this](StableId object) -> std::optional<SceneBounds> {
+        const auto entity=editor.document->world().find(object);
+        if (!editor.document->world().valid(entity)) return {};
+        const auto pose=editor.document->world().read(entity).transform;
+        std::array<float,3> center{0,.9f,0},half{.4f,.9f,.4f};
+        if (const auto model=editor.document->plan().models.find(object);model!=editor.document->plan().models.end()) {
+            if (model->second==scene_.model()) { center=scene_.gpu.center;half=scene_.gpu.half; }
+            else if (const auto found=scene_.scene_models.find(model->second);found!=scene_.scene_models.end()) {
+                center=found->second.center;half=found->second.half;
+            }
+        } else if (const auto volume=editor.document->plan().volumes.find(object);volume!=editor.document->plan().volumes.end()) {
+            center={0,0,0};
+            for (unsigned axis=0;axis<3;++axis) half[axis]=float(volume->second.half[axis]);
+        }
+        using namespace DirectX;
+        const auto matrix=XMMatrixScaling(float(pose.scale),float(pose.scale),float(pose.scale))*
+            XMMatrixRotationRollPitchYaw(float(pose.pitch),float(pose.yaw),float(pose.roll))*
+            XMMatrixTranslation(float(pose.x),float(pose.y),float(pose.z));
+        XMFLOAT3 world;
+        XMStoreFloat3(&world,XMVector3TransformCoord(XMVectorSet(center[0],center[1],center[2],1),matrix));
+        return SceneBounds{{world.x,world.y,world.z},std::max(.1,std::abs(pose.scale)*std::sqrt(double(half[0])*half[0]+double(half[1])*half[1]+double(half[2])*half[2]))};
+    };
     shell.pick_object = [this](const std::array<double, 3>& from, const std::array<double, 3>& to) { return pick(from, to); };
     shell.place_surface = [this](const std::array<double, 3>& from, const std::array<double, 3>& to) { return place(from, to); };
     shell.debug_overlay = [this](ImDrawList* draw, darkangel::editor_app::ViewArea area) { draw_overlay(draw, area); };

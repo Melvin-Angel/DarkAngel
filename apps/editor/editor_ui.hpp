@@ -4,6 +4,7 @@
 #include <optional>
 #include "editor_controller.hpp"
 #include "effect_preview.hpp"
+#include "scene_camera.hpp"
 #include <DirectXMath.h>
 #include <imgui.h>
 #include <optional>
@@ -26,6 +27,15 @@ public:
     std::vector<PlaceItem> place_items;std::size_t place_signature{};std::string place_category;char place_filter[64]{};
     // Height of the ground plane a drop lands on, and the scene camera of the latest frame for turning a drop position into a point on it.
     double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{},game_view_second{},game_projection_second{};bool scene_camera{};
+    SceneNavigation scene_navigation;
+    AssetId navigation_scene;
+    std::map<AssetId,SceneCamera> scene_cameras;
+    std::function<std::optional<SceneBounds>(StableId)> scene_object_bounds;
+    std::optional<SceneBounds> scene_selection_bounds(Controller&) const;
+    void sync_scene_navigation(Controller&);
+    void draw_scene_navigation_toolbar(Controller&);
+    void update_scene_navigation(Controller&, double seconds);
+    void scene_camera_matrices(float width, float height);
     // What the scene view submitted on its last frame: placements drawn, placements outside the view, and draw calls.
     unsigned scene_visible{}, scene_culled{}, scene_draws{};
     // The last frame's time by section (EditorApp::run): exercises and update, UI, Play, scene render, effects, present.
@@ -76,11 +86,26 @@ public:
     ImTextureID composer_texture{};bool composer_visible{},composer_playing{},composer_loop{};
     double composer_frame_seconds{};float composer_rate{1},composer_yaw{},composer_pitch{.1f},composer_distance{2.7f};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;
+    // Previews prepare themselves. Opening a target prepares at once; draft edits refresh after a short pause in editing.
+    // A failed preparation keeps the previous preview and is not retried until its inputs change.
+    struct PreviewRefresh {
+        std::string pending,failed,error;double since{};bool forced{};
+        bool due(const std::string& wanted,bool stale,bool immediate);
+        void succeeded(){failed.clear();error.clear();pending.clear();}
+        void fail(const std::string& wanted,const char* what){failed=wanted;error=what;pending.clear();}
+    };
+    PreviewRefresh character_refresh,graph_refresh,action_refresh,effect_refresh;
+    AssetId composer_preview_action;std::string composer_preview_hash;
+    // Set by a caller that gives the pose preview its own pane, so the image takes the pane's height.
+    bool pose_preview_fill{};
+    void preview_status(PreviewRefresh&,bool stale,const char* refresh_id);
+    // True while Play runs: previews need the stopped editor and resume when Play stops.
+    bool previews_paused{};
     std::unique_ptr<EffectPreview> effect_preview;AssetId effect_prepare_failed_asset;std::string effect_prepare_error;AssetId effect_preview_asset;std::uint64_t effect_preview_source{1};
     std::map<std::uint32_t,std::array<char,128>> reference_filters;
     char attribute_name[97]{"NewStatistic"};int attribute_kind{};char reaction_name[65]{};char mask_name[65]{};
     // Player camera authoring preview: the scene is rendered from one drafted virtual camera.
-    int camera_preview{-1};float camera_preview_yaw{},camera_preview_pitch{12};bool camera_preview_visible{};std::optional<CameraRigDefinition> camera_preview_rig;std::string camera_live;
+    int camera_preview{0};float camera_preview_yaw{},camera_preview_pitch{12};bool camera_preview_visible{};bool camera_pane{};std::optional<CameraRigDefinition> camera_preview_rig;std::string camera_live;
     int composer_new_kind{};
     AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
@@ -92,10 +117,22 @@ public:
     Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{},inventory_open{};
     void select_workspace(Workspace);
     void open_native_asset(Controller&,AssetId);
+    void reveal_asset(AssetId id){selected_asset=id;select_workspace(Workspace::Assets);}
+    bool pick_reference(const char*,AssetId&,Controller&,std::map<std::uint32_t,std::array<char,128>>&,const char*,const nlohmann::json* attributes=nullptr,const char* importer="clip-gltf-v1",bool looping_only=false);
     void open_tool(ToolView);
     void draw_game(Controller&,unsigned,unsigned,float,double,ImTextureID);
     void draw_auxiliary(Controller&,unsigned,unsigned,float);
     void draw_console(Controller&);
+    void initialize_preferences(const std::filesystem::path& project,bool enabled);
+    void save_preferences();
+    void scale_workspace_layouts(float dpi_scale);
+    void reset_layouts();
+    void draw_workspace_navigation();
+    void draw_editor_preferences();
+    void toggle_viewport_maximize();
+    bool scene_maximized{},game_maximized{};
+    float ui_scale{1};
+    std::array<bool,13> kit_composition_visible{};
     InputManager* input{};std::vector<InputEvent> input_events;
     double input_processing_us{};
     bool controls_acquired{},jump{};
@@ -124,6 +161,15 @@ public:
     bool reload_model{},reload_shader{};
     bool native_controls{},controls_focus{},walk{};float forward{},lateral{},turn{};
 private:
+    Workspace navigation_workspace{Workspace::Scene};
+    std::filesystem::path preferences_file;
+    std::string preferences_status;
+    std::string restored_layout;
+    double preferences_saved_at{};
+    float layout_dpi{1},restored_layout_dpi{1};
+    ImGuiID scene_viewport_dock{},game_viewport_dock{};
+    char console_filter[128]{};
+    bool console_info{true},console_warning{true},console_error{true};
     AssetId script_asset;bool docked{},game_docked{};ViewArea area;ImDrawList* viewport_draw{};
     std::vector<float> frame_ms;
     EditScope scope{EditScope::Placement};std::uint64_t gesture_revision{};StableId gesture_object;

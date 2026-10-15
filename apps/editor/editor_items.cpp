@@ -1,4 +1,5 @@
 #include "editor_ui.hpp"
+#include "editor_theme.hpp"
 #include "reference_picker.hpp"
 #include <cstring>
 namespace darkangel::editor_app {
@@ -17,7 +18,7 @@ void Shell::draw_items(Controller& editor,unsigned width,unsigned height,float t
     ImGui::SetNextWindowPos({0,top});ImGui::SetNextWindowSize({float(width),float(height)-top});ImGui::Begin("Items workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
     if(!editor.assets){ImGui::TextWrapped("Open a project source mount to author items.");ImGui::End();return;}
     const bool playing=editor.preview.active()!=nullptr;ImGui::BeginDisabled(playing);
-    ImGui::BeginChild("Item list",{320,0},ImGuiChildFlags_Borders);ImGui::TextUnformatted("Items");ImGui::InputText("Search",item_filter,sizeof(item_filter));
+    ImGui::BeginChild("Item list",{std::min(280.f*ImGui::GetStyle().FontScaleDpi,ImGui::GetContentRegionAvail().x*.32f),0},ImGuiChildFlags_Borders);ImGui::TextUnformatted("Items");ImGui::InputText("Search",item_filter,sizeof(item_filter));
     if(ImGui::Button("Create item"))ImGui::OpenPopup("New item");
     if(ImGui::BeginPopup("New item")){ImGui::InputText("Name",item_name,sizeof(item_name));const char* types[]{"Regular","Consumable","Mask"};ImGui::Combo("Type",&item_create_kind,types,3);
         if(item_create_kind==2){nlohmann::json ref=item_create_mask==AssetId{}?nlohmann::json(nullptr):nlohmann::json(item_create_mask.text()),paths=nlohmann::json::object();if(pick("Mask definition",ref,paths,"mask",editor,{".dafacemask"}))item_create_mask=ref.is_null()?AssetId{}:AssetId::parse(ref.get<std::string>());}
@@ -25,7 +26,7 @@ void Shell::draw_items(Controller& editor,unsigned width,unsigned height,float t
     for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".daitem"){
         try{const auto& draft=editor.authoring.open(*editor.assets,asset.id);const auto name=draft.value.at("name").get<std::string>();if(!reference_search(name,item_filter)&&!reference_search(asset.path,item_filter))continue;ImGui::PushID(asset.id.text().c_str());if(ImGui::Selectable((name+(draft.pending||draft.dirty()?" *":"")).c_str(),item_selection==asset.id))item_selection=asset.id;ImGui::PopID();}catch(const std::exception& error){author_diagnostic=error.what();}}
     ImGui::EndChild();ImGui::SameLine();ImGui::BeginChild("Item details");
-    try{if(item_selection!=AssetId{}){auto& draft=editor.authoring.open(*editor.assets,item_selection);auto& value=draft.value;ImGui::Text("%s",value.at("name").get<std::string>().c_str());ImGui::TextDisabled("%s",item_selection.text().c_str());text("Name",value["name"]);text("Description",value["description"],true);ImGui::Text("Type: %s",value.at("classification").get<std::string>().c_str());
+    try{if(item_selection!=AssetId{}){auto& draft=editor.authoring.open(*editor.assets,item_selection);auto& value=draft.value;ImGui::Text("%s",value.at("name").get<std::string>().c_str());ImGui::TextDisabled(draft.pending?"New draft":draft.dirty()?"Unsaved item changes":"Saved item");if(ImGui::CollapsingHeader("Advanced item identity")){ImGui::TextWrapped("%s",draft.asset.path.c_str());ImGui::TextWrapped("%s",item_selection.text().c_str());}text("Name",value["name"]);text("Description",value["description"],true);ImGui::Text("Type: %s",value.at("classification").get<std::string>().c_str());
         auto& locators=value["sources"];pick("Inventory image",value["icon"],locators,"icon",editor,{".png",".jpg",".jpeg"});pick("World model",value["model"],locators,"model",editor,{".gltf",".glb"});
         if(value.at("classification")=="mask"){pick("Mask definition",value["properties"]["mask"],locators,"mask",editor,{".dafacemask"});if(value["properties"]["mask"].is_string()&&ImGui::Button("Open Mask Editor")){mask_editor=AssetId::parse(value["properties"]["mask"].get<std::string>());mask_editor_raised={};}}
         else {int limit=value.at("stack_limit").get<int>();if(ImGui::InputInt("Stack limit",&limit))value["stack_limit"]=std::clamp(limit,1,1000000);if(value.at("classification")=="consumable"){double restore=value["properties"].value("restore_health",0.0);if(ImGui::InputDouble("Restores Health",&restore,5,25,"%.0f",ImGuiInputTextFlags_EnterReturnsTrue)){restore=std::clamp(restore,0.,100000.);if(restore>0)value["properties"]["restore_health"]=restore;else value["properties"].erase("restore_health");}}bool unique=value.at("unique").get<bool>();if(ImGui::Checkbox("Unique item",&unique)){value["unique"]=unique;if(unique)value["stack_limit"]=1;}}

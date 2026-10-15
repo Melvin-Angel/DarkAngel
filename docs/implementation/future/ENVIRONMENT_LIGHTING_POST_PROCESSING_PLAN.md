@@ -1,5 +1,7 @@
 # Skyboxes, procedural skies, lighting, fog and post processing
 
+**Scheduling: Planned, R7 (H + I + J)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after the playable sandbox gate. R7.1 covers sky/Lighting/fog/lights, R7.2 scene/camera post profiles and legal effect stages, R7.3 UV/backend work and static indirect baking; probes remain later. Future tools adopt the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md), not implementation during R2.
+
 15 October 2026. **Research and future-work design only. No renderer features, assets, tools, dependencies or bake backend added.** Extends the [authoring handoff](AUTHORING_NEXT_STEPS_2026-10-15.md) at the user's request. [DAE-005](../../architecture/Decision_Log.txt) still owns rendering architecture; its deferred lightmaps/probes are now explicitly planned work, not implemented or a newly locked backend choice.
 
 ## Authoring locations and ownership
@@ -117,14 +119,14 @@ Workers read an immutable candidate snapshot. Jobs never write source heads or r
 
 | Step | Result | Required acceptance |
 | --- | --- | --- |
-| R0 | Versioned render profiles, texture semantics, linear HDR/view resources and Assets routing contracts | Legacy scenes/defaults retained; packaged load; clear unsupported/missing-asset diagnostics |
-| R1 | Cubemap + equirectangular sky import, background/environment controls and Lighting tool | Cardinal/pole/seam tests, HDR retained, visible-sky and IBL independence, both backends |
-| R2 | Procedural Skybox tool and simple global fog; sun linkage | Save/reopen/regenerate/assign; consistent cube/panorama output; cancellation/stale result retention; scene/Game agreement |
-| R3 | Useful post stack and direct-light/shadow controls | Per-view isolation; HDR/color correctness; UI unaffected; invalid ordering and resize/history reset; supported feature budgets |
-| R4 | Bake settings/status tool, UV/backend spike, then actual static indirect bake integration | UV1 preserved separately, static placement bindings, no double diffuse light, stale-result rejection and cold packaged sampling |
+| Render0 (formerly R0) | Versioned render profiles, texture semantics, linear HDR/view resources and Assets routing contracts | Legacy scenes/defaults retained; packaged load; clear unsupported/missing-asset diagnostics |
+| Render1 (formerly R1) | Cubemap + equirectangular sky import, background/environment controls and Lighting tool | Cardinal/pole/seam tests, HDR retained, visible-sky and IBL independence, both backends |
+| Render2 (formerly R2) | Procedural Skybox tool and simple global fog; sun linkage | Save/reopen/regenerate/assign; consistent cube/panorama output; cancellation/stale result retention; scene/Game agreement |
+| Render3 (formerly R3) | Useful post stack and direct-light/shadow controls | Per-view isolation; HDR/color correctness; UI unaffected; invalid ordering and resize/history reset; supported feature budgets |
+| Render4 (formerly R4) | Bake settings/status tool, UV/backend spike, then actual static indirect bake integration | UV1 preserved separately, static placement bindings, no double diffuse light, stale-result rejection and cold packaged sampling |
 | Later | Probes, local volumes, richer atmosphere/weather and temporal effects | Dynamic actors/doors/travel, quality/performance and resource-lifetime qualification |
 
-Material editing and render texture profiles from [Assets and materials](ASSETS_MATERIAL_EDITING_PLAN.md) are shared prerequisites, not an unrelated renderer. Integrate after Claude's verified refactor checkpoint without changing active build/dependency state. Use focused cook/transaction tests plus a small reference scene (neutral swatches, chrome/rough spheres, alpha foliage, a cave/interior, moving character and UI). Broaden to D3D12/Vulkan when render graph/format/shader changes land; no multiplayer protocol matrix is needed for a numeric fog form. Track actual bake quality/time/memory and renderer timings instead of assuming a supported dependency guarantees a finished feature.
+Renderer-local steps are now labelled Render0–Render4 (old R0–R4 retained above for traceability), distinct from project R1–R8. Map them to R7: Render0 is the foundation; Render1/Render2 plus Render3's direct-light/shadow controls belong to 7.1; Render3's post stack belongs to 7.2; Render4 belongs to 7.3. Direct-light controls must not wait for post processing merely because they shared an older row. Material editing and render texture profiles from [Assets and materials](ASSETS_MATERIAL_EDITING_PLAN.md) are shared prerequisites. Follow the main roadmap rather than the former parallel rendering-stream suggestion; preserve active build/dependency state. Use focused cook/transaction tests plus a small reference scene (neutral swatches, chrome/rough spheres, alpha foliage, a cave/interior, moving character and UI). Broaden to D3D12/Vulkan when render graph/format/shader changes land; no multiplayer protocol matrix is needed for a numeric fog form. Track actual bake quality/time/memory and renderer timings instead of assuming a supported dependency guarantees a finished feature.
 
 ## Research boundaries
 

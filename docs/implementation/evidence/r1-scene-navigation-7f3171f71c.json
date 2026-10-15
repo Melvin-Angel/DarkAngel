@@ -1,0 +1,17 @@
+{
+  "run": "7f3171f71c",
+  "gate": "navigation",
+  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-7f3171f71c",
+  "gates": [
+    {
+      "name": "navigation",
+      "exit": 1,
+      "seconds": 1.625,
+      "log": "docs\\implementation\\evidence\\r1-7f3171f71c-navigation.log",
+      "markers": false
+    }
+  ],
+  "binary_sha256": "6cdaef242b274a9ac513a01debb22dc5d1d639d31802a27cbc545363ab5632a1",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "protected_unchanged": true
+}

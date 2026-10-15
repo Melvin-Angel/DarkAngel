@@ -1,0 +1,53 @@
+{
+  "run": "7c5eace16d",
+  "gate": "all",
+  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-7c5eace16d",
+  "gates": [
+    {
+      "name": "SceneCameraTests",
+      "exit": 0,
+      "seconds": 0.078,
+      "log": "docs\\implementation\\evidence\\r1-7c5eace16d-SceneCameraTests.log",
+      "markers": true
+    },
+    {
+      "name": "NativeInputTests",
+      "exit": 0,
+      "seconds": 0.047,
+      "log": "docs\\implementation\\evidence\\r1-7c5eace16d-NativeInputTests.log",
+      "markers": true
+    },
+    {
+      "name": "CameraTests",
+      "exit": 0,
+      "seconds": 0.047,
+      "log": "docs\\implementation\\evidence\\r1-7c5eace16d-CameraTests.log",
+      "markers": true
+    },
+    {
+      "name": "navigation",
+      "exit": 0,
+      "seconds": 10.39,
+      "log": "docs\\implementation\\evidence\\r1-7c5eace16d-navigation.log",
+      "markers": true
+    },
+    {
+      "name": "place",
+      "exit": 0,
+      "seconds": 1.75,
+      "log": "docs\\implementation\\evidence\\r1-7c5eace16d-place.log",
+      "markers": true
+    },
+    {
+      "name": "game-camera",
+      "exit": 0,
+      "seconds": 6.25,
+      "log": "docs\\implementation\\evidence\\r1-7c5eace16d-game-camera.log",
+      "markers": true
+    }
+  ],
+  "binary_sha256": "4ae75923108409efd47ce90940f207278cd5c95d1b73ca19e8c085404a78c6a9",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "passed": true,
+  "protected_unchanged": true
+}

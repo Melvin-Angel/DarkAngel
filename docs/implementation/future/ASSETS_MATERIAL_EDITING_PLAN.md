@@ -1,5 +1,7 @@
 # Assets: imported-model materials and prefab editing entry points
 
+**Scheduling: Planned, R5 (G)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after the complete R4 prefab workflow. A0–A3 below are local material implementation IDs, not the old A movement feature. Use the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md); R2 specifies existing-surface conventions without implementing these new forms.
+
 15 October 2026. **Research/design for future implementation only.** Linked from the [authoring handoff](AUTHORING_NEXT_STEPS_2026-10-15.md), [prefab workflow](PREFAB_PLACEMENT_DESIGN.md) and [environment/rendering plan](ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md).
 
 ## Desired workflow
@@ -83,4 +85,4 @@ Prepared material/model candidates resolve the complete texture/definition depen
 
 Test through the same public asset/material/prefab commands the UI calls. Include non-color maps, stale external writers, shared-versus-local edit scope, slot reordering and missing keys, cold cooked load without artist-source files, and material changes invalidating light bakes. Use one small visual material scene/gate for Assets, then D3D12/Vulkan when binding/shader/texture formats change. No general gameplay/network matrix is needed for a visual tint form.
 
-Likely owners after Claude's verified refactor checkpoint: Assets workspace/routing, native authoring, AssetService/import metadata, model/texture cookers/loaders, the shared component/prefab command layer and renderer material resources. Preserve current pins; DiligentFX examples are optional implementation research, not automatic dependencies. The earlier prefab publication/link foundations still apply.
+Likely owners for R5 on the completed refactor baseline: Assets workspace/routing, native authoring, AssetService/import metadata, model/texture cookers/loaders, the shared component/prefab command layer and renderer material resources. Preserve current pins; DiligentFX examples are optional implementation research, not automatic dependencies. The earlier prefab publication/link foundations still apply.

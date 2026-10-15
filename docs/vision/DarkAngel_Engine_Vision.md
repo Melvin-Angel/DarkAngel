@@ -15,8 +15,8 @@ The finished environment enables modular players and NPCs, stance-based eight-sl
 | This Final Vision | Intended finished capabilities and product boundaries |
 | [Architecture decision log](../architecture/Decision_Log.txt) and its original DOCX | Locked DAE-001–021 contracts and rationale |
 | [Actor gameplay design supplement](../architecture/Actor_Gameplay_Design.md) | Confirmed actor/state ownership, rationale, capability traceability and unresolved design questions |
-| [Implementation handoff / M0–M9 roadmap](../architecture/DarkAngel_Implementation_Handoff.md) | Milestone responsibilities, dependencies and acceptance |
-| [Editor workflow plan](../implementation/legacy/plans/EDITOR_WORKFLOW_PLAN.md) | Incremental workflow delivery and focused authoring gates |
+| [Implementation handoff / roadmap](../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) | Authoritative R1–R8 recommended order, sandbox gate and historical M0–M9 responsibilities/acceptance |
+| [Legacy editor workflow plan](../implementation/legacy/plans/EDITOR_WORKFLOW_PLAN.md) | Historical workflow scopes and focused gates; current priorities come from the roadmap |
 | [STATUS](../implementation/STATUS.md) | Current milestone state and links to current evidence |
 | Implementation reports and evidence | Implemented boundaries, measured verification and limitations at each checkpoint |
 | [CONTINUE](../implementation/CONTINUE.md), [Royal continuation](../implementation/legacy/prompts/ROYAL_CONTINUE.md), [ability authoring continuation](../implementation/legacy/prompts/ABILITY_AUTHORING_CONTINUE.md) | Immediate tasks, commands and blockers; current header supersedes older chronological entries |

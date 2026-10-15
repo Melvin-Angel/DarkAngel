@@ -1,6 +1,6 @@
 # TODO (high priority): prefab workflow and "Add component"
 
-**Status: not implemented. The user considers this important for the engine to be usable** (14 October 2026). It should be planned before or with the editor-wide UX/UI pass, ahead of building real levels.
+**Status: Planned, not implemented.** The user considers this essential for engine usability (14 October 2026). It belongs to complete R4 (C + F) in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after R1 navigation, R2 UX overhaul and R3 movement. R2 defines common controls and audits existing assembly surfaces; it does not implement prefabs. The [architecture proposal](../PREFAB_WORKFLOW_PLAN.md) and [placement/swap design](PREFAB_PLACEMENT_DESIGN.md) preserve the implementation contracts and acceptance criteria.
 
 ## What the user asked for
 
@@ -18,7 +18,7 @@ The scene assembly format already has most of the data model; `engine/runtime/as
 - **Stable identities:** object identities derive from the mount path, so the world ledger's persistent IDs stay stable per placement. Two placed copies of an altar prefab are two distinct persistent objects, which is what altar discovery, door state and pickup collection need.
 - **Components:** gameplay components (`altar`, `mover`, `pickup`, `interactable`, `entry`, `transition`, `encounter`, `spawn`, `model`, `audio`, `collision`) are plain JSON on scene entities, validated by their decoders, and can already sit together on one entity. A model on an altar, door or pickup object is drawn, and is excluded from static collision (movers ride their kinematic box).
 
-What is missing is mostly **editor**, plus a few runtime checks:
+The original estimate was “mostly editor”; the later source inspection identifies substantial resolver/document/publication work too: external-link ownership, mount transforms, typed gameplay patches, retained identity and coordinated Save. The list below preserves the product requirements, not a claim that these foundations already work:
 
 1. Prefab assets: a "prefab" is an assembly asset meant for mounting (create, rename, delete, list), probably its own extension or kind for pickers.
 2. **Create prefab from selection** (one object, later several), and **Place prefab** from the Place panel, which mounts it.
@@ -30,9 +30,11 @@ What is missing is mostly **editor**, plus a few runtime checks:
 8. Validation: the patches of mounts whose prefab changed shape are reported (the existing base-fingerprint rule for variants is the model).
 9. Gates: create a prefab from an altar with a model, place it twice in two scenes, change its model in the Prefabs tab, and check that both placements change while their discovered state stays separate.
 
-## Open design questions (ask the user when this is planned)
+## Design decisions to settle in R4 planning
 
 - Prefab file kind and folder convention (for example `content/prefabs/*.daprefab` or reusing `.dascene` assemblies).
 - Whether nested prefabs (a prefab containing prefabs) are needed in the first version (the format supports depth up to 16).
 - The Prefabs tab layout: a separate tab, or an "edit prefab in context" mode in the Scene tab.
-- Whether a prefab can carry scripts (bindings already resolve inside mounts).
+- Existing script bindings remain supported through their current mount resolution path; no second behavior system. Finalize exposed component/binding edit coverage.
+
+Current recommendations are `.daprefab` in `content/prefabs`, a fixed isolated Prefabs workspace, and one-entity gameplay prefabs first; nested authoring and in-context editing are later. They remain proposals until the R4 contract checkpoint. R4 also requires compatible Swap, atomic Apply Selected and identity-preserving conversion; the newer designs cover those details and supersede any narrower estimate here.

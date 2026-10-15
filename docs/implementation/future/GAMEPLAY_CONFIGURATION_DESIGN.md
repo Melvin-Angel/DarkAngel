@@ -1,5 +1,7 @@
 # Editable gameplay configuration: ownership and movement MVP
 
+**Scheduling: Planned, R3 (A)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after Scene navigation and the dedicated UX overhaul. Its Player/NPC form adopts the [shared UX standards](EDITOR_UX_OVERHAUL_PLAN.md). The steps below are internal to R3; this file does not set project order.
+
 15 October 2026. **Design only; no settings or asset types added yet.** Resume through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md). This follows the existing [actor ownership contract](../../architecture/Actor_Gameplay_Design.md), qualifying the Character/Player wording in the older [extensibility audit](../current/EXTENSIBILITY_AUDIT.md).
 
 ## Recommendation
@@ -105,4 +107,4 @@ Avoid an editor-wide reflection sweep or a generic configurable-everything syste
 
 Focused existing motor/session/actor tests should cover unchanged default traces, authored movement under collision, owner correction/replay with nondefault parameters, and constructor replacement paths. Run the existing actual-mesh hut regression at motor integration without raising bounds. One editor gate proves both forms change the intended asset; one separate-process host/guest gate proves matching parameters and mismatch refusal at the integration checkpoint. Same-machine evidence remains same-machine evidence. A full unrelated UI/network matrix is unnecessary per numeric form change.
 
-Likely files: `engine/runtime/character_motor.cpp`, `engine/runtime/include/darkangel/character_motor.hpp`, actor assets/cooker, scene preparation/authority/client, existing native authoring forms/commands and focused tests. Use the narrower headers/services after Claude's checkpoint; add no gameplay configuration to `main.cpp`.
+Likely files: `engine/runtime/character_motor.cpp`, `engine/runtime/include/darkangel/character_motor.hpp`, actor assets/cooker, scene preparation/authority/client, existing native authoring forms/commands and focused tests. Use the completed refactor's narrower headers/services; add no gameplay configuration to `main.cpp`.

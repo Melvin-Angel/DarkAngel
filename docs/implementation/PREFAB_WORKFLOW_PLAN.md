@@ -1,5 +1,7 @@
 # Prefab workflow proposal
 
+**Scheduling update, 15 October 2026: Planned, complete R4 (C + F)** in the [main roadmap](../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026). Refactor and agreed scene-scale implementation are complete except explicit deferrals. Keep this architecture proposal and its acceptance criteria; the [placement/swap design](future/PREFAB_PLACEMENT_DESIGN.md) supplies compatible Swap and P0–P4 sequencing. Apply Selected and identity-preserving conversion are required for R4 completion. Adopt the [UX standards](future/EDITOR_UX_OVERHAUL_PLAN.md). Source findings below are dated research, not fresh verification.
+
 Research and architecture inspection: 14 October 2026. Status: proposal only; no prefab implementation or new verification is claimed. This complements PREFABS_AND_COMPONENTS_TODO.md. It does not change the refactor prompt, approved runtime ownership, or milestone status. Claude's exercise extraction and verification remain separate work.
 
 I recommend a Prefabs workspace backed by the existing assembly graph, EditorDocument commands, and AssetService publication. A scene owns a placement and its overrides; a prefab asset owns reusable defaults. Existing scene resolution produces the same kind of SpawnPlan consumed by Play. Prefab editing must make the ownership of every edit visible.
@@ -85,7 +87,7 @@ Converting a scene-local object to a mount changes its current resolver path, so
 
 This is a proposed assembly extension, not existing support. Review and prove it before making conversion or unpack available. Unpack is deferred until it can preserve identities and references by the same explicit mechanism. Save deletion/reset remains a separate user action. No ledger-wide rewrite is needed for ordinary prefab edits; incompatible changes to gameplay kind or persistent-property policies must receive their existing validation and an explicit migration/reset decision where required.
 
-**Modules and publication.** After Claude's current verification checkpoint, agree the authoring/service interfaces with the refactor. Prefab implementation should use focused modules and public commands, without adding substantial new behavior to main.cpp. It does not need to wait for every CMake/header cleanup to finish.
+**Modules and publication.** Use the completed refactor's narrow authoring/service interfaces; recheck them at the R4 planning checkpoint. Prefab implementation should use focused modules and public commands, without adding substantial new behavior to main.cpp. Use R4 dependencies and the explicit deferred list; do not reopen completed refactor work.
 
 | Responsibility | Existing owner / proposed extension |
 | --- | --- |
@@ -95,7 +97,7 @@ This is a proposed assembly extension, not existing support. Review and prove it
 | External assembly lookup and dependent-scene discovery | Project source inventory and an assembly dependency resolver, validated by AssetID |
 | Mount transforms, stable reference expansion and typed patches | Existing runtime assembly resolver, with bounded additive extensions |
 | Private candidate validation, cooker dependencies, CAS and publication | Extend AssetService's existing native publication path for prefab sources and document manifests/records |
-| Fresh scene preparation and collision baking | Existing Play preparation and scene_collision, from the refreshed resolved plan |
+| Fresh scene preparation and collision | Existing Play preparation and completed [scene-scale](current/SCENE_SCALE_PLAN.md) per-model collision/static-layer path, from refreshed placements; no return to whole-scene baking |
 | Gameplay, replication, inventory and durable world state | Existing scene authority/client, inventory and persistence services |
 
 Stage prefab sources, scene manifests, new immutable record files and referenced native drafts in one private candidate. Recheck source hashes and document revisions before commit. Extend the existing recovery journal to coordinate file heads with catalog publication; filesystem multi-file writes are not inherently atomic. Only install validated document candidates after a successful commit, and recover an interrupted commit before accepting readers/writers. Treat current document/Save separation as work to be done, not an existing guarantee. Dependency refresh and Undo must use source ownership rather than replacing the entire editor session.
@@ -110,7 +112,7 @@ Stage prefab sources, scene manifests, new immutable record files and referenced
 | 3. Overrides and conversion | Field/component patches, markers, Revert, atomic Apply Selected, identity-preserving conversion | One copy overrides radius while another follows defaults; template changes preserve the override; Revert restores inheritance; conversion preserves collected/discovered state and references; duplication does not share it |
 | 4. Composition extensions | Multi-object capture, nested prefab editing, variants, in-context view and identity-preserving Unpack | Scoped edits affect their intended owner; nested transforms and exports resolve; variant rebase is explicit; structural deletion conflicts are repairable |
 
-The first complete version is increments 0-3. It deliberately delivers reusable gameplay objects before multi-selection, arbitrary runtime parent/child behavior or deep nested override authoring. Legacy nested assemblies remain supported by their current resolver; the new workflow must accurately report its narrower initial editing scope. Existing one-level variants retain their base-fingerprint/rebase rule. Editor camera navigation is a valuable adjacent feature, but its implementation stays separately scoped.
+The first complete version is increments 0-3. It deliberately delivers reusable gameplay objects before multi-selection, arbitrary runtime parent/child behavior or deep nested override authoring. Legacy nested assemblies remain supported by their current resolver; the new workflow must accurately report its narrower initial editing scope. Existing one-level variants retain their base-fingerprint/rebase rule. Editor camera navigation is the earlier R1 prerequisite in the main roadmap; this prefab milestone reuses it.
 
 Tests should use public commands rather than direct file surgery: edit -> Undo -> Redo -> Save -> fresh Play; independent copies across scenes; a shared model change; one local override; retained identity through conversion; host/guest agreement on the same frozen closure; failed publication and external stale-writer retention. Test mount placement against actual model collision and game-object arrival/movement behavior when the resolver changes. Add focused cases to the existing assembly/editor/asset test families and one D3D12 authoring gate; use the current M8 party/travel gate at the integration checkpoint. Broad provider/network/device matrices are not required for every Inspector edit.
 

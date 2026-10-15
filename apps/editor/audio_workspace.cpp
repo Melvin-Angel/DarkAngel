@@ -221,7 +221,11 @@ void AudioWorkspace::draw_panel(bool play_running) {
                                                                  "next time something is played while nothing else is.");
     } else
         ImGui::TextDisabled("The audio engine starts the first time something is played.");
-    const float column = std::max(260.f, (ImGui::GetContentRegionAvail().x - 16) / 3);
+    const bool compact = ImGui::GetContentRegionAvail().x < 1000.f*ImGui::GetStyle().FontScaleDpi;
+    const float column = compact ? 0.f : (ImGui::GetContentRegionAvail().x - 16) / 3;
+    const bool tabs_open = !compact || ImGui::BeginTabBar("Audio tasks");
+    if(!tabs_open)return;
+    if(!compact || ImGui::BeginTabItem("Sounds / Audition")) {
     // ---- Sounds
     ImGui::BeginChild("Audio sounds", {column, 0}, ImGuiChildFlags_Borders);
     ImGui::SeparatorText("Sounds");
@@ -404,7 +408,10 @@ void AudioWorkspace::draw_panel(bool play_running) {
             });
     }
     ImGui::EndChild();
-    ImGui::SameLine();
+    if(compact)ImGui::EndTabItem();
+    }
+    if(!compact)ImGui::SameLine();
+    if(!compact || ImGui::BeginTabItem("Mixer")) {
     // ---- Mixer
     ImGui::BeginChild("Audio mixer", {column, 0}, ImGuiChildFlags_Borders);
     ImGui::SeparatorText("Mixer");
@@ -493,7 +500,10 @@ void AudioWorkspace::draw_panel(bool play_running) {
             ImGui::EndDisabled();
         });
     ImGui::EndChild();
-    ImGui::SameLine();
+    if(compact)ImGui::EndTabItem();
+    }
+    if(!compact)ImGui::SameLine();
+    if(!compact || ImGui::BeginTabItem("Scene audio")) {
     // ---- Scene audio
     ImGui::BeginChild("Audio profiles", {0, 0}, ImGuiChildFlags_Borders);
     ImGui::SeparatorText("Scene audio");
@@ -640,6 +650,9 @@ void AudioWorkspace::draw_panel(bool play_running) {
                 ImGui::TextDisabled("Save the profile to audition it or to use it for the scene.");
         });
     ImGui::EndChild();
+    if(compact)ImGui::EndTabItem();
+    }
+    if(compact)ImGui::EndTabBar();
     try {
         editor.authoring.record_changes(*editor.assets, "Edit audio", ImGui::IsAnyItemActive());
     } catch (const std::exception& error) {

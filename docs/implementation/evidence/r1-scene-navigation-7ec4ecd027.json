@@ -1,0 +1,38 @@
+{
+  "run": "7ec4ecd027",
+  "gate": "all",
+  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-7ec4ecd027",
+  "gates": [
+    {
+      "name": "SceneCameraTests",
+      "exit": 0,
+      "seconds": 0.031,
+      "log": "docs\\implementation\\evidence\\r1-7ec4ecd027-SceneCameraTests.log",
+      "markers": true
+    },
+    {
+      "name": "NativeInputTests",
+      "exit": 0,
+      "seconds": 0.063,
+      "log": "docs\\implementation\\evidence\\r1-7ec4ecd027-NativeInputTests.log",
+      "markers": true
+    },
+    {
+      "name": "CameraTests",
+      "exit": 0,
+      "seconds": 0.047,
+      "log": "docs\\implementation\\evidence\\r1-7ec4ecd027-CameraTests.log",
+      "markers": true
+    },
+    {
+      "name": "navigation",
+      "exit": 1,
+      "seconds": 3.063,
+      "log": "docs\\implementation\\evidence\\r1-7ec4ecd027-navigation.log",
+      "markers": false
+    }
+  ],
+  "binary_sha256": "6cdaef242b274a9ac513a01debb22dc5d1d639d31802a27cbc545363ab5632a1",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "protected_unchanged": true
+}

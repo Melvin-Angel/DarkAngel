@@ -187,12 +187,17 @@ void SceneViewport::render(double elapsed_seconds) {
         camera_fov = XM_PIDIV4;
     }
     auto projection = XMMatrixPerspectiveFovRH(camera_fov, viewport.Width / viewport.Height, gpu.radius * .01f, gpu.radius * 40);
+    if (shell.workspace==darkangel::editor_app::Workspace::Scene&&!editor.preview.active()) {
+        // Use the exact matrices used by this frame's UI picking/drop rays, also during viewport resize.
+        view=XMLoadFloat4x4(&shell.scene_view);
+        projection=XMLoadFloat4x4(&shell.scene_projection);
+    }
     XMStoreFloat4x4(&view_matrix, view);
     XMStoreFloat4x4(&projection_matrix, projection);
     shell.scene_view = view_matrix;
     shell.scene_projection = projection_matrix;
     shell.scene_camera = true;
-    if (!args.hidden)
+    if (!args.hidden||args.exercise_scene_camera)
         shell.gizmo(editor, view_matrix, projection_matrix);
     // Placed models, then the characters of spawn points: at the spawn point while authoring, as the spawned actor in Play.
     std::vector<std::pair<StableId, AssetId>> drawn_objects(editor.document->plan().models.begin(), editor.document->plan().models.end());

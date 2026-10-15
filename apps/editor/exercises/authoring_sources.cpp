@@ -453,6 +453,19 @@ class AuthoringSources final : public Exercise {
             require(failed && shell.author_diagnostic.find("Native candidate for ") != std::string::npos &&
                         editor.authoring.open(*editor.assets, ability).value == value,
                     "Validation error lost context/draft");
+            // R2: the visible Save command uses this coordinator. A rejected
+            // publication must preserve both the invalid draft and last good source.
+            const auto& invalid = editor.authoring.open(*editor.assets, ability);
+            const auto source_path = editor.assets->source_root() / invalid.asset.path;
+            const auto source_before = file_sha256(source_path);
+            const auto generation_before = invalid.asset.generation;
+            bool publication_failed = false;
+            try { editor.save_gameplay(); } catch (const std::exception&) { publication_failed = true; }
+            const auto& retained = editor.authoring.open(*editor.assets, ability);
+            require(publication_failed && retained.value == value && retained.asset.generation == generation_before &&
+                        file_sha256(source_path) == source_before && !editor.preview.active(),
+                    "R2 rejected publication lost draft/source or changed gameplay");
+            std::cout << "R2 failed publication retained draft/source and stopped gameplay\n";
         }
         if (args.exercise_creation_drafts && frame == 0) {
             require(editor.assets && character_resources && !args.character_preview_clip.empty(),
