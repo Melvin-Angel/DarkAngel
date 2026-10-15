@@ -26,7 +26,7 @@ Tooling reads or writes these by path, so they stay at this level: [PACKAGING.md
 
 ## future/
 
-- [AUTHORING_NEXT_STEPS_2026-10-15.md](future/AUTHORING_NEXT_STEPS_2026-10-15.md): design index and A–J traceability; the [main roadmap](../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) owns the single R1–R8 recommended order and playable sandbox gate.
+- [AUTHORING_NEXT_STEPS_2026-10-15.md](future/AUTHORING_NEXT_STEPS_2026-10-15.md): design index and A–J traceability; the [main roadmap](../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) owns the single R1–R8 recommended order.
 - [EDITOR_UX_OVERHAUL_PLAN.md](future/EDITOR_UX_OVERHAUL_PLAN.md): dedicated R2 audit/design-system, existing-window improvements and cross-window workflow qualification.
 - [GAMEPLAY_CONFIGURATION_DESIGN.md](future/GAMEPLAY_CONFIGURATION_DESIGN.md): R3 shared Player/NPC movement profiles and deterministic runtime ownership.
 - [PREFAB_PLACEMENT_DESIGN.md](future/PREFAB_PLACEMENT_DESIGN.md): R4 place/edit/swap and publication contracts, extending the prefab proposal.

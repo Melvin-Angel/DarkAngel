@@ -113,7 +113,7 @@ Implement shared command/routing adapters incrementally, keeping native source/d
 - **Scene object → source asset → scene instance:** expose provenance/reveal/open where supported, preserving scene selection and dirty drafts. Apply/Swap/override semantics remain R4.
 - **Context actions/shortcuts/history:** toolbar/menu/context/keyboard routes reach the same public commands and history owner; text entry, previews, modal dialogs and game input have predictable precedence.
 - **Workspace persistence:** customize Scene/Game and representative authoring layout, switch/reopen/restart, reset and recover invalid preferences; content and asset identities remain unchanged.
-- **Edit → save → cook → Play → Stop:** report preparation/progress/errors and frozen generation, release input and return to selection; repair invalid authoring while retaining the last good package. This qualifies UX for existing features; the full authored sandbox follows R6.2.
+- **Edit → save → cook → Play → Stop:** report preparation/progress/errors and frozen generation, release input and return to selection; repair invalid authoring while retaining the last good package. This qualifies UX for existing features.
 
 For each flow, record baseline and final steps/clicks/time-to-completion under comparable conditions. Set a concrete improvement target after measurement; do not invent numeric reductions now. Include an unfamiliar-author pass to test discoverability and a keyboard/focus pass. Track correctness separately from speed.
 

@@ -41,7 +41,7 @@ The user considers this important for the engine to be usable: reusable prefabs 
 ## Notes from the M8 hand test (14 October 2026)
 
 - Dropping objects onto rooftops or other geometry is intended behaviour (the user confirmed it is fine). The real authoring problem was not being able to see the scene from other angles, which the camera TODO above addresses.
-- **Deferred, optional low priority:** investigate reachability hints for Interact-activated transitions, pickups or altars far above/below walkable ground. Height alone is not proof of unreachability. A qualified Inspector warning could help, but it is not a required R1/R2/sandbox gate.
+- **Deferred, optional low priority:** investigate reachability hints for Interact-activated transitions, pickups or altars far above/below walkable ground. Height alone is not proof of unreachability. A qualified Inspector warning could help, but it is not a required R1/R2 gate.
 
 ## Deferred technical work
 

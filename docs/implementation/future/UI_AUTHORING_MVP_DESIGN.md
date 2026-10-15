@@ -1,6 +1,6 @@
 # UI workspace and reusable document MVP
 
-**Scheduling: Planned, R6.1 (B: U0/U1), R6.2 (D: U2), and later R8 (E: U3)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026). R6 follows R5 and uses the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md); the playable sandbox gate follows R6.2. U3 world-panel work must not block the screen/menu examples or sandbox. U0–U3 here supersede the older UI_PLAN stage numbering.
+**Scheduling: Planned, R6.1 (B: U0/U1), R6.2 (D: U2), and later R8 (E: U3)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026). R6 follows R5 and uses the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md). U3 world-panel work must not block the screen/menu examples. U0–U3 here supersede the older UI_PLAN stage numbering.
 
 15 October 2026. **Proposed design, not an implemented UI tab or API.** Resume through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md). This updates the current-state assumptions and sequence of the [12 October UI plan](UI_PLAN.md); [DAE-010](../../architecture/Decision_Log.txt) remains the locked contract.
 

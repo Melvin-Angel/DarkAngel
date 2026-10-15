@@ -1,6 +1,6 @@
 # Skyboxes, procedural skies, lighting, fog and post processing
 
-**Scheduling: Planned, R7 (H + I + J)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after the playable sandbox gate. R7.1 covers sky/Lighting/fog/lights, R7.2 scene/camera post profiles and legal effect stages, R7.3 UV/backend work and static indirect baking; probes remain later. Future tools adopt the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md), not implementation during R2.
+**Scheduling: Planned, R7 (H + I + J)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after R6. R7.1 covers sky/Lighting/fog/lights, R7.2 scene/camera post profiles and legal effect stages, R7.3 UV/backend work and static indirect baking; probes remain later. Future tools adopt the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md), not implementation during R2.
 
 15 October 2026. **Research and future-work design only. No renderer features, assets, tools, dependencies or bake backend added.** Extends the [authoring handoff](AUTHORING_NEXT_STEPS_2026-10-15.md) at the user's request. [DAE-005](../../architecture/Decision_Log.txt) still owns rendering architecture; its deferred lightmaps/probes are now explicitly planned work, not implemented or a newly locked backend choice.
 

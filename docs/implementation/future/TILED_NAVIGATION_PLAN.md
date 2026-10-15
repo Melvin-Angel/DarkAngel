@@ -1,6 +1,6 @@
 # Tiled navigation and streaming readiness
 
-16 October 2026. **Planned, not implemented. Priority: low / future. No implementation date.** Category: navigation / world scale. Backlog entry: [roadmap deferred work](../../architecture/DarkAngel_Implementation_Handoff.md#deferred-work-and-unresolved-planning-decisions). Scheduled after the higher-priority editor authoring and gameplay workflows (R2–R8 and the sandbox gate); it does not displace them. Dependency: the existing Recast & Detour navigation.
+16 October 2026. **Planned, not implemented. Priority: low / future. No implementation date.** Category: navigation / world scale. Backlog entry: [roadmap deferred work](../../architecture/DarkAngel_Implementation_Handoff.md#deferred-work-and-unresolved-planning-decisions). Scheduled after the higher-priority editor authoring and gameplay workflows (R2–R8); it does not displace them. Dependency: the existing Recast & Detour navigation.
 
 ## Current state
 

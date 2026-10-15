@@ -6,7 +6,7 @@
 
 The refactor and agreed scene-scale implementation are complete, excluding explicit deferrals. Preserve the completed results in [REFACTOR_REPORT.md](../current/REFACTOR_REPORT.md) and [SCENE_SCALE_PLAN.md](../current/SCENE_SCALE_PLAN.md), including phases 0–5, 7 and 8 (with 3b). Scene-scale phase 6 GPU instancing, reduced-feature build verification, cross-machine testing, EOS validation and optional walkable-ground reachability warnings remain deferred in the main roadmap. Historical subsystem qualification remains open where recorded; same-machine GNS is not remote/EOS proof.
 
-R1 Scene navigation is **Implemented and locally verified**, as recorded in the [R1 implementation report](../current/SCENE_NAVIGATION_REPORT.md). R2–R8 and the playable sandbox gate remain **Planned**. R2 editor-wide UX overhaul is the next recommended major milestone; this index does not implement it. Read [STATUS](../STATUS.md), [CONTINUE](../CONTINUE.md) and the latest owning report for evidence; older paragraphs are historical.
+R1 Scene navigation is **Implemented and locally verified**, as recorded in the [R1 implementation report](../current/SCENE_NAVIGATION_REPORT.md). R2–R8 remain **Planned**. R2 editor-wide UX overhaul is the next recommended major milestone; this index does not implement it. Read [STATUS](../STATUS.md), [CONTINUE](../CONTINUE.md) and the latest owning report for evidence; older paragraphs are historical.
 
 ## Detailed plans and old feature IDs
 
@@ -22,7 +22,7 @@ R1 Scene navigation is **Implemented and locally verified**, as recorded in the 
 | E – World puzzle UI | R8 | [UI authoring U3](UI_AUTHORING_MVP_DESIGN.md): UI Surface, offscreen renderer, ray input and host-approved puzzle adapter |
 | Tiled navigation (no A–J ID) | Future backlog, unscheduled, low priority | [Tiled navigation plan](TILED_NAVIGATION_PLAN.md): Recast tiled baking, multi-tile Detour, incremental rebuild and streaming readiness |
 
-The sandbox gate after R6.2 is specified in the main roadmap: third-person Player, small authored environment, reusable prefabs, basic NPC, interactables, minimal gameplay UI and edit → save → cook → Play without manual data manipulation or hardcoded demo paths. It is integration/usability validation toward historical M9, not a new large game or release qualification.
+The playable sandbox gate was removed from the schedule on 16 October 2026 (too early); see the roadmap's deferred work.
 
 ## Technical contracts retained
 
