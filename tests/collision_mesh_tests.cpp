@@ -1,3 +1,4 @@
+#include <darkangel/static_collision.hpp>
 #include <darkangel/assets.hpp>
 #include <darkangel/character_motor.hpp>
 #include <darkangel/collision_asset.hpp>
@@ -27,10 +28,10 @@ int main(){try{
     auto a=rendered(scene,30),b=rendered(scene,60),c=rendered(scene,144);require(a.position==b.position&&b.position==c.position&&a.position.x>7&&a.grounded,"Cave seam movement is render-independent");
     CharacterMotor motor(w,{-2,0,0},10);tick(w,motor);auto baseline=motor.state();CollisionHistory history;std::vector<MotorInput> commands;
     for(unsigned n=0;n<24;++n){history.retain(w.capture());auto t=w.tick()+1;commands.push_back({t,t,1,1});tick(w,motor,1);}
-    auto expected=motor.state();auto retained=w.capture().meshes[0].geometry;w.remove(7);auto after=w.capture();MotorState output;
+    auto expected=motor.state();auto retained=w.capture().statics;w.remove(7);auto after=w.capture();MotorState output;
     require(replay_motor(baseline,commands,history,output,10)==ReplayResult::Applied&&std::abs(output.position.x-expected.position.x)<.001&&output.grounded,"Replay retains removed immutable mesh generation");
-    require(w.capture().tick==after.tick&&w.capture().topology==after.topology&&w.capture().meshes.empty()&&motor.state().position==expected.position,"Historical replay never rewinds live world");require(!w.valid_hit(front.hits[0]),"Removed mesh hit expires");
-    CollisionHistory changed,expired;for(const auto& command:commands){auto frame=*history.find(command.tick-1);if(command.tick>baseline.tick+1)frame.meshes.clear();changed.retain(frame);if(command.tick!=baseline.tick+2)expired.retain(*history.find(command.tick-1));}
+    require(w.capture().tick==after.tick&&w.capture().topology==after.topology&&w.capture().statics->bodies().empty()&&motor.state().position==expected.position,"Historical replay never rewinds live world");require(!w.valid_hit(front.hits[0]),"Removed mesh hit expires");
+    CollisionHistory changed,expired;for(const auto& command:commands){auto frame=*history.find(command.tick-1);if(command.tick>baseline.tick+1)frame.statics=StaticCollisionLayer::empty();changed.retain(frame);if(command.tick!=baseline.tick+2)expired.retain(*history.find(command.tick-1));}
     output.position.x=999;require(replay_motor(baseline,commands,changed,output,10)==ReplayResult::TopologyMismatch&&output.position.x==999,"Unversioned streamed mesh change fails atomically");require(replay_motor(baseline,commands,expired,output,10)==ReplayResult::MissingHistory&&output.position.x==999,"Expired mesh history fails atomically");
     auto mutable_data=std::make_shared<CollisionMeshData>(*scene.meshes[0].data);auto geometry=std::make_shared<CollisionGeometry>(*mutable_data);mutable_data->vertices[0].y=100;require(geometry->definition().vertices[0].y==0,"Geometry freezes source data");
     PhysicsWorld ceiling;ceiling.load_scene(scene);CharacterMotor jumper(ceiling,{0,0,0},10);for(unsigned n=0;n<20;++n)tick(ceiling,jumper);double high=0;for(unsigned n=0;n<60;++n){tick(ceiling,jumper,0,n==0);high=std::max(high,jumper.state().position.y);}require(high>.5&&high<1.25&&jumper.state().grounded,"Cave roof constrains jump and recovers grounded stance");

@@ -1,6 +1,7 @@
 # Scene scale: per-model collision and incremental placement
 
-Status: phase 0 (baseline) and phase 1 (per-model collision product) done on 15 October 2026; phase 2 next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
+Status: phase 0 (baseline) and phase 1 (per-model collision product) done on 15 October 2026; architecture revised the same
+day (design rules below); phase 2 in progress. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
 placement failures but kept the current architecture.
 
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
@@ -41,20 +42,90 @@ Root causes:
 
 ## Target architecture
 
+Revised 15 October 2026 after reviewing `PhysicsWorld` (engine/runtime/character_motor.cpp), the scene client and authority, the
+collision wire encoding (world_session_packet.hpp), the observer, and the editor renderer.
+
 - **Collision is part of the model.** Cooking a model also produces a local-space collision shape for it (welded, validated,
-  deterministic). A placement is a body: that shape plus the placement's transform and uniform scale. Nothing is baked per scene,
-  and moving a placement moves a body without rebuilding triangles.
-- **Static geometry is a static layer, separate from tick frames.** A `StaticCollisionLayer` is an immutable, shared set of
-  `{body id, shape, transform}` with a content revision (a hash over body ids, shape signatures and transforms). `PhysicsWorld` holds
-  one layer. `CollisionFrame` and `CollisionStreamFrame` carry only boxes, actors and the layer revision. History and replay never
-  copy or rebuild static bodies.
-- **Every participant derives the layer from the scene.** Host, guests, prediction and replay worlds build the same layer from the
-  scene's placements and the cooked model shapes. The session handshake compares revisions instead of sending geometry.
+  deterministic; done in phase 1). A placement is a body: that shape plus the placement's transform and uniform scale. Nothing is
+  baked per scene, and moving a placement moves a body without rebuilding triangles.
+- **Static geometry is an immutable static layer, separate from tick state.** A `StaticCollisionLayer` is an immutable,
+  reference-counted snapshot of `{body id, scene object id, shared geometry, position, rotation, scale}`, sorted by body id, with a
+  content revision. `PhysicsWorld` points at one layer. `CollisionFrame` carries a pointer to the layer it was captured with, not a
+  copy of its bodies, and `CollisionStreamFrame` carries only the layer's revision. History and replay never copy or rebuild static
+  bodies.
+- **Every participant derives the same layer from the scene.** Host, guests, prediction and replay worlds build or share the same
+  layer from the scene's placements and the cooked model shapes. The session handshake and every collision snapshot compare
+  revisions instead of shipping geometry references.
 - **Editor placement is incremental.** Placing a model cooks that one model if needed, loads it directly from the asset cache,
-  uploads only it to the GPU, and adds one body to the editor's query world. Packaging and Play preparation happen only at Play
-  (and travel), and only when something changed.
-- **Merging is optional and later.** At Save or Play, static bodies may be merged into one compound per spatial cell, only if
-  measurements show the broadphase or queries need it (phase 5).
+  uploads only it to the GPU, and changes one body in the editor's query world. Packaging and Play preparation happen only at Play
+  (and travel).
+- **Rendering scales separately.** Frustum culling and draw-state batching come first; GPU instancing follows as its own phase,
+  because it changes the prop shader contract (see phases 5 and 6).
+
+### Design rules
+
+**Stable identity.**
+- A static body's identity is a 64-bit id derived from the scene object's `StableId`:
+  `(first 62 bits of sha256("darkangel.static-body/" + object)) | 2^62`.
+- Bit 62 marks static scene bodies. Moving boxes use small ids or `2^40 + index` (scene_world_objects.cpp), characters set bit 63
+  in Jolt user data, and hand-authored collision meshes keep their authored ids (1001, ...). The three spaces cannot collide, and a
+  hash collision between two placements fails the layer build.
+- Jolt `BodyID`s are allocation slots and never leave `PhysicsWorld`. Hits, supports, sensors, history and the wire all use the
+  body id. `StaticCollisionLayer::find(id)` maps a hit back to the scene object (`StableId`) and its model.
+- Hit validity (`valid_hit`) stays per world: world id, tick, topology, and a per-world body generation.
+
+**Deterministic revisions.**
+- The revision is sha256 over a canonical byte encoding, in body-id order:
+  - the body id and scene object id;
+  - the geometry's runtime asset id and content signature;
+  - position, rotation and scale, as the IEEE-754 bit patterns of the doubles, written as fixed-width hex.
+- Rotations are normalized and sign-canonicalized (`w >= 0`; when `w == 0`, the first non-zero component positive), so `q` and `-q`
+  give the same revision.
+- No struct bytes, padding, pointer values or container iteration order enter the hash. Bodies are sorted before hashing, so
+  insertion order never matters.
+- Only collision inputs are hashed. Renaming an object, changing its material or tint, or editing a model with `"collision": "none"`
+  does not change the revision. Moving or scaling a colliding placement does.
+
+**Ownership.**
+- A layer is immutable once built and shared by `std::shared_ptr<const StaticCollisionLayer>`. Simulation, prediction and replay
+  worlds only ever see a complete layer, so they can never observe a half-edited scene.
+- The editor's authoring state stays in the document. A new layer is built from the document when a collision-relevant edit
+  commits, not per mouse move: the gizmo draft is display-only until release.
+  - The build copies body records (shared geometry pointers, about 100 bytes each) and rehashes them, in O(N) time; geometry is
+    never rebuilt.
+  - Geometry comes from a `CollisionGeometryCache` keyed by runtime id and signature, so N placements of one model share one Jolt
+    `MeshShape`.
+- `PhysicsWorld::set_static_layer(next)` diffs the old and new layers by body id in one merge walk, and touches only bodies that
+  were added, removed, moved, rescaled or had their geometry swapped. Unchanged bodies keep their Jolt body and generation. A
+  full-layer install (first load, scene change) adds bodies in one batch and optimizes the broadphase once; small diffs never
+  trigger a broadphase optimize.
+- Publication: the Play session takes the layer that exists when Play is prepared. Static collision does not change during a Play
+  session; a scene edit stops Play, as today. Scene travel builds the destination's layer before the swap (scene_transition), and a
+  failed build leaves the current scene running.
+
+**Prediction and reconciliation.**
+- A layer change is a topology change: `set_static_layer` with a different revision increments the world's topology, so every
+  existing topology check keeps guarding it.
+- `load(frame)` clears and reinserts only boxes and historical actors. It changes static bodies only when the frame's layer has a
+  different revision from the world's, which never happens inside one topology.
+- `OwnerPrediction` keeps one persistent replay world (`PhysicsWorld::Mode::Replay`) holding the static layer. `replay_motor` gains
+  an overload that reuses it, so a reconcile inserts no static bodies at all. The old overload (a temporary world per call) remains
+  for callers that replay once.
+- A revision mismatch fails with a diagnostic naming both revisions (prediction world against frame, guest against host). Replay
+  returns `TopologyMismatch`.
+
+**Jolt specifics.**
+- Shapes are reference-counted (`RefConst<Shape>`) and immutable after creation. Sharing one `MeshShape` across bodies and across
+  `PhysicsSystem`s is supported. A layer holds `shared_ptr<const CollisionGeometry>`, which holds the shape's `RefConst`, so every
+  world using the layer keeps the shape alive.
+- Uniform scale only: `scale` in (0, 1000]. Scale 1 uses the mesh shape directly; any other scale wraps it in a `ScaledShape`,
+  cached per (geometry, scale) in the layer. Negative, zero and non-uniform scales are rejected when the layer is built (`Transform`
+  has one scale).
+- `ScaledShape` is a decorated shape: it passes sub-shape ids through unchanged, so `GetTriangleUserData` and `GetMaterialIndex` on
+  the inner `MeshShape` still give the authored triangle key and material index.
+- Static bodies use object layer 0 (static) and keep the existing layer pair filters. Queries classify them as `StaticCollision`.
+- `PhysicsSystem::Init` is raised from 256 to 16,640 bodies: 16,384 static, 64 moving boxes, 2 × 33 character proxies, and a
+  margin. The static budget and the 64-box moving budget are counted separately.
 
 ## Phases
 
@@ -108,7 +179,7 @@ What the baseline shows:
   about 50 ms at 260, because every edit re-resolves the whole scene and rebuilds the authoring `World`. That is not collision.
   It belongs with phase 6, but phase 4 should avoid adding more per-edit whole-scene work.
 - **Authoring frames grow with the draw loop** (1.3 ms → 8 ms p50 at 260 placements, one draw per mesh per placement, no
-  instancing or culling). That is the render follow-up in phase 5.
+  instancing or culling). That is phases 5 and 6.
 - **Replay cost grows with static mesh count** (0.24 → 0.44 ms per reconcile from 1 to 16 meshes) because every replayed tick
   re-inserts every static body. Scene load costs about 2 ms per hut, because a Jolt mesh shape is built for each placement even
   when the model is the same. Both confirm phases 1 and 2: at thousands of placements, both would cost hundreds of
@@ -149,69 +220,152 @@ the cooker build hash changed.
 
 ### Phase 2: static collision layer in the physics world
 
-- New `StaticCollisionLayer` (engine/runtime): built from `{id, shared CollisionGeometry, position, rotation, scale}`; validated;
-  revision hash; body budget raised to a large static cap (for example 16,384) that is separate from the 64 boxes and actors.
-- `PhysicsWorld::set_static_layer(std::shared_ptr<const StaticCollisionLayer>)` adds the bodies once. The editor query world also gets
-  `add_static`/`move_static`/`remove_static` for incremental edits.
-- `CollisionFrame` drops `meshes` and gains `static_revision`. `capture`, `load`, `CollisionHistory`, `update_prediction` and
-  `replay_motor` stop handling meshes. Replay keeps one isolated replay world per owner prediction, holding the layer, and
-  `load(frame)` only swaps boxes and actors. A frame whose `static_revision` differs from the world's layer is a
-  `TopologyMismatch`, as a topology change is today.
-- Hits on static bodies keep reporting the body id, subshape and material key. `valid_hit` checks the layer revision instead of the
-  per-mesh generation.
-- `load_scene(CollisionDefinition)` stays for hand-authored collision sources (the existing `collision` component profiles and
-  `environment.dacollision`). Their meshes become static-layer bodies with an identity transform.
-- Tests: the existing motor, replay, prediction, correction and collision tests, plus new ones: 2000 static bodies with replay
-  cost independent of body count; a revision mismatch rejects replay; incremental add, move and remove in the query world.
+- `StaticCollisionLayer`, `StaticCollisionBody`, `CollisionGeometryCache` and `static_body_id(StableId)`
+  (engine/runtime/static_collision.cpp, in DarkAngelPhysics). Built per the design rules above.
+- `PhysicsWorld`:
+  - `set_static_layer`, `static_layer()`, and static bodies outside `clear()`.
+  - The 16 static-mesh and 64 boxes-plus-meshes checks become a 16,384-static budget plus a 64-box budget.
+  - `load_scene(CollisionDefinition)` turns hand-authored meshes into static-layer bodies at identity.
+  - `remove(id)` on a static body installs a layer without it.
+  - `add_mesh` is removed: it had no callers.
+- `CollisionFrame` holds `std::shared_ptr<const StaticCollisionLayer> statics` instead of `meshes`. `CollisionStreamFrame` holds
+  `static_revision` instead of mesh references.
+  - The wire item kind 3 becomes the revision: 64 characters, sent once per snapshot.
+  - `prepare_collision_frame(stream, layer)` checks the revision.
+  - The observer compares revisions and stops emitting identity poses for static meshes.
+- `CollisionHistory` and `replay_motor` compare layer revisions, not per-mesh signature maps. `OwnerPrediction` holds a persistent
+  replay world.
+- Acceptance:
+  - SceneScaleBench at 100, 500, 2,000 and 16,384 placements of repeated models, plus a scene of many unique models.
+  - Unique shape builds equal the number of distinct models, not placements.
+  - Replay inserts zero static bodies, measured by a world counter. Per-reconcile cost no longer grows with the static body count
+    beyond query effects.
+  - 16,384 bodies load. 16,385 fail with a clear budget error.
+  - All existing motor, replay, prediction, correction, collision stream and observer tests pass, updated where they asserted mesh
+    lists.
+- New tests: layer revision determinism (insertion order, quaternion sign, visual-only fields excluded), diff-based
+  `set_static_layer` (unchanged bodies keep their generations), shared shapes, scaled bodies hit with the right triangle key and
+  material, a revision mismatch in `update_prediction`/replay, and the budget.
 
-### Phase 3: session and network
+Implemented (15 October 2026):
+- engine/runtime/static_collision.cpp: `StaticCollisionLayer`, `CollisionGeometryCache`, `static_body_id`, `placement_rotation`.
+- `PhysicsWorld` diff install. `CollisionFrame::statics` and `CollisionStreamFrame::static_revision`.
+- Wire item 3 is the revision. The observer compares revisions.
+- Persistent `OwnerPrediction` replay world, and the `replay_motor(..., PhysicsWorld&)` overload.
+- Jolt `Init` sized for 16,640 bodies.
+- `add_mesh` removed.
+- Test: `M4.static_collision`. Collision mesh, stream and observer tests now assert layer revisions instead of mesh lists.
 
-- Scene authority and clients (scene_authority*, scene_client, character_scene) build the static layer from the scene plan and
-  cooked model shapes, instead of taking it from a baked `CollisionDefinition`.
-- Handshake: the geometry identity hashed into `SessionHandshake` (now built in `prepare_character_scene`) becomes the layer
-  revision. A guest whose scene or models differ fails at join, with a message that names the mismatch.
-- `CollisionStreamFrame` drops mesh references (smaller snapshots) and carries `static_revision`. `prepare_collision_frame` no
-  longer needs prepared geometry.
-- Navigation (engine/runtime/navigation.cpp) builds its triangle soup from the static layer (shape triangles transformed per
-  body), not from baked world-space meshes.
-- Gates: party/GNS loopback, guest join with a mismatched scene, scene travel, navigation bake.
+Results (SceneScaleBench, 600 ticks, replay in 15-command batches; "models" is distinct collision shapes):
+
+| Placements (models) | Layer build | Shapes built | Install | Move one (diff) | Live tick | Replay, persistent world (worst) | Replay, fresh world (old cost) | Static inserts in replay after the first | Private memory |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 100 (1) | 12 ms | 2 | 0.1 ms | 0.03 ms | 12.6 µs | 0.26 ms (3.1) | 0.64 ms | 0 | +9 MB |
+| 100 (100) | 470 ms | 101 | 0.1 ms | 0.03 ms | 6.7 µs | 0.16 ms (1.6) | 0.44 ms | 0 | +15 MB |
+| 500 (1) | 7 ms | 2 | 0.4 ms | 0.12 ms | 6.1 µs | 0.12 ms (0.5) | 0.81 ms | 0 | +8 MB |
+| 500 (200) | 835 ms | 201 | 0.4 ms | 0.7 ms | 7.3 µs | 0.16 ms (0.8) | 0.78 ms | 0 | +21 MB |
+| 2,000 (1) | 17 ms | 2 | 1.6 ms | 0.7 ms | 8.7 µs | 0.19 ms (2.3) | 2.26 ms | 0 | +13 MB |
+| 2,000 (200) | 788 ms | 201 | 2.6 ms | 3.6 ms | 7.3 µs | 0.18 ms (1.7) | 2.52 ms | 0 | +21 MB |
+| 16,383 + ground (1) | 120 ms | 2 | 15.5 ms | 4.7 ms | 9.9 µs | 0.60 ms (12.9) | 28.7 ms | 0 | +18 MB |
+| 16,383 + ground (200) | 1,455 ms | 201 | 21.8 ms | 6.5 ms | 8.2 µs | 0.61 ms (17.2) | 22.8 ms | 0 | +27 MB |
+| 16,385 bodies | rejected: "Static collision body budget (16384) exceeded" | | | | | | | | |
+
+What changed against the baseline:
+- The 16-mesh and 64-body limits are gone for static geometry. 16,384 static bodies install in 16 to 22 ms.
+- Shapes are built once per distinct model, not per placement.
+- A reconcile no longer re-inserts static bodies: zero inserts after the first replay. Replay at 16k bodies costs 0.6 ms on average,
+  against 28.7 ms when every replay builds a fresh world, which was the old architecture's per-reconcile cost. The worst replay
+  (13 to 17 ms at 16k) is the first one, which installs the layer once.
+- Layer build time with many unique models is dominated by Jolt mesh-shape construction (about 4 ms per 826-triangle shape). That
+  is paid once per model, at Play preparation.
+- Moving one body by diff costs 4.7 ms at 16k bodies. The diff rebuilds the id-to-body map, which is O(N). A later refinement could
+  diff in place.
+
+Verification: `M4.static_collision` and the collision, motor, session, prediction and correction tests pass. Full CTest passed apart from
+timeouts: `M5.native_authoring` took 683 s against 436 s in phase 1, and `M5.actor_assets` exceeded its 94 s limit.
+- Every test ran 1.2 to 1.6x slower in that run, including tests that never touch physics (`M5.clips`, `M5.canonical_rig`,
+  `M4.model_collision`). The machine was loaded by other desktop applications.
+- Controlled A/B runs were inconclusive: the no-physics control itself varied from 2.0 to 4.2 s. Restoring the 256-body Jolt
+  capacity, or using a fresh replay world per reconcile, made no measurable difference.
+- `NativeAuthoringTests --fixture-only` passes when run alone. Session-test timing is an open measurement, to repeat on an idle
+  machine.
+
+### Phase 3: scene-derived layers, session and navigation
+
+- The editor builds the layer from the scene plan:
+  - every model placement except the player's skin, pickups, altars, doors and platforms;
+  - its cooked `model-collision` product, through `load_cooked_model_collision`;
+  - the placement transform.
+  The function is `scene_static_collision(plan, world, skin, load)` in apps/editor/scene_collision.cpp.
+- A scene `collision` component profile (hand-authored) adds its bodies to the same layer.
+- `CollisionDefinition` gains `std::shared_ptr<const StaticCollisionLayer> statics`, so sessions, the placement query world and
+  navigation receive one object.
+- `prepare_character_scene`:
+  - drops the per-placement bake, the stale matching and the AABB box proxies;
+  - hashes the layer revision into the handshake, replacing the per-mesh geometry identity string.
+  A guest whose scene or cooked models differ fails at join with "static collision revision mismatch".
+- Navigation reads the layer: each body's shape triangles, transformed by its pose.
+- Acceptance:
+  - The Royal scenes play with model collision.
+  - Party/GNS loopback and the scene-travel gates pass.
+  - Navigation bakes from the layer.
+  - A scene with 2,000 placements prepares Play.
 
 ### Phase 4: editor without the scene bake
 
-- Remove `bake_scene_collision`, `scene_collision_for`, `publish_scene_collision` and the `<scene>.dacollision` bake (including
-  `scene_saved` baking), plus the stale-placement matching and the 16-model limit in `prepare_character_scene`. Existing
-  generated `.dacollision` files next to scenes become unused. Delete them in the same change, after checking that nothing other
-  than the bake references them.
+- Remove `bake_scene_collision`, `scene_collision_for`, `publish_scene_collision`, the `<scene>.dacollision` bake (including
+  `scene_saved` baking) and `bake_model_collision`.
+- Generated `.dacollision` files next to scenes become unused. Delete them in the same change, after checking that nothing other
+  than the bake referenced them. The user's untracked RoyalCombat.dacollision is left alone; it is a user file.
 - `SceneResources::prepare_model` loads straight from the asset service: cook that one model if it is not cooked or is stale, then
-  load its product closure from the asset cache catalog (no Play package). `Shell::place` no longer calls
-  `prepare_play_resources`.
-- The placement-surface query world (apps/editor/viewport_tools.cpp) holds the static layer and updates it incrementally on place,
-  move and delete, instead of being rebuilt from the baked definition.
-- Play preparation packages once, at Play: the scene is the single package root and its models are dependencies (edges), so the
-  64-root limit no longer depends on model count. Raise the product limit to a large work bound, and replace per-call registry parsing
-  with a `RuntimeRegistry` that is parsed once and shared by all loads from that package.
-- Raise the 63-model upload cap to a budgeted limit (count and bytes). Models no longer placed are kept until the budget is
-  exceeded, then evicted least-recently-used. Placed models are never evicted.
-- Gates: the editor placement and world-place gates, scene-editing exercise, Play from the editor, Save/Open round trip, scene
-  travel, plus phase 0 numbers (placing a new model must not reload other models).
+  package and load its closure on its own. `Shell::place` no longer calls `prepare_play_resources`.
+- The placement-surface query world (apps/editor/viewport_tools.cpp) keeps a layer and calls `set_static_layer` with the diff when
+  the document's collision changes, instead of rebuilding.
+- Play preparation packages once, at Play. Package limits rise to work bounds (roots and products), and the registry is parsed
+  once per load batch instead of once per model.
+- The 63-model upload cap becomes a budget.
+- Acceptance:
+  - Placing a model the scene has not used costs about one model cook and upload, independent of scene size.
+  - Moving a placement does not touch other bodies.
+  - Prepare Play at 2,000 placements completes.
+  - Editor gates pass.
 
-### Phase 5 (optional): merge on Save or Play
+### Phase 5: frustum culling and draw batching
 
-Only if phase 0 numbers show the broadphase, queries or memory need it: group static bodies by spatial cell and model, and build one
-`StaticCompoundShape` per cell at Play preparation (deterministic, so host and guests get the same layer revision). The editor keeps
-individual bodies so editing stays incremental. Rendering has a matching follow-up: instanced draws per model and frustum culling,
-once scenes reach thousands of placements.
+- Cull each placement against the view frustum using its model's bounding sphere before submitting draws.
+- Sort visible draws by pipeline, model, mesh and material, so vertex buffers, pipeline state and material bindings are set once
+  per run, not once per part. Keep `DRAW_FLAG_VERIFY_ALL` out of release builds.
+- Instrumentation, reported by `--exercise-scale`: draws submitted, placements visible and culled.
+- Acceptance:
+  - Authoring frame time at 260 placements improves on the 8 ms baseline.
+  - Draw count scales with visible placements, not total placements.
+  - Picking, selection and capture gates are unchanged, because culling changes only what is submitted.
 
-### Phase 6 (separate): document and object caps
+### Phase 6: GPU instancing
+
+Instancing changes the prop shader contract:
+- The editor's built-in shader and games/AshenRoots/shaders/stylized_prop.hlsl take the world matrix and normal rotation from a
+  per-instance structured buffer (`SV_InstanceID`) instead of the `Frame` constant buffer.
+- An instanced pipeline variant is built next to the existing one.
+- One `DrawIndexed` per (model, mesh part, material) carries all visible instances.
+- Skinned characters, worn masks and the selected or dragged placement stay on the existing per-object path.
+
+Phase 6 depends on phase 5's visible lists and must keep the pixel-exact renderer gates (`verify_royal_renderer.py`) passing. If
+those gates cannot run (Pillow is not installed), the phase stops at a design and a measured prototype rather than shipping
+unverified.
+
+### Phase 7 (separate): document and object caps
 
 1024 objects per scene, the 1 MiB scene document and the 65,536-node JSON work limit come next once collision is no longer the
-limit. That needs its own plan: per-object records already exist in `.dascene.records/`, so the manifest can stop inlining
-entities, and scene streaming or chunking is a later question.
+limit. Phase 0 shows each edit re-resolving the whole scene (10 ms at 8 placements, 50 ms at 260). That needs its own plan:
+per-object records already exist in `.dascene.records/`, so the manifest can stop inlining entities, and edits can resolve only
+the changed object. Optional static merging per spatial cell (`StaticCompoundShape` at Play preparation) belongs here too, only
+if measurements show the broadphase needs it.
 
 ## Migration and compatibility
 
-- Wire and handshake versions change in phase 3 (new handshake string), so old and new builds never join each other.
-- Cooked registries from before phase 1 lack the collision product. The asset cache recooks models on fingerprint change; the
-  importer version bump in phase 1 forces that once.
+- The collision wire item and the handshake change in phases 2 and 3, so old and new builds never join each other: the handshake
+  string changes.
+- Cooked registries from before phase 1 lack the collision product. The asset cache recooks models when the cooker build hash
+  changes.
 - Scenes with a `collision` component profile keep working through `load_scene`, now as static-layer bodies.
-

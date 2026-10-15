@@ -72,7 +72,8 @@ inline ObjectData read_object(Reader& r) {
 
 constexpr unsigned collision_chunk_items = 4;
 inline std::size_t collision_items(const CollisionStreamFrame& frame) {
-    return frame.boxes.size() + frame.actors.size() + frame.meshes.size();
+    // Boxes, actors, then one item naming the static layer's revision: static geometry itself never travels.
+    return frame.boxes.size() + frame.actors.size() + 1;
 }
 inline void write_collision_item(Writer& w, const CollisionStreamFrame& frame, std::size_t item) {
     if (item < frame.boxes.size()) {
@@ -97,12 +98,9 @@ inline void write_collision_item(Writer& w, const CollisionStreamFrame& frame, s
         w.number(a.yaw);
         w.u64(a.crouched);
     } else {
-        const auto& mesh = frame.meshes[item - frame.actors.size()];
+        require(item == frame.actors.size() && frame.static_revision.size() == 64, "Collision wire static revision item");
         w.u64(3);
-        w.u64(mesh.id);
-        for (auto n : mesh.runtime.bytes)
-            w.bytes.push_back(static_cast<std::byte>(n));
-        for (char c : mesh.signature)
+        for (char c : frame.static_revision)
             w.bytes.push_back(static_cast<std::byte>(c));
     }
 }
@@ -138,14 +136,9 @@ inline void read_collision_item(Reader& r, CollisionStreamFrame& frame) {
         a.crouched = stance != 0;
         frame.actors.push_back(a);
     } else if (kind == 3) {
-        CollisionGeometryReference mesh;
-        mesh.id = r.u64();
-        require(r.bytes.size() - r.at >= 80, "Collision wire geometry reference");
-        for (auto& n : mesh.runtime.bytes)
-            n = std::to_integer<unsigned char>(r.bytes[r.at++]);
+        require(frame.static_revision.empty() && r.bytes.size() - r.at >= 64, "Collision wire static revision");
         for (unsigned n = 0; n < 64; ++n)
-            mesh.signature.push_back(static_cast<char>(std::to_integer<unsigned char>(r.bytes[r.at++])));
-        frame.meshes.push_back(std::move(mesh));
+            frame.static_revision.push_back(static_cast<char>(std::to_integer<unsigned char>(r.bytes[r.at++])));
     } else
         throw std::runtime_error("Collision wire item kind");
 }

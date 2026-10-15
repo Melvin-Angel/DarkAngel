@@ -71,9 +71,10 @@ public:
     const CollisionMeshData& definition()const;
 private:struct Impl;std::unique_ptr<Impl> impl_;friend class PhysicsWorld;friend class CharacterMotor;
 };
-struct CollisionMesh {std::uint64_t id{};std::shared_ptr<const CollisionGeometry> geometry;};
 struct CollisionDefinition;
-struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;std::vector<CollisionActor> actors;std::vector<CollisionMesh> meshes;};
+class StaticCollisionLayer;
+// statics: the static layer the frame was captured with, shared, never copied (null is the empty layer). Boxes are the moving budget.
+struct CollisionFrame {std::uint64_t tick{},topology{};std::vector<CollisionBox> boxes;std::vector<CollisionActor> actors;std::shared_ptr<const StaticCollisionLayer> statics;};
 // Debt is retained. A frame cannot enlarge the step or silently skip a tick.
 class SimulationClock {
 public:
@@ -91,7 +92,12 @@ public:
     bool needs_resync()const;bool sleeping(std::uint64_t)const;
     void apply_impulse(std::uint64_t,MotorVec);
     void add(CollisionBox);void remove(std::uint64_t);void set_platform(std::uint64_t,MotorVec velocity,MotorVec angular={});
-    void add_mesh(CollisionMesh);void load_scene(const CollisionDefinition&);
+    void load_scene(const CollisionDefinition&);
+    // Installs a static layer by diffing it against the current one: only added, removed, moved or reshaped bodies touch Jolt.
+    // A different revision is a topology change. Static bodies survive load(frame) while the frame's layer has the same revision.
+    void set_static_layer(std::shared_ptr<const StaticCollisionLayer>);
+    const std::shared_ptr<const StaticCollisionLayer>& static_layer()const;
+    std::uint64_t static_insertions()const; // Jolt static bodies this world has created, for scale tests
     void load_cooked(std::string_view);
     bool update_prediction(const CollisionFrame&,CharacterMotor&);
     void step();CollisionFrame capture() const;void load(const CollisionFrame&,std::uint64_t replay_owner=0);
@@ -126,6 +132,9 @@ private:std::deque<CollisionFrame> frames_;
 // histories infer it for existing callers; ambiguity fails without changing output.
 ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput>,const CollisionHistory&,MotorState& output,std::uint64_t owner=0);
 ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner=0);
+// Replays in a caller-kept Replay-mode world without motors, so its static bodies persist across replays; its other state is
+// replaced from history. After a failed replay the caller discards that world.
+ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner,PhysicsWorld& replay_world);
 class OwnerPrediction {
 public:
     OwnerPrediction(PhysicsWorld&,CharacterMotor&);
@@ -138,6 +147,7 @@ public:
     bool needs_resync()const{return resync_||world_.needs_resync()||motor_.needs_resync();}std::size_t pending()const{return commands_.size();}
     MotorVec visual_offset()const{return visual_offset_;}
 private:PhysicsWorld& world_;CharacterMotor& motor_;CollisionHistory history_;std::deque<MotorCommand> commands_;bool resync_{};MotorVec visual_offset_{};
+    std::unique_ptr<PhysicsWorld> replay_; // kept across reconciles: its static bodies are inserted once
 };
 class ObserverMotor {
 public:void push(MotorState);MotorState sample(double tick) const;std::size_t size()const{return frames_.size();}

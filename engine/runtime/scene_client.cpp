@@ -1,3 +1,4 @@
+#include <darkangel/static_collision.hpp>
 #include <darkangel/scene_content.hpp>
 #include <darkangel/scene_inventory.hpp>
 #include <darkangel/collision_asset.hpp>
@@ -56,7 +57,8 @@ struct SceneClient::Impl {
     std::optional<WorldStateView> world_view;std::uint64_t revive_sent{};
     // A use the session could not send yet (not Ready, backpressure): tried again on later ticks, for up to a second.
     std::optional<StableId> unsent_interact;unsigned unsent_ticks{};
-    std::vector<CollisionMesh> prepared_geometry;
+    // This client's own static layer: incoming frames name a revision and must match it.
+    std::shared_ptr<const StaticCollisionLayer> prepared_statics;
     std::shared_ptr<const AnimationGraphPlan> presentation_plan;
     AnimationGraphInstance graph;
     GraphPoseInputs graph_inputs;
@@ -95,7 +97,7 @@ struct SceneClient::Impl {
     void arm(){
         const auto handle=client.world().find(player_identity);if(!client.world().valid(handle))return;const auto& object=client.world().read(handle);player=object.network.value;
         owner_motor=std::make_unique<CharacterMotor>(*prediction,MotorVec{object.transform.x,object.transform.y,object.transform.z},player);auto state=owner_motor->state();state.yaw=object.transform.yaw;owner_motor->restore(state);
-        owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_geometry=prediction->capture().meshes;
+        owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_statics=prediction->static_layer();
     }
     // The characters of the replicated world: one that entered is described from the prepared content, one that left
     // loses everything this client prepared for it.
@@ -119,13 +121,13 @@ struct SceneClient::Impl {
         if(timing==SceneTiming::Independent){
             if(received_revision!=client.revision()){received_collision.clear();held_collision.reset();received_revision=client.revision();}
             for(const auto& incoming:client.collisions())if(received_collision.empty()||incoming.tick>received_collision.back().tick){
-                auto frame=prepare_collision_frame(incoming,prepared_geometry);received_collision.push_back(frame);held_collision=std::move(frame);
+                auto frame=prepare_collision_frame(incoming,prepared_statics);received_collision.push_back(frame);held_collision=std::move(frame);
                 while(received_collision.size()>31)received_collision.pop_front();client.acknowledge_collision(incoming.tick);
             }
             return;
         }
         // Native geometry is prepared before acknowledging any frame.
-        auto frame=prepare_collision_frame(client.collisions().back(),prepared_geometry);
+        auto frame=prepare_collision_frame(client.collisions().back(),prepared_statics);
         auto snapshot=client.motors().find(player);if(snapshot==client.motors().end()||snapshot->second.tick!=frame.tick)return;
         if(frame.tick<prediction->tick())return;
         require(frame.tick==prediction->tick(),"Character scene collision tick mismatch; resynchronize");

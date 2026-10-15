@@ -91,7 +91,7 @@ if(DAE_ANIMATION)
 endif()
 if(DAE_PHYSICS)
   find_package(Jolt CONFIG REQUIRED)
-  add_library(DarkAngelPhysics STATIC engine/runtime/character_motor.cpp engine/runtime/melee_query.cpp)
+  add_library(DarkAngelPhysics STATIC engine/runtime/character_motor.cpp engine/runtime/static_collision.cpp engine/runtime/melee_query.cpp)
   target_link_libraries(DarkAngelPhysics PUBLIC DarkAngelRuntime PRIVATE Jolt::Jolt nlohmann_json::nlohmann_json)
   target_compile_options(DarkAngelPhysics PRIVATE /W4 /utf-8 /EHsc)
   if(BUILD_TESTING)
@@ -115,6 +115,9 @@ if(DAE_PHYSICS)
       LIBS DarkAngelPhysics)
     set_tests_properties(M4.faults PROPERTIES TIMEOUT 30 LABELS "M4;network")
     add_test(NAME M4.motor COMMAND MotorTests)
+    dae_test(StaticCollisionTests NAME M4.static_collision
+      SOURCES tests/static_collision_tests.cpp
+      LIBS DarkAngelPhysics)
     dae_test(MotorActorHistoryTests NAME M4.actor_history
       SOURCES tests/motor_actor_history_tests.cpp
       LIBS DarkAngelPhysics)
@@ -146,7 +149,7 @@ if(DAE_ANIMATION AND DAE_PHYSICS)
   find_package(recastnavigation CONFIG QUIET)
   if(recastnavigation_FOUND)
     add_library(DarkAngelNavigation STATIC engine/runtime/navigation.cpp)
-    target_link_libraries(DarkAngelNavigation PUBLIC DarkAngelRuntime PRIVATE RecastNavigation::Recast RecastNavigation::Detour)
+    target_link_libraries(DarkAngelNavigation PUBLIC DarkAngelRuntime PRIVATE DarkAngelPhysics RecastNavigation::Recast RecastNavigation::Detour)
     target_compile_options(DarkAngelNavigation PRIVATE /W4 /utf-8 /EHsc)
     # Behaviour trees through BT.CPP. Installed only where the m6-bt manifest feature is.
     find_package(behaviortree_cpp CONFIG QUIET)

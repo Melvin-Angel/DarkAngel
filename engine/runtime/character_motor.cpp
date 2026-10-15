@@ -1,5 +1,6 @@
 #include <darkangel/character_motor.hpp>
 #include <darkangel/collision_asset.hpp>
+#include <darkangel/static_collision.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
@@ -10,6 +11,7 @@
 #include <Jolt/Physics/Body/BodyLock.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/PhysicsMaterialSimple.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
@@ -28,6 +30,7 @@
 #include <stdexcept>
 #include <thread>
 #include <atomic>
+#include <bit>
 #include <set>
 #include <tuple>
 namespace darkangel {
@@ -169,8 +172,13 @@ namespace darkangel {
             std::uint64_t generation;
         };
         std::map<std::uint64_t,Box> boxes;
-        struct Mesh {CollisionMesh data;JPH::BodyID body;std::uint64_t generation;};
-        std::map<std::uint64_t,Mesh> meshes;
+        // The static layer and its Jolt bodies by stable body id. Bodies outlive load(frame) while the layer's revision holds.
+        std::shared_ptr<const StaticCollisionLayer> statics=StaticCollisionLayer::empty();
+        struct Static {const StaticCollisionBody* data;JPH::BodyID body;std::uint64_t generation;};
+        std::map<std::uint64_t,Static> static_bodies;
+        // One scaled wrapper per (geometry, scale), shared by every body that uses it.
+        std::map<std::pair<const CollisionGeometry*,std::uint64_t>,JPH::RefConst<JPH::Shape>> scaled_shapes;
+        std::uint64_t static_insertions{};
         struct Actor {JPH::CharacterVirtual* character;const MotorState* state;std::uint64_t generation,post_tick;};
         std::map<std::uint64_t,Actor> actors;
         std::vector<JPH::Ref<JPH::CharacterVirtual>> historical_actors;
@@ -194,7 +202,8 @@ namespace darkangel {
         std::thread::id owner=std::this_thread::get_id();
         explicit Impl(PhysicsWorld::Mode world_mode):mode(world_mode){
             static std::atomic<std::uint64_t> next_world{};world_id=++next_world;
-            system.Init(256,0,512,512,layers,broad,pair);
+            // Bodies: the static layer budget, the 64 moving boxes, two per character (virtual character and inner body), a margin.
+            system.Init(static_cast<JPH::uint>(static_collision_body_limit+64+2*session_character_capacity+126),0,1024,1024,layers,broad,pair);
             system.SetGravity({
                 0,-20,0
             });
@@ -206,7 +215,6 @@ namespace darkangel {
             for(auto& actor:historical_actors)characters.Remove(actor);
             historical_actors.clear();
             historical_generations.clear();historical_states.clear();
-            for(auto& [id,mesh]:meshes){system.GetBodyInterface().RemoveBody(mesh.body);system.GetBodyInterface().DestroyBody(mesh.body);}meshes.clear();
             for(auto& [id,b]:boxes){
                 system.GetBodyInterface().RemoveBody(b.body);
                 system.GetBodyInterface().DestroyBody(b.body);
@@ -214,6 +222,7 @@ namespace darkangel {
         }
         ~Impl(){
             clear();
+            for(auto& [id,body]:static_bodies){system.GetBodyInterface().RemoveBody(body.body);system.GetBodyInterface().DestroyBody(body.body);}
         }
         void insert_actor(const CollisionActor& actor){
             JPH::CharacterVirtualSettings settings;
@@ -228,7 +237,7 @@ namespace darkangel {
             historical_generations.emplace(actor.id,std::pair{++next_generation,actor.epoch});historical_states.emplace(actor.id,actor);
         }
         void insert(CollisionBox b){
-            check(b.id&&b.id<(1ULL<<63)&&boxes.size()+meshes.size()<64&&!boxes.contains(b.id)&&!meshes.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
+            check(b.id&&b.id<(1ULL<<63)&&boxes.size()<64&&!boxes.contains(b.id)&&!static_bodies.contains(b.id)&&valid(b.center)&&valid(b.half)&&b.half.x>0&&b.half.y>0&&b.half.z>0&&valid(b.velocity)&&valid(b.angular)&&finite(b.yaw)&&finite(b.roll)&&!(b.dynamic&&b.moving)&&(!b.sensor||(!b.dynamic&&!b.moving))&&finite(b.mass)&&b.mass>=1&&b.mass<=1000,"Invalid collision box");
             auto q=JPH::Quat::sRotation(JPH::Vec3::sAxisY(),float(b.yaw))*JPH::Quat::sRotation(JPH::Vec3::sAxisZ(),float(b.roll));
             double norm{};for(double n:b.rotation){check(finite(n),"Invalid collision rotation");norm+=n*n;}
             if(norm){check(std::abs(norm-1)<.0001,"Collision rotation normalization");q=JPH::Quat(float(b.rotation[0]),float(b.rotation[1]),float(b.rotation[2]),float(b.rotation[3]));}
@@ -246,14 +255,42 @@ namespace darkangel {
                 b,body,++next_generation
             });
         }
-        void insert_mesh(CollisionMesh mesh){
-            check(mesh.id&&mesh.id<(1ULL<<63)&&mesh.geometry&&boxes.size()+meshes.size()<64&&meshes.size()<16&&!boxes.contains(mesh.id)&&!meshes.contains(mesh.id),"Invalid static mesh body/budget");
-            JPH::BodyCreationSettings settings(mesh.geometry->impl_->shape,JPH::RVec3::sZero(),JPH::Quat::sIdentity(),JPH::EMotionType::Static,0);settings.mUserData=mesh.id;
-            auto body=system.GetBodyInterface().CreateAndAddBody(settings,JPH::EActivation::DontActivate);check(!body.IsInvalid(),"Static mesh body allocation");meshes.emplace(mesh.id,Mesh{mesh,body,++next_generation});
+        const JPH::Shape* static_shape(const StaticCollisionBody& body){
+            const JPH::Shape* mesh=body.geometry->impl_->shape;if(body.scale==1)return mesh;
+            auto& shape=scaled_shapes[{body.geometry.get(),std::bit_cast<std::uint64_t>(body.scale)}];
+            if(!shape)shape=new JPH::ScaledShape(mesh,JPH::Vec3::sReplicate(float(body.scale)));return shape;
+        }
+        static JPH::Quat quat(const StaticCollisionBody& body){return JPH::Quat(float(body.rotation[0]),float(body.rotation[1]),float(body.rotation[2]),float(body.rotation[3]));}
+        // Diffs next against the installed layer in one walk over both id-sorted body lists. Unchanged bodies keep their Jolt body
+        // and generation; new bodies are added in one batch, and only a large batch optimizes the broadphase. True when the
+        // revision changed.
+        bool install(std::shared_ptr<const StaticCollisionLayer> next){
+            if(!next)next=StaticCollisionLayer::empty();if(next==statics)return false;
+            auto& bodies=system.GetBodyInterface();const auto changed=next->revision()!=statics->revision();
+            const auto before=statics->bodies(),after=next->bodies();std::map<std::uint64_t,Static> installed;std::vector<JPH::BodyID> added;
+            for(const auto& body:after)check(!boxes.contains(body.id),"Static body identity is a moving box's");
+            std::size_t i=0,j=0;
+            while(i<before.size()||j<after.size()){
+                if(j==after.size()||(i<before.size()&&before[i].id<after[j].id)){const auto& gone=static_bodies.at(before[i].id);bodies.RemoveBody(gone.body);bodies.DestroyBody(gone.body);++i;continue;}
+                const auto& body=after[j];
+                if(i==before.size()||body.id<before[i].id){
+                    JPH::BodyCreationSettings settings(static_shape(body),JPH::RVec3(float(body.position.x),float(body.position.y),float(body.position.z)),quat(body),JPH::EMotionType::Static,0);settings.mUserData=body.id;
+                    auto* created=bodies.CreateBody(settings);check(created!=nullptr,"Static collision body allocation");added.push_back(created->GetID());++static_insertions;
+                    installed.emplace(body.id,Static{&body,created->GetID(),++next_generation});++j;continue;}
+                const auto& old=before[i];auto kept=static_bodies.at(old.id);kept.data=&body;
+                const bool reshaped=old.geometry!=body.geometry||old.scale!=body.scale,moved=old.position!=body.position||old.rotation!=body.rotation;
+                if(reshaped)bodies.SetShape(kept.body,static_shape(body),false,JPH::EActivation::DontActivate);
+                if(moved)bodies.SetPositionAndRotation(kept.body,JPH::RVec3(float(body.position.x),float(body.position.y),float(body.position.z)),quat(body),JPH::EActivation::DontActivate);
+                if(reshaped||moved)kept.generation=++next_generation;installed.emplace(body.id,kept);++i;++j;
+            }
+            if(!added.empty()){auto state=bodies.AddBodiesPrepare(added.data(),static_cast<int>(added.size()));bodies.AddBodiesFinalize(added.data(),static_cast<int>(added.size()),state,JPH::EActivation::DontActivate);if(added.size()>=256)system.OptimizeBroadPhase();}
+            static_bodies=std::move(installed);statics=std::move(next);
+            for(auto shape=scaled_shapes.begin();shape!=scaled_shapes.end();)shape=shape->second->GetRefCount()==1?scaled_shapes.erase(shape):std::next(shape);
+            return changed;
         }
         unsigned category(std::uint64_t user)const{
             if(user&(1ULL<<63))return CharacterCollision;
-            if(meshes.contains(user))return StaticCollision;
+            if(static_bodies.contains(user))return StaticCollision;
             const auto& data=boxes.at(user).data;return data.sensor?SensorCollision:data.dynamic?DynamicCollision:data.moving?KinematicCollision:StaticCollision;
         }
         struct QueryBodies:JPH::BodyFilter {
@@ -269,8 +306,9 @@ namespace darkangel {
             CollisionHit result;result.identity=id;result.character=(user&(1ULL<<63))!=0;result.fraction=fraction;result.world=world_id;result.tick=tick;result.topology=topology;
             result.point=point;result.normal=normal;result.subshape=0;result.sensor=category(user)==SensorCollision;
             if(result.character){if(actors.contains(id)){result.generation=actors.at(id).generation;result.epoch=actors.at(id).state->epoch;}else {auto version=historical_generations.at(id);result.generation=version.first;result.epoch=version.second;}}
-            else if(meshes.contains(id)){
-                const auto& mesh=meshes.at(id);result.generation=mesh.generation;result.subshape=mesh.data.geometry->impl_->shape->GetTriangleUserData(subshape);result.material=mesh.data.geometry->impl_->shape->GetMaterialIndex(subshape);
+            else if(auto found=static_bodies.find(id);found!=static_bodies.end()){
+                // A ScaledShape passes sub-shape ids through, so the mesh's own triangle key and material index still apply.
+                const auto& mesh=*found->second.data->geometry->impl_->shape;result.generation=found->second.generation;result.subshape=mesh.GetTriangleUserData(subshape);result.material=mesh.GetMaterialIndex(subshape);
             }else result.generation=boxes.at(id).generation;
             return result;
         }
@@ -292,18 +330,24 @@ namespace darkangel {
         s.insert(b);
         ++s.topology;
     }
-    void PhysicsWorld::add_mesh(CollisionMesh mesh){auto& s=*impl_;s.thread();s.insert_mesh(std::move(mesh));++s.topology;}
+    void PhysicsWorld::set_static_layer(std::shared_ptr<const StaticCollisionLayer> layer){auto& s=*impl_;s.thread();if(s.install(std::move(layer)))++s.topology;}
+    const std::shared_ptr<const StaticCollisionLayer>& PhysicsWorld::static_layer()const{return impl_->statics;}
+    std::uint64_t PhysicsWorld::static_insertions()const{return impl_->static_insertions;}
+    namespace {const std::shared_ptr<const StaticCollisionLayer>& layer_or_empty(const std::shared_ptr<const StaticCollisionLayer>& layer){return layer?layer:StaticCollisionLayer::empty();}}
     CollisionStreamFrame collision_stream(const CollisionFrame& frame){
-        CollisionStreamFrame stream{frame.tick,frame.topology,frame.boxes,frame.actors,{}};
-        for(const auto& mesh:frame.meshes){check(bool(mesh.geometry),"Missing streamed geometry");const auto& data=mesh.geometry->definition();stream.meshes.push_back({mesh.id,data.runtime,data.signature});}validate_collision_stream(stream);return stream;
+        CollisionStreamFrame stream{frame.tick,frame.topology,frame.boxes,frame.actors,layer_or_empty(frame.statics)->revision()};validate_collision_stream(stream);return stream;
     }
-    CollisionFrame prepare_collision_frame(const CollisionStreamFrame& stream,std::span<const CollisionMesh> prepared){
-        validate_collision_stream(stream);check(prepared.size()<=16,"Prepared geometry inventory bound");CollisionFrame frame{stream.tick,stream.topology,stream.boxes,stream.actors,{}};
-        for(const auto& reference:stream.meshes){auto found=std::find_if(prepared.begin(),prepared.end(),[&](const auto& mesh){return mesh.id==reference.id;});check(found!=prepared.end()&&found->geometry,"Collision geometry not prepared");const auto& data=found->geometry->definition();check(data.runtime==reference.runtime&&data.signature==reference.signature,"Collision geometry generation mismatch");frame.meshes.push_back(*found);}return frame;
+    CollisionFrame prepare_collision_frame(const CollisionStreamFrame& stream,std::shared_ptr<const StaticCollisionLayer> layer){
+        validate_collision_stream(stream);layer=layer_or_empty(layer);
+        if(layer->revision()!=stream.static_revision)throw std::runtime_error("Static collision revision mismatch: stream "+stream.static_revision.substr(0,12)+" against this scene's "+layer->revision().substr(0,12)+"; the scenes or cooked models differ");
+        return {stream.tick,stream.topology,stream.boxes,stream.actors,std::move(layer)};
     }
+    // Authored collision: boxes, and meshes as static bodies at identity under their authored ids, joined to any layer it carries.
     void PhysicsWorld::load_scene(const CollisionDefinition& scene){
-        CollisionFrame frame;frame.topology=1;frame.boxes=scene.boxes;
-        for(const auto& mesh:scene.meshes){check(bool(mesh.data),"Missing collision geometry");frame.meshes.push_back({mesh.id,std::make_shared<const CollisionGeometry>(*mesh.data)});}
+        CollisionFrame frame;frame.topology=1;frame.boxes=scene.boxes;std::vector<StaticCollisionBody> bodies;
+        if(scene.statics)bodies.assign(scene.statics->bodies().begin(),scene.statics->bodies().end());
+        for(const auto& mesh:scene.meshes){check(bool(mesh.data),"Missing collision geometry");StaticCollisionBody body;body.id=mesh.id;body.geometry=std::make_shared<const CollisionGeometry>(*mesh.data);bodies.push_back(std::move(body));}
+        frame.statics=scene.meshes.empty()&&scene.statics?scene.statics:std::make_shared<const StaticCollisionLayer>(std::move(bodies));
         load(frame);
     }
     void PhysicsWorld::remove(std::uint64_t id){
@@ -311,7 +355,7 @@ namespace darkangel {
         s.thread();
         auto it=s.boxes.find(id);
         if(it==s.boxes.end()){
-            auto mesh=s.meshes.find(id);check(mesh!=s.meshes.end(),"Unknown collision identity");s.system.GetBodyInterface().RemoveBody(mesh->second.body);s.system.GetBodyInterface().DestroyBody(mesh->second.body);s.meshes.erase(mesh);++s.topology;return;
+            check(s.static_bodies.contains(id),"Unknown collision identity");if(s.install(s.statics->without(id)))++s.topology;return;
         }
         s.system.GetBodyInterface().RemoveBody(it->second.body);
         s.system.GetBodyInterface().DestroyBody(it->second.body);
@@ -360,13 +404,13 @@ namespace darkangel {
         }
         for(const auto& [id,actor]:s.historical_states)f.actors.push_back(actor);
         std::sort(f.actors.begin(),f.actors.end(),[](const auto& a,const auto& b){return a.id<b.id;});
-        for(const auto& [id,mesh]:s.meshes)f.meshes.push_back(mesh.data);
+        f.statics=s.statics;
         return f;
     }
     void PhysicsWorld::load(const CollisionFrame& f,std::uint64_t replay_owner){
         auto& s=*impl_;
         s.thread();
-        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=session_character_capacity,"Invalid history frame");
+        check(f.topology&&f.boxes.size()<=64&&f.actors.size()<=session_character_capacity,"Invalid history frame");
         check(s.motors<=1,"Cannot replace shared live motor topology");
         check(!s.motors||f.actors.empty()||(replay_owner&&s.actors.contains(replay_owner)),"History load requires an explicit matching replay owner");
         std::map<std::uint64_t,bool> identities;
@@ -374,8 +418,8 @@ namespace darkangel {
             check(actor.id&&actor.id<(1ULL<<63)&&actor.epoch&&valid(actor.foot)&&valid(actor.velocity)&&finite(actor.yaw)&&identities.emplace(actor.id,true).second,"Invalid historical actor");
         }
         s.clear();
+        s.install(f.statics);
         for(auto b:f.boxes)s.insert(b);
-        for(auto mesh:f.meshes)s.insert_mesh(mesh);
         for(const auto& actor:f.actors)if(actor.id!=replay_owner)s.insert_actor(actor);
         s.tick=f.tick;
         s.topology=f.topology;
@@ -457,9 +501,9 @@ namespace darkangel {
         auto& s=*impl_;s.thread();if(s.failed||hit.world!=s.world_id||hit.tick!=s.tick||hit.topology!=s.topology)return false;
         if(hit.character){if(s.actors.contains(hit.identity))return s.actors.at(hit.identity).generation==hit.generation&&s.actors.at(hit.identity).state->epoch==hit.epoch;
             return s.historical_generations.contains(hit.identity)&&s.historical_generations.at(hit.identity)==std::pair{hit.generation,hit.epoch};}
-        return (s.boxes.contains(hit.identity)&&s.boxes.at(hit.identity).generation==hit.generation)||(s.meshes.contains(hit.identity)&&s.meshes.at(hit.identity).generation==hit.generation);
+        return (s.boxes.contains(hit.identity)&&s.boxes.at(hit.identity).generation==hit.generation)||(s.static_bodies.contains(hit.identity)&&s.static_bodies.at(hit.identity).generation==hit.generation);
     }
-    std::string PhysicsWorld::material_key(const CollisionHit& hit)const{check(valid_hit(hit),"Material lookup requires a current qualified hit");auto& s=*impl_;if(!s.meshes.contains(hit.identity)||hit.character)return "Default";const auto& materials=s.meshes.at(hit.identity).data.geometry->definition().materials;check(hit.material<materials.size(),"Invalid authored material key");return materials[hit.material];}
+    std::string PhysicsWorld::material_key(const CollisionHit& hit)const{check(valid_hit(hit),"Material lookup requires a current qualified hit");auto& s=*impl_;if(!s.static_bodies.contains(hit.identity)||hit.character)return "Default";const auto& materials=s.static_bodies.at(hit.identity).data->geometry->definition().materials;check(hit.material<materials.size(),"Invalid authored material key");return materials[hit.material];}
     CollisionQuery PhysicsWorld::overlap(MotorVec center,double radius,unsigned limit,QueryFilter filter)const{
         auto& s=*impl_;
         s.thread();
@@ -594,8 +638,8 @@ namespace darkangel {
             };
             state.support_local={
             };
-            if(state.support&&(world.boxes.contains(state.support)||world.meshes.contains(state.support))){
-                auto body=world.boxes.contains(state.support)?world.boxes.at(state.support).body:world.meshes.at(state.support).body;
+            if(state.support&&(world.boxes.contains(state.support)||world.static_bodies.contains(state.support))){
+                auto body=world.boxes.contains(state.support)?world.boxes.at(state.support).body:world.static_bodies.at(state.support).body;
                 auto pos=world.system.GetBodyInterface().GetPosition(body);
                 auto q=world.system.GetBodyInterface().GetRotation(body);
                 state.support_local=m(q.Conjugated()*JPH::Vec3(character->GetGroundPosition()-pos));
@@ -796,12 +840,12 @@ namespace darkangel {
         if(frame.tick!=s.tick||frame.topology!=s.topology){s.failed=true;return false;}
         try{
             collision_stream(frame);auto owner=std::find_if(frame.actors.begin(),frame.actors.end(),[&](const auto& actor){return actor.id==motor.identity();});check(owner!=frame.actors.end()&&owner->epoch==motor.state().epoch,"Prediction proxy owner epoch missing");
-            check(frame.meshes.size()==s.meshes.size(),"Prediction mesh topology mismatch");for(const auto& mesh:frame.meshes){auto found=s.meshes.find(mesh.id);check(found!=s.meshes.end()&&found->second.data.geometry->definition().signature==mesh.geometry->definition().signature,"Prediction mesh generation mismatch");}
+            check(layer_or_empty(frame.statics)->revision()==s.statics->revision(),"Prediction static collision revision mismatch");
             load(frame,motor.identity());motor.impl_->refresh();return true;
         }catch(...){s.failed=true;return false;}
     }
     void CollisionHistory::retain(CollisionFrame f){
-        check(f.topology&&f.boxes.size()+f.meshes.size()<=64&&f.meshes.size()<=16&&f.actors.size()<=session_character_capacity&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
+        check(f.topology&&f.boxes.size()<=64&&f.actors.size()<=session_character_capacity&&(frames_.empty()||f.tick>frames_.back().tick),"Invalid history ordering/bounds");
         frames_.push_back(std::move(f));
         while(frames_.size()>31)frames_.pop_front();
     }
@@ -810,6 +854,10 @@ namespace darkangel {
         return nullptr;
     }
     ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner){
+        if(commands.size()>30)return ReplayResult::WorkLimit;
+        try{PhysicsWorld isolated(PhysicsWorld::Mode::Replay);return replay_motor(baseline,commands,history,output,owner,isolated);}catch(...){return ReplayResult::Invalid;}
+    }
+    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner,PhysicsWorld& isolated){
         if(commands.size()>30)return ReplayResult::WorkLimit;
         try{
             validate_motor_state(baseline);
@@ -823,12 +871,10 @@ namespace darkangel {
                 if(f->actors.size()>1)return ReplayResult::Invalid;
                 owner=f->actors.empty()?1:f->actors.front().id;
             }
-            std::map<std::uint64_t,std::string> retained_meshes;
-            for(const auto& mesh:f->meshes){if(!mesh.geometry||!retained_meshes.emplace(mesh.id,mesh.geometry->definition().signature).second)return ReplayResult::Invalid;}
+            // Static collision is one layer per topology: every replayed frame must carry the baseline frame's revision.
+            const auto retained=layer_or_empty(f->statics)->revision();
             auto validate_owner=[&](const CollisionFrame& frame){
-                std::map<std::uint64_t,std::string> present_meshes;
-                for(const auto& mesh:frame.meshes){if(!mesh.geometry||!present_meshes.emplace(mesh.id,mesh.geometry->definition().signature).second)return ReplayResult::Invalid;}
-                if(present_meshes!=retained_meshes)return ReplayResult::TopologyMismatch;
+                if(layer_or_empty(frame.statics)->revision()!=retained)return ReplayResult::TopologyMismatch;
                 // Other characters may enter or leave between retained frames; each step loads the frame it replays against.
                 auto actor=std::find_if(frame.actors.begin(),frame.actors.end(),[&](const auto& a){return a.id==owner;});
                 if(!frame.actors.empty()&&actor==frame.actors.end())return ReplayResult::MissingHistory;
@@ -837,7 +883,7 @@ namespace darkangel {
             };
             auto status=validate_owner(*f);
             if(status!=ReplayResult::Applied)return status;
-            PhysicsWorld isolated(PhysicsWorld::Mode::Replay);
+            if(isolated.mode()!=PhysicsWorld::Mode::Replay)return ReplayResult::Invalid;
             isolated.load(*f,owner);
             CharacterMotor motor(isolated,baseline.position,owner,baseline.crouched);
             // Constructing a live motor advances topology; restore the retained
@@ -930,9 +976,10 @@ namespace darkangel {
         }
         pending.assign(regenerated.begin(),regenerated.end());
         MotorState output;
-        auto result=replay_motor(baseline,pending,authoritative_history,output,motor_.identity());
+        ReplayResult result;
+        try{if(!replay_)replay_=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Replay);result=replay_motor(baseline,pending,authoritative_history,output,motor_.identity(),*replay_);}catch(...){result=ReplayResult::Invalid;}
         if(result!=ReplayResult::Applied){
-            resync_=true;
+            replay_.reset();resync_=true;
             return result;
         }try{
             motor_.restore(output);
