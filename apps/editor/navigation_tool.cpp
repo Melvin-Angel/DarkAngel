@@ -1,4 +1,5 @@
 #include "navigation_tool.hpp"
+#include <darkangel/static_collision.hpp>
 #include <darkangel/check.hpp>
 #include <imgui.h>
 #include <algorithm>
@@ -9,6 +10,8 @@ std::string NavigationTool::collision_key(const CollisionDefinition& collision) 
     std::string key = std::to_string(collision.boxes.size());
     for (const auto& mesh : collision.meshes)
         key += ':' + std::to_string(mesh.id) + ':' + (mesh.data ? mesh.data->signature : std::string{});
+    if (collision.statics)
+        key += ":static:" + collision.statics->revision();
     return key;
 }
 bool NavigationTool::same_settings(const NavigationSettings& a, const NavigationSettings& b) {
@@ -20,7 +23,7 @@ void NavigationTool::bake(const CollisionDefinition* source) {
     navigation.error.clear();
 
     try {
-        require(source != nullptr, "Navigation baking needs a scene with cooked collision (--character-collision)");
+        require(source != nullptr, "Navigation baking needs Play resources for the scene's static collision");
         const auto& collision = *source;
         const auto start = std::chrono::steady_clock::now();
         auto mesh = std::make_shared<const darkangel::NavigationMesh>(collision, navigation.settings);
@@ -33,6 +36,9 @@ void NavigationTool::bake(const CollisionDefinition* source) {
         for (const auto& source : collision.meshes)
             if (source.data)
                 navigation.triangles += source.data->triangles.size();
+        if (collision.statics)
+            for (const auto& body : collision.statics->bodies())
+                navigation.triangles += body.geometry->definition().triangles.size();
 
         navigation.mesh = std::move(mesh);
         navigation.outline = navigation.mesh->outline();

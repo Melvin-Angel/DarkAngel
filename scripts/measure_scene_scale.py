@@ -69,10 +69,9 @@ def run_editor(scene: Path, count: int, timeout: int) -> dict:
                                   "authoring_frames": AUTHORING_FRAMES, "play_frames": PLAY_FRAMES}), encoding="utf-8")
     model = asset_id("content/royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport")
     kit = asset_id("content/royal_district/combat/player.dakit")
-    collision = asset_id("content/royal_district/collision/environment.dacollision")
     arguments = [str(BUILD / "DarkAngelEditor.exe"), "--registry", ".cache/royal-scene/registry.json", "--cas", ".cache/royal-scene/cas",
                  "--model", model, "--scene", str(scene.relative_to(ROOT)), "--backend", "d3d12", "--sources", "content",
-                 "--asset-cache", str((OUT / "assets").relative_to(ROOT)), "--character-collision", collision,
+                 "--asset-cache", str((OUT / "assets").relative_to(ROOT)),
                  "--character-kit", kit, "--character-player", "00000000000000000000000000000004",
                  "--hidden", "--frames", str(AUTHORING_FRAMES + PLAY_FRAMES + 80), "--exercise-scale", str(config)]
     log = OUT / f"editor_{count}.log"
@@ -125,14 +124,15 @@ def summary(baseline: dict) -> str:
                 lines.append(f"{'':>8} {name}: {entry['error']}")
         if row.get("exit_code") not in (0, None):
             lines.append(f"{'':>8} editor exit {row['exit_code']} (see {row['log']})")
-    lines += ["", "Physics (SceneScaleBench, 2F hut copies plus ground):",
-              f"{'meshes':>7} {'triangles':>10} {'load ms':>8} {'capture us/tick':>16} {'tick us':>8} {'replay ms/15 ticks':>19} {'worst':>7}"]
+    lines += ["", "Physics (SceneScaleBench: hut placements over 1 or many distinct models):",
+              f"{'placed':>7} {'models':>6} {'build ms':>9} {'shapes':>6} {'install ms':>10} {'move ms':>8} {'tick us':>8} {'replay ms':>10} {'fresh ms':>9} {'re-inserts':>10}"]
     for row in baseline["physics"].get("results", []):
         if row["ok"]:
-            lines.append(f"{row['static_meshes']:>7} {row['triangles']:>10} {row['load_ms']:>8.2f} {row['capture_us_per_tick']:>16.1f} "
-                         f"{row['tick_us']:>8.1f} {row['replay_ms_per_15_ticks']:>19.2f} {row['replay_ms_worst']:>7.2f}")
+            lines.append(f"{row['placements']:>7} {row['models']:>6} {row['layer_build_ms']:>9.1f} {row['shape_builds']:>6} {row['install_ms']:>10.2f} "
+                         f"{row['move_one_ms']:>8.2f} {row['tick_us']:>8.1f} {row['replay_ms_per_15_ticks']:>10.2f} {row['fresh_world_replay_ms']:>9.2f} "
+                         f"{row['replay_static_insertions_after_first']:>10}")
         else:
-            lines.append(f"{row['static_meshes']:>7} {row['triangles']:>10} FAIL: {row['error']}")
+            lines.append(f"{row['placements']:>7} {row['models']:>6} FAIL: {row['error']}")
     if "error" in baseline["physics"]:
         lines.append(f"SceneScaleBench failed: {baseline['physics']['error']}")
     return "\n".join(lines)
@@ -141,7 +141,7 @@ def summary(baseline: dict) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--counts", default="4,12,16,17,64,256", help="extra static hut placements per generated scene")
-    parser.add_argument("--bench-counts", default="1,2,4,8,12,16,17,32,64,128")
+    parser.add_argument("--bench-counts", default="100,500,2000,16383")
     parser.add_argument("--timeout", type=int, default=900, help="seconds per editor run")
     parser.add_argument("--keep", action="store_true", help="keep the generated scenes in content/_scale_test")
     parser.add_argument("--skip-editor", action="store_true")

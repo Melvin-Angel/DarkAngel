@@ -7,10 +7,13 @@
 #include <darkangel/hash.hpp>
 #include "script_state.hpp"
 #include <nlohmann/json.hpp>
+#include <algorithm>
 #include <set>
 #include <cstring>
 #include <stdexcept>
 namespace darkangel {
+// An assembly source is bounded like the editor document that holds it (1 MiB); the object limit below is reached first.
+constexpr std::size_t document_source_limit=1024*1024;
 namespace {
 using Json=nlohmann::json;
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
@@ -37,7 +40,7 @@ struct Resolver {
     struct Pending {std::size_t object;std::string scope;Json reference;};std::vector<Pending> references;
     struct PendingConfig {std::size_t binding;std::string scope;Json references;};std::vector<PendingConfig> configs;
     std::map<std::string,std::string> layers;
-    Json source(AssetId id){require(sources.contains(id),"Missing declared AssemblyAsset");auto graph=parse_script_data(sources.at(id));require(graph.at("schema")==1 && graph.at("asset")==id.text() && graph.at("entities").is_object(),"Assembly schema/identity mismatch");for(auto& [local,entity]:graph["entities"].items())migrate(entity);return graph;}
+    Json source(AssetId id){require(sources.contains(id),"Missing declared AssemblyAsset");auto graph=parse_script_data(sources.at(id),document_source_limit);require(graph.at("schema")==1 && graph.at("asset")==id.text() && graph.at("entities").is_object(),"Assembly schema/identity mismatch");for(auto& [local,entity]:graph["entities"].items())migrate(entity);return graph;}
     Json definition(AssetId id){auto graph=source(id);if(graph.contains("base") && !graph["base"].is_null()){
         auto base=source(AssetId::parse(graph["base"].get<std::string>()));require(!base.contains("base") || base["base"].is_null(),"Only one variant level is enabled");
         require(graph.at("entities").empty() && (!graph.contains("mounts") || graph["mounts"].empty()),"Variants use explicit typed patches");
@@ -103,7 +106,7 @@ StableId encounter_actor(StableId encounter,unsigned index){require(bool(encount
 StableId party_member(unsigned seat){require(seat>=1&&seat<=3,"A party has seats 1 to 3 beside the first");return persistent("party/member/"+std::to_string(seat));}
 StableId scatter_instance(StableId spline,unsigned index){require(bool(spline),"A scattered instance needs a spline identity");return persistent("spline/"+spline.text()+"/scatter/"+std::to_string(index));}
 StableId spawned_actor(StableId spawn_point){require(bool(spawn_point),"Spawned actor needs a spawn point identity");return persistent("spawn/"+spawn_point.text()+"/actor");}
-std::string SpawnPlan::serialize() const{Json root={{"schema",1},{"scene",parse_script_data(scene_json)},{"origins",Json::array()},{"bindings",Json::array()},{"models",Json::object()}};
+std::string SpawnPlan::serialize() const{Json root={{"schema",1},{"scene",parse_script_data(scene_json,document_source_limit)},{"origins",Json::array()},{"bindings",Json::array()},{"models",Json::object()}};
     // Written only when present so plans without spawn points keep their fingerprint.
     if(!spawns.empty()){root["spawns"]=Json::object();for(const auto& [object,asset]:spawns)root["spawns"][object.text()]=asset.text();}
     if(!splines.empty()||!spline_points.empty()){auto& curves=root["splines"]=Json::object();for(const auto& [object,text]:splines)curves[object.text()]=Json::parse(text);auto& points=root["spline_points"]=Json::object();for(const auto& [object,point]:spline_points)points[object.text()]={{"spline",point.spline.text()},{"index",point.index}};}
@@ -140,7 +143,7 @@ SpawnPlan SpawnPlan::deserialize(std::string_view text){auto root=parse_script_d
 }
 std::string CookedScene::serialize() const{require(scripts.size()<=64,"Scene script closure limit");Json payload={{"plan",plan.serialize()},{"scripts",Json::object()}};for(const auto& [id,definition]:scripts){const auto& d=definition.descriptor;require(id==d.asset,"Scene script identity mismatch");CookedScriptPackage::deserialize(definition.cooked);payload["scripts"][id.text()]={{"version",d.state_version},{"authority",static_cast<unsigned>(d.authority)},{"writer",d.writes_transform},{"package",definition.cooked}};}auto body=payload.dump();require(body.size()<=16*1024*1024,"Cooked scene byte limit");return Json{{"schema",1},{"sha256",sha256(body)},{"payload",payload}}.dump();}
 CookedScene CookedScene::deserialize(std::string_view text){auto root=parse_script_data(text,16*1024*1024);require(root.at("schema")==1 && root.at("sha256")==sha256(root.at("payload").dump()),"Cooked scene version/checksum mismatch");auto& payload=root.at("payload");CookedScene scene;scene.plan=SpawnPlan::deserialize(payload.at("plan").get<std::string>());require(payload.at("scripts").size()<=64,"Cooked scene script limit");for(const auto& [id,value]:payload.at("scripts").items()){auto asset=StableId::parse(id);auto authority=value.at("authority").get<unsigned>();require(authority<=static_cast<unsigned>(Authority::Presentation),"Invalid cooked script authority");auto artifact=value.at("package").get<std::string>();auto package=CookedScriptPackage::deserialize(artifact);ScriptDescriptor descriptor{asset,value.at("version").get<unsigned>(),static_cast<Authority>(authority),1,package.state_schema,package.config_schema,value.at("writer").get<bool>()};scene.scripts.emplace(asset,ScriptDefinition{descriptor,std::move(artifact)});}return scene;}
-std::map<StableId,ScriptDefinition> cook_script_definitions(const AssemblySources& sources){std::map<StableId,ScriptDefinition> definitions;for(const auto& [asset,text]:sources){auto source=parse_script_data(text);if(source.value("kind","")!="script")continue;require(source.at("asset")==asset.text() && source.at("schema")==1,"ScriptAsset schema/identity mismatch");auto hex=asset.text();hex.erase(23,1);hex.erase(18,1);hex.erase(13,1);hex.erase(8,1);auto id=StableId::parse(hex);auto domain=source.value("domain","server");require(domain=="server" || domain=="presentation","Unsupported script domain");ScriptDescriptor d{id,source.value("state_version",1u),domain=="server"?Authority::Server:Authority::Presentation,1,source.value("state_schema",""),source.value("config_schema",""),source.value("writes_transform",true)};
+std::map<StableId,ScriptDefinition> cook_script_definitions(const AssemblySources& sources){std::map<StableId,ScriptDefinition> definitions;for(const auto& [asset,text]:sources){auto source=parse_script_data(text,document_source_limit);if(source.value("kind","")!="script")continue;require(source.at("asset")==asset.text() && source.at("schema")==1,"ScriptAsset schema/identity mismatch");auto hex=asset.text();hex.erase(23,1);hex.erase(18,1);hex.erase(13,1);hex.erase(8,1);auto id=StableId::parse(hex);auto domain=source.value("domain","server");require(domain=="server" || domain=="presentation","Unsupported script domain");ScriptDescriptor d{id,source.value("state_version",1u),domain=="server"?Authority::Server:Authority::Presentation,1,source.value("state_schema",""),source.value("config_schema",""),source.value("writes_transform",true)};
     ScriptPackage package{source.value("entry","behavior"),{},source.value("aliases",std::map<std::string,std::string>{}),d.state_schema,d.config_schema};
     if(source.contains("modules")){for(const auto& module:source.at("modules"))package.modules.push_back({StableId::parse(module.at("id").get<std::string>()),module.at("path"),module.at("source"),module.at("dependencies").get<std::vector<std::string>>()});}
     else package.modules.push_back({id,package.entry,source.at("source").get<std::string>(),{}});
@@ -159,4 +162,10 @@ std::unique_ptr<SceneSession::Prepared> SceneSession::prepare(const SpawnPlan& p
 void SceneSession::activate(std::unique_ptr<Prepared> prepared){require(prepared && prepared->world->domain()==domain_ && prepared->world->phase()==Phase::Idle && (!active_ || active_->world->phase()==Phase::Idle),"Scene activation requires a matching prepared scene and safe point");active_=std::move(prepared);}
 void SceneSession::retire(){require(!active_ || active_->world->phase()==Phase::Idle,"Scene retirement requires safe point");active_.reset();}
 void SceneSession::step(double seconds){require(active_!=nullptr,"No active scene");auto& state=*active_;state.world->begin_scripts();state.scripts->tick(seconds);state.world->commit();state.world->publish();}
+bool static_scenery(const SpawnPlan& plan,StableId object,AssetId skin){
+    const auto model=plan.models.find(object);if(model==plan.models.end()||model->second==skin)return false;
+    for(const auto* roles:{&plan.interactables,&plan.entries,&plan.transitions,&plan.splines,&plan.pickups,&plan.altars,&plan.movers,&plan.encounters,&plan.triggers})if(roles->contains(object))return false;
+    if(plan.spawns.contains(object)||plan.spline_points.contains(object)||plan.audio_profiles.contains(object)||plan.collision_profiles.contains(object)||plan.volumes.contains(object)||plan.spawn_owners.contains(object))return false;
+    return std::none_of(plan.bindings.begin(),plan.bindings.end(),[&](const auto& binding){return binding.object==object;});
+}
 }

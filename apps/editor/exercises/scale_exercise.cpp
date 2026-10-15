@@ -64,6 +64,9 @@ class Scale final : public Exercise {
         }
         entry["ms"] = milliseconds(Clock::now() - start);
         entry["memory"] = memory();
+        // The console line the operation left, for its own breakdown (Play preparation reports its phases).
+        if (!context_.editor.console.empty())
+            entry["log"] = context_.editor.console.back().message;
         report_["steps"][name] = entry;
         std::cout << "Editor scale " << name << " " << entry.dump() << std::endl;
         return entry["ok"].get<bool>();

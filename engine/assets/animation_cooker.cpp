@@ -442,8 +442,8 @@ namespace darkangel {
             std::map<AssetId,assets_detail::Json> records;
             Registry(const std::filesystem::path& path,const std::filesystem::path& cache):cas(cache){
                 using namespace assets_detail;
-                auto manifest=json(read(path,1024*1024));
-                require(manifest.at("schema")==1&&manifest.at("assets").size()<=512,"Animation registry schema/bounds");
+                const auto manifest_held=registry_json(path);const auto& manifest=*manifest_held;
+                require(manifest.at("schema")==1&&manifest.at("assets").size()<=runtime_package_product_limit,"Animation registry schema/bounds");
                 for(auto record:manifest.at("assets"))require(records.emplace(AssetId::parse(record.at("id").get<std::string>()),record).second,"Duplicate animation product ID");
             }std::string load(AssetId id,std::string_view kind,std::string_view extension){
                 using namespace assets_detail;

@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "editor_ui.hpp"
 #include <darkangel/world.hpp>
 #include <array>
@@ -29,6 +30,8 @@ struct ViewportToolsContext {
     render::SceneResources& scene;
     CharacterSceneSession* const& session;
     const std::unique_ptr<CharacterPreviewResources>& resources;
+    // The open scene's effective static collision (PlayController::static_collision).
+    std::function<std::shared_ptr<const CollisionDefinition>()> static_collision;
     // Null in builds without navigation.
     NavigationTool* navigation{};
     GameplayDebugSelection& debug;
@@ -53,7 +56,8 @@ class ViewportTools {
   private:
     // The placement surface's query world, built again when the collision changes.
     std::unique_ptr<darkangel::PhysicsWorld> place_world;
-    const darkangel::CollisionDefinition* place_collision = nullptr;
+    std::shared_ptr<const darkangel::CollisionDefinition> place_collision;
+    std::function<std::shared_ptr<const CollisionDefinition>()> static_collision_;
     Controller& editor;
     Shell& shell;
     render::SceneResources& scene_;

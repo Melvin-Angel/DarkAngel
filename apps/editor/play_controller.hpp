@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/scene_transition.hpp>
 #include <darkangel/assembly.hpp>
+#include <darkangel/static_collision.hpp>
 #include "cue_debug.hpp"
 #include "native_input.hpp"
 #include "primitive_cue_sink.hpp"
@@ -119,6 +120,9 @@ struct PlayContext {
 // party diagnostic receipt. Authoring UI reads it through narrow views; it never draws authoring panels.
 class PlayController {
   public:
+    // The open scene's static collision as Play would build it now (authored, or the placements' static layer); null without Play
+    // resources. Viewport placement and navigation query it.
+    std::shared_ptr<const darkangel::CollisionDefinition> static_collision();
     explicit PlayController(PlayContext);
     ~PlayController();
     PlayController(const PlayController&) = delete;
@@ -226,6 +230,11 @@ class PlayController {
     bool interact_pressed = false, interact_held = false, interaction_offered = false;
 
   private:
+    std::shared_ptr<const darkangel::CollisionDefinition> scene_static_;
+    darkangel::CollisionGeometryCache package_geometry_;
+    const void* scene_static_document_ = nullptr;
+    const void* scene_static_resources_ = nullptr;
+    std::uint64_t scene_static_revision_ = 0;
     StableId scene_role(const std::string& value);
     std::map<StableId, AssetId> registry_spawns(const std::filesystem::path& path);
     std::set<AssetId> encounter_npcs();
@@ -236,7 +245,7 @@ class PlayController {
     void attach_session(const SpawnPlan& plan);
     void stop_gameplay();
     void update_gameplay(double seconds);
-    std::optional<AssetId> scene_collision_for(const std::filesystem::path& registry, bool bake, bool* rebaked = nullptr);
+    AssetId authored_collision() const;
     std::filesystem::path find_scene(AssetId scene);
     void enter_scene(AssetId scene, std::unique_ptr<darkangel::EditorDocument> document, const std::filesystem::path& path);
     void drop_load();

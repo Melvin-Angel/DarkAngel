@@ -40,6 +40,9 @@ struct SpawnPlan {
 using AssemblySources=std::map<AssetId,std::string>;
 // Stable-keyed source graph -> native scene and explicit script/resource prerequisites.
 SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources&);
+// Static scenery: a placed model with no gameplay role (not the player's skin, no gameplay component, no script binding). Every
+// participant has it from the scene itself, so Play keeps it local instead of replicating it as a session object.
+bool static_scenery(const SpawnPlan&,StableId object,AssetId skin);
 // Identity of the runtime actor a spawn point creates. Derived from the spawn point alone, so
 // the same placement yields the same actor on every Play and on client and server alike.
 StableId spawned_actor(StableId spawn_point);

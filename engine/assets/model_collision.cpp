@@ -74,7 +74,7 @@ void publish_collision_source(const std::filesystem::path& path,std::string_view
     auto staged=path;staged+="."+AssetId::random().text()+".tmp";if(!path.parent_path().empty())std::filesystem::create_directories(path.parent_path());try{std::ofstream output(staged,std::ios::binary);output.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));output.close();require(output.good(),"Collision source staging failed");require(MoveFileExW(staged.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0,"Collision source publication failed");}catch(...){std::error_code error;std::filesystem::remove(staged,error);throw;}
 }
 std::shared_ptr<const CollisionMeshData> load_cooked_model_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId model){
-    auto manifest=assets_detail::json(assets_detail::read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").size()<=512,"Runtime registry mismatch/limit");
+    const auto manifest_held=assets_detail::registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").size()<=runtime_package_product_limit,"Runtime registry mismatch/limit");
     auto product=[&](AssetId id,const char* kind,const char* extension,std::size_t limit){
         for(const auto& record:manifest.at("assets"))if(record.at("id")==id.text()){
             require(record.at("kind")==kind&&record.at("extension")==extension,"Cooked AssetRef type mismatch");auto hash=record.at("sha256").get<std::string>();

@@ -60,34 +60,37 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
     (void)constant_buffer;
 #endif
 }
-bool SceneResources::is_skin(AssetId asset) {
-    std::ifstream input(args.registry);
+bool SceneResources::is_skin(AssetId asset, const std::filesystem::path& package) {
+    std::ifstream input(package.empty() ? args.registry : package);
     auto registry = nlohmann::json::parse(input);
     for (const auto& record : registry.at("assets"))
         if (record.at("id") == asset.text())
             return record.at("kind") == "human-binding";
     return false;
 }
-void SceneResources::prepare_model(AssetId requested) {
+void SceneResources::prepare_model(AssetId requested, const std::filesystem::path& registry, const std::filesystem::path& cas) {
+    const auto& source = registry.empty() ? args.registry : registry;
+    const auto& store = cas.empty() ? args.cas : cas;
     auto& device = render_.device;
     auto& pso = render_.pso;
     auto& pso_cull = render_.pso_cull;
     if (requested == id || scene_models.contains(requested))
         return;
-    require(scene_models.size() < 63, "Editor model resource limit");
+    // Distinct uploaded models; a scene places each as often as it likes.
+    require(scene_models.size() < 4096, "Editor model resource limit (4096 distinct models)");
 #ifdef DAE_ANIMATION
     if (scene_skins.contains(requested))
         return;
-    if (is_skin(requested)) {
+    if (is_skin(requested, source)) {
         require(scene_skins.size() < 4, "Editor skin resource limit");
-        scene_skins.emplace(requested, upload_skin(device, load_cooked_skinned_model(args.registry, args.cas, requested),
+        scene_skins.emplace(requested, upload_skin(device, load_cooked_skinned_model(source, store, requested),
                                                    args.skin_reference ? pso.RawPtr() : skin_pso.RawPtr(),
                                                    args.skin_reference ? pso_cull.RawPtr() : skin_cull.RawPtr(), diagnostic_clip.get(),
                                                    args.pose_tick, args.skin_reference));
         return;
     }
 #endif
-    auto cooked = load_cooked_model(args.registry, args.cas, requested);
+    auto cooked = load_cooked_model(source, store, requested);
     auto resources = upload(device, cooked, pso, pso_cull);
     scene_models.emplace(requested, std::move(resources));
 }

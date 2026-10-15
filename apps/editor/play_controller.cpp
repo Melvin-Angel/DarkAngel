@@ -1,5 +1,6 @@
 #define NOMINMAX
 #define UNICODE
+#include <darkangel/model_collision.hpp>
 #include <Windows.h>
 #include <darkangel/scene_authority.hpp>
 #include "play_controller.hpp"
@@ -8,7 +9,7 @@
 #include "package_file.hpp"
 #include "vfx_workspace.hpp"
 #include "play_saves.hpp"
-#include "scene_collision.hpp"
+#include <darkangel/static_collision.hpp>
 #include "render/gpu_resources.hpp"
 #include "exercises/play_exercises.hpp"
 #include "exercises/synthetic_input.hpp"
@@ -188,10 +189,16 @@ std::set<AssetId> PlayController::registry_encounter_npcs(const std::filesystem:
             result.insert(npc);
     return result;
 }
+// Authored static collision for the open scene: its collision profile, else --character-collision, else none (the placements).
+AssetId PlayController::authored_collision() const {
+    if (const auto& profiles = editor.document->plan().collision_profiles; !profiles.empty())
+        return profiles.begin()->second;
+    return args.character_collision.empty() ? AssetId{} : AssetId::parse(args.character_collision);
+}
 std::unique_ptr<CharacterPreviewResources> PlayController::load_resources(const RuntimeSkinnedModel& skin) {
     return std::make_unique<darkangel::editor_app::CharacterPreviewResources>(darkangel::editor_app::load_character_preview(
         args.registry, args.cas, args.character_clips, skin, scene_role(args.character_player), registry_spawns(args.registry),
-        args.character_collision.empty() ? AssetId{} : AssetId::parse(args.character_collision), registry_encounter_npcs(args.registry)));
+        authored_collision(), registry_encounter_npcs(args.registry)));
 }
 StableId PlayController::first_actor() {
     require(character_resources && !character_resources->spawns.empty(), "This exercise needs a scene with an NPC spawn point");
@@ -578,7 +585,7 @@ void PlayController::prepare_gameplay(const SpawnPlan& plan, const World& world)
     companion_script.cursor() = 0;
     companion_script.interactions() = 0;
     auto first_scene = std::make_unique<darkangel::PreparedScene>(darkangel::editor_app::prepare_character_scene(
-        plan, world, *character_resources, [this](AssetId asset) { return load_cooked_model(args.registry, args.cas, asset); },
+        plan, world, *character_resources,
         controller));
     first_scene->scene = editor.document->root();
     character_player = first_scene->player;
@@ -934,44 +941,47 @@ void PlayController::update_gameplay(double seconds) {
         character->advance(stalled, character_input);
 }
 
-// Bakes (when bake) and returns the open scene's own collision, reading placed models from a registry that holds them.
-std::optional<AssetId> PlayController::scene_collision_for(const std::filesystem::path& registry, bool bake, bool* rebaked) {
-    if (!editor.assets || !character_resources || editor.path.empty())
-        return std::nullopt;
-    const auto root = std::filesystem::absolute(editor.assets->source_root());
-    const auto scene_path = std::filesystem::absolute(editor.path);
-    const auto& plan = editor.document->plan();
-    if (!plan.collision_profiles.empty())
-        return plan.collision_profiles.begin()->second;
-    const auto file = darkangel::editor_app::scene_collision_file(editor.document->root(), scene_path, root);
-    if (bake) {
-        const auto source = darkangel::editor_app::bake_scene_collision(
-            file.asset, plan, editor.document->world(), character_resources->skin,
-            [&](AssetId model) { return load_cooked_model(registry, editor.assets->cas_path(), model); });
-        if (!source)
-            return std::nullopt;
-        if (darkangel::editor_app::publish_scene_collision(file, *source)) {
-            editor.log("Baked the scene's collision from its placed models: " + file.relative);
-            if (rebaked)
-                *rebaked = true;
-        }
-        editor.assets->cook(file.relative);
+// The open scene's static collision as Play would build it now: its authored collision, or the placements' static layer with each
+// model's cooked shape (a model not in the prepared package yet has none until Play resources are prepared again). Rebuilt when
+// the document changes, from the shared geometry cache, so no shape is built twice.
+std::shared_ptr<const darkangel::CollisionDefinition> PlayController::static_collision() {
+    if (!character_resources)
+        return nullptr;
+    if (character_resources->collision)
+        return character_resources->collision;
+    if (!character_resources->model_collision)
+        return nullptr;
+    if (!scene_static_ || scene_static_document_ != editor.document.get() || scene_static_revision_ != editor.document->revision() ||
+        scene_static_resources_ != character_resources.get()) {
+        auto definition = std::make_shared<darkangel::CollisionDefinition>();
+        definition->id = AssetId::random();
+        definition->schema = 3;
+        const auto& source = character_resources->model_collision;
+        definition->statics = darkangel::scene_static_collision(
+            editor.document->plan(), editor.document->world(), character_resources->skin,
+            [&](AssetId model) -> std::shared_ptr<const darkangel::CollisionGeometry> {
+                try {
+                    return source(model);
+                } catch (const std::exception&) {
+                }
+                // A model placed since Play resources were prepared lives in its own package.
+                if (const auto package = editor.model_packages.find(model); package != editor.model_packages.end() && editor.assets)
+                    try {
+                        const auto data = darkangel::load_cooked_model_collision(package->second, editor.assets->cas_path(), model);
+                        return data ? package_geometry_.get(data) : nullptr;
+                    } catch (const std::exception&) {
+                    }
+                return nullptr;
+            });
+        scene_static_ = std::move(definition);
+        scene_static_document_ = editor.document.get();
+        scene_static_revision_ = editor.document->revision();
+        scene_static_resources_ = character_resources.get();
     }
-    return std::filesystem::exists(file.source) ? std::optional<AssetId>(file.asset) : std::nullopt;
+    return scene_static_;
 }
 
 void PlayController::install_preparation() {
-    // Saving a scene rebakes its collision: package what it places, bake, publish.
-    editor.scene_saved = [this] {
-        if (!editor.assets || !character_resources || !editor.authoring_roots || !args.join.empty())
-            return;
-        auto roots = editor.authoring_roots();
-        auto registry = editor.assets->cas_path().parent_path() / ("bake-" + AssetId::random().text() + ".json");
-        darkangel::editor_app::package_authoring(*editor.assets, roots, registry);
-        scene_collision_for(registry, true);
-        std::error_code ignored;
-        std::filesystem::remove(registry, ignored);
-    };
     if (character_resources && editor.assets && editor.authoring_kit != AssetId{}) {
         editor.authoring_roots = [this] {
             const auto id = editor.model;
@@ -1009,12 +1019,15 @@ void PlayController::install_preparation() {
                     unique.insert(asset);
             if (!args.character_collision.empty())
                 unique.insert(AssetId::parse(args.character_collision));
+            for (const auto& [object, profile] : editor.document->plan().collision_profiles)
+                unique.insert(profile);
             return std::vector<AssetId>(unique.begin(), unique.end());
         };
         editor.prepare_play_resources = [this] {
             require(travel_preparing || !editor.preview.active(), "Stop Play before preparing authored resources");
             if (!travel_preparing)
                 play_cues.reset();
+            const auto started = std::chrono::steady_clock::now();
             auto roots = editor.authoring_roots();
             auto candidate = editor.assets->cas_path().parent_path() / ("play-" + AssetId::random().text() + ".json");
 #ifdef DAE_EDITOR_GNS
@@ -1024,23 +1037,9 @@ void PlayController::install_preparation() {
             } else
 #endif
                 darkangel::editor_app::package_authoring(*editor.assets, roots, candidate);
-            // The scene plays with its own collision, baked from its placements: a placed or moved model never leaves Play
-            // with stale collision. Only the host bakes; a guest uses the file its host wrote. The package above holds the
-            // collision as it was cooked before this bake, so a rebake packages again even when the asset is the same.
-            bool rebaked = false;
-            if (const auto own = scene_collision_for(candidate, args.join.empty(), &rebaked);
-                own && (rebaked || own->text() != args.character_collision)) {
-                if (own->text() != args.character_collision) {
-                    args.character_collision = own->text();
-                    roots.push_back(*own);
-                }
-#ifdef DAE_EDITOR_GNS
-                if (!args.join.empty())
-                    editor.assets->package(roots.front(), candidate, std::span<const AssetId>(roots).subspan(1));
-                else
-#endif
-                    darkangel::editor_app::package_authoring(*editor.assets, roots, candidate);
-            }
+            // Static collision needs no bake: the package holds every placed model's cooked collision shape, and host and guests
+            // each build the same static layer from the scene when Play starts.
+            const auto packaged = std::chrono::steady_clock::now();
             auto old_registry = args.registry, old_cas = args.cas;
             auto old_clips = args.character_clips;
             try {
@@ -1058,7 +1057,11 @@ void PlayController::install_preparation() {
                 throw;
             }
             editor.refresh_assets();
-            editor.log("Prepared current scene and combat kit for a fresh Play session.");
+            editor.model_packages.clear();
+            const auto ms = [](auto a, auto b) { return std::chrono::duration<double, std::milli>(b - a).count(); };
+            editor.log("Prepared current scene and combat kit for a fresh Play session (" + std::to_string(roots.size()) + " roots; package " +
+                       std::to_string(int(ms(started, packaged))) + " ms, resources " +
+                       std::to_string(int(ms(packaged, std::chrono::steady_clock::now()))) + " ms).");
         };
     }
 }
@@ -1141,8 +1144,7 @@ darkangel::SceneLoadStatus PlayController::poll_load() {
         if (load.step == 2) {
             require(bool(travel_preview), "The destination has no Preview world");
             load.prepared = std::make_unique<darkangel::PreparedScene>(darkangel::editor_app::prepare_character_scene(
-                travel_preview->plan, *travel_preview->world, *character_resources,
-                [&](AssetId asset) { return load_cooked_model(args.registry, args.cas, asset); }, make_controller()));
+                travel_preview->plan, *travel_preview->world, *character_resources, make_controller()));
             load.prepared->scene = load.scene;
             load.step = 3;
         }
@@ -1176,8 +1178,7 @@ PlayController::Reload PlayController::prepare_reload(std::size_t skins, const R
     }
     if (preview_candidate) {
         auto probe = darkangel::editor_app::prepare_character_preview(
-            editor.document->plan(), editor.document->world(), *preview_candidate,
-            [&](AssetId asset) { return load_cooked_model(args.registry, args.cas, asset); });
+            editor.document->plan(), editor.document->world(), *preview_candidate);
     }
     return reload;
 }

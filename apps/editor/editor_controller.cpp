@@ -4,6 +4,15 @@ namespace darkangel::editor_app {
 using Json=nlohmann::json;
 Controller::Controller(AssetId asset,double r):model(asset),radius(r){demo();}
 void Controller::configure_assets(const std::filesystem::path& source,const std::filesystem::path& cache){auto candidate=std::make_unique<AssetService>(source,cache);candidate->scan();auto inventory=candidate->assets();assets=std::move(candidate);asset_inventory=std::move(inventory);}
+// Cooks one model's source (a no-op when it is current) and packages it alone, for an upload that needs nothing else.
+std::filesystem::path Controller::package_model(AssetId model){
+    if(!assets)throw std::runtime_error("This model is not in the loaded resources and this session has no project to cook it from");
+    auto source=std::find_if(asset_inventory.begin(),asset_inventory.end(),[&](const auto& asset){return asset.id==model;});
+    if(source==asset_inventory.end()){refresh_assets();source=std::find_if(asset_inventory.begin(),asset_inventory.end(),[&](const auto& asset){return asset.id==model;});}
+    if(source==asset_inventory.end())throw std::runtime_error("The model is not in the project");
+    assets->cook(source->path);const auto registry=assets->cas_path().parent_path()/("model-"+model.text()+".json");assets->package(model,registry,{});
+    model_packages[model]=registry;return registry;
+}
 void Controller::refresh_assets(){if(!assets)return;assets->scan();asset_inventory=authoring.inventory(*assets);}
 CookResult Controller::import_asset(const PreparedAssetImport& prepared){if(!assets)throw std::runtime_error("Open the editor with a project source mount to import assets");auto result=assets->commit_import(prepared);asset_inventory=authoring.inventory(*assets);log("Imported "+prepared.destination()+" into the project. External source preserved.");return result;}
 void Controller::log(std::string message,ConsoleSeverity severity){console.push_back({std::move(message),severity});if(console.size()>128)console.erase(console.begin());}
@@ -16,7 +25,7 @@ void Controller::demo(){stop();World defaults(WorldDomain::Authoring);ObjectData
     document=std::make_unique<EditorDocument>(root,StableId{0,1},AssemblySources{{root,scene.dump()},{assembly,definition.dump()},{script,behavior.dump()}});selected=document->plan().origins.front().object;log("Created two linked Spinner placements; authoring is idle.");
 }
 void Controller::open(const std::filesystem::path& file){auto candidate=EditorDocument::open(file);candidate->scripts();for(const auto& [object,asset]:candidate->plan().models){if(prepare_model)prepare_model(asset);else if(asset!=model)throw std::runtime_error("Scene requires a model outside the loaded cooked registry");}stop();document=std::move(candidate);path=file;selected=document->plan().origins.empty()?StableId{}:document->plan().origins.front().object;log("Opened "+file.string());}
-void Controller::save(const std::filesystem::path& file){document->save(file);path=file;log("Saved scene manifest and stable placement records.");if(scene_saved){try{scene_saved();}catch(const std::exception& error){log(std::string("The scene's collision could not be baked: ")+error.what(),ConsoleSeverity::Warning);}}}
+void Controller::save(const std::filesystem::path& file){document->save(file);path=file;log("Saved scene manifest and stable placement records.");}
 void Controller::save_gameplay(){if(preview.active())throw std::runtime_error("Stop Play before saving gameplay");if(!assets)throw std::runtime_error("Open a source mount before saving gameplay");auto roots=authoring_roots?authoring_roots():std::vector<AssetId>{};authoring.save_all(*assets,roots);}
 Controller::CookSweep Controller::cook_pending(unsigned budget){
     CookSweep sweep;if(!assets||preview.active())return sweep;bool changed=false;

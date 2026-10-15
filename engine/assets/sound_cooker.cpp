@@ -26,7 +26,7 @@ Import import_sound(const std::filesystem::path& root,const std::filesystem::pat
 }
 }
 CookedSound load_cooked_sound(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
-    using namespace assets_detail;const auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Sound registry schema/limit");const Json* selected{};std::set<AssetId> unique;
+    using namespace assets_detail;const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Sound registry schema/limit");const Json* selected{};std::set<AssetId> unique;
     for(const auto& record:manifest.at("assets")){const auto asset=AssetId::parse(record.at("id").get<std::string>());require(unique.insert(asset).second,"Duplicate sound registry UUID");if(asset==id)selected=&record;}
     require(selected&&selected->at("kind")=="sound"&&selected->at("extension")=="wav","Sound product type mismatch");const auto hash=selected->at("sha256").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos,"Sound product digest");
     CookedSound cooked;cooked.id=id;cooked.generation=hash;cooked.wave=read(cas/(hash+".wav"),16*1024*1024);require(sha256(cooked.wave)==hash,"Sound product hash mismatch");cooked.format=read_sound_format(cooked.wave);return cooked;

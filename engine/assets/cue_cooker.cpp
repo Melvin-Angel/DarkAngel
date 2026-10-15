@@ -24,7 +24,7 @@ Import import_cue(const std::filesystem::path& root,const std::filesystem::path&
 }
 namespace darkangel {
 std::vector<CueDefinition> load_cooked_cues(const std::filesystem::path& registry,const std::filesystem::path& cas){
-    using namespace assets_detail;auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Cue registry schema/limit");std::set<AssetId> unique;std::set<std::string> keys;std::vector<CueDefinition> cues;
+    using namespace assets_detail;const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Cue registry schema/limit");std::set<AssetId> unique;std::set<std::string> keys;std::vector<CueDefinition> cues;
     for(const auto& record:manifest.at("assets")){auto asset=AssetId::parse(record.at("id").get<std::string>());require(unique.insert(asset).second,"Duplicate cue registry UUID");if(record.at("kind")!="cue")continue;require(record.at("extension")=="cue.json","Cue product type mismatch");
         auto hash=record.at("sha256").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos,"Cue product digest");auto bytes=read(cas/(hash+".cue.json"),4096);require(sha256(bytes)==hash,"Cue product hash mismatch");
         auto cue=decode_cue(bytes);require(cue.id==asset,"Cooked cue identity mismatch");require(keys.insert(cue.key).second,"Two cues answer to the same key");cues.push_back(std::move(cue));}

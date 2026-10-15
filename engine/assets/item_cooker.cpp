@@ -41,7 +41,7 @@ std::vector<CookedItem> load_cooked_items(const std::filesystem::path& registry,
     return items;
 }
 CookedItem load_cooked_item(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
-    using namespace assets_detail;const auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Item registry bound");std::map<AssetId,Json> records;
+    using namespace assets_detail;const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Item registry bound");std::map<AssetId,Json> records;
     for(const auto& record:manifest.at("assets"))require(records.emplace(AssetId::parse(record.at("id").get<std::string>()),record).second,"Item duplicate registry identity");
     auto found=records.find(id);require(found!=records.end()&&found->second.at("kind")=="item"&&found->second.at("extension")=="item.json","Item product missing/type mismatch");
     const auto digest=found->second.at("sha256").get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Item digest shape");auto bytes=read(cas/(digest+".item.json"),65536);require(sha256(bytes)==digest,"Item product hash mismatch");auto data=json(bytes,65536);const auto frozen=data.at("frozen");data.erase("frozen");auto item=decode_item_definition(data.dump());ItemCatalog catalog;catalog.insert(item);require(item.id==id&&frozen.is_object()&&frozen.size()<=511,"Item frozen identity/bound");

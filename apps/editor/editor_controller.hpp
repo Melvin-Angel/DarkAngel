@@ -2,6 +2,7 @@
 #include <darkangel/editor_document.hpp>
 #include <darkangel/assets.hpp>
 #include <functional>
+#include <map>
 #include "native_authoring.hpp"
 namespace darkangel::editor_app {
 enum class ConsoleSeverity {Info,Warning,Error};
@@ -35,8 +36,10 @@ public:
     std::vector<AssetInfo> asset_inventory;
     NativeAuthoring authoring;AssetId authoring_kit,authoring_player;
     std::function<void()> prepare_play_resources;
-    // Called after the scene was saved: the host rebakes what is derived from it (its static collision).
-    std::function<void()> scene_saved;
+    // Models placed since Play resources were prepared: each cooked and packaged on its own (package_model), so placing one
+    // uploads only that model. The next Play preparation packages them with the scene.
+    std::map<AssetId,std::filesystem::path> model_packages;
+    std::filesystem::path package_model(AssetId);
     std::function<std::vector<AssetId>()> authoring_roots;
     std::function<void(AssetId)> prepare_model;
     std::function<void(const SpawnPlan&,const World&)> prepare_gameplay;

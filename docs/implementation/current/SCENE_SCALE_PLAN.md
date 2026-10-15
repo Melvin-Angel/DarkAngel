@@ -1,7 +1,7 @@
 # Scene scale: per-model collision and incremental placement
 
-Status: phase 0 (baseline) and phase 1 (per-model collision product) done on 15 October 2026; architecture revised the same
-day (design rules below); phase 2 in progress. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
+Status (15 October 2026): phases 0, 1, 2, 3 (with 3b) and 4 done; architecture revised the same day (design rules below);
+phase 5 next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
 placement failures but kept the current architecture.
 
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
@@ -329,6 +329,70 @@ timeouts: `M5.native_authoring` took 683 s against 436 s in phase 1, and `M5.act
   - Moving a placement does not touch other bodies.
   - Prepare Play at 2,000 placements completes.
   - Editor gates pass.
+
+#### Phases 3, 3b and 4 as implemented (15 October 2026)
+
+Phases 3 and 4 share their editor files (play_controller, editor_app), so they land in one commit, verified together.
+
+Phase 3: scene-derived layers.
+- `scene_static_collision(plan, world, skin, geometry)` (engine/runtime/static_collision.cpp) makes one body per static model
+  placement.
+- `CharacterPreviewResources::model_collision` loads each model's cooked shape once, through one cache, from the package the
+  resources were loaded from.
+- Rule: authored collision (a scene `collision` profile, or `--character-collision`) is the scene's whole static collision when
+  present, so hand-authored workflows and the gates' fixed collision are unchanged. Without it, Play uses the placements' layer.
+  `scripts/open_royal_scene.ps1` and the scale script no longer pass authored collision, so your Royal scenes now use model
+  collision. The launcher re-prepares `.cache/royal-scene` once if its registry has no `model-collision` products.
+- `prepare_character_scene`:
+  - drops the per-placement bake check, the AABB box proxies and its `RuntimeModel` loader;
+  - hashes the layer revision into the handshake (string `... static1`).
+  Guests build the same layer from the same scene and models.
+- Removed: apps/editor/scene_collision.*, `bake_scene_collision`, `scene_collision_for`, the `scene_saved` rebake and the
+  `<scene>.dacollision` it wrote. `bake_model_collision` remains as the reference weld that `M4.model_collision` compares
+  against. The untracked RoyalCombat.dacollision is a user file and was left alone.
+- `PlayController::static_collision()` gives viewport placement (installed by layer diff) and navigation the open scene's effective
+  collision, rebuilt per document revision from shared shapes. Navigation rasterizes each body's shape at its pose.
+- Assembly sources and spawn plans are parsed with the document's 1 MiB bound instead of 128 KB (about 460 placements).
+
+Phase 3b: static scenery stays local.
+- Play replicated every scene object, and `SceneAuthority` caps a scene at 128 objects.
+- `static_scenery(plan, object, skin)` (assembly) marks placed models with no gameplay role: not the skin, no gameplay
+  component, no script binding.
+- `prepare_character_scene` leaves scenery out of the session objects. The viewport draws scenery in Play from the scene's own
+  world.
+
+Phase 4: incremental placement and package bounds.
+- `Shell::place` no longer prepares Play. A model outside the Play package is cooked and packaged alone (`Controller::package_model`)
+  and only that model is uploaded (`SceneResources::prepare_model(id, registry, cas)`). Its collision joins the viewport's layer
+  from that package.
+- Package bounds: 4,096 roots and 16,384 products (`runtime_package_root_limit`, `runtime_package_product_limit` in assets.hpp).
+  The 17 cooked-asset loaders read registries through `registry_json`, which parses a registry once per file revision; they used
+  to parse the whole manifest on every load, under a 512-product and 1 MiB cap.
+- The 63-model upload cap is now 4,096 distinct models.
+- Prepare Play reports its own breakdown in the console ("N roots; package X ms, resources Y ms").
+
+Results (hidden editor, D3D12, warm cache; the machine was loaded):
+
+| Models | Authoring frame p50/p95 | Place used | Move | Place new | Prepare Play | Play frame p50/p95 | Private MB |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 8 (baseline) | 1.3 / 2.0 ms | 10 ms | 8 ms | 5,594 ms | 3,400 ms | 1.4 / 2.4 ms | 751 |
+| 8 | 3.0 / 5.9 ms | 22 ms | 13 ms | **220 ms** | 4,217 ms | 2.2 / 3.5 ms | 730 |
+| 68 (phase 3) | 4.4 / 7.1 ms | 59 ms | 22 ms | 4,237 ms | 4,206 ms | 5.9 / 7.8 ms | 730 |
+| 260 (phase 3b) | 13.5 / 29.3 ms | 353 ms | 132 ms | 5,223 ms | 5,069 ms | 17.2 / 24.2 ms | 680 |
+| 1,004 | 60.8 / 74.8 ms | 633 ms | 393 ms | **725 ms** | 6,226 ms (package 3.0 s, resources 3.2 s) | 53.0 / 64.9 ms | 625 |
+
+- Play prepares and runs with 1,004 placements. The baseline failed at about 14.
+- Placing a new model no longer reloads the scene: 5.6 s down to 0.22 s at 8 placements. At 1,004 placements the 0.7 s is the
+  per-edit whole-document cost that "place used" also shows (phase 7).
+- The first run after a cooker change recooks every model (one run took 42 s to prepare Play).
+
+Remaining risks and limits:
+- 2,000+ placements are blocked by the 1,024-object scene cap (phase 7). Phase 3's 2,000-placement acceptance moves there.
+- Prepare Play still rescans the project once per root and reloads every resource: about 6 s at this scale.
+- Authoring and Play frames at 1,004 placements are about 55 to 60 ms, one draw per mesh part per placement (phases 5 and 6).
+- Full CTest: all pass except `M5.actor_assets` and `M5.attribute_authoring`, which hit their fixed 90 s CTest limit.
+  `ActorAssetTests` passes when run alone, in 80 to 101 s. A no-physics control (`M5.clips`) ran 2.3x slower at the same time
+  (4.5 s against 1.98 s), so the machine was loaded. Scaled by that, the actor run (about 44 s) matches phase 1's 48 s.
 
 ### Phase 5: frustum culling and draw batching
 

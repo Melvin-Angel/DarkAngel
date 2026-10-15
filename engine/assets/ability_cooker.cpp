@@ -69,7 +69,7 @@ std::shared_ptr<const AbilityDefinition> ability(const Json& source,const Attrib
 struct Registry {
     std::map<AssetId,Json> records;std::filesystem::path cas;
     Registry(const std::filesystem::path& path,const std::filesystem::path& storage):cas(storage){
-        auto manifest=json(read(path,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&!manifest.at("assets").empty()&&manifest.at("assets").size()<=512,"Combat registry schema/limit");
+        const auto manifest_held=registry_json(path);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&!manifest.at("assets").empty()&&manifest.at("assets").size()<=runtime_package_product_limit,"Combat registry schema/limit");
         for(const auto& record:manifest.at("assets"))require(records.emplace(reference(record.at("id")),record).second,"Duplicate combat registry identity");
         require(records.contains(reference(manifest.at("root"))),"Combat registry root missing");
     }

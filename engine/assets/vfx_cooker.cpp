@@ -85,7 +85,7 @@ Import import_vfx(const std::filesystem::path& root,const std::filesystem::path&
 }
 }
 CookedVfx load_cooked_vfx(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
-    using namespace assets_detail;const auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Effect registry schema/limit");const Json* selected{};std::set<AssetId> unique;
+    using namespace assets_detail;const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Effect registry schema/limit");const Json* selected{};std::set<AssetId> unique;
     for(const auto& record:manifest.at("assets")){const auto asset=AssetId::parse(record.at("id").get<std::string>());require(unique.insert(asset).second,"Duplicate effect registry UUID");if(asset==id)selected=&record;}
     require(selected&&selected->at("kind")=="vfx"&&selected->at("extension")=="vfx","Visual effect product type mismatch");const auto hash=selected->at("sha256").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos,"Visual effect product digest");
     const auto bytes=read(cas/(hash+".vfx"),64*1024*1024);require(sha256(bytes)==hash,"Visual effect product hash mismatch");Reader reader{bytes};require(reader.take(8)==std::string_view("DAVFX1\0\0",8),"Visual effect product format");

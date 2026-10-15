@@ -18,7 +18,7 @@
 
 namespace darkangel::editor_app {
 ViewportTools::ViewportTools(ViewportToolsContext context)
-    : editor(context.editor), shell(context.shell), scene_(context.scene), character(context.session),
+    : static_collision_(std::move(context.static_collision)), editor(context.editor), shell(context.shell), scene_(context.scene), character(context.session),
       character_resources(context.resources), navigation_(context.navigation), senses_shown(context.debug.senses_shown),
       senses_all(context.debug.senses_all), world_debug(context.debug.world_debug) {}
 ViewportTools::~ViewportTools() = default;
@@ -163,12 +163,18 @@ StableId ViewportTools::pick(const std::array<double, 3>& from, const std::array
 }
 // Rays against the scene's cooked static collision, in a query world built when the collision changes.
 std::optional<std::array<double, 3>> ViewportTools::place(const std::array<double, 3>& from, const std::array<double, 3>& to) {
-    if (!character_resources || !character_resources->collision)
+    const auto collision = static_collision_ ? static_collision_() : nullptr;
+    if (!collision)
         return std::nullopt;
-    if (place_collision != character_resources->collision.get()) {
-        place_world = std::make_unique<darkangel::PhysicsWorld>();
-        place_world->load_scene(*character_resources->collision);
-        place_collision = character_resources->collision.get();
+    if (place_collision != collision) {
+        // A placements-only layer goes in by diff, so an edit touches only the bodies it changed.
+        if (!place_world)
+            place_world = std::make_unique<darkangel::PhysicsWorld>();
+        if (collision->statics && collision->boxes.empty() && collision->meshes.empty())
+            place_world->set_static_layer(collision->statics);
+        else
+            place_world->load_scene(*collision);
+        place_collision = collision;
     }
     const auto found = place_world->query_ray({from[0], from[1], from[2]}, {to[0] - from[0], to[1] - from[1], to[2] - from[2]},
                                               {darkangel::StaticCollision, 0});

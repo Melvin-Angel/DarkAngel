@@ -80,7 +80,16 @@ EditorApp::EditorApp(EditorOptions options)
     auto& shell = *shell_;
     select_startup_workspace();
     import_count = editor.asset_inventory.size();
-    editor.prepare_model = [this](AssetId requested) { scene_->prepare_model(requested); };
+    editor.prepare_model = [this](AssetId requested) {
+        try {
+            scene_->prepare_model(requested);
+        } catch (const std::exception&) {
+            // Not in the Play package: cook and package that model alone and upload it; nothing else reloads.
+            if (!editor_->assets)
+                throw;
+            scene_->prepare_model(requested, editor_->package_model(requested), editor_->assets->cas_path());
+        }
+    };
     if (!args.scene.empty())
         editor.open(args.scene);
     import_baseline = editor.document->world().serialize();
@@ -164,11 +173,12 @@ EditorApp::EditorApp(EditorOptions options)
 #endif
 #ifdef DAE_NAVIGATION
     shell.draw_navigation_tool = [this] {
-        navigation_->draw_panel(play_->character_resources ? play_->character_resources->collision.get() : nullptr);
+        navigation_->draw_panel(play_->static_collision().get());
     };
 #endif
     // Picking, the placement surface and the viewports' debug overlay.
     tools_ = std::make_unique<ViewportTools>(ViewportToolsContext{editor, shell, *scene_, play.character, play.character_resources,
+                                                                  [this] { return play_->static_collision(); },
 #ifdef DAE_NAVIGATION
                                                                   navigation_.get(),
 #else
@@ -352,9 +362,7 @@ int EditorApp::run() {
 #else
          nullptr,
 #endif
-         [this]() -> const darkangel::CollisionDefinition* {
-             return play_->character_resources ? play_->character_resources->collision.get() : nullptr;
-         },
+         [this]() -> const darkangel::CollisionDefinition* { return play_->static_collision().get(); },
          tools.navigation_drawn});
     auto play_exercise = darkangel::editor_app::exercises::make_play_exercises(
         {args, editor, shell, play.character, play.character_resources, inspector_->selection, play.cue_state(),

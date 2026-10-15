@@ -264,16 +264,26 @@ void SceneViewport::render(double elapsed_seconds) {
             }
 #endif
         for (const auto& [object_id, model_id] : drawn_objects) {
+            const darkangel::World* object_world = shown_world;
             auto entity = shown_world->find(object_id);
             const auto scattered = scatter_poses.find(object_id);
-            if (!shown_world->valid(entity) && scattered == scatter_poses.end())
+#ifdef DAE_CHARACTER_SCENE
+            // Static scenery is not a session object: in Play it is drawn where the scene places it.
+            if (!shown_world->valid(entity) && scattered == scatter_poses.end() && shown_world != &editor.document->world() &&
+                darkangel::static_scenery(editor.document->plan(), object_id,
+                                          character_resources ? character_resources->skin : darkangel::AssetId{})) {
+                object_world = &editor.document->world();
+                entity = object_world->find(object_id);
+            }
+#endif
+            if (!object_world->valid(entity) && scattered == scatter_poses.end())
                 continue;
 #ifdef DAE_CHARACTER_SCENE
             if (composer_render &&
                 (model_id != character_resources->skin || (character_resources->player && object_id != character_resources->player)))
                 continue;
 #endif
-            auto pose = scattered != scatter_poses.end() ? scattered->second : shown_world->read(entity).transform;
+            auto pose = scattered != scatter_poses.end() ? scattered->second : object_world->read(entity).transform;
             if (world_view &&
                 std::find(world_view->collected.begin(), world_view->collected.end(), object_id) != world_view->collected.end())
                 continue;

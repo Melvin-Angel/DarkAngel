@@ -8,6 +8,9 @@ using Json=nlohmann::json;
 void require(bool,const char*);
 std::string read(const std::filesystem::path&,std::size_t limit=64*1024*1024);
 Json json(std::string_view,std::size_t limit=1024*1024);
+// A runtime package registry, parsed once per file revision (path, size and write time) and shared by every loader that reads
+// it, instead of each load parsing the whole manifest again. Validates the schema and the product bound.
+std::shared_ptr<const Json> registry_json(const std::filesystem::path&);
 std::filesystem::path within(const std::filesystem::path& root,const std::filesystem::path& relative);
 struct Product {AssetId id;std::string kind,extension,bytes;std::vector<AssetId> required;};
 struct Import {

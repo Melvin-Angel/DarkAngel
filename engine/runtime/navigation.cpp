@@ -1,4 +1,5 @@
 #include <darkangel/navigation.hpp>
+#include <darkangel/static_collision.hpp>
 #include <recastnavigation/Recast.h>
 #include <recastnavigation/DetourNavMesh.h>
 #include <recastnavigation/DetourNavMeshBuilder.h>
@@ -36,6 +37,11 @@ NavigationMesh::NavigationMesh(const CollisionDefinition& collision,const Naviga
     require(settings.cell_size>=.05&&settings.cell_size<=2&&settings.cell_height>=.05&&settings.cell_height<=2&&settings.agent_height>0&&settings.agent_radius>0&&settings.agent_climb>=0&&settings.slope_degrees>0&&settings.slope_degrees<90,"Navigation settings bounds");
     Soup soup;
     for(const auto& box:collision.boxes)if(!box.moving&&!box.dynamic&&!box.sensor)add_box(soup,box);
+    // Static layer bodies: the shared shape's triangles at each body's pose (scale, then rotation, then position).
+    if(collision.statics)for(const auto& body:collision.statics->bodies()){const auto& data=body.geometry->definition();const int base=int(soup.vertices.size()/3);const auto [qx,qy,qz,qw]=body.rotation;
+        for(const auto& vertex:data.vertices){const double x=vertex.x*body.scale,y=vertex.y*body.scale,z=vertex.z*body.scale;const double tx=2*(qy*z-qz*y),ty=2*(qz*x-qx*z),tz=2*(qx*y-qy*x);
+            soup.vertex(body.position.x+x+qw*tx+(qy*tz-qz*ty),body.position.y+y+qw*ty+(qz*tx-qx*tz),body.position.z+z+qw*tz+(qx*ty-qy*tx));}
+        for(const auto& triangle:data.triangles)for(auto index:triangle.vertices){require(index<data.vertices.size(),"Navigation collision triangle index");soup.triangles.push_back(base+int(index));}}
     for(const auto& mesh:collision.meshes){require(bool(mesh.data),"Navigation needs prepared collision geometry");const int base=int(soup.vertices.size()/3);for(const auto& vertex:mesh.data->vertices)soup.vertex(vertex.x,vertex.y,vertex.z);for(const auto& triangle:mesh.data->triangles)for(auto index:triangle.vertices){require(index<mesh.data->vertices.size(),"Navigation collision triangle index");soup.triangles.push_back(base+int(index));}}
     const int vertex_count=int(soup.vertices.size()/3),triangle_count=int(soup.triangles.size()/3);require(triangle_count>0&&triangle_count<=4000000,"Navigation needs static collision geometry within its triangle bound");
     rcContext context(false);rcConfig config{};

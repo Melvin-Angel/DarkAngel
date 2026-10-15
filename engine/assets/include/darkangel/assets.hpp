@@ -27,6 +27,8 @@ struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<Cooke
 // Load solely from the verified cooked registry/CAS; no SQLite, source assets or editor state.
 std::string load_cooked_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 CollisionDefinition load_cooked_collision_scene(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
+// Runtime package bounds: products and roots per package. A scene's package holds every model it places and their closures.
+constexpr std::size_t runtime_package_product_limit=16384,runtime_package_root_limit=4096;
 RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 struct ModelGeneration {std::uint64_t number;std::shared_ptr<const RuntimeModel> model;};
 class ModelStore {

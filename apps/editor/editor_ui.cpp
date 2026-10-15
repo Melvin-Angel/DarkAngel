@@ -183,11 +183,10 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
     if(item.gameplay==3){placed=add_object(editor,{{"name","Trigger volume"},{"trigger",{{"event","trigger.entered"},{"half",nlohmann::json::array({2.0,2.0,2.0})},{"once",true}}}},at,"Placed a trigger volume.");editor.selected=placed;return placed;}
     if(item.npc)placed=add_object(editor,{{"name",item.name+" spawn"},{"spawn",{{"npc",item.id.text()}}}},at,"Placed an NPC spawn point.");
     else{
-        // A model outside the loaded resources is cooked and packaged with the scene; a placement that cannot be shown is undone.
-        bool loaded=true;try{if(editor.prepare_model)editor.prepare_model(item.id);}catch(const std::exception&){loaded=false;if(!editor.prepare_play_resources)throw std::runtime_error("This model is not in the loaded resources and this session cannot cook it");}
+        // The model is uploaded first (cooked and packaged on its own when it is new to the session), so a placement that cannot
+        // be shown never enters the scene. Play packages it with the scene when Play starts.
+        if(editor.prepare_model)editor.prepare_model(item.id);
         placed=add_object(editor,{{"name",item.name},{"model",item.id.text()}},at,"Placed a model.");
-        // Packaging puts the model in the registry; it is then uploaded like any loaded model.
-        if(!loaded){try{editor.prepare_play_resources();if(editor.prepare_model)editor.prepare_model(item.id);}catch(...){editor.document->undo(editor.document->revision());throw;}}
     }
     editor.selected=placed;return placed;
 }

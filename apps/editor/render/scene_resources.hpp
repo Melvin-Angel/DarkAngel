@@ -18,8 +18,9 @@ class SceneResources {
     SceneResources(RenderSystem&, const EditorOptions&, AssetId model, const ModelGeneration& lease);
     SceneResources(const SceneResources&) = delete;
     SceneResources& operator=(const SceneResources&) = delete;
-    // Uploads a model or skin a scene places, once (the Controller's prepare_model).
-    void prepare_model(AssetId);
+    // Uploads a model or skin a scene places, once (the Controller's prepare_model), from the Play package or from the given
+    // package of that model alone (its registry and content store).
+    void prepare_model(AssetId, const std::filesystem::path& registry = {}, const std::filesystem::path& cas = {});
     // The editor's main model, drawn when a scene places it.
     AssetId model() const {
         return id;
@@ -57,7 +58,7 @@ class SceneResources {
 #endif
 
   private:
-    bool is_skin(AssetId);
+    bool is_skin(AssetId, const std::filesystem::path& registry = {});
     RenderSystem& render_;
     const EditorOptions& args;
     AssetId id;

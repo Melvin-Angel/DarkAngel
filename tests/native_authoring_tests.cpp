@@ -366,9 +366,7 @@ int main(int argc, char** argv) {
         check(old.combat->kit->generation != fresh.combat->kit->generation, "Dependent kit must get a fresh frozen closure");
         check(old.combat->abilities[1]->costs[0].amount == 30, "Old playable resources stay immutable");
         auto run = [&](const char* registry, const CharacterPreviewResources& resources, double initial, double later, double cost) {
-            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, [&](AssetId asset) {
-                return load_cooked_model(root / registry, assets.cas_path(), asset);
-            });
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources);
             CharacterSceneInput press;
             press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
             prepared.second->step(press);
@@ -639,8 +637,7 @@ int main(int argc, char** argv) {
                                                  scene->plan().spawns, collision);
             auto make = [&] {
                 return prepare_character_preview(
-                           scene->plan(), scene->world(), tagged,
-                           [&](AssetId asset) { return load_cooked_model(root / "after.json", assets.cas_path(), asset); })
+                           scene->plan(), scene->world(), tagged)
                     .second;
             };
             auto has = [](const auto& snapshot) {
@@ -716,9 +713,7 @@ int main(int argc, char** argv) {
                   "Rejected tag preview changed sampled clock");
             auto tagged = load_character_preview(root / "after.json", assets.cas_path(), "kit:" + kit.text(), skin, role(4),
                                                  scene->plan().spawns, collision);
-            auto prepared = prepare_character_preview(scene->plan(), scene->world(), tagged, [&](AssetId asset) {
-                return load_cooked_model(root / "after.json", assets.cas_path(), asset);
-            });
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), tagged);
             CharacterSceneInput press;
             press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
             prepared.second->step(press);
@@ -747,8 +742,7 @@ int main(int argc, char** argv) {
             auto fields = std::vector<TagDefinition>(stale.combat->tags->definitions().begin(), stale.combat->tags->definitions().end());
             stale.combat->tags = std::make_shared<const TagDictionary>(fields, tags_id, sha256("wrong actor registry"));
             rejects([&] {
-                prepare_character_preview(scene->plan(), scene->world(), stale,
-                                          [&](AssetId asset) { return load_cooked_model(root / "after.json", assets.cas_path(), asset); });
+                prepare_character_preview(scene->plan(), scene->world(), stale);
             });
             std::cout
                 << "Authored tag graph: selector history, branch/cycle/type fences, frozen tag closure, preview retention, Save/fresh authoritative Play and registry mismatch rejection passed\n";
@@ -819,9 +813,7 @@ int main(int argc, char** argv) {
             check(frozen_action->mask && frozen_action->upper_body && !frozen_action->motion->motor_root &&
                       !prior.combat->abilities[1]->action->upper_body,
                   "Frozen action mask/source-free loading/old resource retention failed");
-            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, [&](AssetId asset) {
-                return load_cooked_model(root / "upper.json", assets.cas_path(), asset);
-            });
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources);
             CharacterSceneInput press;
             press.z = .2;
             press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
@@ -1031,7 +1023,7 @@ int main(int argc, char** argv) {
                             return false;
                 return true;
             };
-            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, loader);
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources);
             auto& s = *prepared.second;
             RigPose oracle(resources.rig.definition, resources.rig.archive);
             CharacterSceneInput press;
@@ -1175,9 +1167,7 @@ int main(int argc, char** argv) {
                             return false;
                 return true;
             };
-            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources, [&](AssetId asset) {
-                return load_cooked_model(root / "death.json", assets.cas_path(), asset);
-            });
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), resources);
             auto& s = *prepared.second;
             RigPose oracle(resources.rig.definition, resources.rig.archive);
             auto health = [&] { return s.presentation().read(s.presentation().find(target)).health.current; };
@@ -1326,8 +1316,7 @@ int main(int argc, char** argv) {
                   "Frozen kit lacks the Light soft lock");
             auto make = [&] {
                 return prepare_character_preview(
-                           scene->plan(), scene->world(), resources,
-                           [&](AssetId asset) { return load_cooked_model(root / "dodge.json", assets.cas_path(), asset); })
+                           scene->plan(), scene->world(), resources)
                     .second;
             };
             auto stamina = [](const AbilityOwnerSnapshot& state) {
@@ -1564,9 +1553,7 @@ int main(int argc, char** argv) {
                 check(director.select(idle_input, {}) == 0 && director.select(ranged, {}) == 1 && director.select(ranged, staggered) == 2,
                       "Authored camera conditions/priorities do not drive the director");
             }
-            auto prepared = prepare_character_preview(scene->plan(), scene->world(), worn, [&](AssetId asset) {
-                return load_cooked_model(root / "mask.json", assets.cas_path(), asset);
-            });
+            auto prepared = prepare_character_preview(scene->plan(), scene->world(), worn);
             auto& s = *prepared.second;
             CharacterSceneInput press;
             press.combat_events = {{9, InputEdge::Pressed, 1000, 0, 1, false}};
@@ -1580,9 +1567,7 @@ int main(int argc, char** argv) {
                 // Switching the active mask during Play: an ordinary ability intent on the existing wire,
                 // predicted and reconciled, replacing the kit authoritatively.
                 auto dodge = id("royal_district/combat/dodge.daability");
-                auto session = prepare_character_preview(scene->plan(), scene->world(), worn, [&](AssetId asset) {
-                                   return load_cooked_model(root / "mask.json", assets.cas_path(), asset);
-                               }).second;
+                auto session = prepare_character_preview(scene->plan(), scene->world(), worn).second;
                 auto& w = *session;
                 auto event = [&](unsigned action, InputEdge edge) {
                     CharacterSceneInput input;

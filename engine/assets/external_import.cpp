@@ -119,7 +119,7 @@ CookResult AssetService::commit_import(const PreparedAssetImport& prepared){
     }catch(...){if(published){std::error_code ignored;require(destination.parent_path()==base,"Unsafe import rollback path");std::filesystem::remove_all(destination,ignored);scan();}throw;}
 }
 CookedTexture load_cooked_texture(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
-    auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Texture registry contract");
+    const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Texture registry contract");
     std::set<AssetId> ids;const Json* selected{};for(const auto& record:manifest.at("assets")){auto asset=AssetId::parse(record.at("id").get<std::string>());require(ids.insert(asset).second,"Duplicate texture registry AssetID");if(asset==id)selected=&record;}
     require(selected&&selected->at("kind")=="texture"&&selected->at("extension")=="dds","Texture registry type mismatch");auto hash=selected->at("sha256").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos,"Invalid texture digest");auto bytes=read(cas/(hash+".dds"));require(sha256(bytes)==hash,"Texture digest mismatch");return decode_texture(bytes);
 }

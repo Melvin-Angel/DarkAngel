@@ -50,7 +50,7 @@ std::shared_ptr<const AnimationGraphPlan> compile(const Json& data,const std::ma
 struct Registry {
     std::map<AssetId,Json> records;std::filesystem::path cas;
     Registry(const std::filesystem::path& path,const std::filesystem::path& cache):cas(cache){
-        auto manifest=json(read(path,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&!manifest.at("assets").empty()&&manifest.at("assets").size()<=512,"Graph registry schema/count");
+        const auto manifest_held=registry_json(path);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&!manifest.at("assets").empty()&&manifest.at("assets").size()<=runtime_package_product_limit,"Graph registry schema/count");
         for(const auto& record:manifest.at("assets"))require(records.emplace(id(record.at("id")),record).second,"Duplicate graph product identity");require(records.contains(id(manifest.at("root"))),"Graph registry root missing");
     }
     Json load(AssetId asset)const{

@@ -7,7 +7,7 @@ namespace {
 using namespace assets_detail;
 // The products of one kind in a registry, each checked against its digest and decoded.
 template<class Definition,class Decode>std::vector<Definition> products(const std::filesystem::path& registry,const std::filesystem::path& cas,const char* kind,const char* extension,Decode decode){
-    const auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=512,"Primitive registry schema/limit");std::set<AssetId> unique;std::vector<Definition> found;
+    const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Primitive registry schema/limit");std::set<AssetId> unique;std::vector<Definition> found;
     for(const auto& record:manifest.at("assets")){const auto asset=AssetId::parse(record.at("id").get<std::string>());require(unique.insert(asset).second,"Duplicate primitive registry UUID");if(record.at("kind")!=kind)continue;require(record.at("extension")==extension,"Primitive product type mismatch");
         const auto hash=record.at("sha256").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos,"Primitive product digest");const auto bytes=read(cas/(hash+"."+extension),4096);require(sha256(bytes)==hash,"Primitive product hash mismatch");
         auto definition=decode(bytes);require(definition.id==asset,"Cooked primitive identity mismatch");found.push_back(std::move(definition));}

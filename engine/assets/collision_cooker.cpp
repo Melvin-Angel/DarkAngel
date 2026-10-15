@@ -56,7 +56,7 @@ namespace darkangel::assets_detail {
 }
 namespace darkangel {
 CollisionDefinition load_cooked_collision_scene(const std::filesystem::path& path,const std::filesystem::path& cas,AssetId root){
-    using namespace assets_detail;auto registry=json(read(path,1024*1024));require(registry.at("schema")==1&&registry.at("assets").size()<=512,"Collision scene registry schema/bounds");
+    using namespace assets_detail;const auto registry_held=registry_json(path);const auto& registry=*registry_held;require(registry.at("schema")==1&&registry.at("assets").size()<=runtime_package_product_limit,"Collision scene registry schema/bounds");
     std::map<AssetId,Json> records;for(const auto& record:registry.at("assets"))require(records.emplace(AssetId::parse(record.at("id").get<std::string>()),record).second,"Duplicate collision scene product");
     require(records.contains(AssetId::parse(registry.at("root").get<std::string>()))&&records.contains(root),"Collision scene registry root/reference missing");
     auto load=[&](AssetId id,const char* kind,const char* extension){require(records.contains(id),"Missing collision shape product");auto record=records.at(id);require(record.at("kind")==kind&&record.at("extension")==extension,"Collision shape product type");auto hash=record.at("sha256").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos,"Collision shape product digest");auto bytes=read(cas/(hash+"."+extension),1024*1024);require(sha256(bytes)==hash,"Collision shape product hash mismatch");return json(bytes);};
