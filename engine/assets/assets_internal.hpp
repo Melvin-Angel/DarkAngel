@@ -22,6 +22,10 @@ struct Import {
 };
 Import import_skeleton(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_clip(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path&,bool loop,bool inspect=false);
+// Clip conversions (the ozz optimisation and build) are remembered across cooks, previews and sessions: an entry in
+// `folder` is keyed by the clip's exact input digests, owned identities and loop setting, and its products stay in `cas`.
+// The asset service sets them for its cooker build; empty paths turn the memo off.
+void set_clip_memo(std::filesystem::path folder,std::filesystem::path cas);
 Import import_human(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path& canonical,bool inspect=false,bool renderable=false);
 std::string cook_color_texture(std::string_view);
 Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);

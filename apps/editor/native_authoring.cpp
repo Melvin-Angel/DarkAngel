@@ -2,6 +2,8 @@
 #include <darkangel/hash.hpp>
 #include <darkangel/tag_assets.hpp>
 #include <fstream>
+#include <functional>
+#include <map>
 #include <set>
 #include <algorithm>
 #include <cctype>
@@ -328,4 +330,49 @@ void NativeAuthoring::reload(AssetService& assets,AssetId id){
 }
 void NativeAuthoring::revert(AssetService& assets,AssetId id){auto& d=open(assets,id);apply(assets,id,revision_,nlohmann::json::parse(d.saved),"Revert draft");}
 void package_authoring(AssetService& assets,std::span<const AssetId> roots,const std::filesystem::path& output){require(!roots.empty()&&roots.size()<=runtime_package_root_limit,"Scene package root bounds");assets.scan();auto inventory=assets.assets();for(auto id:roots){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& a){return a.id==id;});require(found!=inventory.end(),"Scene package source is missing");assets.cook(found->path);}assets.package(roots.front(),output,roots.subspan(1));}
+// Preview packaging: shared by the pose previews (character_preview.cpp) and the Effect preview.
+namespace {
+// A preview whose roots reach no unsaved or new draft through their source locators shows exactly what the project's
+// ordinary cook holds. It is packaged from that incremental cook, which skips every conversion already current, instead of
+// a private candidate cook that snapshots the source mount and converts the whole closure again (seconds per preview).
+bool native_with_sources(const std::filesystem::path& path){const auto ext=path.extension().string();for(const auto* known:{".dagraph",".dacharacter",".daplayer",".dafacemask",".danpc",".dabehavior",".dacue",".daitem",".datrail",".dadecal",".dasound",".damix",".daaudioprofile",".dakit",".daability",".daeffect",".daaction"})if(ext==known)return true;return false;}
+bool clean_closure(AssetService& assets,const NativeAuthoring& author,std::initializer_list<AssetId> roots){
+ std::map<std::string,const NativeDraft*> drafts;for(const auto& [id,draft]:author.drafts)drafts[draft.asset.path]=&draft;
+ std::set<std::string> visited;std::function<bool(const std::string&)> clean=[&](const std::string& path)->bool{
+  if(!visited.insert(path).second)return true;if(visited.size()>256)return false;
+  nlohmann::json value;if(auto found=drafts.find(path);found!=drafts.end()){if(found->second->dirty())return false;value=found->second->value;}
+  else{if(!native_with_sources(path))return true;std::ifstream file(assets.source_root()/path);if(!file)return true;value=nlohmann::json::parse(file,nullptr,false);if(value.is_discarded())return false;}
+  std::function<bool(const nlohmann::json&)> walk=[&](const nlohmann::json& v)->bool{if(v.is_string())return clean(v.get<std::string>());if(v.is_object()||v.is_array())for(const auto& entry:v)if(!walk(entry))return false;return true;};
+  return !value.is_object()||!value.contains("sources")||walk(value.at("sources"));};
+ const auto inventory=assets.assets();
+ for(auto root:roots){std::string path;if(auto draft=author.drafts.find(root);draft!=author.drafts.end())path=draft->second.asset.path;else{auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});if(found==inventory.end())return false;path=found->path;}if(!clean(path))return false;}
+ return true;
+}
+// A cooked root is packaged as the catalog holds it; an incremental cook rescans the mount and rehashes the root's
+// sources and products (hundreds of milliseconds) and runs only for uncooked roots. Save, Play and the background cook
+// publish new generations. A source file changed outside the editor shows after the preview's Refresh, which makes every
+// root verified once more by a cook (forget_preview_verification).
+std::map<AssetId,std::uint64_t> verified_generations;bool verify_sources{};
+void package_clean(AssetService& assets,std::span<const AssetId> roots,const std::filesystem::path& output){
+ const auto inventory=assets.assets();
+ const bool known=std::all_of(roots.begin(),roots.end(),[&](AssetId root){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});auto verified=verified_generations.find(root);return found!=inventory.end()&&found->generation&&(!verify_sources||(verified!=verified_generations.end()&&verified->second==found->generation));});
+ if(known){assets.package(roots.front(),output,roots.subspan(1));return;}
+ package_authoring(assets,roots,output);
+ for(const auto& asset:assets.assets())if(std::find(roots.begin(),roots.end(),asset.id)!=roots.end()&&asset.generation)verified_generations[asset.id]=asset.generation;
+}
+}
+PreviewPackage::PreviewPackage(AssetService& assets,NativeAuthoring& author,std::initializer_list<AssetId> include,std::span<const AssetId> package_roots){
+ if(clean_closure(assets,author,include)){file_=assets.cas_path().parent_path()/("preview-"+AssetId::random().text()+".json");try{package_clean(assets,package_roots,file_);}catch(...){std::error_code ignored;std::filesystem::remove(file_,ignored);throw;}return;}
+ std::vector<NativeSourceEdit> edits;for(const auto& [id,draft]:author.drafts)if(std::find(include.begin(),include.end(),id)!=include.end()||draft.dirty())edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});
+ candidate_.emplace(assets.preview_native(edits,package_roots));
+}
+PreviewPackage::~PreviewPackage(){if(!file_.empty()){std::error_code ignored;std::filesystem::remove(file_,ignored);}}
+std::filesystem::path PreviewPackage::registry()const{return candidate_?candidate_->registry():file_;}
+void forget_preview_verification(){verified_generations.clear();verify_sources=true;}
+std::string preview_cache_key(AssetService& assets,const NativeAuthoring& author,std::initializer_list<AssetId> roots){
+ if(!clean_closure(assets,author,roots))return {};
+ const auto inventory=assets.assets();std::string key;
+ for(auto root:roots){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});if(found==inventory.end()||!found->generation)return {};key+=root.text()+":"+std::to_string(found->generation)+";";}
+ return key;
+}
 }

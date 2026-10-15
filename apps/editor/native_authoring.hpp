@@ -112,11 +112,11 @@ private:
 void package_authoring(AssetService&,std::span<const AssetId>,const std::filesystem::path&);
 // The registry an authoring preview reads. When no unsaved or new draft is reachable from `include` through source locators,
 // it is packaged from the project's incremental cook (roots are verified once per cook generation), which takes milliseconds;
-// otherwise it is a private candidate of the drafts, which snapshots the mount and converts the closure again (seconds).
-// Defined with the pose previews in character_preview.cpp.
+// otherwise it is AssetService::preview_native of the drafts: only these roots, converting just those whose recipe the
+// drafts changed (a few hundred milliseconds for an edited action).
 class PreviewPackage {
 public:
-    PreviewPackage(AssetService&,NativeAuthoring&,std::initializer_list<AssetId> include,std::span<const AssetId> package_roots,std::span<const AssetId> scene_roots);
+    PreviewPackage(AssetService&,NativeAuthoring&,std::initializer_list<AssetId> include,std::span<const AssetId> package_roots);
     ~PreviewPackage();
     PreviewPackage(const PreviewPackage&)=delete;
     PreviewPackage& operator=(const PreviewPackage&)=delete;
@@ -124,4 +124,9 @@ public:
 private:
     std::optional<PreparedNativeEdit> candidate_;std::filesystem::path file_;
 };
+// Identifies what a preview of these roots shows: their cook generations, when no unsaved or new draft is reachable from them.
+// Empty when one is, or a root is not cooked; such previews are prepared from a private candidate each time.
+std::string preview_cache_key(AssetService&,const NativeAuthoring&,std::initializer_list<AssetId> roots);
+// Forgets which cook generations previews already verified, so the next one cooks (inspects) its roots again.
+void forget_preview_verification();
 }

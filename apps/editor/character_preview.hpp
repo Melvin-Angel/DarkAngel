@@ -42,11 +42,6 @@ private:
 std::unique_ptr<ComposerPosePreview> prepare_authored_action_pose(AssetService&,NativeAuthoring&,const CharacterPreviewResources&,AssetId action,AssetId graph);
 struct AuthoredCharacterPose {CookedCharacter character;CookedClip clip;std::unique_ptr<ComposerPosePreview> pose;};
 AuthoredCharacterPose prepare_authored_character_pose(AssetService&,NativeAuthoring&,AssetId character,AssetId clip);
-// Identifies what a preview of these roots shows: their cook generations, when no unsaved or new draft is reachable from them.
-// Empty when one is, or a root is not cooked; such previews are prepared from a private candidate each time.
-std::string preview_cache_key(AssetService&,const NativeAuthoring&,std::initializer_list<AssetId> roots);
-// Forgets which cook generations previews already verified, so the next one cooks (inspects) its roots again.
-void forget_preview_verification();
 class GraphPosePreview {
 public:
     explicit GraphPosePreview(const CookedGraph&);

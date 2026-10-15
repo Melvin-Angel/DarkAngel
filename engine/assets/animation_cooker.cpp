@@ -17,6 +17,9 @@
 #include <set>
 #include <cstring>
 #include <bit>
+#include <fstream>
+#include <mutex>
+#include <optional>
 namespace darkangel::assets_detail {
     namespace {
         constexpr auto ozz_pin="744eb9d99f606eda849acb0b1204f7a3dc20bca1";
@@ -73,11 +76,45 @@ namespace darkangel::assets_detail {
             require(std::isfinite(a)&&std::isfinite(b)&&std::abs(a-b)<=tolerance,diagnostic);
         }
     }
+    namespace {
+        struct ClipMemo {std::mutex lock;std::filesystem::path folder,cas;} clip_memo;
+        std::string clip_memo_key(const std::map<std::string,std::string>& inputs,const std::map<std::string,AssetId>& ids,bool loop){
+            Json key={{"schema",1},{"inputs",inputs},{"ids",Json::object()},{"loop",loop}};for(const auto& [name,id]:ids)key["ids"][name]=id.text();return sha256(key.dump());
+        }
+        // A missing or damaged entry or product is a miss: the clip is converted again and the entry rewritten.
+        std::optional<Import> recall_clip(const std::string& key){
+            std::filesystem::path folder,cas;{std::lock_guard guard(clip_memo.lock);folder=clip_memo.folder;cas=clip_memo.cas;}
+            if(folder.empty()||!std::filesystem::is_regular_file(folder/(key+".json")))return std::nullopt;
+            try{auto entry=json(read(folder/(key+".json"),1024*1024));Import out;out.keys=entry.at("keys").get<std::vector<std::string>>();out.product_count=entry.at("product_count").get<std::size_t>();
+                for(const auto& record:entry.at("products")){auto hash=record.at("sha256").get<std::string>(),extension=record.at("extension").get<std::string>();require(hash.size()==64&&hash.find_first_not_of("0123456789abcdef")==hash.npos&&!extension.empty()&&extension.find_first_of("/\\:")==extension.npos,"Clip memo product digest/extension");
+                    auto bytes=read(cas/(hash+"."+extension),64*1024*1024);if(sha256(bytes)!=hash)return std::nullopt;
+                    std::vector<AssetId> required;for(const auto& id:record.at("required"))required.push_back(AssetId::parse(id.get<std::string>()));
+                    out.products.push_back({AssetId::parse(record.at("id").get<std::string>()),record.at("kind").get<std::string>(),extension,std::move(bytes),std::move(required)});}
+                return out;}catch(const std::exception&){return std::nullopt;}
+        }
+        void publish_file(const std::filesystem::path& path,std::string_view bytes){
+            auto staged=path;staged+=".m-"+AssetId::random().text().substr(0,8);
+            {std::ofstream out(staged,std::ios::binary);out.write(bytes.data(),static_cast<std::streamsize>(bytes.size()));if(!out)throw std::runtime_error("Clip memo write failed");}
+            std::error_code failed;std::filesystem::rename(staged,path,failed);if(failed){std::filesystem::remove(staged,failed);throw std::runtime_error("Clip memo publication failed");}
+        }
+        // Best effort: a failed write only loses the shortcut.
+        void remember_clip(const std::string& key,const Import& out){
+            std::filesystem::path folder,cas;{std::lock_guard guard(clip_memo.lock);folder=clip_memo.folder;cas=clip_memo.cas;}
+            if(folder.empty())return;
+            try{Json entry={{"schema",1},{"keys",out.keys},{"product_count",out.product_count},{"products",Json::array()}};std::filesystem::create_directories(folder);std::filesystem::create_directories(cas);
+                for(const auto& product:out.products){auto hash=sha256(product.bytes);auto path=cas/(hash+"."+product.extension);if(!std::filesystem::exists(path))publish_file(path,product.bytes);
+                    Json required=Json::array();for(auto id:product.required)required.push_back(id.text());entry["products"].push_back({{"id",product.id.text()},{"kind",product.kind},{"extension",product.extension},{"sha256",hash},{"required",required}});}
+                publish_file(folder/(key+".json"),entry.dump());}catch(const std::exception&){}
+        }
+    }
+    void set_clip_memo(std::filesystem::path folder,std::filesystem::path cas){std::lock_guard guard(clip_memo.lock);clip_memo.folder=std::move(folder);clip_memo.cas=std::move(cas);}
     Import import_clip(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,const std::filesystem::path& canonical,bool loop,bool inspect){
         require(source.extension()==".glb"&&canonical.extension()==".daskeleton","Initial clip profile requires normalized GLB and native skeleton");
         auto rig_bytes=read(canonical,1024*1024);auto rig=decode_rig_source(rig_bytes);
         auto bytes=read(source,16*1024*1024);Import out;out.keys={"runtime"};out.product_count=4;
         out.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);out.inputs[canonical.lexically_relative(root).generic_string()]=sha256(rig_bytes);
+        // Identical inputs, identities and loop setting convert to identical products, which an earlier conversion kept.
+        const auto memo_key=clip_memo_key(out.inputs,ids,loop);if(auto known=recall_clip(memo_key)){known->inputs=out.inputs;if(inspect)known->products.clear();return std::move(*known);}
         require(bytes.size()>=20,"Clip GLB header bounds");std::uint32_t header[5];std::memcpy(header,bytes.data(),20);
         require(header[0]==0x46546c67&&header[1]==2&&header[2]==bytes.size()&&header[4]==0x4e4f534a&&header[3]<=bytes.size()-20,"Clip GLB container profile");
         // Bound JSON work before cgltf allocates its node/channel structures.
@@ -150,6 +187,7 @@ namespace darkangel::assets_detail {
         out.products.push_back({runtime,"ozz-animation","ozzanim",std::move(archive),{}});
         auto closure=import_skeleton(root,canonical,{{"$source",rig.id},{"runtime",rig.runtime}},false);
         for(auto& product:closure.products){require(product.id!=id&&product.id!=runtime,"Clip and rig UUID collision");out.products.push_back(std::move(product));}
+        remember_clip(memo_key,out);
         return out;
     }
     Import import_skeleton(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){

@@ -96,6 +96,10 @@ public:
     // Private source snapshot, complete changed/dependent kit and selected scene
     // cook/package validation. No source or catalog head changes in prepare.
     PreparedNativeEdit prepare_native(std::span<const NativeSourceEdit>,std::span<const AssetId> scene_roots={});
+    // Editor preview of drafts: cooks only `roots` over a private mount of linked sources plus the drafts, packaging each
+    // root whose recipe is unchanged from the catalog instead of converting it. No consumer closure, mount hash or
+    // validation of other roots; the result can be read (registry()) but never committed.
+    PreparedNativeEdit preview_native(std::span<const NativeSourceEdit>,std::span<const AssetId> roots);
     std::vector<CookResult> commit_native(const PreparedNativeEdit&);
     CookResult create_native(std::string_view relative_source,std::string_view draft); // fresh owned UUID/path; validates before cook
     // Unreferenced item only. Stale writes reject; source bytes are archived in the cache.

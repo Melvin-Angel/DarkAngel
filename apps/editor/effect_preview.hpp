@@ -11,7 +11,7 @@ public:
  EffectPreview(AssetService& assets,NativeAuthoring& author,AssetId id){
   source_path=author.open(assets,id).asset.path;
   // The project's cook when the effect's closure has no unsaved drafts; a private candidate of the drafts otherwise.
-  const PreviewPackage package(assets,author,{id},{&id,1},{&id,1});
+  const PreviewPackage package(assets,author,{id},{&id,1});
   cooked=load_cooked_effect(package.registry(),assets.cas_path(),id);
   if(cooked.definition->evaluator!=0)throw std::runtime_error("Preview supports ordinary modifiers/statuses only; custom evaluators must be tested in Game");
   attributes=std::make_unique<AttributeSet>(cooked.attributes.definitions());

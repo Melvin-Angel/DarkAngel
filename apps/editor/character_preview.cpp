@@ -17,34 +17,6 @@
 #include <sstream>
 namespace darkangel::editor_app {
 namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
-// A preview whose roots reach no unsaved or new draft through their source locators shows exactly what the project's
-// ordinary cook holds. It is packaged from that incremental cook, which skips every conversion already current, instead of
-// a private candidate cook that snapshots the source mount and converts the whole closure again (seconds per preview).
-bool native_with_sources(const std::filesystem::path& path){const auto ext=path.extension().string();for(const auto* known:{".dagraph",".dacharacter",".daplayer",".dafacemask",".danpc",".dabehavior",".dacue",".daitem",".datrail",".dadecal",".dasound",".damix",".daaudioprofile",".dakit",".daability",".daeffect",".daaction"})if(ext==known)return true;return false;}
-bool clean_closure(AssetService& assets,const NativeAuthoring& author,std::initializer_list<AssetId> roots){
- std::map<std::string,const NativeDraft*> drafts;for(const auto& [id,draft]:author.drafts)drafts[draft.asset.path]=&draft;
- std::set<std::string> visited;std::function<bool(const std::string&)> clean=[&](const std::string& path)->bool{
-  if(!visited.insert(path).second)return true;if(visited.size()>256)return false;
-  nlohmann::json value;if(auto found=drafts.find(path);found!=drafts.end()){if(found->second->dirty())return false;value=found->second->value;}
-  else{if(!native_with_sources(path))return true;std::ifstream file(assets.source_root()/path);if(!file)return true;value=nlohmann::json::parse(file,nullptr,false);if(value.is_discarded())return false;}
-  std::function<bool(const nlohmann::json&)> walk=[&](const nlohmann::json& v)->bool{if(v.is_string())return clean(v.get<std::string>());if(v.is_object()||v.is_array())for(const auto& entry:v)if(!walk(entry))return false;return true;};
-  return !value.is_object()||!value.contains("sources")||walk(value.at("sources"));};
- const auto inventory=assets.assets();
- for(auto root:roots){std::string path;if(auto draft=author.drafts.find(root);draft!=author.drafts.end())path=draft->second.asset.path;else{auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});if(found==inventory.end())return false;path=found->path;}if(!clean(path))return false;}
- return true;
-}
-// A cooked root is packaged as the catalog holds it; an incremental cook rescans the mount and rehashes the root's
-// sources and products (hundreds of milliseconds) and runs only for uncooked roots. Save, Play and the background cook
-// publish new generations. A source file changed outside the editor shows after the preview's Refresh, which makes every
-// root verified once more by a cook (forget_preview_verification).
-std::map<AssetId,std::uint64_t> verified_generations;bool verify_sources{};
-void package_clean(AssetService& assets,std::span<const AssetId> roots,const std::filesystem::path& output){
- const auto inventory=assets.assets();
- const bool known=std::all_of(roots.begin(),roots.end(),[&](AssetId root){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});auto verified=verified_generations.find(root);return found!=inventory.end()&&found->generation&&(!verify_sources||(verified!=verified_generations.end()&&verified->second==found->generation));});
- if(known){assets.package(roots.front(),output,roots.subspan(1));return;}
- package_authoring(assets,roots,output);
- for(const auto& asset:assets.assets())if(std::find(roots.begin(),roots.end(),asset.id)!=roots.end()&&asset.generation)verified_generations[asset.id]=asset.generation;
-}
 }
 ComposerPosePreview::ComposerPosePreview(const CharacterPreviewResources& resources,CookedClip cooked,unsigned duration,std::shared_ptr<const ActionDefinition> action){
     require(cooked.definition.skeleton==resources.rig.definition.id&&cooked.definition.signature==resources.rig.definition.signature&&cooked.definition.joints==resources.rig.definition.joints.size(),"Composer clip/character rig mismatch");
@@ -63,26 +35,12 @@ const std::vector<JointMatrix>& ComposerPosePreview::sample(double tick){
     return mixer_->sample(*pose_,inputs,*action_,*clip_,tick);
 }
 std::unique_ptr<ComposerPosePreview> prepare_authored_action_pose(AssetService& assets,NativeAuthoring& author,const CharacterPreviewResources& resources,AssetId action,AssetId graph){
-    author.open(assets,action);author.open(assets,graph);std::array roots{action,graph};PreviewPackage candidate(assets,author,{action,graph},roots,roots);
+    author.open(assets,action);author.open(assets,graph);std::array roots{action,graph};PreviewPackage candidate(assets,author,{action,graph},roots);
     auto frozen=std::make_shared<const ActionDefinition>(load_cooked_action(candidate.registry(),assets.cas_path(),action));require(frozen->motion.has_value(),"Composer action needs a clip");auto prepared=resources;auto cooked_graph=load_cooked_graph(candidate.registry(),assets.cas_path(),graph);require(cooked_graph.rig.definition.id==resources.rig.definition.id&&cooked_graph.rig.definition.signature==resources.rig.definition.signature,"Composer locomotion/character rig mismatch");prepared.graph=cooked_graph.plan;return std::make_unique<ComposerPosePreview>(prepared,load_cooked_clip(candidate.registry(),assets.cas_path(),frozen->motion->clip.id),frozen->duration,frozen);
-}
-PreviewPackage::PreviewPackage(AssetService& assets,NativeAuthoring& author,std::initializer_list<AssetId> include,std::span<const AssetId> package_roots,std::span<const AssetId> scene_roots){
- if(clean_closure(assets,author,include)){file_=assets.cas_path().parent_path()/("preview-"+AssetId::random().text()+".json");try{package_clean(assets,package_roots,file_);}catch(...){std::error_code ignored;std::filesystem::remove(file_,ignored);throw;}return;}
- std::vector<NativeSourceEdit> edits;for(const auto& [id,draft]:author.drafts)if(std::find(include.begin(),include.end(),id)!=include.end()||draft.dirty())edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});
- candidate_.emplace(assets.prepare_native(edits,scene_roots));
-}
-PreviewPackage::~PreviewPackage(){if(!file_.empty()){std::error_code ignored;std::filesystem::remove(file_,ignored);}}
-std::filesystem::path PreviewPackage::registry()const{return candidate_?candidate_->registry():file_;}
-void forget_preview_verification(){verified_generations.clear();verify_sources=true;}
-std::string preview_cache_key(AssetService& assets,const NativeAuthoring& author,std::initializer_list<AssetId> roots){
- if(!clean_closure(assets,author,roots))return {};
- const auto inventory=assets.assets();std::string key;
- for(auto root:roots){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});if(found==inventory.end()||!found->generation)return {};key+=root.text()+":"+std::to_string(found->generation)+";";}
- return key;
 }
 AuthoredCharacterPose prepare_authored_character_pose(AssetService& assets,NativeAuthoring& author,AssetId character,AssetId clip){
  auto& draft=author.open(assets,character);require(draft.value.at("kind")=="character","Choose a Character definition");
- const std::array roots{character,clip};PreviewPackage candidate(assets,author,{character,clip},roots,{&clip,1});auto cooked=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto animation=load_cooked_clip(candidate.registry(),assets.cas_path(),clip);CharacterPreviewResources resources;resources.skin=cooked.definition.skin;resources.rig=cooked.skin.rig;
+ const std::array roots{character,clip};PreviewPackage candidate(assets,author,{character,clip},roots);auto cooked=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto animation=load_cooked_clip(candidate.registry(),assets.cas_path(),clip);CharacterPreviewResources resources;resources.skin=cooked.definition.skin;resources.rig=cooked.skin.rig;
  auto pose=std::make_unique<ComposerPosePreview>(resources,animation,animation.definition.ticks*action_tick_units);return {std::move(cooked),std::move(animation),std::move(pose)};
 }
 GraphPosePreview::GraphPosePreview(const CookedGraph& graph):graph_(graph.plan),pose_(graph.rig.definition,graph.rig.archive){if(auto dictionary=graph_.tag_dictionary())tags_={dictionary->registry(),dictionary->generation(),{}};sample(0,{});}
@@ -92,7 +50,7 @@ const std::vector<JointMatrix>& GraphPosePreview::sample(unsigned tick,GraphPara
 }
 AuthoredGraphPose prepare_authored_graph_pose(AssetService& assets,NativeAuthoring& author,AssetId character,AssetId graph){
  auto& character_draft=author.open(assets,character);auto& graph_draft=author.open(assets,graph);require(character_draft.value.at("kind")=="character"&&graph_draft.value.at("kind")=="graph","Select Character and locomotion graph");
- const std::array roots{character,graph};PreviewPackage candidate(assets,author,{character,graph},roots,{});auto cooked_character=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto cooked_graph=load_cooked_graph(candidate.registry(),assets.cas_path(),graph);require(cooked_character.skin.rig.definition.id==cooked_graph.rig.definition.id&&cooked_character.skin.rig.definition.signature==cooked_graph.rig.definition.signature,"Graph preview Character/rig mismatch");auto pose=std::make_unique<GraphPosePreview>(cooked_graph);return {std::move(cooked_character),std::move(cooked_graph),std::move(pose)};
+ const std::array roots{character,graph};PreviewPackage candidate(assets,author,{character,graph},roots);auto cooked_character=load_cooked_character(candidate.registry(),assets.cas_path(),character);auto cooked_graph=load_cooked_graph(candidate.registry(),assets.cas_path(),graph);require(cooked_character.skin.rig.definition.id==cooked_graph.rig.definition.id&&cooked_character.skin.rig.definition.signature==cooked_graph.rig.definition.signature,"Graph preview Character/rig mismatch");auto pose=std::make_unique<GraphPosePreview>(cooked_graph);return {std::move(cooked_character),std::move(cooked_graph),std::move(pose)};
 }
 CharacterPreviewResources load_character_preview(const std::filesystem::path& registry,const std::filesystem::path& cas,std::string_view references,const RuntimeSkinnedModel& skin,StableId player,const std::map<StableId,AssetId>& spawns,AssetId collision,const std::set<AssetId>& encounter_npcs){
     // Every path ends here: the authored collision, if named, and the model collision source over this package.

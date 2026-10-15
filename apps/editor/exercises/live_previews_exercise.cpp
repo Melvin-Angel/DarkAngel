@@ -17,6 +17,9 @@ class LivePreviews final:public Exercise {
     int stage{};unsigned since{};AssetId character,action,effect,graph,player;
     // Open-to-ready wall time of each preview, reported with the result.
     std::chrono::steady_clock::time_point opened{};double character_ms{},action_ms{},effect_ms{},graph_ms{},revisit_ms{};
+    // The action edit: wall time until the preview follows it (includes the edit pause) and the longest frame meanwhile,
+    // which is how long the editor stopped responding while the draft preview was prepared.
+    std::chrono::steady_clock::time_point last_frame{};double edit_ms{},edit_frame_ms{};
     double elapsed()const{return std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-opened).count();}
     void open(AssetId id){opened=std::chrono::steady_clock::now();shell.open_native_asset(editor,id);}
     AssetId first(const char* extension,bool motion=false){
@@ -33,6 +36,7 @@ public:
     LivePreviews(bool enabled,Controller& e,Shell& s):enabled_(enabled),editor(e),shell(s){}
     void frame(unsigned frame)override{
         if(!enabled_||done_)return;
+        const auto now=std::chrono::steady_clock::now();if(stage==3)edit_frame_ms=std::max(edit_frame_ms,std::chrono::duration<double,std::milli>(now-last_frame).count());last_frame=now;
         switch(stage){
         case 0:
             if(frame<3)return;
@@ -48,12 +52,12 @@ public:
             until(shell.workspace==Workspace::Animation&&shell.composer_preview_action==action&&shell.composer_visible,frame,"Action preview did not prepare on opening the Animation tab");
             // A cue block is the smallest valid timeline edit: it changes the draft without touching the clip binding or duration.
             if(stage==3){action_ms=elapsed();const auto& value=editor.authoring.open(*editor.assets,action).value;unsigned track{};for(const auto& block:value.at("blocks"))track=std::max(track,block.at("track").get<unsigned>());
-                editor.authoring.add_action_block(*editor.assets,action,{0,std::min(track+1,31u),0,0,ActionBlockKind::Cue,"Cue.New"});}
+                editor.authoring.add_action_block(*editor.assets,action,{0,std::min(track+1,31u),0,0,ActionBlockKind::Cue,"Cue.New"});opened=std::chrono::steady_clock::now();}
             return;
         case 3:
             until(shell.composer_preview_hash==sha256(editor.authoring.open(*editor.assets,action).value.dump()),frame,
                   ("Action preview did not follow the edited draft: "+(shell.action_refresh.error.empty()?std::string("no preparation error"):shell.action_refresh.error)).c_str());
-            if(stage==4){editor.authoring.undo(*editor.assets);open(effect);}
+            if(stage==4){edit_ms=elapsed();editor.authoring.undo(*editor.assets);open(effect);}
             return;
         case 4:
             until(shell.workspace==Workspace::Ability&&shell.effect_preview&&shell.effect_preview_asset==effect,frame,"Effect preview did not prepare on opening the Ability tab");
@@ -75,7 +79,7 @@ public:
                 revisit_ms=elapsed();
                 require(!editor.authoring.dirty()&&!editor.preview.active(),"Live previews changed a source or started Play");
                 done_=true;std::cout<<"Editor live_previews character=1 action=1 action_follows_edit=1 effect=1 graph=1 camera=1 source=unchanged revisit=1"
-                    <<" open_ms character="<<character_ms<<" action="<<action_ms<<" effect="<<effect_ms<<" graph="<<graph_ms<<" revisit="<<revisit_ms<<"\n";}
+                    <<" open_ms character="<<character_ms<<" action="<<action_ms<<" effect="<<effect_ms<<" graph="<<graph_ms<<" revisit="<<revisit_ms<<" edit="<<edit_ms<<" edit_longest_frame="<<edit_frame_ms<<"\n";}
             return;
         }
     }
