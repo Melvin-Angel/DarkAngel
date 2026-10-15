@@ -14,3 +14,6 @@ tools/asset-validation/node_modules/
 __pycache__/
 /DarkAngel_Implementation_Handoff.md
 /DarkAngel_Engine_Architecture_Decision_Log_v0.1.docx
+
+# Scene-scale measurement scenes (scripts/measure_scene_scale.py); generated and removed by the script.
+/content/_scale_test/

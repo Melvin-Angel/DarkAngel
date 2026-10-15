@@ -24,6 +24,7 @@
 #include "exercises/navigation_exercises.hpp"
 #include "exercises/play_exercises.hpp"
 #include "exercises/preview_results.hpp"
+#include "exercises/scale_exercise.hpp"
 #endif
 #ifdef DAE_AUDIO
 #include "audio_workspace.hpp"
@@ -358,6 +359,7 @@ int EditorApp::run() {
     auto play_exercise = darkangel::editor_app::exercises::make_play_exercises(
         {args, editor, shell, play.character, play.character_resources, inspector_->selection, play.cue_state(),
          [this] { return play_->first_actor(); }, tools.senses_drawn, tools.volumes_drawn, tools.splines_drawn, viewport.scatter_drawn});
+    auto scale_exercise = darkangel::editor_app::exercises::make_scale({args, editor, shell});
 #endif
     unsigned frame{};
     while (!args.frames || frame < args.frames) {
@@ -382,6 +384,7 @@ int EditorApp::run() {
         acceptance_exercise->frame(frame);
 #ifdef DAE_CHARACTER_SCENE
         navigation_exercise->frame(frame);
+        scale_exercise->frame(frame);
         play.launch(frame);
         play_exercise->launched(frame);
         if (args.character_clips.empty())
@@ -460,6 +463,7 @@ int EditorApp::run() {
                                                              previews.authoring_skin.has_value(), previews.composer_matrices.size()});
     // Presentation checks read what the frame loop drew; they run before gameplay checks stop Play.
     navigation_exercise->finish();
+    scale_exercise->finish();
     play_exercise->check_drawing();
     media_exercise->finish();
     play_exercise->finish();

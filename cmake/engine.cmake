@@ -97,6 +97,10 @@ if(DAE_PHYSICS)
   if(BUILD_TESTING)
     add_executable(MotorTests tests/motor_tests.cpp)
     target_link_libraries(MotorTests PRIVATE DarkAngelPhysics)
+    # Scene-scale baseline measurement (SCENE_SCALE_PLAN.md phase 0); run by scripts/measure_scene_scale.py, not a CTest.
+    add_executable(SceneScaleBench tests/scene_scale_bench.cpp)
+    target_link_libraries(SceneScaleBench PRIVATE DarkAngelPhysics nlohmann_json::nlohmann_json)
+    target_compile_options(SceneScaleBench PRIVATE /W4 /utf-8 /EHsc)
     dae_test(AbilityMotorPredictionTests NAME M5.ability_motor_prediction
       SOURCES tests/ability_motor_prediction_tests.cpp
       LIBS DarkAngelPhysics)

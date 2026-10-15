@@ -6,7 +6,7 @@
 
 namespace darkangel::editor_app {
 struct EditorOptions {
-    std::filesystem::path party_report, world_place;
+    std::filesystem::path party_report, world_place, exercise_scale;
     bool play_from_save{}, play{};
     std::string join, listen;
     unsigned player{1}, local_profile{4};

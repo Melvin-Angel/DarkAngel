@@ -18,6 +18,10 @@ EditorOptions parse_editor_options(int argc, char** argv) {
             out.world_place = argv[++i];
             continue;
         }
+        if (arg == "--exercise-scale" && i + 1 < argc) {
+            out.exercise_scale = argv[++i];
+            continue;
+        }
         if (arg == "--play-from-save") {
             out.play_from_save = true;
             continue;
