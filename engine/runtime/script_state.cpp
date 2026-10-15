@@ -1,4 +1,5 @@
 #include "script_state.hpp"
+#include <algorithm>
 #include <darkangel/world.hpp>
 #include <charconv>
 #include <cctype>
@@ -93,5 +94,5 @@ ScriptStateSchema::Json ScriptStateSchema::read(lua_State* state,int index) cons
 ScriptStateSchema::Json ScriptStateSchema::stable_fields(const Json& value) const{validate(value);return stable(value,schema_);}
 void ScriptStateSchema::validate_references(const Json& value,const World& world) const{validate(value);references(value,schema_,world);}
 std::string default_script_config_schema(){return R"({"type":"record","fields":{"speed":{"id":1,"type":"number","min":-1000000,"max":1000000,"default":1}}})";}
-ScriptStateSchema::Json parse_script_data(std::string_view text,std::size_t byte_limit){require(text.size()<=byte_limit,"Script data byte limit");std::vector<std::set<std::string>> keys;std::size_t count{};return Json::parse(text,[&](int depth,Json::parse_event_t event,Json& value){require(depth<=40 && ++count<=65536,"Script data work/depth limit");if(event==Json::parse_event_t::object_start)keys.emplace_back();if(event==Json::parse_event_t::key)require(keys.back().insert(value.get<std::string>()).second,"Duplicate script data key");if(event==Json::parse_event_t::object_end)keys.pop_back();return true;});}
+ScriptStateSchema::Json parse_script_data(std::string_view text,std::size_t byte_limit){require(text.size()<=byte_limit,"Script data byte limit");std::vector<std::set<std::string>> keys;std::size_t count{};return Json::parse(text,[&](int depth,Json::parse_event_t event,Json& value){require(depth<=40 && ++count<=std::max<std::size_t>(65536,byte_limit/4),"Script data work/depth limit");if(event==Json::parse_event_t::object_start)keys.emplace_back();if(event==Json::parse_event_t::key)require(keys.back().insert(value.get<std::string>()).second,"Duplicate script data key");if(event==Json::parse_event_t::object_end)keys.pop_back();return true;});}
 }

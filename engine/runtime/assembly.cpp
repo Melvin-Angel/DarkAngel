@@ -12,8 +12,8 @@
 #include <cstring>
 #include <stdexcept>
 namespace darkangel {
-// An assembly source is bounded like the editor document that holds it (1 MiB); the object limit below is reached first.
-constexpr std::size_t document_source_limit=1024*1024;
+// An assembly source is bounded like the editor document that holds it.
+constexpr std::size_t document_source_limit=scene_document_byte_limit;
 namespace {
 using Json=nlohmann::json;
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
@@ -51,7 +51,7 @@ struct Resolver {
         require(depth<=16 && stack.insert(id).second,"Cyclic/deep assembly composition");auto graph=definition(id);require(edits.is_array() && edits.size()<=1024,"Placement patch limit");
         for(const auto& operation:edits)patch(graph,operation);
         for(const auto& [local,entity]:graph.at("entities").items()){
-            StableId::parse(local);require(plan.origins.size()<1024,"Assembly object limit");auto path=scope+"/"+local;auto object=persistent(path);require(paths.emplace(path,object).second,"Duplicate authored path");
+            StableId::parse(local);require(plan.origins.size()<scene_object_limit,"Assembly object limit");auto path=scope+"/"+local;auto object=persistent(path);require(paths.emplace(path,object).second,"Duplicate authored path");
             for(const auto& origin:plan.origins)require(origin.object!=object,"Persistent identity collision");
             Json native={{"id",object.text()},{"types",entity.at("types")},{"target",nullptr}};if(entity.contains("optional"))native["optional"]=entity["optional"];
             if(entity.contains("target") && !entity["target"].is_null())references.push_back({scene["objects"].size(),scope,entity["target"]});
@@ -123,9 +123,9 @@ std::string SpawnPlan::serialize() const{Json root={{"schema",1},{"scene",parse_
         for(const auto& [object,volume]:volumes)gameplay["volumes"][object.text()]={{"encounter",volume.encounter.text()},{"half",volume.half}};for(const auto& [object,owner]:spawn_owners)gameplay["spawn_owners"][object.text()]=owner.text();}
     for(const auto& origin:origins)root["origins"].push_back({{"object",origin.object.text()},{"asset",origin.definition.text()},{"path",origin.local_path},{"name",origin.name},{"layer",origin.layer}});
     for(const auto& binding:bindings)root["bindings"].push_back({{"object",binding.object.text()},{"id",binding.binding.id.text()},{"asset",asset_id(binding.binding.asset).text()},{"config",parse_script_data(binding.binding.config_json)},{"enabled",binding.binding.enabled}});
-    for(const auto& [object,asset]:models)root["models"][object.text()]=asset.text();auto text=root.dump();require(text.size()<=1024*1024,"Spawn plan byte limit");return text;
+    for(const auto& [object,asset]:models)root["models"][object.text()]=asset.text();auto text=root.dump();require(text.size()<=scene_document_byte_limit,"Spawn plan byte limit");return text;
 }
-SpawnPlan SpawnPlan::deserialize(std::string_view text){auto root=parse_script_data(text,1024*1024);require(root.at("schema")==1,"Spawn plan schema mismatch");SpawnPlan plan;plan.scene_json=root.at("scene").dump();World validation(WorldDomain::Authoring);validation.load(plan.scene_json);
+SpawnPlan SpawnPlan::deserialize(std::string_view text){auto root=parse_script_data(text,scene_document_byte_limit);require(root.at("schema")==1,"Spawn plan schema mismatch");SpawnPlan plan;plan.scene_json=root.at("scene").dump();World validation(WorldDomain::Authoring);validation.load(plan.scene_json);
     for(const auto& origin:root.at("origins"))plan.origins.push_back({StableId::parse(origin.at("object").get<std::string>()),AssetId::parse(origin.at("asset").get<std::string>()),origin.at("path"),origin.at("name"),origin.at("layer")});
     for(const auto& b:root.at("bindings"))plan.bindings.push_back({StableId::parse(b.at("object").get<std::string>()),{StableId::parse(b.at("id").get<std::string>()),asset_key(AssetId::parse(b.at("asset").get<std::string>())),b.at("config").dump(),b.at("enabled").get<bool>()}});
     for(const auto& [object,asset]:root.at("models").items())plan.models[StableId::parse(object)]=AssetId::parse(asset.get<std::string>());if(root.contains("spawns")){require(root.at("spawns").size()<=64,"Spawn plan spawn point limit");for(const auto& [object,asset]:root.at("spawns").items())plan.spawns[StableId::parse(object)]=AssetId::parse(asset.get<std::string>());}

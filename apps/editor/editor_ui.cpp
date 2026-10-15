@@ -28,7 +28,7 @@ void commit_scene(Controller& editor,const nlohmann::json& graph,const char* mes
 // Adds one entity to the scene's own source under the first free local identity and returns the placed object.
 StableId add_object(Controller& editor,nlohmann::json entity,const Transform& at,const char* message){
     auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));auto& entities=graph.at("entities");std::string local;
-    for(unsigned index=1;index<=1024;++index){local=StableId{0,index}.text();if(!entities.contains(local))break;if(index==1024)throw std::runtime_error("Scene object limit");}
+    for(std::size_t index=1;index<=scene_object_limit;++index){local=StableId{0,index}.text();if(!entities.contains(local))break;if(index==scene_object_limit)throw std::runtime_error("Scene object limit");}
     entity["target"]=nullptr;entity["types"]={{"1",{{"version",2},{"fields",{{"1",at.yaw},{"2",at.x},{"3",at.y},{"4",at.z},{"5",0},{"6",0},{"7",1}}}}},{"2",{{"version",1},{"fields",{{"1",100},{"2",100}}}}}};
     entities[local]=std::move(entity);commit_scene(editor,graph,message);for(const auto& origin:editor.document->plan().origins)if(origin.local_path.ends_with("/"+local))return origin.object;throw std::runtime_error("Placed object did not resolve");
 }

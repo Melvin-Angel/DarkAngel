@@ -7,6 +7,9 @@
 namespace darkangel {
 struct ObjectOrigin {StableId object;AssetId definition;std::string local_path,name,layer;};
 struct PlannedBinding {StableId object;ScriptBinding binding;};
+// Scene document bounds (SCENE_SCALE_PLAN.md phase 7): objects per scene, matching the static collision body budget, and the bytes
+// of a scene's sources, spawn plan and world. Editor documents and worlds use the same bounds.
+constexpr std::size_t scene_object_limit=16384,scene_document_byte_limit=16*1024*1024;
 struct SpawnPlan {
     std::string scene_json,fingerprint;
     std::vector<ObjectOrigin> origins;

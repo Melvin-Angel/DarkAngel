@@ -1,7 +1,7 @@
 # Scene scale: per-model collision and incremental placement
 
-Status (15 October 2026): phases 0 to 5 done (3 with 3b); architecture revised the same day (design rules below); phase 6
-(instancing) is designed below, and phase 7 (document caps) is next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
+Status (15 October 2026): phases 0 to 5 and 7 (caps) done, 3 with 3b; architecture revised the same day (design rules below).
+Phase 6 (instancing) and incremental document edits are designed follow-ups. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
 placement failures but kept the current architecture.
 
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
@@ -478,6 +478,41 @@ limit. Phase 0 shows each edit re-resolving the whole scene (10 ms at 8 placemen
 per-object records already exist in `.dascene.records/`, so the manifest can stop inlining entities, and edits can resolve only
 the changed object. Optional static merging per spatial cell (`StaticCompoundShape` at Play preparation) belongs here too, only
 if measurements show the broadphase needs it.
+
+Implemented (15 October 2026), the caps:
+- `scene_object_limit` (16,384, matching the static body budget) and `scene_document_byte_limit` (16 MiB) in
+  darkangel/assembly.hpp.
+- These now use those bounds:
+  - the assembly object limit and source parse;
+  - spawn plan bytes;
+  - the authoring `World`'s default capacity and its JSON bounds;
+  - every `EditorDocument` byte and work bound;
+  - `add_object`'s local-ID search.
+- `parse_script_data`'s work bound grows with the byte bound its caller allows.
+- Session worlds keep their own network object limit; static scenery never enters them (phase 3b).
+- `measure_scene_scale.py` lays more than 256 placements out on a square grid, so a scene stays inside one navigation mesh.
+
+Results (hidden editor, D3D12, spread layout):
+
+| Models | Authoring frame p50/p95 | Place used | Move | Place new | Prepare Play | Play frame p50/p95 | Private MB | Draws / visible / culled |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2,004 | 2.5 / 3.8 ms | 602 ms | 867 ms | 1,051 ms | 3,574 ms | 3.9 / 6.4 ms | 742 | 37 / 11 / 1,994 |
+| 4,004 | 6.0 / 8.0 ms | 2,074 ms | 1,534 ms | 1,746 ms | 2,893 ms | 5.4 / 8.5 ms | 752 | 36 / 10 / 3,995 |
+
+Scenes of 4,000 placements open, prepare Play in under 3 s and play at about 5 ms frames. Edits are the remaining scaling cost:
+every edit re-resolves, re-validates and re-loads the whole document (0.3 s at 1,000 placements, 1.5 to 2 s at 4,000).
+
+Next, incremental document edits (its own plan):
+- Edit one entity record in place, re-resolve only the changed object and its dependants, and update the authoring `World`
+  entity instead of rebuilding the world.
+- Keep the undo history as record diffs rather than whole-source snapshots.
+- Acceptance: a move at 4,000 placements under 16 ms.
+
+Other limits found along the way:
+- **Navigation:** one Recast mesh of at most 4,096 × 4,096 cells, about 1.2 km at 0.3 m cells. Larger levels need a tiled navmesh.
+- **Prepare Play:** about 3 s at any size. It rescans the project for each root's cook check and reloads every resource; a
+  per-root "inputs unchanged" short-circuit and keeping unchanged GPU uploads would cut it.
+- **Instancing:** phase 6, for thousands of visible placements.
 
 ## Migration and compatibility
 

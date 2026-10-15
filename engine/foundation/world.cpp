@@ -14,6 +14,8 @@
 #include <utility>
 
 namespace darkangel {
+// A scene world's JSON bound: the scene document bound (16 MiB, darkangel/assembly.hpp), so a document that resolves also loads.
+constexpr std::size_t scene_byte_limit=16*1024*1024;
 namespace {
 using Json=nlohmann::json;
 std::atomic<std::uint64_t> next_domain{1};
@@ -23,11 +25,11 @@ void keys(const Json& j, std::initializer_list<std::string_view> expected) {
     for (auto key : expected) require(j.contains(std::string(key)),"Missing schema field");
 }
 Json parse(std::string_view source) {
-    require(source.size()<=1024*1024,"Scene exceeds 1 MiB limit");
+    require(source.size()<=scene_byte_limit,"Scene exceeds its byte limit");
     std::vector<std::set<std::string>> objects;
     std::size_t values{};
     return Json::parse(source,[&](int depth, Json::parse_event_t event, Json& value) {
-        require(depth<=32 && ++values<=65536,"JSON work/depth limit exceeded");
+        require(depth<=32 && ++values<=scene_byte_limit/4,"JSON work/depth limit exceeded");
         if (event==Json::parse_event_t::object_start) objects.emplace_back();
         if (event==Json::parse_event_t::key) require(objects.back().insert(value.get<std::string>()).second,"Duplicate JSON key");
         if (event==Json::parse_event_t::object_end) objects.pop_back();
@@ -197,7 +199,7 @@ std::string World::serialize() const {
         if(!d.scripts.records.empty()){Json records=Json::object();for(const auto& b:d.scripts.records)records[b.id.text()]={{"asset",asset_id(b.asset).text()},{"enabled",b.enabled},{"config",b.config_json.empty()?Json::object():parse(b.config_json)}};root["objects"].back()["types"]["4"]={{"version",1},{"bindings",records}};}
         if(!d.optional_json.empty())root["objects"].back()["optional"]=parse(d.optional_json);
     }
-    auto source=root.dump(); require(source.size()<=1024*1024,"Serialized scene exceeds limit"); return source;
+    auto source=root.dump(); require(source.size()<=scene_byte_limit,"Serialized scene exceeds limit"); return source;
 }
 std::vector<EntityHandle> World::load(std::string_view source) {
     auto& p=*impl_; p.thread(); require(p.phase==Phase::Idle && p.entities.empty(),"Load requires empty idle destination");

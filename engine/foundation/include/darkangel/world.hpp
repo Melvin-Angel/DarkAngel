@@ -63,7 +63,9 @@ std::string luau_types();
 class WorldSession;
 class World {
 public:
-    explicit World(WorldDomain, std::size_t capacity=1024, std::size_t command_limit=1024);
+    // capacity: objects the world may hold, a bound only (nothing is preallocated). The default is the scene object limit
+    // (darkangel/assembly.hpp); session worlds pass their own network object limit.
+    explicit World(WorldDomain, std::size_t capacity=16384, std::size_t command_limit=1024);
     ~World();
     World(const World&)=delete;
     World& operator=(const World&)=delete;

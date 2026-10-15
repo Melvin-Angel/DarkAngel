@@ -11,6 +11,7 @@ Build DarkAngelEditor and SceneScaleBench in build/m5-editor-relwithdebinfo firs
 import argparse
 import hashlib
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -37,7 +38,8 @@ def positions(count: int, layout: str):
     """Grid cells for the extra placements: "spread" (12 m cells north of the ground, mostly outside the authoring camera) or
     "view" (3 m cells in front of the authoring camera, clear of the player and dummy, so every placement is on screen)."""
     if layout == "spread":
-        columns = 16
+        # 16 columns up to 256 placements (the baseline's layout), then a square grid, so the scene stays within one navigation mesh.
+        columns = max(16, math.ceil(math.sqrt(count)))
         return [(-90.0 + 12.0 * (i % columns), 30.0 + 12.0 * (i // columns)) for i in range(count)]
     cells, ring = [], 0
     while len(cells) < count:
