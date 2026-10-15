@@ -1,7 +1,7 @@
 # Scene scale: per-model collision and incremental placement
 
-Status (15 October 2026): phases 0 to 5 and 7 (caps) done, 3 with 3b; architecture revised the same day (design rules below).
-Phase 6 (instancing) and incremental document edits are designed follow-ups. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
+Status (15 October 2026): phases 0 to 5, 7 (caps) and 8 (incremental document edits) done, 3 with 3b; architecture revised the
+same day (design rules below). Phase 6 (instancing) is a designed follow-up. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
 placement failures but kept the current architecture.
 
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
@@ -502,17 +502,65 @@ Results (hidden editor, D3D12, spread layout):
 Scenes of 4,000 placements open, prepare Play in under 3 s and play at about 5 ms frames. Edits are the remaining scaling cost:
 every edit re-resolves, re-validates and re-loads the whole document (0.3 s at 1,000 placements, 1.5 to 2 s at 4,000).
 
-Next, incremental document edits (its own plan):
-- Edit one entity record in place, re-resolve only the changed object and its dependants, and update the authoring `World`
-  entity instead of rebuilding the world.
-- Keep the undo history as record diffs rather than whole-source snapshots.
-- Acceptance: a move at 4,000 placements under 16 ms.
+Next: incremental document edits, phase 8 below.
 
 Other limits found along the way:
 - **Navigation:** one Recast mesh of at most 4,096 × 4,096 cells, about 1.2 km at 0.3 m cells. Larger levels need a tiled navmesh.
 - **Prepare Play:** about 3 s at any size. It rescans the project for each root's cook check and reloads every resource; a
   per-root "inputs unchanged" short-circuit and keeping unchanged GPU uploads would cut it.
 - **Instancing:** phase 6, for thousands of visible placements.
+
+### Phase 8: incremental document edits
+
+Phase 7 left every edit re-resolving, re-validating and re-loading the whole document: 0.3 s at 1,000 placements and 1.5 to 2 s at
+4,000, for placing an already-loaded model or moving a placement. The cost was whole-document work on every edit:
+- `EditorDocument::prepare` / `prepare_source` / `stage` parsed every source, then ran `validate_native_sources` and
+  `resolve_assembly` on the whole graph;
+- `commit` / `undo` / `redo` built a new authoring `World` from the full scene JSON and serialized it again as the baseline, and
+  every prepare re-serialized the world to check it against that baseline;
+- undo history kept whole-source snapshots;
+- the editor's `add_object` / `commit_scene` re-dumped the whole scene graph for one new entity.
+
+Design:
+- **One resolver, two entry points.** The per-entity part of `resolve_assembly` (origin, component entries, bindings, native
+  object, references) is one function, `entity_part` plus `resolve_part` (engine/runtime/assembly.cpp). The full resolve builds
+  every object through it; `SceneAssembly` keeps the result indexed by object and by the root's local identities, so a record
+  edit runs the same code for the edited entities only. Component limits are counts checked on the whole plan after each
+  entity (`check_limits`), so both paths accept the same scenes.
+- **What depends on an entity.** Another entity's native object never changes when an entity is edited: references address
+  paths, and a path's object identity is derived from the path. So dependants only matter for validity: `SceneAssembly` counts
+  the references to every path, and removing an entity that a remaining entity or an export addresses is rejected, as a full
+  resolve rejects it. Mounts, variants and every other source still take a full resolve (a new `SceneAssembly`).
+- **Staging keeps the prepare/commit contract.** `stage` resolves the edited entities, splices them in, checks limits, builds
+  the scene and the plan fingerprint, and puts everything back; `apply` (commit) splices them in again and cannot fail on
+  content. The scene JSON is the objects' cached records joined in identity order, exactly `World::serialize`'s output, and the
+  fingerprint splices that scene into the rest of the plan without parsing it again (`serialize_plan`).
+- **The World updates in place.** `World::encode` / `decode` are `serialize` / `load` for one object, `World::replace` changes
+  an object keeping its handle, and `World::generation` counts changes, so the document's "changed outside its service" check
+  compares a counter instead of serializing the world on every prepare.
+- **The document keeps records.** `EditorDocument` holds the root source as a header plus one canonical record per entity, and
+  assembles the root text only when something asks for it (`source`, full edits, fingerprint). `prepare_entities` and
+  `entity` are the record API; property edits of the scene's own objects and `prepare_source` of a root whose header did not
+  change become record edits. History steps are record diffs (or, for full edits, the replaced sources only). The editor's
+  add, delete, spawn and component edits use one record each.
+- **Unchanged contract:** revisions, prepare/commit tokens, stale checks, no-op detection, the schema 2 save format with
+  `.dascene.records/`, and `SpawnPlan` contents (`M2.document_incremental_edits` checks plan, fingerprint, scene, world and
+  saved output against a full resolve over random edit sequences, including rejected edits).
+- **The fingerprint is text too.** The first cut still spent about 33 ms at 4,000 placements rebuilding the plan's JSON for its
+  fingerprint. `SceneAssembly` now keeps every origin, binding and model entry as the text `SpawnPlan::serialize` writes, and
+  assembles the serialized plan from them (`serialize_plan`); only the bounded sections are built as JSON.
+
+Results (15 October 2026, hidden editor, D3D12; `python scripts/measure_scene_scale.py --counts 1000,4000`):
+
+| Models | Authoring frame p50/p95 | Place used | Move | Place new | Prepare Play | Play frame p50/p95 | Private MB |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1,004 | 1.7 / 2.4 ms | 3 ms | 1 ms | 195 ms | 3,069 ms | 1.9 / 3.0 ms | 668 |
+| 4,004 | 3.4 / 5.1 ms | 8 ms | 3 ms | 137 ms | 2,907 ms | 6.1 / 8.5 ms | 697 |
+
+Down from 2,074 ms (place used) and 1,534 ms (move) at 4,004 in phase 7. `DocumentIncrementalTests --bench 4000` (document
+alone, not a CTest) shows about 4 ms for a move, a placement, an undo and a redo, and 3 ms for the first `dirty()` after an
+edit (the root source is assembled and hashed once per revision). Opening a document still resolves the whole scene once
+(about 1 s at 4,000).
 
 ## Migration and compatibility
 

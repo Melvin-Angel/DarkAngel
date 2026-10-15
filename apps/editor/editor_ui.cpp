@@ -24,21 +24,23 @@ std::filesystem::path dialog(bool save){wchar_t file[32768]{};OPENFILENAMEW opti
 // NPC spawn points are scene objects that reference an NPC definition. Adding, retargeting and removing one is a
 // structural edit of the scene's own source through the document, so it shares its history, Undo and Save.
 std::string object_local(const Controller& editor,StableId object){for(const auto& origin:editor.document->plan().origins)if(origin.object==object&&origin.definition==editor.document->root())return origin.local_path.substr(origin.local_path.rfind('/')+1);throw std::runtime_error("This object belongs to a mounted assembly; edit it there");}
-void commit_scene(Controller& editor,const nlohmann::json& graph,const char* message){auto edit=editor.document->prepare_source(editor.document->revision(),editor.document->root(),graph.dump());editor.document->commit(edit);editor.log(message);}
+// One entity of the scene's own source, by its local identity. Edited as one record, so only that object is resolved again.
+nlohmann::json own_entity(const Controller& editor,const std::string& local){auto record=editor.document->entity(local);if(!record)throw std::runtime_error("The scene's own source has no such object");return nlohmann::json::parse(*record);}
+void commit_entity(Controller& editor,const std::string& local,const nlohmann::json& entity,const char* message){auto edit=editor.document->prepare_entities(editor.document->revision(),{{local,entity.is_null()?std::nullopt:std::optional<std::string>(entity.dump())}});editor.document->commit(edit);editor.log(message);}
 // Adds one entity to the scene's own source under the first free local identity and returns the placed object.
 StableId add_object(Controller& editor,nlohmann::json entity,const Transform& at,const char* message){
-    auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));auto& entities=graph.at("entities");std::string local;
-    for(std::size_t index=1;index<=scene_object_limit;++index){local=StableId{0,index}.text();if(!entities.contains(local))break;if(index==scene_object_limit)throw std::runtime_error("Scene object limit");}
+    std::string local;
+    for(std::size_t index=1;index<=scene_object_limit;++index){local=StableId{0,index}.text();if(!editor.document->entity(local))break;if(index==scene_object_limit)throw std::runtime_error("Scene object limit");}
     entity["target"]=nullptr;entity["types"]={{"1",{{"version",2},{"fields",{{"1",at.yaw},{"2",at.x},{"3",at.y},{"4",at.z},{"5",0},{"6",0},{"7",1}}}}},{"2",{{"version",1},{"fields",{{"1",100},{"2",100}}}}}};
-    entities[local]=std::move(entity);commit_scene(editor,graph,message);for(const auto& origin:editor.document->plan().origins)if(origin.local_path.ends_with("/"+local))return origin.object;throw std::runtime_error("Placed object did not resolve");
+    commit_entity(editor,local,entity,message);for(const auto& origin:editor.document->plan().origins)if(origin.local_path.ends_with("/"+local))return origin.object;throw std::runtime_error("Placed object did not resolve");
 }
 // Beside the selected object, or at the origin of an empty selection.
 Transform beside_selection(Controller& editor,double height){Transform at;at.y=height;auto selected=editor.document->world().find(editor.selected);if(editor.document->world().valid(selected)){at=editor.document->world().read(selected).transform;at.x+=1.5;at.pitch=at.roll=0;at.scale=1;}return at;}
-void set_spawn_npc(Controller& editor,StableId object,AssetId npc){auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));graph.at("entities").at(object_local(editor,object))["spawn"]={{"npc",npc.text()}};commit_scene(editor,graph,"Changed the spawn point's NPC.");}
+void set_spawn_npc(Controller& editor,StableId object,AssetId npc){const auto local=object_local(editor,object);auto entity=own_entity(editor,local);entity["spawn"]={{"npc",npc.text()}};commit_entity(editor,local,entity,"Changed the spawn point's NPC.");}
 std::string npc_label(const Controller& editor,AssetId npc){for(const auto& asset:editor.asset_inventory)if(asset.id==npc)return std::filesystem::path(asset.path).stem().string();return npc.text();}
 // Components of scene objects in the scene's own source: encounters, their volumes, trigger volumes, a spawn point's encounter.
-nlohmann::json entity_source(const Controller& editor,StableId object){auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));return graph.at("entities").at(object_local(editor,object));}
-void set_component(Controller& editor,StableId object,const char* key,nlohmann::json value,const char* message){auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));auto& entity=graph.at("entities").at(object_local(editor,object));if(value.is_null())entity.erase(key);else entity[key]=std::move(value);commit_scene(editor,graph,message);}
+nlohmann::json entity_source(const Controller& editor,StableId object){return own_entity(editor,object_local(editor,object));}
+void set_component(Controller& editor,StableId object,const char* key,nlohmann::json value,const char* message){const auto local=object_local(editor,object);auto entity=own_entity(editor,local);if(value.is_null())entity.erase(key);else entity[key]=std::move(value);commit_entity(editor,local,entity,message);}
 // Every scene file of the project with its asset identity and its entry points. A scene that does not open is left out.
 std::vector<Shell::TravelScene> list_travel_scenes(const Controller& editor){
     std::vector<Shell::TravelScene> found;if(!editor.assets)return found;const auto root=editor.assets->source_root();std::error_code failed;
@@ -192,8 +194,8 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
 }
 void Shell::remove_object(Controller& editor,StableId object){
     if(editor.preview.active())throw std::runtime_error("Stop Play before deleting objects");
-    auto graph=nlohmann::json::parse(editor.document->source(editor.document->root()));const auto local=object_local(editor,object);const auto name=graph.at("entities").at(local).value("name",local);graph.at("entities").erase(local);
-    commit_scene(editor,graph,("Deleted "+name+". Undo brings it back.").c_str());if(editor.selected==object)editor.selected=editor.document->plan().origins.empty()?StableId{}:editor.document->plan().origins.front().object;
+    const auto local=object_local(editor,object);const auto name=own_entity(editor,local).value("name",local);
+    commit_entity(editor,local,nullptr,("Deleted "+name+". Undo brings it back.").c_str());if(editor.selected==object)editor.selected=editor.document->plan().origins.empty()?StableId{}:editor.document->plan().origins.front().object;
 }
 ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const char* backend,std::uint64_t generation,double seconds,ImTextureID scene_texture){
     forward=lateral=turn=0;walk=jump=false;controls_acquired=false;

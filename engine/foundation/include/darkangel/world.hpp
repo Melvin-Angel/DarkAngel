@@ -88,6 +88,14 @@ public:
     std::string serialize() const;
     // Validate the complete scene before creating entities. Destination must be empty.
     std::vector<EntityHandle> load(std::string_view);
+    // One scene object record exactly as serialize() writes it, and the object load() reads from one (validated; its target is
+    // not checked against a scene). serialize() is these records in identity order.
+    static std::string encode(const ObjectData&);
+    static ObjectData decode(std::string_view);
+    // Replaces an authored object's data in place, keeping its identity and handle (authoring world, idle safe point).
+    void replace(EntityHandle,const ObjectData&,Authority);
+    // Counts every change to the world's objects, so the owner of a view can tell that someone else changed it.
+    std::uint64_t generation() const;
     bool reflection_backed() const;
 private:
     friend class ScriptRuntime;

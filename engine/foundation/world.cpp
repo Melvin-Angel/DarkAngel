@@ -56,6 +56,46 @@ void validate(const ObjectData& data) {
     require(data.scripts.records.size()<=16,"ScriptBindings attachment limit");std::set<StableId> bindings;
     for(const auto& b:data.scripts.records){require(static_cast<bool>(b.id) && static_cast<bool>(b.asset) && bindings.insert(b.id).second,"Invalid/duplicate binding identity");require(b.config_json.empty() || parse(b.config_json).is_object(),"Binding config must be a record");}
 }
+// One scene object record, as serialize() writes it: SaveGame fields only, bindings and optional data when present.
+Json object_record(const ObjectData& d) {
+    Json types=Json::object();
+    for (const auto& t : metadata()) {
+        Json fields=Json::object();
+        for (const auto& p : t.properties) if (p.flags&SaveGame) {
+            double value; std::memcpy(&value,static_cast<const char*>(component(d,t.id))+p.offset,sizeof(value));
+            fields[std::to_string(p.id)]=value;
+        }
+        if (!fields.empty()) types[std::to_string(t.id)]={{"version",t.version},{"fields",fields}};
+    }
+    Json record={{"id",d.id.text()},{"target",d.target ? Json(d.target.text()):Json(nullptr)},{"types",types}};
+    if(!d.scripts.records.empty()){Json records=Json::object();for(const auto& b:d.scripts.records)records[b.id.text()]={{"asset",asset_id(b.asset).text()},{"enabled",b.enabled},{"config",b.config_json.empty()?Json::object():parse(b.config_json)}};record["types"]["4"]={{"version",1},{"bindings",records}};}
+    if(!d.optional_json.empty())record["optional"]=parse(d.optional_json);
+    return record;
+}
+// One scene object record as load() reads it, validated; load() checks references against the whole scene.
+ObjectData object_data(const Json& object) {
+    if(object.contains("optional"))keys(object,{"id","target","types","optional"});else keys(object,{"id","target","types"}); ObjectData d;
+    if(object.contains("optional")){require(object.at("optional").is_object(),"Optional authoring data must be an object");d.optional_json=object.at("optional").dump();}
+    d.id=StableId::parse(object.at("id").get<std::string>());
+    if (!object.at("target").is_null()) d.target=StableId::parse(object.at("target").get<std::string>());
+    const auto& types=object.at("types");
+    if(types.contains("4"))keys(types,{"1","2","4"});else keys(types,{"1","2"});
+    if(types.contains("4")){const auto& record=types.at("4");keys(record,{"version","bindings"});require(record.at("version")==1 && record.at("bindings").is_object(),"Unsupported ScriptBindings schema");for(const auto& [binding,value]:record.at("bindings").items()){keys(value,{"asset","enabled","config"});require(value.at("enabled").is_boolean() && value.at("config").is_object(),"Invalid script binding data");d.scripts.records.push_back({StableId::parse(binding),asset_key(AssetId::parse(value.at("asset").get<std::string>())),value.at("config").dump(),value.at("enabled").get<bool>()});}d.scripts.count=d.scripts.records.size();}
+    for (const auto& t : metadata()) {
+        if (t.id==3 || t.id==4) continue; const auto& record=types.at(std::to_string(t.id));
+        keys(record,{"version","fields"});
+        auto fields=record.at("fields");auto version=record.at("version").get<unsigned>();
+        // Registered native migration: Transform v1 yaw -> v2 spatial transform.
+        if(t.id==1 && version==1){require(fields.is_object() && fields.size()==1 && fields.contains("1"),"Invalid legacy Transform");for(const auto& prop:t.properties)if(prop.id!=1){double value;std::memcpy(&value,static_cast<const char*>(component(d,t.id))+prop.offset,sizeof(value));fields[std::to_string(prop.id)]=value;}version=2;}
+        require(version==t.version,"Unsupported component version; migration required");
+        require(fields.is_object() && fields.size()==t.properties.size(),"Invalid property fields");
+        for (const auto& prop : t.properties) {
+            const auto& v=fields.at(std::to_string(prop.id)); require(v.is_number(),"Expected numeric property");
+            double value=v.get<double>(); std::memcpy(static_cast<char*>(component(d,t.id))+prop.offset,&value,sizeof(value));
+        }
+    }
+    validate(d); return d;
+}
 template<class T> void register_type(flecs::world& world, const TypeMetadata& type) {
     auto c=world.component<T>(std::string(type.name).c_str());
     for (const auto& p : type.properties) {
@@ -72,6 +112,7 @@ struct World::Impl {
     std::uint64_t epoch{1};
     std::thread::id owner{std::this_thread::get_id()};
     Phase phase{Phase::Idle};
+    std::uint64_t generation{};
     bool scripts_claimed{};
     std::size_t capacity, limit;
     std::map<StableId,EntityHandle> entities;
@@ -110,7 +151,7 @@ EntityHandle World::create(const ObjectData& d) {
     EntityHandle h{p.token,p.epoch,e.id()};
     try {p.owned.insert(h.runtime);p.entities.emplace(d.id,h);}
     catch(...) {p.owned.erase(h.runtime);e.destruct();throw;}
-    return h;
+    ++p.generation;return h;
 }
 ObjectData World::read(EntityHandle h) const {
     impl_->check(h); auto e=impl_->ecs.entity(h.runtime);
@@ -125,12 +166,12 @@ void World::destroy(EntityHandle h,Authority a) {
     auto& p=*impl_; p.check(h); p.authority(a);
     require(p.phase==Phase::Idle || p.phase==Phase::Script,"Invalid destroy phase");
     if (p.phase==Phase::Script) { require(p.commands.size()<p.limit,"Command limit exceeded"); p.commands.push_back({h,0,true}); }
-    else { p.entities.erase(read(h).id);p.owned.erase(h.runtime);p.ecs.entity(h.runtime).destruct(); }
+    else { p.entities.erase(read(h).id);p.owned.erase(h.runtime);p.ecs.entity(h.runtime).destruct();++p.generation; }
 }
 void World::reset() {
     auto& p=*impl_; p.thread(); require(p.phase==Phase::Idle,"Reset requires safe point");
     for (auto [id,h] : p.entities) p.ecs.entity(h.runtime).destruct();
-    p.entities.clear();p.owned.clear();p.commands.clear();++p.epoch;
+    p.entities.clear();p.owned.clear();p.commands.clear();++p.epoch;++p.generation;
 }
 void World::begin_scripts() { impl_->thread(); require(impl_->phase==Phase::Idle,"Invalid script phase"); impl_->phase=Phase::Script; }
 void World::stage_yaw(EntityHandle h,double value,Authority a) {
@@ -148,7 +189,7 @@ void World::commit() {
         if (cmd.destroy) { p.entities.erase(read(cmd.handle).id);p.owned.erase(cmd.handle.runtime);p.ecs.entity(cmd.handle.runtime).destruct(); }
         else if (p.entities.contains(read(cmd.handle).id)){auto transform=read(cmd.handle).transform;transform.yaw=cmd.yaw;p.ecs.entity(cmd.handle.runtime).set<Transform>(transform);}
     }
-    p.ecs.defer_end(); p.commands.clear(); p.phase=Phase::Publish;
+    p.ecs.defer_end(); p.commands.clear(); p.phase=Phase::Publish;++p.generation;
 }
 void World::publish() { impl_->thread(); require(impl_->phase==Phase::Publish,"Invalid publish phase"); impl_->phase=Phase::Idle; }
 std::size_t World::script_checkpoint() const{impl_->thread();require(impl_->phase==Phase::Script,"Checkpoint requires script phase");return impl_->commands.size();}
@@ -171,34 +212,30 @@ void World::apply_edits(std::span<const NumberEdit> edits,Authority a) {
     // Validate final values together (e.g. lowering maximum and current in one command).
     for(const auto& [h,d] : staged)validate(d);
     for(const auto& [h,d] : staged) {auto e=impl_->ecs.entity(h.runtime);e.set<Transform>(d.transform);e.set<Health>(d.health);}
+    ++impl_->generation;
 }
 void World::set_transform(EntityHandle h,const Transform& value,Authority a){
     impl_->check(h);impl_->authority(a);require(impl_->phase==Phase::Idle,"Transform update requires idle safe point");
     require(impl_->domain==WorldDomain::Server,"Transform update requires server world");
-    auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);
+    auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);++impl_->generation;
 }
 void World::apply_server_health(EntityHandle h,const Health& value){
     impl_->check(h);impl_->authority(Authority::Server);require(impl_->domain==WorldDomain::Server&&impl_->phase==Phase::Idle,"Health update requires idle server world");
-    auto candidate=read(h);candidate.health=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Health>(value);
+    auto candidate=read(h);candidate.health=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Health>(value);++impl_->generation;
 }
-void World::apply_replica_transform(EntityHandle h,const Transform& value){impl_->check(h);require(impl_->domain==WorldDomain::ClientPresentation&&impl_->phase==Phase::Idle,"Replica transform requires idle client view");auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);}
+void World::apply_replica_transform(EntityHandle h,const Transform& value){impl_->check(h);require(impl_->domain==WorldDomain::ClientPresentation&&impl_->phase==Phase::Idle,"Replica transform requires idle client view");auto candidate=read(h);candidate.transform=value;validate(candidate);impl_->ecs.entity(h.runtime).set<Transform>(value);++impl_->generation;}
+void World::replace(EntityHandle h,const ObjectData& d,Authority a){
+    auto& p=*impl_;p.check(h);p.authority(a);require(p.phase==Phase::Idle && p.domain==WorldDomain::Authoring,"Replace requires idle authoring world");
+    require(read(h).id==d.id,"Replace keeps the object's identity");validate(d);
+    auto scripts=d.scripts;scripts.count=scripts.records.size();p.ecs.entity(h.runtime).set<Transform>(d.transform).set<Health>(d.health).set<NetworkIdentity>(d.network).set<ScriptBindings>(scripts).set<Impl::References>({d.id,d.target,d.optional_json});++p.generation;
+}
+std::uint64_t World::generation() const{impl_->thread();return impl_->generation;}
+std::string World::encode(const ObjectData& d){return object_record(d).dump();}
+ObjectData World::decode(std::string_view record){return object_data(parse(record));}
 std::string World::serialize() const {
     impl_->thread(); require(impl_->phase==Phase::Idle,"Capture requires safe point");
     Json root={{"version",1},{"objects",Json::array()}};
-    for (auto [id,h] : impl_->entities) {
-        auto d=read(h); Json types=Json::object();
-        for (const auto& t : metadata()) {
-            Json fields=Json::object();
-            for (const auto& p : t.properties) if (p.flags&SaveGame) {
-                double value; std::memcpy(&value,static_cast<const char*>(component(d,t.id))+p.offset,sizeof(value));
-                fields[std::to_string(p.id)]=value;
-            }
-            if (!fields.empty()) types[std::to_string(t.id)]={{"version",t.version},{"fields",fields}};
-        }
-        root["objects"].push_back({{"id",id.text()},{"target",d.target ? Json(d.target.text()):Json(nullptr)},{"types",types}});
-        if(!d.scripts.records.empty()){Json records=Json::object();for(const auto& b:d.scripts.records)records[b.id.text()]={{"asset",asset_id(b.asset).text()},{"enabled",b.enabled},{"config",b.config_json.empty()?Json::object():parse(b.config_json)}};root["objects"].back()["types"]["4"]={{"version",1},{"bindings",records}};}
-        if(!d.optional_json.empty())root["objects"].back()["optional"]=parse(d.optional_json);
-    }
+    for (auto [id,h] : impl_->entities) root["objects"].push_back(object_record(read(h)));
     auto source=root.dump(); require(source.size()<=scene_byte_limit,"Serialized scene exceeds limit"); return source;
 }
 std::vector<EntityHandle> World::load(std::string_view source) {
@@ -206,28 +243,7 @@ std::vector<EntityHandle> World::load(std::string_view source) {
     auto root=parse(source); keys(root,{"version","objects"}); require(root["version"]==1,"Unsupported scene version");
     require(root["objects"].is_array() && root["objects"].size()<=p.capacity,"Scene object limit");
     std::vector<ObjectData> plan; std::set<StableId> ids;
-    for (const auto& object : root["objects"]) {
-        if(object.contains("optional"))keys(object,{"id","target","types","optional"});else keys(object,{"id","target","types"}); ObjectData d;
-        if(object.contains("optional")){require(object.at("optional").is_object(),"Optional authoring data must be an object");d.optional_json=object.at("optional").dump();}
-        d.id=StableId::parse(object.at("id").get<std::string>()); require(ids.insert(d.id).second,"Duplicate scene ID");
-        if (!object["target"].is_null()) d.target=StableId::parse(object["target"].get<std::string>());
-        if(object["types"].contains("4"))keys(object["types"],{"1","2","4"});else keys(object["types"],{"1","2"});
-        if(object["types"].contains("4")){auto& record=object["types"]["4"];keys(record,{"version","bindings"});require(record["version"]==1 && record["bindings"].is_object(),"Unsupported ScriptBindings schema");for(const auto& [binding,value]:record["bindings"].items()){keys(value,{"asset","enabled","config"});require(value["enabled"].is_boolean() && value["config"].is_object(),"Invalid script binding data");d.scripts.records.push_back({StableId::parse(binding),asset_key(AssetId::parse(value["asset"].get<std::string>())),value["config"].dump(),value["enabled"].get<bool>()});}d.scripts.count=d.scripts.records.size();}
-        for (const auto& t : metadata()) {
-            if (t.id==3 || t.id==4) continue; const auto& record=object["types"].at(std::to_string(t.id));
-            keys(record,{"version","fields"});
-            auto fields=record["fields"];auto version=record["version"].get<unsigned>();
-            // Registered native migration: Transform v1 yaw -> v2 spatial transform.
-            if(t.id==1 && version==1){require(fields.is_object() && fields.size()==1 && fields.contains("1"),"Invalid legacy Transform");for(const auto& prop:t.properties)if(prop.id!=1){double value;std::memcpy(&value,static_cast<const char*>(component(d,t.id))+prop.offset,sizeof(value));fields[std::to_string(prop.id)]=value;}version=2;}
-            require(version==t.version,"Unsupported component version; migration required");
-            require(fields.is_object() && fields.size()==t.properties.size(),"Invalid property fields");
-            for (const auto& prop : t.properties) {
-                const auto& v=fields.at(std::to_string(prop.id)); require(v.is_number(),"Expected numeric property");
-                double value=v.get<double>(); std::memcpy(static_cast<char*>(component(d,t.id))+prop.offset,&value,sizeof(value));
-            }
-        }
-        validate(d); plan.push_back(d);
-    }
+    for (const auto& object : root["objects"]) { auto d=object_data(object); require(ids.insert(d.id).second,"Duplicate scene ID"); plan.push_back(std::move(d)); }
     for (const auto& d : plan) require(!d.target || ids.contains(d.target),"Unresolved required scene reference");
     std::vector<EntityHandle> handles; handles.reserve(plan.size());
     try { for (const auto& d : plan) handles.push_back(create(d)); }

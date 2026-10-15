@@ -4,6 +4,8 @@
 #include <darkangel/script_runtime.hpp>
 #include <functional>
 #include <map>
+#include <memory>
+#include <optional>
 namespace darkangel {
 struct ObjectOrigin {StableId object;AssetId definition;std::string local_path,name,layer;};
 struct PlannedBinding {StableId object;ScriptBinding binding;};
@@ -43,6 +45,28 @@ struct SpawnPlan {
 using AssemblySources=std::map<AssetId,std::string>;
 // Stable-keyed source graph -> native scene and explicit script/resource prerequisites.
 SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources&);
+// A resolved scene whose own entities can be edited one record at a time (SCENE_SCALE_PLAN.md phase 8). Its plan always equals
+// resolve_assembly of the same sources: a record edit resolves only the edited entities, checks the references that address
+// them, and splices their objects into the plan and scene. Mounts, variants and every other source take a new SceneAssembly.
+class SceneAssembly {
+public:
+    SceneAssembly(AssetId root,StableId placement,const AssemblySources&);
+    ~SceneAssembly();
+    SceneAssembly(const SceneAssembly&)=delete;
+    SceneAssembly& operator=(const SceneAssembly&)=delete;
+    const SpawnPlan& plan() const;
+    // Whether the root's entities are its own records (it is not a variant of a base), so record edits apply.
+    bool editable() const;
+    // Root entity records by local identity: each one's new JSON, or none to remove it.
+    using Records=std::map<std::string,std::optional<std::string>>;
+    struct Staged;
+    // Resolves an edit against the scene as it is, with every check of a full resolve; throws, leaving the scene unchanged.
+    std::shared_ptr<const Staged> stage(const Records&);
+    // Applies an edit staged since the last change. Returns the scene objects it changed: each one's new data, or none if removed.
+    std::vector<std::pair<StableId,std::optional<ObjectData>>> apply(const Staged&);
+private:
+    struct Impl;std::unique_ptr<Impl> impl_;
+};
 // Static scenery: a placed model with no gameplay role (not the player's skin, no gameplay component, no script binding). Every
 // participant has it from the scene itself, so Play keeps it local instead of replicating it as a session object.
 bool static_scenery(const SpawnPlan&,StableId object,AssetId skin);

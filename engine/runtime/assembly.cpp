@@ -34,14 +34,105 @@ void patch(Json& graph,const Json& operation){
     else if(op=="RemoveScript"){auto& scripts=entities[target].at("scripts");require(scripts.erase(operation.at("binding").get<std::string>())==1,"Missing script binding patch target");}
     else throw std::runtime_error("Unsupported typed patch operation");
 }
+// An origin and a binding as SpawnPlan::serialize writes them.
+Json origin_json(const ObjectOrigin&);
+Json binding_json(const PlannedBinding&);
+// One authored entity's own share of a plan (SCENE_SCALE_PLAN.md phase 8): its origin, script bindings and component entries in
+// `entries` (a plan of this object alone), its native scene object, and the references it makes. A full resolve and a record
+// edit both build every object through entity_part and resolve_part, so their plans are the same.
+struct EntityPart {
+    std::string local,scope,path;StableId object;SpawnPlan entries;Json native;
+    Json target;                                     // the unresolved target reference, or null
+    std::vector<std::pair<std::size_t,Json>> configs; // a binding (index in entries.bindings) and its unresolved entity_refs
+    std::vector<std::string> references;             // the paths its references address, once resolved
+    ObjectData data;std::string record;              // the resolved scene object, and its record as World::serialize writes it
+    std::string origin;std::vector<std::string> bindings; // its origin and bindings as SpawnPlan::serialize writes them
+};
+EntityPart entity_part(AssetId id,const std::string& scope,const std::string& local,Json entity,const char* layer){
+    StableId::parse(local);migrate(entity);EntityPart part;part.local=local;part.scope=scope;part.path=scope+"/"+local;part.object=persistent(part.path);
+    const auto& path=part.path;const auto object=part.object;auto& plan=part.entries;
+    part.native={{"id",object.text()},{"types",entity.at("types")},{"target",nullptr}};if(entity.contains("optional"))part.native["optional"]=entity["optional"];
+    if(entity.contains("target") && !entity["target"].is_null())part.target=entity["target"];
+    plan.origins.push_back({object,id,path,entity.value("name",local),layer});
+    if(entity.contains("model") && !entity["model"].is_null())plan.models[object]=AssetId::parse(entity["model"].get<std::string>());
+    // A spawn point names the NPC definition it spawns. respawn and encounter are reserved: only "never" and no owner are accepted yet.
+    if(entity.contains("spawn") && !entity["spawn"].is_null()){const auto& spawn=entity["spawn"];require(spawn.is_object()&&spawn.contains("npc")&&!entity.contains("model"),"Spawn point needs an NPC definition and no model");for(const auto& [key,value]:spawn.items())require(key=="npc"||(key=="respawn"&&value=="never")||(key=="encounter"&&(value.is_null()||value.is_string())),"Unsupported spawn point field");plan.spawns[object]=AssetId::parse(spawn["npc"].get<std::string>());
+        // A spawn point that names an encounter (by its local identity in the same source) is used by it and does not spawn at Play start.
+        if(spawn.contains("encounter")&&spawn["encounter"].is_string()){StableId::parse(spawn["encounter"].get<std::string>());plan.spawn_owners[object]=persistent(scope+"/"+spawn["encounter"].get<std::string>());}}
+    // Gameplay volumes: an encounter, a box of an encounter's bounds, a trigger volume. None of them is a model or a spawn point.
+    if(entity.contains("encounter") && !entity["encounter"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"An encounter is its own object");decode_encounter(entity["encounter"].dump());plan.encounters[object]=entity["encounter"].dump();}
+    if(entity.contains("volume") && !entity["volume"].is_null()){const auto& volume=entity["volume"];require(volume.is_object()&&volume.size()==2&&volume.contains("encounter")&&volume["encounter"].is_string()&&volume.contains("half")&&volume["half"].is_array()&&volume["half"].size()==3&&!entity.contains("model")&&!entity.contains("spawn"),"An encounter volume names its encounter and three half extents");StableId::parse(volume["encounter"].get<std::string>());SpawnPlan::Volume made;made.encounter=persistent(scope+"/"+volume["encounter"].get<std::string>());for(unsigned axis=0;axis<3;++axis){require(volume["half"][axis].is_number(),"Encounter volume half extent type");made.half[axis]=volume["half"][axis].get<double>();require(made.half[axis]>0&&made.half[axis]<=200,"Encounter volume half extents are above 0, up to 200 m");}plan.volumes[object]=made;}
+    if(entity.contains("spline") && !entity["spline"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A spline is its own object");decode_spline(entity["spline"].dump());plan.splines[object]=entity["spline"].dump();}
+    if(entity.contains("spline_point") && !entity["spline_point"].is_null()){const auto& point=entity["spline_point"];require(point.is_object()&&point.size()==2&&point.contains("spline")&&point["spline"].is_string()&&point.contains("index")&&point["index"].is_number_unsigned()&&point["index"].get<std::uint64_t>()<4096&&!entity.contains("model")&&!entity.contains("spawn"),"A spline point names its spline and its place in the order");StableId::parse(point["spline"].get<std::string>());plan.spline_points[object]={persistent(scope+"/"+point["spline"].get<std::string>()),point["index"].get<unsigned>()};}
+    if(entity.contains("audio") && !entity["audio"].is_null()){const auto& audio=entity["audio"];require(audio.is_object()&&audio.size()==1&&audio.contains("profile")&&audio["profile"].is_string()&&!entity.contains("model")&&!entity.contains("spawn"),"A scene audio object names one audio profile and nothing else");const auto profile=AssetId::parse(audio["profile"].get<std::string>());require(profile!=AssetId{},"Scene audio profile identity");plan.audio_profiles[object]=profile;}
+    if(entity.contains("interactable") && !entity["interactable"].is_null()){require(!entity.contains("spawn"),"A spawn point is not an interactable");decode_interactable(entity["interactable"].dump());plan.interactables[object]=entity["interactable"].dump();}
+    if(entity.contains("entry") && !entity["entry"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A scene entry point is its own object");decode_entry(entity["entry"].dump());plan.entries[object]=entity["entry"].dump();}
+    if(entity.contains("transition") && !entity["transition"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A scene transition trigger is its own object");decode_transition(entity["transition"].dump());plan.transitions[object]=entity["transition"].dump();}
+    if(entity.contains("pickup") && !entity["pickup"].is_null()){require(!entity.contains("spawn"),"A spawn point is not a pickup");decode_pickup(entity["pickup"].dump());plan.pickups[object]=entity["pickup"].dump();}
+    if(entity.contains("altar") && !entity["altar"].is_null()){require(!entity.contains("spawn"),"A spawn point is not an altar");decode_altar(entity["altar"].dump());plan.altars[object]=entity["altar"].dump();}
+    if(entity.contains("mover") && !entity["mover"].is_null()){require(!entity.contains("spawn"),"A spawn point is not a door or platform");decode_mover(entity["mover"].dump());plan.movers[object]=entity["mover"].dump();}
+    if(entity.contains("collision") && !entity["collision"].is_null()){const auto& chosen=entity["collision"];require(chosen.is_object()&&chosen.size()==1&&chosen.contains("profile")&&chosen["profile"].is_string()&&!entity.contains("model")&&!entity.contains("spawn"),"A scene collision object names one collision asset and nothing else");const auto profile=AssetId::parse(chosen["profile"].get<std::string>());require(profile!=AssetId{},"Scene collision profile identity");plan.collision_profiles[object]=profile;}
+    if(entity.contains("trigger") && !entity["trigger"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A trigger volume is its own object");decode_trigger(entity["trigger"].dump());plan.triggers[object]=entity["trigger"].dump();}
+    auto scripts=entity.value("scripts",Json::object());for(const auto& [attachment,script]:scripts.items()){
+        StableId::parse(attachment);auto asset=AssetId::parse(script.at("asset").get<std::string>());auto text=asset.text();text.erase(23,1);text.erase(18,1);text.erase(13,1);text.erase(8,1);
+        auto config=script.value("config",Json::object());require(config.is_object(),"Binding config must be a record");
+        plan.bindings.push_back({object,{persistent(path+"/binding/"+attachment),StableId::parse(text),config.dump(),script.value("enabled",true)}});
+        if(script.contains("entity_refs"))part.configs.push_back({plan.bindings.size()-1,script["entity_refs"]});
+    }
+    return part;
+}
+// The authored path an EntityRef addresses from the scope it is written in: a local identity, or a mounted assembly's export.
+std::string reference_path(const std::string& scope,const Json& ref,const std::map<std::string,std::string>& exports){
+    if(ref.is_string())return scope+"/"+ref.get<std::string>();
+    if(ref.contains("local"))return scope+"/"+ref.at("local").get<std::string>();
+    auto mount=ref.at("mount").get<std::string>(),key=ref.at("export").get<std::string>();StableId::parse(mount);StableId::parse(key);auto name=scope+"/"+mount+":"+key;require(exports.contains(name),"Unresolved declared assembly export");return exports.at(name);
+}
+// Resolves a part's references (find: the object at a path, or null) and builds its scene object, validated as World::load does.
+template<class Find> void resolve_part(EntityPart& part,const std::map<std::string,std::string>& exports,Find&& find){
+    part.references.clear();
+    auto address=[&](const Json& ref){auto path=reference_path(part.scope,ref,exports);const StableId* object=find(path);require(object!=nullptr,"Unresolved required assembly EntityRef");part.references.push_back(path);return *object;};
+    if(!part.target.is_null())part.native["target"]=address(part.target).text();
+    for(const auto& [binding,refs]:part.configs){auto& b=part.entries.bindings[binding].binding;auto config=parse_script_data(b.config_json);for(const auto& [field,target]:refs.items())config[field]=address(target).text();b.config_json=config.dump();}
+    for(const auto& b:part.entries.bindings){auto& record=part.native["types"]["4"];record["version"]=1;record["bindings"][b.binding.id.text()]={{"asset",asset_id(b.binding.asset).text()},{"enabled",b.binding.enabled},{"config",parse_script_data(b.binding.config_json)}};}
+    part.data=World::decode(part.native.dump());part.record=World::encode(part.data);
+    part.origin=origin_json(part.entries.origins.front()).dump();part.bindings.clear();for(const auto& b:part.entries.bindings)part.bindings.push_back(binding_json(b).dump());
+}
+// Every plan entry keyed by object, as pairs of the same member of two plans.
+template<class F> void each_entry(SpawnPlan& a,const SpawnPlan& b,F&& f){
+    f(a.models,b.models);f(a.spawns,b.spawns);f(a.interactables,b.interactables);f(a.entries,b.entries);f(a.transitions,b.transitions);f(a.splines,b.splines);
+    f(a.spline_points,b.spline_points);f(a.audio_profiles,b.audio_profiles);f(a.pickups,b.pickups);f(a.altars,b.altars);f(a.movers,b.movers);
+    f(a.collision_profiles,b.collision_profiles);f(a.encounters,b.encounters);f(a.triggers,b.triggers);f(a.volumes,b.volumes);f(a.spawn_owners,b.spawn_owners);
+}
+// The scene's object and component limits. A scene resolves only while every count is within them.
+void check_limits(const SpawnPlan& plan){
+    require(plan.origins.size()<=scene_object_limit,"Assembly object limit");require(plan.spawns.size()<=64,"Scene spawn point limit");
+    require(plan.encounters.size()<=16,"Scene encounter limit");require(plan.volumes.size()<=128,"Scene volume limit");
+    require(plan.splines.size()<=spline_limit,"Scene spline limit");require(plan.spline_points.size()<=spline_limit*spline_point_limit,"Scene spline point limit");
+    require(plan.audio_profiles.size()<=1,"A scene has one audio profile");require(plan.interactables.size()<=64,"Scene interactable limit");
+    require(plan.entries.size()<=64,"Scene entry point limit");require(plan.transitions.size()<=16,"Scene transition limit");
+    require(plan.pickups.size()<=64,"Scene pickup limit");require(plan.altars.size()<=16,"Scene altar limit");require(plan.movers.size()<=16,"Scene door and platform limit");
+    require(plan.collision_profiles.size()<=1,"A scene has one collision profile");require(plan.triggers.size()<=64,"Scene trigger volume limit");
+}
+Json bounded_fields(const SpawnPlan&);
+// A model entry of the plan's "models" record, as SpawnPlan::serialize writes it.
+std::string model_text(StableId object,AssetId asset){return Json(object.text()).dump()+":"+Json(asset.text()).dump();}
+// SpawnPlan::serialize assembled from text: the bounded fields, each object's cached origin, binding and model text (in plan
+// order), and a scene that is a World serialization (canonical JSON). Keys in order, as nlohmann::json writes an object.
+std::string serialize_plan(const SpawnPlan& plan,const std::vector<std::string>& origins,const std::vector<std::string>& bindings,const std::map<StableId,std::string>& models,const std::string& scene){
+    auto join=[](const auto& texts,const char* open,const char* close){std::size_t bytes=2;for(const auto& text:texts)bytes+=text.size()+1;std::string joined;joined.reserve(bytes);joined+=open;bool first=true;for(const auto& text:texts){if(!first)joined+=",";first=false;joined+=text;}joined+=close;return joined;};
+    std::vector<std::string_view> entries;entries.reserve(models.size());for(const auto& [object,text]:models)entries.push_back(text);
+    std::map<std::string,std::string> fields;auto bounded=bounded_fields(plan);for(auto it=bounded.begin();it!=bounded.end();++it)fields[it.key()]=it.value().dump();
+    fields["origins"]=join(origins,"[","]");fields["bindings"]=join(bindings,"[","]");fields["models"]=join(entries,"{","}");fields["scene"]=scene;
+    std::size_t bytes=2;for(const auto& [key,value]:fields)bytes+=key.size()+value.size()+4;std::string text;text.reserve(bytes);text+="{";
+    bool first=true;for(const auto& [key,value]:fields){if(!first)text+=",";first=false;text+=Json(key).dump();text+=":";text+=value;}
+    text+="}";require(text.size()<=scene_document_byte_limit,"Spawn plan byte limit");return text;
+}
 struct Resolver {
-    const AssemblySources& sources;SpawnPlan plan;Json scene{{"version",1},{"objects",Json::array()}};
-    std::set<AssetId> stack;std::map<std::string,StableId> paths;std::map<std::string,std::string> exports;
-    struct Pending {std::size_t object;std::string scope;Json reference;};std::vector<Pending> references;
-    struct PendingConfig {std::size_t binding;std::string scope;Json references;};std::vector<PendingConfig> configs;
-    std::map<std::string,std::string> layers;
+    const AssemblySources& sources;SpawnPlan plan;
+    std::set<AssetId> stack,variants;std::map<std::string,StableId> paths;std::map<std::string,std::string> exports;std::set<StableId> objects;
+    std::vector<EntityPart> parts;std::size_t own{}; // every object in visit order; the first `own` are the root's own entities
     Json source(AssetId id){require(sources.contains(id),"Missing declared AssemblyAsset");auto graph=parse_script_data(sources.at(id),document_source_limit);require(graph.at("schema")==1 && graph.at("asset")==id.text() && graph.at("entities").is_object(),"Assembly schema/identity mismatch");for(auto& [local,entity]:graph["entities"].items())migrate(entity);return graph;}
-    Json definition(AssetId id){auto graph=source(id);if(graph.contains("base") && !graph["base"].is_null()){
+    Json definition(AssetId id){auto graph=source(id);if(graph.contains("base") && !graph["base"].is_null()){variants.insert(id);
         auto base=source(AssetId::parse(graph["base"].get<std::string>()));require(!base.contains("base") || base["base"].is_null(),"Only one variant level is enabled");
         require(graph.at("entities").empty() && (!graph.contains("mounts") || graph["mounts"].empty()),"Variants use explicit typed patches");
         if(graph.contains("base_fingerprint"))require(graph["base_fingerprint"]==sha256(base.dump()),"Base fingerprint changed; explicit rebase required");
@@ -51,79 +142,128 @@ struct Resolver {
         require(depth<=16 && stack.insert(id).second,"Cyclic/deep assembly composition");auto graph=definition(id);require(edits.is_array() && edits.size()<=1024,"Placement patch limit");
         for(const auto& operation:edits)patch(graph,operation);
         for(const auto& [local,entity]:graph.at("entities").items()){
-            StableId::parse(local);require(plan.origins.size()<scene_object_limit,"Assembly object limit");auto path=scope+"/"+local;auto object=persistent(path);require(paths.emplace(path,object).second,"Duplicate authored path");
-            for(const auto& origin:plan.origins)require(origin.object!=object,"Persistent identity collision");
-            Json native={{"id",object.text()},{"types",entity.at("types")},{"target",nullptr}};if(entity.contains("optional"))native["optional"]=entity["optional"];
-            if(entity.contains("target") && !entity["target"].is_null())references.push_back({scene["objects"].size(),scope,entity["target"]});
-            scene["objects"].push_back(native);plan.origins.push_back({object,id,path,entity.value("name",local),edits.empty()?"definition":"placement patches"});
-            if(entity.contains("model") && !entity["model"].is_null())plan.models[object]=AssetId::parse(entity["model"].get<std::string>());
-            // A spawn point names the NPC definition it spawns. respawn and encounter are reserved: only "never" and no owner are accepted yet.
-            if(entity.contains("spawn") && !entity["spawn"].is_null()){const auto& spawn=entity["spawn"];require(spawn.is_object()&&spawn.contains("npc")&&!entity.contains("model"),"Spawn point needs an NPC definition and no model");for(const auto& [key,value]:spawn.items())require(key=="npc"||(key=="respawn"&&value=="never")||(key=="encounter"&&(value.is_null()||value.is_string())),"Unsupported spawn point field");require(plan.spawns.size()<64,"Scene spawn point limit");plan.spawns[object]=AssetId::parse(spawn["npc"].get<std::string>());
-                // A spawn point that names an encounter (by its local identity in the same source) is used by it and does not spawn at Play start.
-                if(spawn.contains("encounter")&&spawn["encounter"].is_string()){StableId::parse(spawn["encounter"].get<std::string>());plan.spawn_owners[object]=persistent(scope+"/"+spawn["encounter"].get<std::string>());}}
-            // Gameplay volumes: an encounter, a box of an encounter's bounds, a trigger volume. None of them is a model or a spawn point.
-            if(entity.contains("encounter") && !entity["encounter"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"An encounter is its own object");require(plan.encounters.size()<16,"Scene encounter limit");decode_encounter(entity["encounter"].dump());plan.encounters[object]=entity["encounter"].dump();}
-            if(entity.contains("volume") && !entity["volume"].is_null()){const auto& volume=entity["volume"];require(volume.is_object()&&volume.size()==2&&volume.contains("encounter")&&volume["encounter"].is_string()&&volume.contains("half")&&volume["half"].is_array()&&volume["half"].size()==3&&!entity.contains("model")&&!entity.contains("spawn"),"An encounter volume names its encounter and three half extents");StableId::parse(volume["encounter"].get<std::string>());SpawnPlan::Volume made;made.encounter=persistent(scope+"/"+volume["encounter"].get<std::string>());for(unsigned axis=0;axis<3;++axis){require(volume["half"][axis].is_number(),"Encounter volume half extent type");made.half[axis]=volume["half"][axis].get<double>();require(made.half[axis]>0&&made.half[axis]<=200,"Encounter volume half extents are above 0, up to 200 m");}require(plan.volumes.size()<128,"Scene volume limit");plan.volumes[object]=made;}
-            if(entity.contains("spline") && !entity["spline"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A spline is its own object");require(plan.splines.size()<spline_limit,"Scene spline limit");decode_spline(entity["spline"].dump());plan.splines[object]=entity["spline"].dump();}
-            if(entity.contains("spline_point") && !entity["spline_point"].is_null()){const auto& point=entity["spline_point"];require(point.is_object()&&point.size()==2&&point.contains("spline")&&point["spline"].is_string()&&point.contains("index")&&point["index"].is_number_unsigned()&&point["index"].get<std::uint64_t>()<4096&&!entity.contains("model")&&!entity.contains("spawn"),"A spline point names its spline and its place in the order");StableId::parse(point["spline"].get<std::string>());require(plan.spline_points.size()<spline_limit*spline_point_limit,"Scene spline point limit");plan.spline_points[object]={persistent(scope+"/"+point["spline"].get<std::string>()),point["index"].get<unsigned>()};}
-            if(entity.contains("audio") && !entity["audio"].is_null()){const auto& audio=entity["audio"];require(audio.is_object()&&audio.size()==1&&audio.contains("profile")&&audio["profile"].is_string()&&!entity.contains("model")&&!entity.contains("spawn"),"A scene audio object names one audio profile and nothing else");require(plan.audio_profiles.empty(),"A scene has one audio profile");const auto profile=AssetId::parse(audio["profile"].get<std::string>());require(profile!=AssetId{},"Scene audio profile identity");plan.audio_profiles[object]=profile;}
-            if(entity.contains("interactable") && !entity["interactable"].is_null()){require(!entity.contains("spawn"),"A spawn point is not an interactable");require(plan.interactables.size()<64,"Scene interactable limit");decode_interactable(entity["interactable"].dump());plan.interactables[object]=entity["interactable"].dump();}
-            if(entity.contains("entry") && !entity["entry"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A scene entry point is its own object");require(plan.entries.size()<64,"Scene entry point limit");decode_entry(entity["entry"].dump());plan.entries[object]=entity["entry"].dump();}
-            if(entity.contains("transition") && !entity["transition"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A scene transition trigger is its own object");require(plan.transitions.size()<16,"Scene transition limit");decode_transition(entity["transition"].dump());plan.transitions[object]=entity["transition"].dump();}
-            if(entity.contains("pickup") && !entity["pickup"].is_null()){require(!entity.contains("spawn"),"A spawn point is not a pickup");require(plan.pickups.size()<64,"Scene pickup limit");decode_pickup(entity["pickup"].dump());plan.pickups[object]=entity["pickup"].dump();}
-            if(entity.contains("altar") && !entity["altar"].is_null()){require(!entity.contains("spawn"),"A spawn point is not an altar");require(plan.altars.size()<16,"Scene altar limit");decode_altar(entity["altar"].dump());plan.altars[object]=entity["altar"].dump();}
-            if(entity.contains("mover") && !entity["mover"].is_null()){require(!entity.contains("spawn"),"A spawn point is not a door or platform");require(plan.movers.size()<16,"Scene door and platform limit");decode_mover(entity["mover"].dump());plan.movers[object]=entity["mover"].dump();}
-            if(entity.contains("collision") && !entity["collision"].is_null()){const auto& chosen=entity["collision"];require(chosen.is_object()&&chosen.size()==1&&chosen.contains("profile")&&chosen["profile"].is_string()&&!entity.contains("model")&&!entity.contains("spawn"),"A scene collision object names one collision asset and nothing else");require(plan.collision_profiles.empty(),"A scene has one collision profile");const auto profile=AssetId::parse(chosen["profile"].get<std::string>());require(profile!=AssetId{},"Scene collision profile identity");plan.collision_profiles[object]=profile;}
-            if(entity.contains("trigger") && !entity["trigger"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A trigger volume is its own object");require(plan.triggers.size()<64,"Scene trigger volume limit");decode_trigger(entity["trigger"].dump());plan.triggers[object]=entity["trigger"].dump();}
-            auto scripts=entity.value("scripts",Json::object());for(const auto& [attachment,script]:scripts.items()){
-                StableId::parse(attachment);auto asset=AssetId::parse(script.at("asset").get<std::string>());auto text=asset.text();text.erase(23,1);text.erase(18,1);text.erase(13,1);text.erase(8,1);
-                auto config=script.value("config",Json::object());require(config.is_object(),"Binding config must be a record");
-                plan.bindings.push_back({object,{persistent(path+"/binding/"+attachment),StableId::parse(text),config.dump(),script.value("enabled",true)}});
-                if(script.contains("entity_refs"))configs.push_back({plan.bindings.size()-1,scope,script["entity_refs"]});
-            }
+            require(plan.origins.size()<scene_object_limit,"Assembly object limit");auto part=entity_part(id,scope,local,entity,edits.empty()?"definition":"placement patches");
+            require(paths.emplace(part.path,part.object).second,"Duplicate authored path");require(objects.insert(part.object).second,"Persistent identity collision");
+            plan.origins.push_back(part.entries.origins.front());each_entry(plan,part.entries,[](auto& into,const auto& from){into.insert(from.begin(),from.end());});check_limits(plan);
+            parts.push_back(std::move(part));
         }
+        if(depth==0)own=parts.size();
         auto export_records=graph.value("exports",Json::object());for(const auto& [export_id,local]:export_records.items()){StableId::parse(export_id);require(local.is_string(),"Export must address a stable local path");exports[scope+":"+export_id]=scope+"/"+local.get<std::string>();}
         auto mounts=graph.value("mounts",Json::object());require(mounts.is_object() && mounts.size()<=128,"Assembly mount limit");
         for(const auto& [mount_id,mount]:mounts.items()){StableId::parse(mount_id);visit(AssetId::parse(mount.at("asset").get<std::string>()),scope+"/"+mount_id,mount.value("patches",Json::array()),depth+1);}
         stack.erase(id);
     }
-    StableId reference(const std::string& scope,const Json& ref){std::string path;
-        if(ref.is_string())path=scope+"/"+ref.get<std::string>();
-        else if(ref.contains("local"))path=scope+"/"+ref.at("local").get<std::string>();
-        else{auto mount=ref.at("mount").get<std::string>(),key=ref.at("export").get<std::string>();StableId::parse(mount);StableId::parse(key);auto name=scope+"/"+mount+":"+key;require(exports.contains(name),"Unresolved declared assembly export");path=exports.at(name);}
-        require(paths.contains(path),"Unresolved required assembly EntityRef");return paths.at(path);
+};
+// The scene: every object's record in identity order, as World::serialize writes it.
+std::string scene_text(const std::map<StableId,std::string>& records){
+    std::size_t bytes=32;for(const auto& [object,record]:records)bytes+=record.size()+1;std::string text;text.reserve(bytes);text+="{\"objects\":[";
+    bool first=true;for(const auto& [object,record]:records){if(!first)text+=",";first=false;text+=record;}text+="],\"version\":1}";
+    require(text.size()<=scene_document_byte_limit,"Serialized scene exceeds limit");return text;
+}
+}
+struct SceneAssembly::Staged {std::uint64_t generation;std::map<std::string,std::optional<EntityPart>> parts;std::string scene_json,fingerprint;};
+struct SceneAssembly::Impl {
+    AssetId root;std::string scope;bool editable{};SpawnPlan plan;std::uint64_t generation{};
+    std::map<std::string,StableId> paths;std::map<std::string,std::string> exports;
+    std::map<StableId,std::string> records;    // every object's scene record, in identity (scene) order
+    std::map<std::string,unsigned> referenced; // how many references address each path
+    std::map<std::string,EntityPart> parts;    // the root's own entities by local identity: the first origins, in this order
+    // The plan's origins and bindings (in plan order) and models as SpawnPlan::serialize writes them, so a fingerprint is text.
+    std::vector<std::string> origin_texts,binding_texts;std::map<StableId,std::string> model_texts;
+    std::string serialized(const std::string& scene) const{return serialize_plan(plan,origin_texts,binding_texts,model_texts,scene);}
+    Impl(AssetId id,StableId placement,const AssemblySources& sources):root(id),scope(placement.text()){
+        require(static_cast<bool>(placement) && sources.size()<=128,"Invalid placement/source closure limit");Resolver resolver{sources};resolver.visit(root,scope,Json::array(),0);
+        auto find=[&](const std::string& path)->const StableId*{auto found=resolver.paths.find(path);return found==resolver.paths.end()?nullptr:&found->second;};
+        plan=std::move(resolver.plan);plan.bindings.clear();
+        for(auto& part:resolver.parts){resolve_part(part,resolver.exports,find);plan.bindings.insert(plan.bindings.end(),part.entries.bindings.begin(),part.entries.bindings.end());
+            origin_texts.push_back(part.origin);binding_texts.insert(binding_texts.end(),part.bindings.begin(),part.bindings.end());for(const auto& [object,asset]:part.entries.models)model_texts.emplace(object,model_text(object,asset));records.emplace(part.object,part.record);for(const auto& path:part.references)++referenced[path];}
+        for(const auto& [key,path]:resolver.exports)require(resolver.paths.contains(path),"Export addresses removed entity");
+        editable=!resolver.variants.contains(root);if(editable)for(std::size_t index=0;index<resolver.own;++index)parts.emplace(resolver.parts[index].local,std::move(resolver.parts[index]));
+        paths=std::move(resolver.paths);exports=std::move(resolver.exports);plan.scene_json=scene_text(records);plan.fingerprint=sha256(serialized(plan.scene_json));
+    }
+    // Where a root entity's origin and bindings sit: its index among the root's entities, and its first binding.
+    std::pair<std::size_t,std::size_t> place(std::map<std::string,EntityPart>::const_iterator at) const{std::size_t index=0,binding=0;for(auto it=parts.begin();it!=at;++it){++index;binding+=it->second.entries.bindings.size();}return {index,binding};}
+    EntityPart remove(const std::string& local){
+        auto it=parts.find(local);auto [index,binding]=place(it);auto& part=it->second;
+        plan.origins.erase(plan.origins.begin()+index);plan.bindings.erase(plan.bindings.begin()+binding,plan.bindings.begin()+binding+part.entries.bindings.size());
+        each_entry(plan,part.entries,[](auto& into,const auto& from){for(const auto& entry:from)into.erase(entry.first);});
+        origin_texts.erase(origin_texts.begin()+index);binding_texts.erase(binding_texts.begin()+binding,binding_texts.begin()+binding+part.bindings.size());for(const auto& [object,asset]:part.entries.models)model_texts.erase(object);
+        records.erase(part.object);paths.erase(part.path);for(const auto& path:part.references)if(--referenced[path]==0)referenced.erase(path);
+        auto removed=std::move(part);parts.erase(it);return removed;
+    }
+    void insert(EntityPart part){
+        auto it=parts.emplace(part.local,std::move(part)).first;auto [index,binding]=place(it);const auto& added=it->second;
+        plan.origins.insert(plan.origins.begin()+index,added.entries.origins.front());plan.bindings.insert(plan.bindings.begin()+binding,added.entries.bindings.begin(),added.entries.bindings.end());
+        each_entry(plan,added.entries,[](auto& into,const auto& from){into.insert(from.begin(),from.end());});
+        origin_texts.insert(origin_texts.begin()+index,added.origin);binding_texts.insert(binding_texts.begin()+binding,added.bindings.begin(),added.bindings.end());for(const auto& [object,asset]:added.entries.models)model_texts.emplace(object,model_text(object,asset));
+        records.emplace(added.object,added.record);paths.emplace(added.path,added.object);for(const auto& path:added.references)++referenced[path];
     }
 };
+SceneAssembly::SceneAssembly(AssetId root,StableId placement,const AssemblySources& sources):impl_(std::make_unique<Impl>(root,placement,sources)){}
+SceneAssembly::~SceneAssembly()=default;
+const SpawnPlan& SceneAssembly::plan() const{return impl_->plan;}
+bool SceneAssembly::editable() const{return impl_->editable;}
+std::shared_ptr<const SceneAssembly::Staged> SceneAssembly::stage(const Records& edits){
+    auto& p=*impl_;require(p.editable,"A variant scene's entities are its base's: edit its source");require(!edits.empty() && edits.size()<=scene_object_limit,"Scene record edit limit");
+    auto staged=std::make_shared<Staged>();staged->generation=p.generation;std::map<std::string,const StableId*> edited;
+    for(const auto& [local,text]:edits){
+        if(text){auto part=entity_part(p.root,p.scope,local,parse_script_data(*text,document_source_limit),"definition");auto& slot=staged->parts[local];slot=std::move(part);edited[slot->path]=&slot->object;}
+        else{require(p.parts.contains(local),"Removed scene record is not in the scene");staged->parts[local]=std::nullopt;edited[p.scope+"/"+local]=nullptr;}
+    }
+    // The edited records' own paths resolve to their new objects (or nothing); every other path to the scene as it is.
+    auto find=[&](const std::string& path)->const StableId*{if(auto it=edited.find(path);it!=edited.end())return it->second;auto found=p.paths.find(path);return found==p.paths.end()?nullptr:&found->second;};
+    for(auto& [local,part]:staged->parts)if(part){resolve_part(*part,p.exports,find);if(!p.parts.contains(local))require(!p.records.contains(part->object),"Persistent identity collision");}
+    // A removed entity must be addressed by nothing that stays: no other entity's reference and no export.
+    for(const auto& [local,part]:staged->parts)if(!part){const auto path=p.scope+"/"+local;auto count=p.referenced.contains(path)?p.referenced.at(path):0u;
+        for(const auto& [edited_local,edit]:staged->parts)if(auto old=p.parts.find(edited_local);old!=p.parts.end())for(const auto& reference:old->second.references)if(reference==path)--count;
+        require(count==0,"Unresolved required assembly EntityRef");for(const auto& [key,target]:p.exports)require(target!=path,"Export addresses removed entity");}
+    // Apply, measure, and put everything back: the limits and the plan's scene and fingerprint need the edited plan.
+    std::vector<EntityPart> before;std::vector<std::string> inserted;
+    auto restore=[&]{for(const auto& local:inserted)p.remove(local);for(auto& part:before)p.insert(std::move(part));};
+    try{
+        for(const auto& [local,part]:staged->parts)if(p.parts.contains(local))before.push_back(p.remove(local));
+        for(const auto& [local,part]:staged->parts)if(part){p.insert(*part);inserted.push_back(local);}
+        check_limits(p.plan);staged->scene_json=scene_text(p.records);staged->fingerprint=sha256(p.serialized(staged->scene_json));
+    }catch(...){restore();throw;}
+    restore();return staged;
 }
-SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources& sources){require(static_cast<bool>(placement) && sources.size()<=128,"Invalid placement/source closure limit");Resolver resolver{sources};resolver.visit(root,placement.text(),Json::array(),0);
-    for(const auto& ref:resolver.references)resolver.scene["objects"][ref.object]["target"]=resolver.reference(ref.scope,ref.reference).text();
-    for(const auto& ref:resolver.configs){auto config=parse_script_data(resolver.plan.bindings[ref.binding].binding.config_json);for(const auto& [field,target]:ref.references.items())config[field]=resolver.reference(ref.scope,target).text();resolver.plan.bindings[ref.binding].binding.config_json=config.dump();}
-    for(const auto& b:resolver.plan.bindings)for(auto& object:resolver.scene["objects"])if(object["id"]==b.object.text()){auto& record=object["types"]["4"];record["version"]=1;record["bindings"][b.binding.id.text()]={{"asset",asset_id(b.binding.asset).text()},{"enabled",b.binding.enabled},{"config",parse_script_data(b.binding.config_json)}};}
-    for(const auto& [key,path]:resolver.exports)require(resolver.paths.contains(path),"Export addresses removed entity");
-    World validation(WorldDomain::Authoring);validation.load(resolver.scene.dump());resolver.plan.scene_json=validation.serialize();resolver.plan.fingerprint=sha256(resolver.plan.serialize());return resolver.plan;
+std::vector<std::pair<StableId,std::optional<ObjectData>>> SceneAssembly::apply(const Staged& staged){
+    auto& p=*impl_;require(staged.generation==p.generation,"Stale staged scene edit");std::vector<std::pair<StableId,std::optional<ObjectData>>> changes;
+    for(const auto& [local,part]:staged.parts)if(p.parts.contains(local)){auto removed=p.remove(local);if(!part)changes.push_back({removed.object,std::nullopt});}
+    for(const auto& [local,part]:staged.parts)if(part){p.insert(*part);changes.push_back({part->object,part->data});}
+    p.plan.scene_json=staged.scene_json;p.plan.fingerprint=staged.fingerprint;++p.generation;return changes;
 }
+SpawnPlan resolve_assembly(AssetId root,StableId placement,const AssemblySources& sources){return SceneAssembly(root,placement,sources).plan();}
 StableId encounter_actor(StableId encounter,unsigned index){require(bool(encounter),"Encounter enemy needs an encounter identity");return persistent("encounter/"+encounter.text()+"/enemy/"+std::to_string(index));}
 StableId party_member(unsigned seat){require(seat>=1&&seat<=3,"A party has seats 1 to 3 beside the first");return persistent("party/member/"+std::to_string(seat));}
 StableId scatter_instance(StableId spline,unsigned index){require(bool(spline),"A scattered instance needs a spline identity");return persistent("spline/"+spline.text()+"/scatter/"+std::to_string(index));}
 StableId spawned_actor(StableId spawn_point){require(bool(spawn_point),"Spawned actor needs a spawn point identity");return persistent("spawn/"+spawn_point.text()+"/actor");}
-std::string SpawnPlan::serialize() const{Json root={{"schema",1},{"scene",parse_script_data(scene_json,document_source_limit)},{"origins",Json::array()},{"bindings",Json::array()},{"models",Json::object()}};
+namespace {
+Json origin_json(const ObjectOrigin& origin){return {{"object",origin.object.text()},{"asset",origin.definition.text()},{"path",origin.local_path},{"name",origin.name},{"layer",origin.layer}};}
+Json binding_json(const PlannedBinding& binding){return {{"object",binding.object.text()},{"id",binding.binding.id.text()},{"asset",asset_id(binding.binding.asset).text()},{"config",parse_script_data(binding.binding.config_json)},{"enabled",binding.binding.enabled}};}
+// The plan's fields whose size is bounded by the component limits: everything but its origins, bindings, models and scene.
+Json bounded_fields(const SpawnPlan& plan){Json root={{"schema",1}};
     // Written only when present so plans without spawn points keep their fingerprint.
-    if(!spawns.empty()){root["spawns"]=Json::object();for(const auto& [object,asset]:spawns)root["spawns"][object.text()]=asset.text();}
-    if(!splines.empty()||!spline_points.empty()){auto& curves=root["splines"]=Json::object();for(const auto& [object,text]:splines)curves[object.text()]=Json::parse(text);auto& points=root["spline_points"]=Json::object();for(const auto& [object,point]:spline_points)points[object.text()]={{"spline",point.spline.text()},{"index",point.index}};}
+    if(!plan.spawns.empty()){root["spawns"]=Json::object();for(const auto& [object,asset]:plan.spawns)root["spawns"][object.text()]=asset.text();}
+    if(!plan.splines.empty()||!plan.spline_points.empty()){auto& curves=root["splines"]=Json::object();for(const auto& [object,text]:plan.splines)curves[object.text()]=Json::parse(text);auto& points=root["spline_points"]=Json::object();for(const auto& [object,point]:plan.spline_points)points[object.text()]={{"spline",point.spline.text()},{"index",point.index}};}
     // Written only when the scene has one, so plans without interactables serialize as before.
-    if(!audio_profiles.empty()){auto& listed=root["audio"]=Json::object();for(const auto& [object,profile]:audio_profiles)listed[object.text()]=profile.text();}
+    if(!plan.audio_profiles.empty()){auto& listed=root["audio"]=Json::object();for(const auto& [object,profile]:plan.audio_profiles)listed[object.text()]=profile.text();}
     // Written only when the scene has either, so plans without party travel serialize as before.
-    if(!entries.empty()||!transitions.empty()){auto& travel=root["travel"]={{"entries",Json::object()},{"transitions",Json::object()}};for(const auto& [object,text]:entries)travel["entries"][object.text()]=Json::parse(text);for(const auto& [object,text]:transitions)travel["transitions"][object.text()]=Json::parse(text);}
-    if(!interactables.empty()){auto& listed=root["interactables"]=Json::object();for(const auto& [object,text]:interactables)listed[object.text()]=Json::parse(text);}
+    if(!plan.entries.empty()||!plan.transitions.empty()){auto& travel=root["travel"]={{"entries",Json::object()},{"transitions",Json::object()}};for(const auto& [object,text]:plan.entries)travel["entries"][object.text()]=Json::parse(text);for(const auto& [object,text]:plan.transitions)travel["transitions"][object.text()]=Json::parse(text);}
+    if(!plan.interactables.empty()){auto& listed=root["interactables"]=Json::object();for(const auto& [object,text]:plan.interactables)listed[object.text()]=Json::parse(text);}
     // Written only when the scene has any, so older plans keep their fingerprint.
-    if(!pickups.empty()||!altars.empty()||!movers.empty()){auto& objects=root["world_objects"]={{"pickups",Json::object()},{"altars",Json::object()},{"movers",Json::object()}};for(const auto& [object,text]:pickups)objects["pickups"][object.text()]=Json::parse(text);for(const auto& [object,text]:altars)objects["altars"][object.text()]=Json::parse(text);for(const auto& [object,text]:movers)objects["movers"][object.text()]=Json::parse(text);}
-    if(!collision_profiles.empty()){auto& listed=root["collision"]=Json::object();for(const auto& [object,profile]:collision_profiles)listed[object.text()]=profile.text();}
-    if(!encounters.empty()||!triggers.empty()||!volumes.empty()||!spawn_owners.empty()){auto& gameplay=root["gameplay"]={{"encounters",Json::object()},{"triggers",Json::object()},{"volumes",Json::object()},{"spawn_owners",Json::object()}};
-        for(const auto& [object,text]:encounters)gameplay["encounters"][object.text()]=Json::parse(text);for(const auto& [object,text]:triggers)gameplay["triggers"][object.text()]=Json::parse(text);
-        for(const auto& [object,volume]:volumes)gameplay["volumes"][object.text()]={{"encounter",volume.encounter.text()},{"half",volume.half}};for(const auto& [object,owner]:spawn_owners)gameplay["spawn_owners"][object.text()]=owner.text();}
-    for(const auto& origin:origins)root["origins"].push_back({{"object",origin.object.text()},{"asset",origin.definition.text()},{"path",origin.local_path},{"name",origin.name},{"layer",origin.layer}});
-    for(const auto& binding:bindings)root["bindings"].push_back({{"object",binding.object.text()},{"id",binding.binding.id.text()},{"asset",asset_id(binding.binding.asset).text()},{"config",parse_script_data(binding.binding.config_json)},{"enabled",binding.binding.enabled}});
-    for(const auto& [object,asset]:models)root["models"][object.text()]=asset.text();auto text=root.dump();require(text.size()<=scene_document_byte_limit,"Spawn plan byte limit");return text;
+    if(!plan.pickups.empty()||!plan.altars.empty()||!plan.movers.empty()){auto& objects=root["world_objects"]={{"pickups",Json::object()},{"altars",Json::object()},{"movers",Json::object()}};for(const auto& [object,text]:plan.pickups)objects["pickups"][object.text()]=Json::parse(text);for(const auto& [object,text]:plan.altars)objects["altars"][object.text()]=Json::parse(text);for(const auto& [object,text]:plan.movers)objects["movers"][object.text()]=Json::parse(text);}
+    if(!plan.collision_profiles.empty()){auto& listed=root["collision"]=Json::object();for(const auto& [object,profile]:plan.collision_profiles)listed[object.text()]=profile.text();}
+    if(!plan.encounters.empty()||!plan.triggers.empty()||!plan.volumes.empty()||!plan.spawn_owners.empty()){auto& gameplay=root["gameplay"]={{"encounters",Json::object()},{"triggers",Json::object()},{"volumes",Json::object()},{"spawn_owners",Json::object()}};
+        for(const auto& [object,text]:plan.encounters)gameplay["encounters"][object.text()]=Json::parse(text);for(const auto& [object,text]:plan.triggers)gameplay["triggers"][object.text()]=Json::parse(text);
+        for(const auto& [object,volume]:plan.volumes)gameplay["volumes"][object.text()]={{"encounter",volume.encounter.text()},{"half",volume.half}};for(const auto& [object,owner]:plan.spawn_owners)gameplay["spawn_owners"][object.text()]=owner.text();}
+    return root;}
+Json plan_fields(const SpawnPlan& plan){auto root=bounded_fields(plan);root["origins"]=Json::array();root["bindings"]=Json::array();root["models"]=Json::object();
+    for(const auto& origin:plan.origins)root["origins"].push_back(origin_json(origin));
+    for(const auto& binding:plan.bindings)root["bindings"].push_back(binding_json(binding));
+    for(const auto& [object,asset]:plan.models)root["models"][object.text()]=asset.text();return root;}
+}
+std::string SpawnPlan::serialize() const{auto root=plan_fields(*this);root["scene"]=parse_script_data(scene_json,document_source_limit);auto text=root.dump();require(text.size()<=scene_document_byte_limit,"Spawn plan byte limit");return text;
 }
 SpawnPlan SpawnPlan::deserialize(std::string_view text){auto root=parse_script_data(text,scene_document_byte_limit);require(root.at("schema")==1,"Spawn plan schema mismatch");SpawnPlan plan;plan.scene_json=root.at("scene").dump();World validation(WorldDomain::Authoring);validation.load(plan.scene_json);
     for(const auto& origin:root.at("origins"))plan.origins.push_back({StableId::parse(origin.at("object").get<std::string>()),AssetId::parse(origin.at("asset").get<std::string>()),origin.at("path"),origin.at("name"),origin.at("layer")});
