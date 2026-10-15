@@ -1,6 +1,6 @@
 # Volumetric Terrain and World Authoring System
 
-Status: **Planned / documentation only.** This is a future R9 workstream. It does not claim that volumetric terrain, splines, water, terrain painting, world streaming, or the performance budgets below exist in the current engine.
+Status: **Deferred / future work / not scheduled.** This is a documentation-only R9 proposal. It does not claim that volumetric terrain, splines, water, terrain painting, world streaming, or the performance budgets below exist in the current engine.
 
 ## Product intent
 
@@ -12,7 +12,7 @@ This plan extends the initial mesh-first terrain, surface painting, spline, and 
 
 ## Roadmap placement and dependencies
 
-R9 follows R1 Scene Editor Navigation, R2 Editor UI/UX Overhaul, R3 Movement Authoring, R4 Prefab Authoring and Publishing, R5 Asset and Material Editing, R6 UI Authoring and Gameplay Integration, and R7 Environment and Rendering Tools. It does not renumber historical M0–M9 IDs or the deferred R8 World Puzzle UI item.
+If R9 is scheduled in a future roadmap revision, it should follow R1 Scene Editor Navigation, R2 Editor UI/UX Overhaul, R3 Movement Authoring, R4 Prefab Authoring and Publishing, R5 Asset and Material Editing, R6 UI Authoring and Gameplay Integration, and R7 Environment and Rendering Tools. It does not renumber historical M0–M9 IDs or the deferred R8 World Puzzle UI item.
 
 Required checkpoints:
 
@@ -174,4 +174,4 @@ Each target must be replaced or retained with measured evidence after prototypes
 
 ## Cross-references and ownership
 
-The main schedule is [DarkAngel Implementation Handoff](../../architecture/DarkAngel_Implementation_Handoff.md). The current editor direction is in the historical [Editor Workflow Plan](../legacy/plans/EDITOR_WORKFLOW_PLAN.md); its advanced-volumetric deferral is superseded by this R9 plan once R9 is scheduled. The [Editor UX Backlog](EDITOR_UX_BACKLOG.md) remains the place for shared editor controls and should link new World Tools commands rather than duplicate them. [Tiled Navigation and Streaming Readiness](TILED_NAVIGATION_PLAN.md) remains a separate navigation/scale dependency and is not closed by this plan.
+The main schedule is [DarkAngel Implementation Handoff](../../architecture/DarkAngel_Implementation_Handoff.md). The current editor direction is in the historical [Editor Workflow Plan](../legacy/plans/EDITOR_WORKFLOW_PLAN.md); its advanced-volumetric deferral remains in force because R9 is not scheduled. The [Editor UX Backlog](EDITOR_UX_BACKLOG.md) remains the place for shared editor controls and should link new World Tools commands rather than duplicate them if R9 is later scheduled. [Tiled Navigation and Streaming Readiness](TILED_NAVIGATION_PLAN.md) remains a separate navigation/scale dependency and is not closed by this plan.
