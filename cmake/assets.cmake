@@ -232,6 +232,10 @@ target_link_libraries(DarkAngelAssets PUBLIC DarkAngelInventorySession)
         SOURCES tests/action_timeline_tests.cpp
         LIBS DarkAngelAssets DarkAngelPhysics DarkAngelEditorService nlohmann_json::nlohmann_json
         DEFINITIONS DAE_SOURCE_DIR="${PROJECT_SOURCE_DIR}" DAE_BINARY_DIR="${PROJECT_BINARY_DIR}")
+      dae_test(ModelCollisionTests NAME M4.model_collision
+        SOURCES tests/model_collision_tests.cpp
+        LIBS DarkAngelAssets DarkAngelPhysics nlohmann_json::nlohmann_json
+        DEFINITIONS DAE_SOURCE_DIR="${PROJECT_SOURCE_DIR}" DAE_BINARY_DIR="${PROJECT_BINARY_DIR}")
       dae_test(CollisionMeshTests NAME M4.collision_meshes
         SOURCES tests/collision_mesh_tests.cpp
         LIBS DarkAngelAssets DarkAngelPhysics DarkAngelEditorService nlohmann_json::nlohmann_json

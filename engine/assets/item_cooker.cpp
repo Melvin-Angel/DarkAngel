@@ -21,7 +21,7 @@ Import import_item(const std::filesystem::path& root,const std::filesystem::path
             require(AssetId::parse(metadata.at("id").get<std::string>())==identity,"Item asset source identity mismatch");
             std::map<std::string,AssetId> mapping{{"$source",identity}};for(const auto& [key,value]:metadata.at("subassets").items())mapping.emplace(key,AssetId::parse(value.get<std::string>()));
             if(std::string_view(field)=="icon"){require(metadata.at("importer")=="texture-color-v1","Item image must be an imported color texture");imported=import_texture(root,path,mapping,inspect);}
-            else {require(metadata.at("importer")=="static-gltf-v1","Item world model must be an imported static model");imported=import_gltf(root,path,mapping,inspect);}
+            else {require(metadata.at("importer")=="static-gltf-v1","Item world model must be an imported static model");imported=import_gltf(root,path,mapping,inspect,static_model_collision(metadata));}
             imported.inputs[sidecar.lexically_relative(root).generic_string()]=sha256(metadata_bytes);
         }
         dependencies.push_back(identity);for(auto id:imported.identities){require(id!=item.id,"Item dependency identity conflict");result.identities.push_back(id);}

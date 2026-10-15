@@ -22,7 +22,8 @@ struct TextureMip {std::uint32_t width,height;std::vector<std::uint8_t> rgba;};
 struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};};
 CookedTexture load_cooked_texture(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};};
-struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<CookedMaterial> materials;std::vector<std::pair<AssetId,CookedTexture>> textures;};
+// collision: the model's "model-collision" product (load_cooked_model_collision), nil when it was imported without collision.
+struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<CookedMaterial> materials;std::vector<std::pair<AssetId,CookedTexture>> textures;AssetId collision;};
 // Load solely from the verified cooked registry/CAS; no SQLite, source assets or editor state.
 std::string load_cooked_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 CollisionDefinition load_cooked_collision_scene(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);

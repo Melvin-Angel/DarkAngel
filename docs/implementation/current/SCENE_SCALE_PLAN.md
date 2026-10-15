@@ -1,6 +1,6 @@
 # Scene scale: per-model collision and incremental placement
 
-Status: phase 0 (baseline) done on 15 October 2026; phase 1 next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
+Status: phase 0 (baseline) and phase 1 (per-model collision product) done on 15 October 2026; phase 2 next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
 placement failures but kept the current architecture.
 
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
@@ -126,6 +126,26 @@ What the baseline shows:
 - `CollisionGeometry` gets built from the product once per model and is shared by every placement (Jolt `MeshShape`, with
   `ScaledShape`/body transform for the placement).
 - Tests: cook determinism, weld equivalence with today's bake (same triangles once transformed), bound errors at cook time.
+
+Implemented (15 October 2026):
+- `cook_model_collision`, `encode_model_collision`, `decode_model_collision` and `load_cooked_model_collision`
+  (engine/assets/model_collision.cpp). They share one weld with `bake_model_collision`, which keeps its old 2048/4096 bounds
+  until phase 4 removes it.
+- The product is binary (`DAMCOL01`, kind and extension `model-collision`), because a full-size shape does not fit the 1 MiB
+  JSON bound. Its identity is `model_collision_id(model)`, derived from the model's ID, so no sidecar needed a new subasset.
+- `model.json` carries `"collision"`: the product's ID, or null. `RuntimeModel::collision` exposes it.
+- The importer honours the sidecar's `"collision": "mesh" | "none"`. Mask visuals and item world models fold the same import
+  (`static_model_collision`), so their model products stay identical to the standalone cook.
+- `validate_collision_mesh` now allows 65,536 vertices and 65,536 triangles per shape. A native `.dacollision` source keeps its
+  own 2048/4096 work bound.
+- Test: `M4.model_collision` (tests/model_collision_tests.cpp).
+
+Moved to phase 2: building one shared `CollisionGeometry` per model. Nothing consumes the product until the static layer exists.
+
+Verified: full CTest 111/111. `measure_scene_scale.py` hits the same limits as the baseline, as expected, since nothing uses the
+product yet. With a warm cache at 8 models, placing a new model takes 6.2 s (5.6 s before) and Prepare Play 3.9 s (3.4 s before):
+noise plus one more product per model. The first run after this change recooked every model (24 s for the place step), because
+the cooker build hash changed.
 
 ### Phase 2: static collision layer in the physics world
 

@@ -4,6 +4,7 @@
 #include <DirectXTex.h>
 #include <darkangel/hash.hpp>
 #include "assets_internal.hpp"
+#include <darkangel/model_collision.hpp>
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -21,7 +22,8 @@ std::string mesh_bytes(const CookedMesh& mesh){std::string out="DAMESH01";u32(ou
 std::string texture_bytes(std::string_view source){DirectX::TexMetadata metadata;hr(DirectX::GetMetadataFromWICMemory(reinterpret_cast<const std::uint8_t*>(source.data()),source.size(),DirectX::WIC_FLAGS_NONE,metadata));require(metadata.width>0 && metadata.height>0 && metadata.width<=4096 && metadata.height<=4096 && metadata.arraySize==1,"Texture dimension/array limit");DirectX::ScratchImage image,rgba,mips;hr(DirectX::LoadFromWICMemory(reinterpret_cast<const std::uint8_t*>(source.data()),source.size(),static_cast<DirectX::WIC_FLAGS>(DirectX::WIC_FLAGS_FORCE_RGB | DirectX::WIC_FLAGS_FORCE_SRGB),&metadata,image));auto* normalized=&image;if(image.GetMetadata().format!=DXGI_FORMAT_R8G8B8A8_UNORM_SRGB){hr(DirectX::Convert(image.GetImages(),image.GetImageCount(),image.GetMetadata(),DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,DirectX::TEX_FILTER_DEFAULT,.5f,rgba));normalized=&rgba;}hr(DirectX::GenerateMipMaps(normalized->GetImages(),normalized->GetImageCount(),normalized->GetMetadata(),DirectX::TEX_FILTER_DEFAULT,0,mips));DirectX::Blob blob;hr(DirectX::SaveToDDSMemory(mips.GetImages(),mips.GetImageCount(),mips.GetMetadata(),DirectX::DDS_FLAGS_NONE,blob));return std::string(reinterpret_cast<const char*>(blob.GetBufferPointer()),blob.GetBufferSize());}
 }
 std::string cook_color_texture(std::string_view source){return texture_bytes(source);}
-Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
+bool static_model_collision(const Json& sidecar){const auto setting=sidecar.value("collision","mesh");require(setting=="mesh"||setting=="none","A model's collision setting is \"mesh\" or \"none\"");return setting=="mesh";}
+Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect,bool collision){
     Import out;std::size_t input_bytes{};
     auto input=[&](const std::filesystem::path& p){auto bytes=read(p);input_bytes+=bytes.size();require(input_bytes<=128*1024*1024,"Import input closure limit");out.inputs[p.lexically_relative(root).generic_string()]=sha256(bytes);return bytes;};
     auto bytes=input(source);cgltf_options options{};cgltf_data* raw{};require(cgltf_parse(&options,bytes.data(),bytes.size(),&raw)==cgltf_result_success,"cgltf parse failed");std::unique_ptr<cgltf_data,decltype(&cgltf_free)> data(raw,cgltf_free);
@@ -53,7 +55,7 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
         }
         if(!inspect)out.products.push_back({id,"material","material.json",material.dump(),dependencies});
     }
-    std::vector<AssetId> meshes;
+    std::vector<AssetId> meshes;std::vector<CookedMesh> cooked;
     for(std::size_t i=0;i<data->meshes_count;++i){auto& mesh=data->meshes[i];auto id=declare(key(data.get(),mesh.extras));meshes.push_back(id);require(mesh.weights_count==0 && mesh.primitives_count<=128,"Unsupported morph weights/primitive limit");
         cgltf_node* node{};for(std::size_t n=0;n<data->nodes_count;++n)if(data->nodes[n].mesh==&mesh){require(!node,"Instanced meshes require explicit scene assembly import");node=&data->nodes[n];}require(node,"Unused mesh has no static node placement");
         float transform[16];cgltf_node_transform_world(node,transform);float lengths[3]{};for(unsigned c=0;c<3;++c){for(unsigned r=0;r<3;++r)lengths[c]+=transform[c*4+r]*transform[c*4+r];lengths[c]=std::sqrt(lengths[c]);}
@@ -79,9 +81,15 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
             if(!inspect)meshopt_optimizeVertexCache(result.indices.data()+first,result.indices.data()+first,primitive.indices->count,result.vertices.size());result.parts.push_back({material,first,static_cast<std::uint32_t>(primitive.indices->count)});
         }
         static_assert(sizeof(Vertex)==32);if(!inspect){std::vector<Vertex> optimized(result.vertices.size());auto count=meshopt_optimizeVertexFetch(optimized.data(),result.indices.data(),result.indices.size(),result.vertices.data(),result.vertices.size(),sizeof(Vertex));optimized.resize(count);result.vertices=std::move(optimized);}
-        if(!inspect)out.products.push_back({id,"mesh","mesh",mesh_bytes(result),dependencies});
+        if(!inspect)out.products.push_back({id,"mesh","mesh",mesh_bytes(result),dependencies});if(!inspect&&collision)cooked.push_back(std::move(result));
     }
-    if(!inspect){auto root_id=ids.at("$source");Json model={{"schema",1},{"id",root_id.text()},{"axes","right-handed-y-up"},{"units","metres"},{"meshes",Json::array()}};for(auto id:meshes)model["meshes"].push_back(id.text());out.products.push_back({root_id,"model","model.json",model.dump(),meshes});require(keys.size()+1==ids.size(),"Removed subassets require an explicit remap/retirement");}
+    if(!inspect){auto root_id=ids.at("$source");Json model={{"schema",1},{"id",root_id.text()},{"axes","right-handed-y-up"},{"units","metres"},{"meshes",Json::array()},{"collision",nullptr}};for(auto id:meshes)model["meshes"].push_back(id.text());auto required=meshes;
+        // The model's own collision shape, welded in model space; its identity derives from the model's, so the sidecar adopts no new subasset.
+        if(collision){RuntimeModel shape;shape.id=root_id;shape.meshes=std::move(cooked);ModelCollisionBake baked;
+            try{baked=cook_model_collision(shape);}catch(const std::exception& error){throw std::runtime_error(std::string("Model collision: ")+error.what()+". Simplify the model or import it with \"collision\": \"none\"");}
+            model["collision"]=baked.data->runtime.text();required.push_back(baked.data->runtime);out.products.push_back({baked.data->runtime,"model-collision","model-collision",encode_model_collision(*baked.data),{}});}
+        out.products.push_back({root_id,"model","model.json",model.dump(),required});require(keys.size()+1==ids.size(),"Removed subassets require an explicit remap/retirement");}
+    out.product_count=keys.size()+1+(collision?1:0);
     return out;
 }
 CookedMesh decode_mesh(std::string_view data){require(data.starts_with("DAMESH01"),"Cooked mesh schema mismatch");Reader in{data,8};auto vertices=in.u32(),indices=in.u32(),parts=in.u32();require(vertices>0 && vertices<=1000000 && indices>0 && indices<=3000000 && indices%3==0 && parts>0 && parts<=128,"Cooked mesh count limit");CookedMesh result;for(auto& x:result.minimum)x=in.f32();for(auto& x:result.maximum)x=in.f32();for(unsigned i=0;i<parts;++i){auto id=in.id();auto first=in.u32(),count=in.u32();require(first<=indices && count<=indices-first && count%3==0,"Invalid mesh part range");result.parts.push_back({id,first,count});}for(unsigned i=0;i<vertices;++i){Vertex v;for(auto& x:v.position)x=in.f32();for(auto& x:v.normal)x=in.f32();for(auto& x:v.uv)x=in.f32();result.vertices.push_back(v);}for(unsigned i=0;i<indices;++i){auto n=in.u32();require(n<vertices,"Cooked index out of range");result.indices.push_back(n);}require(in.at==data.size(),"Trailing cooked mesh data");return result;}

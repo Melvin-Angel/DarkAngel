@@ -18,7 +18,8 @@ void validate_collision_stream(const CollisionStreamFrame& frame){
 void validate_collision_mesh(const CollisionMeshData& data){
     auto require=[](bool value,const char* message){if(!value)throw std::runtime_error(message);};
     AssetId::parse(data.runtime.text());
-    require(data.vertices.size()>=3&&data.vertices.size()<=2048&&!data.triangles.empty()&&data.triangles.size()<=4096&&!data.materials.empty()&&data.materials.size()<=32,"Static mesh geometry limits");
+    // One shape: up to a cooked model's welded collision (65536/65536). A native collision source keeps its own tighter work bound.
+    require(data.vertices.size()>=3&&data.vertices.size()<=65536&&!data.triangles.empty()&&data.triangles.size()<=65536&&!data.materials.empty()&&data.materials.size()<=32,"Static mesh geometry limits");
     std::set<std::string> materials;for(const auto& key:data.materials)require(!key.empty()&&key.size()<=64&&key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==key.npos&&materials.insert(key).second,"Static mesh material keys");
     std::map<std::array<float,3>,unsigned> positions;std::vector<unsigned> canonical;
     for(auto vertex:data.vertices){for(double n:{vertex.x,vertex.y,vertex.z})require(std::isfinite(n)&&std::abs(n)<=100000,"Mesh vertex bounds");auto point=std::array{float(vertex.x),float(vertex.y),float(vertex.z)};auto [it,inserted]=positions.emplace(point,static_cast<unsigned>(positions.size()));canonical.push_back(it->second);}

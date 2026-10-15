@@ -40,7 +40,10 @@ Import import_audio_profile(const std::filesystem::path&,const std::filesystem::
 Import import_input(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_joint_mask(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_collision(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
-Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false);
+// collision: also cook the model's own collision shape (the sidecar's "collision": "mesh", the default) or not ("none").
+// A static model sidecar's collision setting: "mesh" (the default) or "none".
+bool static_model_collision(const Json& sidecar);
+Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false,bool collision=true);
 CookedMesh decode_mesh(std::string_view);
 CookedTexture decode_texture(std::string_view);
 }
