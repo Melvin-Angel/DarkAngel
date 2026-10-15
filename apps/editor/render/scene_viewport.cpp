@@ -317,6 +317,9 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
             UploadedModel* drawn_ptr = nullptr;
 #endif
+            // A placed model whose upload failed is not drawn rather than ending the frame.
+            if (!drawn_ptr && model_id != id && !scene_models.contains(model_id))
+                continue;
             auto& drawn = drawn_ptr ? *drawn_ptr : (model_id == id ? gpu : scene_models.at(model_id));
             auto rotation = XMMatrixRotationRollPitchYaw(pose.pitch, pose.yaw, pose.roll);
             auto world =

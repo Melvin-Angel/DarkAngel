@@ -186,7 +186,8 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
         // A model outside the loaded resources is cooked and packaged with the scene; a placement that cannot be shown is undone.
         bool loaded=true;try{if(editor.prepare_model)editor.prepare_model(item.id);}catch(const std::exception&){loaded=false;if(!editor.prepare_play_resources)throw std::runtime_error("This model is not in the loaded resources and this session cannot cook it");}
         placed=add_object(editor,{{"name",item.name},{"model",item.id.text()}},at,"Placed a model.");
-        if(!loaded){try{editor.prepare_play_resources();}catch(...){editor.document->undo(editor.document->revision());throw;}}
+        // Packaging puts the model in the registry; it is then uploaded like any loaded model.
+        if(!loaded){try{editor.prepare_play_resources();if(editor.prepare_model)editor.prepare_model(item.id);}catch(...){editor.document->undo(editor.document->revision());throw;}}
     }
     editor.selected=placed;return placed;
 }
