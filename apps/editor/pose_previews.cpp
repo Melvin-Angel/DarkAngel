@@ -27,7 +27,42 @@ GraphParameters PosePreviews::graph_parameters(const darkangel::editor_app::Grap
     }
     return parameters;
 }
+std::string PosePreviews::cache_key(const char* kind, std::initializer_list<AssetId> roots) {
+    const auto key = preview_cache_key(*editor.assets, editor.authoring, roots);
+    return key.empty() ? std::string{} : kind + ("|" + key);
+}
+PosePreviews::Prepared PosePreviews::take_cached(const std::string& key) {
+    if (key.empty())
+        return {};
+    if (current.key == key)
+        return std::exchange(current, {});
+    for (auto it = cache.begin(); it != cache.end(); ++it)
+        if (it->key == key) {
+            auto found = std::move(*it);
+            cache.erase(it);
+            return found;
+        }
+    return {};
+}
+void PosePreviews::stash() {
+    // Up to eight recent previews stay ready; one with unsaved drafts in its closure has no key and is not kept.
+    if (!current.key.empty() && (current.composer || current.graph)) {
+        cache.insert(cache.begin(), std::move(current));
+        if (cache.size() > 8)
+            cache.pop_back();
+    }
+    current = {};
+}
+std::shared_ptr<render::UploadedSkin> PosePreviews::upload(RuntimeSkinnedModel skin) {
+    auto uploaded = upload_skin(device, std::move(skin), skin_pso.RawPtr(), skin_cull.RawPtr(), nullptr, 0, false);
+    context->Flush();
+    context->WaitForIdle();
+    return std::make_shared<render::UploadedSkin>(std::move(uploaded));
+}
 void PosePreviews::reset() {
+    cache.clear();
+    current = {};
+    authoring_skin.reset();
     graph_pose.reset();
     shell.graph_preview_asset = {};
     composer_pose.reset();
@@ -37,6 +72,12 @@ void PosePreviews::reset() {
 void PosePreviews::install() {
     if (!(character_resources && editor.assets))
         return;
+    shell.forget_previews = [this] {
+        cache.clear();
+        if (!current.key.empty())
+            current.key.clear();
+        forget_preview_verification();
+    };
     shell.prepare_composer = [this](AssetId clip, unsigned duration) {
         require(!editor.preview.active(), "Stop Play before preparing Composer preview");
         auto registry = editor.assets->cas_path().parent_path() / ("composer-" + AssetId::random().text() + ".json");
@@ -46,7 +87,9 @@ void PosePreviews::install() {
         auto candidate = std::make_unique<darkangel::editor_app::ComposerPosePreview>(
             *character_resources, load_cooked_clip(registry, editor.assets->cas_path(), clip), duration);
         auto matrices = candidate->sample(0);
+        stash();
         composer_pose = std::move(candidate);
+        current.composer = composer_pose;
         graph_pose.reset();
         shell.graph_preview_asset = {};
         shell.character_preview_asset = {};
@@ -57,10 +100,18 @@ void PosePreviews::install() {
         require(!editor.preview.active(), "Stop Play before preparing Composer preview");
         auto& kit = editor.authoring.open(*editor.assets, editor.authoring_kit).value;
         auto graph = AssetId::parse(kit.at("locomotion_stance").get<std::string>());
-        auto candidate =
-            darkangel::editor_app::prepare_authored_action_pose(*editor.assets, editor.authoring, *character_resources, action, graph);
-        auto matrices = candidate->sample(0);
-        composer_pose = std::move(candidate);
+        editor.authoring.open(*editor.assets, action);
+        editor.authoring.open(*editor.assets, graph);
+        // A preview already made from the same cooked sources is shown again at once.
+        const auto key = cache_key("action", {action, graph});
+        auto cached = take_cached(key);
+        if (!cached.composer)
+            cached.composer = darkangel::editor_app::prepare_authored_action_pose(*editor.assets, editor.authoring, *character_resources, action, graph);
+        auto matrices = cached.composer->sample(0);
+        stash();
+        current = std::move(cached);
+        current.key = key;
+        composer_pose = current.composer;
         graph_pose.reset();
         shell.graph_preview_asset = {};
         shell.character_preview_asset = {};
@@ -80,19 +131,28 @@ void PosePreviews::install() {
     };
     shell.prepare_character_pose = [this](AssetId asset, AssetId clip) {
         require(!editor.preview.active(), "Stop Play before preparing Character preview");
-        auto candidate = darkangel::editor_app::prepare_authored_character_pose(*editor.assets, editor.authoring, asset, clip);
-        auto matrices = candidate.pose->sample(0);
-        auto uploaded = upload_skin(device, std::move(candidate.character.skin), skin_pso.RawPtr(), skin_cull.RawPtr(), nullptr, 0, false);
-        context->Flush();
-        context->WaitForIdle();
-        authoring_skin = std::move(uploaded);
-        authoring_character_definition = std::move(candidate.character.definition);
-        composer_pose = std::move(candidate.pose);
+        editor.authoring.open(*editor.assets, asset);
+        const auto key = cache_key("character", {asset, clip});
+        auto cached = take_cached(key);
+        if (!cached.composer) {
+            auto candidate = darkangel::editor_app::prepare_authored_character_pose(*editor.assets, editor.authoring, asset, clip);
+            cached.skin = upload(std::move(candidate.character.skin));
+            cached.definition = std::move(candidate.character.definition);
+            cached.composer = std::move(candidate.pose);
+            cached.duration = candidate.clip.definition.ticks * action_tick_units;
+        }
+        auto matrices = cached.composer->sample(0);
+        stash();
+        current = std::move(cached);
+        current.key = key;
+        authoring_skin = current.skin;
+        authoring_character_definition = current.definition;
+        composer_pose = current.composer;
         graph_pose.reset();
         shell.graph_preview_asset = {};
         composer_matrices = std::move(matrices);
         shell.composer_clip = clip;
-        shell.composer_duration = candidate.clip.definition.ticks * action_tick_units;
+        shell.composer_duration = current.duration;
         shell.composer_tick = 0;
         shell.composer_playing = false;
         shell.character_preview_asset = asset;
@@ -129,13 +189,21 @@ void PosePreviews::install() {
     };
     shell.prepare_graph_pose = [this](AssetId character_asset, AssetId graph_asset) {
         require(!editor.preview.active(), "Stop Play before graph preview");
-        auto candidate = darkangel::editor_app::prepare_authored_graph_pose(*editor.assets, editor.authoring, character_asset, graph_asset);
-        auto matrices = candidate.pose->sample(0, graph_parameters(*candidate.pose));
-        auto uploaded = upload_skin(device, std::move(candidate.character.skin), skin_pso.RawPtr(), skin_cull.RawPtr(), nullptr, 0, false);
-        context->Flush();
-        context->WaitForIdle();
-        authoring_skin = std::move(uploaded);
-        graph_pose = std::move(candidate.pose);
+        editor.authoring.open(*editor.assets, character_asset);
+        editor.authoring.open(*editor.assets, graph_asset);
+        const auto key = cache_key("graph", {character_asset, graph_asset});
+        auto cached = take_cached(key);
+        if (!cached.graph) {
+            auto candidate = darkangel::editor_app::prepare_authored_graph_pose(*editor.assets, editor.authoring, character_asset, graph_asset);
+            cached.skin = upload(std::move(candidate.character.skin));
+            cached.graph = std::move(candidate.pose);
+        }
+        auto matrices = cached.graph->sample(0, graph_parameters(*cached.graph));
+        stash();
+        current = std::move(cached);
+        current.key = key;
+        authoring_skin = current.skin;
+        graph_pose = current.graph;
         composer_pose.reset();
         composer_matrices = std::move(matrices);
         shell.character_preview_asset = {};

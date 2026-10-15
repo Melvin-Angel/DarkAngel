@@ -33,13 +33,29 @@ class PosePreviews {
     // A model reload drops the previews, which were made from the old resources.
     void reset();
 
-    std::optional<render::UploadedSkin> authoring_skin;
+    std::shared_ptr<render::UploadedSkin> authoring_skin;
     CharacterDefinition authoring_character_definition;
-    std::unique_ptr<GraphPosePreview> graph_pose;
-    std::unique_ptr<ComposerPosePreview> composer_pose;
+    std::shared_ptr<GraphPosePreview> graph_pose;
+    std::shared_ptr<ComposerPosePreview> composer_pose;
     std::vector<JointMatrix> composer_matrices;
 
   private:
+    // A prepared Character, action or graph preview. Switching tabs or assets returns to a recent one without preparing it
+    // again while its cooked sources are unchanged and its closure has no unsaved drafts (preview_cache_key).
+    struct Prepared {
+        std::string key;
+        std::shared_ptr<ComposerPosePreview> composer;
+        std::shared_ptr<GraphPosePreview> graph;
+        std::shared_ptr<render::UploadedSkin> skin;
+        CharacterDefinition definition;
+        unsigned duration{};
+    };
+    Prepared current;
+    std::vector<Prepared> cache;
+    std::string cache_key(const char* kind, std::initializer_list<AssetId> roots);
+    Prepared take_cached(const std::string& key);
+    void stash();
+    std::shared_ptr<render::UploadedSkin> upload(RuntimeSkinnedModel skin);
     GraphParameters graph_parameters(const GraphPosePreview& pose);
     // The tags a graph preview samples with; parameters point at it.
     ActorTagSnapshot preview_graph_tags;

@@ -10,11 +10,9 @@ class EffectPreview {
 public:
  EffectPreview(AssetService& assets,NativeAuthoring& author,AssetId id){
   source_path=author.open(assets,id).asset.path;
-  std::vector<NativeSourceEdit> edits;
-  for(const auto& [asset,draft]:author.drafts)if(asset==id||draft.dirty())
-   edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});
-  candidate_=assets.prepare_native(edits,{&id,1});
-  cooked=load_cooked_effect(candidate_.registry(),assets.cas_path(),id);
+  // The project's cook when the effect's closure has no unsaved drafts; a private candidate of the drafts otherwise.
+  const PreviewPackage package(assets,author,{id},{&id,1},{&id,1});
+  cooked=load_cooked_effect(package.registry(),assets.cas_path(),id);
   if(cooked.definition->evaluator!=0)throw std::runtime_error("Preview supports ordinary modifiers/statuses only; custom evaluators must be tested in Game");
   attributes=std::make_unique<AttributeSet>(cooked.attributes.definitions());
   effects=std::make_unique<OwnedEffects>(cooked.tags.dictionary());
@@ -47,6 +45,6 @@ public:
  CookedEffect cooked;std::unique_ptr<AttributeSet> attributes;std::unique_ptr<OwnedEffects> effects;
  std::vector<double> base;std::uint64_t tick{};EffectHandle handle;
 private:
- PreparedNativeEdit candidate_;std::uint64_t activation_{};
+ std::uint64_t activation_{};
 };
 }

@@ -116,6 +116,24 @@ EditorApp::EditorApp(EditorOptions options)
     // disk.
     if (editor.assets)
         shell.draw_vfx_panel = [this] { vfx_->draw_panel(); };
+    // Open / Edit for sounds, audio profiles and effects lands on the Audio or VFX tab with that asset selected.
+    shell.open_host_asset = [this](AssetId id, std::string_view extension) {
+#ifdef DAE_AUDIO
+        if (audio_ && (extension == ".wav" || extension == ".dasound" || extension == ".daaudioprofile")) {
+            (extension == ".daaudioprofile" ? audio_->state.profile : audio_->state.sound) = id;
+            shell_->select_workspace(darkangel::editor_app::Workspace::Audio);
+            return true;
+        }
+#endif
+        if (extension == ".efkproj" || extension == ".efkefc")
+            for (const auto& asset : vfx_->effects())
+                if (asset.id == id) {
+                    vfx_->select(asset);
+                    shell_->select_workspace(darkangel::editor_app::Workspace::Vfx);
+                    return true;
+                }
+        return false;
+    };
     if (args.vfx_workspace) {
         shell.select_workspace(darkangel::editor_app::Workspace::Vfx);
         if (editor.assets)
@@ -497,7 +515,7 @@ int EditorApp::run() {
     render.input = nullptr;
     darkangel::editor_app::exercises::check_preview_results({args, editor, shell, import_baseline, play.character,
                                                              previews.composer_pose.get(), previews.graph_pose.get(),
-                                                             previews.authoring_skin.has_value(), previews.composer_matrices.size()});
+                                                             bool(previews.authoring_skin), previews.composer_matrices.size()});
     // Presentation checks read what the frame loop drew; they run before gameplay checks stop Play.
     navigation_exercise->finish();
     scale_exercise->finish();

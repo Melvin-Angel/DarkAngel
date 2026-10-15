@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <set>
 #include <darkangel/hash.hpp>
 namespace darkangel::editor_app {
 namespace {
@@ -13,7 +14,29 @@ const char* edge_name(InputEdge edge){switch(edge){case InputEdge::Pressed:retur
 void Shell::open_native_asset(Controller& editor,AssetId id){
  if(!editor.assets||id==AssetId{})throw std::runtime_error("Choose a native authoring asset");auto& draft=editor.authoring.open(*editor.assets,id);auto kind=draft.value.at("kind").get<std::string>();
  if(kind!="item"&&kind!="character"&&kind!="player"&&kind!="npc"&&kind!="behavior"&&kind!="mask"&&kind!="input"&&kind!="combat_kit"&&kind!="action"&&kind!="graph"&&kind!="ability"&&kind!="effect"&&kind!="attributes")throw std::runtime_error("No native authoring workflow for this asset type");
- if(kind=="item"){item_selection=id;select_workspace(Workspace::Items);}else if(kind=="character"){character_selection=id;select_workspace(Workspace::Character);}else if(kind=="npc"||kind=="behavior"){npc_selection=id;select_workspace(Workspace::Npc);}else if(kind=="mask")mask_editor=id;else if(kind=="player"){player_selection=id;select_workspace(Workspace::Player);}else if(kind=="input"){input_authoring_asset=id;open_tool(ToolView::InputBindings);}else{authored_selection=id;if(kind=="combat_kit")editor.authoring_kit=id;select_workspace(kind=="action"||kind=="graph"?Workspace::Animation:Workspace::Ability);}author_diagnostic.clear();
+ if(kind=="item"){item_selection=id;select_workspace(Workspace::Items);}else if(kind=="character"){character_selection=id;select_workspace(Workspace::Character);}else if(kind=="npc"||kind=="behavior"){npc_selection=id;select_workspace(Workspace::Npc);}else if(kind=="mask")mask_editor=id;else if(kind=="player"){player_selection=id;select_workspace(Workspace::Player);}else if(kind=="input"){input_authoring_asset=id;open_tool(ToolView::InputBindings);}else{authored_selection=id;if(kind=="combat_kit"){editor.authoring_kit=id;kit_composition_visible[static_cast<std::size_t>(Workspace::Ability)]=true;}select_workspace(kind=="action"||kind=="graph"?Workspace::Animation:Workspace::Ability);}author_diagnostic.clear();
+}
+bool Shell::asset_has_owner(std::string_view ext) const{
+ return native_authoring_extension(ext)||(open_host_asset&&(ext==".wav"||ext==".dasound"||ext==".daaudioprofile"||ext==".efkproj"||ext==".efkefc"));
+}
+bool Shell::open_asset(Controller& editor,AssetId id){
+ const auto found=std::find_if(editor.asset_inventory.begin(),editor.asset_inventory.end(),[&](const auto& asset){return asset.id==id;});
+ if(found==editor.asset_inventory.end())return false;const auto ext=std::filesystem::path(found->path).extension().string();
+ if(native_authoring_extension(ext)){open_native_asset(editor,id);return true;}
+ return open_host_asset&&open_host_asset(id,ext);
+}
+void Shell::reference_routes(Controller& editor,AssetId id,bool hovered){
+ if(id==AssetId{})return;
+ const auto found=std::find_if(editor.asset_inventory.begin(),editor.asset_inventory.end(),[&](const auto& asset){return asset.id==id;});
+ if(found==editor.asset_inventory.end())return;
+ const bool owned=asset_has_owner(std::filesystem::path(found->path).extension().string());
+ const bool shortcut=hovered&&ImGui::IsKeyPressed(ImGuiKey_F12,false)&&!ImGui::GetIO().WantTextInput;
+ bool open=shortcut&&owned,reveal=shortcut&&!owned;
+ ImGui::PushID("reference-routes");
+ if(owned){if(ImGui::SmallButton("Open / Edit"))open=true;if(ImGui::IsItemHovered())ImGui::SetTooltip("Open it in the tab that owns it (F12 over the reference)");toolbar_next(75);}
+ if(ImGui::SmallButton("Reveal in Assets"))reveal=true;
+ ImGui::PopID();
+ if(open)perform(editor,[&]{if(!open_asset(editor,id))reveal_asset(id);});else if(reveal)reveal_asset(id);
 }
 void Shell::select_workspace(Workspace target){if(workspace!=target){scene_navigation.cancel();composer_playing=false;controls_focus=false;controls_acquired=false;forward=lateral=turn=0;walk=jump=false;workspace=target;}}
 void Shell::open_tool(ToolView selected){if(workspace!=Workspace::Tools&&workspace!=Workspace::Settings)previous_workspace=workspace;tool=selected;select_workspace(Workspace::Tools);}
@@ -60,12 +83,25 @@ void Shell::draw_game(Controller& editor,unsigned width,unsigned height,float to
     }
 }
 void Shell::draw_auxiliary(Controller& editor,unsigned width,unsigned height,float top){
-    ImGui::SetNextWindowPos({0,top});ImGui::SetNextWindowSize({float(width),float(height)-top});ImGui::Begin(workspace==Workspace::Settings?"Settings workspace":"Tools workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);if(ImGui::Button("Back to workspace"))select_workspace(previous_workspace);ImGui::Separator();
-    if(workspace==Workspace::Settings){if(project_settings){workflow_header("Project settings","Open Character, Player, NPC, Ability, Items, VFX or Audio to edit the project assets. Scene settings are edited in Scene / Level Design.");}else draw_editor_preferences();}
+    ImGui::SetNextWindowPos({0,top});ImGui::SetNextWindowSize({float(width),float(height)-top});ImGui::Begin(workspace==Workspace::Settings?"Settings workspace":"Tools workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);if(ImGui::Button("Back to workspace"))select_workspace(previous_workspace);
+    // Every tool is one click from any other; the menu is not the only route.
+    if(workspace==Workspace::Tools){static constexpr std::pair<const char*,ToolView> tools[]={{"Console",ToolView::Console},{"Authoring history",ToolView::AuthoringHistory},{"Input bindings",ToolView::InputBindings},{"Navigation",ToolView::Navigation},{"Saves",ToolView::Saves},{"Script source",ToolView::ScriptSource},{"Runtime phases",ToolView::RuntimePhases}};
+        for(const auto& [name,view]:tools){toolbar_next(ImGui::CalcTextSize(name).x/std::max(.01f,ImGui::GetStyle().FontScaleDpi)+32);if(ImGui::RadioButton(name,tool==view))tool=view;}}
+    ImGui::Separator();
+    if(workspace==Workspace::Settings){if(project_settings){workflow_header("Project settings","Project assets are edited in the tabs that own them. Scene settings are edited in Scene / Level Design.");
+        static constexpr std::pair<const char*,Workspace> owners[]={{"Scene / Level Design",Workspace::Scene},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"Items",Workspace::Items},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio}};
+        bool first=true;for(const auto& [name,owner]:owners){if(!first)toolbar_next(ImGui::CalcTextSize(name).x/std::max(.01f,ImGui::GetStyle().FontScaleDpi)+48);first=false;if(ImGui::Button((std::string("Open ")+name).c_str()))switch_tab(owner);}
+        toolbar_next(150);if(ImGui::Button("Input bindings"))open_tool(ToolView::InputBindings);}else draw_editor_preferences();}
     else if(tool==ToolView::Saves){if(draw_saves_tool)draw_saves_tool();else ImGui::TextDisabled("Saves need a project with an asset cache.");}
     else if(tool==ToolView::Navigation){ImGui::TextUnformatted("Navigation");if(draw_navigation_tool)draw_navigation_tool();else ImGui::TextDisabled("Navigation baking needs a character scene with cooked collision, in a build that has the navigation library.");}
     else if(tool==ToolView::Console){ImGui::TextUnformatted("Console");draw_console(editor);}
-    else if(tool==ToolView::ScriptSource){ImGui::TextUnformatted("Script Source");if(show_script){ImGui::InputTextMultiline("##source",script,sizeof(script),{-1,300});ImGui::BeginDisabled(editor.preview.active()!=nullptr);if(ImGui::Button("Apply source"))perform(editor,[&]{auto source=nlohmann::json::parse(editor.document->source(script_asset));source["source"]=script;auto transaction=editor.document->prepare_source(editor.document->revision(),script_asset,source.dump());editor.document->commit(transaction);editor.log("Source updated. Reload Scripts validates and activates it.");});ImGui::EndDisabled();}else ImGui::TextDisabled("Select a script in the Scene Content Browser.");}
+    else if(tool==ToolView::ScriptSource){ImGui::TextUnformatted("Script Source");
+        // Opens on a script: the scene's scripts are listed here, and the first is loaded when none is open.
+        {std::set<StableId> scripts;for(const auto& planned:editor.document->plan().bindings)scripts.insert(planned.binding.asset);
+         auto load=[&](StableId id){perform(editor,[&]{script_asset=asset_id(id);auto data=nlohmann::json::parse(editor.document->source(script_asset));strncpy_s(script,data.at("source").get<std::string>().c_str(),_TRUNCATE);show_script=true;});};
+         if(!show_script&&!scripts.empty())load(*scripts.begin());
+         for(auto id:scripts){toolbar_next(260);ImGui::PushID(id.text().c_str());if(ImGui::RadioButton(id.text().c_str(),show_script&&script_asset==asset_id(id)))load(id);ImGui::PopID();}}
+        if(show_script){ImGui::InputTextMultiline("##source",script,sizeof(script),{-1,300});ImGui::BeginDisabled(editor.preview.active()!=nullptr);if(ImGui::Button("Apply source"))perform(editor,[&]{auto source=nlohmann::json::parse(editor.document->source(script_asset));source["source"]=script;auto transaction=editor.document->prepare_source(editor.document->revision(),script_asset,source.dump());editor.document->commit(transaction);editor.log("Source updated. Reload Scripts validates and activates it.");});ImGui::EndDisabled();}else ImGui::TextDisabled("This scene has no scripts.");}
     else if(tool==ToolView::RuntimePhases){ImGui::TextUnformatted("Runtime phases");ImGui::TextWrapped("Idle > Script > Commit > Publish");if(editor.preview.active()){auto& runtime=*editor.preview.active()->scripts;ImGui::Text("Bindings %u | Tasks %u",static_cast<unsigned>(runtime.instance_count()),static_cast<unsigned>(runtime.tasks().size()));ImGui::Text("VM %.1f KiB",runtime.memory_bytes()/1024.);ImGui::TextWrapped("%s",runtime.diagnostic().c_str());}else ImGui::TextDisabled("Authoring idle; scripts stopped.");}
     else if(tool==ToolView::AuthoringHistory){draw_authoring_history(editor);}
     else if(editor.assets){draw_input_authoring(editor);}
@@ -73,7 +109,7 @@ void Shell::draw_auxiliary(Controller& editor,unsigned width,unsigned height,flo
     ImGui::End();
 }
 void Shell::draw_authoring_history(Controller& c){
- ImGui::BeginChild("Authoring history",{0,0});ImGui::TextUnformatted("Shared native authoring history");ImGui::TextWrapped("Commands are newest first. Undo/Redo changes drafts; Save publishes validated sources. Pending creation can be undone before Save. Published assets are retained; creation entries leave Undo after publication. Scene transactions have their own history.");
+ ImGui::BeginChild("Authoring history",{0,0});ImGui::TextUnformatted("Shared native authoring history");ImGui::SameLine();ImGui::TextDisabled("(?)");if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::PushTextWrapPos(ImGui::GetFontSize()*30);ImGui::TextUnformatted("Commands are newest first. Undo/Redo changes drafts; Save publishes validated sources. Pending creation can be undone before Save. Published assets are retained; creation entries leave Undo after publication. Scene transactions have their own history.");ImGui::PopTextWrapPos();ImGui::EndTooltip();}
  if(!c.assets){ImGui::TextDisabled("Open project sources to inspect authoring history.");ImGui::EndChild();return;}
  auto run=[&](auto operation){try{operation();author_diagnostic.clear();}catch(const std::exception& error){author_diagnostic=error.what();c.log(author_diagnostic,ConsoleSeverity::Error);}};if(!author_diagnostic.empty())ImGui::TextWrapped("Needs attention: %s",author_diagnostic.c_str());
  ImGui::BeginDisabled(c.preview.active()!=nullptr);ImGui::BeginDisabled(!c.authoring.can_undo());if(ImGui::Button("Undo latest command"))run([&]{c.authoring.undo(*c.assets);c.refresh_assets();});ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(!c.authoring.can_redo());if(ImGui::Button("Redo next command"))run([&]{c.authoring.redo(*c.assets);c.refresh_assets();});ImGui::EndDisabled();ImGui::SameLine();if(ImGui::Button("Save pending changes"))run([&]{c.save_gameplay();c.refresh_assets();});ImGui::SameLine();ImGui::BeginDisabled(c.authoring.drafts.empty());if(ImGui::Button("Validate pending sources"))run([&]{last_validation.reset();auto roots=c.authoring_roots?c.authoring_roots():std::vector<AssetId>{};last_validation=c.authoring.validate(*c.assets,{},roots);c.log("Shared history validated private native drafts/consumer closure. Save revalidates before publication.");});ImGui::EndDisabled();ImGui::EndDisabled();auto pending=std::count_if(c.authoring.drafts.begin(),c.authoring.drafts.end(),[](const auto& source){return source.second.pending;});auto changed=std::count_if(c.authoring.drafts.begin(),c.authoring.drafts.end(),[](const auto& source){return !source.second.pending&&source.second.dirty();});ImGui::Text("Open sources: %u/64 | new drafts: %u | changed existing: %u",static_cast<unsigned>(c.authoring.drafts.size()),static_cast<unsigned>(pending),static_cast<unsigned>(changed));if(last_validation)ImGui::TextWrapped("Last private validation: %u sources at revision %llu. Save validates again.%s",static_cast<unsigned>(last_validation->sources),static_cast<unsigned long long>(last_validation->revision),last_validation->revision!=c.authoring.revision()?" Authoring changed since this receipt.":"");

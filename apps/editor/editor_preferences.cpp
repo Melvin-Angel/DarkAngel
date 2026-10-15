@@ -75,16 +75,40 @@ void Shell::toggle_viewport_maximize(){
     scene_navigation.cancel();controls_focus=false;
     if(!maximized&&dock)ImGui::SetWindowDock(ImGui::GetCurrentWindow(),dock,ImGuiCond_Always);
 }
+namespace {
+struct Destination{const char* name;Workspace workspace;};
+constexpr Destination destinations[]={{"Scene / Level Design",Workspace::Scene},{"Assets",Workspace::Assets},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio},{"Items",Workspace::Items},{"Game",Workspace::Game}};
+}
+void Shell::switch_tab(Workspace target){
+    if(workspace==target)return;
+    select_workspace(target);
+    if(target==Workspace::Ability&&ability_memory!=AssetId{})authored_selection=ability_memory;
+    else if(target==Workspace::Animation&&animation_memory!=AssetId{})authored_selection=animation_memory;
+}
+void Shell::workspace_shortcuts(Controller& editor){
+    const auto& io=ImGui::GetIO();
+    if(!io.KeyCtrl||io.KeyAlt||io.WantTextInput||controls_focus||dragging||composer_dragging||ImGui::IsAnyItemActive()||ImGui::IsPopupOpen(nullptr,ImGuiPopupFlags_AnyPopupId))return;
+    (void)editor;
+    constexpr ImGuiKey digits[]={ImGuiKey_1,ImGuiKey_2,ImGuiKey_3,ImGuiKey_4,ImGuiKey_5,ImGuiKey_6,ImGuiKey_7,ImGuiKey_8,ImGuiKey_9,ImGuiKey_0};
+    for(std::size_t i=0;i<std::size(digits);++i)if(ImGui::IsKeyPressed(digits[i],false)){switch_tab(destinations[i].workspace);return;}
+    if(ImGui::IsKeyPressed(ImGuiKey_G,false)){switch_tab(Workspace::Game);return;}
+    const bool next=ImGui::IsKeyPressed(ImGuiKey_PageDown,false),previous=ImGui::IsKeyPressed(ImGuiKey_PageUp,false);
+    if(!next&&!previous)return;
+    const auto current=workspace==Workspace::Tools||workspace==Workspace::Settings?navigation_workspace:workspace;
+    const auto count=std::size(destinations);std::size_t at=0;
+    for(std::size_t i=0;i<count;++i)if(destinations[i].workspace==current)at=i;
+    switch_tab(destinations[(at+(next?1:count-1))%count].workspace);
+}
 void Shell::draw_workspace_navigation(){
-    struct Destination{const char* name;Workspace workspace;};
-    static constexpr Destination destinations[]={{"Scene / Level Design",Workspace::Scene},{"Assets",Workspace::Assets},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio},{"Items",Workspace::Items},{"Game",Workspace::Game}};
     const auto requested=workspace;
     const bool external=requested!=navigation_workspace||requested==Workspace::Tools||requested==Workspace::Settings;
     if(ImGui::BeginTabBar("Workspaces",ImGuiTabBarFlags_FittingPolicyScroll|ImGuiTabBarFlags_TabListPopupButton|ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)){
         for(const auto& target:destinations){
             // Selection also follows Open/Edit routes from other workflows.
             const auto flags=external&&requested==target.workspace?ImGuiTabItemFlags_SetSelected:ImGuiTabItemFlags_None;
-            if(ImGui::BeginTabItem(target.name,nullptr,flags)){if(!external||ImGui::IsItemActivated()||((requested==Workspace::Tools||requested==Workspace::Settings)&&navigation_workspace!=target.workspace))select_workspace(target.workspace);ImGui::EndTabItem();}
+            const bool open=ImGui::BeginTabItem(target.name,nullptr,flags);
+            if(ImGui::IsItemHovered()){const auto index=static_cast<std::size_t>(&target-destinations);if(index<10)ImGui::SetTooltip("Ctrl+%zu",(index+1)%10);else ImGui::SetTooltip("Ctrl+G");}
+            if(open){if(!external||ImGui::IsItemActivated()||((requested==Workspace::Tools||requested==Workspace::Settings)&&navigation_workspace!=target.workspace))switch_tab(target.workspace);ImGui::EndTabItem();}
         }ImGui::EndTabBar();
         if(workspace!=Workspace::Tools&&workspace!=Workspace::Settings)navigation_workspace=workspace;
     }
@@ -100,5 +124,6 @@ void Shell::draw_editor_preferences(){
     ImGui::TextWrapped("Scale multiplies the monitor DPI. Layout dimensions and text scale together. Save preferences retains this value.");
     workflow_header("Navigation and focus","Scene: F frames selection; Shift+F switches Orbit/Fly. Hold right mouse to navigate; middle mouse pans. Esc releases viewport or Game input. Maximize / Restore is available in each viewport toolbar.");
     ImGui::TextWrapped("Ctrl+S saves the active Scene or native gameplay owner; Ctrl+Z undoes, Ctrl+Y / Ctrl+Shift+Z redoes. Text fields keep their text history. Game and browsing do not consume authoring shortcuts. File > Save All runs both existing owners.");
+    workflow_header("Tabs and references","Ctrl+1 to Ctrl+9 and Ctrl+0 open Scene, Assets, Character, Player, NPC, Ability, Animation, VFX, Audio and Items; Ctrl+G opens Game; Ctrl+PageUp / Ctrl+PageDown step through the tabs. Each tab keeps its own selection and drafts. Over a reference field, F12 opens the referenced asset in the tab that owns it; Open / Edit and Reveal in Assets do the same with the mouse.");
 }
 } // namespace darkangel::editor_app

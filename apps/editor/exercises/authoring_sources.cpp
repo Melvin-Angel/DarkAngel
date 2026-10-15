@@ -490,11 +490,16 @@ class AuthoringSources final : public Exercise {
             shell.select_workspace(darkangel::editor_app::Workspace::Player);
         }
         if (args.exercise_creation_drafts && frame == 2) {
-            require(shell.player_selection == AssetId{} && shell.author_diagnostic.empty(),
-                    "Creation Undo retained missing selection or source error");
             auto history = editor.authoring.history(true);
             require(!history.empty() && history.front().assets.size() == 1, "Creation Redo source is unavailable");
             auto player = history.front().assets.front();
+            // The Player tab drops the undone (now missing) Player; it may land on another existing Player, never the missing one.
+            require(shell.player_selection != player &&
+                        (shell.player_selection == AssetId{} ||
+                         std::any_of(editor.asset_inventory.begin(), editor.asset_inventory.end(),
+                                     [&](const auto& asset) { return asset.id == shell.player_selection; })) &&
+                        shell.author_diagnostic.empty(),
+                    "Creation Undo retained missing selection or source error");
             editor.authoring.redo(*editor.assets);
             editor.refresh_assets();
             shell.player_selection = player;

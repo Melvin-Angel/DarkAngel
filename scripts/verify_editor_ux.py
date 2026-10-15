@@ -131,7 +131,7 @@ def main():
                 ("cue-authoring",["--vfx-workspace","--vfx-select","vfx/placeholder/hit_spark.efkproj","--exercise-cue-form","--frames","20"],("Editor cue_form ","saved=1","tail=20","visual_resolved=1","audio_resolved=1")),
                 ("audio-audition", ["--audio-workspace", "--exercise-audio", "--frames", "30"], "Editor audio "),
                 # Previews prepare themselves when a tab opens and follow draft edits; the explicit preview gates still hold.
-                ("live-previews",["--exercise-live-previews","--frames","900"],"Editor live_previews character=1 action=1 action_follows_edit=1 effect=1 graph=1 camera=1"),
+                ("live-previews",["--exercise-live-previews","--frames","900"],"Editor live_previews character=1 action=1 action_follows_edit=1 effect=1 graph=1 camera=1 source=unchanged revisit=1"),
                 ("composer-preview",["--exercise-composer","--authoring-asset",heavy_action,"--composer-tick","20","--frames","5"],"Composer isolated pose"),
                 ("graph-preview",["--exercise-graph-preview","--graph-character",json.loads((source/"characters/royal_human.dacharacter").read_text())["asset"],"--authoring-asset",kit_value["locomotion_stance"],"--composer-tick","20","--frames","5"],None),
                 ("effect-preview-reset",["--exercise-effect-preview-reset","--authoring-asset",seed["ability"],"--frames","6"],None),

@@ -99,6 +99,8 @@ public:
     // Set by a caller that gives the pose preview its own pane, so the image takes the pane's height.
     bool pose_preview_fill{};
     void preview_status(PreviewRefresh&,bool stale,const char* refresh_id);
+    // Drops kept previews and their cook verification, so the next preparation reads the source files again. Set by the host.
+    std::function<void()> forget_previews;
     // True while Play runs: previews need the stopped editor and resume when Play stops.
     bool previews_paused{};
     std::unique_ptr<EffectPreview> effect_preview;AssetId effect_prepare_failed_asset;std::string effect_prepare_error;AssetId effect_preview_asset;std::uint64_t effect_preview_source{1};
@@ -117,11 +119,25 @@ public:
     Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{},inventory_open{};
     void select_workspace(Workspace);
     void open_native_asset(Controller&,AssetId);
-    void reveal_asset(AssetId id){selected_asset=id;select_workspace(Workspace::Assets);}
+    // Reveal shows the asset in Assets even when the current search or kind filter would hide it, and scrolls to it.
+    void reveal_asset(AssetId id){selected_asset=id;asset_filter[0]=0;asset_kind=0;reveal_scroll=true;select_workspace(Workspace::Assets);}
+    // Opens any asset in the tab that owns it: native gameplay sources through open_native_asset, sounds/profiles/effects
+    // through the host. False when no editor owns the asset type (Reveal in Assets is then the route).
+    bool open_asset(Controller&,AssetId);
+    bool asset_has_owner(std::string_view extension) const;
+    std::function<bool(AssetId,std::string_view extension)> open_host_asset;
+    // Open / Edit and Reveal in Assets for a reference shown in any tab; F12 on the hovered reference opens its owner.
+    void reference_routes(Controller&,AssetId,bool shortcut=true);
     bool pick_reference(const char*,AssetId&,Controller&,std::map<std::uint32_t,std::array<char,128>>&,const char*,const nlohmann::json* attributes=nullptr,const char* importer="clip-gltf-v1",bool looping_only=false);
     void open_tool(ToolView);
     void draw_game(Controller&,unsigned,unsigned,float,double,ImTextureID);
     void draw_auxiliary(Controller&,unsigned,unsigned,float);
+    // Ctrl+1..9 / Ctrl+0 choose a workspace tab; Ctrl+PageUp/PageDown step through them. Not while typing, dragging or in Game input.
+    void workspace_shortcuts(Controller&);
+    // A tab switch chosen by the author (tab bar or shortcut): Ability and Animation restore their own last selection.
+    void switch_tab(Workspace);
+    // Ability and Animation share authored_selection for routes; each tab remembers its own last selection for tab switches.
+    AssetId ability_memory,animation_memory;
     void draw_console(Controller&);
     void initialize_preferences(const std::filesystem::path& project,bool enabled);
     void save_preferences();
@@ -177,7 +193,7 @@ private:
     bool import_open{};std::filesystem::path import_file;int import_type{-1};
     char canonical[512]{"animation/canonical_human.daskeleton"};bool import_loop{};
     PreparedAssetImport import_prepared;std::string import_error,import_status;
-    char asset_filter[128]{};int asset_kind{};AssetId selected_asset;
+    char asset_filter[128]{};int asset_kind{};AssetId selected_asset;bool reveal_scroll{};
 };
 // The audio profile this scene names (its one object with an "audio" component), and setting it: an ordinary undoable scene edit.
 AssetId scene_audio_profile(const Controller&);

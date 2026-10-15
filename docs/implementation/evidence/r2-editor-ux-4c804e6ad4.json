@@ -1,0 +1,222 @@
+{
+  "run": "4c804e6ad4",
+  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-4c804e6ad4",
+  "gates": [
+    {
+      "name": "scene",
+      "passed": true,
+      "exit": 0,
+      "seconds": 9.297,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-scene.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-scene.png"
+    },
+    {
+      "name": "custom-layout",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.734,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-custom-layout.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-custom-layout.png"
+    },
+    {
+      "name": "restart",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.235,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-restart.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-restart.png"
+    },
+    {
+      "name": "small",
+      "passed": true,
+      "exit": 0,
+      "seconds": 7.078,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-small.png"
+    },
+    {
+      "name": "scale150",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.484,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-scale150.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-scale150.png"
+    },
+    {
+      "name": "minimum",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.032,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-minimum.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-minimum.png"
+    },
+    {
+      "name": "assets",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.312,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-assets.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-assets.png"
+    },
+    {
+      "name": "character",
+      "passed": true,
+      "exit": 0,
+      "seconds": 9.813,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-character.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-character.png"
+    },
+    {
+      "name": "player",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.515,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-player.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-player.png"
+    },
+    {
+      "name": "npc",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.313,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-npc.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-npc.png"
+    },
+    {
+      "name": "animation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 18.953,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-animation.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-animation.png"
+    },
+    {
+      "name": "ability",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.125,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-ability.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-ability.png"
+    },
+    {
+      "name": "items",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.906,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-items.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-items.png"
+    },
+    {
+      "name": "audio",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.063,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-audio.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-audio.png"
+    },
+    {
+      "name": "vfx",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.703,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-vfx.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-vfx.png"
+    },
+    {
+      "name": "game",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.984,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-game.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-game.png"
+    },
+    {
+      "name": "audio-small",
+      "passed": true,
+      "exit": 0,
+      "seconds": 1.016,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-audio-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-audio-small.png"
+    },
+    {
+      "name": "invalid-preferences",
+      "passed": true,
+      "exit": 0,
+      "seconds": 0.984,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-invalid-preferences.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-invalid-preferences.png"
+    },
+    {
+      "name": "native-navigation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 2.297,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-native-navigation.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-native-navigation.png"
+    },
+    {
+      "name": "history-validation",
+      "passed": true,
+      "exit": 0,
+      "seconds": 25.109,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-history-validation.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-history-validation.png"
+    },
+    {
+      "name": "validation-error",
+      "passed": true,
+      "exit": 0,
+      "seconds": 31.593,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-validation-error.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-validation-error.png"
+    },
+    {
+      "name": "binding-links",
+      "passed": true,
+      "exit": 0,
+      "seconds": 23.969,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-binding-links.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-binding-links.png"
+    },
+    {
+      "name": "effect-preview-failure",
+      "passed": true,
+      "exit": 0,
+      "seconds": 6.515,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-effect-preview-failure.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-effect-preview-failure.png"
+    },
+    {
+      "name": "pending-creation",
+      "passed": false,
+      "exit": 1,
+      "seconds": 10.875,
+      "log": "docs\\implementation\\evidence\\r2-4c804e6ad4-pending-creation.log",
+      "capture": "docs\\implementation\\evidence\\r2-4c804e6ad4-pending-creation.png"
+    }
+  ],
+  "binary_sha256": "0edea9d1b63c9c35275425f3ffe1616b65cd334a42ebb7b6138ad5427d0f7bb3",
+  "qualification": "Synthetic input, local D3D12; DPI uses the editor scale multiplier, not an OS monitor change.",
+  "source_sha256": {
+    "apps/editor/editor_theme.hpp": "8f88fea6386ea9b075f83195145bb495fda7778875a5516ebdb92561d2f96827",
+    "apps/editor/editor_theme.cpp": "1e49dc68bed0e3d2831ca352ce3cdbf323ff453b7361f44f90be12b71f35ad6d",
+    "apps/editor/editor_ui.hpp": "7a3dff3bdeeaae35cc9ab6350e033a3d13150062402a2843195953b7a582e805",
+    "apps/editor/editor_ui.cpp": "e486ac03ed701ebb99c97d598d7863c61a61aec6e11def9f8e435127853828f3",
+    "apps/editor/editor_preferences.cpp": "04d17366f7b883c81f92c1acbb23b6b1992815ecbfdf56f7041af186501de1bd",
+    "apps/editor/editor_workspaces.cpp": "021108318936f469ca33dd1c72b5cea17dcc6f736578506aacd80447e8f2a45f",
+    "apps/editor/editor_assets.cpp": "e5a24b1bacafbca2ae1d241cc869704d44885526df4638e8227a3b90635a2024",
+    "apps/editor/editor_authoring.cpp": "c44850c7b82cd4212493a45cda51b82acbea4a42a98d9589b6d07833e4bc2714",
+    "apps/editor/editor_items.cpp": "82207196ed662f0b093ca51ba3b89fe597b613b9ad4766ee559cbf1b5333d0e0",
+    "apps/editor/editor_composer.cpp": "cbd8efa4e4d17a72ff395902bf6b08305527dda346b0fab654358823d4bcc347",
+    "apps/editor/audio_workspace.cpp": "213c6c50c699c6575fe12213d5822b315551ba18338f88432757ffa0857f7224",
+    "apps/editor/scene_navigation.cpp": "fdde20d7d837a0b370cfa7bb886c4e5d20496e2030cbb8de7f811e75028955a2",
+    "apps/editor/reference_picker.hpp": "9f83cd0321ff10a996fa99bb2d451e650d1bbf825472fb05774fd7bc8c4ee5f6",
+    "apps/editor/editor_app.cpp": "1b9d8de5683d9914e8d8f7552233f54856d6b95369e14960ec816c707a27c711",
+    "apps/editor/exercises/authoring_sources.cpp": "484bbae752d5b09f8fddad39052df41e8f1c28f20d964212e802356dea9f5139",
+    "apps/editor/exercises/editor_ux_exercise.cpp": "68184ba98e136039a744dc5c14c071264586377f0f66610fc5044a3c9f8296c8",
+    "apps/editor/exercises/live_previews_exercise.cpp": "ded41a66eb74d75d1497b7fb910ec8b4544c6c0a23452172c91e57e9fa869134",
+    "apps/editor/pose_previews.cpp": "f6828590de55484c675ba6a0728eda20907ffefa5f221189d058166966f2539e",
+    "apps/editor/vfx_workspace.cpp": "5f54cc52359bc25f0ea533aa331b38388d8bbd91244fe7391da74b086169d476"
+  },
+  "protected_unchanged": true
+}

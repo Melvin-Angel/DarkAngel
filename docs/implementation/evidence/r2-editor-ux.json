@@ -1,341 +1,341 @@
 {
-  "run": "dbcbc49ce9",
-  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-dbcbc49ce9",
+  "run": "b235be0e2c",
+  "fixture": "C:\\DarkAngel\\.cache\\r2-ui-b235be0e2c",
   "gates": [
     {
       "name": "scene",
       "passed": true,
       "exit": 0,
-      "seconds": 11.141,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-scene.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-scene.png"
+      "seconds": 4.031,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-scene.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-scene.png"
     },
     {
       "name": "custom-layout",
       "passed": true,
       "exit": 0,
-      "seconds": 1.297,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-custom-layout.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-custom-layout.png"
+      "seconds": 1.64,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-custom-layout.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-custom-layout.png"
     },
     {
       "name": "restart",
       "passed": true,
       "exit": 0,
-      "seconds": 6.797,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-restart.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-restart.png"
+      "seconds": 1.954,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-restart.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-restart.png"
     },
     {
       "name": "small",
       "passed": true,
       "exit": 0,
-      "seconds": 6.297,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-small.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-small.png"
+      "seconds": 1.562,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-small.png"
     },
     {
       "name": "scale150",
       "passed": true,
       "exit": 0,
-      "seconds": 1.672,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-scale150.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-scale150.png"
+      "seconds": 1.063,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-scale150.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-scale150.png"
     },
     {
       "name": "minimum",
       "passed": true,
       "exit": 0,
-      "seconds": 1.625,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-minimum.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-minimum.png"
+      "seconds": 1.031,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-minimum.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-minimum.png"
     },
     {
       "name": "assets",
       "passed": true,
       "exit": 0,
-      "seconds": 1.5,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-assets.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-assets.png"
+      "seconds": 1.0,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-assets.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-assets.png"
     },
     {
       "name": "character",
       "passed": true,
       "exit": 0,
-      "seconds": 9.735,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-character.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-character.png"
+      "seconds": 1.484,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-character.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-character.png"
     },
     {
       "name": "player",
       "passed": true,
       "exit": 0,
-      "seconds": 1.422,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-player.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-player.png"
+      "seconds": 1.094,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-player.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-player.png"
     },
     {
       "name": "npc",
       "passed": true,
       "exit": 0,
-      "seconds": 1.218,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-npc.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-npc.png"
+      "seconds": 1.625,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-npc.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-npc.png"
     },
     {
       "name": "animation",
       "passed": true,
       "exit": 0,
-      "seconds": 19.282,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-animation.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-animation.png"
+      "seconds": 1.375,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-animation.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-animation.png"
     },
     {
       "name": "ability",
       "passed": true,
       "exit": 0,
-      "seconds": 1.062,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-ability.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-ability.png"
+      "seconds": 1.313,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-ability.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-ability.png"
     },
     {
       "name": "items",
       "passed": true,
       "exit": 0,
-      "seconds": 0.906,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-items.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-items.png"
+      "seconds": 1.25,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-items.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-items.png"
     },
     {
       "name": "audio",
       "passed": true,
       "exit": 0,
-      "seconds": 1.047,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-audio.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-audio.png"
+      "seconds": 1.125,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-audio.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-audio.png"
     },
     {
       "name": "vfx",
       "passed": true,
       "exit": 0,
-      "seconds": 1.969,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-vfx.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-vfx.png"
+      "seconds": 3.703,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-vfx.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-vfx.png"
     },
     {
       "name": "game",
       "passed": true,
       "exit": 0,
-      "seconds": 0.937,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-game.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-game.png"
+      "seconds": 1.859,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-game.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-game.png"
     },
     {
       "name": "audio-small",
       "passed": true,
       "exit": 0,
-      "seconds": 0.984,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-audio-small.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-audio-small.png"
+      "seconds": 1.11,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-audio-small.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-audio-small.png"
     },
     {
       "name": "invalid-preferences",
       "passed": true,
       "exit": 0,
-      "seconds": 0.954,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-invalid-preferences.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-invalid-preferences.png"
+      "seconds": 0.953,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-invalid-preferences.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-invalid-preferences.png"
     },
     {
       "name": "native-navigation",
       "passed": true,
       "exit": 0,
-      "seconds": 2.344,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-native-navigation.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-native-navigation.png"
+      "seconds": 3.0,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-native-navigation.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-native-navigation.png"
     },
     {
       "name": "history-validation",
       "passed": true,
       "exit": 0,
-      "seconds": 26.188,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-history-validation.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-history-validation.png"
+      "seconds": 29.813,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-history-validation.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-history-validation.png"
     },
     {
       "name": "validation-error",
       "passed": true,
       "exit": 0,
-      "seconds": 34.312,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-validation-error.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-validation-error.png"
+      "seconds": 27.516,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-validation-error.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-validation-error.png"
     },
     {
       "name": "binding-links",
       "passed": true,
       "exit": 0,
-      "seconds": 23.859,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-binding-links.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-binding-links.png"
+      "seconds": 2.453,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-binding-links.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-binding-links.png"
     },
     {
       "name": "effect-preview-failure",
       "passed": true,
       "exit": 0,
-      "seconds": 6.5,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-failure.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-failure.png"
+      "seconds": 6.046,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-failure.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-failure.png"
     },
     {
       "name": "pending-creation",
       "passed": true,
       "exit": 0,
-      "seconds": 7.797,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-pending-creation.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-pending-creation.png"
+      "seconds": 7.812,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-pending-creation.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-pending-creation.png"
     },
     {
       "name": "actor-fresh-play",
       "passed": true,
       "exit": 0,
-      "seconds": 24.5,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-actor-fresh-play.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-actor-fresh-play.png"
+      "seconds": 23.672,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-actor-fresh-play.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-actor-fresh-play.png"
     },
     {
       "name": "animation-workflow",
       "passed": true,
       "exit": 0,
-      "seconds": 22.656,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-animation-workflow.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-animation-workflow.png"
+      "seconds": 2.375,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-animation-workflow.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-animation-workflow.png"
     },
     {
       "name": "mask-field",
       "passed": true,
       "exit": 0,
-      "seconds": 2.266,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-mask-field.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-mask-field.png"
+      "seconds": 2.172,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-mask-field.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-mask-field.png"
     },
     {
       "name": "save-all",
       "passed": true,
       "exit": 0,
-      "seconds": 29.532,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-save-all.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-save-all.png"
+      "seconds": 24.609,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-save-all.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-save-all.png"
     },
     {
       "name": "game-debug",
       "passed": true,
       "exit": 0,
-      "seconds": 31.985,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-game-debug.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-game-debug.png"
+      "seconds": 28.39,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-game-debug.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-game-debug.png"
     },
     {
       "name": "vfx-preview-edit",
       "passed": true,
       "exit": 0,
-      "seconds": 3.937,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-vfx-preview-edit.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-vfx-preview-edit.png"
+      "seconds": 4.609,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-vfx-preview-edit.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-vfx-preview-edit.png"
     },
     {
       "name": "cue-authoring",
       "passed": true,
       "exit": 0,
-      "seconds": 8.453,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-cue-authoring.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-cue-authoring.png"
+      "seconds": 7.984,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-cue-authoring.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-cue-authoring.png"
     },
     {
       "name": "audio-audition",
       "passed": true,
       "exit": 0,
-      "seconds": 3.187,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-audio-audition.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-audio-audition.png"
+      "seconds": 3.297,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-audio-audition.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-audio-audition.png"
     },
     {
       "name": "live-previews",
       "passed": true,
       "exit": 0,
-      "seconds": 92.703,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-live-previews.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-live-previews.png"
+      "seconds": 24.219,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-live-previews.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-live-previews.png"
     },
     {
       "name": "composer-preview",
       "passed": true,
       "exit": 0,
-      "seconds": 23.703,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-composer-preview.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-composer-preview.png"
+      "seconds": 2.578,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-composer-preview.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-composer-preview.png"
     },
     {
       "name": "graph-preview",
       "passed": true,
       "exit": 0,
-      "seconds": 23.953,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-graph-preview.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-graph-preview.png"
+      "seconds": 5.515,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-graph-preview.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-graph-preview.png"
     },
     {
       "name": "effect-preview-reset",
       "passed": true,
       "exit": 0,
-      "seconds": 6.828,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-reset.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-reset.png"
+      "seconds": 5.812,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-reset.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-reset.png"
     },
     {
       "name": "effect-preview-reprepare",
       "passed": true,
       "exit": 0,
-      "seconds": 9.969,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-reprepare.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-reprepare.png"
+      "seconds": 8.875,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-reprepare.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-reprepare.png"
     },
     {
       "name": "effect-preview-corrected",
       "passed": true,
       "exit": 0,
-      "seconds": 15.969,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-corrected.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-effect-preview-corrected.png"
+      "seconds": 15.047,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-corrected.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-effect-preview-corrected.png"
     },
     {
       "name": "camera-preview",
       "passed": true,
       "exit": 0,
-      "seconds": 2.609,
-      "log": "docs\\implementation\\evidence\\r2-dbcbc49ce9-camera-preview.log",
-      "capture": "docs\\implementation\\evidence\\r2-dbcbc49ce9-camera-preview.png"
+      "seconds": 2.156,
+      "log": "docs\\implementation\\evidence\\r2-b235be0e2c-camera-preview.log",
+      "capture": "docs\\implementation\\evidence\\r2-b235be0e2c-camera-preview.png"
     }
   ],
-  "binary_sha256": "8078a1810bec603c94ea5ef4e565a6f12b01ede6a79c135b6e4acd9bd926820e",
+  "binary_sha256": "591fa3ee1b45cdc8bcfa695a219db34074f750855fa335f593b3f4fd7eb574b2",
   "qualification": "Synthetic input, local D3D12; DPI uses the editor scale multiplier, not an OS monitor change.",
   "source_sha256": {
     "apps/editor/editor_theme.hpp": "8f88fea6386ea9b075f83195145bb495fda7778875a5516ebdb92561d2f96827",
     "apps/editor/editor_theme.cpp": "1e49dc68bed0e3d2831ca352ce3cdbf323ff453b7361f44f90be12b71f35ad6d",
-    "apps/editor/editor_ui.hpp": "edb2a543b3a417ff5c29c262c95d39583268be2efb007d7219f4c934758c29cf",
-    "apps/editor/editor_ui.cpp": "0e98da30c634e6b4e61e620100e5c4f25944752e32075f636c9c654a806576da",
-    "apps/editor/editor_preferences.cpp": "1f5bf75b3696da4119130bf42639fc0987bf9634e5b4ecf5f96f2114c6524bb0",
-    "apps/editor/editor_workspaces.cpp": "adcd3c42085e880b77511bd47f035560955bc56e37cf33f8a4b0e17db9fdf5fa",
-    "apps/editor/editor_assets.cpp": "20a2c59119e4e4e2a28aef8a425e2df9d9bb79d771cf76955f23c3f89f0c7e20",
-    "apps/editor/editor_authoring.cpp": "77fc001e800a6ff5ae182250e72d656bed5f09b4bb1772e25487c4c0af8dc08d",
-    "apps/editor/editor_items.cpp": "ab8388dcdcdd1e42e58986c0d8dea6507cf16c30c42d204bb6e82885bef3a2fe",
-    "apps/editor/editor_composer.cpp": "cbd8efa4e4d17a72ff395902bf6b08305527dda346b0fab654358823d4bcc347",
-    "apps/editor/audio_workspace.cpp": "514090e41df865d6cd0bca6ae264e4d3cace767d9e7838a85f7dca8af5611e3b",
+    "apps/editor/editor_ui.hpp": "90f6e35bf507ef54e84d1f3549e18f45abc8dc174129c4df6083c6e977bbd2bc",
+    "apps/editor/editor_ui.cpp": "e486ac03ed701ebb99c97d598d7863c61a61aec6e11def9f8e435127853828f3",
+    "apps/editor/editor_preferences.cpp": "04d17366f7b883c81f92c1acbb23b6b1992815ecbfdf56f7041af186501de1bd",
+    "apps/editor/editor_workspaces.cpp": "021108318936f469ca33dd1c72b5cea17dcc6f736578506aacd80447e8f2a45f",
+    "apps/editor/editor_assets.cpp": "e5a24b1bacafbca2ae1d241cc869704d44885526df4638e8227a3b90635a2024",
+    "apps/editor/editor_authoring.cpp": "c44850c7b82cd4212493a45cda51b82acbea4a42a98d9589b6d07833e4bc2714",
+    "apps/editor/editor_items.cpp": "82207196ed662f0b093ca51ba3b89fe597b613b9ad4766ee559cbf1b5333d0e0",
+    "apps/editor/editor_composer.cpp": "bdf47192e416f154fa5faf9fe1654452c458eabe03b2f47eae036c8460846c82",
+    "apps/editor/audio_workspace.cpp": "213c6c50c699c6575fe12213d5822b315551ba18338f88432757ffa0857f7224",
     "apps/editor/scene_navigation.cpp": "fdde20d7d837a0b370cfa7bb886c4e5d20496e2030cbb8de7f811e75028955a2",
     "apps/editor/reference_picker.hpp": "9f83cd0321ff10a996fa99bb2d451e650d1bbf825472fb05774fd7bc8c4ee5f6",
-    "apps/editor/editor_app.cpp": "190096bfbac8f59385670ebd32a52d65a045c53805060722f3f7d052d72ed24c",
-    "apps/editor/exercises/authoring_sources.cpp": "484bbae752d5b09f8fddad39052df41e8f1c28f20d964212e802356dea9f5139",
+    "apps/editor/editor_app.cpp": "15ecf37b039f1f414f265accc19b5d917a103167f80cbe3b1c3bb3efbf1f7df7",
+    "apps/editor/exercises/authoring_sources.cpp": "6e3906a00edeff14f1787eb2968902f1ae0f92c9bccf11329f21cb06c2ba216f",
     "apps/editor/exercises/editor_ux_exercise.cpp": "68184ba98e136039a744dc5c14c071264586377f0f66610fc5044a3c9f8296c8",
-    "apps/editor/exercises/live_previews_exercise.cpp": "ded41a66eb74d75d1497b7fb910ec8b4544c6c0a23452172c91e57e9fa869134",
-    "apps/editor/pose_previews.cpp": "f6828590de55484c675ba6a0728eda20907ffefa5f221189d058166966f2539e",
+    "apps/editor/exercises/live_previews_exercise.cpp": "ff3fd55f673cc9f0e542ad9a33dbefc030546989bbafe9556ce63581d5749663",
+    "apps/editor/pose_previews.cpp": "9131e2ec8db5d7bc101ae3f97c186e349878e35ad1a3489cfa97fc5c2def7da8",
     "apps/editor/vfx_workspace.cpp": "5f54cc52359bc25f0ea533aa331b38388d8bbd91244fe7391da74b086169d476"
   },
   "passed": true,

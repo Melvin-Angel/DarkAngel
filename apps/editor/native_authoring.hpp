@@ -5,6 +5,9 @@
 #include <map>
 #include <array>
 #include <functional>
+#include <initializer_list>
+#include <optional>
+#include <span>
 #include <darkangel/action.hpp>
 #include <darkangel/ability_assets.hpp>
 namespace darkangel::editor_app {
@@ -107,4 +110,18 @@ private:
 // Cook every selected scene root and its complete native closure into a candidate
 // package. The caller validates runtime/GPU/session resources before switching.
 void package_authoring(AssetService&,std::span<const AssetId>,const std::filesystem::path&);
+// The registry an authoring preview reads. When no unsaved or new draft is reachable from `include` through source locators,
+// it is packaged from the project's incremental cook (roots are verified once per cook generation), which takes milliseconds;
+// otherwise it is a private candidate of the drafts, which snapshots the mount and converts the closure again (seconds).
+// Defined with the pose previews in character_preview.cpp.
+class PreviewPackage {
+public:
+    PreviewPackage(AssetService&,NativeAuthoring&,std::initializer_list<AssetId> include,std::span<const AssetId> package_roots,std::span<const AssetId> scene_roots);
+    ~PreviewPackage();
+    PreviewPackage(const PreviewPackage&)=delete;
+    PreviewPackage& operator=(const PreviewPackage&)=delete;
+    std::filesystem::path registry()const;
+private:
+    std::optional<PreparedNativeEdit> candidate_;std::filesystem::path file_;
+};
 }

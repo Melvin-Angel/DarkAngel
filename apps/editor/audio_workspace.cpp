@@ -229,8 +229,20 @@ void AudioWorkspace::draw_panel(bool play_running) {
     // ---- Sounds
     ImGui::BeginChild("Audio sounds", {column, 0}, ImGuiChildFlags_Borders);
     ImGui::SeparatorText("Sounds");
-    ImGui::TextWrapped("WAV files, and sound definitions that say how a WAV is played: bus, volume, pitch, looping, positioned or flat, "
-                       "range and one effect.");
+    ImGui::SameLine();
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("WAV files, and sound definitions that say how a WAV is played: bus, volume, pitch, looping, positioned or flat, "
+                          "range and one effect.");
+    // The tab opens on a sound: the first definition, else the first WAV. Auditions stay explicit.
+    if (tab.sound == AssetId{}) {
+        if (!definitions.empty())
+            tab.sound = definitions.front().id;
+        else if (!waves.empty())
+            tab.sound = waves.front().id;
+    }
+    const bool import_open = ImGui::TreeNode("Import a WAV");
+    if (import_open) {
     ImGui::SetNextItemWidth(-90);
     ImGui::InputTextWithHint("##audio-import", "Path of a .wav file to import", tab.import_path, sizeof(tab.import_path));
     ImGui::SameLine();
@@ -262,6 +274,8 @@ void AudioWorkspace::draw_panel(bool play_running) {
             tab.import_path[0] = 0;
             editor.log("Imported " + relative);
         });
+    ImGui::TreePop();
+    }
     for (const auto& asset : waves)
         if (ImGui::Selectable((asset.path + "##wave").c_str(), asset.id == tab.sound))
             tab.sound = asset.id;
@@ -509,6 +523,11 @@ void AudioWorkspace::draw_panel(bool play_running) {
     ImGui::SeparatorText("Scene audio");
     const auto scene_profile = darkangel::editor_app::scene_audio_profile(editor);
     ImGui::TextWrapped("This scene uses: %s", path_of(scene_profile == AssetId{} ? std::string{} : scene_profile.text()).c_str());
+    // Opens on the scene's own profile, else the first one.
+    if (tab.profile == AssetId{} && !profiles.empty())
+        tab.profile = scene_profile != AssetId{} && std::any_of(profiles.begin(), profiles.end(), [&](const auto& asset) { return asset.id == scene_profile; })
+                          ? scene_profile
+                          : profiles.front().id;
     ImGui::TextWrapped("A profile is music, ambient loops and bus offsets. The scene's starts with Play; an encounter can layer its own "
                        "while it runs (set in the encounter's Inspector).");
     for (const auto& asset : profiles)

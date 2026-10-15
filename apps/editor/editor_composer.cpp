@@ -106,8 +106,8 @@ void Shell::preview_status(PreviewRefresh& refresh,bool stale,const char* refres
     if(!refresh.error.empty())ImGui::TextColored(attention,"Preview needs attention: %s",refresh.error.c_str());
     else ImGui::TextDisabled(stale?"Updating preview...":"Live preview of the current draft.");
     ImGui::SameLine();ImGui::PushID(refresh_id);
-    if(ImGui::SmallButton("Refresh"))refresh.forced=true;
-    if(ImGui::IsItemHovered())ImGui::SetTooltip("Prepare the preview again from the current drafts.");
+    if(ImGui::SmallButton("Refresh")){refresh.forced=true;if(forget_previews)forget_previews();}
+    if(ImGui::IsItemHovered())ImGui::SetTooltip("Prepare the preview again from the current drafts and source files.");
     ImGui::PopID();
 }
 void Shell::draw_action_preview(const nlohmann::json& source){
