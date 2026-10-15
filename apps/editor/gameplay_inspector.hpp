@@ -18,11 +18,11 @@ struct CharacterPreviewResources;
 struct GameplayDebugSelection {
     // Actors whose senses are drawn; senses_all draws every actor's.
     std::set<StableId> senses_shown;
-    bool senses_all=false;
+    bool senses_all = false;
     // Encounter and trigger volumes in the viewports during Play.
-    bool world_debug=false;
+    bool world_debug = false;
     // Selects the Cues tab on the next draw.
-    bool select_cues=false;
+    bool select_cues = false;
 };
 // The Gameplay Inspector reads the running session and acts only through authoring commands: opening the active ability
 // asset, emitting a world event, granting an item through the authority path. It has no device, networking or saves.

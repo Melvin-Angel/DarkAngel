@@ -13,86 +13,483 @@
 #include <sstream>
 
 namespace darkangel::editor_app {
-GameplayInspector::GameplayInspector(GameplayInspectorContext context):context_(std::move(context)){}
-void GameplayInspector::draw(){
-    auto& editor=context_.editor;auto& shell=context_.shell;auto* const character=context_.session;const auto& character_resources=context_.resources;const StableId character_player=context_.player;
-    auto& world_debug=selection.world_debug;auto& senses_shown=selection.senses_shown;auto& cue_debug_selected=selection.select_cues;
-    const auto& cues=context_.cues;const auto& cue_player=cues.player;const auto& play_cues=cues.cues;const auto& vfx=cues.vfx;const auto& vfx_failed=cues.vfx_failed;const auto& cue_primitives=cues.primitives;const auto& cue_effects=cues.effects;const auto& cue_visual=cues.visual;const auto& cue_audio=cues.audio;
+GameplayInspector::GameplayInspector(GameplayInspectorContext context) : context_(std::move(context)) {}
+void GameplayInspector::draw() {
+    auto& editor = context_.editor;
+    auto& shell = context_.shell;
+    auto* const character = context_.session;
+    const auto& character_resources = context_.resources;
+    const StableId character_player = context_.player;
+    auto& world_debug = selection.world_debug;
+    auto& senses_shown = selection.senses_shown;
+    auto& cue_debug_selected = selection.select_cues;
+    const auto& cues = context_.cues;
+    const auto& cue_player = cues.player;
+    const auto& play_cues = cues.cues;
+    const auto& vfx = cues.vfx;
+    const auto& vfx_failed = cues.vfx_failed;
+    const auto& cue_primitives = cues.primitives;
+    const auto& cue_effects = cues.effects;
+    const auto& cue_visual = cues.visual;
+    const auto& cue_audio = cues.audio;
 #ifdef DAE_AUDIO
-    const auto& audio=cues.audio_workspace->service;const auto& audio_failed=cues.audio_workspace->failed;const auto& cue_sounds=cues.audio_workspace->cue_sounds;
+    const auto& audio = cues.audio_workspace->service;
+    const auto& audio_failed = cues.audio_workspace->failed;
+    const auto& cue_sounds = cues.audio_workspace->cue_sounds;
 #endif
-            if(!character||!character_resources->combat){ImGui::TextDisabled("Start combat Play to inspect actor state.");return;}
-            const auto& content=*character_resources->combat;auto confirmed=character->ability(),predicted=character->predicted_ability();if(!confirmed)return;
-            ImGui::Text("Confirmed tick %llu | predicted tick %llu",static_cast<unsigned long long>(confirmed->tick),static_cast<unsigned long long>(predicted?predicted->tick:0));ImGui::TextWrapped("Kit %s",content.kit->id.text().c_str());if(!content.actor_generation.empty())ImGui::Text("Player generation %.12s",content.actor_generation.c_str());
-            if(ImGui::BeginTabBar("Gameplay inspector sections")){if(ImGui::BeginTabItem("Player")){AttributeSet spawn(content.attributes);if(ImGui::BeginTable("Gameplay attribute state",4,ImGuiTableFlags_BordersInnerV)){ImGui::TableSetupColumn("Attribute");ImGui::TableSetupColumn("Spawn");ImGui::TableSetupColumn("Confirmed");ImGui::TableSetupColumn("Predicted");ImGui::TableHeadersRow();for(const auto& definition:content.attributes){ImGui::TableNextColumn();ImGui::TextUnformatted(definition.name.c_str());ImGui::TableNextColumn();ImGui::Text("%.2f",spawn.value(definition.id));ImGui::TableNextColumn();if(auto value=darkangel::editor_app::debug_attribute(confirmed,definition.id))ImGui::Text("%.2f",*value);else ImGui::TextDisabled("--");ImGui::TableNextColumn();if(auto value=darkangel::editor_app::debug_attribute(predicted,definition.id))ImGui::Text("%.2f",*value);else ImGui::TextDisabled("--");}ImGui::EndTable();}
-            ImGui::SeparatorText("Action and outcomes");ImGui::TextUnformatted(confirmed->active?"Presentation: confirmed ability action":"Presentation: locomotion graph");ImGui::Text("Graph phase %.3f",character->graph().phase);for(const auto& layer:character->graph_inputs().span()){auto id=layer.clip->definition().id;std::string name=id.text();for(const auto& asset:editor.asset_inventory)if(asset.id==id){name=std::filesystem::path(asset.path).filename().string();break;}ImGui::TextWrapped("Locomotion: %s / weight %.3f / tick %.2f",name.c_str(),layer.weight,layer.tick);}if(confirmed->action)ImGui::Text("Composer clock %.2f ticks",double(confirmed->action->clock)/action_tick_units);
-            for(const auto& cooldown:confirmed->cooldowns)if(cooldown.second>confirmed->tick)ImGui::Text("Cooldown group %u: %llu ticks",cooldown.first,static_cast<unsigned long long>(cooldown.second-confirmed->tick));
-            if(confirmed->reservation)for(const auto& cost:confirmed->reservation->costs)ImGui::Text("Reserved attribute %u: %.2f",cost.attribute,cost.amount);
-            unsigned displayed=0;for(auto it=confirmed->operations.rbegin();it!=confirmed->operations.rend()&&displayed<8;++it,++displayed)ImGui::TextWrapped("Operation %llu: %s%s",static_cast<unsigned long long>(it->operation),darkangel::editor_app::ability_failure_text(it->failure),it->committed?" (committed)":"");
-            if(confirmed->active&&ImGui::Button("Inspect active ability asset")){try{shell.open_native_asset(editor,confirmed->ability);}catch(const std::exception& error){editor.log(error.what());}}
-            ImGui::SeparatorText("Player tags");auto player_effects=character->effects(character_player);const EffectFrame* owner_frame=player_effects&&player_effects->current()?&*player_effects->current():nullptr;
-            if(content.tags)for(auto tag:confirmed->tags.values){const auto& definitions=content.tags->definitions();auto found=std::find_if(definitions.begin(),definitions.end(),[&](const auto& definition){return definition.id==tag;});if(found==definitions.end())continue;ImGui::TextUnformatted(found->name.c_str());auto sources=darkangel::editor_app::tag_debug_sources(tag,*content.tags,confirmed,owner_frame,content.abilities,content.effects);for(const auto& source:sources)if(source.action)ImGui::Text("  Action activation %llu / block %u",static_cast<unsigned long long>(source.activation),source.block);else ImGui::Text("  Effect %llu / source actor %llu / epoch %llu",static_cast<unsigned long long>(source.effect),static_cast<unsigned long long>(source.source_network),static_cast<unsigned long long>(source.session_epoch));if(sources.empty())ImGui::TextDisabled("  Contributor not exposed in received state");}
-            ImGui::EndTabItem();}auto effects_selected=shell.select_effect_debug?ImGuiTabItemFlags_SetSelected:ImGuiTabItemFlags_None;shell.select_effect_debug=false;if(ImGui::BeginTabItem("World")){const auto& world=character->world_events();ImGui::Checkbox("Draw encounter and trigger volumes in the viewports",&world_debug);
-                auto& event_name=event_name_;ImGui::SetNextItemWidth(220);ImGui::InputText("##world-event",event_name,sizeof(event_name));ImGui::SameLine();ImGui::BeginDisabled(!darkangel::world_name_valid(event_name));if(ImGui::Button("Emit world event"))character->emit_world_event(event_name);ImGui::EndDisabled();
-                ImGui::SeparatorText("World tags");if(world.tags().empty())ImGui::TextDisabled("None set.");for(const auto& tag:world.tags())ImGui::BulletText("%s",tag.c_str());
-                ImGui::SeparatorText("Encounters");if(character->encounters().empty())ImGui::TextDisabled("This scene has no encounters. Place one from the Scene tab's Place panel.");
-                for(auto encounter:character->encounters()){const auto status=*character->encounter(encounter);std::string name="Encounter";for(const auto& origin:editor.document->plan().origins)if(origin.object==encounter)name=origin.name;const char* phase=status.phase==darkangel::EncounterPhase::Waiting?"waiting":status.phase==darkangel::EncounterPhase::Running?"running":"complete";
-                    if(status.waves)ImGui::Text("%s: %s, wave %u of %u, %u of %u spawned, %u alive",name.c_str(),phase,status.wave,status.waves,status.spawned,status.total,status.alive);else ImGui::Text("%s: %s, %u of %u spawned, %u alive",name.c_str(),phase,status.spawned,status.total,status.alive);
-                    for(auto actor:character->actors())if(character->actor_encounter(actor)==encounter){auto handle=character->presentation().find(actor);const auto* config=character->actor(actor);if(character->presentation().valid(handle)&&config){const auto health=character->presentation().read(handle).health;ImGui::Text("   %s: Health %.0f / %.0f",config->name.c_str(),health.current,health.maximum);}}}
-                ImGui::SeparatorText("Interactables");if(editor.document->plan().interactables.empty())ImGui::TextDisabled("None in this scene.");
-                for(const auto& [object,json]:editor.document->plan().interactables)if(const auto used=character->interactable_used(object)){std::string name="Interactable";for(const auto& origin:editor.document->plan().origins)if(origin.object==object)name=origin.name;ImGui::Text("%s: used %u time(s)",name.c_str(),*used);}
-                
+    if (!character || !character_resources->combat) {
+        ImGui::TextDisabled("Start combat Play to inspect actor state.");
+        return;
+    }
+    const auto& content = *character_resources->combat;
+    auto confirmed = character->ability(), predicted = character->predicted_ability();
+    if (!confirmed)
+        return;
+    ImGui::Text("Confirmed tick %llu | predicted tick %llu", static_cast<unsigned long long>(confirmed->tick),
+                static_cast<unsigned long long>(predicted ? predicted->tick : 0));
+    ImGui::TextWrapped("Kit %s", content.kit->id.text().c_str());
+    if (!content.actor_generation.empty())
+        ImGui::Text("Player generation %.12s", content.actor_generation.c_str());
+    if (ImGui::BeginTabBar("Gameplay inspector sections")) {
+        if (ImGui::BeginTabItem("Player")) {
+            AttributeSet spawn(content.attributes);
+            if (ImGui::BeginTable("Gameplay attribute state", 4, ImGuiTableFlags_BordersInnerV)) {
+                ImGui::TableSetupColumn("Attribute");
+                ImGui::TableSetupColumn("Spawn");
+                ImGui::TableSetupColumn("Confirmed");
+                ImGui::TableSetupColumn("Predicted");
+                ImGui::TableHeadersRow();
+                for (const auto& definition : content.attributes) {
+                    ImGui::TableNextColumn();
+                    ImGui::TextUnformatted(definition.name.c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%.2f", spawn.value(definition.id));
+                    ImGui::TableNextColumn();
+                    if (auto value = darkangel::editor_app::debug_attribute(confirmed, definition.id))
+                        ImGui::Text("%.2f", *value);
+                    else
+                        ImGui::TextDisabled("--");
+                    ImGui::TableNextColumn();
+                    if (auto value = darkangel::editor_app::debug_attribute(predicted, definition.id))
+                        ImGui::Text("%.2f", *value);
+                    else
+                        ImGui::TextDisabled("--");
+                }
+                ImGui::EndTable();
+            }
+            ImGui::SeparatorText("Action and outcomes");
+            ImGui::TextUnformatted(confirmed->active ? "Presentation: confirmed ability action" : "Presentation: locomotion graph");
+            ImGui::Text("Graph phase %.3f", character->graph().phase);
+            for (const auto& layer : character->graph_inputs().span()) {
+                auto id = layer.clip->definition().id;
+                std::string name = id.text();
+                for (const auto& asset : editor.asset_inventory)
+                    if (asset.id == id) {
+                        name = std::filesystem::path(asset.path).filename().string();
+                        break;
+                    }
+                ImGui::TextWrapped("Locomotion: %s / weight %.3f / tick %.2f", name.c_str(), layer.weight, layer.tick);
+            }
+            if (confirmed->action)
+                ImGui::Text("Composer clock %.2f ticks", double(confirmed->action->clock) / action_tick_units);
+            for (const auto& cooldown : confirmed->cooldowns)
+                if (cooldown.second > confirmed->tick)
+                    ImGui::Text("Cooldown group %u: %llu ticks", cooldown.first,
+                                static_cast<unsigned long long>(cooldown.second - confirmed->tick));
+            if (confirmed->reservation)
+                for (const auto& cost : confirmed->reservation->costs)
+                    ImGui::Text("Reserved attribute %u: %.2f", cost.attribute, cost.amount);
+            unsigned displayed = 0;
+            for (auto it = confirmed->operations.rbegin(); it != confirmed->operations.rend() && displayed < 8; ++it, ++displayed)
+                ImGui::TextWrapped("Operation %llu: %s%s", static_cast<unsigned long long>(it->operation),
+                                   darkangel::editor_app::ability_failure_text(it->failure), it->committed ? " (committed)" : "");
+            if (confirmed->active && ImGui::Button("Inspect active ability asset")) {
+                try {
+                    shell.open_native_asset(editor, confirmed->ability);
+                } catch (const std::exception& error) {
+                    editor.log(error.what());
+                }
+            }
+            ImGui::SeparatorText("Player tags");
+            auto player_effects = character->effects(character_player);
+            const EffectFrame* owner_frame = player_effects && player_effects->current() ? &*player_effects->current() : nullptr;
+            if (content.tags)
+                for (auto tag : confirmed->tags.values) {
+                    const auto& definitions = content.tags->definitions();
+                    auto found =
+                        std::find_if(definitions.begin(), definitions.end(), [&](const auto& definition) { return definition.id == tag; });
+                    if (found == definitions.end())
+                        continue;
+                    ImGui::TextUnformatted(found->name.c_str());
+                    auto sources = darkangel::editor_app::tag_debug_sources(tag, *content.tags, confirmed, owner_frame, content.abilities,
+                                                                            content.effects);
+                    for (const auto& source : sources)
+                        if (source.action)
+                            ImGui::Text("  Action activation %llu / block %u", static_cast<unsigned long long>(source.activation),
+                                        source.block);
+                        else
+                            ImGui::Text("  Effect %llu / source actor %llu / epoch %llu", static_cast<unsigned long long>(source.effect),
+                                        static_cast<unsigned long long>(source.source_network),
+                                        static_cast<unsigned long long>(source.session_epoch));
+                    if (sources.empty())
+                        ImGui::TextDisabled("  Contributor not exposed in received state");
+                }
+            ImGui::EndTabItem();
+        }
+        auto effects_selected = shell.select_effect_debug ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+        shell.select_effect_debug = false;
+        if (ImGui::BeginTabItem("World")) {
+            const auto& world = character->world_events();
+            ImGui::Checkbox("Draw encounter and trigger volumes in the viewports", &world_debug);
+            auto& event_name = event_name_;
+            ImGui::SetNextItemWidth(220);
+            ImGui::InputText("##world-event", event_name, sizeof(event_name));
+            ImGui::SameLine();
+            ImGui::BeginDisabled(!darkangel::world_name_valid(event_name));
+            if (ImGui::Button("Emit world event"))
+                character->emit_world_event(event_name);
+            ImGui::EndDisabled();
+            ImGui::SeparatorText("World tags");
+            if (world.tags().empty())
+                ImGui::TextDisabled("None set.");
+            for (const auto& tag : world.tags())
+                ImGui::BulletText("%s", tag.c_str());
+            ImGui::SeparatorText("Encounters");
+            if (character->encounters().empty())
+                ImGui::TextDisabled("This scene has no encounters. Place one from the Scene tab's Place panel.");
+            for (auto encounter : character->encounters()) {
+                const auto status = *character->encounter(encounter);
+                std::string name = "Encounter";
+                for (const auto& origin : editor.document->plan().origins)
+                    if (origin.object == encounter)
+                        name = origin.name;
+                const char* phase = status.phase == darkangel::EncounterPhase::Waiting   ? "waiting"
+                                    : status.phase == darkangel::EncounterPhase::Running ? "running"
+                                                                                         : "complete";
+                if (status.waves)
+                    ImGui::Text("%s: %s, wave %u of %u, %u of %u spawned, %u alive", name.c_str(), phase, status.wave, status.waves,
+                                status.spawned, status.total, status.alive);
+                else
+                    ImGui::Text("%s: %s, %u of %u spawned, %u alive", name.c_str(), phase, status.spawned, status.total, status.alive);
+                for (auto actor : character->actors())
+                    if (character->actor_encounter(actor) == encounter) {
+                        auto handle = character->presentation().find(actor);
+                        const auto* config = character->actor(actor);
+                        if (character->presentation().valid(handle) && config) {
+                            const auto health = character->presentation().read(handle).health;
+                            ImGui::Text("   %s: Health %.0f / %.0f", config->name.c_str(), health.current, health.maximum);
+                        }
+                    }
+            }
+            ImGui::SeparatorText("Interactables");
+            if (editor.document->plan().interactables.empty())
+                ImGui::TextDisabled("None in this scene.");
+            for (const auto& [object, json] : editor.document->plan().interactables)
+                if (const auto used = character->interactable_used(object)) {
+                    std::string name = "Interactable";
+                    for (const auto& origin : editor.document->plan().origins)
+                        if (origin.object == object)
+                            name = origin.name;
+                    ImGui::Text("%s: used %u time(s)", name.c_str(), *used);
+                }
+
 #ifdef DAE_HUD
-                if(context_.inventory)context_.inventory->inspector(*character,character_player,*character_resources);
+            if (context_.inventory)
+                context_.inventory->inspector(*character, character_player, *character_resources);
 #endif
-            if(const auto* outcome=character->last_interaction())ImGui::Text("Latest request: tick %llu, %s",static_cast<unsigned long long>(outcome->tick),darkangel::interaction_result_text(outcome->result));
-                ImGui::SeparatorText("Trigger volumes");if(editor.document->plan().triggers.empty())ImGui::TextDisabled("None in this scene.");
-                for(const auto& [object,json]:editor.document->plan().triggers)if(const auto fired=character->trigger_fired(object)){std::string name="Trigger volume";for(const auto& origin:editor.document->plan().origins)if(origin.object==object)name=origin.name;ImGui::Text("%s: fired %u time(s)",name.c_str(),*fired);}
-                ImGui::SeparatorText("World events (latest last)");if(world.log().empty())ImGui::TextDisabled("None yet.");for(const auto& event:world.log())ImGui::Text("tick %llu  %s",static_cast<unsigned long long>(event.tick),event.name.c_str());
-                ImGui::EndTabItem();}
-            const auto cues_selected=cue_debug_selected?ImGuiTabItemFlags_SetSelected:ImGuiTabItemFlags_None;cue_debug_selected=false;if(ImGui::BeginTabItem("Cues",nullptr,cues_selected)){
-                if(!cue_player||!play_cues)ImGui::TextDisabled("This session has no cue player.");else{
-                    ImGui::TextWrapped("%zu cue asset(s) loaded. Visual cues play as effects and audio cues as sounds; the lists below are what each side was told.",play_cues->size());
-                    ImGui::Text("Live %zu | keys without a cue asset %llu | dropped %llu",cue_player->live(),static_cast<unsigned long long>(cue_player->unresolved()),static_cast<unsigned long long>(cue_player->dropped()));
-                    const auto who=[&](std::uint64_t network){std::string name="Actor "+std::to_string(network);if(const auto identity=character->identity(network)){if(*identity==character_player)name="Player";else if(const auto* known=character->actor(*identity))if(!known->name.empty())name=known->name;}return name;};
-                    if(vfx){const auto drawn=vfx->stats();ImGui::Text("Visual effects: %zu loaded, %zu playing, %zu particles, %u quads in %u draws",drawn.effects,drawn.playing,drawn.instances,drawn.quads,drawn.draws);ImGui::Text("Trails: %zu live, %zu points. Decals: %zu. %u quad(s) of both drawn.",cue_primitives.trails.live(),cue_primitives.trails.points(),cue_primitives.decals.live(),drawn.primitives);if(drawn.unsupported)ImGui::TextWrapped("%u batch(es) skipped: they need shading the renderer does not have.",drawn.unsupported);if(cue_effects.missing())ImGui::TextWrapped("%u cue(s) named a visual effect that is not loaded.",cue_effects.missing());}else ImGui::TextWrapped("Visual effects are unavailable: %s",vfx_failed.c_str());
+            if (const auto* outcome = character->last_interaction())
+                ImGui::Text("Latest request: tick %llu, %s", static_cast<unsigned long long>(outcome->tick),
+                            darkangel::interaction_result_text(outcome->result));
+            ImGui::SeparatorText("Trigger volumes");
+            if (editor.document->plan().triggers.empty())
+                ImGui::TextDisabled("None in this scene.");
+            for (const auto& [object, json] : editor.document->plan().triggers)
+                if (const auto fired = character->trigger_fired(object)) {
+                    std::string name = "Trigger volume";
+                    for (const auto& origin : editor.document->plan().origins)
+                        if (origin.object == object)
+                            name = origin.name;
+                    ImGui::Text("%s: fired %u time(s)", name.c_str(), *fired);
+                }
+            ImGui::SeparatorText("World events (latest last)");
+            if (world.log().empty())
+                ImGui::TextDisabled("None yet.");
+            for (const auto& event : world.log())
+                ImGui::Text("tick %llu  %s", static_cast<unsigned long long>(event.tick), event.name.c_str());
+            ImGui::EndTabItem();
+        }
+        const auto cues_selected = cue_debug_selected ? ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
+        cue_debug_selected = false;
+        if (ImGui::BeginTabItem("Cues", nullptr, cues_selected)) {
+            if (!cue_player || !play_cues)
+                ImGui::TextDisabled("This session has no cue player.");
+            else {
+                ImGui::TextWrapped("%zu cue asset(s) loaded. Visual cues play as effects and audio cues as sounds; the lists below are "
+                                   "what each side was told.",
+                                   play_cues->size());
+                ImGui::Text("Live %zu | keys without a cue asset %llu | dropped %llu", cue_player->live(),
+                            static_cast<unsigned long long>(cue_player->unresolved()),
+                            static_cast<unsigned long long>(cue_player->dropped()));
+                const auto who = [&](std::uint64_t network) {
+                    std::string name = "Actor " + std::to_string(network);
+                    if (const auto identity = character->identity(network)) {
+                        if (*identity == character_player)
+                            name = "Player";
+                        else if (const auto* known = character->actor(*identity))
+                            if (!known->name.empty())
+                                name = known->name;
+                    }
+                    return name;
+                };
+                if (vfx) {
+                    const auto drawn = vfx->stats();
+                    ImGui::Text("Visual effects: %zu loaded, %zu playing, %zu particles, %u quads in %u draws", drawn.effects,
+                                drawn.playing, drawn.instances, drawn.quads, drawn.draws);
+                    ImGui::Text("Trails: %zu live, %zu points. Decals: %zu. %u quad(s) of both drawn.", cue_primitives.trails.live(),
+                                cue_primitives.trails.points(), cue_primitives.decals.live(), drawn.primitives);
+                    if (drawn.unsupported)
+                        ImGui::TextWrapped("%u batch(es) skipped: they need shading the renderer does not have.", drawn.unsupported);
+                    if (cue_effects.missing())
+                        ImGui::TextWrapped("%u cue(s) named a visual effect that is not loaded.", cue_effects.missing());
+                } else
+                    ImGui::TextWrapped("Visual effects are unavailable: %s", vfx_failed.c_str());
 #ifdef DAE_AUDIO
-                    if(audio){const auto heard=audio->stats();ImGui::Text("Audio (%s): %zu sound(s) loaded, %zu playing, %llu started",heard.device?"device":"silent driver",heard.sounds,heard.playing,static_cast<unsigned long long>(heard.started));if(cue_sounds.missing())ImGui::TextWrapped("%u cue(s) named a sound that is not loaded.",cue_sounds.missing());}else if(!audio_failed.empty())ImGui::TextWrapped("Audio is unavailable: %s",audio_failed.c_str());
+                if (audio) {
+                    const auto heard = audio->stats();
+                    ImGui::Text("Audio (%s): %zu sound(s) loaded, %zu playing, %llu started", heard.device ? "device" : "silent driver",
+                                heard.sounds, heard.playing, static_cast<unsigned long long>(heard.started));
+                    if (cue_sounds.missing())
+                        ImGui::TextWrapped("%u cue(s) named a sound that is not loaded.", cue_sounds.missing());
+                } else if (!audio_failed.empty())
+                    ImGui::TextWrapped("Audio is unavailable: %s", audio_failed.c_str());
 #endif
-                    ImGui::SeparatorText("Live cues");const auto live=cue_player->instances();if(live.empty())ImGui::TextDisabled("None.");
-                    for(const auto& cue:live){if(cue.stopping_until)ImGui::TextWrapped("%s on %s: %s, started tick %llu, fading until tick %llu",cue.key.c_str(),who(cue.network).c_str(),cue.action?"action":"effect",static_cast<unsigned long long>(cue.started),static_cast<unsigned long long>(cue.stopping_until));else ImGui::TextWrapped("%s on %s: %s, started tick %llu",cue.key.c_str(),who(cue.network).c_str(),cue.action?"action":"effect",static_cast<unsigned long long>(cue.started));}
-                    ImGui::SeparatorText("Visual (latest last)");if(cue_visual.log().empty())ImGui::TextDisabled("Nothing yet.");for(const auto& line:cue_visual.log())ImGui::TextWrapped("%s",line.c_str());
-                    ImGui::SeparatorText("Audio (latest last)");if(cue_audio.log().empty())ImGui::TextDisabled("Nothing yet.");for(const auto& line:cue_audio.log())ImGui::TextWrapped("%s",line.c_str());}
-                ImGui::EndTabItem();}
-            if(ImGui::BeginTabItem("Actors",nullptr,effects_selected)){
-                auto presented=[&](const char* label,StableId actor){if(auto death=character->death(actor)){ImGui::TextWrapped("%s: Health 0 - death timeline at tick %.0f of %u%s",label,*death,content.death->duration/action_tick_units,*death>=double(content.death->duration/action_tick_units-1)?" (final pose held)":"");return;}if(auto reaction=character->reaction(actor))ImGui::TextWrapped("%s: effect %llu shows its reaction timeline at tick %.0f of %u (priority %u)%s",label,static_cast<unsigned long long>(reaction->key.handle),reaction->tick,reaction->action->duration/action_tick_units,reaction->action->priority,reaction->suppressed==ReactionSuppression::ActiveAction?" - waiting: the actor's own action is active":reaction->suppressed==ReactionSuppression::Dead?" - suppressed: Health is 0":"");else ImGui::TextDisabled("%s: no current reaction",label);};
-                ImGui::SeparatorText("Reaction presentation");presented("Player",character_resources->player);ImGui::TextDisabled("Chosen from current public effect instances: highest timeline priority, then latest onset. Presentation only.");
-                if(character->actors().empty())ImGui::TextDisabled(content.encounters.empty()?"This scene has no NPC spawn points. Add one in the Scene tab.":"No actors yet: this scene's encounters have not brought any in.");
-                auto actor_name=[&](StableId id){std::string name=id==character_resources->player?"Player":"another actor";if(const auto* known=character->actor(id))if(!known->name.empty())name=known->name;return name;};
-                // One section per server-driven actor the session holds now, in simulation order: spawn-point NPCs and the enemies encounters brought in.
-                for(const auto id:character->actors()){const auto* config=character->actor(id);if(!config)continue;const auto& actor=*config;const darkangel::editor_app::PreparedSpawn* prepared=nullptr;for(std::size_t index=0;index<content.actors.size()&&index<character_resources->spawns.size();++index)if(content.actors[index].id==id)prepared=&character_resources->spawns[index];
-                    const auto owner=character->actor_encounter(id);if(!prepared&&owner)for(const auto& [npc,made]:character_resources->encounter_npcs)if(made.actor.generation==actor.generation&&made.actor.name==actor.name)prepared=&made.spawn;
-                    ImGui::PushID(actor.id.text().c_str());ImGui::SeparatorText(((actor.name.empty()?std::string("Actor"):actor.name)+(owner?" (encounter)":"")).c_str());
-                    auto handle=character->presentation().find(actor.id);if(character->presentation().valid(handle)){auto health=character->presentation().read(handle).health;ImGui::Text("Health %.0f / %.0f | faction %s",health.current,health.maximum,actor.faction.c_str());}
-                    if(prepared&&prepared->behavior)ImGui::Text("Behaviour: %s",prepared->behavior->name.c_str());else ImGui::TextDisabled("No behaviour: this actor never acts.");
-                    {const auto decision=character->controller_status(actor.id);if(!decision.empty())ImGui::TextWrapped("Decision: %s",decision.c_str());}
-                    if(auto chosen=character->controller_target(actor.id))ImGui::Text("Chosen target: %s",actor_name(*chosen).c_str());
-                    // What the actor's senses give its controller, as authority holds it.
-                    if(const auto* perception=character->perception(actor.id)){const auto& senses=perception->senses();bool shown=senses_shown.contains(actor.id);if(ImGui::Checkbox("Draw senses in the viewports",&shown)){if(shown)senses_shown.insert(actor.id);else senses_shown.erase(actor.id);}
-                        if(senses.everything)ImGui::TextUnformatted("Senses: sees everything");else if(senses.sensors.empty())ImGui::TextDisabled("Senses: none, this actor perceives nothing.");else ImGui::Text("Senses: %u sensor(s), eye at %.2f m, aware after %.2f s, forgets after %.1f s",unsigned(senses.sensors.size()),senses.eye_height,senses.awareness_seconds,senses.forget_seconds);
-                        const auto now=character->motor().tick;auto self=character->presentation().find(actor.id);darkangel::Transform here{};if(character->presentation().valid(self))here=character->presentation().read(self).transform;
-                        if(perception->actors().empty())ImGui::TextDisabled("Perceives nobody.");
-                        for(const auto& other:perception->actors()){const std::string name=actor_name(other.id);const double dx=other.motor.position.x-here.x,dy=other.motor.position.y-here.y,dz=other.motor.position.z-here.z,distance=std::sqrt(dx*dx+dy*dy+dz*dz);
-                            if(other.detected)ImGui::Text("  Detects %s at %.1f m, for %.1f s, %s",name.c_str(),distance,double(now>other.since?now-other.since:0)/60,other.visible?"line of sight":"no line of sight");else if(other.seen)ImGui::Text("  Lost %s %.1f s ago, last known %.1f m away (awareness %.0f%%)",name.c_str(),double(now>other.seen?now-other.seen:0)/60,distance,other.awareness*100);else ImGui::Text("  Becoming aware of %s: %.0f%%%s",name.c_str(),other.awareness*100,other.sensed?"":" (fading)");}}
-                    if(auto receipt=character->controller_receipt(actor.id)){if(receipt->failure==darkangel::AbilityFailure::None)ImGui::Text("Last request: tick %llu started activation %llu",static_cast<unsigned long long>(receipt->tick),static_cast<unsigned long long>(receipt->handle.activation));else ImGui::Text("Last request: tick %llu refused (%s)",static_cast<unsigned long long>(receipt->tick),receipt->failure==darkangel::AbilityFailure::Resources?"not enough Stamina":receipt->failure==darkangel::AbilityFailure::Cooldown?"cooldown":receipt->failure==darkangel::AbilityFailure::TagRequirements?"blocked by a status":"not available");}
-                    presented("Presentation",actor.id);
-                    auto actor_effects=character->effects(actor.id);if(actor_effects&&actor_effects->current()){const auto& frame=*actor_effects->current();for(const auto& state:frame.effects){ImGui::Text("Effect %llu: %s",static_cast<unsigned long long>(state.handle),state.suppressed?"suppressed":"active");ImGui::TextWrapped("Definition %s | generation %.12s",state.definition.text().c_str(),state.generation.c_str());ImGui::Text("Source actor %llu / activation %llu",static_cast<unsigned long long>(state.credit.source_network),static_cast<unsigned long long>(state.credit.activation));if(state.end)ImGui::Text("Remaining %llu ticks | next period %llu",static_cast<unsigned long long>(state.end>frame.tick?state.end-frame.tick:0),static_cast<unsigned long long>(state.next_period));for(const auto& definition:content.effects)if(definition->id==state.definition&&definition->generation==state.generation){for(auto tag:definition->tags)for(const auto& entry:content.tags->definitions())if(entry.id==tag)ImGui::Text("  %s %s",state.suppressed?"Inactive configured tag:":"Grants",entry.name.c_str());for(const auto& modifier:definition->modifiers)ImGui::Text("  Configured modifier: attribute %u, magnitude %.2f",modifier.attribute,modifier.magnitude);}}}
-                    ImGui::PopID();}
-            ImGui::EndTabItem();}ImGui::EndTabBar();}
-            ImGui::TextWrapped("Sources shown use available action and replicated effect state. Other contributor ownership is not exposed by aggregate tags.");
+                ImGui::SeparatorText("Live cues");
+                const auto live = cue_player->instances();
+                if (live.empty())
+                    ImGui::TextDisabled("None.");
+                for (const auto& cue : live) {
+                    if (cue.stopping_until)
+                        ImGui::TextWrapped("%s on %s: %s, started tick %llu, fading until tick %llu", cue.key.c_str(),
+                                           who(cue.network).c_str(), cue.action ? "action" : "effect",
+                                           static_cast<unsigned long long>(cue.started),
+                                           static_cast<unsigned long long>(cue.stopping_until));
+                    else
+                        ImGui::TextWrapped("%s on %s: %s, started tick %llu", cue.key.c_str(), who(cue.network).c_str(),
+                                           cue.action ? "action" : "effect", static_cast<unsigned long long>(cue.started));
+                }
+                ImGui::SeparatorText("Visual (latest last)");
+                if (cue_visual.log().empty())
+                    ImGui::TextDisabled("Nothing yet.");
+                for (const auto& line : cue_visual.log())
+                    ImGui::TextWrapped("%s", line.c_str());
+                ImGui::SeparatorText("Audio (latest last)");
+                if (cue_audio.log().empty())
+                    ImGui::TextDisabled("Nothing yet.");
+                for (const auto& line : cue_audio.log())
+                    ImGui::TextWrapped("%s", line.c_str());
+            }
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Actors", nullptr, effects_selected)) {
+            auto presented = [&](const char* label, StableId actor) {
+                if (auto death = character->death(actor)) {
+                    ImGui::TextWrapped("%s: Health 0 - death timeline at tick %.0f of %u%s", label, *death,
+                                       content.death->duration / action_tick_units,
+                                       *death >= double(content.death->duration / action_tick_units - 1) ? " (final pose held)" : "");
+                    return;
+                }
+                if (auto reaction = character->reaction(actor))
+                    ImGui::TextWrapped("%s: effect %llu shows its reaction timeline at tick %.0f of %u (priority %u)%s", label,
+                                       static_cast<unsigned long long>(reaction->key.handle), reaction->tick,
+                                       reaction->action->duration / action_tick_units, reaction->action->priority,
+                                       reaction->suppressed == ReactionSuppression::ActiveAction
+                                           ? " - waiting: the actor's own action is active"
+                                       : reaction->suppressed == ReactionSuppression::Dead ? " - suppressed: Health is 0"
+                                                                                           : "");
+                else
+                    ImGui::TextDisabled("%s: no current reaction", label);
+            };
+            ImGui::SeparatorText("Reaction presentation");
+            presented("Player", character_resources->player);
+            ImGui::TextDisabled(
+                "Chosen from current public effect instances: highest timeline priority, then latest onset. Presentation only.");
+            if (character->actors().empty())
+                ImGui::TextDisabled(content.encounters.empty() ? "This scene has no NPC spawn points. Add one in the Scene tab."
+                                                               : "No actors yet: this scene's encounters have not brought any in.");
+            auto actor_name = [&](StableId id) {
+                std::string name = id == character_resources->player ? "Player" : "another actor";
+                if (const auto* known = character->actor(id))
+                    if (!known->name.empty())
+                        name = known->name;
+                return name;
+            };
+            // One section per server-driven actor the session holds now, in simulation order: spawn-point NPCs and the enemies encounters
+            // brought in.
+            for (const auto id : character->actors()) {
+                const auto* config = character->actor(id);
+                if (!config)
+                    continue;
+                const auto& actor = *config;
+                const darkangel::editor_app::PreparedSpawn* prepared = nullptr;
+                for (std::size_t index = 0; index < content.actors.size() && index < character_resources->spawns.size(); ++index)
+                    if (content.actors[index].id == id)
+                        prepared = &character_resources->spawns[index];
+                const auto owner = character->actor_encounter(id);
+                if (!prepared && owner)
+                    for (const auto& [npc, made] : character_resources->encounter_npcs)
+                        if (made.actor.generation == actor.generation && made.actor.name == actor.name)
+                            prepared = &made.spawn;
+                ImGui::PushID(actor.id.text().c_str());
+                ImGui::SeparatorText(((actor.name.empty() ? std::string("Actor") : actor.name) + (owner ? " (encounter)" : "")).c_str());
+                auto handle = character->presentation().find(actor.id);
+                if (character->presentation().valid(handle)) {
+                    auto health = character->presentation().read(handle).health;
+                    ImGui::Text("Health %.0f / %.0f | faction %s", health.current, health.maximum, actor.faction.c_str());
+                }
+                if (prepared && prepared->behavior)
+                    ImGui::Text("Behaviour: %s", prepared->behavior->name.c_str());
+                else
+                    ImGui::TextDisabled("No behaviour: this actor never acts.");
+                {
+                    const auto decision = character->controller_status(actor.id);
+                    if (!decision.empty())
+                        ImGui::TextWrapped("Decision: %s", decision.c_str());
+                }
+                if (auto chosen = character->controller_target(actor.id))
+                    ImGui::Text("Chosen target: %s", actor_name(*chosen).c_str());
+                // What the actor's senses give its controller, as authority holds it.
+                if (const auto* perception = character->perception(actor.id)) {
+                    const auto& senses = perception->senses();
+                    bool shown = senses_shown.contains(actor.id);
+                    if (ImGui::Checkbox("Draw senses in the viewports", &shown)) {
+                        if (shown)
+                            senses_shown.insert(actor.id);
+                        else
+                            senses_shown.erase(actor.id);
+                    }
+                    if (senses.everything)
+                        ImGui::TextUnformatted("Senses: sees everything");
+                    else if (senses.sensors.empty())
+                        ImGui::TextDisabled("Senses: none, this actor perceives nothing.");
+                    else
+                        ImGui::Text("Senses: %u sensor(s), eye at %.2f m, aware after %.2f s, forgets after %.1f s",
+                                    unsigned(senses.sensors.size()), senses.eye_height, senses.awareness_seconds, senses.forget_seconds);
+                    const auto now = character->motor().tick;
+                    auto self = character->presentation().find(actor.id);
+                    darkangel::Transform here{};
+                    if (character->presentation().valid(self))
+                        here = character->presentation().read(self).transform;
+                    if (perception->actors().empty())
+                        ImGui::TextDisabled("Perceives nobody.");
+                    for (const auto& other : perception->actors()) {
+                        const std::string name = actor_name(other.id);
+                        const double dx = other.motor.position.x - here.x, dy = other.motor.position.y - here.y,
+                                     dz = other.motor.position.z - here.z, distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+                        if (other.detected)
+                            ImGui::Text("  Detects %s at %.1f m, for %.1f s, %s", name.c_str(), distance,
+                                        double(now > other.since ? now - other.since : 0) / 60,
+                                        other.visible ? "line of sight" : "no line of sight");
+                        else if (other.seen)
+                            ImGui::Text("  Lost %s %.1f s ago, last known %.1f m away (awareness %.0f%%)", name.c_str(),
+                                        double(now > other.seen ? now - other.seen : 0) / 60, distance, other.awareness * 100);
+                        else
+                            ImGui::Text("  Becoming aware of %s: %.0f%%%s", name.c_str(), other.awareness * 100,
+                                        other.sensed ? "" : " (fading)");
+                    }
+                }
+                if (auto receipt = character->controller_receipt(actor.id)) {
+                    if (receipt->failure == darkangel::AbilityFailure::None)
+                        ImGui::Text("Last request: tick %llu started activation %llu", static_cast<unsigned long long>(receipt->tick),
+                                    static_cast<unsigned long long>(receipt->handle.activation));
+                    else
+                        ImGui::Text("Last request: tick %llu refused (%s)", static_cast<unsigned long long>(receipt->tick),
+                                    receipt->failure == darkangel::AbilityFailure::Resources         ? "not enough Stamina"
+                                    : receipt->failure == darkangel::AbilityFailure::Cooldown        ? "cooldown"
+                                    : receipt->failure == darkangel::AbilityFailure::TagRequirements ? "blocked by a status"
+                                                                                                     : "not available");
+                }
+                presented("Presentation", actor.id);
+                auto actor_effects = character->effects(actor.id);
+                if (actor_effects && actor_effects->current()) {
+                    const auto& frame = *actor_effects->current();
+                    for (const auto& state : frame.effects) {
+                        ImGui::Text("Effect %llu: %s", static_cast<unsigned long long>(state.handle),
+                                    state.suppressed ? "suppressed" : "active");
+                        ImGui::TextWrapped("Definition %s | generation %.12s", state.definition.text().c_str(), state.generation.c_str());
+                        ImGui::Text("Source actor %llu / activation %llu", static_cast<unsigned long long>(state.credit.source_network),
+                                    static_cast<unsigned long long>(state.credit.activation));
+                        if (state.end)
+                            ImGui::Text("Remaining %llu ticks | next period %llu",
+                                        static_cast<unsigned long long>(state.end > frame.tick ? state.end - frame.tick : 0),
+                                        static_cast<unsigned long long>(state.next_period));
+                        for (const auto& definition : content.effects)
+                            if (definition->id == state.definition && definition->generation == state.generation) {
+                                for (auto tag : definition->tags)
+                                    for (const auto& entry : content.tags->definitions())
+                                        if (entry.id == tag)
+                                            ImGui::Text("  %s %s", state.suppressed ? "Inactive configured tag:" : "Grants",
+                                                        entry.name.c_str());
+                                for (const auto& modifier : definition->modifiers)
+                                    ImGui::Text("  Configured modifier: attribute %u, magnitude %.2f", modifier.attribute,
+                                                modifier.magnitude);
+                            }
+                    }
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+    ImGui::TextWrapped(
+        "Sources shown use available action and replicated effect state. Other contributor ownership is not exposed by aggregate tags.");
 }
-std::string GameplayInspector::metrics(){
-    auto& shell=context_.shell;auto* const character=context_.session;const auto& character_resources=context_.resources;
-    if(!character)return std::string("Character session stopped");std::ostringstream text;const auto chosen=context_.hud_target();const StableId shown=chosen?*chosen:StableId{};if(character_resources->combat){auto target=character->presentation().find(shown);if(character->presentation().valid(target)){auto health=character->presentation().read(target).health;text<<"Target Health "<<health.current<<" / "<<health.maximum<<"\n";}if(auto ability=character->predicted_ability()){for(const auto& attribute:ability->attributes)if(attribute.id==3)text<<"Stamina "<<attribute.value<<"\n";if(ability->reservation){double reserved{};for(const auto& cost:ability->reservation->costs)if(cost.attribute==3)reserved+=cost.amount;text<<"Reserved Stamina "<<reserved<<"\n";}text<<"Ability "<<(ability->active?"active":"idle")<<"\n";}if(auto status=character->effects(shown))for(const auto& cue:status->cues())text<<cue.key<<" "<<std::max(0.,(double(cue.end)-character->motor().tick)/60.)<<" s\n";if(auto reaction=character->reaction(shown))if(reaction->suppressed==ReactionSuppression::None&&!character->death(shown))text<<"Target reaction "<<reaction->tick<<" / "<<reaction->action->duration/action_tick_units<<" ticks\n";}if(character_resources->combat){if(auto death=character->death(shown))text<<"Target death "<<*death<<" / "<<character_resources->combat->death->duration/action_tick_units<<" ticks\n";}if(!darkangel::editor_app::RuntimeInventory::name(*character_resources,character->ability()).empty())text<<"Mask "<<darkangel::editor_app::RuntimeInventory::name(*character_resources,character->ability())<<"\n";if(!shell.camera_live.empty())text<<"Camera "<<shell.camera_live<<"\n";text<<"Simulation tick "<<character->motor().tick<<"\nPrediction pending "<<character->pending_prediction()<<"\nAbility pending "<<character->pending_abilities()<<"\nClock debt "<<character->debt()*1000<<" ms\nGraph phase "<<character->graph().phase;return text.str();
+std::string GameplayInspector::metrics() {
+    auto& shell = context_.shell;
+    auto* const character = context_.session;
+    const auto& character_resources = context_.resources;
+    if (!character)
+        return std::string("Character session stopped");
+    std::ostringstream text;
+    const auto chosen = context_.hud_target();
+    const StableId shown = chosen ? *chosen : StableId{};
+    if (character_resources->combat) {
+        auto target = character->presentation().find(shown);
+        if (character->presentation().valid(target)) {
+            auto health = character->presentation().read(target).health;
+            text << "Target Health " << health.current << " / " << health.maximum << "\n";
+        }
+        if (auto ability = character->predicted_ability()) {
+            for (const auto& attribute : ability->attributes)
+                if (attribute.id == 3)
+                    text << "Stamina " << attribute.value << "\n";
+            if (ability->reservation) {
+                double reserved{};
+                for (const auto& cost : ability->reservation->costs)
+                    if (cost.attribute == 3)
+                        reserved += cost.amount;
+                text << "Reserved Stamina " << reserved << "\n";
+            }
+            text << "Ability " << (ability->active ? "active" : "idle") << "\n";
+        }
+        if (auto status = character->effects(shown))
+            for (const auto& cue : status->cues())
+                text << cue.key << " " << std::max(0., (double(cue.end) - character->motor().tick) / 60.) << " s\n";
+        if (auto reaction = character->reaction(shown))
+            if (reaction->suppressed == ReactionSuppression::None && !character->death(shown))
+                text << "Target reaction " << reaction->tick << " / " << reaction->action->duration / action_tick_units << " ticks\n";
+    }
+    if (character_resources->combat) {
+        if (auto death = character->death(shown))
+            text << "Target death " << *death << " / " << character_resources->combat->death->duration / action_tick_units << " ticks\n";
+    }
+    if (!darkangel::editor_app::RuntimeInventory::name(*character_resources, character->ability()).empty())
+        text << "Mask " << darkangel::editor_app::RuntimeInventory::name(*character_resources, character->ability()) << "\n";
+    if (!shell.camera_live.empty())
+        text << "Camera " << shell.camera_live << "\n";
+    text << "Simulation tick " << character->motor().tick << "\nPrediction pending " << character->pending_prediction()
+         << "\nAbility pending " << character->pending_abilities() << "\nClock debt " << character->debt() * 1000 << " ms\nGraph phase "
+         << character->graph().phase;
+    return text.str();
 }
 } // namespace darkangel::editor_app
