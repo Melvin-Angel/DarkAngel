@@ -1,7 +1,7 @@
 # Scene scale: per-model collision and incremental placement
 
-Status (15 October 2026): phases 0, 1, 2, 3 (with 3b) and 4 done; architecture revised the same day (design rules below);
-phase 5 next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
+Status (15 October 2026): phases 0 to 5 done (3 with 3b); architecture revised the same day (design rules below); phase 6
+(instancing) is designed below, and phase 7 (document caps) is next. Builds on cf818c2, fb4b01e and f2d641b, which fixed three
 placement failures but kept the current architecture.
 
 Decided on 15 October 2026: a static body budget of 16,384; full-mesh collision by default, with a per-model `none` import option;
@@ -405,6 +405,34 @@ Remaining risks and limits:
   - Draw count scales with visible placements, not total placements.
   - Picking, selection and capture gates are unchanged, because culling changes only what is submitted.
 
+Implemented (15 October 2026):
+- **Frustum culling.** A static placement whose bounding sphere (from model bounds, scaled) is outside the view is not submitted.
+  Skinned models always draw, because they animate past their rest bounds.
+- **Draw-state reuse.** Pipeline, material binding and vertex/index buffers are set only when they change between consecutive
+  draws. The Frame constant buffer is dynamic, so per-draw constants need no re-commit. The worn-mask block resets the trackers.
+  `DRAW_FLAG_VERIFY_ALL` is set only in debug builds.
+- **Per-frame document fingerprint.** The real bottleneck, which the breakdown below found: the toolbar called `EditorDocument::dirty()` every
+  frame, and that re-parsed, re-serialized and hashed the whole scene document. The digest is now cached per document revision.
+- The World Outliner builds only the rows in view (`ImGuiListClipper`).
+- Instrumentation:
+  - `Shell::scene_visible`, `scene_culled` and `scene_draws` are recorded per frame.
+  - `Shell::frame_sections` times exercises and update, UI, Play, scene render, effects and present.
+  - Both are reported by `--exercise-scale` as `authoring_draws`, `play_draws` and `*_sections_ms`.
+  - `measure_scene_scale.py --layout view` packs the placements in front of the authoring camera for the worst case.
+
+Results (hidden editor, D3D12):
+
+| Scene | Authoring frame p50/p95 | Play frame p50/p95 | Draws / visible / culled | Scene render | UI |
+|---|---:|---:|---:|---:|---:|
+| 1,004 placements, before (phase 4) | 60.8 / 74.8 ms | 53.0 / 64.9 ms | 1 draw per mesh part, none culled | | |
+| 1,004 spread (authoring camera sees 10) | **2.0 / 5.1 ms** | **1.8 / 2.7 ms** | 36 / 10 / 995 | 1.1 ms | 0.6 ms |
+| 260 in view | 2.2 / 3.5 ms | 2.6 / 3.7 ms | 287 / 261 / 0 | | |
+| 1,004 in view (worst case) | 5.9 / 9.6 ms | 7.3 / 11.5 ms | 840 / 814 / 191 | 4.9 ms | 0.6 ms |
+
+At 1,004 placements, frame time went from 61 ms to 2 ms with a typical view, and to 6 ms with everything in view. Draw calls now
+scale with visible placements, at about 6 µs per draw. Placing a used model and moving one (250 to 290 ms at 1,004) remain
+whole-document edits (phase 7).
+
 ### Phase 6: GPU instancing
 
 Instancing changes the prop shader contract:
@@ -417,6 +445,31 @@ Instancing changes the prop shader contract:
 Phase 6 depends on phase 5's visible lists and must keep the pixel-exact renderer gates (`verify_royal_renderer.py`) passing. If
 those gates cannot run (Pillow is not installed), the phase stops at a design and a measured prototype rather than shipping
 unverified.
+
+Decision (15 October 2026): designed, not implemented in this refactor.
+- Phase 5 measured the need: with all 1,004 placements in front of the camera, 840 draws cost 4.9 ms (about 6 µs per draw) and
+  the frame takes 6 ms. Instancing pays off at several thousand visible placements, not at today's scenes.
+- The change touches the shader contract shared with the game (`stylized_prop.hlsl`) and the reload-shader path. Its only
+  pixel-exact check, `verify_royal_renderer.py`, needs Pillow, which this machine does not have.
+- It would therefore ship unverified, and collision and editor scalability did not depend on it.
+
+Implementation plan for the follow-up:
+1. **Instance data.** `struct Instance {row_major float4x4 World; row_major float4x4 Rotation; float4 Tint;}` in a
+   `StructuredBuffer<Instance> Instances` (dynamic, ring-allocated per frame). `Frame` keeps `ViewProjection` and `Surface`.
+   `VSMain` reads `Instances[base + SV_InstanceID]`. The base offset comes from a root constant or a small per-draw cbuffer.
+2. **Shader sources.** Derive the instanced variant from the prop shader text by the same replace-based approach `skin_shader()`
+   uses, and require the game shader to declare the contract (a compile-time check like the existing "Frame resource contract"
+   check). Keep the non-instanced pipeline for skins, worn masks, the dragged placement and the VFX preview.
+3. **Batching.** Group phase 5's visible static placements by (model, mesh, part material, pipeline). Upload their instance
+   records once per frame, then issue one `DrawIndexed` with `NumInstances` per group. Sort groups by pipeline and material so
+   bindings change once per group.
+4. **Identity.** Picking stays CPU-side (model bounds against placements), and selection and gizmos draw the selected placement
+   on the per-object path, so object identity is untouched. Collision and serialization never see render groups.
+5. **Acceptance.**
+   - `measure_scene_scale.py --layout view` at 1,000 and 4,000 placements: draw count equals the number of groups (here about 30),
+     and scene render time stays flat as placements grow.
+   - Pixel comparison (`verify_royal_renderer.py`, Pillow installed) matches the non-instanced path exactly, or within the
+     documented float tolerance of the instanced transform.
 
 ### Phase 7 (separate): document and object caps
 

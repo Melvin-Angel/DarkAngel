@@ -26,7 +26,10 @@ struct EditorDocument::Impl {
     struct Candidate {AssemblySources sources;SpawnPlan plan;std::uint64_t revision;std::string summary;bool no_op;};
     struct History {AssemblySources sources;DocumentHistoryHead head;};DocumentHistoryHead head;std::map<std::uint64_t,Candidate> prepared;std::vector<History> undo,redo;
     Impl(AssetId id,StableId p,AssemblySources s,std::size_t l):root(id),placement(p),sources(std::move(s)),limit(l){require(l>0 && l<=1024,"Document history limit");materialize();saved=fingerprint();}
-    std::string fingerprint() const{Json records=Json::object();for(const auto& [id,text]:sources)records[id.text()]=parse(text);return sha256(records.dump());}
+    // The document's content digest. Sources change only with the revision (commit, undo, redo), so the digest is cached per
+    // revision: dirty() runs every editor frame and must not re-parse a scene of thousands of objects each time.
+    mutable std::uint64_t fingerprinted=UINT64_MAX;mutable std::string digest;
+    std::string fingerprint() const{if(fingerprinted!=revision){Json records=Json::object();for(const auto& [id,text]:sources)records[id.text()]=parse(text);digest=sha256(records.dump());fingerprinted=revision;}return digest;}
     void materialize(){validate_native_sources(sources);auto candidate=resolve_assembly(root,placement,sources);auto next_world=std::make_unique<World>(WorldDomain::Authoring);next_world->load(candidate.scene_json);plan=std::move(candidate);world=std::move(next_world);baseline=world->serialize();}
     void check(std::uint64_t expected) const{require(expected==revision,"Stale document revision");require(world->serialize()==baseline,"Document view changed outside its service");}
     PreparedDocumentEdit stage(AssemblySources candidate,std::string summary){require(prepared.size()<limit,"Prepared document queue full");Json records=Json::object();for(const auto& [id,text]:candidate)records[id.text()]=parse(text);require(records.dump().size()<=1024*1024,"Document closure byte limit");bool no_op=sha256(records.dump())==fingerprint();validate_native_sources(candidate);auto resolved=resolve_assembly(root,placement,candidate);auto token=++next;prepared.emplace(token,Candidate{std::move(candidate),std::move(resolved),revision,summary,no_op});return {token,revision,std::move(summary)};}

@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <psapi.h>
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -46,6 +47,8 @@ class Scale final : public Exercise {
     Clock::time_point last_{};
     bool timing_{};
     std::vector<double> authoring_, play_;
+    std::array<double, 4> authoring_draws_{}, play_draws_{}; // visible, culled, draw calls, frames
+    std::array<double, 6> authoring_sections_{}, play_sections_{}; // summed ms per frame section
     StableId moved_;
     bool prepared_{}, playing_{}, done_{};
     unsigned play_start_{};
@@ -74,6 +77,24 @@ class Scale final : public Exercise {
     void write() {
         report_["authoring_frames"] = frame_summary(authoring_);
         report_["play_frames"] = frame_summary(play_);
+        const auto draws = [](const std::array<double, 4>& totals) -> nlohmann::json {
+            if (!totals[3])
+                return nullptr;
+            return {{"visible", totals[0] / totals[3]}, {"culled", totals[1] / totals[3]}, {"draws", totals[2] / totals[3]}};
+        };
+        report_["authoring_draws"] = draws(authoring_draws_);
+        report_["play_draws"] = draws(play_draws_);
+        const auto sections = [](const std::array<double, 6>& summed, double frames) -> nlohmann::json {
+            if (!frames)
+                return nullptr;
+            const char* names[] = {"exercises_update", "ui", "play", "scene_render", "effects", "present"};
+            nlohmann::json out;
+            for (std::size_t i = 0; i < summed.size(); ++i)
+                out[names[i]] = summed[i] / frames;
+            return out;
+        };
+        report_["authoring_sections_ms"] = sections(authoring_sections_, authoring_draws_[3]);
+        report_["play_sections_ms"] = sections(play_sections_, play_draws_[3]);
         report_["memory_end"] = memory();
         std::ofstream output(config_.at("report").get<std::string>());
         output << report_.dump(2) << "\n";
@@ -105,8 +126,18 @@ class Scale final : public Exercise {
         auto& shell = context_.shell;
         const auto now = Clock::now();
         // The first frames after startup and after Play starts are warm-up, not steady state.
-        if (timing_ && frame > warmup_ && (!playing_ || frame > play_start_ + warmup_))
+        if (timing_ && frame > warmup_ && (!playing_ || frame > play_start_ + warmup_)) {
             (playing_ ? play_ : authoring_).push_back(milliseconds(now - last_));
+            // What the scene view submitted on the frame just drawn.
+            auto& totals = playing_ ? play_draws_ : authoring_draws_;
+            totals[0] += shell.scene_visible;
+            totals[1] += shell.scene_culled;
+            totals[2] += shell.scene_draws;
+            ++totals[3];
+            auto& sections = playing_ ? play_sections_ : authoring_sections_;
+            for (std::size_t i = 0; i < sections.size(); ++i)
+                sections[i] += shell.frame_sections[i];
+        }
         last_ = now;
         timing_ = true;
         const unsigned at = authoring_frames_ + warmup_;

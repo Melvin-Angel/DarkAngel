@@ -33,7 +33,25 @@ def asset_id(path: str) -> str:
     return json.loads((ROOT / path).read_text(encoding="utf-8"))["id" if path.endswith(".daimport") else "asset"]
 
 
-def generate(count: int) -> Path:
+def positions(count: int, layout: str):
+    """Grid cells for the extra placements: "spread" (12 m cells north of the ground, mostly outside the authoring camera) or
+    "view" (3 m cells in front of the authoring camera, clear of the player and dummy, so every placement is on screen)."""
+    if layout == "spread":
+        columns = 16
+        return [(-90.0 + 12.0 * (i % columns), 30.0 + 12.0 * (i // columns)) for i in range(count)]
+    cells, ring = [], 0
+    while len(cells) < count:
+        for x in range(-ring, ring + 1):
+            for z in range(-ring, ring + 1):
+                if max(abs(x), abs(z)) == ring and len(cells) < count:
+                    px, pz = 3.0 * x, 3.0 * z - 6.0
+                    if px * px + (pz - 3.0) ** 2 > 64.0:
+                        cells.append((px, pz))
+        ring += 1
+    return cells
+
+
+def generate(count: int, layout: str = "spread") -> Path:
     manifest = json.loads(BASE_SCENE.read_text(encoding="utf-8"))
     old_root = manifest["root"]
     # A fixed identity per count, so reruns reuse the same derived collision asset.
@@ -43,15 +61,13 @@ def generate(count: int) -> Path:
     new_root = str(uuid.UUID(bytes=bytes(digest)))
     graph = json.loads(json.dumps(manifest["sources"][old_root]).replace(old_root, new_root))
     template = next(e for e in graph["entities"].values() if e.get("model") == USED_MODELS[0])
-    columns = 16
-    for index in range(count):
+    for index, (x, z) in enumerate(positions(count, layout)):
         entity = json.loads(json.dumps(template))
         entity["model"] = USED_MODELS[index % len(USED_MODELS)]
         entity["name"] = f"Scale hut {index}"
         fields = entity["types"]["1"]["fields"]
-        # 12 m cells north of the training ground, clear of the player and the dummy.
-        fields["2"] = -90.0 + 12.0 * (index % columns)
-        fields["4"] = 30.0 + 12.0 * (index // columns)
+        fields["2"] = x
+        fields["4"] = z
         graph["entities"][f"{0x1000 + index:032x}"] = entity
     manifest["root"] = new_root
     manifest["sources"] = {new_root: graph}
@@ -99,7 +115,7 @@ def run_bench(counts: str) -> dict:
 
 def summary(baseline: dict) -> str:
     lines = ["Editor (hidden, D3D12; models = model placements, the player included):",
-             f"{'models':>8} {'author ms p50/p95':>18} {'place used':>11} {'move':>8} {'place new':>11} {'prepare Play':>13} {'play ms p50/p95':>16} {'private MB':>11}"]
+             f"{'models':>8} {'author ms p50/p95':>18} {'place used':>11} {'move':>8} {'place new':>11} {'prepare Play':>13} {'play ms p50/p95':>16} {'private MB':>11} {'draws/visible/culled':>21}"]
     for row in baseline["editor"]:
         steps = row.get("steps", {})
 
@@ -113,12 +129,16 @@ def summary(baseline: dict) -> str:
             entry = row.get(name)
             return f"{entry['p50_ms']:.1f}/{entry['p95_ms']:.1f}" if entry else "-"
 
+        def draws(name):
+            entry = row.get(name)
+            return f"{entry['draws']:.0f}/{entry['visible']:.0f}/{entry['culled']:.0f}" if entry else "-"
+
         memory = (row.get("memory_end") or {}).get("private_mb")
         scene = row.get("scene") or {}
         statics = scene.get("model_placements", scene.get("static_models", row["requested"]))
         lines.append(f"{statics:>8} {frames('authoring_frames'):>18} {step('place_used_model'):>11} {step('move_placement'):>8} "
                      f"{step('place_new_model'):>11} {step('prepare_play'):>13} {frames('play_frames'):>16} "
-                     f"{(f'{memory:.0f}' if memory else '-'):>11}")
+                     f"{(f'{memory:.0f}' if memory else '-'):>11} {draws('authoring_draws'):>21}")
         for name, entry in steps.items():
             if not entry["ok"]:
                 lines.append(f"{'':>8} {name}: {entry['error']}")
@@ -145,6 +165,7 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=900, help="seconds per editor run")
     parser.add_argument("--keep", action="store_true", help="keep the generated scenes in content/_scale_test")
     parser.add_argument("--skip-editor", action="store_true")
+    parser.add_argument("--layout", choices=["spread", "view"], default="spread", help="where the extra huts go (see positions)")
     args = parser.parse_args()
     for binary in ("DarkAngelEditor.exe", "SceneScaleBench.exe"):
         if not (BUILD / binary).exists():
@@ -157,7 +178,7 @@ def main() -> int:
             for count in (int(value) for value in args.counts.split(",")):
                 # The base scene already places ground, two huts and the player; "models" counts every model placement.
                 print(f"Editor run with {count} extra huts...", flush=True)
-                row = run_editor(generate(count), count, args.timeout)
+                row = run_editor(generate(count, args.layout), count, args.timeout)
                 row["requested"] = count
                 baseline["editor"].append(row)
         print("Physics bench...", flush=True)

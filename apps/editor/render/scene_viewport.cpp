@@ -82,6 +82,7 @@ void SceneViewport::resize(const ViewArea& area) {
     scene_height = std::max(1u, static_cast<unsigned>(area.height));
 }
 void SceneViewport::render(double elapsed_seconds) {
+    context_.shell.scene_visible = context_.shell.scene_culled = context_.shell.scene_draws = 0;
     auto& device = context_.render.device;
     auto& context = context_.render.context;
     auto& constant_buffer = context_.render.constant_buffer;
@@ -263,6 +264,28 @@ void SceneViewport::render(double elapsed_seconds) {
                 world_content = viewer->combat();
             }
 #endif
+        // View frustum planes (clip space 0 <= z <= w), each normalized, for culling placements by their bounding sphere.
+        XMFLOAT4X4 clip_matrix;
+        XMStoreFloat4x4(&clip_matrix, view * projection);
+        const auto& c = clip_matrix;
+        std::array<XMVECTOR, 6> planes{XMVectorSet(c._14 + c._11, c._24 + c._21, c._34 + c._31, c._44 + c._41),
+                                       XMVectorSet(c._14 - c._11, c._24 - c._21, c._34 - c._31, c._44 - c._41),
+                                       XMVectorSet(c._14 + c._12, c._24 + c._22, c._34 + c._32, c._44 + c._42),
+                                       XMVectorSet(c._14 - c._12, c._24 - c._22, c._34 - c._32, c._44 - c._42),
+                                       XMVectorSet(c._13, c._23, c._33, c._43),
+                                       XMVectorSet(c._14 - c._13, c._24 - c._23, c._34 - c._33, c._44 - c._43)};
+        for (auto& plane : planes)
+            plane = XMPlaneNormalize(plane);
+        const auto visible = [&](FXMVECTOR center, float radius) {
+            for (const auto& plane : planes)
+                if (XMVectorGetX(XMPlaneDotCoord(plane, center)) < -radius)
+                    return false;
+            return true;
+        };
+        // Pipeline, material binding and buffers carry over between consecutive draws that share them.
+        IPipelineState* bound_pipeline = nullptr;
+        IShaderResourceBinding* bound_material = nullptr;
+        IBuffer* bound_vertices = nullptr;
         for (const auto& [object_id, model_id] : drawn_objects) {
             const darkangel::World* object_world = shown_world;
             auto entity = shown_world->find(object_id);
@@ -335,11 +358,24 @@ void SceneViewport::render(double elapsed_seconds) {
             auto world =
                 (args.scene.empty() ? XMMatrixTranslation(-drawn.center[0], -drawn.center[1], -drawn.center[2]) : XMMatrixIdentity()) *
                 XMMatrixScaling(pose.scale, pose.scale, pose.scale) * rotation * XMMatrixTranslation(pose.x, pose.y, pose.z);
+            // Static models outside the view are not submitted. Skinned models animate past their rest bounds, so they always draw.
+            if (!drawn_ptr) {
+                const auto& half = drawn.half;
+                const float radius = std::sqrt(half[0] * half[0] + half[1] * half[1] + half[2] * half[2]) * float(pose.scale);
+                if (!visible(XMVector3TransformCoord(XMVectorSet(drawn.center[0], drawn.center[1], drawn.center[2], 1), world), radius)) {
+                    ++shell.scene_culled;
+                    continue;
+                }
+            }
+            ++shell.scene_visible;
             for (const auto& mesh : drawn.meshes) {
                 IBuffer* vb = mesh.vertices;
-                Uint64 offset{};
-                context->SetVertexBuffers(0, 1, &vb, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
-                context->SetIndexBuffer(mesh.indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                if (vb != bound_vertices) {
+                    Uint64 offset{};
+                    context->SetVertexBuffers(0, 1, &vb, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
+                    context->SetIndexBuffer(mesh.indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    bound_vertices = vb;
+                }
                 for (const auto& part : mesh.parts) {
                     const auto& material = drawn.materials.at(part.material);
                     Constants constants;
@@ -355,19 +391,31 @@ void SceneViewport::render(double elapsed_seconds) {
                     context->UnmapBuffer(constant_buffer, MAP_WRITE);
 
 #ifdef DAE_ANIMATION
-                    context->SetPipelineState((drawn_ptr && !args.skin_reference)
-                                                  ? (material.value.double_sided ? skin_pso.RawPtr() : skin_cull.RawPtr())
-                                                  : (material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr()));
+                    IPipelineState* pipeline = (drawn_ptr && !args.skin_reference)
+                                                   ? (material.value.double_sided ? skin_pso.RawPtr() : skin_cull.RawPtr())
+                                                   : (material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr());
 #else
-                    context->SetPipelineState(material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr());
+                    IPipelineState* pipeline = material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr();
 #endif
-                    context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    // The Frame buffer is dynamic: each draw's mapped constants reach the GPU without committing the binding again.
+                    if (pipeline != bound_pipeline) {
+                        context->SetPipelineState(pipeline);
+                        bound_pipeline = pipeline;
+                        bound_material = nullptr;
+                    }
+                    if (material.binding.RawPtr() != bound_material) {
+                        context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                        bound_material = material.binding.RawPtr();
+                    }
                     DrawIndexedAttribs draw;
                     draw.NumIndices = part.count;
                     draw.IndexType = VT_UINT32;
                     draw.FirstIndexLocation = part.first;
+#ifdef _DEBUG
                     draw.Flags = DRAW_FLAG_VERIFY_ALL;
+#endif
                     context->DrawIndexed(draw);
+                    ++shell.scene_draws;
                 }
             }
 #ifdef DAE_CHARACTER_SCENE
@@ -413,6 +461,10 @@ void SceneViewport::render(double elapsed_seconds) {
                     mask_rotation.r[3] = XMVectorSet(0, 0, 0, 1);
                     for (unsigned axis = 0; axis < 3; ++axis)
                         mask_rotation.r[axis] = XMVector3Normalize(mask_rotation.r[axis]);
+                    // The mask binds its own state: the next placement binds everything again.
+                    bound_pipeline = nullptr;
+                    bound_material = nullptr;
+                    bound_vertices = nullptr;
                     for (const auto& mesh : uploaded->second.meshes) {
                         IBuffer* vb = mesh.vertices;
                         Uint64 offset{};

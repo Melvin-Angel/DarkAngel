@@ -373,6 +373,13 @@ int EditorApp::run() {
     while (!args.frames || frame < args.frames) {
         if (!render.pump_messages())
             break;
+        // Where the frame's time goes, for scale measurement: exercises and update, UI, Play, scene render, effects, present.
+        auto section_start = std::chrono::steady_clock::now();
+        const auto mark = [&](unsigned section) {
+            const auto now = std::chrono::steady_clock::now();
+            shell.frame_sections[section] = std::chrono::duration<double, std::milli>(now - section_start).count();
+            section_start = now;
+        };
         render.follow_window_size();
         auto now = std::chrono::steady_clock::now();
         auto elapsed_seconds = std::chrono::duration<double>(now - last_).count();
@@ -400,6 +407,7 @@ int EditorApp::run() {
 #else
         editor.update(seconds);
 #endif
+        mark(0);
         const auto& desc = swap->GetDesc();
         viewport.prepare_targets();
         darkangel::editor_app::set_theme_dpi(GetDpiForWindow(render.window) / 96.f);
@@ -408,6 +416,7 @@ int EditorApp::run() {
         auto image = viewport.scene_texture();
         auto area = shell.draw(editor, desc.Width, desc.Height, args.backend.c_str(), lease.number,
                                args.composer_playback ? 1. / 60 : elapsed_seconds, image);
+        mark(1);
 #ifdef DAE_CHARACTER_SCENE
         play.poll_input(frame);
         play.frame(frame, elapsed_seconds);
@@ -415,6 +424,7 @@ int EditorApp::run() {
 #ifdef DAE_AGENT_ENDPOINTS
         poll_agent();
 #endif
+        mark(2);
         viewport.resize(area);
         if (shell.reload_model) {
             try {
@@ -437,6 +447,7 @@ int EditorApp::run() {
             shell.reload_shader = false;
         }
         viewport.render(elapsed_seconds);
+        mark(3);
 #ifdef DAE_CHARACTER_SCENE
 #ifdef DAE_AUDIO
         // Audio every frame: the mixer, encounter profiles layered while their encounter runs, and the engine's clock outside Play.
@@ -453,6 +464,7 @@ int EditorApp::run() {
             args.frames = frame + 1;
         auto& script_signals = play.script_signals;
 #endif
+        mark(4);
         auto* back = render.draw_ui(render::SceneViewport::background);
         if (script_signals.capture)
             script_signals.captured = true;
@@ -462,6 +474,7 @@ int EditorApp::run() {
                                 ? darkangel::editor_app::ViewArea{0, 0, static_cast<float>(desc.Width), static_cast<float>(desc.Height)}
                                 : area);
         render.present(args.hidden);
+        mark(5);
         ++frame;
     }
 #ifdef DAE_CHARACTER_SCENE

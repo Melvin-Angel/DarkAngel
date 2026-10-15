@@ -26,6 +26,10 @@ public:
     std::vector<PlaceItem> place_items;std::size_t place_signature{};std::string place_category;char place_filter[64]{};
     // Height of the ground plane a drop lands on, and the scene camera of the latest frame for turning a drop position into a point on it.
     double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{},game_view_second{},game_projection_second{};bool scene_camera{};
+    // What the scene view submitted on its last frame: placements drawn, placements outside the view, and draw calls.
+    unsigned scene_visible{}, scene_culled{}, scene_draws{};
+    // The last frame's time by section (EditorApp::run): exercises and update, UI, Play, scene render, effects, present.
+    std::array<double, 6> frame_sections{};
     void refresh_place_items(Controller&);
     // Places one item as a new scene object at a ground position and selects it; one document edit, so Undo removes it.
     // Without a height the object lands on the scene collision below (x, z), or at place_height where there is none.
