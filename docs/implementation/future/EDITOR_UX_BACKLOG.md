@@ -46,3 +46,7 @@ The user considers this important for the engine to be usable: reusable prefabs 
 ## Deferred technical work
 
 The main roadmap retains scene-scale phase 6 GPU instancing, reduced-feature build verification, cross-machine networking and EOS validation separately from core usability. None is marked complete by this backlog; the optional reachability warning above stays here for traceability.
+
+## R9 World Tools integration
+
+The future volumetric terrain milestone is specified in [VOLUMETRIC_TERRAIN_WORLD_AUTHORING_PLAN.md](VOLUMETRIC_TERRAIN_WORLD_AUTHORING_PLAN.md). Its terrain, spline, water, paint, scatter, placement, and greyboxing tools belong inside the existing Scene / Level Design workspace and must reuse this backlog's shared selection, viewport, gizmo, command-history, undo/redo, property, layout, and background-job conventions. Do not create one top-level tab per tool or a parallel scene format. The roadmap schedules it as R9 after R1–R7; R8 remains the separately deferred World Puzzle UI slot.
