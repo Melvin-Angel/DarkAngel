@@ -1,4 +1,5 @@
 #include "script_runner.hpp"
+#include <darkangel/scene_client.hpp>
 #include <darkangel/check.hpp>
 #include <darkangel/character_scene.hpp>
 #include <algorithm>

@@ -1,3 +1,5 @@
+#include <darkangel/json_fields.hpp>
+#include <darkangel/check.hpp>
 #include <darkangel/interaction.hpp>
 #include <nlohmann/json.hpp>
 #include <cmath>
@@ -6,7 +8,7 @@
 namespace darkangel {
 namespace {
 using Json=nlohmann::json;
-void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+using darkangel::require;
 }
 void validate_interactable(const InteractableDefinition& definition){
     require(!definition.prompt.empty()&&definition.prompt.size()<=48,"An interactable's prompt is 1 to 48 characters");
@@ -15,11 +17,11 @@ void validate_interactable(const InteractableDefinition& definition){
 }
 InteractableDefinition decode_interactable(std::string_view text){
     require(text.size()<=4096,"Interactable component size bound");const auto value=Json::parse(text);require(value.is_object(),"Interactable component type");
-    for(const auto& [key,field]:value.items())require(key=="prompt"||key=="event"||key=="radius"||key=="once"||key=="requires_tag","Interactable component has an unknown field");
+    json_fields::known(value,{"prompt","event","radius","once","requires_tag"},"Interactable component has an unknown field");
     require(value.contains("prompt")&&value.at("prompt").is_string()&&value.contains("event")&&value.at("event").is_string(),"An interactable needs a prompt and an event");
     InteractableDefinition result;result.prompt=value.at("prompt").get<std::string>();result.event=value.at("event").get<std::string>();
     if(value.contains("radius")){require(value.at("radius").is_number(),"Interactable radius type");result.radius=value.at("radius").get<double>();}
-    if(value.contains("once")){require(value.at("once").is_boolean(),"Interactable once type");result.once=value.at("once").get<bool>();}
+    result.once=json_fields::flag(value,"once",result.once,"Interactable once type");
     if(value.contains("requires_tag")){require(value.at("requires_tag").is_string(),"Interactable required tag type");result.requires_tag=value.at("requires_tag").get<std::string>();require(!result.requires_tag.empty(),"An interactable's required tag is a name; leave the field out for none");}
     validate_interactable(result);return result;
 }

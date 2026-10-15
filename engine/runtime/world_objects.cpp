@@ -1,3 +1,5 @@
+#include <darkangel/check.hpp>
+#include <darkangel/json_fields.hpp>
 #include <darkangel/world_objects.hpp>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -7,12 +9,15 @@
 namespace darkangel {
 namespace {
 using Json=nlohmann::json;
-void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+using json_fields::known;
+using json_fields::number;
+using json_fields::flag;
+using darkangel::require;
 Json parse(std::string_view text,const char* what){require(text.size()<=8192,what);auto value=Json::parse(text,nullptr,false);require(!value.is_discarded()&&value.is_object(),what);return value;}
-void known(const Json& value,std::initializer_list<const char*> fields,const char* error){for(const auto& [key,field]:value.items())require(std::any_of(fields.begin(),fields.end(),[&](const char* name){return key==name;}),error);}
-std::string field_text(const Json& value,const char* key,std::string fallback,std::size_t limit,const char* error){if(!value.contains(key))return fallback;require(value.at(key).is_string(),error);auto result=value.at(key).get<std::string>();require(!result.empty()&&result.size()<=limit,error);return result;}
-double number(const Json& value,const char* key,double fallback,double low,double high,const char* error){if(!value.contains(key))return fallback;require(value.at(key).is_number(),error);const auto result=value.at(key).get<double>();require(std::isfinite(result)&&result>=low&&result<=high,error);return result;}
-bool flag(const Json& value,const char* key,bool fallback,const char* error){if(!value.contains(key))return fallback;require(value.at(key).is_boolean(),error);return value.at(key).get<bool>();}
+
+
+
+
 MotorVec vector(const Json& value,const char* key,MotorVec fallback,double low,double high,const char* error){if(!value.contains(key))return fallback;const auto& v=value.at(key);require(v.is_array()&&v.size()==3&&v[0].is_number()&&v[1].is_number()&&v[2].is_number(),error);MotorVec result{v[0].get<double>(),v[1].get<double>(),v[2].get<double>()};for(double c:{result.x,result.y,result.z})require(std::isfinite(c)&&c>=low&&c<=high,error);return result;}
 LedgerPolicy policy(const Json& value,const char* key,LedgerPolicy fallback){if(!value.contains("policies")||!value.at("policies").contains(key))return fallback;return decode_policy(value.at("policies").at(key).dump());}
 constexpr std::pair<LedgerReset,const char*> resets[]{{LedgerReset::SceneEntry,"scene_entry"},{LedgerReset::Rest,"rest"},{LedgerReset::PartyWipe,"party_wipe"}};
@@ -33,7 +38,7 @@ std::string encode_policy(const LedgerPolicy& value){Json result{{"scope",value.
 Requirement decode_requirement(std::string_view text){
     const auto value=parse(text,"Requirement shape");known(value,{"item","quantity","consume","tag","encounter"},"A requirement names an item, a tag or an encounter");Requirement result;
     if(value.contains("item")&&!value.at("item").is_null()){result.item=AssetId::parse(value.at("item").get<std::string>());result.quantity=unsigned(number(value,"quantity",1,1,1000,"A requirement's quantity is 1 to 1000"));result.consume=flag(value,"consume",false,"Requirement consume flag");}
-    if(value.contains("tag")){result.tag=field_text(value,"tag","",64,"A requirement's tag is 1 to 64 characters");}
+    if(value.contains("tag")){result.tag=json_fields::text(value,"tag","",64,"A requirement's tag is 1 to 64 characters");}
     if(value.contains("encounter")&&!value.at("encounter").is_null())result.encounter=StableId::parse(value.at("encounter").get<std::string>());
     return result;
 }
@@ -41,13 +46,13 @@ Requirement decode_requirement(std::string_view text){
 PickupDefinition decode_pickup(std::string_view text){
     const auto value=parse(text,"Pickup shape");known(value,{"item","quantity","prompt","radius","policies"},"Pickup component has an unknown field");
     require(value.contains("item")&&value.at("item").is_string(),"A pickup names its item");PickupDefinition result;result.item=AssetId::parse(value.at("item").get<std::string>());require(result.item!=AssetId{},"Pickup item identity");
-    result.quantity=unsigned(number(value,"quantity",1,1,1000,"A pickup's quantity is 1 to 1000"));result.prompt=field_text(value,"prompt","Pick up",48,"A pickup's prompt is 1 to 48 characters");result.radius=number(value,"radius",2,.5,10,"A pickup's radius is 0.5 to 10 m");
+    result.quantity=unsigned(number(value,"quantity",1,1,1000,"A pickup's quantity is 1 to 1000"));result.prompt=json_fields::text(value,"prompt","Pick up",48,"A pickup's prompt is 1 to 48 characters");result.radius=number(value,"radius",2,.5,10,"A pickup's radius is 0.5 to 10 m");
     result.collected=policy(value,"collected",result.collected);return result;
 }
 
 AltarDefinition decode_altar(std::string_view text){
     const auto value=parse(text,"Altar shape");known(value,{"name","prompt","radius","checkpoint","rest","fast_travel","save","arrival"},"Altar component has an unknown field");
-    AltarDefinition result;result.name=field_text(value,"name","",48,"An altar's name is 1 to 48 characters");result.prompt=field_text(value,"prompt","Altar",48,"An altar's prompt is 1 to 48 characters");result.radius=number(value,"radius",2.5,.5,10,"An altar's radius is 0.5 to 10 m");
+    AltarDefinition result;result.name=json_fields::text(value,"name","",48,"An altar's name is 1 to 48 characters");result.prompt=json_fields::text(value,"prompt","Altar",48,"An altar's prompt is 1 to 48 characters");result.radius=number(value,"radius",2.5,.5,10,"An altar's radius is 0.5 to 10 m");
     const auto checkpoint=value.value("checkpoint",std::string("rest"));require(checkpoint=="never"||checkpoint=="discover"||checkpoint=="rest","An altar sets the checkpoint \"never\", on \"discover\" or on \"rest\"");result.checkpoint=checkpoint=="never"?AltarCheckpoint::Never:checkpoint=="discover"?AltarCheckpoint::Discover:AltarCheckpoint::Rest;
     result.rest=flag(value,"rest",true,"Altar rest flag");result.fast_travel=flag(value,"fast_travel",true,"Altar fast travel flag");result.save=flag(value,"save",true,"Altar save flag");
     if(value.contains("arrival")){const auto& a=value.at("arrival");require(a.is_array()&&a.size()==2&&a[0].is_number()&&a[1].is_number(),"An altar's arrival is [forward, right] in metres");result.forward=a[0].get<double>();result.right=a[1].get<double>();require(std::isfinite(result.forward)&&std::isfinite(result.right)&&std::abs(result.forward)<=10&&std::abs(result.right)<=10,"An altar's arrival is within 10 m");}
@@ -68,7 +73,7 @@ MoverDefinition decode_mover(std::string_view text){
     result.speed=number(value,"speed",2,.05,50,"A mover's speed is 0.05 to 50 m/s");result.wait=number(value,"wait",2,0,600,"A mover waits 0 to 600 s");result.radius=number(value,"radius",2.5,.5,10,"A mover's radius is 0.5 to 10 m");
     const auto activation=value.value("activation",std::string("interact"));require(activation=="interact"||activation=="event"||activation=="auto","A mover is activated by \"interact\", \"event\" or \"auto\"");result.activation=activation=="interact"?MoverActivation::Interact:activation=="event"?MoverActivation::Event:MoverActivation::Auto;
     const auto behaviour=value.value("behaviour",std::string("toggle"));require(behaviour=="toggle"||behaviour=="return"||behaviour=="loop","A mover's behaviour is \"toggle\", \"return\" or \"loop\"");result.behaviour=behaviour=="toggle"?MoverBehaviour::Toggle:behaviour=="return"?MoverBehaviour::Return:MoverBehaviour::Loop;
-    result.prompt=field_text(value,"prompt",result.prompt,48,"A mover's prompt is 1 to 48 characters");result.locked_prompt=field_text(value,"locked_prompt",result.locked_prompt,48,"A mover's locked prompt is 1 to 48 characters");result.event=value.contains("event")?field_text(value,"event","",64,"A mover's event is 1 to 64 characters"):std::string{};
+    result.prompt=json_fields::text(value,"prompt",result.prompt,48,"A mover's prompt is 1 to 48 characters");result.locked_prompt=json_fields::text(value,"locked_prompt",result.locked_prompt,48,"A mover's locked prompt is 1 to 48 characters");result.event=value.contains("event")?json_fields::text(value,"event","",64,"A mover's event is 1 to 64 characters"):std::string{};
     require(result.activation!=MoverActivation::Event||!result.event.empty(),"A mover activated by an event names it");
     result.locked=flag(value,"locked",false,"Mover locked flag");result.open=flag(value,"open",false,"Mover open flag");
     if(value.contains("requires"))result.requirement=decode_requirement(value.at("requires").dump());

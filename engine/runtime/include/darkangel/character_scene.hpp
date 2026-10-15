@@ -1,8 +1,16 @@
 #pragma once
-#include <darkangel/scene_authority.hpp>
-#include <darkangel/scene_client.hpp>
+#include <darkangel/scene_content.hpp>
+#include <darkangel/scene_seat.hpp>
+#include <darkangel/animation_graph.hpp>
+#include <darkangel/ability_observer.hpp>
+#include <darkangel/effect_replication.hpp>
+#include <darkangel/cue_player.hpp>
+#include <darkangel/inventory.hpp>
 
 namespace darkangel {
+class SceneAuthority;
+class SceneClient;
+struct CollisionDefinition;
 // Local listen-host composition: one SceneAuthority and one SceneClient per local player, each client on its own
 // in-process loopback pair, all stepped in lockstep. The accessors that name no player are the first player's, as
 // before the host and client halves were split. Resources are already validated/cooked. This adapter owns no

@@ -1,5 +1,5 @@
 #pragma once
-#include <darkangel/scene_definitions.hpp>
+#include <darkangel/scene_content.hpp>
 #include <darkangel/party_inventory.hpp>
 #include <functional>
 

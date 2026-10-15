@@ -1,3 +1,4 @@
+#include "../character_preview.hpp"
 #include "play_exercises.hpp"
 #include "../editor_options.hpp"
 #include "../editor_ui.hpp"

@@ -1,4 +1,6 @@
 #include <cstdlib>
+#include <darkangel/collision_asset.hpp>
+#include <darkangel/actor_controller.hpp>
 #include <darkangel/character_scene.hpp>
 #include <darkangel/assembly.hpp>
 #include <darkangel/combat_kit_assets.hpp>

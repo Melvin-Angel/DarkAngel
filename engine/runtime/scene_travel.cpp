@@ -1,3 +1,5 @@
+#include <darkangel/json_fields.hpp>
+#include <darkangel/check.hpp>
 #include <darkangel/scene_travel.hpp>
 #include <nlohmann/json.hpp>
 #include <cmath>
@@ -6,7 +8,7 @@
 namespace darkangel {
 namespace {
 using Json=nlohmann::json;
-void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+using darkangel::require;
 }
 EntryDefinition decode_entry(std::string_view text){
     require(text.size()<=4096,"Entry component size bound");const auto value=Json::parse(text);require(value.is_object()&&value.size()==1&&value.contains("name")&&value.at("name").is_string(),"A scene entry point has a name and nothing else");
@@ -21,7 +23,7 @@ void validate_transition(const TransitionDefinition& transition){
 }
 TransitionDefinition decode_transition(std::string_view text){
     require(text.size()<=4096,"Transition component size bound");const auto value=Json::parse(text);require(value.is_object(),"Transition component type");
-    for(const auto& [key,field]:value.items())require(key=="scene"||key=="entry"||key=="activation"||key=="prompt"||key=="radius"||key=="half","Transition component has an unknown field");
+    json_fields::known(value,{"scene","entry","activation","prompt","radius","half"},"Transition component has an unknown field");
     require(value.contains("scene")&&value.at("scene").is_string()&&value.contains("activation")&&value.at("activation").is_string()&&value.contains("half"),"A scene transition needs a scene, an activation and half extents");
     TransitionDefinition transition;transition.scene=AssetId::parse(value.at("scene").get<std::string>());
     if(value.contains("entry")){require(value.at("entry").is_string(),"Scene transition entry type");transition.entry=StableId::parse(value.at("entry").get<std::string>());require(bool(transition.entry),"A scene transition's entry is an entry point's identity; leave the field out for the scene's own start");}

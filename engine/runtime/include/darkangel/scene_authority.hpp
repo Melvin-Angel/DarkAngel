@@ -1,11 +1,11 @@
 #pragma once
 #include <darkangel/scene_definitions.hpp>
-#include <darkangel/transport.hpp>
+#include <darkangel/scene_seat.hpp>
+#include <darkangel/inventory.hpp>
 
 namespace darkangel {
-// One party member's place in a scene session: its identity and the connection its client holds. The first seat is the
-// scene's player object; a later seat's character is created at its position.
-struct SceneSeat {StableId id;Transport* transport{};ConnectionHandle peer;MotorVec position{};double yaw{};StableId profile;};
+struct AbilityCommitUpdate;
+struct AbilityReceipt;
 // The host half of a scene session: the server WorldSession, the authoritative physics world, the party members'
 // characters, every server-driven actor, world events, interactables, trigger volumes and encounters. It reads nothing
 // from a client but what arrives through a Transport, and a client reads nothing from it but what it publishes.

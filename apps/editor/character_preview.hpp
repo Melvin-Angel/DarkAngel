@@ -1,5 +1,5 @@
 #pragma once
-#include <darkangel/scene_definitions.hpp>
+#include <darkangel/scene_content.hpp>
 #include <darkangel/scene_transition.hpp>
 #include <darkangel/character_presentation.hpp>
 #include <darkangel/animation_assets.hpp>

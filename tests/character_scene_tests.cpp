@@ -1,4 +1,5 @@
 #include <darkangel/character_scene.hpp>
+#include <darkangel/collision_asset.hpp>
 #include <darkangel/animation_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <filesystem>

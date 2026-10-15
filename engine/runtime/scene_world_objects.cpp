@@ -1,3 +1,4 @@
+#include <darkangel/check.hpp>
 #include "scene_world_objects.hpp"
 #include <algorithm>
 #include <cmath>
@@ -5,7 +6,7 @@
 
 namespace darkangel::scene_detail {
 namespace {
-void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+using darkangel::require;
 // Mover boxes take identities far above authored collision, one per mover in authored order.
 constexpr std::uint64_t mover_box_base=1ULL<<40;
 // Pickup "collected" and mover "unlocked"/"open" through the one persistence mechanism.

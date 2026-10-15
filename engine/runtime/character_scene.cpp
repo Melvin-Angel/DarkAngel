@@ -1,3 +1,7 @@
+#include <darkangel/scene_authority.hpp>
+#include <darkangel/actor_controller.hpp>
+#include <darkangel/scene_client.hpp>
+#include <darkangel/collision_asset.hpp>
 #include <darkangel/character_scene.hpp>
 #include "scene_shared.hpp"
 #include <algorithm>

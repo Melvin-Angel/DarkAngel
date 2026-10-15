@@ -1,0 +1,13 @@
+# Preserve explicit source, linkage, arguments and registration for each test.
+function(dae_test target)
+  cmake_parse_arguments(PARSE_ARGV 1 DAE "" "NAME" "SOURCES;LIBS;DEFINITIONS;ARGS")
+  if(DAE_UNPARSED_ARGUMENTS OR NOT DAE_NAME OR NOT DAE_SOURCES)
+    message(FATAL_ERROR "dae_test(${target}) requires NAME and SOURCES; unknown arguments: ${DAE_UNPARSED_ARGUMENTS}")
+  endif()
+  add_executable(${target} ${DAE_SOURCES})
+  target_link_libraries(${target} PRIVATE ${DAE_LIBS})
+  if(DAE_DEFINITIONS)
+    target_compile_definitions(${target} PRIVATE ${DAE_DEFINITIONS})
+  endif()
+  add_test(NAME ${DAE_NAME} COMMAND ${target} ${DAE_ARGS})
+endfunction()

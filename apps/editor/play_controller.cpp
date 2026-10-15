@@ -1,6 +1,7 @@
 #define NOMINMAX
 #define UNICODE
 #include <Windows.h>
+#include <darkangel/scene_authority.hpp>
 #include "play_controller.hpp"
 #include "editor_options.hpp"
 #include "editor_ui.hpp"

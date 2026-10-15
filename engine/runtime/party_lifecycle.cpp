@@ -1,10 +1,11 @@
+#include <darkangel/check.hpp>
 #include <darkangel/party_lifecycle.hpp>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
 namespace darkangel {
-namespace {void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}}
+namespace {using darkangel::require;}
 void validate_party_rules(const PartyRules& r){
     require(std::isfinite(r.revive_range)&&r.revive_range>=.5&&r.revive_range<=10,"Revive range is 0.5 to 10 m");
     require(std::isfinite(r.revive_seconds)&&r.revive_seconds>=.1&&r.revive_seconds<=30,"Revive time is 0.1 to 30 s");

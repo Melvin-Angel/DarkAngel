@@ -1,4 +1,5 @@
 #include <darkangel/scene_authority.hpp>
+#include <darkangel/collision_asset.hpp>
 #include <darkangel/scene_client.hpp>
 #include <darkangel/combat_kit_assets.hpp>
 #include <darkangel/assets.hpp>

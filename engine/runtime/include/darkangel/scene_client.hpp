@@ -1,8 +1,14 @@
 #pragma once
 #include <darkangel/scene_definitions.hpp>
 #include <darkangel/transport.hpp>
+#include <darkangel/animation_graph.hpp>
+#include <darkangel/ability_observer.hpp>
+#include <darkangel/effect_replication.hpp>
+#include <darkangel/cue_player.hpp>
+#include <darkangel/party_inventory.hpp>
 
 namespace darkangel {
+struct CollisionDefinition;
 // The client half of a scene session for one player: the client WorldSession, the prediction world, the owner's motor
 // and ability prediction, observers and poses of every other character (the other players included), effect views, cue
 // and footstep trackers, the owner's graph and pose, and the interaction prompt. It learns which characters exist from

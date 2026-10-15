@@ -1,4 +1,5 @@
 #include "character_preview.hpp"
+#include <darkangel/scene_inventory.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/graph_assets.hpp>
 #include <darkangel/combat_kit_assets.hpp>

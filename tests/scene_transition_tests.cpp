@@ -1,4 +1,6 @@
 #include <darkangel/scene_transition.hpp>
+#include <darkangel/scene_authority.hpp>
+#include <darkangel/scene_client.hpp>
 #include <darkangel/character_scene.hpp>
 #include <darkangel/assembly.hpp>
 #include <darkangel/combat_kit_assets.hpp>

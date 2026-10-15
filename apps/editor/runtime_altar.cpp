@@ -1,4 +1,6 @@
 #include "runtime_altar.hpp"
+#include <darkangel/scene_client.hpp>
+#include <darkangel/scene_content.hpp>
 #include <imgui.h>
 #include <algorithm>
 #include <cmath>

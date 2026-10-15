@@ -1,3 +1,6 @@
+#include <darkangel/scene_content.hpp>
+#include <darkangel/scene_inventory.hpp>
+#include <darkangel/collision_asset.hpp>
 #include <darkangel/scene_client.hpp>
 #include <darkangel/world_session.hpp>
 #include <darkangel/inventory_session.hpp>

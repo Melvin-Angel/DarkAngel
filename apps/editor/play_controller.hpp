@@ -1,5 +1,6 @@
 #pragma once
-#include "character_preview.hpp"
+#include <darkangel/scene_transition.hpp>
+#include <darkangel/assembly.hpp>
 #include "cue_debug.hpp"
 #include "native_input.hpp"
 #include "primitive_cue_sink.hpp"
@@ -26,6 +27,7 @@
 struct ImDrawList;
 namespace darkangel {
 class CharacterSceneSession;
+struct RuntimeSkinnedModel;
 class Hud;
 class VfxService;
 struct VfxView;

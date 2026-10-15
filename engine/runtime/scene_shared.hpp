@@ -1,14 +1,15 @@
 #pragma once
+#include <darkangel/check.hpp>
 // Rules both halves of a scene session apply to their own state: authority to what it simulates, a client to what it
 // predicts. Internal to engine/runtime.
-#include <darkangel/scene_definitions.hpp>
+#include <darkangel/scene_content.hpp>
 #include <darkangel/world_session.hpp>
 #include <darkangel/targeting.hpp>
 #include <cmath>
 #include <stdexcept>
 
 namespace darkangel::scene_detail {
-inline void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
+using darkangel::require;
 inline SessionLimits session_limits(SceneTiming timing){SessionLimits out;out.wall_clock_timeouts=timing==SceneTiming::Independent;return out;}
 // The frozen local ability behind an owner snapshot's running action.
 inline const AbilityDefinition& definition(const CharacterSceneCombat* combat,const AbilityOwnerSnapshot& snapshot){

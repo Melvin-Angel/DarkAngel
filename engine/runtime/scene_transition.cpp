@@ -1,4 +1,5 @@
 #include <darkangel/scene_transition.hpp>
+#include <darkangel/scene_inventory.hpp>
 #include <darkangel/character_scene.hpp>
 #include <algorithm>
 #include <stdexcept>

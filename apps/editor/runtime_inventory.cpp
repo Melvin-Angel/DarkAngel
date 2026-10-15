@@ -1,4 +1,6 @@
 #include "runtime_inventory.hpp"
+#include <darkangel/scene_client.hpp>
+#include <darkangel/scene_inventory.hpp>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>

@@ -1,4 +1,7 @@
 #include "network_play.hpp"
+#include <darkangel/scene_authority.hpp>
+#include <darkangel/scene_client.hpp>
+#include <darkangel/scene_inventory.hpp>
 #include <darkangel/character_scene.hpp>
 #include <darkangel/gns_transport.hpp>
 #include <darkangel/assembly.hpp>

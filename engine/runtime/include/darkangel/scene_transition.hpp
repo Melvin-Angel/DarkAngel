@@ -1,6 +1,9 @@
 #pragma once
-#include <darkangel/scene_definitions.hpp>
+#include <darkangel/scene_content.hpp>
+#include <darkangel/collision_asset.hpp>
+#include <darkangel/animation_graph.hpp>
 #include <darkangel/transport.hpp>
+#include <darkangel/inventory.hpp>
 #include <functional>
 #include <memory>
 
