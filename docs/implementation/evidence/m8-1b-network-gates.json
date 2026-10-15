@@ -3,37 +3,37 @@
     {
       "name": "party-combat-d3d12",
       "exit": 0,
-      "seconds": 26.515
+      "seconds": 25.594
     },
     {
       "name": "party-interaction-d3d12",
       "exit": 0,
-      "seconds": 26.969
+      "seconds": 26.688
     },
     {
       "name": "party-mismatch-d3d12",
       "exit": 0,
-      "seconds": 17.094
+      "seconds": 18.735
     },
     {
       "name": "party-travel-temple-d3d12",
       "exit": 0,
-      "seconds": 7.015
+      "seconds": 6.813
     },
     {
       "name": "party-travel-gate-d3d12",
       "exit": 0,
-      "seconds": 6.016
+      "seconds": 6.187
     },
     {
       "name": "party-travel-d3d12",
       "exit": 0,
-      "seconds": 57.032
+      "seconds": 56.266
     },
     {
       "name": "party-live-d3d12",
       "exit": 0,
-      "seconds": 32.953
+      "seconds": 33.281
     }
   ],
   "seconds": 173.7,

@@ -1,0 +1,95 @@
+{
+  "results": {
+    "build": {
+      "exit": 0,
+      "seconds": 113.922,
+      "log": "docs\\implementation\\evidence\\refactor-2c-build.log"
+    },
+    "ctest-full": {
+      "exit": 0,
+      "seconds": 655.5,
+      "log": "docs\\implementation\\evidence\\refactor-2c-ctest-full.log"
+    },
+    "attribute-authoring": {
+      "exit": 0,
+      "seconds": 65.906,
+      "log": "docs\\implementation\\evidence\\refactor-2c-attribute-authoring.log"
+    },
+    "exercises": {
+      "exit": 0,
+      "seconds": 964.562,
+      "log": "docs\\implementation\\evidence\\refactor-2c-exercises.log"
+    },
+    "items-world-ui": {
+      "exit": 0,
+      "seconds": 234.188,
+      "log": "docs\\implementation\\evidence\\refactor-2c-items-world-ui.log"
+    },
+    "gameplay-debug": {
+      "exit": 0,
+      "seconds": 29.969,
+      "log": "docs\\implementation\\evidence\\refactor-2c-gameplay-debug.log"
+    },
+    "nav-player-kit-play": {
+      "exit": 0,
+      "seconds": 32.859,
+      "log": "docs\\implementation\\evidence\\refactor-2c-nav-player-kit-play.log"
+    },
+    "composer-preview": {
+      "exit": 0,
+      "seconds": 40.516,
+      "log": "docs\\implementation\\evidence\\refactor-2c-composer-preview.log"
+    },
+    "composer-playback": {
+      "exit": 0,
+      "seconds": 52.141,
+      "log": "docs\\implementation\\evidence\\refactor-2c-composer-playback.log"
+    },
+    "graph-preview": {
+      "exit": 0,
+      "seconds": 38.437,
+      "log": "docs\\implementation\\evidence\\refactor-2c-graph-preview.log"
+    },
+    "graph-result": {
+      "exit": 0,
+      "seconds": 18.969,
+      "log": "docs\\implementation\\evidence\\refactor-2c-graph-result.log"
+    },
+    "character-preview": {
+      "exit": 1,
+      "seconds": 31.672,
+      "log": "docs\\implementation\\evidence\\refactor-2c-character-preview.log"
+    },
+    "backup-final": {
+      "exit": 0,
+      "seconds": 0.219,
+      "log": "docs\\implementation\\evidence\\refactor-2c-backup-final.log"
+    },
+    "actor-workflow": {
+      "exit": 0,
+      "seconds": 79.812,
+      "log": "docs\\implementation\\evidence\\refactor-2c-actor-workflow.log"
+    },
+    "character-editor": {
+      "exit": 0,
+      "seconds": 10.594,
+      "log": "docs\\implementation\\evidence\\refactor-2c-character-editor.log"
+    },
+    "input-workflows": {
+      "exit": 0,
+      "seconds": 17.0,
+      "log": "docs\\implementation\\evidence\\refactor-2c-input-workflows.log"
+    },
+    "external-import": {
+      "exit": 0,
+      "seconds": 13.672,
+      "log": "docs\\implementation\\evidence\\refactor-2c-external-import.log"
+    },
+    "slice": {
+      "exit": 0,
+      "seconds": 266.984,
+      "log": "docs\\implementation\\evidence\\refactor-2c-slice.log"
+    }
+  },
+  "qualification": "Full CTest serial; authoring suites run editor-only on the fixture verify_effect_reaction regenerated."
+}

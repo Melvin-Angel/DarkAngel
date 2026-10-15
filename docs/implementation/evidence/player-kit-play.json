@@ -10,12 +10,12 @@
     }
   ],
   "scope": "player-kit-play",
-  "base_head": "23a2e4c5e19604a9e97c3209bb35eb373a4bba37",
+  "base_head": "7221dece10507c304fa845eecf4693e97ecef469",
   "source_sha256": {
     "apps\\editor\\editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
     "apps\\editor\\editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
     "apps\\editor\\editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
-    "apps\\editor\\main.cpp": "1809dd1e70804865432563f59ab37e1aee244e348d64db9612ce32b3dea292ab",
+    "apps\\editor\\main.cpp": "29b7c97f5f6c62f7dadd57474dafdfa738f6beeefb9352be139f1d49bfc5c0f5",
     "apps\\editor\\native_authoring.cpp": "3b9201ad29937c6ecb1c6ca968bf90fea4b4a84029eafd351607b387784e05c1",
     "apps\\editor\\native_authoring.hpp": "d59cbe2af1935133b4615e96e93cb8f4307baae13018d7822f3bce7b43bb776b",
     "tests\\native_authoring_tests.cpp": "fa014abfd42712da246481e3c7f52e8e75d6754ee411be3d6af58a003443b56e",

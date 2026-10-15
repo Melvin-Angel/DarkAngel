@@ -1,0 +1,4 @@
+Editor-only verify_composer.py --playback; skipped []
+composer-playback-light passed
+composer-playback-20 passed
+composer-playback-60 passed

@@ -102,6 +102,13 @@ void RenderSystem::create_frame_pipelines() {
     pso_cull = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, source.c_str());
 }
 
+bool RenderSystem::pump_messages(){bool running=true;
+        MSG message{};while(PeekMessageW(&message,nullptr,0,0,PM_REMOVE)){if(message.message==WM_QUIT)running=false;TranslateMessage(&message);DispatchMessageW(&message);}return running;}
+void RenderSystem::follow_window_size(){
+        RECT current_client{};if(GetClientRect(window,&current_client)&&current_client.right>0&&current_client.bottom>0){resize_width=static_cast<unsigned>(current_client.right);resize_height=static_cast<unsigned>(current_client.bottom);}
+        if(resize_width && resize_height&&(resize_width!=swap->GetDesc().Width||resize_height!=swap->GetDesc().Height)){context->WaitForIdle();swap->Resize(resize_width,resize_height);resize_width=resize_height=0;}}
+ITextureView* RenderSystem::draw_ui(const float* background){auto* back=swap->GetCurrentBackBufferRTV();context->SetRenderTargets(1,&back,nullptr,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearRenderTarget(back,background,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);gui->Render(context);return back;}
+void RenderSystem::present(bool hidden){swap->Present(hidden?0:1);}
 void RenderSystem::shutdown() {
     context->Flush();
     context->WaitForIdle();

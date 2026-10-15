@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 
+namespace darkangel {
+class CharacterSceneSession;
+}
 namespace darkangel::editor_app {
 class Controller;
 class RecordingCueSink;
@@ -29,6 +32,9 @@ class AudioWorkspace {
     std::map<AssetId, AudioProfile> load(std::vector<AssetId> wanted);
     // The Audio tab. Profile audition is disabled while Play runs.
     void draw_panel(bool play_running);
+    // Once a frame: the mixer as the project (or its open draft) has it, encounter profiles layered while their
+    // encounter runs, and the engine's clock outside Play. tab_shown: the Audio tab is the open workspace.
+    void frame(unsigned frame, double seconds, bool tab_shown, CharacterSceneSession* session);
 
     struct State {
         AssetId sound, profile;

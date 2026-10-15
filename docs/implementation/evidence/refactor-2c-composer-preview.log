@@ -1,0 +1,4 @@
+Editor-only verify_composer.py --preview; skipped []
+composer-preview-native passed
+composer-preview-0 passed
+composer-preview-20 passed

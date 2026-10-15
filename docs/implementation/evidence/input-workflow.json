@@ -1,68 +1,68 @@
 {
   "schema": 1,
-  "base_head": "23a2e4c5e19604a9e97c3209bb35eb373a4bba37",
+  "base_head": "7221dece10507c304fa845eecf4693e97ecef469",
   "scope": "Native semantic input/chords and frozen profile; Win32 message adapter with synthetic source; full editor Game/Scene/Assets/Tools/Settings workflows and mapped Loopback character movement. One editor product; feature-disabled targets are shared-library checks only.",
   "gates": [
     {
       "name": "input-workflow-core",
       "exit": 0,
-      "seconds": 0.281
+      "seconds": 0.187
     },
     {
       "name": "input-workflow-platform",
       "exit": 0,
-      "seconds": 0.078
+      "seconds": 0.016
     },
     {
       "name": "input-workflow-royal-regression",
       "exit": 0,
-      "seconds": 9.219
+      "seconds": 7.906
     },
     {
       "name": "input-workflow-game-d3d12",
       "exit": 0,
-      "seconds": 2.078
+      "seconds": 1.891
     },
     {
       "name": "input-workflow-switch-d3d12",
       "exit": 0,
-      "seconds": 1.516
+      "seconds": 0.937
     },
     {
       "name": "input-workflow-game-vulkan",
       "exit": 0,
-      "seconds": 1.14
+      "seconds": 1.391
     },
     {
       "name": "input-workflow-switch-vulkan",
       "exit": 0,
-      "seconds": 2.203
+      "seconds": 1.39
     },
     {
       "name": "input-workflow-scene",
       "exit": 0,
-      "seconds": 2.11
+      "seconds": 1.078
     },
     {
       "name": "input-workflow-bindings",
       "exit": 0,
-      "seconds": 1.719
+      "seconds": 0.688
     },
     {
       "name": "input-workflow-settings",
       "exit": 0,
-      "seconds": 1.218
+      "seconds": 1.141
     }
   ],
-  "binary_sha256": "faf41b29845dd9a8e8edf5aac4122106e761b937a071535d9d307396aa15add9",
+  "binary_sha256": "04de8afd87b8eb275af369cedf46df4307a226983723057e4031540b5fc7aa6c",
   "implementation_sha256": {
-    "CMakeLists.txt": "fbe9ec59087d0e568063833de19bbc626649a17373d125f9b9e7a6d52f8c02bd",
+    "CMakeLists.txt": "55868d536dfc937a47301c0fd9b713d29c7f34b00b5628a6744d923bdc0591b6",
     "engine/runtime/input.cpp": "94a7f47883eae9e0747da0ab78eaaf24e5695d9501b0f5a2655a8519f60056d4",
     "engine/runtime/include/darkangel/input.hpp": "162bf9075cbd5fb9143ec6a53e0497779c95cb10668f742f9fc42886332aac23",
     "engine/assets/input_cooker.cpp": "e1869126cc13a582714ebaf662b7474f4330185ff347c63ee59ef1d70e702ff0",
     "tools/editor/editor_document.cpp": "943ab83ff4dd8f5ee7a6cbd22ed54a17fd0ccdeec5747efc047d0210351aee9e",
     "content/input/royal_player.dainput": "164066877a6ae8f3a1f2f5d692bc10a4df995f85a2373f0c7b851a8408eba8c0",
-    "apps/editor/main.cpp": "1809dd1e70804865432563f59ab37e1aee244e348d64db9612ce32b3dea292ab",
+    "apps/editor/main.cpp": "29b7c97f5f6c62f7dadd57474dafdfa738f6beeefb9352be139f1d49bfc5c0f5",
     "apps/editor/native_input.cpp": "10380c9cb19e821905ee1366f1b862cf6a2386f78cca920e4bce4a474e362af3",
     "apps/editor/native_input.hpp": "0dfbe3bda78364553eda193af15497095e33629ff2df04fbbaf52b9aaa2103ad",
     "apps/editor/editor_ui.cpp": "62eedc057b322ab0ff615881f71baea7a15fe109503bbc722fa5ff1c07b847e5",

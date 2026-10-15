@@ -7,13 +7,13 @@
 [39mParty guest bootstrap readiness=2 revision=0 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
 [39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205210000
 [39mParty guest bootstrap readiness=3 revision=9 player=0 collision=0 motors=0 corrections=0 public=0 frames=0 coherent=0 paired=0
-Party guest bootstrap readiness=4 revision=9 player=7 collision=0 motors=1 corrections=1 public=3 frames=0 coherent=0 paired=1
+[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205310000
+[39mParty guest bootstrap readiness=4 revision=9 player=7 collision=0 motors=1 corrections=1 public=3 frames=0 coherent=0 paired=1
 Party guest bootstrap readiness=4 revision=9 player=7 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party guest prepared epoch=1 owner=0277daf836539698323a9e7e131074c0
-[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205080000
-[39mScript quit requested tick=1196 steps=3/3
-Viewport foreground pixels=525512 capture=C:\DarkAngel\docs\implementation\evidence\party-live-d3d12-second.png
-DarkAngel editor rendered 627 frames with d3d12
+Script quit requested tick=1203 steps=3/3
+Viewport foreground pixels=525488 capture=C:\DarkAngel\docs\implementation\evidence\party-live-d3d12-second.png
+DarkAngel editor rendered 672 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 16/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

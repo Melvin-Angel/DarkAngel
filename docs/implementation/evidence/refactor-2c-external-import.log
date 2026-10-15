@@ -1,0 +1,2 @@
+Editor-only verify_external_import.py ; skipped ['external-import-native', 'external-import-affected', 'external-import-no-animation']
+Typed import and native editor focused acceptance passed

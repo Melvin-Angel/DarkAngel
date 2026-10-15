@@ -252,3 +252,80 @@ Not run for this commit: full CTest (no native or test source changed) and `veri
 | world_session.hpp dependent objects | 70 | 73 |
 
 main.cpp is 78.6% below the 360,947-byte baseline. Fan-out grows by three objects: the new Play translation units include `character_preview.hpp`. Narrowing is step 4.
+
+## Step 2 (completion): EditorApp, verified
+
+`main()` is now ten lines: parse options, construct `EditorApp`, `run()`. EditorApp is the composition root: it creates the services in dependency order, wires their callbacks and runs the frame loop by calling them. It holds no gameplay, rendering or authoring logic of its own beyond the startup selections and the reload orchestration.
+
+New services for what remained in main:
+
+| Service | Owns |
+| --- | --- |
+| `render/SceneResources` | Main model, scene models and skins, worn mask models, projectile shape, skin pipelines and palette buffer, diagnostic clip; prepare_model, reload candidates, shader reload |
+| `render/SceneViewport` | Viewport render targets (and the second player's), the workspace camera, object/skin/mask/scatter/projectile drawing, the frame's effect view |
+| `PosePreviews` | Composer, Character and graph pose previews and their Shell commands |
+| `ViewportTools` | Picking, placement surface, the debug overlay and its drawn counters |
+| `RenderSystem` (extended) | Window message pump, swap-chain resize, UI pass and present |
+| `AudioWorkspace::frame`, `VfxWorkspace::preview_frame` | Their per-frame mixer/clock and VFX tab preview |
+
+Creation order (destruction is the reverse, written out in `~EditorApp`):
+
+```mermaid
+flowchart TD
+    Options[EditorOptions, ModelStore, lease] --> Process[COM + DPI]
+    Process --> Render[RenderSystem: window, device, swap chain, ImGui]
+    Render --> Scene[SceneResources]
+    Scene --> Editor[Controller + Shell]
+    Editor --> Cues[CueRecorders]
+    Cues --> Vfx[VfxWorkspace]
+    Vfx --> Audio[AudioWorkspace]
+    Audio --> Nav[NavigationTool]
+    Nav --> Saves[PlaySaves]
+    Saves --> Hud[HudResources, RuntimeInventory, RuntimeAltar]
+    Hud --> Play[PlayController]
+    Play --> Inspector[GameplayInspector]
+    Inspector --> Previews[PosePreviews]
+    Previews --> Tools[ViewportTools]
+    Tools --> Viewport[SceneViewport]
+```
+
+```mermaid
+flowchart LR
+    App[EditorApp] -->|owns| Render & Scene & Editor & Vfx & Audio & Nav & Saves & Hud & Play & Inspector & Previews & Tools & Viewport
+    Play -->|PlayContext| Editor & Vfx & Audio & Nav & Saves & Hud
+    Inspector -->|session, authoring commands, PlayCueState| Play
+    Tools -->|session view, debug selection| Play
+    Viewport -->|camera, poses, masks| Play
+    Viewport --> Previews & Scene
+    Exercises[exercises/*] -->|narrow contexts| Editor & Play & Vfx & Audio & Nav
+```
+
+A latent lifetime bug disappeared with the move: the Composer preview callbacks captured a block-local `ActorTagSnapshot` and the `graph_parameters` lambda by reference, which dangled once main's `if` block ended. Both are members of PosePreviews now.
+
+Game-module seam (EXTENSIBILITY_AUDIT.md, first recommendation). The editor's Ashen Roots call sites are now each in one service: `ashen_roots::royal_hud` and `DAE_GAME_UI_DIR` in `PlayController::draw_hud`, the prop shader in `render::shader_text`, `configure_royal_combat` in `character_preview.cpp`. A `GameModule` passed through `PlayContext` (HUD model, UI directory) and to `SceneResources` (shader) would replace them without touching the frame loop, and a future `DarkAngelGame` could host PlayController with its own app class.
+
+### Verification of step 2 (completion)
+
+The runner is `.cache/refactor_2c_verify.py`; the receipt is `evidence/refactor-2c.json`, with `refactor-2c-followup.json` for one rerun. All results are on the formatted tree:
+
+- Guarded full build (114 s).
+- Full CTest, serial with nothing else running: 107/107 in 655 s. `M5.attribute_authoring` passed inside its 90 s limit this time (57 s) and again when run directly (66 s).
+- `verify_effect_reaction.py` in full (965 s), followed directly by `verify_items_world_ui.py` with the nested network party (234 s).
+- Editor-only on that fixture: Gameplay Inspector panel, Player Kit Play, Composer preview and playback, graph preview and graph result, actor workflow.
+- `verify_character_preview.py`, `verify_character_editor.py` (acceptance: model and shader reload), the D3D12/Vulkan gates of `verify_input_workflows.py` and the import dialog gates of `verify_external_import.py`.
+- Fresh `verify_m8_slice.py` 6/6 (267 s).
+
+One first-pass failure was verifier ordering, not product behaviour: Character preview stopped before starting the editor because no suite had yet published `gui_character` into the regenerated fixture. It passed after the actor workflow had published it (`refactor-2c-followup-character-preview.log`).
+
+Not run: `verify_royal_renderer.py` needs Pillow, which is not installed; its acceptance exercise is the one `verify_character_editor.py` passed. Only the full-feature configuration (character scene, HUD, network, navigation, behaviour, audio) is built on this machine; the `#ifdef` paths for reduced configurations are kept but not compiled, and some were already inconsistent before this step. Network evidence remains same-machine UDP/D3D12.
+
+| Metric | Baseline | Step 2 first part | Step 3 | Step 2 complete |
+| --- | ---: | ---: | ---: | ---: |
+| main.cpp bytes | 360,947 | 177,183 | 77,235 | 497 |
+| main.cpp compilation (Ninja edge) | 39.6 s (controlled touch) | | | 2.9 s |
+| Exercise references in main | 77 spellings | 19 | 0 | 0 |
+| world_session.hpp dependent objects | 65 | 70 | 73 | 77 |
+
+The indicative targets for main (about 15 KB and 15 s) are met. The cost moved, it did not disappear: `play_controller.cpp` (92 KB formatted) compiled in 19 s and `editor_app.cpp` (23 KB) is the composition root, both during a four-job full rebuild, not a controlled benchmark. Fan-out of the hub headers grows by four objects in this part (EditorApp, the scene viewport, pose previews and viewport tools include `character_preview.hpp` or `play_controller.hpp`); `play_controller.hpp` itself pulls in `character_preview.hpp`, which is the first header step 4 should narrow.
+
+**Next:** step 4, header narrowing, measured with `ninja -t deps` before and after. `play_controller.hpp` and `character_preview.hpp` join the five hub headers on the list. The game-module seam can follow at any point (see above). Protected content is unchanged: the two Royal scene sources and their untracked `.records/` folders.

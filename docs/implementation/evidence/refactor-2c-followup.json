@@ -1,0 +1,10 @@
+{
+  "results": {
+    "character-preview": {
+      "exit": 0,
+      "seconds": 46.562,
+      "log": "docs\\implementation\\evidence\\refactor-2c-followup-character-preview.log"
+    }
+  },
+  "reason": "First pass ran before any suite had published gui_character into the regenerated fixture; the actor workflow publishes it."
+}

@@ -24,6 +24,13 @@ class RenderSystem {
     void create_frame_pipelines();
     // Waits for the GPU, releases the ImGui backend and destroys the window. Called once, after the frame loop.
     void shutdown();
+    // Dispatches this frame's window messages; false once the window asked to quit.
+    bool pump_messages();
+    // Follows the window's client size: the swap chain is resized when it changed.
+    void follow_window_size();
+    // Binds and clears the back buffer and draws the ImGui frame into it; returns the back buffer.
+    Diligent::ITextureView* draw_ui(const float* background);
+    void present(bool hidden);
 
     HWND window{};
     Diligent::RefCntAutoPtr<Diligent::IRenderDevice> device;

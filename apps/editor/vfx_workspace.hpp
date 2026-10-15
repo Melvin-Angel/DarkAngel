@@ -22,6 +22,9 @@ class VfxWorkspace {
     void select(const AssetInfo&);
     void draw_cues();
     void draw_panel();
+    // Once a frame while the VFX tab shows its preview: the selected effect in a loop at the origin, cooked again when
+    // its source changes on disk, drawn against the viewport's depth.
+    void preview_frame(unsigned frame, double step, bool shown, const VfxView& view);
 
     struct State {
         AssetId selected;

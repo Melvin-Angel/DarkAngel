@@ -1,26 +1,26 @@
 {
   "schema": 1,
-  "base_head": "23a2e4c5e19604a9e97c3209bb35eb373a4bba37",
+  "base_head": "7221dece10507c304fa845eecf4693e97ecef469",
   "scope": "Read-only Game confirmed/predicted attributes, action/outcomes and available source-aware tag/effect attribution",
   "gates": [
     {
       "name": "gameplay-debug-sources",
       "exit": 0,
-      "seconds": 0.047
+      "seconds": 0.032
     },
     {
       "name": "gameplay-debug-panel",
       "exit": 0,
-      "seconds": 31.0
+      "seconds": 29.687
     }
   ],
   "source_sha256": {
     "apps/editor/gameplay_debug.hpp": "d322b151de86c14002ad1a6073f4bff013e68044278ccae896e69560781f903a",
     "apps/editor/editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
     "apps/editor/editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
-    "apps/editor/main.cpp": "1809dd1e70804865432563f59ab37e1aee244e348d64db9612ce32b3dea292ab",
+    "apps/editor/main.cpp": "29b7c97f5f6c62f7dadd57474dafdfa738f6beeefb9352be139f1d49bfc5c0f5",
     "tests/gameplay_debug_tests.cpp": "ab5087b632120b66b98a412ae1b5b9e5ee555b64bd7d77a3a0d1d7fda24bdd26",
-    "CMakeLists.txt": "fbe9ec59087d0e568063833de19bbc626649a17373d125f9b9e7a6d52f8c02bd",
+    "CMakeLists.txt": "55868d536dfc937a47301c0fd9b713d29c7f34b00b5628a6744d923bdc0591b6",
     "scripts/verify_gameplay_debug.py": "24597a034cf6b0db8f94c852920a7a6b9bbd1686dbdae1a2b94825344edb088e"
   },
   "limitations": [

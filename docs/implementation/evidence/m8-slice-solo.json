@@ -35,7 +35,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 2269,
+  "frame": 2622,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -114,8 +114,8 @@
     0.4999995231628418,
     2.5
   ],
-  "predicted_tick": 21,
-  "process": 33056,
+  "predicted_tick": 23,
+  "process": 23712,
   "ready": true,
   "rebases": 1,
   "refused": 0,
@@ -127,7 +127,7 @@
   "schema": 1,
   "script_count": 27,
   "script_steps": 27,
-  "tick": 21,
+  "tick": 23,
   "travel_failures": 0,
   "world": {
     "checkpoint": {

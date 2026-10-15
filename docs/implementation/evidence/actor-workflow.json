@@ -1,27 +1,27 @@
 {
   "schema": 1,
-  "base_head": "23a2e4c5e19604a9e97c3209bb35eb373a4bba37",
+  "base_head": "7221dece10507c304fa845eecf4693e97ecef469",
   "scope": "Initial Character/Player typed creation/reference/history workflows and complete frozen Player fresh Play",
   "gates": [
     {
       "name": "actor-workflow-assets",
       "exit": 0,
-      "seconds": 51.922
+      "seconds": 53.812
     },
     {
       "name": "actor-workflow-fresh-play",
       "exit": 0,
-      "seconds": 22.719
+      "seconds": 22.5
     },
     {
       "name": "actor-workflow-character",
       "exit": 0,
-      "seconds": 1.5
+      "seconds": 1.813
     },
     {
       "name": "actor-workflow-player",
       "exit": 0,
-      "seconds": 1.984
+      "seconds": 1.468
     }
   ],
   "source_sha256": {
@@ -35,7 +35,7 @@
     "apps/editor/editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
     "apps/editor/editor_controller.hpp": "407c5e307acb72112f5072b558b3a9e507e9d5412dbe50af706b76552b870da6",
     "apps/editor/reference_picker.hpp": "851849572deacbd1cfcc5b19cc5254324d58955231dd250135b0f0695d9025df",
-    "apps/editor/main.cpp": "1809dd1e70804865432563f59ab37e1aee244e348d64db9612ce32b3dea292ab",
+    "apps/editor/main.cpp": "29b7c97f5f6c62f7dadd57474dafdfa738f6beeefb9352be139f1d49bfc5c0f5",
     "scripts/open_royal_scene.ps1": "53b7c1b0034b7c90f41c8ea945e36075d1f14768857092d959a25b893e03daea",
     "scripts/verify_actor_workflow.py": "f30df3f47022bb02e51e47b630dff20f88f32fc33514485f50daca06e8c9811b"
   },
