@@ -121,7 +121,7 @@ U4 could come before U3 if editing documents by hand in a text editor is in the 
 
 ## Historical scheduling (superseded)
 
-The original proposal put UI after M7 steps 1–4; this is superseded by R6.1/R6.2 and R8 in the main roadmap. Historical M5 HUD and M8 progression acceptance remain intact. Do not use this paragraph or its old U1–U6 rows to schedule current implementation.
+The original proposal put UI after M7 steps 1–4; this is superseded by R6.1/R6.2 in the main roadmap (world panels, formerly R8, are in the deferred backlog). Historical M5 HUD and M8 progression acceptance remain intact. Do not use this paragraph or its old U1–U6 rows to schedule current implementation.
 
 ## Historical questions (not a pending permission gate)
 

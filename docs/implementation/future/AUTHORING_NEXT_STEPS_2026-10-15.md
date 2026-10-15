@@ -6,7 +6,7 @@
 
 The refactor and agreed scene-scale implementation are complete, excluding explicit deferrals. Preserve the completed results in [REFACTOR_REPORT.md](../current/REFACTOR_REPORT.md) and [SCENE_SCALE_PLAN.md](../current/SCENE_SCALE_PLAN.md), including phases 0–5, 7 and 8 (with 3b). Scene-scale phase 6 GPU instancing, reduced-feature build verification, cross-machine testing, EOS validation and optional walkable-ground reachability warnings remain deferred in the main roadmap. Historical subsystem qualification remains open where recorded; same-machine GNS is not remote/EOS proof.
 
-R1 Scene navigation is **Implemented and locally verified**, as recorded in the [R1 implementation report](../current/SCENE_NAVIGATION_REPORT.md). R2–R8 remain **Planned**. R2 editor-wide UX overhaul is the next recommended major milestone; this index does not implement it. Read [STATUS](../STATUS.md), [CONTINUE](../CONTINUE.md) and the latest owning report for evidence; older paragraphs are historical.
+R1 Scene navigation is **Implemented and locally verified**, as recorded in the [R1 implementation report](../current/SCENE_NAVIGATION_REPORT.md). R2–R7 remain **Planned**; world puzzle UI (formerly R8) is in the deferred backlog. R2 editor-wide UX overhaul is the next recommended major milestone; this index does not implement it. Read [STATUS](../STATUS.md), [CONTINUE](../CONTINUE.md) and the latest owning report for evidence; older paragraphs are historical.
 
 ## Detailed plans and old feature IDs
 
@@ -19,7 +19,7 @@ R1 Scene navigation is **Implemented and locally verified**, as recorded in the 
 | G – Assets/material workflow | R5 | [Assets/material editing](ASSETS_MATERIAL_EDITING_PLAN.md): stable material assignments, texture replacement, reimport and Edit Prefab routing |
 | B – UI editor MVP + D – Gameplay UI | R6.1 + R6.2 | [UI authoring MVP](UI_AUTHORING_MVP_DESIGN.md): U0/U1 foundation/editor, U2 gameplay; [older UI plan](UI_PLAN.md) kept for requirements history |
 | H – Sky/Lighting + I – Post processing + J – Baking | R7.1 + R7.2 + R7.3 | [Environment/rendering plan](ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md): staged renderer support and acceptance; probes later |
-| E – World puzzle UI | R8 | [UI authoring U3](UI_AUTHORING_MVP_DESIGN.md): UI Surface, offscreen renderer, ray input and host-approved puzzle adapter |
+| E – World puzzle UI | Backlog (formerly R8; deferred 16 October 2026) | [UI authoring U3](UI_AUTHORING_MVP_DESIGN.md): UI Surface, offscreen renderer, ray input and host-approved puzzle adapter |
 | Tiled navigation (no A–J ID) | Future backlog, unscheduled, low priority | [Tiled navigation plan](TILED_NAVIGATION_PLAN.md): Recast tiled baking, multi-tile Detour, incremental rebuild and streaming readiness |
 
 The playable sandbox gate was removed from the schedule on 16 October 2026 (too early); see the roadmap's deferred work.

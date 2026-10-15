@@ -30,7 +30,7 @@ Tooling reads or writes these by path, so they stay at this level: [PACKAGING.md
 - [EDITOR_UX_OVERHAUL_PLAN.md](future/EDITOR_UX_OVERHAUL_PLAN.md): dedicated R2 audit/design-system, existing-window improvements and cross-window workflow qualification.
 - [GAMEPLAY_CONFIGURATION_DESIGN.md](future/GAMEPLAY_CONFIGURATION_DESIGN.md): R3 shared Player/NPC movement profiles and deterministic runtime ownership.
 - [PREFAB_PLACEMENT_DESIGN.md](future/PREFAB_PLACEMENT_DESIGN.md): R4 place/edit/swap and publication contracts, extending the prefab proposal.
-- [UI_AUTHORING_MVP_DESIGN.md](future/UI_AUTHORING_MVP_DESIGN.md): R6.1/R6.2 authoring/gameplay UI and R8 world panels; technical U0–U3 steps.
+- [UI_AUTHORING_MVP_DESIGN.md](future/UI_AUTHORING_MVP_DESIGN.md): R6.1/R6.2 authoring/gameplay UI and the deferred world panels (formerly R8); technical U0–U3 steps.
 - [ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md](future/ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md): cubemap/spheremap and procedural skies, Lighting/fog/baking tool, post-processing profiles and researched renderer prerequisites.
 - [ASSETS_MATERIAL_EDITING_PLAN.md](future/ASSETS_MATERIAL_EDITING_PLAN.md): imported model material/texture editing, reimport-safe ownership and Assets > Edit Prefab routing.
 - [PREFABS_AND_COMPONENTS_TODO.md](future/PREFABS_AND_COMPONENTS_TODO.md): high-priority prefab workflow and Add component.
@@ -45,4 +45,4 @@ Tooling reads or writes these by path, so they stay at this level: [PACKAGING.md
 - [plans/](legacy/plans/): plans that were carried out or replaced (editor workflow, combat sandbox, M5 reaction presentation, design revision).
 - [prompts/](legacy/prompts/): earlier continuation prompts and usage handoffs for Codex and Claude Code sessions.
 
-Product vision and the authoritative historical M0–M9 scope plus current R1–R8 development order live outside this folder: [vision](../vision/DarkAngel_Engine_Vision.md), [architecture and roadmap](../architecture/DarkAngel_Implementation_Handoff.md), [actor gameplay design](../architecture/Actor_Gameplay_Design.md).
+Product vision and the authoritative historical M0–M9 scope plus current R1–R7 development order live outside this folder: [vision](../vision/DarkAngel_Engine_Vision.md), [architecture and roadmap](../architecture/DarkAngel_Implementation_Handoff.md), [actor gameplay design](../architecture/Actor_Gameplay_Design.md).
