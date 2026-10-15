@@ -1,0 +1,65 @@
+{
+  "results": {
+    "build": {
+      "exit": 0,
+      "seconds": 120.406,
+      "log": "docs\\implementation\\evidence\\refactor-3-build.log"
+    },
+    "ctest": {
+      "exit": 0,
+      "seconds": 28.547,
+      "log": "docs\\implementation\\evidence\\refactor-3-ctest.log"
+    },
+    "exercises": {
+      "exit": 0,
+      "seconds": 968.297,
+      "log": "docs\\implementation\\evidence\\refactor-3-exercises.log"
+    },
+    "items-world-ui": {
+      "exit": 0,
+      "seconds": 236.593,
+      "log": "docs\\implementation\\evidence\\refactor-3-items-world-ui.log"
+    },
+    "gameplay-debug": {
+      "exit": 0,
+      "seconds": 31.313,
+      "log": "docs\\implementation\\evidence\\refactor-3-gameplay-debug.log"
+    },
+    "nav-player-kit-play": {
+      "exit": 0,
+      "seconds": 33.515,
+      "log": "docs\\implementation\\evidence\\refactor-3-nav-player-kit-play.log"
+    },
+    "actor-workflow": {
+      "exit": 0,
+      "seconds": 78.344,
+      "log": "docs\\implementation\\evidence\\refactor-3-actor-workflow.log"
+    },
+    "composer-preview": {
+      "exit": 0,
+      "seconds": 43.688,
+      "log": "docs\\implementation\\evidence\\refactor-3-composer-preview.log"
+    },
+    "composer-playback": {
+      "exit": 0,
+      "seconds": 63.531,
+      "log": "docs\\implementation\\evidence\\refactor-3-composer-playback.log"
+    },
+    "character-editor": {
+      "exit": 0,
+      "seconds": 9.812,
+      "log": "docs\\implementation\\evidence\\refactor-3-character-editor.log"
+    },
+    "input-workflows": {
+      "exit": 0,
+      "seconds": 21.985,
+      "log": "docs\\implementation\\evidence\\refactor-3-input-workflows.log"
+    },
+    "slice": {
+      "exit": 0,
+      "seconds": 275.406,
+      "log": "docs\\implementation\\evidence\\refactor-3-slice.log"
+    }
+  },
+  "qualification": "Native authoring/test binaries unchanged by this step; authoring suites run editor-only on the fixture verify_effect_reaction regenerated."
+}

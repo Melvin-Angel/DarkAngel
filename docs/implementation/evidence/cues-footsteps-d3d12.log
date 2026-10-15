@@ -12,7 +12,7 @@ DarkAngel editor rendered 120 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 15/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 234.75 KB / 235.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.9%. Peak utilization (used/allocated): 22.9%
+                       Peak used/aligned/allocated size: 232.00 KB / 232.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 22.7%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

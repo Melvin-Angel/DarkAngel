@@ -9,10 +9,10 @@
 [39mParty host bootstrap readiness=4 revision=6 player=4 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party host prepared epoch=1 players=2
 Party host resumed epoch=1 players=2
-Viewport foreground pixels=205361 capture=C:\DarkAngel\docs\implementation\evidence\party-world-ui-cold-d3d12.png
+Viewport foreground pixels=205372 capture=C:\DarkAngel\docs\implementation\evidence\party-world-ui-cold-d3d12.png
 Party host dropped seat=1 reason=Guest disconnected
 Script quit requested tick=330 steps=4/4
-DarkAngel editor rendered 6039 frames with d3d12
+DarkAngel editor rendered 6202 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 16/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

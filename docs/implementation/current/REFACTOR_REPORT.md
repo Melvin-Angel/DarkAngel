@@ -212,3 +212,43 @@ The runner is `.cache/refactor_2_verify.py`; the receipt is `evidence/refactor-2
 - Fresh `verify_m8_slice.py` passes 6/6 (267 s).
 
 Not run: `verify_royal_renderer.py` stops at `import PIL` because Pillow is not installed on this machine. Its acceptance exercise is the one `verify_character_editor.py` passed. Full CTest is not rerun because no native or test source changed. The prompt requires it, with NativeAuthoringTests alone, before the final step-2 commit, which still needs the EditorApp aggregation.
+
+## Step 3: PlayController and the Gameplay Inspector, verified
+
+Continued by Claude Code from `23a2e4c`. Play orchestration moved out of `main()` into services with narrow contexts:
+
+| Module | Moved from main | Receives |
+| --- | --- | --- |
+| `PlayController` (`play_controller`) | Play start/stop (Controller's prepare/stop/update/step callbacks), the character session and transition coordinator, parked scenes and the scene provider, party host and guest, the saves hook (`save_play`, Tools > Saves, save polling), Play controls (InputManager, native input, synthetic input), scripts, cameras and directors, cue presentation (cue player, primitive and VFX sinks, effect/sound/trail/decal maps, cue loading), the runtime HUD drawing, HUD target, Play packaging (`authoring_roots`, `prepare_play_resources`, scene collision bake on save), reload candidates and the party diagnostic receipt | `PlayContext`: options, Controller, Shell, VFX/Audio workspaces, NavigationTool, HUD resources, cue recorders, saves, runtime inventory/altar, the window's input hook, a close-window and a reload-model callback, the uploaded scene models |
+| `GameplayInspector` (`gameplay_inspector`) | The Player, World, Cues and Actors tabs and the Game metrics readout; owns its debug selection (senses shown, world volumes, cue tab) | The session pointer, prepared resources and owner id, authoring commands (Controller, Shell), a read-only `PlayCueState`, the inventory inspector section and the HUD target |
+| `HudResources` (`play_hud`) | HUD font atlas textures, the ImGui render interface and the RmlUi document | The device |
+| `exercises/play_exercises` | Cue and game-debug inspector focus, senses observation, spawn selection, encounter volumes, refused activation, spline/encounter drawing checks, cue result check, spawn-senses check; `starts_play`, `local_party`, `select_startup_views` | Options, Controller, Shell, session, resources, debug selection, `PlayCueState`, first actor, drawn counters |
+| `exercises/synthetic_input` (extended) | Camera-look mouse pattern, heavy exercise's fixed travel/second-camera step | Options |
+| `scene_splines` | The built-spline helper shared by overlay, renderer and spline check | Controller, Shell |
+
+The cue recorders (`CueRecorders`) are made before the media workspaces, because AudioWorkspace's cue sink forwards to the audio recorder. Every moved body is textually the original (audited fragment by fragment against `23a2e4c`'s main); edits are limited to names (`play.`, `context_.`), captures (`[this]` instead of `[&]`) and the three exercise helpers.
+
+Ordering. Within the frame, the Play exercises' frame call sits where the cue focus was, ahead of the media and authoring-source frame calls; the game-debug check (frame 29), senses observation, spawn selection (frame 1) and encounter flag moved ahead of those two calls. They read Play state or set inspector/viewport flags that neither call reads or writes, and no gate combines them with media or authoring flags. The refused activation still follows the Play trigger directly. End of run keeps preview → navigation → spline/encounter → media → cues → spawn senses → gameplay → party receipt → authoring finish.
+
+Destruction. The cue player is destroyed before the sinks and workspaces it plays through, and the session before the cue player, as before. NavigationTool, saves, HUD resources and the runtime menus now outlive PlayController (they used to be destroyed before the session); none of them refers to the session.
+
+### Verification of step 3
+
+The runner is `.cache/refactor_3_verify.py`; the receipt is `evidence/refactor-3.json`. All results are on the formatted tree, and every step passed on its first run:
+
+- Guarded full build (120 s; the CMake source list changed, so it reconfigured) and M8/M6/M5.hud CTest 14/14 (29 s).
+- `verify_effect_reaction.py` in full (968 s): it regenerates the fixture and runs every Play gate, including cues, the refused activation, camera look, senses, spawn and encounter drawing, splines, two local players, scene transitions and the Audio/VFX/navigation tools.
+- `verify_items_world_ui.py` straight after it (237 s), including the nested two-process network party (host/guest, receipts).
+- Editor-only on that fixture: the Gameplay Inspector panel (`verify_gameplay_debug.py`), Player Kit Play, the actor workflow, Composer preview and playback.
+- `verify_character_editor.py` (acceptance exercise: model and shader reload through the new reload candidates) and the D3D12/Vulkan window, device and controls gates of `verify_input_workflows.py`.
+- Fresh `verify_m8_slice.py` 6/6 (275 s): placement, saves, revive, wipe, party travel and fast travel.
+
+Not run for this commit: full CTest (no native or test source changed) and `verify_royal_renderer.py` (Pillow is not installed). Both apply to the final step-2 commit.
+
+| Metric | Step 2 first part | Step 3 |
+| --- | ---: | ---: |
+| main.cpp bytes | 177,183 | 77,235 |
+| `args.exercise_*`/`select_*` references in main | 19 | 0 |
+| world_session.hpp dependent objects | 70 | 73 |
+
+main.cpp is 78.6% below the 360,947-byte baseline. Fan-out grows by three objects: the new Play translation units include `character_preview.hpp`. Narrowing is step 4.

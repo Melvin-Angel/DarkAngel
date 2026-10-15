@@ -22,7 +22,10 @@ class MediaExercises final : public Exercise {
     MediaContext context_;
 
   public:
-    explicit MediaExercises(MediaContext context) : context_(context) {}
+    explicit MediaExercises(MediaContext context) : context_(context) {
+        // The cue form exercise captures the VFX tab scrolled to its cue form.
+        context_.vfx.reveal_cue_form = context_.options.exercise_cue_form;
+    }
     void frame(unsigned frame) override {
         const auto& args = context_.options;
         auto& editor = context_.editor;

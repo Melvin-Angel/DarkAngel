@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802019d0000
-[39mViewport foreground pixels=608249 capture=C:\DarkAngel\docs\implementation\evidence\composer-playback-60.png
+[39mViewport foreground pixels=607552 capture=C:\DarkAngel\docs\implementation\evidence\composer-playback-60.png
 Composer preview playback clock=52 source=unchanged
 Composer isolated pose tick=52 joints=81 gameplay=stopped source=unchanged
 DarkAngel editor rendered 60 frames with d3d12

@@ -6,12 +6,12 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802050e0000
 [39mViewport foreground pixels=492715 capture=C:\DarkAngel\docs\implementation\evidence\transition-loading-d3d12.png
-Editor transition tick=99 players=2 arrivals=0 failures=0 phase=Awaiting_ready scene=a4e1b50f-23b9-44e6-ac67-f543bb25fd56 document=a4e1b50f-23b9-44e6-ac67-f543bb25fd56 authoring=9c95de2a-c2fb-4fb3-a2b2-8a83c7133e87 lever_used=0 first_prompt=1 overlay_frames=106 loading=1 ledger_records=0 scripts=1/2,0/0 pending=0
+Editor transition tick=99 players=2 arrivals=0 failures=0 phase=Awaiting_ready scene=afbc2f61-51b6-43af-a7ec-b89a63f3ddf2 document=afbc2f61-51b6-43af-a7ec-b89a63f3ddf2 authoring=fb97eea2-1586-4af8-9468-b2bab4cc7283 lever_used=0 first_prompt=1 overlay_frames=106 loading=1 ledger_records=0 scripts=1/2,0/0 pending=0
 DarkAngel editor rendered 160 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 297.50 KB / 297.50 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 29.1%
+                       Peak used/aligned/allocated size: 294.75 KB / 294.75 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 28.8%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

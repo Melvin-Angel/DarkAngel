@@ -28,4 +28,7 @@ private:
     void note(std::string line){log_.push_back(std::move(line));while(log_.size()>24)log_.pop_front();}
     bool visual_{};std::map<std::uint64_t,Held> held_;std::deque<std::string> log_;std::vector<std::string> started_;unsigned starts_{},stops_{},releases_{};
 };
+// What Play's cue player told the visual and the audio side, for the Cues tab. Made before the media workspaces, whose
+// sinks forward to it, and kept for the whole run.
+struct CueRecorders {RecordingCueSink visual{true},audio{false};};
 }

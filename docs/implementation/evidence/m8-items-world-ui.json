@@ -3,32 +3,32 @@
     {
       "name": "items-assets",
       "exit": 0,
-      "seconds": 15.5
+      "seconds": 15.344
     },
     {
       "name": "world-ui-native",
       "exit": 0,
-      "seconds": 2.438
+      "seconds": 5.39
     },
     {
       "name": "items-inventory",
       "exit": 0,
-      "seconds": 2.64
+      "seconds": 3.25
     },
     {
       "name": "items-consumable-d3d12",
       "exit": 0,
-      "seconds": 3.703
+      "seconds": 4.454
     },
     {
       "name": "items-mask-d3d12",
       "exit": 0,
-      "seconds": 2.969
+      "seconds": 3.828
     },
     {
       "name": "party-regression",
       "exit": 0,
-      "seconds": 177.484
+      "seconds": 173.718
     },
     {
       "name": "world-ui-host-d3d12",

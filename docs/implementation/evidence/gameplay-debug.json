@@ -1,37 +1,27 @@
 {
   "schema": 1,
-  "base_head": "7da60d250e14661aeba6dc9183b23a0ae6934e5e",
+  "base_head": "23a2e4c5e19604a9e97c3209bb35eb373a4bba37",
   "scope": "Read-only Game confirmed/predicted attributes, action/outcomes and available source-aware tag/effect attribution",
   "gates": [
     {
-      "name": "gameplay-debug-build",
-      "exit": 0,
-      "seconds": 51.539
-    },
-    {
-      "name": "gameplay-debug-native",
-      "exit": 0,
-      "seconds": 18.375
-    },
-    {
       "name": "gameplay-debug-sources",
       "exit": 0,
-      "seconds": 0.019
+      "seconds": 0.047
     },
     {
       "name": "gameplay-debug-panel",
       "exit": 0,
-      "seconds": 4.869
+      "seconds": 31.0
     }
   ],
   "source_sha256": {
     "apps/editor/gameplay_debug.hpp": "d322b151de86c14002ad1a6073f4bff013e68044278ccae896e69560781f903a",
-    "apps/editor/editor_workspaces.cpp": "4809e24f231f95d777b5435d293668e76bf95a9fbe8a1024b03fd0efd7c88b78",
-    "apps/editor/editor_ui.hpp": "4d4acb26cbc8a14a137f89769aa7dedbf308861573b97d0fffdf1db32491ee23",
-    "apps/editor/main.cpp": "3d7a43dd7965374c0652459aeb99c0a53977a800fbd84666d52de19205bc0509",
+    "apps/editor/editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f",
+    "apps/editor/editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
+    "apps/editor/main.cpp": "1809dd1e70804865432563f59ab37e1aee244e348d64db9612ce32b3dea292ab",
     "tests/gameplay_debug_tests.cpp": "ab5087b632120b66b98a412ae1b5b9e5ee555b64bd7d77a3a0d1d7fda24bdd26",
-    "CMakeLists.txt": "887a0e07250bc90c16fd689f644382233c26ec0b0ffa5a79c1c783c727fdc30f",
-    "scripts/verify_gameplay_debug.py": "9e3e5701f7b7524e9c28fe5c75091f7abedb2a5fac3ec50f8b3af9f8432a54f3"
+    "CMakeLists.txt": "fbe9ec59087d0e568063833de19bbc626649a17373d125f9b9e7a6d52f8c02bd",
+    "scripts/verify_gameplay_debug.py": "24597a034cf6b0db8f94c852920a7a6b9bbd1686dbdae1a2b94825344edb088e"
   },
   "limitations": [
     "Native source attribution tests and one D3D12 active heavy/status capture; no physical input or full multiplayer qualification.",

@@ -3,7 +3,7 @@
 [39m[39mDiligent Engine: Info: Can not disable SeparablePrograms
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
-[39mEditor travel_place scene=a4e1b50f-23b9-44e6-ac67-f543bb25fd56 entry=5887605db227f47e6f1b8e880e3dbd56 transition=9c8bc74c0c36158ce3593d2bcbaeec77 entries=1 transitions=1
+[39mEditor travel_place scene=afbc2f61-51b6-43af-a7ec-b89a63f3ddf2 entry=5887605db227f47e6f1b8e880e3dbd56 transition=9c8bc74c0c36158ce3593d2bcbaeec77 entries=1 transitions=1
 [93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201860000
 [39mViewport foreground pixels=865880 capture=C:\DarkAngel\docs\implementation\evidence\transition-place-d3d12.png

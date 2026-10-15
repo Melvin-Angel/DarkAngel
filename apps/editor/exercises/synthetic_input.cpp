@@ -27,4 +27,12 @@ bool synthetic_control_down(const EditorOptions& args, unsigned frame, InputCont
             : args.exercise_combat      ? (control == input_control("Mouse.Left") && (frame == 0 || frame == 60))
                                         : control == input_control("Keyboard.W") && (!args.exercise_workspaces || frame != 60));
 }
+bool fixed_presentation_step(const EditorOptions& args) {
+    return args.exercise_heavy;
+}
+std::optional<std::array<float, 2>> scripted_look(const EditorOptions& args, unsigned frame) {
+    if (args.exercise_camera_look && frame >= 8 && frame < 18)
+        return std::array<float, 2>{6, -3};
+    return std::nullopt;
+}
 } // namespace darkangel::editor_app::exercises

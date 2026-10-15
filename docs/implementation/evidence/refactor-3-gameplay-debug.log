@@ -1,0 +1,3 @@
+Editor-only verify_gameplay_debug.py ; skipped ['gameplay-debug-build', 'gameplay-debug-native']
+gameplay-debug-sources passed
+gameplay-debug-panel passed

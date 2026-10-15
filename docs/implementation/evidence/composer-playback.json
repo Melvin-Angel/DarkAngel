@@ -1,22 +1,22 @@
 {
   "schema": 1,
-  "base_head": "92a5048a3b77c7d750d370cd154fa00a519c3890",
+  "base_head": "23a2e4c5e19604a9e97c3209bb35eb373a4bba37",
   "scope": "Presentation-only preview playback/end-stop/reset/rate/loop and orbit/distance controls with bounded temporary clip package lifetime",
   "gates": [
     {
       "name": "composer-playback-light",
       "exit": 0,
-      "seconds": 13.578
+      "seconds": 15.593
     },
     {
       "name": "composer-playback-20",
       "exit": 0,
-      "seconds": 18.672
+      "seconds": 24.016
     },
     {
       "name": "composer-playback-60",
       "exit": 0,
-      "seconds": 18.547
+      "seconds": 23.609
     }
   ],
   "source_sha256": {
@@ -24,11 +24,11 @@
     "apps/editor/editor_authoring.cpp": "89de36d4b96c806f8ca483fc856567adfda3b916bd32dce907c395dac188d425",
     "apps/editor/editor_ui.hpp": "073f4239a3f717de6cf4367ef759b3a8e6f71cfa00ea6ed0b83dc1be135c2d69",
     "scripts/verify_composer.py": "4ad41c36f6224f796b909d23b99d51382ddb40c0cf046dedc96628cae09862f2",
-    "apps/editor/main.cpp": "5a7353a38f71e2fb67e254368d05479fe27b5be57a4cbbffc6930a3453ac9208",
+    "apps/editor/main.cpp": "1809dd1e70804865432563f59ab37e1aee244e348d64db9612ce32b3dea292ab",
     "apps/editor/editor_ui.cpp": "62eedc057b322ab0ff615881f71baea7a15fe109503bbc722fa5ff1c07b847e5",
     "apps/editor/editor_workspaces.cpp": "947c505357ffcadf40e7d87963a7398079cd28243131af5464685f952a56ca7f"
   },
-  "binary_sha256": "d713b01ccee1b7cbf257f1bb99f4e194d0c94d3f2d41532576565527dec6ab00",
+  "binary_sha256": "faf41b29845dd9a8e8edf5aac4122106e761b937a071535d9d307396aa15add9",
   "limitations": [
     "Scripted playback at 60 preview samples per second, not physical control automation or frame-performance evidence.",
     "Orbit/rate/loop/reset controls are compiled/rendered; terminal checks cover default-rate forward playback and end-stop with unchanged authoring/gameplay.",
