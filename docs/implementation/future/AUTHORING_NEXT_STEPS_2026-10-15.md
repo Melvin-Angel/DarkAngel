@@ -20,6 +20,7 @@ R1 Scene navigation is **Implemented and locally verified**, as recorded in the 
 | B – UI editor MVP + D – Gameplay UI | R6.1 + R6.2 | [UI authoring MVP](UI_AUTHORING_MVP_DESIGN.md): U0/U1 foundation/editor, U2 gameplay; [older UI plan](UI_PLAN.md) kept for requirements history |
 | H – Sky/Lighting + I – Post processing + J – Baking | R7.1 + R7.2 + R7.3 | [Environment/rendering plan](ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md): staged renderer support and acceptance; probes later |
 | E – World puzzle UI | R8 | [UI authoring U3](UI_AUTHORING_MVP_DESIGN.md): UI Surface, offscreen renderer, ray input and host-approved puzzle adapter |
+| Tiled navigation (no A–J ID) | Future backlog, unscheduled, low priority | [Tiled navigation plan](TILED_NAVIGATION_PLAN.md): Recast tiled baking, multi-tile Detour, incremental rebuild and streaming readiness |
 
 The sandbox gate after R6.2 is specified in the main roadmap: third-person Player, small authored environment, reusable prefabs, basic NPC, interactables, minimal gameplay UI and edit → save → cook → Play without manual data manipulation or hardcoded demo paths. It is integration/usability validation toward historical M9, not a new large game or release qualification.
 

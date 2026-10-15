@@ -54,6 +54,7 @@ Record author steps, clicks/context changes, failures and diagnostics, along wit
 | Cross-machine network testing | Historical M3–M5/M8/M9 gates; separate local processes and same-machine GNS remain local evidence |
 | EOS networking validation | Historical M3 blocked external Connect/Lobbies/P2P qualification; requires real deployment/policy and two identities |
 | Optional walkable-ground reachability warnings | [UX backlog](../implementation/future/EDITOR_UX_BACKLOG.md); optional low-priority hint, not a navigation/sandbox prerequisite |
+| Tiled Navigation & Streaming Readiness (priority low / future; planned, not implemented; navigation / world scale) | [Tiled navigation plan](../implementation/future/TILED_NAVIGATION_PLAN.md); depends on the existing Recast & Detour navigation; replaces the solo-mesh 4096 × 4096-cell scene limit with Detour multi-tile meshes, then incremental and streamable tiles. Scheduled after the higher-priority authoring and gameplay workflows above, with no date; not a sandbox prerequisite |
 
 Preserve other explicit later work in the linked designs: nested/multi-object prefab editing, variants/in-context/Unpack; advanced movement/traversal fields; visual UI layout/localization/packaged front end; richer material/shader features; probes/weather/volumes/temporal effects. Historical incomplete subsystem and release gates remain open; a scheduling deferral does not close them.
 
