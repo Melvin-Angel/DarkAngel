@@ -1,0 +1,11 @@
+{
+  "existing_tests": 107,
+  "final_tests": 110,
+  "properties_equal": true,
+  "commands_equal_except": "M5.native_authoring adds --fixture-only; default executable still includes the extracted suites",
+  "added": [
+    "M5.native_authoring_commands",
+    "M5.native_authoring_effect_preview",
+    "M5.native_authoring_graph_commands"
+  ]
+}

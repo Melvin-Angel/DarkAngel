@@ -1,0 +1,43 @@
+ninja: Entering directory `build/m5-editor-relwithdebinfo'
+[1/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_lifetime.cpp for CXX dependencies
+[2/38] Scanning C:\DarkAngel\engine\runtime\scene_authority.cpp for CXX dependencies
+[3/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_actors.cpp for CXX dependencies
+[4/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_world.cpp for CXX dependencies
+[5/38] Scanning C:\DarkAngel\engine\runtime\scene_transition.cpp for CXX dependencies
+[6/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_party.cpp for CXX dependencies
+[7/38] Scanning C:\DarkAngel\engine\runtime\scene_world_objects.cpp for CXX dependencies
+[8/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_tick.cpp for CXX dependencies
+[9/38] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[10/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority.cpp.obj
+[11/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_actors.cpp.obj
+C:\DarkAngel\engine\runtime\scene_authority_actors.cpp(100): warning C4458: declaration of 'refused' hides class member
+C:\DarkAngel\engine\runtime\scene_authority_impl.hpp(136): note: see declaration of 'darkangel::SceneAuthority::Impl::refused'
+[12/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_world.cpp.obj
+[13/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_lifetime.cpp.obj
+[14/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_tick.cpp.obj
+[15/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_party.cpp.obj
+[16/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_world_objects.cpp.obj
+[17/35] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj
+C:\DarkAngel\engine\runtime\scene_transition.cpp(37): warning C4458: declaration of 'session' hides class member
+C:\DarkAngel\engine\runtime\scene_transition.cpp(16): note: see declaration of 'darkangel::SceneTransitionCoordinator::Impl::session'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(89): warning C4458: declaration of 'ready' hides class member
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(99): note: see declaration of 'darkangel::SceneTransitionCoordinator::ready'
+[18/35] Linking CXX static library DarkAngelCharacterScene.lib
+[19/35] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[20/35] Scanning C:\DarkAngel\apps\editor\inventory_resources.cpp for CXX dependencies
+[21/35] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[22/35] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[23/35] Scanning C:\DarkAngel\tests\native_authoring_tests.cpp for CXX dependencies
+[24/35] Scanning C:\DarkAngel\tests\native_authoring_commands_tests.cpp for CXX dependencies
+[25/35] Scanning C:\DarkAngel\tests\native_authoring_fixture.cpp for CXX dependencies
+[26/35] Scanning C:\DarkAngel\tests\native_authoring_graph_commands_tests.cpp for CXX dependencies
+[27/35] Scanning C:\DarkAngel\tests\native_authoring_suite_main.cpp for CXX dependencies
+[28/35] Scanning C:\DarkAngel\tests\native_authoring_suite_main.cpp for CXX dependencies
+[29/35] Scanning C:\DarkAngel\tests\native_authoring_suite_main.cpp for CXX dependencies
+[30/35] Generating CXX dyndep file CMakeFiles\NativeAuthoringCommandsTests.dir\CXX.dd
+[31/35] Generating CXX dyndep file CMakeFiles\NativeAuthoringTests.dir\CXX.dd
+[32/35] Scanning C:\DarkAngel\tests\native_authoring_effect_preview_tests.cpp for CXX dependencies
+[33/35] Generating CXX dyndep file CMakeFiles\NativeAuthoringGraphCommandsTests.dir\CXX.dd
+[34/35] Generating CXX dyndep file CMakeFiles\NativeAuthoringEffectPreviewTests.dir\CXX.dd
+[35/35] Generating CXX dyndep file CMakeFiles\NativeAuthoringCommandSupport.dir\CXX.dd

@@ -1,0 +1,52 @@
+{
+  "gates": [
+    {
+      "name": "items-assets",
+      "exit": 0,
+      "seconds": 17.344
+    },
+    {
+      "name": "world-ui-native",
+      "exit": 0,
+      "seconds": 5.141
+    },
+    {
+      "name": "items-inventory",
+      "exit": 0,
+      "seconds": 5.109
+    },
+    {
+      "name": "items-consumable-d3d12",
+      "exit": 0,
+      "seconds": 6.516
+    },
+    {
+      "name": "items-mask-d3d12",
+      "exit": 0,
+      "seconds": 5.125
+    },
+    {
+      "name": "party-regression",
+      "exit": 0,
+      "seconds": 208.25
+    },
+    {
+      "name": "world-ui-host-d3d12",
+      "exit": 0
+    },
+    {
+      "name": "world-ui-guest-d3d12",
+      "exit": 0
+    },
+    {
+      "name": "party-world-ui-cold-d3d12",
+      "exit": 0
+    }
+  ],
+  "limits": [
+    "Projected screen-space UI, no depth occlusion.",
+    "D3D12 and same-machine GNS only.",
+    "Item native authoring commands/form captures; physical pointer workflow not qualified.",
+    "Inventory host/wire, runtime inventory menu and pickups remain Stage 2 work."
+  ]
+}

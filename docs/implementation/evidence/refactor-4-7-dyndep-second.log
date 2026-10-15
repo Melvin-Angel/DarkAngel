@@ -1,0 +1,217 @@
+ninja: Entering directory `build/m5-editor-relwithdebinfo'
+[1/38] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[2/38] Scanning C:\DarkAngel\engine\runtime\scene_authority.cpp for CXX dependencies
+[3/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_lifetime.cpp for CXX dependencies
+[4/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_actors.cpp for CXX dependencies
+[5/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_world.cpp for CXX dependencies
+[6/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_party.cpp for CXX dependencies
+[7/38] Scanning C:\DarkAngel\engine\runtime\scene_authority_tick.cpp for CXX dependencies
+[8/38] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[9/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority.cpp.obj
+[10/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[11/37] Linking CXX executable AssetTool.exe
+[12/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_lifetime.cpp.obj
+[13/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_actors.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority_actors.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP  -IC:\DarkAngel\engine\runtime\include -IC:\DarkAngel\engine\foundation\include /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc /showIncludes @CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_actors.cpp.obj.modmap /FoCMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_actors.cpp.obj /FdCMakeFiles\DarkAngelCharacterScene.dir\DarkAngelCharacterScene.pdb /FS -c C:\DarkAngel\engine\runtime\scene_authority_actors.cpp
+C:\DarkAngel\engine\runtime\scene_authority_actors.cpp(14): error C2572: 'darkangel::SceneAuthority::Impl::action_motion': redefinition of default argument: parameter 1
+C:\DarkAngel\engine\runtime\scene_authority_impl.hpp(89): note: see declaration of 'darkangel::SceneAuthority::Impl::action_motion'
+C:\DarkAngel\engine\runtime\scene_authority_actors.cpp(100): warning C4458: declaration of 'refused' hides class member
+C:\DarkAngel\engine\runtime\scene_authority_impl.hpp(136): note: see declaration of 'darkangel::SceneAuthority::Impl::refused'
+[14/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_world.cpp.obj
+[15/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_party.cpp.obj
+[16/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_tick.cpp.obj
+[17/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_world_objects.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_world_objects.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP  -IC:\DarkAngel\engine\runtime\include -IC:\DarkAngel\engine\foundation\include /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc /showIncludes @CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_world_objects.cpp.obj.modmap /FoCMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_world_objects.cpp.obj /FdCMakeFiles\DarkAngelCharacterScene.dir\DarkAngelCharacterScene.pdb /FS -c C:\DarkAngel\engine\runtime\scene_world_objects.cpp
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): error C2143: syntax error: missing ';' before '*'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): error C3646: 'state': unknown override specifier
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(37): error C3646: 'persistent': unknown override specifier
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(37): error C2059: syntax error: '('
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(37): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(39): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(39): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(13): error C2504: 'PersistentObject': base class undefined
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(13): error C3646: 'policy': unknown override specifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(13): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(15): error C2061: syntax error: identifier 'LedgerWriter'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(16): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(16): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(14): error C3668: 'darkangel::scene_detail::`anonymous-namespace'::PickupState::kind': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(15): error C3668: 'darkangel::scene_detail::`anonymous-namespace'::PickupState::capture': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(16): error C3668: 'darkangel::scene_detail::`anonymous-namespace'::PickupState::restore': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(15): error C2065: 'out': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(15): error C2065: 'policy': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(15): error C2065: 'out': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(16): error C2065: 'in': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2504: 'PersistentObject': base class undefined
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2143: syntax error: missing ';' before '&'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2238: unexpected token(s) preceding ';'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(19): error C2061: syntax error: identifier 'LedgerWriter'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(18): error C3668: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::kind': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(19): error C3668: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::capture': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C3668: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::restore': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2065: 'd': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2789: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::MoverDefinition': an object of const-qualified type must be initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): note: see declaration of 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::MoverDefinition'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(17): error C2614: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord': illegal member initialization: 'definition' is not a base or member
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(21): error C2065: 'definition': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(21): error C2065: 'out': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(21): error C2065: 'definition': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(21): error C2065: 'out': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(22): error C2065: 'definition': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(22): error C2065: 'out': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(22): error C2065: 'definition': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(22): error C2065: 'out': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C2065: 'in': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C3536: 'value': cannot be used before it is initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C2100: you cannot dereference an operand of type '<error>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C2065: 'in': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C3536: 'value': cannot be used before it is initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(23): error C2100: you cannot dereference an operand of type '<error>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(29): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(29): error C2039: 'pickups': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(29): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(29): error C2039: 'altars': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(29): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(29): error C2039: 'movers': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(30): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(30): error C2039: 'pickups': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(31): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(31): error C2039: 'pickups': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(31): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(31): error C2039: 'pickups': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(31): error C2530: 'pickup': references must be initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(32): error C2039: 'policy': is not a member of 'darkangel::scene_detail::`anonymous-namespace'::PickupState'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(13): note: see declaration of 'darkangel::scene_detail::`anonymous-namespace'::PickupState'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(32): error C3536: 'pickup': cannot be used before it is initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(32): error C2027: use of undefined type 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(13): note: see declaration of 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(32): error C3861: 'persistent': identifier not found
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C2039: 'movers': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C2039: 'movers': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C2530: 'config': references must be initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C3536: 'config': cannot be used before it is initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C3861: 'MoverState': identifier not found
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): error C2440: 'initializing': cannot convert from '<error type> *' to 'const int'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): note: There is no context in which this conversion is possible
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): warning C4838: conversion from 'uint64_t' to 'double' requires a narrowing conversion
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(33): warning C4244: 'initializing': conversion from 'uint64_t' to 'double', possible loss of data
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(34): error C2512: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::MoverRecord': no appropriate default constructor available
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(34): note: while trying to match the argument list '()'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(34): error C2027: use of undefined type 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(13): note: see declaration of 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(34): error C3861: 'persistent': identifier not found
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(34): error C2039: 'state': is not a member of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): note: see declaration of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(36): error C2039: 'state': is not a member of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): note: see declaration of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(36): error C2737: 'at': const object must be initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(36): error C3536: 'at': cannot be used before it is initialized
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C2039: 'policy': is not a member of 'darkangel::scene_detail::`anonymous-namespace'::PickupState'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(13): note: see declaration of 'darkangel::scene_detail::`anonymous-namespace'::PickupState'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C2039: 'pickups': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C2027: use of undefined type 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(13): note: see declaration of 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C2027: use of undefined type 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(19): note: see declaration of 'darkangel::CharacterSceneCombat'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C2039: 'pickups': is not a member of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::CharacterSceneCombat>'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(39): error C3861: 'persistent': identifier not found
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C2039: 'config': is not a member of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): note: see declaration of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C2512: 'darkangel::scene_detail::`anonymous-namespace'::MoverRecord::MoverRecord': no appropriate default constructor available
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): note: while trying to match the argument list '()'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C2039: 'state': is not a member of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): note: see declaration of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C2039: 'state': is not a member of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): note: see declaration of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C2027: use of undefined type 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(13): note: see declaration of 'darkangel::WorldLedger'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C2039: 'config': is not a member of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.hpp(34): note: see declaration of 'darkangel::scene_detail::SceneWorldObjects::Mover'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(40): error C3861: 'persistent': identifier not found
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(43): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(43): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(44): error C2065: 'requirement': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(44): error C2065: 'requirement': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(44): error C2660: 'darkangel::PartyInventory::quantity': function does not take 1 arguments
+C:\DarkAngel\engine\runtime\include\darkangel/party_inventory.hpp(25): note: see declaration of 'darkangel::PartyInventory::quantity'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(44): note: while trying to match the argument list '(const darkangel::StableId)'
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(44): error C2065: 'requirement': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(45): error C2065: 'requirement': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(45): error C2065: 'context': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(45): error C2065: 'requirement': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(46): error C2065: 'requirement': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(46): error C2065: 'context': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(46): error C2065: 'context': undeclared identifier
+C:\DarkAngel\engine\runtime\scene_world_objects.cpp(46): fatal error C1003: error count exceeds 100; stopping compilation
+[18/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_transition.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP  -IC:\DarkAngel\engine\runtime\include -IC:\DarkAngel\engine\foundation\include /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc /showIncludes @CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj.modmap /FoCMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj /FdCMakeFiles\DarkAngelCharacterScene.dir\DarkAngelCharacterScene.pdb /FS -c C:\DarkAngel\engine\runtime\scene_transition.cpp
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(78): error C2065: 'InventorySnapshot': undeclared identifier
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(78): error C2923: 'std::vector': 'InventorySnapshot' is not a valid template type argument for parameter '_Ty'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(78): note: see declaration of 'InventorySnapshot'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(78): error C2976: 'std::vector': too few template arguments
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector(459): note: see declaration of 'std::vector'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(78): error C2955: 'std::vector': use of class template requires template argument list
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\vector(459): note: see declaration of 'std::vector'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(33): error C2027: use of undefined type 'darkangel::SceneInventoryDefinition'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(23): note: see declaration of 'darkangel::SceneInventoryDefinition'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(33): error C2039: 'catalog': is not a member of 'std::shared_ptr<const darkangel::SceneInventoryDefinition>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(1588): note: see declaration of 'std::shared_ptr<const darkangel::SceneInventoryDefinition>'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(33): error C2672: 'std::make_unique': no matching overloaded function found
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(3676): note: could be 'void std::make_unique(_Types ...)'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(3670): note: or       'std::unique_ptr<_Ty,std::default_delete<_Ty>> std::make_unique(const size_t)'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(3665): note: or       'std::unique_ptr<_Ty,std::default_delete<_Ty>> std::make_unique(_Types ...)'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(33): error C2027: use of undefined type 'darkangel::PartyInventory'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_definitions.hpp(21): note: see declaration of 'darkangel::PartyInventory'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(33): error C2039: 'restore': is not a member of 'std::unique_ptr<darkangel::PartyInventory,std::default_delete<darkangel::PartyInventory>>'
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\memory(3376): note: see declaration of 'std::unique_ptr<darkangel::PartyInventory,std::default_delete<darkangel::PartyInventory>>'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(36): warning C4458: declaration of 'session' hides class member
+C:\DarkAngel\engine\runtime\scene_transition.cpp(15): note: see declaration of 'darkangel::SceneTransitionCoordinator::Impl::session'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(88): warning C4458: declaration of 'ready' hides class member
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(98): note: see declaration of 'darkangel::SceneTransitionCoordinator::ready'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(111): error C2511: 'void darkangel::SceneTransitionCoordinator::restore_inventory(std::vector<darkangel::InventorySnapshot,std::allocator<darkangel::InventorySnapshot>>)': overloaded member function not found in 'darkangel::SceneTransitionCoordinator'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(60): note: see declaration of 'darkangel::SceneTransitionCoordinator'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(111): error C2597: illegal reference to non-static member 'darkangel::SceneTransitionCoordinator::impl_'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_transition.hpp(107): note: see declaration of 'darkangel::SceneTransitionCoordinator::impl_'
+C:\DarkAngel\engine\runtime\scene_transition.cpp(111): error C2530: 'p': references must be initialized
+C:\DarkAngel\engine\runtime\scene_transition.cpp(111): error C3536: 'p': cannot be used before it is initialized
+[19/37] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_client.cpp.obj
+C:\DarkAngel\engine\runtime\scene_client.cpp(182): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(75): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(259): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(75): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(281): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(75): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+ninja: build stopped: cannot make progress due to previous errors.

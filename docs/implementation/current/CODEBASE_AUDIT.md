@@ -2,19 +2,19 @@
 
 Requested by the user: "begin an audit of the project and suggest refactors to keep the code base clean, modular and scalable, e.g. reducing the size of main.cpp". The original audit was read-only. Implementation progress is recorded below and in [REFACTOR_REPORT.md](REFACTOR_REPORT.md); the original measurements remain historical. Every proposal preserves behavior and can be landed in verified increments.
 
-## Implementation checkpoint, 14 October 2026
+## Implementation checkpoint, 15 October 2026
 
 | Proposal | Current state |
 | --- | --- |
-| 1. EditorApp and feature services | Pending. Main is 298,511 bytes, down 17.3%; it still owns lifecycle/services and substantial exercise, gameplay and rendering code. |
-| 2. Exercise harness | Partial. All 77 CLI spellings and their prerequisite flags are in a compatibility registry; ScriptRunner and world placement are extracted; an Exercise interface and authoring-source scenario implementation use narrow contexts. Other scenario bodies, input synthesis and assertions remain in main. |
-| 3. Hub headers | Pending. Measured world_session object fan-out is 67 after the two new exercise translation units, versus 65 at the fresh baseline. |
-| 4. Runtime responsibility splits | Pending. No runtime subsystem split is claimed. |
-| 5. Formatting and shared utilities | Partial. `.clang-format` added; foundation `check.hpp` is used by new exercise/option units. Extracted files receive a separate formatting-only commit; repository-wide formatting and JSON helpers are deferred. |
-| 6. Inspector building blocks | Pending. No prefab, Add component or Scene camera feature was implemented. |
-| 7. CMake, tests and PCH | Pending. CMake only registers the new editor translation units. Native authoring executables and compiler/linker policy are unchanged. |
+| 1. EditorApp and feature services | Delivered by the verified steps 2/3. main.cpp is 497 bytes; service ownership and contexts are documented in REFACTOR_REPORT.md. |
+| 2. Exercise harness | Delivered: compatibility registry, ScriptRunner, scenario/input/result modules; no exercise spellings remain in main. |
+| 3. Hub headers | Scoped narrowing delivered: session_frames, scene_content and scene_seat boundaries; concrete client/authority headers reach 14/13 active objects versus 42/41 before step 4. WorldSession reaches 45 versus 77. Prepared-content fan-out remains broad and is measured honestly in the report. |
+| 4. Runtime responsibility splits | Delivered: WorldSession transport/abilities/replication/collision/owner units and SceneAuthority lifetime/actors/world/party/tick units, sharing private state with unchanged ownership and tick order. |
+| 5. Formatting and shared utilities | Scoped pass delivered: foundation check and shared JSON fields in rewritten scene/world codecs and new test support; extracted/rewritten files formatted in a separate commit. Remaining local copies migrate with substantive edits. |
+| 6. Inspector building blocks | Deferred to the authoring UX work; this refactor adds no prefab, Add component or Scene-camera feature. |
+| 7. CMake, tests and PCH | Delivered: CMake modules, dae_test helper for 63 registrations, four native-authoring entry points with three independent suites verified in parallel. The dependent integration fixture stays serial. PCH considered and deferred pending a controlled target-specific experiment. |
 
-Fresh baseline closes the previously open M8 party-travel gate. Step 1a passes the guarded build, 14-test native subset, all 67 exercise cases with explicit retained-native qualification, fresh 6-gate M8 slice and 7 separate-process party gates. Step 1b passes its affected authoring/UI/creation/preview checks. Detailed timings, failed and final receipts, ownership boundaries and remaining work are in the refactor report. The full refactor is incomplete.
+The final batch passes the guarded build, full CTest 110/110, legacy NativeAuthoringTests invocation, 53 editor exercises, item/world UI with seven separate-process party gates, fresh M8 slice 6/6 and isolated Royal D3D12/Vulkan rendering. Rebuild measurements, limitations, exact logs and protected-content checks are in [REFACTOR_REPORT.md](REFACTOR_REPORT.md) and evidence/refactor-4-7-delivery.json. Network evidence covers localhost processes. Nothing is pushed. Original measurements and proposals below remain historical.
 
 ## Measurements
 

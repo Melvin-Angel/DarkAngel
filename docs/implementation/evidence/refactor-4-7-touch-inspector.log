@@ -1,0 +1,4 @@
+[1/53] Scanning C:\DarkAngel\apps\editor\editor_world_objects.cpp for CXX dependencies
+[2/53] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[3/4] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_world_objects.cpp.obj
+[4/4] Linking CXX executable DarkAngelEditor.exe

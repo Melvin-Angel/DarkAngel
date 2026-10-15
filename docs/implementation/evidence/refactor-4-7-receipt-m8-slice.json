@@ -1,0 +1,40 @@
+{
+  "gates": [
+    {
+      "name": "m8-slice-place-b",
+      "exit": 0,
+      "seconds": 18.406
+    },
+    {
+      "name": "m8-slice-place-a",
+      "exit": 0,
+      "seconds": 17.594
+    },
+    {
+      "name": "m8-slice-solo",
+      "exit": 0,
+      "seconds": 54.109
+    },
+    {
+      "name": "m8-slice-load",
+      "exit": 0,
+      "seconds": 16.36
+    },
+    {
+      "name": "m8-slice-party",
+      "exit": 0,
+      "seconds": 57.985
+    },
+    {
+      "name": "m8-slice-party-travel",
+      "exit": 0,
+      "seconds": 128.922
+    }
+  ],
+  "work": "C:\\DarkAngel\\.cache\\m8-slice-0de6e25e",
+  "limits": [
+    "Same-machine UDP and D3D12 only.",
+    "Scenes share one collision profile (Q1 not used by Play yet).",
+    "Revive progress is asserted through the completed revive and respawn, not through the HUD capture."
+  ]
+}

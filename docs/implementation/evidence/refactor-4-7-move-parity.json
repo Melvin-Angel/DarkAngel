@@ -1,0 +1,10 @@
+{
+  "world_session": {
+    "private_methods": 28,
+    "body_text_equal": true
+  },
+  "scene_authority": {
+    "private_methods": 41,
+    "body_text_equal": true
+  }
+}

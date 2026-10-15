@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "seconds": 0.875,
+  "binary_sha256": "ca0715df3e4dfb938cc83227fc8f56b29797b03432a83ac331cdb264aa52c7b4",
+  "scope": "Post-benchmark D3D12 editor acceptance on the isolated Royal fixture; source bytes unchanged",
+  "log": "docs\\implementation\\evidence\\refactor-4-7-final-smoke.log"
+}

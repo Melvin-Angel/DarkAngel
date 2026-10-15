@@ -1,0 +1,65 @@
+{
+  "qualification": "Last recorded Ninja edges from bring-up builds; not controlled isolated benchmarks.",
+  "edges": {
+    "CMakeFiles/DarkAngelRuntime.dir/engine/runtime/world_session.cpp.obj": {
+      "seconds": 12.531
+    },
+    "CMakeFiles/EditorCli.dir/tools/editor/main.cpp.obj": {
+      "seconds": 7.922
+    },
+    "CMakeFiles/DarkAngelEditor.dir/apps/editor/main.cpp.obj": {
+      "seconds": 2.949
+    },
+    "CMakeFiles/AssetTool.dir/tools/cooker/main.cpp.obj": {
+      "seconds": 13.574
+    },
+    "CMakeFiles/NativeAuthoringTests.dir/tests/native_authoring_tests.cpp.obj": {
+      "seconds": 68.007
+    },
+    "CMakeFiles/DarkAngelHeadless.dir/apps/headless/main.cpp.obj": {
+      "seconds": 8.371
+    },
+    "CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority.cpp.obj": {
+      "seconds": 7.785
+    },
+    "CMakeFiles/DarkAngelRuntime.dir/engine/runtime/world_session_abilities.cpp.obj": {
+      "seconds": 12.871
+    },
+    "CMakeFiles/DarkAngelRuntime.dir/engine/runtime/world_session_replication.cpp.obj": {
+      "seconds": 11.072
+    },
+    "CMakeFiles/DarkAngelRuntime.dir/engine/runtime/world_session_collision.cpp.obj": {
+      "seconds": 7.877
+    },
+    "CMakeFiles/DarkAngelRuntime.dir/engine/runtime/world_session_transport.cpp.obj": {
+      "seconds": 17.324
+    },
+    "CMakeFiles/DarkAngelRuntime.dir/engine/runtime/world_session_owner.cpp.obj": {
+      "seconds": 6.344
+    },
+    "CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority_lifetime.cpp.obj": {
+      "seconds": 11.772
+    },
+    "CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority_world.cpp.obj": {
+      "seconds": 10.565
+    },
+    "CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority_party.cpp.obj": {
+      "seconds": 9.109
+    },
+    "CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority_tick.cpp.obj": {
+      "seconds": 8.041
+    },
+    "CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/scene_authority_actors.cpp.obj": {
+      "seconds": 8.231
+    },
+    "CMakeFiles/NativeAuthoringCommandSupport.dir/tests/native_authoring_commands_tests.cpp.obj": {
+      "seconds": 11.715
+    },
+    "CMakeFiles/NativeAuthoringCommandSupport.dir/tests/native_authoring_graph_commands_tests.cpp.obj": {
+      "seconds": 11.525
+    },
+    "CMakeFiles/NativeAuthoringCommandSupport.dir/tests/native_authoring_effect_preview_tests.cpp.obj": {
+      "seconds": 16.018
+    }
+  }
+}

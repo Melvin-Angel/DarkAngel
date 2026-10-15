@@ -1,0 +1,37 @@
+{
+  "build": {
+    "exit": 0,
+    "seconds": 15.328,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-build.log"
+  },
+  "ctest-full": {
+    "exit": 0,
+    "seconds": 756.047,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-ctest-full.log"
+  },
+  "native-suites-parallel": {
+    "exit": 0,
+    "seconds": 22.484,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-native-suites-parallel.log"
+  },
+  "exercises": {
+    "exit": 0,
+    "seconds": 1012.094,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-exercises.log"
+  },
+  "items-world-ui": {
+    "exit": 0,
+    "seconds": 289.172,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-items-world-ui.log"
+  },
+  "slice": {
+    "exit": 0,
+    "seconds": 294.687,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-slice.log"
+  },
+  "royal-renderer": {
+    "exit": 0,
+    "seconds": 26.953,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-royal-renderer.log"
+  }
+}

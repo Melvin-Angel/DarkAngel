@@ -1,0 +1,250 @@
+{
+  "accepted": 0,
+  "active_mask_slot": 0,
+  "actors": [
+    {
+      "health": 60.0,
+      "id": "bde37ae03e75cb772ae7e3959e238c7b",
+      "pose": true
+    },
+    {
+      "health": 60.0,
+      "id": "c2d61e0d995a09917dbd8e7e326e47d8",
+      "pose": true
+    }
+  ],
+  "arrivals": 1,
+  "authority": true,
+  "client": "readiness=4 revision=13 player=4 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [host ahead]=5 [world revision]=4",
+  "console": [
+    "Created two linked Spinner placements; authoring is idle.",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8b1adba6-447\\s\\royal_district\\RoyalLever.dascene",
+    "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+    "Prepared current scene and combat kit for a fresh Play session.",
+    "Party host listening at 127.0.0.1:26132",
+    "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
+    "Play activated an isolated Preview world; authoring remains unchanged.",
+    "The party arrived in RoyalLever.dascene.",
+    "Player 1: Guest disconnected"
+  ],
+  "downed": false,
+  "epoch": 1,
+  "equipped_masks": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "error": "",
+  "failures": 0,
+  "frame": 5284,
+  "fullest": {
+    "accepted": 0,
+    "active_mask_slot": 0,
+    "actors": [
+      {
+        "health": 60.0,
+        "id": "bde37ae03e75cb772ae7e3959e238c7b",
+        "pose": true
+      },
+      {
+        "health": 60.0,
+        "id": "c2d61e0d995a09917dbd8e7e326e47d8",
+        "pose": true
+      }
+    ],
+    "arrivals": 1,
+    "authority": true,
+    "client": "readiness=4 revision=12 player=4 collision=1 motors=4 corrections=1 public=4 frames=13 coherent=1 paired=1 [host ahead]=3 [world revision]=3",
+    "console": [
+      "Created two linked Spinner placements; authoring is idle.",
+      "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8b1adba6-447\\s\\royal_district\\RoyalLever.dascene",
+      "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+      "Prepared current scene and combat kit for a fresh Play session.",
+      "Party host listening at 127.0.0.1:26132",
+      "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
+      "Play activated an isolated Preview world; authoring remains unchanged.",
+      "The party arrived in RoyalLever.dascene."
+    ],
+    "downed": false,
+    "epoch": 1,
+    "equipped_masks": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "error": "",
+    "failures": 0,
+    "frame": 5040,
+    "highest_operation": 0,
+    "movers": [],
+    "owner": "b6a022aef5f944b11efb60f0b13e86a2",
+    "pending_motor": 2,
+    "players": [
+      {
+        "health": 100.0,
+        "id": "b6a022aef5f944b11efb60f0b13e86a2",
+        "pose": true,
+        "position": [
+          0.0,
+          0.4999997019767761,
+          3.0
+        ]
+      },
+      {
+        "health": 50.0,
+        "id": "0277daf836539698323a9e7e131074c0",
+        "pose": true,
+        "position": [
+          1.2570395469665527,
+          0.4999995529651642,
+          3.878016471862793
+        ]
+      }
+    ],
+    "playing": true,
+    "predicted_position": [
+      0.0,
+      0.4999997019767761,
+      3.0
+    ],
+    "predicted_tick": 291,
+    "process": 30252,
+    "ready": true,
+    "rebases": 6,
+    "refused": 0,
+    "role": "host",
+    "running": true,
+    "save_status": "",
+    "scene": "eae17fe9-08dc-49b0-8fa8-27e8a7e80121",
+    "scene_now": "eae17fe9-08dc-49b0-8fa8-27e8a7e80121",
+    "schema": 1,
+    "script_count": 4,
+    "script_steps": 2,
+    "tick": 289,
+    "travel_failures": 0,
+    "world": {
+      "collected": [],
+      "destinations": [],
+      "discovered": [],
+      "members": [
+        {
+          "network": 4,
+          "revive": 0.0,
+          "state": 0
+        },
+        {
+          "network": 8,
+          "revive": 0.0,
+          "state": 0
+        }
+      ],
+      "open": [],
+      "revision": 1,
+      "schema": 1,
+      "unlocked": [],
+      "wipe": 0.0,
+      "wiped": false
+    },
+    "world_ui": [
+      {
+        "health_bar": true,
+        "label": "Royal Guard",
+        "percent": 100.0,
+        "width": 138.5839080810547,
+        "x": 303.8308410644531,
+        "y": 143.9610137939453
+      },
+      {
+        "health_bar": true,
+        "label": "Royal Guard",
+        "percent": 100.0,
+        "width": 63.0,
+        "x": 325.53955078125,
+        "y": 107.96101379394531
+      },
+      {
+        "health_bar": false,
+        "label": "Player 2 (Client)",
+        "percent": 50.0,
+        "width": 183.41322326660156,
+        "x": 256.5788269042969,
+        "y": 71.96101379394531
+      }
+    ]
+  },
+  "highest_operation": 0,
+  "movers": [],
+  "owner": "b6a022aef5f944b11efb60f0b13e86a2",
+  "pending_motor": 8,
+  "players": [
+    {
+      "health": 100.0,
+      "id": "b6a022aef5f944b11efb60f0b13e86a2",
+      "pose": true,
+      "position": [
+        0.0,
+        0.4999997019767761,
+        3.0
+      ]
+    }
+  ],
+  "playing": true,
+  "predicted_position": [
+    0.0,
+    0.4999997019767761,
+    3.0
+  ],
+  "predicted_tick": 378,
+  "process": 30252,
+  "ready": true,
+  "rebases": 9,
+  "refused": 0,
+  "role": "host",
+  "running": true,
+  "save_status": "",
+  "scene": "eae17fe9-08dc-49b0-8fa8-27e8a7e80121",
+  "scene_now": "eae17fe9-08dc-49b0-8fa8-27e8a7e80121",
+  "schema": 1,
+  "script_count": 4,
+  "script_steps": 4,
+  "tick": 370,
+  "travel_failures": 0,
+  "world": {
+    "collected": [],
+    "destinations": [],
+    "discovered": [],
+    "members": [
+      {
+        "network": 4,
+        "revive": 0.0,
+        "state": 0
+      }
+    ],
+    "open": [],
+    "revision": 2,
+    "schema": 1,
+    "unlocked": [],
+    "wipe": 0.0,
+    "wiped": false
+  },
+  "world_ui": [
+    {
+      "health_bar": true,
+      "label": "Royal Guard",
+      "percent": 100.0,
+      "width": 162.46185302734375,
+      "x": 317.8645935058594,
+      "y": 143.4541015625
+    },
+    {
+      "health_bar": true,
+      "label": "Royal Guard",
+      "percent": 100.0,
+      "width": 63.0,
+      "x": 325.53955078125,
+      "y": 107.4541015625
+    }
+  ]
+}

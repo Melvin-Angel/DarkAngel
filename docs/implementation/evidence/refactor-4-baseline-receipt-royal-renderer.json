@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "base_head": "4635fa54c82203573c813001495cb4aee990038e",
+  "scope": "Four-object native scene; D3D12/Vulkan GPU skin versus CPU rest/deformed attack reference; isolated Play/Step, undo/redo, save/open, resource reload and failed shader preservation. Interactive locomotion/combat remains integration work.",
+  "binary_sha256": "aae651b7fb98872a92c5477f394e27f29ee03db4e19d1a2ec7dc9d9218af111d",
+  "comparisons": [
+    {
+      "backend": "d3d12",
+      "pose": "rest",
+      "maximum_channel_error": 0,
+      "pixels_beyond_two": 0
+    },
+    {
+      "backend": "d3d12",
+      "pose": "attack",
+      "maximum_channel_error": 0,
+      "pixels_beyond_two": 0
+    },
+    {
+      "backend": "vulkan",
+      "pose": "rest",
+      "maximum_channel_error": 0,
+      "pixels_beyond_two": 0
+    },
+    {
+      "backend": "vulkan",
+      "pose": "attack",
+      "maximum_channel_error": 0,
+      "pixels_beyond_two": 0
+    }
+  ],
+  "gates": [
+    {
+      "name": "royal-document",
+      "exit": 0,
+      "seconds": 0.125
+    },
+    {
+      "name": "royal-d3d12-rest-gpu",
+      "exit": 0,
+      "seconds": 0.797
+    },
+    {
+      "name": "royal-d3d12-rest-reference",
+      "exit": 0,
+      "seconds": 1.641
+    },
+    {
+      "name": "royal-d3d12-attack-gpu",
+      "exit": 0,
+      "seconds": 2.016
+    },
+    {
+      "name": "royal-d3d12-attack-reference",
+      "exit": 0,
+      "seconds": 1.391
+    },
+    {
+      "name": "royal-vulkan-rest-gpu",
+      "exit": 0,
+      "seconds": 0.859
+    },
+    {
+      "name": "royal-vulkan-rest-reference",
+      "exit": 0,
+      "seconds": 1.219
+    },
+    {
+      "name": "royal-vulkan-attack-gpu",
+      "exit": 0,
+      "seconds": 0.672
+    },
+    {
+      "name": "royal-vulkan-attack-reference",
+      "exit": 0,
+      "seconds": 1.546
+    },
+    {
+      "name": "royal-editor-regression",
+      "exit": 0,
+      "seconds": 2.063
+    }
+  ],
+  "vulkan_validation": "Khronos validation layer unavailable; Diligent checks enabled",
+  "online": "EOS remains blocked"
+}

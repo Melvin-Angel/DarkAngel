@@ -353,3 +353,103 @@ Fan-out (`ninja -t deps`, `.cache/refactor_4_measure.py`, evidence `refactor-4-h
 | character_preview.hpp | 22 | 22 (reaches only scene_definitions now) |
 
 Remaining step-4 ideas: forward-declare `SceneClient`/`SceneAuthority` in `character_scene.hpp` (move `SceneSeat` to `scene_definitions.hpp`), trim `scene_definitions.hpp` itself, then the controlled touch benchmarks. Steps 5–7 follow; a read-only inventory for step 6 is in the session notes folder (`step6-inventory.md`).
+
+## Steps 4–7 continuation (15 October 2026): verified
+
+This section closes the step-4 WIP continuation above. The complete batch is verified on the formatted source. Semantic changes are committed as `c1ad8a5`; formatting is separate in `4a8f659`. No push.
+
+The incoming `4635fa5` checkpoint was verified before changing source: guarded build; full CTest 107/107, serial (752.9 s); all 67 effect-reaction/native/editor gates; item/world UI and all seven separate-process network party gates; fresh M8 slice 6/6; and Royal rendering on D3D12/Vulkan. Evidence: `../evidence/refactor-4-baseline.json` and its named logs and detailed receipts. Pillow 12.3.0 is installed in the Python 3.12 environment used by the scripts. The Royal verifier runs against an isolated content copy because its preparation otherwise rewrites the user's Royal scenes.
+
+### Header boundaries
+
+- `scene_definitions.hpp` now contains the small session values and forward declarations. Prepared actors, encounters, placed gameplay objects and `CharacterSceneCombat` moved intact into `scene_content.hpp`.
+- `scene_seat.hpp` owns the transport seat value. `character_scene.hpp` forward-declares the two concrete halves. Code calling a client's or authority's methods includes its header explicitly.
+- `play_controller.hpp` no longer includes `character_preview.hpp`; it names `RuntimeSkinnedModel` and prepared editor resources through declarations and includes the transition/assembly contracts directly.
+- `session_frames.cpp` holds the two pure public-snapshot helpers, separate from session state.
+
+### Runtime responsibilities
+
+Both facades retain their existing public API, one private `Impl`, state ownership, lifetime and tick order. Private headers are internal to `engine/runtime`; no editor or renderer dependency was added to runtime.
+
+| Facade | Implementation units |
+| --- | --- |
+| `WorldSession` | Core world lifecycle and motor API in `world_session.cpp`; transport/bootstrap/receive in `_transport.cpp`; ability/effect/hit authority in `_abilities.cpp`; publication/correction in `_replication.cpp`; collision stream in `_collision.cpp`; owner services/interactions in `_owner.cpp`. Packet helpers are internal in `world_session_packet.hpp`. |
+| `SceneAuthority` | Public queries in `scene_authority.cpp`; construction in `_lifetime.cpp`; controllers, sensing and action motion in `_actors.cpp`; encounters, persistent world objects and world requests in `_world.cpp`; admission/departure and formation in `_party.cpp`; fixed-tick orchestration in `_tick.cpp`. |
+
+Mechanical parity checks confirm all 28 WorldSession and 41 SceneAuthority private method bodies, 50 moved WorldSession public method bodies, and the two pure frame helpers retain their tokens from `4635fa5`. One default argument stays only on its declaration. Evidence: `../evidence/refactor-4-7-final-move-parity.json`.
+
+### Shared helpers and build/test organization
+
+The existing foundation `require` now replaces identical runtime-error checks in the scene shared rules, world objects, interaction/travel and party lifecycle paths. `json_fields.hpp` shares the existing allowed-field, bounded-text, finite-number and boolean helpers. World objects, scene travel and interaction use them with the original diagnostics, defaults, ranges and exception types. Domain-specific vector/persistence rules stay local; checks that throw `invalid_argument` remain unchanged.
+
+The root CMake file includes `engine`, `authoring`, `assets`, `editor`, `tests` and `test_helpers` modules. Ordering and feature guards are retained. `dae_test(...)` replaces 63 ordinary executable/link/definition/registration blocks; original timeout, label and fixture properties remain explicit. All 107 original test registrations retain their names and properties. Three tests were added by extracting existing assertions, with independent source/cache directories:
+
+- `NativeAuthoringCommandsTests`: paired ability/action creation, Player kit assignment and disk comparison.
+- `NativeAuthoringGraphCommandsTests`: graph connection/history/cycle checks.
+- `NativeAuthoringEffectPreviewTests`: source-owned effects and template previews.
+
+The shared `NativeAuthoringCommandSupport` library owns their implementation support and fixture constructor. CTest runs the existing integration/fixture executable with `--fixture-only` and registers the extracted suites separately. Calling `NativeAuthoringTests` without arguments still runs all suites and publishes the original fixture contract for existing Python gates. The large dependent integration scenario remains one serial fixture producer; no parallelism against its mutable source is claimed.
+
+PCH was considered and deferred: it needs a separate controlled experiment across the targets' differing feature definitions. This batch preserves compiler/linker policy and dependencies.
+
+Formatting is kept separate from semantic changes. Only new or substantially rewritten C++ files are formatted; include-only consumers retain their layout. Token checks preserve include order, using-declaration order and string literals (`refactor-4-7-format-parity.json`).
+
+### Verification and reproduction
+
+Runner: `.cache/refactor_final_verify.py`. It serializes the guarded full build, full CTest with the integration fixture alone, an isolated parallel run of the three extracted suites, the legacy no-argument NativeAuthoringTests entry point, editor exercise gates, items/party, a fresh M8 slice, isolated Royal rendering, and controlled incremental rebuilds. The default native entry point needs a separate compatibility run because CTest uses `--fixture-only`; it also regenerates the editor fixture. The other 13 native checks already covered by full CTest are retained rather than repeated inside the editor wrapper. Receipts and logs use `../evidence/refactor-4-7*`.
+
+During build bring-up, a module split initially crossed a nested CMake guard; the boundary was corrected. Stale Ninja dyndep records were regenerated without deleting build/dependency trees. Removing transitive includes exposed consumers needing explicit client, authority, controller, inventory or collision headers; these are fixed at the use sites. Initial build logs are retained as `refactor-4-7-build-includes-first.log`, `-second.log` and `refactor-4-7-dyndep*.log`.
+
+The final receipt is `../evidence/refactor-4-7-delivery.json`; it records commit identities, source hashes, binary identity, tool/configuration boundaries and protected-file hashes. The unrelated README, two Royal scene sources and 24 record files retain their original bytes. Nothing is pushed.
+
+### Measured structure after the batch
+
+Fan-out uses Ninja's recorded dependencies, filtered to objects still present in the active target graph. Obsolete objects from the old NativeAuthoringTests source list are excluded. The original step-4 and incoming measurements used the historical recorder; none of the newly obsolete objects is counted in the final column.
+
+| Header | Before step 4 | Incoming WIP | Final active objects |
+| --- | ---: | ---: | ---: |
+| `world_session.hpp` | 77 | 35 | 45 |
+| `scene_definitions.hpp` | 44 | 44 | 53 |
+| `character_scene.hpp` | 40 | 32 | 36 |
+| `scene_client.hpp` | 42 | 34 | 14 |
+| `scene_authority.hpp` | 41 | 33 | 13 |
+| `character_preview.hpp` | 22 | 22 | 26 |
+
+The runtime and test splits add translation units. WorldSession still reaches 31 targets, while the two concrete scene halves now each reach five. `scene_definitions.hpp` reaches six first-party headers instead of 31; its object fan-out remains broad because the existing optional prepared-combat API still requires content at many call sites. The new `scene_content.hpp` reaches 53 objects. The under-30-object indicative target is met for the concrete halves, not for every hub. `play_controller.hpp` reaches 50 first-party headers instead of 66 and no longer reaches `character_preview.hpp`. Raw evidence: `refactor-4-headers-final.json`.
+
+| File | Incoming bytes | Final formatted working-copy bytes |
+| --- | ---: | ---: |
+| `apps/editor/main.cpp` | 497 | 497 |
+| `engine/runtime/world_session.cpp` | 112,109 | 21,048 |
+| `engine/runtime/scene_authority.cpp` | 64,409 | 7,269 |
+| `tests/native_authoring_tests.cpp` | 117,137 | 138,405 |
+| `CMakeLists.txt` | 61,509 | 1,602 |
+
+The native authoring file's unformatted extraction was 103,356 bytes; formatting expands its formerly packed statements. Its dependent integration scenario remains large and serial. This is a bounded split into four executable entry points, not a claim that every authoring scenario is now independently parallel. The runtime file reductions move code into the responsibility units listed above; they do not measure code removal or runtime speed.
+
+
+### Final results
+
+- Guarded full-target build passes. The last build completed in 15.3 s after the include-diagnostic builds; this is incremental, not a clean-build timing.
+- Full CTest, serial: **110/110** in 756.0 s. The integration fixture ran alone and passed in 462.82 s; AttributeAuthoringTests passed within its existing limit (87.42 s).
+- The three extracted suites also pass concurrently: **3/3**, 22.5 s, using independent source/cache directories.
+- The no-argument NativeAuthoringTests invocation passes in 519.0 s, proving compatibility for existing Python scripts and publishing a fresh fixture.
+- **53/53 editor exercise gates** pass (492.1 s summed gate time). The other 13 native checks in that verifier are covered by full CTest. Item/world UI and its nested **7/7** separate-process party gates pass.
+- Fresh M8 slice **6/6** passes, including revive, wipe, party travel, checkpoint retention and cross-scene collision.
+- Royal rendering passes on D3D12 and Vulkan: GPU/CPU rest and deformed attack comparisons have zero maximum channel error. It is run against an isolated content copy. A final D3D12 editor acceptance run after the touch benchmarks passes on the final linked editor binary.
+
+Canonical checks remain `ctest --test-dir build/m5-editor-relwithdebinfo --output-on-failure -j 1`, `python scripts/verify_effect_reaction.py`, `python scripts/verify_items_world_ui.py` and `python scripts/verify_m8_slice.py`. The private serialized runner additionally deduplicates native checks, isolates Royal scene preparation and records measurements. Network qualification covers separate processes on this machine with localhost UDP/D3D12. Reduced feature configurations and remote-machine/EOS qualification are outside this receipt.
+
+### Representative incremental rebuilds
+
+Each run touches one file, builds only DarkAngelEditor with the pinned environment and four jobs, and restores the original timestamp. Source bytes remain unchanged. Timings include link/deployment and are single observations from different checkpoints, not a controlled statistical speedup claim.
+
+| Touched file | Original refactor baseline | Final steps 4–7 |
+| --- | ---: | ---: |
+| `apps/editor/main.cpp` | 70.890 s | 53.234 s |
+| `world_session.hpp` | 121.218 s | 81.422 s |
+| `editor_world_objects.cpp` | 45.188 s | 41.969 s |
+
+Evidence: `refactor-4-7-incremental.json`, its three build/dry-run logs, `refactor-4-7-compile-edges.json` (uncontrolled compiler-edge observations), and `refactor-4-7-metrics.json`. No dependency or build tree was deleted, no third-party objects were rebuilt, and the dependency-install guard remains OFF.
+
+Raw final gate logs/receipts are archived in `../evidence/refactor-4-7-gates/`. Regenerated tracked artifacts were restored at their conventional paths to avoid unrelated capture churn; exact copies, including images, remain in `.cache/refactor-4-7-final-gate-artifacts`. The refactor receipts identify the current verification.

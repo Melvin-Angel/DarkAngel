@@ -1,0 +1,149 @@
+{
+  "base": "4635fa5",
+  "commits": {
+    "semantic": "c1ad8a59310aef80e6f78aaab07fc7803721ee95",
+    "formatting": "4a8f6590d83f95cdc06cc0006989a2ee2911ef7f"
+  },
+  "verification": {
+    "build": {
+      "exit": 0,
+      "seconds": 15.328,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-build.log"
+    },
+    "ctest-full": {
+      "exit": 0,
+      "seconds": 756.047,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-ctest-full.log"
+    },
+    "native-suites-parallel": {
+      "exit": 0,
+      "seconds": 22.484,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-native-suites-parallel.log"
+    },
+    "exercises": {
+      "exit": 0,
+      "seconds": 1012.094,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-exercises.log"
+    },
+    "items-world-ui": {
+      "exit": 0,
+      "seconds": 289.172,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-items-world-ui.log"
+    },
+    "slice": {
+      "exit": 0,
+      "seconds": 294.687,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-slice.log"
+    },
+    "royal-renderer": {
+      "exit": 0,
+      "seconds": 26.953,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-royal-renderer.log"
+    }
+  },
+  "native_default": {
+    "exit": 0,
+    "seconds": 519.016,
+    "binary_sha256": "67cc9309b53de04e393e78180b36644390091f3833a40163d513ba97dd6675b5",
+    "log": "docs\\implementation\\evidence\\refactor-4-7-native-default.log"
+  },
+  "final_smoke": {
+    "exit": 0,
+    "seconds": 0.875,
+    "binary_sha256": "ca0715df3e4dfb938cc83227fc8f56b29797b03432a83ac331cdb264aa52c7b4",
+    "scope": "Post-benchmark D3D12 editor acceptance on the isolated Royal fixture; source bytes unchanged",
+    "log": "docs\\implementation\\evidence\\refactor-4-7-final-smoke.log"
+  },
+  "incremental_rebuilds": {
+    "main": {
+      "exit": 0,
+      "seconds": 53.234,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-touch-main.log"
+    },
+    "world-session": {
+      "exit": 0,
+      "seconds": 81.422,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-touch-world-session.log"
+    },
+    "inspector": {
+      "exit": 0,
+      "seconds": 41.969,
+      "log": "docs\\implementation\\evidence\\refactor-4-7-touch-inspector.log"
+    }
+  },
+  "source_sha256_lf": {
+    "CMakeLists.txt": "8052b949a532e29212812dd3999c7241d56567ba5c4f8b00007dbc2b44f54ad5",
+    "apps/editor/character_preview.cpp": "f144fd3adebb2168f4608dfa67a051321324cde8d26b87e63449c26c7846a1ba",
+    "apps/editor/character_preview.hpp": "3b96e4554ff25f7f9531b5418bc6ea462c94781b4e856861cd8254c6021a8d23",
+    "apps/editor/exercises/gameplay_results.cpp": "8cc3aeae9706a644111145d72c0ae813e0fea5a17bee193e08e38b32c344c5c2",
+    "apps/editor/exercises/play_exercises.cpp": "41125836291f95b078df61ff501a9a8b84fa8fcb769176bf1131721e88039738",
+    "apps/editor/exercises/script_runner.cpp": "08eb71e225df88bd2c6e347560cbd04e3c9ecfe6627754d9d7b6b21e2cf25082",
+    "apps/editor/network_play.cpp": "497dccf4bee70821a9ddd4513224b07162badde5e082654c2e9d8fa68eb0a99b",
+    "apps/editor/play_controller.cpp": "8d4164e8b30571c7068dfef039d089d06f0b824a4c02dad57cd359a3448c8c94",
+    "apps/editor/play_controller.hpp": "e8ae308dd03783b6b2302e81f6e5bd348f9aabc340f1960e866154e86b0a40d3",
+    "apps/editor/render/scene_viewport.cpp": "87588cd2f579b3b641ce0bd03402eda6c7a913c26231472ea15161666ddf1a6b",
+    "apps/editor/runtime_altar.cpp": "ad191a15e9cf5b6070ca56327f330b185a4828ac4801f9193ce9e4b7bae62210",
+    "apps/editor/runtime_inventory.cpp": "c0e2199addceea5c7b74d18a14ab6b31b634f4701bb583a69baab42f31e25317",
+    "cmake/assets.cmake": "511eb5795de330f7f34103ace80ab8541471114657dca753e2ad5c5bcdb1cd2e",
+    "cmake/authoring.cmake": "891d155a3c1678cb942127d90ddc68939704e8f11ab03cca2eb285efef463b0d",
+    "cmake/editor.cmake": "bcc5ff9f95b43dafd1736ed98bd9ffd34d0517e34c87d793e5068eeb0488232b",
+    "cmake/engine.cmake": "383ac2f67c5d2560a4b382a99b93261fd818bad9536d7947e27e4dc78b9e9d36",
+    "cmake/test_helpers.cmake": "8a91a8043934c72d1425ddf30f29eb44a68e88abde553a40f4ad8a6f26289f66",
+    "cmake/tests.cmake": "a26dd9728cddf1fddc67ca4474e39d65cfc48aa4d1b02be2e01110f11b9c498c",
+    "engine/foundation/include/darkangel/json_fields.hpp": "82a22f44f325fa8412847eec734cebc118a2a355de125086d66f8a3af481c9a6",
+    "engine/runtime/character_scene.cpp": "a5789d028dfa159b9053ebb153ef6432be5e872cf90a3dd322f330ee15e427e3",
+    "engine/runtime/include/darkangel/character_scene.hpp": "3a708f2ecf4807287535880232ee75552e57ca98060970a9ff42cc5dfd64a347",
+    "engine/runtime/include/darkangel/scene_authority.hpp": "d8c1bca471e2f7ae40ec5b6878542ef0d5148489e21cc406263255a23679b313",
+    "engine/runtime/include/darkangel/scene_client.hpp": "ad5ec9b7179c3852f8e98cfc47652fb05461914b9d6c33a816ed3952370e450d",
+    "engine/runtime/include/darkangel/scene_content.hpp": "110f530e36ce5c62e21bf95ef7859046b33155b891fc47d80db0f4343e12af72",
+    "engine/runtime/include/darkangel/scene_definitions.hpp": "ffc07b20a02a6470e29a3f8cb24b0b68d7a9ed3d42ef6d7ad4928039fcd9da56",
+    "engine/runtime/include/darkangel/scene_seat.hpp": "c40bea9d6361e0fac397e163fa6e8463748178de582553841ffd714672a126cd",
+    "engine/runtime/include/darkangel/scene_transition.hpp": "2e3d3a8791852a94f70122880ca36069dea640738679f3cb6cc984e13731e308",
+    "engine/runtime/interaction.cpp": "0ded9ae4c3b49310372f55dd9b3153e96fa3479222ba5563492590e8df8e90db",
+    "engine/runtime/party_lifecycle.cpp": "1f01ba6d646f5a3bd20405084d004e407566f5c2e50cb5c66a6c54b44ca0a66b",
+    "engine/runtime/scene_authority.cpp": "8bf1604017f1d608ac11fe2e761ea93b37d48308758e94d264d2a41221e55620",
+    "engine/runtime/scene_authority_actors.cpp": "f7e3a3336d93d5f15f97726f487d6fbf8730b03d3bfd1754f171566091512735",
+    "engine/runtime/scene_authority_impl.hpp": "e9cd6dbbdc2f88bcca0ecca06a24d2652b92637257440cd85df5f2da82fa9f70",
+    "engine/runtime/scene_authority_lifetime.cpp": "f721f1c203a615042a015088eb302fadde6cb665e5f0a3375ea81a6b7ec93a03",
+    "engine/runtime/scene_authority_party.cpp": "5f20c87afaf540c66d02f77fbe3174bc189b0fc337ad709f5705f2268fab8185",
+    "engine/runtime/scene_authority_tick.cpp": "6823600d1c5d2c4f441ff94c9ad18ae74d50d5fc0da367eab5c200f125397fa9",
+    "engine/runtime/scene_authority_world.cpp": "791532c47546a12c0119350dc5785ba729f558121a70db380c6a4f0269aa7d27",
+    "engine/runtime/scene_client.cpp": "c51b725758a28065ac345f1d10895c490862a1aea9d1c63c8eb0ce79ed0d3f71",
+    "engine/runtime/scene_shared.hpp": "79814b62052b6becc28d2a6a7506cc287140c7b0ac864d7910c38499a43be9ea",
+    "engine/runtime/scene_transition.cpp": "a0a8888bd0834c71f225b351d5ce2e738b3e2f825d9e43d5633368de2d11fba3",
+    "engine/runtime/scene_travel.cpp": "76a44a44e89ca761d2556649ef7a9229068b16af92b3c3f4a08fa9dbc934230b",
+    "engine/runtime/scene_world_objects.cpp": "98b5e58b42e5188c639a4bcb90da0ce64287233c4eb7fcfc0ebc7d964bdc4641",
+    "engine/runtime/scene_world_objects.hpp": "54dff5f63a139cc1301fb477d126c885994b4e95e7bea8eb8e178b9421e3571c",
+    "engine/runtime/session_frames.cpp": "a39105d13b33be4d0586b0e1610047909ae785dfb4fa986918b716fad94b5e41",
+    "engine/runtime/world_objects.cpp": "142ab9dc7a71e7fb0b34a8d1aa856b8eaeedbf390f1cc8e259aeb8015593d704",
+    "engine/runtime/world_session.cpp": "2657ff86f02ca85135b8a506fe8943ef90212ddea010871cf1dbf12e1148d9eb",
+    "engine/runtime/world_session_abilities.cpp": "2e1ae94978e751369a271adb22b1ec84b5381c0d2ce0bd0f7e6e65c12c2e3236",
+    "engine/runtime/world_session_collision.cpp": "6ef9b581c61f1b94c7e97ff1ee7b562fb6d6bb4bd92dfd69e1af08b17b8ae77a",
+    "engine/runtime/world_session_impl.hpp": "c9e02bba4cc4147cbac6e476bed37a570f3b54c24e4de3714393927a98cc68f6",
+    "engine/runtime/world_session_owner.cpp": "6e4772d3668510446e37e2fc375f459d9cc93c807b367abbcc01577f4e8e35c5",
+    "engine/runtime/world_session_packet.hpp": "cbed03a391c558ee236aa18479117f8488d0f4d4bc9876d8f66784521c80a39d",
+    "engine/runtime/world_session_replication.cpp": "0c455cd293668c7e7519b2f88fd06fbe03b2a62b331268452a5feb55ae351862",
+    "engine/runtime/world_session_transport.cpp": "c4058338a9a3b9f54076cf2cfd543c314cfb7c1187bcec0e40bfe09c9d760346",
+    "tests/character_combat_scene_tests.cpp": "7de3700641652beef2713db6a1e788389d928ca87f691dab80d5203065d869fd",
+    "tests/character_scene_tests.cpp": "30d75799ddbdff3aa6544b70539032fe6dab9618193fb7da1a13128effd90285",
+    "tests/native_authoring_commands_tests.cpp": "bf89f4a243c19b26263a5499d487d732fc0bdc20f10599484eb20bd7dedc12f8",
+    "tests/native_authoring_effect_preview_tests.cpp": "9c9afa3a94595ba175a5ff5592af8f10da9791064f6429b957b0e5c1b6bad596",
+    "tests/native_authoring_fixture.cpp": "e400e79d641443b999956a6e535a2564b517f23fa0f10a72c0d2325a698629b4",
+    "tests/native_authoring_graph_commands_tests.cpp": "8b3235bbf7b776233a71d253020594a21cd1c393b8c4f1b0d9526910ca8c4fe8",
+    "tests/native_authoring_suite_main.cpp": "dd73781f19c69615429374e2aed6dad400639673926386302e3933b4c711b1c0",
+    "tests/native_authoring_test_support.hpp": "4ee43d9cd3d7e807490f6ae823ed51e9d75fb61de28774a66142a529f6279009",
+    "tests/native_authoring_tests.cpp": "ceba8948f7eb8d35b99759f026f33c19e48d8bb4c7af1437154d896fc857f301",
+    "tests/observed_character_pose_tests.cpp": "2ef3324c24da35ef81b46234240b64584d84dca0656bdf90b50d29830ddd238a",
+    "tests/party_scene_tests.cpp": "f6b602da54579da49d6b532e5ef811c2810893207127545038b35b9f54d1460e",
+    "tests/scene_delay_tests.cpp": "1fee44ad2afee67f53531a74e0b44a9f4fc61a0b748df88475ec29f084c60ce7",
+    "tests/scene_transition_tests.cpp": "75d97ff76143f093add7af40861b69eb56ea7614bfb2f336af863ba561222fa6"
+  },
+  "pillow": "12.3.0",
+  "editor_sha256": "ca0715df3e4dfb938cc83227fc8f56b29797b03432a83ac331cdb264aa52c7b4",
+  "protected_files": 27,
+  "protected_hashes_equal": true,
+  "network_scope": "Separate local GameNetworkingSockets UDP editor processes",
+  "configuration": "Pinned MSVC/SDK; m5-editor-relwithdebinfo full feature configuration; VCPKG_MANIFEST_INSTALL=OFF; D3D12_SUPPORTED=TRUE",
+  "raw_gate_logs": "docs/implementation/evidence/refactor-4-7-gates",
+  "cached_generated_artifacts": ".cache/refactor-4-7-final-gate-artifacts"
+}

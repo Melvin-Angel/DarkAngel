@@ -1,0 +1,32 @@
+{
+  "build": {
+    "exit": 0,
+    "seconds": 0.14,
+    "log": "docs\\implementation\\evidence\\refactor-4-baseline-build.log"
+  },
+  "ctest-full": {
+    "exit": 0,
+    "seconds": 752.938,
+    "log": "docs\\implementation\\evidence\\refactor-4-baseline-ctest-full.log"
+  },
+  "exercises": {
+    "exit": 0,
+    "qualification": "Existing process continued after replacing only the parent runner to isolate Royal renderer preparation. Elapsed includes time before monitor attached.",
+    "log": "docs/implementation/evidence/refactor-4-baseline-exercises.log"
+  },
+  "items-world-ui": {
+    "exit": 0,
+    "seconds": 278.625,
+    "log": "docs\\implementation\\evidence\\refactor-4-baseline-items-world-ui.log"
+  },
+  "slice": {
+    "exit": 0,
+    "seconds": 292.531,
+    "log": "docs\\implementation\\evidence\\refactor-4-baseline-slice.log"
+  },
+  "royal-renderer": {
+    "exit": 0,
+    "seconds": 22.657,
+    "log": "docs\\implementation\\evidence\\refactor-4-baseline-royal-renderer.log"
+  }
+}

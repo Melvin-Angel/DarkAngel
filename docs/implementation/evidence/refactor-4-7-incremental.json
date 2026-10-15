@@ -1,0 +1,17 @@
+{
+  "main": {
+    "exit": 0,
+    "seconds": 53.234,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-touch-main.log"
+  },
+  "world-session": {
+    "exit": 0,
+    "seconds": 81.422,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-touch-world-session.log"
+  },
+  "inspector": {
+    "exit": 0,
+    "seconds": 41.969,
+    "log": "docs\\implementation\\evidence\\refactor-4-7-touch-inspector.log"
+  }
+}

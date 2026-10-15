@@ -1,0 +1,58 @@
+{
+  "main_bytes": 497,
+  "main_lines": 14,
+  "exercise_spellings": 0,
+  "hub_headers": {
+    "world_session.hpp": {
+      "objects": 45,
+      "targets": 31
+    },
+    "scene_definitions.hpp": {
+      "objects": 53,
+      "targets": 17
+    },
+    "character_scene.hpp": {
+      "objects": 36,
+      "targets": 17
+    },
+    "scene_client.hpp": {
+      "objects": 14,
+      "targets": 5
+    },
+    "scene_authority.hpp": {
+      "objects": 13,
+      "targets": 5
+    }
+  },
+  "latest_recorded_editor_edges": [
+    {
+      "output": "CMakeFiles/DarkAngelEditor.dir/apps/editor/main.cpp.obj",
+      "seconds": 2.949
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 63.315
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 79.005
+    },
+    {
+      "output": "CMakeFiles/DarkAngelEditor.dir/apps/editor/main.cpp.obj",
+      "seconds": 4.719
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 47.33
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 33.145
+    },
+    {
+      "output": "DarkAngelEditor.exe",
+      "seconds": 32.121
+    }
+  ],
+  "note": "Hub dependencies are filtered to the active object graph; recorded edges are historical, not controlled incremental benchmarks."
+}

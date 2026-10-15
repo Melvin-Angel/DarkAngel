@@ -1,0 +1,60 @@
+[1/91] Scanning C:\DarkAngel\engine\runtime\world_session_transport.cpp for CXX dependencies
+[2/91] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[3/91] Scanning C:\DarkAngel\engine\runtime\world_session_abilities.cpp for CXX dependencies
+[4/91] Scanning C:\DarkAngel\engine\runtime\world_session_replication.cpp for CXX dependencies
+[5/91] Scanning C:\DarkAngel\engine\runtime\owner_mailbox.cpp for CXX dependencies
+[6/91] Scanning C:\DarkAngel\engine\runtime\ability_wire.cpp for CXX dependencies
+[7/91] Scanning C:\DarkAngel\engine\runtime\world_session_collision.cpp for CXX dependencies
+[8/91] Scanning C:\DarkAngel\engine\runtime\world_session_owner.cpp for CXX dependencies
+[9/91] Scanning C:\DarkAngel\engine\runtime\inventory_session.cpp for CXX dependencies
+[10/91] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[11/91] Scanning C:\DarkAngel\engine\runtime\scene_authority.cpp for CXX dependencies
+[12/91] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[13/89] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[14/52] Scanning C:\DarkAngel\engine\runtime\scene_authority_lifetime.cpp for CXX dependencies
+[15/52] Scanning C:\DarkAngel\engine\runtime\scene_authority_actors.cpp for CXX dependencies
+[16/52] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\inventory_session.cpp.obj
+[17/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_abilities.cpp.obj
+[18/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[19/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_replication.cpp.obj
+C:\DarkAngel\engine\runtime\world_session_replication.cpp(321): warning C4458: declaration of 'view' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(64): note: see declaration of 'darkangel::WorldSession::Impl::view'
+[20/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_transport.cpp.obj
+C:\DarkAngel\engine\runtime\world_session_transport.cpp(325): warning C4458: declaration of 'owner' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(63): note: see declaration of 'darkangel::WorldSession::Impl::owner'
+C:\DarkAngel\engine\runtime\world_session_transport.cpp(657): warning C4458: declaration of 'view' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(64): note: see declaration of 'darkangel::WorldSession::Impl::view'
+[21/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\owner_mailbox.cpp.obj
+[22/52] Scanning C:\DarkAngel\engine\runtime\scene_authority_world.cpp for CXX dependencies
+[23/52] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_collision.cpp.obj
+[24/52] Scanning C:\DarkAngel\engine\runtime\scene_authority_party.cpp for CXX dependencies
+[25/52] Scanning C:\DarkAngel\engine\runtime\scene_authority_tick.cpp for CXX dependencies
+[26/52] Scanning C:\DarkAngel\engine\runtime\scene_client.cpp for CXX dependencies
+[27/52] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[28/49] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_owner.cpp.obj
+C:\DarkAngel\engine\runtime\world_session_owner.cpp(12): warning C4458: declaration of 'owner' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(63): note: see declaration of 'darkangel::WorldSession::Impl::owner'
+[29/49] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[30/49] Linking CXX static library DarkAngelRuntime.lib
+[31/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority.cpp.obj
+[32/49] Linking CXX static library DarkAngelInventorySession.lib
+[33/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[34/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_lifetime.cpp.obj
+[35/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_actors.cpp.obj
+C:\DarkAngel\engine\runtime\scene_authority_actors.cpp(273): warning C4458: declaration of 'refused' hides class member
+C:\DarkAngel\engine\runtime\scene_authority_impl.hpp(259): note: see declaration of 'darkangel::SceneAuthority::Impl::refused'
+[36/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_party.cpp.obj
+[37/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_world.cpp.obj
+[38/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_tick.cpp.obj
+[39/49] Linking CXX executable AssetTool.exe
+[40/49] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_client.cpp.obj
+C:\DarkAngel\engine\runtime\scene_client.cpp(182): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(75): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(259): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(75): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+C:\DarkAngel\engine\runtime\scene_client.cpp(281): warning C4458: declaration of 'confirmed' hides class member
+C:\DarkAngel\engine\runtime\scene_client.cpp(75): note: see declaration of 'darkangel::SceneClient::Impl::confirmed'
+[41/49] Linking CXX static library DarkAngelCharacterScene.lib
+[42/49] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[43/43] Linking CXX executable DarkAngelEditor.exe

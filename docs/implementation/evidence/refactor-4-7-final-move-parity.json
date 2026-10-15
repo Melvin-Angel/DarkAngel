@@ -1,0 +1,15 @@
+{
+  "world_session": {
+    "private_method_bodies": 28,
+    "tokens_equal_to_4635fa5": true,
+    "public_method_bodies": 50
+  },
+  "scene_authority": {
+    "private_method_bodies": 41,
+    "tokens_equal_to_4635fa5": true
+  },
+  "session_frames": {
+    "pure_function_bodies": 2,
+    "tokens_equal_to_4635fa5": true
+  }
+}

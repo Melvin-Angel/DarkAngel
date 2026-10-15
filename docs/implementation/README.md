@@ -22,9 +22,12 @@ Tooling reads or writes these by path, so they stay at this level: [PACKAGING.md
 
 ## future/
 
+- [AUTHORING_NEXT_STEPS_2026-10-15.md](future/AUTHORING_NEXT_STEPS_2026-10-15.md): the current design-only handoff for prefab placement/swapping, gameplay configuration, UI authoring and the rendering/Assets workflows requested on 15 October. Links the detailed designs and their implementation gates.
+- [ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md](future/ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md): cubemap/spheremap and procedural skies, Lighting/fog/baking tool, post-processing profiles and researched renderer prerequisites.
+- [ASSETS_MATERIAL_EDITING_PLAN.md](future/ASSETS_MATERIAL_EDITING_PLAN.md): imported model material/texture editing, reimport-safe ownership and Assets > Edit Prefab routing.
 - [PREFABS_AND_COMPONENTS_TODO.md](future/PREFABS_AND_COMPONENTS_TODO.md): high-priority prefab workflow and Add component.
 - [EDITOR_UX_BACKLOG.md](future/EDITOR_UX_BACKLOG.md): the editor UX pass scheduled after M8 and before M9.
-- [UI_PLAN.md](future/UI_PLAN.md): runtime UI as authored content, deferred by the user on 12 October 2026.
+- [UI_PLAN.md](future/UI_PLAN.md): the older runtime-UI plan and 12 October deferral; the 15 October handoff above revives authoring and updates its stale implementation inventory.
 - `PREFAB_WORKFLOW_PLAN.md` (this level, untracked) is a newer prefab proposal; it was left where it was written.
 
 ## legacy/

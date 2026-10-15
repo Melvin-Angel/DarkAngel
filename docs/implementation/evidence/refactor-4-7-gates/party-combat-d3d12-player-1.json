@@ -1,0 +1,120 @@
+{
+  "accepted": 0,
+  "active_mask_slot": 0,
+  "actors": [
+    {
+      "health": 75.0,
+      "id": "70d5dcbd87564d11507e09a0925777f6",
+      "pose": true
+    }
+  ],
+  "arrivals": 1,
+  "authority": false,
+  "client": "readiness=4 revision=7 player=6 collision=1 motors=3 corrections=1 public=3 frames=31 coherent=1 paired=1 [world revision]=1",
+  "console": [
+    "Created two linked Spinner placements; authoring is idle.",
+    "Opened C:\\DarkAngel\\build\\m5-editor-relwithdebinfo\\author-8b1adba6-447\\s\\royal_district\\RoyalTraining.dascene",
+    "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
+    "Prepared current scene and combat kit for a fresh Play session.",
+    "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
+    "Play activated an isolated Preview world; authoring remains unchanged."
+  ],
+  "downed": false,
+  "epoch": 1,
+  "equipped_masks": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "error": "",
+  "failures": 0,
+  "frame": 3056,
+  "highest_operation": 3,
+  "owner": "0277daf836539698323a9e7e131074c0",
+  "pending_motor": 4,
+  "players": [
+    {
+      "health": 100.0,
+      "id": "b6a022aef5f944b11efb60f0b13e86a2",
+      "pose": true,
+      "position": [
+        -0.0019472877029329538,
+        0.499999463558197,
+        4.949224472045898
+      ]
+    },
+    {
+      "health": 100.0,
+      "id": "0277daf836539698323a9e7e131074c0",
+      "pose": true,
+      "position": [
+        0.014952651225030422,
+        0.49999958276748657,
+        3.9442334175109863
+      ]
+    }
+  ],
+  "playing": true,
+  "predicted_position": [
+    0.014952651225030422,
+    0.49999958276748657,
+    3.9442334175109863
+  ],
+  "predicted_tick": 245,
+  "process": 34568,
+  "ready": true,
+  "rebases": 1,
+  "refused": 0,
+  "role": "guest",
+  "running": true,
+  "save_status": "",
+  "scene": "92c7496a-31b5-4a3f-84df-a63d62a60559",
+  "scene_now": "",
+  "schema": 1,
+  "script_count": 4,
+  "script_steps": 4,
+  "tick": 241,
+  "travel_failures": 0,
+  "world": {
+    "collected": [],
+    "destinations": [],
+    "discovered": [],
+    "members": [
+      {
+        "network": 4,
+        "revive": 0.0,
+        "state": 0
+      },
+      {
+        "network": 6,
+        "revive": 0.0,
+        "state": 0
+      }
+    ],
+    "open": [],
+    "revision": 1,
+    "schema": 1,
+    "unlocked": [],
+    "wipe": 0.0,
+    "wiped": false
+  },
+  "world_ui": [
+    {
+      "health_bar": true,
+      "label": "Training Dummy",
+      "percent": 75.0,
+      "width": 135.11737060546875,
+      "x": 574.1170654296875,
+      "y": 265.87939453125
+    },
+    {
+      "health_bar": false,
+      "label": "Player 1 (Host)",
+      "percent": 100.0,
+      "width": 179.161865234375,
+      "x": 552.6041870117188,
+      "y": 229.87939453125
+    }
+  ]
+}

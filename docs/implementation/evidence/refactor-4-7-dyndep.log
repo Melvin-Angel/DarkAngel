@@ -1,0 +1,113 @@
+ninja: Entering directory `build/m5-editor-relwithdebinfo'
+[1/154] Scanning C:\DarkAngel\engine\foundation\build_info.cpp for CXX dependencies
+[2/154] Scanning C:\DarkAngel\engine\runtime\party_lifecycle.cpp for CXX dependencies
+[3/154] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[4/150] Scanning C:\DarkAngel\engine\runtime\world_objects.cpp for CXX dependencies
+[5/150] Scanning C:\DarkAngel\engine\runtime\scene_travel.cpp for CXX dependencies
+[6/150] Scanning C:\DarkAngel\engine\runtime\session_frames.cpp for CXX dependencies
+[7/150] Scanning C:\DarkAngel\engine\runtime\interaction.cpp for CXX dependencies
+[8/150] Scanning C:\DarkAngel\engine\runtime\world_session.cpp for CXX dependencies
+[9/150] Scanning C:\DarkAngel\engine\runtime\world_session_transport.cpp for CXX dependencies
+[10/150] Scanning C:\DarkAngel\engine\runtime\world_session_abilities.cpp for CXX dependencies
+[11/150] Scanning C:\DarkAngel\engine\runtime\world_session_replication.cpp for CXX dependencies
+[12/150] Scanning C:\DarkAngel\engine\runtime\world_session_collision.cpp for CXX dependencies
+[13/150] Scanning C:\DarkAngel\engine\runtime\world_session_owner.cpp for CXX dependencies
+[14/150] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[15/147] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[16/143] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[17/140] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[18/137] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[19/103] Scanning C:\DarkAngel\engine\runtime\character_scene.cpp for CXX dependencies
+[20/103] Scanning C:\DarkAngel\engine\runtime\scene_authority.cpp for CXX dependencies
+[21/103] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[22/103] Linking CXX static library DarkAngelFoundation.lib
+[23/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\party_lifecycle.cpp.obj
+[24/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\session_frames.cpp.obj
+[25/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\scene_travel.cpp.obj
+[26/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\interaction.cpp.obj
+[27/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_objects.cpp.obj
+[28/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[29/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_abilities.cpp.obj
+[30/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_replication.cpp.obj
+C:\DarkAngel\engine\runtime\world_session_replication.cpp(70): warning C4458: declaration of 'view' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(35): note: see declaration of 'darkangel::WorldSession::Impl::view'
+[31/103] Scanning C:\DarkAngel\engine\runtime\scene_authority_lifetime.cpp for CXX dependencies
+[32/103] Scanning C:\DarkAngel\engine\runtime\scene_authority_actors.cpp for CXX dependencies
+[33/103] Scanning C:\DarkAngel\engine\runtime\scene_authority_world.cpp for CXX dependencies
+[34/103] Scanning C:\DarkAngel\engine\runtime\scene_authority_party.cpp for CXX dependencies
+[35/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_collision.cpp.obj
+[36/103] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_transport.cpp.obj
+C:\DarkAngel\engine\runtime\world_session_transport.cpp(61): warning C4458: declaration of 'owner' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(34): note: see declaration of 'darkangel::WorldSession::Impl::owner'
+C:\DarkAngel\engine\runtime\world_session_transport.cpp(136): warning C4458: declaration of 'view' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(35): note: see declaration of 'darkangel::WorldSession::Impl::view'
+[37/103] Scanning C:\DarkAngel\engine\runtime\scene_authority_tick.cpp for CXX dependencies
+[38/103] Scanning C:\DarkAngel\engine\runtime\scene_client.cpp for CXX dependencies
+[39/103] Scanning C:\DarkAngel\engine\runtime\scene_transition.cpp for CXX dependencies
+[40/103] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[41/100] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[42/99] Scanning C:\DarkAngel\engine\runtime\scene_world_objects.cpp for CXX dependencies
+[43/99] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[44/76] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[45/75] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_owner.cpp.obj
+C:\DarkAngel\engine\runtime\world_session_owner.cpp(8): warning C4458: declaration of 'owner' hides class member
+C:\DarkAngel\engine\runtime\world_session_impl.hpp(34): note: see declaration of 'darkangel::WorldSession::Impl::owner'
+[46/75] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelCharacterScene.dir/engine/runtime/character_scene.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP  -IC:\DarkAngel\engine\runtime\include -IC:\DarkAngel\engine\foundation\include /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc /showIncludes @CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj.modmap /FoCMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj /FdCMakeFiles\DarkAngelCharacterScene.dir\DarkAngelCharacterScene.pdb /FS -c C:\DarkAngel\engine\runtime\character_scene.cpp
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(36): error C2065: 'AbilityCommitUpdate': undeclared identifier
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(36): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(36): error C2146: syntax error: missing '>' before identifier 'AbilityCommitUpdate'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(39): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(39): error C2143: syntax error: missing ';' before '*'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(39): error C2238: unexpected token(s) preceding ';'
+C:\DarkAngel\engine\runtime\character_scene.cpp(71): error C2504: 'darkangel::ActorController': base class undefined
+C:\DarkAngel\engine\runtime\character_scene.cpp(73): error C2061: syntax error: identifier 'ScriptedAttack'
+C:\DarkAngel\engine\runtime\character_scene.cpp(74): error C3646: 'decide': unknown override specifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(74): error C2059: syntax error: '('
+C:\DarkAngel\engine\runtime\character_scene.cpp(74): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+C:\DarkAngel\engine\runtime\character_scene.cpp(82): error C3646: 'script_': unknown override specifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(82): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\character_scene.cpp(81): error C3668: 'darkangel::`anonymous-namespace'::ScriptedAttacker::status': method with override specifier 'override' did not override any base class methods
+C:\DarkAngel\engine\runtime\character_scene.cpp(73): error C2065: 'script': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(73): error C2614: 'darkangel::`anonymous-namespace'::ScriptedAttacker': illegal member initialization: 'script_' is not a base or member
+C:\DarkAngel\engine\runtime\character_scene.cpp(85): error C2065: 'ScriptedAttack': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(85): error C2146: syntax error: missing ')' before identifier 'script'
+C:\DarkAngel\engine\runtime\character_scene.cpp(85): error C2143: syntax error: missing ';' before '{'
+C:\DarkAngel\engine\runtime\character_scene.cpp(85): error C2447: '{': missing function header (old-style formal list?)
+C:\DarkAngel\engine\runtime\character_scene.cpp(86): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\character_scene.cpp(86): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2065: 'view': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2530: 'other': references must be initialized
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C3531: 'other': a symbol whose type contains 'auto' must have an initializer
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2143: syntax error: missing ';' before ':'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2143: syntax error: missing ';' before ')'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2065: 'view': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2065: 'view': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2065: 'view': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2661: 'hypot': no overloaded function takes 1 arguments
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\cmath(1562): note: could be 'auto std::hypot(const _Ty1,const _Ty2,const _Ty3) noexcept'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): note: 'auto std::hypot(const _Ty1,const _Ty2,const _Ty3) noexcept': expects 3 arguments - 1 provided
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\cmath(873): note: or       'conditional<std::is_same_v<_Ty1,long double>||std::is_same_v<_Ty2,long double>,long double,conditional<std::is_same_v<_Ty1,float>&&std::is_same_v<_Ty2,float>,float,double>::type>::type hypot(_Ty1,_Ty2) noexcept'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): note: 'conditional<std::is_same_v<_Ty1,long double>||std::is_same_v<_Ty2,long double>,long double,conditional<std::is_same_v<_Ty1,float>&&std::is_same_v<_Ty2,float>,float,double>::type>::type hypot(_Ty1,_Ty2) noexcept': expects 2 arguments - 1 provided
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): note: while trying to match the argument list '()'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): warning C4244: 'initializing': conversion from 'long double' to 'double', possible loss of data
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): warning C4244: 'initializing': conversion from 'long double' to 'const double', possible loss of data
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): error C2440: '=': cannot convert from '<error type> *' to 'const darkangel::PerceivedActor *'
+C:\DarkAngel\engine\runtime\character_scene.cpp(88): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+C:\DarkAngel\engine\runtime\character_scene.cpp(91): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\DarkAngel\engine\runtime\character_scene.cpp(91): error C2143: syntax error: missing ',' before '&'
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C2065: 'view': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C2530: 'other': references must be initialized
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C3531: 'other': a symbol whose type contains 'auto' must have an initializer
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C2143: syntax error: missing ';' before ':'
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C2143: syntax error: missing ';' before ')'
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C2065: 'view': undeclared identifier
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): error C2440: '=': cannot convert from '<error type> *' to 'const darkangel::PerceivedActor *'
+C:\DarkAngel\engine\runtime\character_scene.cpp(92): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+C:\DarkAngel\engine\runtime\character_scene.cpp(149): error C2039: 'controller_receipt': is not a member of 'darkangel::SceneAuthority'
+C:\DarkAngel\engine\runtime\include\darkangel/scene_authority.hpp(11): note: see declaration of 'darkangel::SceneAuthority'
+[47/75] Linking CXX static library DarkAngelRuntime.lib
+[48/75] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority.cpp.obj
+[49/75] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_lifetime.cpp.obj
+ninja: build stopped: subcommand failed.

@@ -1,0 +1,1 @@
+Final verification logs and receipts copied before restoring generated artifacts at their conventional paths. Original basenames are retained. All regenerated tracked artifacts, including captures, are also preserved locally in `.cache/refactor-4-7-final-gate-artifacts`. The delivery receipt and parent refactor logs identify the validated source and binary.
