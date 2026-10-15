@@ -236,7 +236,7 @@ class PlayController {
     void attach_session(const SpawnPlan& plan);
     void stop_gameplay();
     void update_gameplay(double seconds);
-    std::optional<AssetId> scene_collision_for(const std::filesystem::path& registry, bool bake);
+    std::optional<AssetId> scene_collision_for(const std::filesystem::path& registry, bool bake, bool* rebaked = nullptr);
     std::filesystem::path find_scene(AssetId scene);
     void enter_scene(AssetId scene, std::unique_ptr<darkangel::EditorDocument> document, const std::filesystem::path& path);
     void drop_load();

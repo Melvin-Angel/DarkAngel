@@ -935,7 +935,7 @@ void PlayController::update_gameplay(double seconds) {
 }
 
 // Bakes (when bake) and returns the open scene's own collision, reading placed models from a registry that holds them.
-std::optional<AssetId> PlayController::scene_collision_for(const std::filesystem::path& registry, bool bake) {
+std::optional<AssetId> PlayController::scene_collision_for(const std::filesystem::path& registry, bool bake, bool* rebaked) {
     if (!editor.assets || !character_resources || editor.path.empty())
         return std::nullopt;
     const auto root = std::filesystem::absolute(editor.assets->source_root());
@@ -950,8 +950,11 @@ std::optional<AssetId> PlayController::scene_collision_for(const std::filesystem
             [&](AssetId model) { return load_cooked_model(registry, editor.assets->cas_path(), model); });
         if (!source)
             return std::nullopt;
-        if (darkangel::editor_app::publish_scene_collision(file, *source))
+        if (darkangel::editor_app::publish_scene_collision(file, *source)) {
             editor.log("Baked the scene's collision from its placed models: " + file.relative);
+            if (rebaked)
+                *rebaked = true;
+        }
         editor.assets->cook(file.relative);
     }
     return std::filesystem::exists(file.source) ? std::optional<AssetId>(file.asset) : std::nullopt;
@@ -1022,10 +1025,15 @@ void PlayController::install_preparation() {
 #endif
                 darkangel::editor_app::package_authoring(*editor.assets, roots, candidate);
             // The scene plays with its own collision, baked from its placements: a placed or moved model never leaves Play
-            // with stale collision. Only the host bakes; a guest uses the file its host wrote.
-            if (const auto own = scene_collision_for(candidate, args.join.empty()); own && own->text() != args.character_collision) {
-                args.character_collision = own->text();
-                roots.push_back(*own);
+            // with stale collision. Only the host bakes; a guest uses the file its host wrote. The package above holds the
+            // collision as it was cooked before this bake, so a rebake packages again even when the asset is the same.
+            bool rebaked = false;
+            if (const auto own = scene_collision_for(candidate, args.join.empty(), &rebaked);
+                own && (rebaked || own->text() != args.character_collision)) {
+                if (own->text() != args.character_collision) {
+                    args.character_collision = own->text();
+                    roots.push_back(*own);
+                }
 #ifdef DAE_EDITOR_GNS
                 if (!args.join.empty())
                     editor.assets->package(roots.front(), candidate, std::span<const AssetId>(roots).subspan(1));
