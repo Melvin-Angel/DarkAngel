@@ -646,10 +646,42 @@ void AudioWorkspace::draw_panel(bool play_running) {
         tab.error = error.what();
     }
 }
-void AudioWorkspace::frame(unsigned frame,double seconds,bool tab_shown,CharacterSceneSession* character){auto& audio=service;auto& audio_tab=state;auto& audio_applied=applied;auto& audio_director=director;const auto& args=options_;
-        if(audio){if(frame%6==0||audio_tab.sound!=AssetId{}||tab_shown){const auto mix=project_mix();if(!audio_applied||!(*audio_applied==mix)){if(audio_director)audio_director->mix(mix);else audio->mix(mix);audio_applied=mix;}}
+void AudioWorkspace::frame(unsigned frame, double seconds, bool tab_shown, CharacterSceneSession* character) {
+    auto& audio = service;
+    auto& audio_tab = state;
+    auto& audio_applied = applied;
+    auto& audio_director = director;
+    const auto& args = options_;
+    if (audio) {
+        if (frame % 6 == 0 || audio_tab.sound != AssetId{} || tab_shown) {
+            const auto mix = project_mix();
+            if (!audio_applied || !(*audio_applied == mix)) {
+                if (audio_director)
+                    audio_director->mix(mix);
+                else
+                    audio->mix(mix);
+                audio_applied = mix;
+            }
+        }
 #ifdef DAE_CHARACTER_SCENE
-            if(audio_director&&character)for(const auto id:character->encounters()){const auto wanted=encounter_profiles.find(id);if(wanted==encounter_profiles.end())continue;const auto profile=play_profiles.find(wanted->second);if(profile==play_profiles.end())continue;const auto status=character->encounter(id);const std::uint64_t key=std::hash<std::string>{}(id.text());if(status&&status->phase==darkangel::EncounterPhase::Running)audio_director->push(key,profile->second);else audio_director->pop(key);}
+        if (audio_director && character)
+            for (const auto id : character->encounters()) {
+                const auto wanted = encounter_profiles.find(id);
+                if (wanted == encounter_profiles.end())
+                    continue;
+                const auto profile = play_profiles.find(wanted->second);
+                if (profile == play_profiles.end())
+                    continue;
+                const auto status = character->encounter(id);
+                const std::uint64_t key = std::hash<std::string>{}(id.text());
+                if (status && status->phase == darkangel::EncounterPhase::Running)
+                    audio_director->push(key, profile->second);
+                else
+                    audio_director->pop(key);
+            }
 #endif
-            if(!character)audio->update(args.hidden?1./60:std::clamp(seconds,0.,.25));}}
+        if (!character)
+            audio->update(args.hidden ? 1. / 60 : std::clamp(seconds, 0., .25));
+    }
+}
 } // namespace darkangel::editor_app

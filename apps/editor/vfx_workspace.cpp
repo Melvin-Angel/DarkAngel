@@ -441,9 +441,31 @@ void VfxWorkspace::draw_panel() {
     ImGui::SliderFloat("Height", &preview.height, 0.f, 3.f);
     vfx_cues();
 }
-void VfxWorkspace::preview_frame(unsigned frame,double step,bool shown_tab,const VfxView& shown){auto& vfx=service;auto& vfx_preview=state;auto& editor=editor_;
-        if(vfx&&shown_tab&&vfx_preview.selected!=AssetId{}){auto& preview=vfx_preview;
-            if(editor.assets&&frame%30==0){std::error_code ignored;const auto written=std::filesystem::last_write_time(editor.assets->source_root()/preview.path,ignored);if(!ignored&&written!=preview.seen)cook();}
-            vfx->update(step);if(preview.cooked&&!vfx->alive(preview.handle)){preview.idle+=step;if(preview.handle==0||preview.idle>.5){preview.handle=vfx->play(preview.selected,{0,preview.height,0});preview.idle=0;}}
-            try{vfx->draw(shown);}catch(const std::exception& error){vfx_preview.error=error.what();}}}
+void VfxWorkspace::preview_frame(unsigned frame, double step, bool shown_tab, const VfxView& shown) {
+    auto& vfx = service;
+    auto& vfx_preview = state;
+    auto& editor = editor_;
+    if (vfx && shown_tab && vfx_preview.selected != AssetId{}) {
+        auto& preview = vfx_preview;
+        if (editor.assets && frame % 30 == 0) {
+            std::error_code ignored;
+            const auto written = std::filesystem::last_write_time(editor.assets->source_root() / preview.path, ignored);
+            if (!ignored && written != preview.seen)
+                cook();
+        }
+        vfx->update(step);
+        if (preview.cooked && !vfx->alive(preview.handle)) {
+            preview.idle += step;
+            if (preview.handle == 0 || preview.idle > .5) {
+                preview.handle = vfx->play(preview.selected, {0, preview.height, 0});
+                preview.idle = 0;
+            }
+        }
+        try {
+            vfx->draw(shown);
+        } catch (const std::exception& error) {
+            vfx_preview.error = error.what();
+        }
+    }
+}
 } // namespace darkangel::editor_app

@@ -30,7 +30,7 @@ struct CueRecorders;
 namespace render {
 class SceneResources;
 class SceneViewport;
-}
+} // namespace render
 // The editor process. EditorApp creates the services in dependency order, wires their callbacks to one another and runs
 // the frame loop by calling them; each service owns its state and receives only what it needs. Destruction is the
 // reverse of creation: Play and the inspectors go before the workspaces they use, every device resource before the
