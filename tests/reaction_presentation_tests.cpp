@@ -1,4 +1,5 @@
 #include <darkangel/character_presentation.hpp>
+#include <darkangel/world_session.hpp>
 #include <darkangel/character_scene.hpp>
 #include <darkangel/combat_kit_assets.hpp>
 #include <darkangel/animation_assets.hpp>

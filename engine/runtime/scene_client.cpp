@@ -1,4 +1,5 @@
 #include <darkangel/scene_client.hpp>
+#include <darkangel/world_session.hpp>
 #include <darkangel/inventory_session.hpp>
 #include <darkangel/ability_prediction.hpp>
 #include <darkangel/character_presentation.hpp>

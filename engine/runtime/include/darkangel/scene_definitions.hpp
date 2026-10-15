@@ -2,7 +2,12 @@
 #include <darkangel/animation_graph.hpp>
 #include <darkangel/collision_asset.hpp>
 #include <darkangel/ability_observer.hpp>
-#include <darkangel/world_session.hpp>
+#include <darkangel/session_frames.hpp>
+#include <darkangel/ability.hpp>
+#include <darkangel/melee.hpp>
+#include <darkangel/effects.hpp>
+#include <darkangel/effect_replication.hpp>
+#include <darkangel/input.hpp>
 #include <darkangel/actor_controller.hpp>
 #include <darkangel/encounter.hpp>
 #include <darkangel/interaction.hpp>

@@ -1,5 +1,5 @@
 #pragma once
-#include <darkangel/world_session.hpp>
+#include <darkangel/session_frames.hpp>
 namespace darkangel {
 struct ObserverAbilitySample {
     AbilityPublicFrame frame;double render_tick{},action_clock{};

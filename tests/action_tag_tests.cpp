@@ -1,4 +1,5 @@
 #include <darkangel/ability_prediction.hpp>
+#include <darkangel/world_session.hpp>
 #include <darkangel/ability_observer.hpp>
 #include "../engine/runtime/ability_wire.hpp"
 #include <algorithm>

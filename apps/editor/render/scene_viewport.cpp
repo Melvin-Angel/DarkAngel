@@ -1,4 +1,5 @@
 #include "scene_viewport.hpp"
+#include <darkangel/character_scene.hpp>
 #include "render_system.hpp"
 #include "scene_resources.hpp"
 #include "../editor_controller.hpp"

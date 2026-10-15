@@ -1,5 +1,7 @@
 #pragma once
 #include <darkangel/animation_graph.hpp>
+#include <darkangel/effects.hpp>
+#include <darkangel/effect_replication.hpp>
 #include <darkangel/ability_observer.hpp>
 
 namespace darkangel {

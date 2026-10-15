@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/scene_definitions.hpp>
+#include <darkangel/transport.hpp>
 
 namespace darkangel {
 // One party member's place in a scene session: its identity and the connection its client holds. The first seat is the

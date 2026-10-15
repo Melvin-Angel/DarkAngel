@@ -1,4 +1,5 @@
 #include <darkangel/gns_transport.hpp>
+#include <darkangel/world_session.hpp>
 #include <darkangel/inventory_session.hpp>
 #include <chrono>
 #include <algorithm>

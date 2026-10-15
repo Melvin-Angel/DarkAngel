@@ -1,5 +1,5 @@
 #pragma once
-#include <darkangel/character_scene.hpp>
+#include <darkangel/scene_definitions.hpp>
 #include <darkangel/scene_transition.hpp>
 #include <darkangel/character_presentation.hpp>
 #include <darkangel/animation_assets.hpp>
@@ -9,6 +9,9 @@
 #include <darkangel/assembly.hpp>
 #include <functional>
 #include <set>
+namespace darkangel {
+class CharacterSceneSession;
+}
 namespace darkangel::editor_app {
 // Presentation of the active equipped mask: a static model on a rig socket joint.
 struct WornMask {AssetId mask,model;std::string name;std::array<float,4> tint{1,1,1,1};unsigned joint{};std::array<float,3> position{},rotation{};float scale{1};};

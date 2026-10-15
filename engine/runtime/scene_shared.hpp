@@ -2,6 +2,7 @@
 // Rules both halves of a scene session apply to their own state: authority to what it simulates, a client to what it
 // predicts. Internal to engine/runtime.
 #include <darkangel/scene_definitions.hpp>
+#include <darkangel/world_session.hpp>
 #include <darkangel/targeting.hpp>
 #include <cmath>
 #include <stdexcept>

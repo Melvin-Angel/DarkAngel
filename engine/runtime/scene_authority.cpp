@@ -1,4 +1,5 @@
 #include <darkangel/scene_authority.hpp>
+#include <darkangel/world_session.hpp>
 #include <darkangel/inventory_session.hpp>
 #include <darkangel/assembly.hpp>
 #include "scene_shared.hpp"

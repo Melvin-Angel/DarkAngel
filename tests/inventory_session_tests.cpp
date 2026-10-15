@@ -1,4 +1,5 @@
 #include <darkangel/inventory_session.hpp>
+#include <darkangel/world_session.hpp>
 #include <iostream>
 #include <stdexcept>
 

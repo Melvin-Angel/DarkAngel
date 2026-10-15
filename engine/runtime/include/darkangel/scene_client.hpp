@@ -1,5 +1,6 @@
 #pragma once
 #include <darkangel/scene_definitions.hpp>
+#include <darkangel/transport.hpp>
 
 namespace darkangel {
 // The client half of a scene session for one player: the client WorldSession, the prediction world, the owner's motor

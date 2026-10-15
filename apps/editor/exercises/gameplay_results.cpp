@@ -1,4 +1,5 @@
 #include "gameplay_results.hpp"
+#include <darkangel/character_scene.hpp>
 #include "script_runner.hpp"
 #include "../editor_options.hpp"
 #include "../editor_ui.hpp"

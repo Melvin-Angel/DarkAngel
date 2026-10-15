@@ -1,5 +1,6 @@
 #pragma once
 #include "character_preview.hpp"
+#include <darkangel/character_scene.hpp>
 #include <darkangel/hud.hpp>
 #include <imgui.h>
 

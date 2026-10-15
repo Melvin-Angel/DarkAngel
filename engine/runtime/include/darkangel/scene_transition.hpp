@@ -1,8 +1,11 @@
 #pragma once
-#include <darkangel/character_scene.hpp>
+#include <darkangel/scene_definitions.hpp>
+#include <darkangel/transport.hpp>
 #include <functional>
+#include <memory>
 
 namespace darkangel {
+class CharacterSceneSession;
 // A place the party can arrive at in a prepared scene: a Scene Entry Point object's identity, label, position and facing.
 struct SceneEntry {StableId id;std::string name;MotorVec position{};double yaw{};};
 // Everything one scene's session is built from, already loaded and validated: what SceneAuthority and SceneClient

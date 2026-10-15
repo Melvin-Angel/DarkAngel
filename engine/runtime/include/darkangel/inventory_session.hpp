@@ -1,9 +1,10 @@
 #pragma once
 #include <darkangel/party_inventory.hpp>
-#include <darkangel/world_session.hpp>
+#include <functional>
 #include <memory>
 
 namespace darkangel {
+class WorldSession;
 // Gameplay adapter, not party-control traffic. Construct before session.attach().
 // PartyInventory outlives this scene's bridge; avatar ownership remains in WorldSession.
 class InventoryHostSession {

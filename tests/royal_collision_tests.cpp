@@ -1,4 +1,5 @@
 #include <darkangel/model_collision.hpp>
+#include <darkangel/character_scene.hpp>
 #include <darkangel/editor_document.hpp>
 #include <darkangel/combat_kit_assets.hpp>
 #include "../apps/editor/character_preview.hpp"

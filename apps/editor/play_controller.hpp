@@ -25,6 +25,7 @@
 
 struct ImDrawList;
 namespace darkangel {
+class CharacterSceneSession;
 class Hud;
 class VfxService;
 struct VfxView;
@@ -44,6 +45,8 @@ struct NavigationTool;
 struct HudResources;
 struct EditorOptions;
 struct ViewArea;
+struct CharacterPreviewResources;
+struct PreparedSpawn;
 namespace render {
 struct UploadedModel;
 }

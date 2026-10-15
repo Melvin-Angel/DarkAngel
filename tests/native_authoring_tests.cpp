@@ -1,4 +1,5 @@
 #include "../apps/editor/native_authoring.hpp"
+#include <darkangel/character_scene.hpp>
 #include "../apps/editor/reference_picker.hpp"
 #include "../apps/editor/character_preview.hpp"
 #include "../apps/editor/effect_preview.hpp"

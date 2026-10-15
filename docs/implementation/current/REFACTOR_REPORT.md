@@ -329,3 +329,27 @@ Not run: `verify_royal_renderer.py` needs Pillow, which is not installed; its ac
 The indicative targets for main (about 15 KB and 15 s) are met. The cost moved, it did not disappear: `play_controller.cpp` (92 KB formatted) compiled in 19 s and `editor_app.cpp` (23 KB) is the composition root, both during a four-job full rebuild, not a controlled benchmark. Fan-out of the hub headers grows by four objects in this part (EditorApp, the scene viewport, pose previews and viewport tools include `character_preview.hpp` or `play_controller.hpp`); `play_controller.hpp` itself pulls in `character_preview.hpp`, which is the first header step 4 should narrow.
 
 **Next:** step 4, header narrowing, measured with `ninja -t deps` before and after. `play_controller.hpp` and `character_preview.hpp` join the five hub headers on the list. The game-module seam can follow at any point (see above). Protected content is unchanged: the two Royal scene sources and their untracked `.records/` folders.
+
+## Step 4 (in progress): header narrowing, built but not yet verified
+
+Committed as work in progress at the user's request (usage limit). **The full build passes; CTest and the editor gates have not been run on this commit.** The next session must run the step-4 verification (`.cache/refactor_2c_verify.py` as a template: build, full CTest serial, effect-reaction then items, slice, party) before building on it.
+
+What changed (no behaviour change intended; declarations moved verbatim):
+- New `session_frames.hpp`: the plain replicated structs (`AbilityCorrection`, `AbilityPublicFrame`, `public_ability_content/at`, `PublicIndexEntry`, `ProjectileView`, `projectile_capacity`, `InteractionRequest/Notice`). `world_session.hpp` includes it.
+- `ability_observer.hpp` and `scene_definitions.hpp` include `session_frames.hpp` (plus `ability`, `melee`, `effects`, `effect_replication`, `input`) instead of `world_session.hpp`; `scene_client.hpp`/`scene_authority.hpp` include `transport.hpp` themselves.
+- `inventory_session.hpp` forward-declares `WorldSession`; `scene_transition.hpp` includes `scene_definitions.hpp` + `transport.hpp` and forward-declares `CharacterSceneSession`; `character_preview.hpp` includes `scene_definitions.hpp` instead of `character_scene.hpp`.
+- Implementation and test files that use `WorldSession` or `CharacterSceneSession` now include those headers explicitly; `character_presentation.hpp` includes `effects.hpp`/`effect_replication.hpp` it used to get transitively.
+- Tried and reverted: `play_controller.hpp` without `character_preview.hpp` (needs `RuntimeSkinnedModel`; revisit).
+
+Fan-out (`ninja -t deps`, `.cache/refactor_4_measure.py`, evidence `refactor-4-headers-before.json` / `-after-wip.json`):
+
+| Header | Before | After (WIP) |
+| --- | ---: | ---: |
+| world_session.hpp | 77 objects / 45 targets | 35 / 31 |
+| scene_definitions.hpp | 44 | 44 |
+| character_scene.hpp | 40 | 32 |
+| scene_client.hpp | 42 | 34 |
+| scene_authority.hpp | 41 | 33 |
+| character_preview.hpp | 22 | 22 (reaches only scene_definitions now) |
+
+Remaining step-4 ideas: forward-declare `SceneClient`/`SceneAuthority` in `character_scene.hpp` (move `SceneSeat` to `scene_definitions.hpp`), trim `scene_definitions.hpp` itself, then the controlled touch benchmarks. Steps 5–7 follow; a read-only inventory for step 6 is in the session notes folder (`step6-inventory.md`).

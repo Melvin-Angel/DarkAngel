@@ -1,4 +1,5 @@
 #include "network_play.hpp"
+#include <darkangel/character_scene.hpp>
 #include <darkangel/gns_transport.hpp>
 #include <darkangel/assembly.hpp>
 #include <darkangel/hash.hpp>
