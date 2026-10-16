@@ -34,6 +34,8 @@ struct Constants {
     DirectX::XMFLOAT4 toon_bands{.18f, .52f, .82f, .035f}, shadow_tint{.22f, .25f, .38f, 1};
     DirectX::XMFLOAT4 local_positions[4]{{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
     DirectX::XMFLOAT4 local_colors[4]{{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    DirectX::XMFLOAT4 local_directions[4]{{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    DirectX::XMFLOAT4 local_cones[4]{{0,1,0,0},{0,1,0,0},{0,1,0,0},{0,1,0,0}};
     DirectX::XMFLOAT4 character_hit{1,1,1,0},character_status{1,1,1,0},character_params{0,0,0,.05f};
     DirectX::XMFLOAT4 terrain_params{4,.35f,.75f,.5f};
     DirectX::XMFLOAT4 fog_color{.35f,.42f,.52f,0},fog_params{20,180,.015f,0};
@@ -87,7 +89,7 @@ struct UploadedModel {
     float radius{};
 };
 constexpr const char* shader_source = R"(
-    cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;};
+    cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 LocalDirections[4];float4 LocalCones[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
 struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;float3 Local:TEXCOORD2;float3 WorldPosition:TEXCOORD3;};
 VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);result.WorldPosition=mul(float4(vertex.Position,1),World).xyz;result.UV=vertex.UV;return result;}
@@ -120,7 +122,7 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     float3 light=normalize(MainLight.xyz);float diffuse=saturate(dot(normal,light));float bands=lerp(0,1,smoothstep(ToonBands.x-ToonBands.w,ToonBands.x+ToonBands.w,diffuse));bands+=lerp(0,1,smoothstep(ToonBands.y-ToonBands.w,ToonBands.y+ToonBands.w,diffuse));bands+=lerp(0,1,smoothstep(ToonBands.z-ToonBands.w,ToonBands.z+ToonBands.w,diffuse));bands/=3;
     float specular=pow(saturate(dot(normal,normalize(light+float3(0,0,1)))),lerp(40,4,roughness));
     float3 emissive=Emission.rgb;if(features&4u)emissive*=EmissiveMap.Sample(EmissiveMap_sampler,vertex.UV).rgb;
-    float3 color=base.rgb*(Ambient.rgb*occlusion+MainColor.rgb*MainColor.a*bands);[unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*attenuation*attenuation;}
+    float3 color=base.rgb*(Ambient.rgb*occlusion+MainColor.rgb*MainColor.a*bands);[unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));float spot=1;if(LocalDirections[i].w>0){float cone=dot(-normalize(delta),normalize(LocalDirections[i].xyz));spot=smoothstep(LocalCones[i].x,LocalCones[i].y,cone);spot=pow(spot,max(LocalCones[i].z,.1));}color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*attenuation*attenuation*spot;}
     if(Features.z==3){float3 coordinates=vertex.Local*Features.w;float3 l1=TerrainLayer1.Sample(TerrainLayer1_sampler,coordinates.xz).rgb,l2=TerrainLayer2.Sample(TerrainLayer2_sampler,coordinates.yz).rgb;float slope=saturate((abs(normal.y)-TerrainParams.y)/max(TerrainParams.z-TerrainParams.y,.001));if(features&32u)color=lerp(color,base.rgb*l1,slope);if(features&64u)color=lerp(color,base.rgb*l2,saturate(TerrainParams.w+(1-slope)*.5));}
     if(Features.z==2){float hit=saturate(CharacterParams.x*CharacterHit.a),status=saturate(CharacterParams.y*CharacterStatus.a);color=lerp(color,CharacterHit.rgb,hit);color=lerp(color,CharacterStatus.rgb,status);if(features&16u){float noise=DissolveMask.Sample(DissolveMask_sampler,vertex.UV).r;float edge=saturate((noise-CharacterParams.z)/max(CharacterParams.w,.001));if(noise<CharacterParams.z)discard;color=lerp(CharacterHit.rgb,color,edge);}}
     if(Outline.x>0) return float4(normalize(normal)*.5+.5,Outline.y);
