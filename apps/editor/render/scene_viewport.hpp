@@ -7,6 +7,7 @@
 #include <DirectXMath.h>
 #include <darkangel/rendering.hpp>
 #include <imgui.h>
+#include "gpu_resources.hpp"
 #include <cstddef>
 #include <array>
 
@@ -60,6 +61,7 @@ class SceneViewport {
     // CPU reference assignment for the current primary view. The renderer keeps this receipt so the editor and
     // later GPU assignment path can report occupancy and deterministic overflow without changing shading semantics.
     rendering::ClusterStats cluster_stats{};
+    rendering::ClusterGpuStats cluster_gpu_stats{};
 
   private:
     SceneViewportContext context_;
@@ -67,9 +69,10 @@ class SceneViewport {
     Diligent::RefCntAutoPtr<Diligent::IBuffer> post_buffer;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> post_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> post_binding, post_binding_second;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> shadow_map, outline_info, outline_info_second;
+    GpuClusterResources gpu_clusters;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> shadow_map, shadow_dummy, outline_info, outline_info_second;
     Diligent::RefCntAutoPtr<Diligent::ITextureView> shadow_srv;
-    std::array<Diligent::RefCntAutoPtr<Diligent::ITextureView>,4> shadow_dsv{};
+    std::array<Diligent::RefCntAutoPtr<Diligent::ITextureView>,4> shadow_dsv{}, shadow_dummy_rtv{};
     unsigned scene_width = 700, scene_height = 500;
     // The viewport's field of view this frame.
     float camera_fov = DirectX::XM_PIDIV4;

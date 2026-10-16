@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -35,8 +36,10 @@ void SceneViewport::ensure_shadow_targets(unsigned resolution) {
     context->Flush();
     context->WaitForIdle();
     shadow_map.Release();
+    shadow_dummy.Release();
     shadow_srv.Release();
     for (auto& view : shadow_dsv) view.Release();
+    for (auto& view : shadow_dummy_rtv) view.Release();
     TextureDesc shadow;
     shadow.Name = "DarkAngel cascaded main-light shadows";
     shadow.Type = RESOURCE_DIM_TEX_2D_ARRAY;
@@ -55,6 +58,24 @@ void SceneViewport::ensure_shadow_targets(unsigned resolution) {
         view.NumArraySlices = 1;
         shadow_map->CreateView(view, &shadow_dsv[cascade]);
         require(shadow_dsv[cascade], "Shadow cascade view creation failed");
+    }
+    TextureDesc dummy;
+    dummy.Name = "DarkAngel shadow caster dummy color";
+    dummy.Type = RESOURCE_DIM_TEX_2D_ARRAY;
+    dummy.Width = dummy.Height = resolution;
+    dummy.ArraySize = 4;
+    dummy.Format = TEX_FORMAT_RGBA8_UNORM;
+    dummy.BindFlags = BIND_RENDER_TARGET;
+    device->CreateTexture(dummy, nullptr, &shadow_dummy);
+    require(shadow_dummy, "Shadow caster dummy color creation failed");
+    for (unsigned cascade = 0; cascade < 4; ++cascade) {
+        TextureViewDesc view;
+        view.ViewType = TEXTURE_VIEW_RENDER_TARGET;
+        view.Format = TEX_FORMAT_RGBA8_UNORM;
+        view.FirstArraySlice = cascade;
+        view.NumArraySlices = 1;
+        shadow_dummy->CreateView(view, &shadow_dummy_rtv[cascade]);
+        require(shadow_dummy_rtv[cascade], "Shadow caster dummy color view creation failed");
     }
     shadow_resolution = resolution;
 }
@@ -337,6 +358,36 @@ void SceneViewport::render(double elapsed_seconds) {
     const rendering::ClusterConfig cluster_config{};
     const auto cluster_assignment = rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
     cluster_stats = cluster_assignment.stats;
+    // Feed the GPU in the same deterministic influence/StableId order as the CPU reference. The established draw
+    // path continues to use CPU-selected IDs until a later shader increment consumes the GPU selection buffer directly.
+    std::vector<ClusterGpuLight> gpu_cluster_lights;
+    gpu_cluster_lights.reserve(cluster_lights.size());
+    std::vector<std::size_t> gpu_light_order(cluster_lights.size());
+    std::iota(gpu_light_order.begin(), gpu_light_order.end(), 0);
+    const auto gpu_influence = [&](const rendering::SceneLight& light) {
+        return std::max(0.f, light.intensity) * (light.color.r * .2126f + light.color.g * .7152f + light.color.b * .0722f);
+    };
+    std::stable_sort(gpu_light_order.begin(), gpu_light_order.end(), [&](std::size_t a, std::size_t b) {
+        const auto sa = gpu_influence(cluster_lights[a]), sb = gpu_influence(cluster_lights[b]);
+        return sa != sb ? sa > sb : cluster_lights[a].id < cluster_lights[b].id;
+    });
+    for (const auto index : gpu_light_order) {
+        const auto& light = cluster_lights[index];
+        ClusterGpuLight packed;
+        packed.position_range = {light.position_view[0], light.position_view[1], light.position_view[2], light.range};
+        packed.metadata = {static_cast<float>(static_cast<unsigned>(light.type)), light.enabled ? 1.f : 0.f, 0, 0};
+        gpu_cluster_lights.push_back(packed);
+    }
+    const auto gpu_layout = rendering::cluster_layout(cluster_config, cluster_view);
+    ensure_gpu_clusters(device.RawPtr(), context.RawPtr(), gpu_clusters, gpu_layout.tiles_x, gpu_layout.tiles_y, gpu_layout.slices,
+                        cluster_config.max_candidates, cluster_config.shading_budget, static_cast<unsigned>(gpu_cluster_lights.size()));
+    read_gpu_cluster_stats(context.RawPtr(), gpu_clusters, cluster_gpu_stats);
+    ClusterGpuFrame gpu_frame;
+    gpu_frame.dimensions = {gpu_layout.tiles_x, gpu_layout.tiles_y, gpu_layout.slices, static_cast<unsigned>(gpu_cluster_lights.size())};
+    gpu_frame.limits = {std::min(64u, std::max(1u, cluster_config.max_candidates)),
+                        std::min(4u, std::max(1u, cluster_config.shading_budget)), static_cast<unsigned>(gpu_layout.clusters), 0};
+    gpu_frame.camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
+    dispatch_gpu_clusters(context.RawPtr(), gpu_clusters, gpu_cluster_lights, gpu_frame);
     const auto cluster_for_center = [&](FXMVECTOR center) -> const rendering::ClusterCell* {
         const auto view_position = XMVector3TransformCoord(center, frame_view);
         const float depth = -XMVectorGetZ(view_position);
@@ -510,17 +561,20 @@ void SceneViewport::render(double elapsed_seconds) {
                     }
                     if(prefab_render)for(const auto& shown:shell.prefab_preview.models)if(shown.object==object_id)if(const auto assignment=shown.materials.find(part.material);assignment!=shown.materials.end())effective=&scene.native_materials.at(assignment->second).surface;
                     const auto& material=*effective;
-                    // The depth-only caster has no material texture bindings yet. Keep transparent and cutout surfaces out of
-                    // the map until alpha-tested caster variants are added; this is safer than casting a full-mesh silhouette.
-                    if (shadow_pass && material.value.alpha_mode != 0)
+                    // Transparent surfaces do not cast into the opaque shadow map. Cutouts use the same authored Albedo and
+                    // alpha cutoff as the forward material through a dedicated depth-only pixel shader.
+                    if (shadow_pass && material.value.alpha_mode == 2)
                         continue;
-                    if(shadow_pass){Constants constants;XMStoreFloat4x4(&constants.mvp,world*view*projection);XMStoreFloat4x4(&constants.rotation,rotation);XMStoreFloat4x4(&constants.world,world);void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow constants mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
+                    if(shadow_pass){Constants constants;XMStoreFloat4x4(&constants.mvp,world*view*projection);XMStoreFloat4x4(&constants.rotation,rotation);XMStoreFloat4x4(&constants.world,world);
 #ifdef DAE_ANIMATION
-                        IPipelineState* shadow_pipeline=(drawn_ptr&&!args.skin_reference)?(material.value.double_sided?scene.skin_shadow_pso.RawPtr():scene.skin_shadow_cull.RawPtr()):(material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr());
+                        IPipelineState* shadow_pipeline=(drawn_ptr&&!args.skin_reference)?(material.value.alpha_mode==1?(material.value.double_sided?scene.skin_shadow_alpha_pso.RawPtr():scene.skin_shadow_alpha_cull.RawPtr()):(material.value.double_sided?scene.skin_shadow_pso.RawPtr():scene.skin_shadow_cull.RawPtr())):(material.value.alpha_mode==1?(material.value.double_sided?context_.render.shadow_alpha_pso.RawPtr():context_.render.shadow_alpha_pso_cull.RawPtr()):(material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr()));
 #else
-                        IPipelineState* shadow_pipeline=material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr();
+                        IPipelineState* shadow_pipeline=material.value.alpha_mode==1?(material.value.double_sided?context_.render.shadow_alpha_pso.RawPtr():context_.render.shadow_alpha_pso_cull.RawPtr()):(material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr());
 #endif
-                        if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;}DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);continue;}
+                        void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow constants mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
+                        if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;}
+                        if(material.value.alpha_mode==1){apply_material(constants,material.value);auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);}
+                        DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);continue;}
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
@@ -740,7 +794,10 @@ void SceneViewport::render(double elapsed_seconds) {
                         std::max(extent * 4, frame_settings.shadows.distance));
                     XMStoreFloat4x4(&shadow_matrices[cascade], light_view * light_projection);
                     auto* dsv_shadow = shadow_dsv[cascade].RawPtr();
-                    context->SetRenderTargets(0, nullptr, dsv_shadow, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    auto* dummy_rtv = shadow_dummy_rtv[cascade].RawPtr();
+                    context->SetRenderTargets(1, &dummy_rtv, dsv_shadow, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    const float dummy_clear[4]{0, 0, 0, 0};
+                    context->ClearRenderTarget(dummy_rtv, dummy_clear, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     context->ClearDepthStencil(dsv_shadow, CLEAR_DEPTH_FLAG, 1, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     Viewport shadow_viewport;
                     shadow_viewport.Width = shadow_viewport.Height = float(shadow_resolution);

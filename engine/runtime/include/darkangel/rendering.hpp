@@ -2,6 +2,7 @@
 #include <darkangel/world.hpp>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <span>
 #include <vector>
 namespace darkangel::rendering {
@@ -18,7 +19,12 @@ struct ClusterConfig { unsigned tile_size{16}, depth_slices{24}, max_candidates{
 struct ClusterView { unsigned width{1}, height{1}; float near_plane{.05f}, far_plane{1000}, tan_half_fov_y{.41421356f}, aspect{1}; };
 struct ClusterCell { std::vector<StableId> candidates, selected; bool overflow{}; };
 struct ClusterStats { std::size_t clusters{}, non_empty{}, overflowed{}, candidate_links{}, selected_links{}, directional_lights{}; };
+// GPU assignment telemetry is intentionally separate from the deterministic CPU reference. The renderer may
+// publish this one frame late while the readback is still in flight, so readiness is explicit.
+struct ClusterGpuStats { bool ready{}; std::size_t non_empty{}, overflowed{}, candidate_links{}, selected_links{}, max_occupancy{}; };
+struct ClusterLayout { unsigned tiles_x{}, tiles_y{}, slices{}; std::size_t clusters{}; };
 struct ClusterAssignment { unsigned tiles_x{}, tiles_y{}, slices{}; std::vector<ClusterCell> cells; ClusterStats stats; ClusterCell& at(unsigned,unsigned,unsigned); const ClusterCell& at(unsigned,unsigned,unsigned) const; };
+ClusterLayout cluster_layout(const ClusterConfig&, const ClusterView&);
 ClusterAssignment assign_lights(const ClusterConfig&, const ClusterView&, std::span<const SceneLight>);
 std::array<float,3> evaluate_toon(const ToonLighting&,Color3 base,Color3 main_color,float main_intensity,float main_visibility,float normal_main_dot,std::span<const SceneLight>,float ambient_occlusion=1);
 float evaluate_fog(const FogSettings&,float distance,float world_height=0);

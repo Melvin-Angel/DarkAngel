@@ -8,16 +8,19 @@
 #include <ShaderResourceBinding.h>
 #include <DirectXMath.h>
 #include <darkangel/assets.hpp>
+#include <darkangel/rendering.hpp>
 #ifdef DAE_ANIMATION
 #include <darkangel/animation.hpp>
 #include <darkangel/animation_assets.hpp>
 #endif
 #include <array>
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include <span>
 
 namespace darkangel::editor_app {
 struct ViewArea;
@@ -29,7 +32,7 @@ using namespace Diligent;
 struct Constants {
     DirectX::XMFLOAT4X4 mvp, rotation, world;
     DirectX::XMFLOAT4 color, surface;
-    DirectX::XMFLOAT4 emission{0, 0, 0, 0}, features{0, 0, 0, 0};
+    DirectX::XMFLOAT4 emission{0, 0, 0, 0}, features{0, 0, 0, 0}, alpha{.5f, 0, 0, 0};
     DirectX::XMFLOAT4 main_light{.4f, .7f, .8f, 1}, main_color{1, 1, 1, 1}, ambient{.22f, .25f, .34f, 1};
     DirectX::XMFLOAT4 toon_bands{.18f, .52f, .82f, .035f}, shadow_tint{.22f, .25f, .38f, 1};
     DirectX::XMFLOAT4 local_positions[4]{{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
@@ -88,6 +91,20 @@ struct UploadedModel {
     std::array<float, 3> center{}, half{};
     float radius{};
 };
+struct ClusterGpuLight { DirectX::XMFLOAT4 position_range{}; DirectX::XMFLOAT4 metadata{}; };
+struct ClusterGpuFrame { std::array<std::uint32_t, 4> dimensions{}; std::array<std::uint32_t, 4> limits{}; DirectX::XMFLOAT4 camera{}; };
+struct GpuClusterResources {
+    RefCntAutoPtr<IBuffer> frame, lights, candidates, selected, counts, stats, stats_readback;
+    RefCntAutoPtr<IPipelineState> pipeline;
+    RefCntAutoPtr<IShaderResourceBinding> binding;
+    unsigned tiles_x{}, tiles_y{}, slices{}, max_candidates{}, shading_budget{}, light_capacity{};
+    std::size_t cluster_count{};
+    bool readback_pending{};
+};
+void ensure_gpu_clusters(IRenderDevice*, IDeviceContext*, GpuClusterResources&, unsigned tiles_x, unsigned tiles_y, unsigned slices,
+                         unsigned max_candidates, unsigned shading_budget, unsigned light_capacity);
+void dispatch_gpu_clusters(IDeviceContext*, GpuClusterResources&, std::span<const ClusterGpuLight>, const ClusterGpuFrame&);
+bool read_gpu_cluster_stats(IDeviceContext*, GpuClusterResources&, rendering::ClusterGpuStats&);
 constexpr const char* shader_source = R"(
     cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 LocalDirections[4];float4 LocalCones[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
@@ -137,6 +154,7 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                                        const char* source = shader_source, IBuffer* bones = nullptr, bool blend = false);
 RefCntAutoPtr<IPipelineState> post_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT color);
 RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr);
+RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr);
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked);
 // Reads the viewport back, requires foreground geometry inside the viewport area and writes a PNG.
 void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, const std::filesystem::path& path, const ViewArea& viewport);

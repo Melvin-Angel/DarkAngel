@@ -80,20 +80,23 @@
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new device-local page. (16.00 MB, type idx: 0). Current allocated size: 48.00 MB
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 1). Current allocated size: 32.00 MB
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new device-local page. (128.00 MB, type idx: 0). Current allocated size: 176.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new device-local page. (128.00 MB, type idx: 0). Current allocated size: 304.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 2). Current allocated size: 48.00 MB
 [39m[39mDiligent Engine: Info: Using SURFACE_TRANSFORM_IDENTITY swap chain pretransform
 [39m[39mDiligent Engine: Info: Using VK_PRESENT_MODE_IMMEDIATE_KHR swap chain present mode
-[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 2). Current allocated size: 48.00 MB
 [39mViewport foreground pixels=213107 capture=C:\DarkAngel\docs\implementation\evidence\royal-vulkan-rest-reference.png
 DarkAngel editor rendered 8 frames with vulkan
-[39mDiligent Engine: Info: Dynamic descriptor set allocator of immediate context peak descriptor pool count: 1
+[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': destroying device-local page (16.00 MB). Current allocated size: 288.00 MB
+[39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': destroying device-local page (128.00 MB). Current allocated size: 160.00 MB
+[39m[39mDiligent Engine: Info: Dynamic descriptor set allocator of immediate context peak descriptor pool count: 1
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 145.19 KB / 146.25 KB / 256.00 KB (1 page). Peak efficiency (used/aligned): 99.3%. Peak utilization (used/allocated): 56.7%
+                       Peak used/aligned/allocated size: 145.80 KB / 146.38 KB / 256.00 KB (1 page). Peak efficiency (used/aligned): 99.6%. Peak utilization (used/allocated): 57.0%
 [39m[39mDiligent Engine: Info: Upload heap of immediate context peak used/allocated frame size: 0.03 MB / 1.00 MB (1 page)
 [39m[39mDiligent Engine: Info: Transient command buffer pool manager allocated descriptor pool count: 47
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total size: 8.00 MB. Peak allocated size: 0.75 MB. Peak utilization: 9.4%
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager' stats:
-                       Peak used/allocated device-local memory size: 120.59 MB / 176.00 MB (11 pages)
+                       Peak used/allocated device-local memory size: 193.29 MB / 304.00 MB (19 pages)
                        Peak used/allocated host-visible memory size: 23.12 MB / 48.00 MB (3 pages)
 [39m[39mDiligent Engine: Info: Vulkan query manager peak usage:
 QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128

@@ -58,6 +58,8 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
                                bone_buffer, true);
     skin_shadow_pso = shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, false, skin_source.c_str(), bone_buffer);
     skin_shadow_cull = shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, true, skin_source.c_str(), bone_buffer);
+    skin_shadow_alpha_pso = alpha_shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, false, skin_source.c_str(), bone_buffer);
+    skin_shadow_alpha_cull = alpha_shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, true, skin_source.c_str(), bone_buffer);
     if (!args.pose_clip.empty()) {
         auto cooked = load_cooked_clip(args.registry, args.cas, AssetId::parse(args.pose_clip));
         diagnostic_clip = std::make_unique<AnimationClip>(std::move(cooked.definition), cooked.archive);

@@ -15,6 +15,227 @@
 #include <string_view>
 
 namespace darkangel::editor_app::render {
+namespace {
+constexpr const char* cluster_compute_source = R"(
+cbuffer ClusterFrame {uint4 Dimensions;uint4 Limits;float4 Camera;};
+struct GpuLight {float4 PositionRange;float4 Metadata;};
+StructuredBuffer<GpuLight> Lights;
+RWStructuredBuffer<uint> ClusterCandidates;
+RWStructuredBuffer<uint> ClusterSelected;
+RWStructuredBuffer<uint> ClusterCounts;
+RWStructuredBuffer<uint> ClusterStats;
+
+bool overlaps(float a_min,float a_max,float b_min,float b_max){return a_max>=b_min&&a_min<=b_max;}
+[numthreads(1,1,1)]
+void CSMain(uint3 dispatch_id:SV_DispatchThreadID){
+    uint cluster=dispatch_id.x;
+    if(cluster>=Limits.z)return;
+    uint tiles_per_slice=Dimensions.x*Dimensions.y;
+    uint z=cluster/tiles_per_slice;
+    uint rem=cluster-z*tiles_per_slice;
+    uint y=rem/Dimensions.x;
+    uint x=rem-y*Dimensions.x;
+    float tile_min_x=float(x)/float(Dimensions.x),tile_max_x=float(x+1)/float(Dimensions.x);
+    float tile_min_y=float(y)/float(Dimensions.y),tile_max_y=float(y+1)/float(Dimensions.y);
+    float log_range=log(Camera.y/Camera.x);
+    float depth_min=exp(log(Camera.x)+float(z)/float(Dimensions.z)*log_range);
+    float depth_max=exp(log(Camera.x)+float(z+1)/float(Dimensions.z)*log_range);
+    uint candidate_count=0;
+    uint base=cluster*64;
+    for(uint light_index=0;light_index<Dimensions.w;++light_index){
+        GpuLight light=Lights[light_index];
+        if(light.Metadata.x<0.5||light.Metadata.y<0.5)continue;
+        float3 position=light.PositionRange.xyz;
+        float radius=max(light.PositionRange.w,.001);
+        float depth=-position.z;
+        if(depth+radius<Camera.x||depth-radius>Camera.y||depth<=.001)continue;
+        float tx=max(.01,Camera.w*Camera.z);
+        float min_x=.5+.5*(position.x-radius)/(depth+radius)/tx;
+        float max_x=.5+.5*(position.x+radius)/(depth+radius)/tx;
+        float min_y=.5+.5*(position.y-radius)/(depth+radius)/Camera.z;
+        float max_y=.5+.5*(position.y+radius)/(depth+radius)/Camera.z;
+        if(!overlaps(min_x,max_x,tile_min_x,tile_max_x)||!overlaps(.5-max_y*.5,.5-min_y*.5,tile_min_y,tile_max_y))continue;
+        if(candidate_count<Limits.x)ClusterCandidates[base+candidate_count]=light_index;
+        ++candidate_count;
+    }
+    uint stored=min(candidate_count,Limits.x);
+    ClusterCounts[cluster]=stored;
+    uint selected=min(stored,Limits.y);
+    for(uint i=0;i<4;++i)ClusterSelected[cluster*4+i]=i<selected?ClusterCandidates[base+i]:0xffffffff;
+    if(candidate_count>0)InterlockedAdd(ClusterStats[0],1);
+    if(candidate_count>Limits.x)InterlockedAdd(ClusterStats[1],1);
+    InterlockedAdd(ClusterStats[2],stored);
+    InterlockedAdd(ClusterStats[3],selected);
+    InterlockedMax(ClusterStats[4],stored);
+}
+)";
+}
+
+std::string normalize_shader_source(std::string source) {
+    const std::string cbuffer = "float4 Features;float4 MainLight;";
+    const std::string replacement = "float4 Features;float4 Alpha;float4 MainLight;";
+    for (std::size_t at = source.find(cbuffer); at != source.npos; at = source.find(cbuffer, at + replacement.size()))
+        source.replace(at, cbuffer.size(), replacement);
+    const std::string test = "base.a<Features.z";
+    for (std::size_t at = source.find(test); at != source.npos; at = source.find(test, at + 8))
+        source.replace(at, test.size(), "base.a<Alpha.x");
+    return source;
+}
+std::string normalized_shader_source() { return normalize_shader_source(shader_source); }
+
+void ensure_gpu_clusters(IRenderDevice* device, IDeviceContext* context, GpuClusterResources& resources, unsigned tiles_x,
+                         unsigned tiles_y, unsigned slices, unsigned max_candidates, unsigned shading_budget, unsigned light_capacity) {
+    max_candidates = std::clamp(max_candidates, 1u, 64u);
+    shading_budget = std::clamp(shading_budget, 1u, 4u);
+    light_capacity = std::max(1u, light_capacity);
+    const auto clusters = static_cast<std::size_t>(tiles_x) * tiles_y * slices;
+    if (resources.pipeline && resources.tiles_x == tiles_x && resources.tiles_y == tiles_y && resources.slices == slices &&
+        resources.max_candidates == max_candidates && resources.shading_budget == shading_budget && resources.light_capacity >= light_capacity)
+        return;
+    context->Flush();
+    context->WaitForIdle();
+    resources = {};
+    resources.tiles_x = tiles_x;
+    resources.tiles_y = tiles_y;
+    resources.slices = slices;
+    resources.max_candidates = max_candidates;
+    resources.shading_budget = shading_budget;
+    resources.light_capacity = light_capacity;
+    resources.cluster_count = clusters;
+
+    BufferDesc frame_desc;
+    frame_desc.Name = "DarkAngel GPU cluster frame";
+    frame_desc.Size = sizeof(ClusterGpuFrame);
+    frame_desc.Usage = USAGE_DYNAMIC;
+    frame_desc.BindFlags = BIND_UNIFORM_BUFFER;
+    frame_desc.CPUAccessFlags = CPU_ACCESS_WRITE;
+    device->CreateBuffer(frame_desc, nullptr, &resources.frame);
+    require(resources.frame, "GPU cluster frame buffer creation failed");
+
+    BufferDesc lights_desc;
+    lights_desc.Name = "DarkAngel GPU cluster lights";
+    lights_desc.Size = static_cast<Uint64>(light_capacity) * sizeof(ClusterGpuLight);
+    lights_desc.Usage = USAGE_DYNAMIC;
+    lights_desc.BindFlags = BIND_SHADER_RESOURCE;
+    lights_desc.Mode = BUFFER_MODE_STRUCTURED;
+    lights_desc.ElementByteStride = sizeof(ClusterGpuLight);
+    lights_desc.CPUAccessFlags = CPU_ACCESS_WRITE;
+    device->CreateBuffer(lights_desc, nullptr, &resources.lights);
+    require(resources.lights, "GPU cluster light buffer creation failed");
+
+    auto output_buffer = [&](const char* name, std::size_t count, RefCntAutoPtr<IBuffer>& destination) {
+        BufferDesc desc;
+        desc.Name = name;
+        desc.Size = static_cast<Uint64>(std::max<std::size_t>(1, count)) * sizeof(std::uint32_t);
+        desc.BindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
+        desc.Mode = BUFFER_MODE_STRUCTURED;
+        desc.ElementByteStride = sizeof(std::uint32_t);
+        device->CreateBuffer(desc, nullptr, &destination);
+        require(destination, name);
+    };
+    output_buffer("DarkAngel GPU cluster candidate indices", clusters * 64, resources.candidates);
+    output_buffer("DarkAngel GPU cluster selected indices", clusters * 4, resources.selected);
+    output_buffer("DarkAngel GPU cluster occupancy", clusters, resources.counts);
+    output_buffer("DarkAngel GPU cluster statistics", 5, resources.stats);
+
+    BufferDesc readback;
+    readback.Name = "DarkAngel GPU cluster statistics readback";
+    readback.Size = 5 * sizeof(std::uint32_t);
+    readback.Usage = USAGE_STAGING;
+    readback.CPUAccessFlags = CPU_ACCESS_READ;
+    device->CreateBuffer(readback, nullptr, &resources.stats_readback);
+    require(resources.stats_readback, "GPU cluster statistics readback creation failed");
+
+    ShaderCreateInfo shader;
+    shader.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
+    shader.ShaderCompiler = SHADER_COMPILER_DXC;
+    shader.HLSLVersion = {6, 0};
+    shader.Source = cluster_compute_source;
+    shader.Desc.Name = "DarkAngel clustered light assignment CS";
+    shader.Desc.ShaderType = SHADER_TYPE_COMPUTE;
+    shader.EntryPoint = "CSMain";
+    RefCntAutoPtr<IShader> compute_shader;
+    device->CreateShader(shader, &compute_shader);
+    require(compute_shader, "GPU cluster compute shader compilation failed");
+
+    ComputePipelineStateCreateInfo pipeline_info;
+    pipeline_info.PSODesc.Name = "DarkAngel GPU clustered light assignment";
+    pipeline_info.pCS = compute_shader;
+    ShaderResourceVariableDesc variables[] = {{SHADER_TYPE_COMPUTE, "ClusterFrame", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_COMPUTE, "Lights", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_COMPUTE, "ClusterCandidates", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_COMPUTE, "ClusterSelected", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_COMPUTE, "ClusterCounts", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_COMPUTE, "ClusterStats", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};
+    pipeline_info.PSODesc.ResourceLayout.Variables = variables;
+    pipeline_info.PSODesc.ResourceLayout.NumVariables = _countof(variables);
+    device->CreateComputePipelineState(pipeline_info, &resources.pipeline);
+    require(resources.pipeline, "GPU cluster compute pipeline creation failed");
+    resources.pipeline->CreateShaderResourceBinding(&resources.binding, true);
+    require(resources.binding, "GPU cluster compute binding creation failed");
+}
+
+void dispatch_gpu_clusters(IDeviceContext* context, GpuClusterResources& resources, std::span<const ClusterGpuLight> lights,
+                           const ClusterGpuFrame& frame) {
+    std::vector<ClusterGpuLight> padded(std::max<std::size_t>(1, lights.size()));
+    if (!lights.empty())
+        std::memcpy(padded.data(), lights.data(), lights.size_bytes());
+    void* mapped{};
+    context->MapBuffer(resources.lights, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+    require(mapped, "GPU cluster light mapping failed");
+    std::memcpy(mapped, padded.data(), padded.size() * sizeof(ClusterGpuLight));
+    context->UnmapBuffer(resources.lights, MAP_WRITE);
+    mapped = nullptr;
+    context->MapBuffer(resources.frame, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+    require(mapped, "GPU cluster frame mapping failed");
+    std::memcpy(mapped, &frame, sizeof(frame));
+    context->UnmapBuffer(resources.frame, MAP_WRITE);
+    const std::uint32_t zero_stats[5]{};
+    context->UpdateBuffer(resources.stats, 0, sizeof(zero_stats), zero_stats, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    auto set = [&](const char* name, IBufferView* view) {
+        auto* variable = resources.binding->GetVariableByName(SHADER_TYPE_COMPUTE, name);
+        require(variable, name);
+        variable->Set(view);
+    };
+    auto set_buffer = [&](const char* name, IBuffer* buffer, BUFFER_VIEW_TYPE type) {
+        set(name, buffer->GetDefaultView(type));
+    };
+    auto* frame_variable = resources.binding->GetVariableByName(SHADER_TYPE_COMPUTE, "ClusterFrame");
+    require(frame_variable, "GPU cluster frame contract changed");
+    frame_variable->Set(resources.frame);
+    set_buffer("Lights", resources.lights, BUFFER_VIEW_SHADER_RESOURCE);
+    set_buffer("ClusterCandidates", resources.candidates, BUFFER_VIEW_UNORDERED_ACCESS);
+    set_buffer("ClusterSelected", resources.selected, BUFFER_VIEW_UNORDERED_ACCESS);
+    set_buffer("ClusterCounts", resources.counts, BUFFER_VIEW_UNORDERED_ACCESS);
+    set_buffer("ClusterStats", resources.stats, BUFFER_VIEW_UNORDERED_ACCESS);
+    context->SetPipelineState(resources.pipeline);
+    context->CommitShaderResources(resources.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    context->DispatchCompute(DispatchComputeAttribs{static_cast<Uint32>(resources.cluster_count), 1, 1});
+    context->CopyBuffer(resources.stats, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, resources.stats_readback, 0, 5 * sizeof(std::uint32_t),
+                        RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    resources.readback_pending = true;
+}
+
+bool read_gpu_cluster_stats(IDeviceContext* context, GpuClusterResources& resources, rendering::ClusterGpuStats& result) {
+    if (!resources.readback_pending)
+        return false;
+    void* mapped{};
+    context->MapBuffer(resources.stats_readback, MAP_READ, MAP_FLAG_DO_NOT_WAIT, mapped);
+    if (!mapped)
+        return false;
+    std::uint32_t values[5]{};
+    std::memcpy(values, mapped, sizeof(values));
+    context->UnmapBuffer(resources.stats_readback, MAP_READ);
+    result.ready = true;
+    result.non_empty = values[0];
+    result.overflowed = values[1];
+    result.candidate_links = values[2];
+    result.selected_links = values[3];
+    result.max_occupancy = values[4];
+    resources.readback_pending = false;
+    return true;
+}
+
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
                                        const char* source, IBuffer* bones, bool blend) {
     ShaderCreateInfo shader;
@@ -133,6 +354,10 @@ float4 PSMain(VertexOutput vertex):SV_TARGET{return 1;}
     const char* shader_source_text=source?source:depth_source;ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=shader_source_text;RefCntAutoPtr<IShader> vs;shader.Desc.Name="DarkAngel shadow VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);require(vs,"Shadow shader compilation failed");
     GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel cascaded shadow caster";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=0;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthWriteEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};graphics.InputLayout.LayoutElements=layout;graphics.InputLayout.NumElements=bones?5:3;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Shadow pipeline creation failed");auto* frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");require(frame,"Shadow Frame contract changed");frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Shadow skeleton contract missing");skeleton->Set(bones);}return result;
 }
+RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones) {
+    const auto normalized = normalized_shader_source();
+    return pipeline(device, constants, TEX_FORMAT_RGBA8_UNORM, depth, cull, source ? source : normalized.c_str(), bones);
+}
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked) {
     require(!cooked.mips.empty(), "Missing texture mips");
     TextureDesc desc;
@@ -229,6 +454,7 @@ void apply_material(Constants& constants, const CookedMaterial& material) {
     const unsigned bits = (material.has_normal ? 1u : 0u) | (material.has_surface ? 2u : 0u) | (material.has_emissive_texture ? 4u : 0u) | (material.triplanar ? 8u : 0u) | (material.has_dissolve_texture ? 16u : 0u) | (material.has_terrain_layer1 ? 32u : 0u) | (material.has_terrain_layer2 ? 64u : 0u);
     const float family=material.family==material_family_toon_character?2.f:material.family==material_family_toon_terrain?3.f:material.family==material_family_toon_standard?1.f:0.f;
     constants.features = {static_cast<float>(bits), static_cast<float>(material.alpha_mode), family, material.triplanar_scale};
+    constants.alpha = {material.alpha_cutoff, 0, 0, 0};
     constants.toon_bands={material.toon_thresholds[0],material.toon_thresholds[1],material.toon_thresholds[2],material.toon_softness};constants.shadow_tint={material.shadow_tint[0],material.shadow_tint[1],material.shadow_tint[2],1};constants.ambient={material.ambient_color[0]*material.ambient_strength,material.ambient_color[1]*material.ambient_strength,material.ambient_color[2]*material.ambient_strength,1};
     constants.character_hit={material.hit_flash_color[0],material.hit_flash_color[1],material.hit_flash_color[2],material.hit_flash_color[3]};constants.character_status={material.status_color[0],material.status_color[1],material.status_color[2],material.status_color[3]};constants.character_params={material.hit_flash_strength,material.status_strength,material.dissolve,material.dissolve_edge_width};constants.terrain_params={material.terrain_blend_sharpness,material.terrain_slope_start,material.terrain_slope_end,material.terrain_height_blend};
 }
@@ -323,15 +549,15 @@ UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipeline
 std::string shader_text() {
     std::ifstream in("games/AshenRoots/shaders/stylized_prop.hlsl", std::ios::binary | std::ios::ate);
     if (!in)
-        return shader_source;
+        return normalized_shader_source();
     require(in.tellg() >= 0 && in.tellg() <= 256 * 1024, "Shader source byte limit");
     in.seekg(0);
-    return {std::istreambuf_iterator<char>(in), {}};
+    return normalize_shader_source({std::istreambuf_iterator<char>(in), {}});
 }
 
 #ifdef DAE_ANIMATION
 std::string skin_shader() {
-    std::string source = shader_source;
+    std::string source = normalized_shader_source();
     auto replace = [&](std::string_view from, std::string_view to) {
         auto at = source.find(from);
         require(at != source.npos, "Native skin shader template mismatch");

@@ -17,6 +17,10 @@ int main() {
         SceneLight d; d.id = id(3); d.type = LightType::Directional;
         auto result = assign_lights({}, view, std::array<SceneLight, 3>{a, b, d});
         check(result.tiles_x == 20 && result.tiles_y == 12 && result.slices == 24, "cluster dimensions");
+        const auto layout = cluster_layout({}, view);
+        check(layout.tiles_x == result.tiles_x && layout.tiles_y == result.tiles_y && layout.slices == result.slices &&
+                  layout.clusters == result.stats.clusters,
+              "GPU/CPU cluster layout contract");
         check(result.stats.directional_lights == 1 && result.stats.non_empty > 0, "directional separation");
         for (const auto& cell : result.cells) {
             check(cell.candidates.size() <= 64, "cluster bounds");

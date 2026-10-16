@@ -47,9 +47,20 @@ qualification evidence.
    material-family feature keys. Numeric values remain uniforms; structural
    features select bounded PSO variants. Static, skinned and future terrain
    consumers share the library.
-5. Add main directional cascaded shadows, cluster light data upload and the
-   validation scene/gates only after resource ownership and resize/barrier
+5. Add main directional cascaded shadows, GPU cluster assignment resources and
+   the validation scene/gates only after resource ownership and resize/barrier
    contracts are stable.
+
+## Current implementation increment
+
+The GPU cluster resource increment is now implemented in the editor viewport.
+It owns a bounded structured light input buffer, fixed 64-candidate and
+four-selected-index buffers per cluster, occupancy counters, overflow counters,
+and a non-blocking staging readback. The CPU assignment remains the
+deterministic visual/reference path until a later shader increment consumes the
+GPU-selected indices directly. Alpha-tested shadow casters likewise use the
+existing material shader/binding contract with a depth-plus-dummy-colour
+shadow target; transparent casters remain excluded.
 
 ## Explicit boundaries
 
