@@ -30,7 +30,7 @@ using namespace Diligent;
 // The Frame constants of the shared surface shader (R5 A3): surface (roughness, metallic, occlusion strength, normal scale),
 // emission (rgb) and features (bits: 1 normal map, 2 surface map, 4 emissive map; alpha mode; alpha cutoff).
 struct Constants {
-    DirectX::XMFLOAT4X4 mvp, rotation, world;
+    DirectX::XMFLOAT4X4 mvp, rotation, world, view;
     DirectX::XMFLOAT4 color, surface;
     DirectX::XMFLOAT4 emission{0, 0, 0, 0}, features{0, 0, 0, 0}, alpha{.5f, 0, 0, 0};
     DirectX::XMFLOAT4 main_light{.4f, .7f, .8f, 1}, main_color{1, 1, 1, 1}, ambient{.22f, .25f, .34f, 1};
@@ -46,6 +46,8 @@ struct Constants {
     DirectX::XMFLOAT4 shadow_params{.001f,.002f,0,0};
     DirectX::XMFLOAT4X4 shadow_matrices[4]{};
     DirectX::XMFLOAT4 outline{};
+    DirectX::XMFLOAT4 cluster_dimensions{};
+    DirectX::XMFLOAT4 cluster_camera{};
 };
 struct PostConstants {
     DirectX::XMFLOAT4 exposure{0,0,1,1};
@@ -60,6 +62,7 @@ struct PostConstants {
     DirectX::XMFLOAT4 sky_ground{.025f,.02f,.03f,0};
     DirectX::XMFLOAT4 sky_sun{-.35f,.7f,-.55f,0};
     DirectX::XMFLOAT4 sky_sun_color{1,.75f,.45f,0};
+    DirectX::XMFLOAT4 sky_mode{};
 };
 // Sets a draw's surface, emission and feature constants from its material (colour is set by the caller, which may tint it).
 void apply_material(Constants&, const CookedMaterial&);
@@ -91,7 +94,15 @@ struct UploadedModel {
     std::array<float, 3> center{}, half{};
     float radius{};
 };
-struct ClusterGpuLight { DirectX::XMFLOAT4 position_range{}; DirectX::XMFLOAT4 metadata{}; };
+// The compute and graphics passes share this exact packed contract. Positions and directions are in view space,
+// so the pixel shader can evaluate the selected list without rebuilding CPU light constants per draw.
+struct ClusterGpuLight {
+    DirectX::XMFLOAT4 position_range{};
+    DirectX::XMFLOAT4 metadata{};
+    DirectX::XMFLOAT4 color_intensity{};
+    DirectX::XMFLOAT4 direction_type{};
+    DirectX::XMFLOAT4 cone_falloff{};
+};
 struct ClusterGpuFrame { std::array<std::uint32_t, 4> dimensions{}; std::array<std::uint32_t, 4> limits{}; DirectX::XMFLOAT4 camera{}; };
 struct GpuClusterResources {
     RefCntAutoPtr<IBuffer> frame, lights, candidates, selected, counts, stats, stats_readback;
@@ -105,11 +116,12 @@ void ensure_gpu_clusters(IRenderDevice*, IDeviceContext*, GpuClusterResources&, 
                          unsigned max_candidates, unsigned shading_budget, unsigned light_capacity);
 void dispatch_gpu_clusters(IDeviceContext*, GpuClusterResources&, std::span<const ClusterGpuLight>, const ClusterGpuFrame&);
 bool read_gpu_cluster_stats(IDeviceContext*, GpuClusterResources&, rendering::ClusterGpuStats&);
+void bind_gpu_clusters(IShaderResourceBinding*, const GpuClusterResources&);
 constexpr const char* shader_source = R"(
-    cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 LocalDirections[4];float4 LocalCones[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;};
+    cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;row_major float4x4 View;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 LocalDirections[4];float4 LocalCones[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;float4 ClusterDimensions;float4 ClusterCamera;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
-struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;float3 Local:TEXCOORD2;float3 WorldPosition:TEXCOORD3;};
-VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);result.WorldPosition=mul(float4(vertex.Position,1),World).xyz;result.UV=vertex.UV;return result;}
+    struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;float3 Local:TEXCOORD2;float3 WorldPosition:TEXCOORD3;float3 ViewPosition:TEXCOORD4;float3 ViewNormal:TEXCOORD5;};
+    VertexOutput VSMain(VertexInput vertex){VertexOutput result;float4 local=float4(vertex.Position,1);result.Position=mul(local,Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);result.WorldPosition=mul(local,World).xyz;result.ViewPosition=mul(float4(result.WorldPosition,1),View).xyz;result.ViewNormal=normalize(mul(result.Normal,(float3x3)View));result.UV=vertex.UV;return result;}
 Texture2D Albedo;SamplerState Albedo_sampler;
 Texture2D NormalMap;SamplerState NormalMap_sampler;
 Texture2D SurfaceMap;SamplerState SurfaceMap_sampler;
@@ -118,6 +130,9 @@ Texture2D DissolveMask;SamplerState DissolveMask_sampler;
 Texture2D TerrainLayer1;SamplerState TerrainLayer1_sampler;
 Texture2D TerrainLayer2;SamplerState TerrainLayer2_sampler;
 Texture2DArray ShadowMap;SamplerComparisonState ShadowMap_sampler;
+    struct ClusterLight {float4 PositionRange;float4 Metadata;float4 ColorIntensity;float4 DirectionType;float4 ConeFalloff;};
+    StructuredBuffer<ClusterLight> ClusterLights;
+    StructuredBuffer<uint> ClusterSelected;
 // Surface: x roughness, y metallic, z occlusion strength, w normal scale. Emission: rgb emissive colour.
 // Features: x feature bits (1 normal map, 2 surface map, 4 emissive map), y alpha mode, z toon family, w triplanar scale.
 // A feature a material does not use is never sampled.
@@ -139,7 +154,9 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     float3 light=normalize(MainLight.xyz);float diffuse=saturate(dot(normal,light));float bands=lerp(0,1,smoothstep(ToonBands.x-ToonBands.w,ToonBands.x+ToonBands.w,diffuse));bands+=lerp(0,1,smoothstep(ToonBands.y-ToonBands.w,ToonBands.y+ToonBands.w,diffuse));bands+=lerp(0,1,smoothstep(ToonBands.z-ToonBands.w,ToonBands.z+ToonBands.w,diffuse));bands/=3;
     float specular=pow(saturate(dot(normal,normalize(light+float3(0,0,1)))),lerp(40,4,roughness));
     float3 emissive=Emission.rgb;if(features&4u)emissive*=EmissiveMap.Sample(EmissiveMap_sampler,vertex.UV).rgb;
-    float3 color=base.rgb*(Ambient.rgb*occlusion+MainColor.rgb*MainColor.a*bands);[unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));float spot=1;if(LocalDirections[i].w>0){float cone=dot(-normalize(delta),normalize(LocalDirections[i].xyz));spot=smoothstep(LocalCones[i].x,LocalCones[i].y,cone);spot=pow(spot,max(LocalCones[i].z,.1));}color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*attenuation*attenuation*spot;}
+    float3 color=base.rgb*(Ambient.rgb*occlusion+MainColor.rgb*MainColor.a*bands);
+    if(ClusterDimensions.w>0){uint tiles_x=max(1,(uint)ClusterDimensions.x),tiles_y=max(1,(uint)ClusterDimensions.y),slices=max(1,(uint)ClusterDimensions.z);float2 ndc=vertex.Position.xy/max(vertex.Position.w,.0001);uint cx=min(tiles_x-1,(uint)saturate(ndc.x*.5+.5)*tiles_x),cy=min(tiles_y-1,(uint)saturate(.5-ndc.y*.5)*tiles_y);float depth=-vertex.ViewPosition.z;uint cz=min(slices-1,(uint)max(0,log(max(depth,ClusterCamera.x)/ClusterCamera.x)/max(log(ClusterCamera.y/ClusterCamera.x),.001)*slices));uint offset=((cz*tiles_y+cy)*tiles_x+cx)*4;[unroll]for(uint i=0;i<4;++i){uint index=ClusterSelected[offset+i];if(index==0xffffffff)continue;ClusterLight light_data=ClusterLights[index];float3 delta=light_data.PositionRange.xyz-vertex.ViewPosition;float distance=length(delta);float attenuation=saturate(1-distance/max(light_data.PositionRange.w,.001));float spot=1;if(light_data.DirectionType.w>0){float cone=dot(-normalize(delta),normalize(light_data.DirectionType.xyz));spot=pow(smoothstep(light_data.ConeFalloff.x,light_data.ConeFalloff.y,cone),max(light_data.ConeFalloff.z,.1));}color+=base.rgb*light_data.ColorIntensity.rgb*light_data.ColorIntensity.a*attenuation*attenuation*spot;}}
+    else [unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));float spot=1;if(LocalDirections[i].w>0){float cone=dot(-normalize(delta),normalize(LocalDirections[i].xyz));spot=smoothstep(LocalCones[i].x,LocalCones[i].y,cone);spot=pow(spot,max(LocalCones[i].z,.1));}color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*attenuation*attenuation*spot;}
     if(Features.z==3){float3 coordinates=vertex.Local*Features.w;float3 l1=TerrainLayer1.Sample(TerrainLayer1_sampler,coordinates.xz).rgb,l2=TerrainLayer2.Sample(TerrainLayer2_sampler,coordinates.yz).rgb;float slope=saturate((abs(normal.y)-TerrainParams.y)/max(TerrainParams.z-TerrainParams.y,.001));if(features&32u)color=lerp(color,base.rgb*l1,slope);if(features&64u)color=lerp(color,base.rgb*l2,saturate(TerrainParams.w+(1-slope)*.5));}
     if(Features.z==2){float hit=saturate(CharacterParams.x*CharacterHit.a),status=saturate(CharacterParams.y*CharacterStatus.a);color=lerp(color,CharacterHit.rgb,hit);color=lerp(color,CharacterStatus.rgb,status);if(features&16u){float noise=DissolveMask.Sample(DissolveMask_sampler,vertex.UV).r;float edge=saturate((noise-CharacterParams.z)/max(CharacterParams.w,.001));if(noise<CharacterParams.z)discard;color=lerp(CharacterHit.rgb,color,edge);}}
     if(Outline.x>0) return float4(normalize(normal)*.5+.5,Outline.y);

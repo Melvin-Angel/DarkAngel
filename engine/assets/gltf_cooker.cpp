@@ -30,6 +30,20 @@ std::string texture_bytes(std::string_view source,TextureSemantic semantic=Textu
 }
 std::string cook_color_texture(std::string_view source){return texture_bytes(source);}
 std::string cook_texture(std::string_view source,TextureSemantic semantic){return texture_bytes(source,semantic);}
+std::string cook_hdr_texture(std::string_view source,std::string_view extension){
+    if(extension==".dds"){
+        DirectX::TexMetadata metadata;DirectX::ScratchImage image;hr(DirectX::LoadFromDDSMemory(reinterpret_cast<const std::uint8_t*>(source.data()),source.size(),DirectX::DDS_FLAGS_NONE,&metadata,image));
+        require(metadata.width>0&&metadata.height>0&&metadata.width<=4096&&metadata.height<=4096&&metadata.depth==1,"HDR cubemap dimension limit");
+        require(metadata.format==DXGI_FORMAT_R16G16B16A16_FLOAT,"HDR cubemap DDS must use RGBA16_FLOAT");
+        return std::string(source);
+    }
+    require(extension==".hdr","HDR importer accepts .hdr or RGBA16_FLOAT .dds");
+    DirectX::TexMetadata metadata;DirectX::ScratchImage image,converted,mips;hr(DirectX::LoadFromHDRMemory(reinterpret_cast<const std::uint8_t*>(source.data()),source.size(),&metadata,image));
+    require(metadata.width>0&&metadata.height>0&&metadata.width<=4096&&metadata.height<=4096&&metadata.arraySize==1&&metadata.depth==1,"HDR equirectangular dimension limit");
+    hr(DirectX::Convert(image.GetImages(),image.GetImageCount(),image.GetMetadata(),DXGI_FORMAT_R16G16B16A16_FLOAT,DirectX::TEX_FILTER_DEFAULT,.5f,converted));
+    hr(DirectX::GenerateMipMaps(converted.GetImages(),converted.GetImageCount(),converted.GetMetadata(),DirectX::TEX_FILTER_DEFAULT,0,mips));
+    DirectX::Blob blob;hr(DirectX::SaveToDDSMemory(mips.GetImages(),mips.GetImageCount(),mips.GetMetadata(),DirectX::DDS_FLAGS_NONE,blob));return std::string(reinterpret_cast<const char*>(blob.GetBufferPointer()),blob.GetBufferSize());
+}
 bool static_model_collision(const Json& sidecar){const auto setting=sidecar.value("collision","mesh");require(setting=="mesh"||setting=="none","A model's collision setting is \"mesh\" or \"none\"");return setting=="mesh";}
 Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect,bool collision,bool assignments){
     Import out;std::size_t input_bytes{};
@@ -130,5 +144,21 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
     return out;
 }
 CookedMesh decode_mesh(std::string_view data){require(data.starts_with("DAMESH01"),"Cooked mesh schema mismatch");Reader in{data,8};auto vertices=in.u32(),indices=in.u32(),parts=in.u32();require(vertices>0 && vertices<=1000000 && indices>0 && indices<=3000000 && indices%3==0 && parts>0 && parts<=128,"Cooked mesh count limit");CookedMesh result;for(auto& x:result.minimum)x=in.f32();for(auto& x:result.maximum)x=in.f32();for(unsigned i=0;i<parts;++i){auto id=in.id();auto first=in.u32(),count=in.u32();require(first<=indices && count<=indices-first && count%3==0,"Invalid mesh part range");result.parts.push_back({id,first,count});}for(unsigned i=0;i<vertices;++i){Vertex v;for(auto& x:v.position)x=in.f32();for(auto& x:v.normal)x=in.f32();for(auto& x:v.uv)x=in.f32();result.vertices.push_back(v);}for(unsigned i=0;i<indices;++i){auto n=in.u32();require(n<vertices,"Cooked index out of range");result.indices.push_back(n);}require(in.at==data.size(),"Trailing cooked mesh data");return result;}
-CookedTexture decode_texture(std::string_view bytes){DirectX::ScratchImage image;DirectX::TexMetadata metadata;hr(DirectX::LoadFromDDSMemory(reinterpret_cast<const std::uint8_t*>(bytes.data()),bytes.size(),DirectX::DDS_FLAGS_NONE,&metadata,image));require((metadata.format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB||metadata.format==DXGI_FORMAT_R8G8B8A8_UNORM) && metadata.width<=4096 && metadata.height<=4096 && metadata.arraySize==1 && metadata.depth==1,"Cooked texture profile mismatch");CookedTexture result;result.srgb=metadata.format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;for(std::size_t mip=0;mip<metadata.mipLevels;++mip){auto* src=image.GetImage(mip,0,0);require(src,"Missing cooked mip");TextureMip level{static_cast<std::uint32_t>(src->width),static_cast<std::uint32_t>(src->height),std::vector<std::uint8_t>(src->width*src->height*4)};for(std::size_t y=0;y<src->height;++y)std::memcpy(level.rgba.data()+y*src->width*4,src->pixels+y*src->rowPitch,src->width*4);result.mips.push_back(std::move(level));}return result;}
+CookedTexture decode_texture(std::string_view bytes){
+    DirectX::ScratchImage image;DirectX::TexMetadata metadata;
+    hr(DirectX::LoadFromDDSMemory(reinterpret_cast<const std::uint8_t*>(bytes.data()),bytes.size(),DirectX::DDS_FLAGS_NONE,&metadata,image));
+    const bool hdr=metadata.format==DXGI_FORMAT_R16G16B16A16_FLOAT;
+    require((hdr||metadata.format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB||metadata.format==DXGI_FORMAT_R8G8B8A8_UNORM)&&metadata.width>0&&metadata.height>0&&metadata.width<=4096&&metadata.height<=4096&&metadata.depth==1,"Cooked texture profile mismatch");
+    const auto layers=metadata.IsCubemap()?6u:static_cast<std::uint32_t>(metadata.arraySize);
+    require(layers==1||layers==6,"Cooked texture array/cubemap profile mismatch");
+    const std::size_t bytes_per_pixel=hdr?8:4;
+    CookedTexture result;result.srgb=!hdr&&metadata.format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;result.hdr=hdr;result.layers=layers;
+    for(std::size_t mip=0;mip<metadata.mipLevels;++mip){
+        auto* first=image.GetImage(mip,0,0);require(first,"Missing cooked mip");
+        TextureMip level{static_cast<std::uint32_t>(first->width),static_cast<std::uint32_t>(first->height),std::vector<std::uint8_t>(first->width*first->height*bytes_per_pixel*layers)};
+        for(std::uint32_t layer=0;layer<layers;++layer){auto* src=image.GetImage(mip,layer,0);require(src,"Missing cooked texture layer");for(std::size_t y=0;y<src->height;++y)std::memcpy(level.rgba.data()+(static_cast<std::size_t>(layer)*src->height+y)*src->width*bytes_per_pixel,src->pixels+y*src->rowPitch,src->width*bytes_per_pixel);}
+        result.mips.push_back(std::move(level));
+    }
+    return result;
+}
 }

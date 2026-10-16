@@ -119,6 +119,8 @@ int main(){try{
     const auto normal_map=assets.adopt("textures/normal.png"),surface_map=assets.adopt("textures/surface.png");assets.scan();
     assets.cook("textures/trim.png");assets.set_texture_semantic("textures/normal.png",TextureSemantic::Normal);assets.set_texture_semantic("textures/surface.png",TextureSemantic::Data);
     check(metadata("textures/normal.png").at("importer")=="texture-normal-v1"&&metadata("textures/surface.png").at("importer")=="texture-data-v1","Texture semantics are recorded in import metadata");
+    // R7 HDR equirectangular sources use the same AssetService identity, CAS, package and runtime texture decoder.
+    {std::string hdr="#?RADIANCE\nFORMAT=32-bit_rle_rgbe\n\n-Y 2 +X 2\n";for(int i=0;i<4;++i)for(auto value:{255,96,32,128})hdr.push_back(static_cast<char>(value));write(source/"textures/sky.hdr",hdr);const auto hdr_id=assets.adopt("textures/sky.hdr");assets.scan();assets.cook("textures/sky.hdr");assets.package(hdr_id,folder/"sky.json");auto cooked=load_cooked_texture(folder/"sky.json",assets.cas_path(),hdr_id);check(cooked.hdr&&!cooked.srgb&&cooked.layers==1&&!cooked.mips.empty()&&cooked.mips.front().rgba.size()==static_cast<std::size_t>(cooked.mips.front().width)*cooked.mips.front().height*8,"HDR equirectangular import/cook/decode");}
     auto cooked_texture=[&](AssetId id){assets.package(id,folder/"texture.json");return load_cooked_texture(folder/"texture.json",assets.cas_path(),id);};
     {auto color=cooked_texture(texture),normal=cooked_texture(normal_map),data=cooked_texture(surface_map);check(color.srgb&&!normal.srgb&&!data.srgb,"Colour is sRGB; normal and data textures are linear");
      // A normal map's mips are renormalised: every texel of the smallest mip encodes a unit vector.

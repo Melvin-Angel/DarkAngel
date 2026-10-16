@@ -69,7 +69,7 @@ return "Requires an animation-enabled editor build.";
 case AssetImportType::Vfx:return "VFX import and preview are planned for M7.";case AssetImportType::Audio:return "Audio import and bank authoring are planned for M7.";case AssetImportType::Material:return "Standalone material authoring is planned; supported model materials import with their model.";case AssetImportType::UI:return "UI document import is planned with the native runtime UI workflow.";}return "Unknown import type.";}
 
 Import assets_detail::import_texture(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect,TextureSemantic semantic){
-    auto bytes=read(source,32*1024*1024);auto cooked=cook_texture(bytes,semantic);Import result;result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);
+    auto bytes=read(source,32*1024*1024);auto extension=lower(source.extension().string());auto cooked=(extension==".hdr"||extension==".dds")?cook_hdr_texture(bytes,extension):cook_texture(bytes,semantic);Import result;result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);
     if(!inspect){require(ids.size()==1&&ids.contains("$source"),"Texture UUID mapping mismatch");result.products.push_back({ids.at("$source"),"texture","dds",std::move(cooked),{}});}return result;
 }
 PreparedAssetImport AssetService::prepare_import(const AssetImportRequest& request){
@@ -77,7 +77,7 @@ PreparedAssetImport AssetService::prepare_import(const AssetImportRequest& reque
     auto external=std::filesystem::canonical(request.file);require(std::filesystem::is_regular_file(external),"Choose a regular source file");
     auto external_name=lower(external.generic_string()),project_name=lower(project.generic_string())+"/";require(!external_name.starts_with(project_name),"File is already in this project; use its existing AssetID");
     auto extension=lower(external.extension().string());const bool texture=request.type==AssetImportType::Texture;
-    require(texture?(extension==".png"||extension==".jpg"||extension==".jpeg"):(extension==".gltf"||extension==".glb"),"Unsupported source format: use glTF/GLB or PNG/JPEG color textures. FBX needs offline conversion.");
+    require(texture?(extension==".png"||extension==".jpg"||extension==".jpeg"||extension==".hdr"||extension==".dds"):(extension==".gltf"||extension==".glb"),"Unsupported source format: use glTF/GLB or PNG/JPEG/HDR/RGBA16_FLOAT DDS textures. FBX needs offline conversion.");
     require(request.type!=AssetImportType::SkinnedMesh||extension==".glb","Renderable canonical skins require GLB with an embedded atlas");
     auto state=std::make_shared<PreparedAssetImport::State>();state->owner=import_identity();state->project=project;state->id=AssetId::random();
     std::string slug;for(unsigned char c:external.stem().string())slug+=std::isalnum(c)&&c<128?static_cast<char>(c):'-';require(!slug.empty()&&slug.size()<=96,"Import name length limit");
@@ -99,7 +99,8 @@ PreparedAssetImport AssetService::prepare_import(const AssetImportRequest& reque
     for(const auto& [path,content]:staged)write(within(scratch.root,state->directory/path),content);
     auto candidate=within(scratch.root,state->relative);auto rig=canonical?within(scratch.root,state->canonical):std::filesystem::path{};
     auto inspected=convert(request.type,scratch.root,candidate,{},rig,request.loop,true,request.semantic);std::map<std::string,AssetId> ids{{"$source",state->id}};
-    Json metadata={{"schema",1},{"id",state->id.text()},{"importer",importer(request.type,request.semantic)},{"tags",Json::array()},{"subassets",Json::object()}};
+    const auto importer_name=texture&&(extension==".hdr"||extension==".dds")?std::string("texture-hdr-v1"):importer(request.type,request.semantic);
+    Json metadata={{"schema",1},{"id",state->id.text()},{"importer",importer_name},{"tags",Json::array()},{"subassets",Json::object()}};
     for(const auto& key:inspected.keys){auto id=AssetId::random();require(ids.emplace(key,id).second,"Duplicate imported subasset key");metadata["subassets"][key]=id.text();}
     if(canonical)metadata["canonical_source"]=state->canonical;if(request.type==AssetImportType::Animation)metadata["loop"]=request.loop;
     auto converted=convert(request.type,scratch.root,candidate,ids,rig,request.loop,false,request.semantic);require(!converted.products.empty(),"Import produced no cooked products");for(const auto& product:converted.products)require(product.bytes.size()<=64*1024*1024,"Imported product size limit");

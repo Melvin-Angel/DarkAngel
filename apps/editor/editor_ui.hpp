@@ -12,6 +12,7 @@
 #include <optional>
 #include <array>
 #include <darkangel/input.hpp>
+#include <darkangel/rendering.hpp>
 namespace darkangel::editor_app {
 enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items,Prefabs,Ui};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation,Saves,Lighting};
@@ -40,6 +41,8 @@ public:
     void scene_camera_matrices(float width, float height);
     // What the scene view submitted on its last frame: placements drawn, placements outside the view, and draw calls.
     unsigned scene_visible{}, scene_culled{}, scene_draws{};
+    rendering::ClusterStats cluster_stats{};
+    rendering::ClusterGpuStats cluster_gpu_stats{};
     // The last frame's time by section (EditorApp::run): exercises and update, UI, Play, scene render, effects, present.
     std::array<double, 6> frame_sections{};
     void refresh_place_items(Controller&);

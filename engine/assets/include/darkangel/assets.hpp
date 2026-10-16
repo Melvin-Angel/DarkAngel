@@ -23,7 +23,7 @@ struct Vertex {std::array<float,3> position,normal;std::array<float,2> uv;};
 struct MeshPart {AssetId material;std::uint32_t first,count;};
 struct CookedMesh {std::vector<Vertex> vertices;std::vector<std::uint32_t> indices;std::vector<MeshPart> parts;std::array<float,3> minimum,maximum;};
 struct TextureMip {std::uint32_t width,height;std::vector<std::uint8_t> rgba;};
-struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};};
+struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};bool hdr{};std::uint32_t layers{1};};
 CookedTexture load_cooked_texture(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 // R5 A3 surface features are optional: a material without them draws exactly as a lit-color-v1 material. alpha_mode: 0 opaque,
 // 1 cutout (alpha tested against alpha_cutoff), 2 transparent (blended after opaque surfaces). The surface texture packs

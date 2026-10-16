@@ -32,6 +32,7 @@ Import import_human(const std::filesystem::path&,const std::filesystem::path&,co
 std::string cook_color_texture(std::string_view);
 // R5 A3: a texture product for its semantic: sRGB colour, or linear data / normal map (normal mips are renormalised).
 std::string cook_texture(std::string_view,TextureSemantic);
+std::string cook_hdr_texture(std::string_view source,std::string_view extension);
 Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false,TextureSemantic=TextureSemantic::Color);
 Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_actor(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);

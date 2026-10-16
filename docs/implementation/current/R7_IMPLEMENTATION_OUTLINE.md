@@ -1,8 +1,9 @@
 # R7 renderer implementation outline
 
-Status: implementation started, 16 October 2026. This document records the
-actual checkout boundary before structural changes; it is not visual
-qualification evidence.
+Status: implementation increment complete and cross-backend exercised, 16
+October 2026. R7 is not marked fully accepted: dedicated cutout-shadow/HDR
+visual receipts, cooked save/reload/run parity, and GPU timing qualification
+remain open.
 
 ## Existing systems reused
 
@@ -53,14 +54,23 @@ qualification evidence.
 
 ## Current implementation increment
 
-The GPU cluster resource increment is now implemented in the editor viewport.
-It owns a bounded structured light input buffer, fixed 64-candidate and
-four-selected-index buffers per cluster, occupancy counters, overflow counters,
-and a non-blocking staging readback. The CPU assignment remains the
-deterministic visual/reference path until a later shader increment consumes the
-GPU-selected indices directly. Alpha-tested shadow casters likewise use the
-existing material shader/binding contract with a depth-plus-dummy-colour
-shadow target; transparent casters remain excluded.
+The editor viewport now owns a bounded structured light input buffer, fixed
+64-candidate and four-selected-index buffers per cluster, occupancy counters,
+overflow counters, and a non-blocking staging readback. The compute-selected
+indices are bound to the actual static/skinned pixel shaders and are the
+default visual authority when GPU clustered mode is enabled. The CPU assignment
+remains an independent deterministic reference path. Resource recreation is
+generation/size guarded when cluster settings change. Alpha-tested shadow
+casters use the authoritative material Albedo binding and cutoff against a
+depth-plus-dummy-colour cascade target; transparent casters remain excluded.
+
+HDR `.hdr` equirectangular sources are cooked through DirectXTex to linear
+RGBA16_FLOAT DDS payloads. RGBA16_FLOAT DDS cubemaps/equirectangular payloads
+are accepted by the same asset service, preserved as mip/layer data, uploaded
+as 2D or cube Diligent resources, and sampled by the post sky stage with
+rotation and intensity controls. A synthetic equirectangular import/cook test
+and both backend shader/resource creation are covered; the project does not
+currently contain an artist-authored HDR sky asset for a final visual receipt.
 
 ## Explicit boundaries
 

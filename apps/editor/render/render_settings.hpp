@@ -13,6 +13,8 @@ struct AuthoredLight {
 };
 struct SceneRenderingSettings {
     StableId main_light;
+    bool gpu_clustered{true};
+    rendering::ClusterConfig clusters;
     rendering::ToonLighting toon;
     rendering::ShadowSettings shadows;
     rendering::SkySettings sky;

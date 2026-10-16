@@ -140,6 +140,11 @@ void SceneViewport::prepare_targets() {
     if (!shadow_map)
         ensure_shadow_targets(2048);
     if (!post_buffer) { BufferDesc desc;desc.Name="Editor post-process constants";desc.Usage=USAGE_DYNAMIC;desc.BindFlags=BIND_UNIFORM_BUFFER;desc.CPUAccessFlags=CPU_ACCESS_WRITE;desc.Size=sizeof(PostConstants);device->CreateBuffer(desc,nullptr,&post_buffer);require(post_buffer,"Post-process constants buffer creation failed"); }
+    if (!sky_fallback) {
+        const std::array<std::uint8_t,4> pixels{8,12,24,255};
+        TextureDesc fallback;fallback.Name="DarkAngel sky fallback";fallback.Type=RESOURCE_DIM_TEX_2D;fallback.Width=fallback.Height=1;fallback.MipLevels=1;fallback.Format=TEX_FORMAT_RGBA8_UNORM;fallback.BindFlags=BIND_SHADER_RESOURCE;TextureSubResData sub{pixels.data(),4,0};TextureData data{&sub,1};device->CreateTexture(fallback,&data,&sky_fallback);require(sky_fallback,"Sky fallback texture creation failed");
+        fallback.Name="DarkAngel sky cube fallback";fallback.Type=RESOURCE_DIM_TEX_CUBE;fallback.ArraySize=6;std::array<TextureSubResData,6> faces{};for(auto& face:faces)face={pixels.data(),4,0};data={faces.data(),static_cast<Uint32>(faces.size())};device->CreateTexture(fallback,&data,&sky_fallback_cube);require(sky_fallback_cube,"Sky cube fallback texture creation failed");
+    }
     if (!post_pso) { post_pso=post_pipeline(device.RawPtr(),post_buffer.RawPtr(),swap_desc.ColorBufferFormat);post_pso->CreateShaderResourceBinding(&post_binding,true);post_pso->CreateShaderResourceBinding(&post_binding_second,true);require(post_binding&&post_binding_second,"Post-process binding creation failed"); }
     shell.game_image_second = shell.second_view && scene_display_second
                                   ? reinterpret_cast<ImTextureID>(scene_display_second->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE))
@@ -355,11 +360,12 @@ void SceneViewport::render(double elapsed_seconds) {
     }
     const rendering::ClusterView cluster_view{scene_width, scene_height, gpu.radius * .01f, gpu.radius * 40.f,
                                                std::tan(camera_fov * .5f), float(scene_width) / std::max(1u, scene_height)};
-    const rendering::ClusterConfig cluster_config{};
+    const rendering::ClusterConfig cluster_config = frame_settings.clusters;
     const auto cluster_assignment = rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
     cluster_stats = cluster_assignment.stats;
-    // Feed the GPU in the same deterministic influence/StableId order as the CPU reference. The established draw
-    // path continues to use CPU-selected IDs until a later shader increment consumes the GPU selection buffer directly.
+    context_.shell.cluster_stats = cluster_stats;
+    // Feed the GPU in the same deterministic influence/StableId order as the CPU reference. The graphics shader reads
+    // the resulting selected indices directly; CPU assignment remains available as an independent test/reference path.
     std::vector<ClusterGpuLight> gpu_cluster_lights;
     gpu_cluster_lights.reserve(cluster_lights.size());
     std::vector<std::size_t> gpu_light_order(cluster_lights.size());
@@ -373,8 +379,13 @@ void SceneViewport::render(double elapsed_seconds) {
     });
     for (const auto index : gpu_light_order) {
         const auto& light = cluster_lights[index];
+        if (light.type == rendering::LightType::Directional)
+            continue;
         ClusterGpuLight packed;
         packed.position_range = {light.position_view[0], light.position_view[1], light.position_view[2], light.range};
+        packed.color_intensity = {light.color.r, light.color.g, light.color.b, light.intensity};
+        packed.direction_type = {light.direction_view[0], light.direction_view[1], light.direction_view[2], light.type == rendering::LightType::Spot ? 1.f : 0.f};
+        packed.cone_falloff = {std::cos(light.outer_cone_degrees * XM_PI / 180.f), std::cos(light.inner_cone_degrees * XM_PI / 180.f), light.falloff, light.enabled ? 1.f : 0.f};
         packed.metadata = {static_cast<float>(static_cast<unsigned>(light.type)), light.enabled ? 1.f : 0.f, 0, 0};
         gpu_cluster_lights.push_back(packed);
     }
@@ -382,6 +393,7 @@ void SceneViewport::render(double elapsed_seconds) {
     ensure_gpu_clusters(device.RawPtr(), context.RawPtr(), gpu_clusters, gpu_layout.tiles_x, gpu_layout.tiles_y, gpu_layout.slices,
                         cluster_config.max_candidates, cluster_config.shading_budget, static_cast<unsigned>(gpu_cluster_lights.size()));
     read_gpu_cluster_stats(context.RawPtr(), gpu_clusters, cluster_gpu_stats);
+    context_.shell.cluster_gpu_stats = cluster_gpu_stats;
     ClusterGpuFrame gpu_frame;
     gpu_frame.dimensions = {gpu_layout.tiles_x, gpu_layout.tiles_y, gpu_layout.slices, static_cast<unsigned>(gpu_cluster_lights.size())};
     gpu_frame.limits = {std::min(64u, std::max(1u, cluster_config.max_candidates)),
@@ -573,12 +585,15 @@ void SceneViewport::render(double elapsed_seconds) {
 #endif
                         void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow constants mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
                         if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;}
-                        if(material.value.alpha_mode==1){apply_material(constants,material.value);auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);}
+                        if(material.value.alpha_mode==1){apply_material(constants,material.value);auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.binding,gpu_clusters);context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);}
                         DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);continue;}
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
                     XMStoreFloat4x4(&constants.world, world);
+                    XMStoreFloat4x4(&constants.view, view);
+                    constants.cluster_dimensions = {float(gpu_layout.tiles_x), float(gpu_layout.tiles_y), float(gpu_layout.slices), frame_settings.gpu_clustered ? 1.f : 0.f};
+                    constants.cluster_camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
                     apply_material(constants, material.value);
@@ -601,6 +616,7 @@ void SceneViewport::render(double elapsed_seconds) {
 #endif
                         if (outline_pipeline != bound_pipeline) { context->SetPipelineState(outline_pipeline); bound_pipeline = outline_pipeline; }
                         if (auto* shadow = material.binding->GetVariableByName(SHADER_TYPE_PIXEL, "ShadowMap")) shadow->Set(shadow_srv);
+                        bind_gpu_clusters(material.binding, gpu_clusters);
                         context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                         DrawIndexedAttribs outline_draw; outline_draw.NumIndices = part.count; outline_draw.IndexType = VT_UINT32; outline_draw.FirstIndexLocation = part.first; outline_draw.Flags = DRAW_FLAG_VERIFY_ALL;
                         context->DrawIndexed(outline_draw);
@@ -648,6 +664,7 @@ void SceneViewport::render(double elapsed_seconds) {
                         bound_material = nullptr;
                     }
                     if (material.binding.RawPtr() != bound_material) {
+                        bind_gpu_clusters(material.binding, gpu_clusters);
                         context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                         bound_material = material.binding.RawPtr();
                     }
@@ -720,6 +737,10 @@ void SceneViewport::render(double elapsed_seconds) {
                             Constants constants;
                             XMStoreFloat4x4(&constants.mvp, mask_world * view * projection);
                             XMStoreFloat4x4(&constants.rotation, mask_rotation);
+                             XMStoreFloat4x4(&constants.world, mask_world);
+                             XMStoreFloat4x4(&constants.view, view);
+                             constants.cluster_dimensions = {float(gpu_layout.tiles_x), float(gpu_layout.tiles_y), float(gpu_layout.slices), frame_settings.gpu_clustered ? 1.f : 0.f};
+                             constants.cluster_camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
                             constants.color = {material.value.color[0] * mesh.color[0] * worn.tint[0],
                                                material.value.color[1] * mesh.color[1] * worn.tint[1],
                                                material.value.color[2] * mesh.color[2] * worn.tint[2],
@@ -731,6 +752,7 @@ void SceneViewport::render(double elapsed_seconds) {
                             std::memcpy(mapped, &constants, sizeof(constants));
                             context->UnmapBuffer(constant_buffer, MAP_WRITE);
                             context->SetPipelineState(pso.RawPtr());
+                            bind_gpu_clusters(material.binding, gpu_clusters);
                             context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                             DrawIndexedAttribs draw;
                             draw.NumIndices = part.count;
@@ -889,6 +911,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     context->UnmapBuffer(constant_buffer, MAP_WRITE);
                     context->SetPipelineState(pso.RawPtr());
                     if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);
+                    bind_gpu_clusters(material.binding, gpu_clusters);
                     context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     DrawIndexedAttribs draw;
                     draw.NumIndices = part.count;
@@ -901,6 +924,21 @@ void SceneViewport::render(double elapsed_seconds) {
         }
     }
 #endif
+    if (frame_settings.sky.hdr_texture != sky_asset) {
+        sky_texture.Release();
+        sky_texture_cube = false;
+        const auto requested_sky = frame_settings.sky.hdr_texture;
+        if (requested_sky != AssetId{}) try {
+            const auto registry = context_.editor.assets ? context_.editor.package_model(requested_sky) : context_.options.registry;
+            const auto& cas = context_.editor.assets ? context_.editor.assets->cas_path() : context_.options.cas;
+            auto cooked = load_cooked_texture(registry, cas, requested_sky);
+            sky_texture_cube = cooked.layers == 6;
+            sky_texture = texture(device.RawPtr(), cooked);
+            sky_asset = requested_sky;
+        } catch (const std::exception& error) {
+            context_.editor.log(std::string("HDR sky load failed: ") + error.what(), ConsoleSeverity::Error);
+        } else if (requested_sky == AssetId{}) sky_asset = {};
+    }
     auto present_post = [&](ITexture* source, ITexture* destination, ITexture* info, ITexture* depth, IShaderResourceBinding* binding) {
         PostConstants constants;
         constants.exposure = {frame_settings.post.exposure, frame_settings.post.exposure_compensation, frame_settings.post.contrast, frame_settings.post.saturation};
@@ -915,6 +953,7 @@ void SceneViewport::render(double elapsed_seconds) {
         constants.sky_ground = {frame_settings.sky.ground.r, frame_settings.sky.ground.g, frame_settings.sky.ground.b, 0};
         constants.sky_sun = {frame_settings.sky.sun_direction[0], frame_settings.sky.sun_direction[1], frame_settings.sky.sun_direction[2], frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.sun_size : 0.f};
         constants.sky_sun_color = {frame_settings.sky.sun_color.r, frame_settings.sky.sun_color.g, frame_settings.sky.sun_color.b, frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.sun_intensity : 0.f};
+        constants.sky_mode = {frame_settings.sky_enabled && sky_texture ? 1.f : 0.f, sky_texture_cube ? 1.f : 0.f, frame_settings.sky.hdr_intensity, frame_settings.sky.hdr_rotation_degrees * DirectX::XM_PI / 180.f};
         void* mapped{};
         context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
         require(mapped, "Post-process constants mapping failed");
@@ -928,6 +967,11 @@ void SceneViewport::render(double elapsed_seconds) {
         require(info_variable && depth_variable, "Post-process outline contract changed");
         info_variable->Set(info->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         depth_variable->Set(depth->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        auto* sky_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SkyTexture");
+        auto* sky_cube_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SkyCube");
+        require(sky_variable && sky_cube_variable, "Post-process sky texture contract changed");
+        sky_variable->Set(sky_texture && !sky_texture_cube ? sky_texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE) : sky_fallback->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        sky_cube_variable->Set(sky_texture && sky_texture_cube ? sky_texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE) : sky_fallback_cube->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         auto* target = destination->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
         context->SetRenderTargets(1, &target, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Viewport post_view;

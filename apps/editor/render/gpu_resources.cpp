@@ -18,7 +18,7 @@ namespace darkangel::editor_app::render {
 namespace {
 constexpr const char* cluster_compute_source = R"(
 cbuffer ClusterFrame {uint4 Dimensions;uint4 Limits;float4 Camera;};
-struct GpuLight {float4 PositionRange;float4 Metadata;};
+struct GpuLight {float4 PositionRange;float4 Metadata;float4 ColorIntensity;float4 DirectionType;float4 ConeFalloff;};
 StructuredBuffer<GpuLight> Lights;
 RWStructuredBuffer<uint> ClusterCandidates;
 RWStructuredBuffer<uint> ClusterSelected;
@@ -236,6 +236,16 @@ bool read_gpu_cluster_stats(IDeviceContext* context, GpuClusterResources& resour
     return true;
 }
 
+void bind_gpu_clusters(IShaderResourceBinding* binding, const GpuClusterResources& resources) {
+    if (!binding || !resources.lights || !resources.selected)
+        return;
+    auto* lights = binding->GetVariableByName(SHADER_TYPE_PIXEL, "ClusterLights");
+    auto* selected = binding->GetVariableByName(SHADER_TYPE_PIXEL, "ClusterSelected");
+    require(lights && selected, "Graphics clustered-light resource contract changed");
+    lights->Set(resources.lights->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+    selected->Set(resources.selected->GetDefaultView(BUFFER_VIEW_SHADER_RESOURCE));
+}
+
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
                                        const char* source, IBuffer* bones, bool blend) {
     ShaderCreateInfo shader;
@@ -291,7 +301,9 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                                               {SHADER_TYPE_PIXEL, "DissolveMask", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "TerrainLayer1", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "TerrainLayer2", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-                                              {SHADER_TYPE_PIXEL, "ShadowMap", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};
+                                              {SHADER_TYPE_PIXEL, "ShadowMap", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_PIXEL, "ClusterLights", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                                              {SHADER_TYPE_PIXEL, "ClusterSelected", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};
     ci.PSODesc.ResourceLayout.Variables = variables;
     ci.PSODesc.ResourceLayout.NumVariables = _countof(variables);
     SamplerDesc sampler;
@@ -327,21 +339,24 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
 }
 RefCntAutoPtr<IPipelineState> post_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color) {
     static constexpr const char* source = R"(
-cbuffer PostFrame {float4 Exposure;float4 Bloom;float4 TintFxaa;float4 Texel;float4 Outline;float4 OutlineParams;float4 OutlineFade;float4 SkyZenith;float4 SkyHorizon;float4 SkyGround;float4 SkySun;float4 SkySunColor;};
+cbuffer PostFrame {float4 Exposure;float4 Bloom;float4 TintFxaa;float4 Texel;float4 Outline;float4 OutlineParams;float4 OutlineFade;float4 SkyZenith;float4 SkyHorizon;float4 SkyGround;float4 SkySun;float4 SkySunColor;float4 SkyMode;};
 Texture2D SceneColor;SamplerState SceneColor_sampler;
 Texture2D OutlineInfo;SamplerState OutlineInfo_sampler;
 Texture2D SceneDepth;SamplerState SceneDepth_sampler;
+Texture2D SkyTexture;SamplerState SkyTexture_sampler;
+TextureCube SkyCube;SamplerState SkyCube_sampler;
 struct VertexOutput {float4 Position:SV_POSITION;float2 UV:TEXCOORD0;};
 VertexOutput VSMain(uint id:SV_VertexID){float2 positions[3]={float2(-1,-1),float2(-1,3),float2(3,-1)};float2 uv[3]={float2(0,1),float2(0,-1),float2(2,1)};VertexOutput result;result.Position=float4(positions[id],0,1);result.UV=uv[id];return result;}
 float luminance(float3 v){return dot(v,float3(.2126,.7152,.0722));}
 float3 hdr(float2 uv){return max(SceneColor.Sample(SceneColor_sampler,uv).rgb,0);}
 float3 tone(float3 value){float exposure=exp2(Exposure.x+Exposure.y);float3 color=1-exp(-value*exposure);float l=luminance(color);color=lerp(l.xxx,color,Exposure.w);color=(color-.5)*Exposure.z+.5;return saturate(color*TintFxaa.rgb);}
 float3 outlines(float2 uv){if(Outline.w<=0)return 0;float4 center=OutlineInfo.Sample(OutlineInfo_sampler,uv);float depth=SceneDepth.Sample(SceneDepth_sampler,uv).r;if(center.a<=0&&depth>=1)return 0;float2 step=Texel.xy*clamp(OutlineParams.x,1,3);float edge=0;[unroll]for(int y=-1;y<=1;++y)[unroll]for(int x=-1;x<=1;++x){if(x==0&&y==0)continue;float2 sample_uv=uv+float2(x,y)*step;float4 other=OutlineInfo.Sample(OutlineInfo_sampler,sample_uv);float other_depth=SceneDepth.Sample(SceneDepth_sampler,sample_uv).r;float normal_delta=length(other.rgb-center.rgb);float depth_delta=abs(other_depth-depth)/max(depth,.001);float group_delta=abs(other.a-center.a);edge=max(edge,max(depth_delta*OutlineParams.y,normal_delta*OutlineParams.z)+group_delta*OutlineParams.w);}float fade=1-saturate((depth-OutlineFade.x)/max(OutlineFade.y-OutlineFade.x,.001));return Outline.rgb*saturate(edge)*fade;}
-float3 sky(float2 uv){float height=saturate(1-uv.y);float3 lower=lerp(SkyGround.rgb,SkyHorizon.rgb,smoothstep(0,.45,height));float3 result=lerp(lower,SkyZenith.rgb,smoothstep(.35,1,height));float2 centered=float2(uv.x-.5,(height-.5)*.9);float sun=smoothstep(.08,max(.081,SkySun.w),length(centered-float2(SkySun.x*.25,SkySun.y*.25)));return result+SkySunColor.rgb*sun*SkySunColor.a;}
-float4 PSMain(VertexOutput vertex):SV_TARGET {float depth=SceneDepth.Sample(SceneDepth_sampler,vertex.UV).r;float3 source=depth>=.999&&SkySun.w>0?sky(vertex.UV):hdr(vertex.UV);float3 bloom=0;if(Bloom.z>0){float2 radius=Texel.xy*max(Bloom.w,1);float3 samples[5]={source,hdr(vertex.UV+float2(radius.x,0)),hdr(vertex.UV-float2(radius.x,0)),hdr(vertex.UV+float2(0,radius.y)),hdr(vertex.UV-float2(0,radius.y))};[unroll]for(uint i=0;i<5;++i){float l=luminance(samples[i]);float threshold=max(Bloom.x,0);float soft=max(Bloom.y,.001);float weight=smoothstep(threshold,threshold+soft,l);bloom+=samples[i]*weight;}bloom=bloom*(Bloom.z/5);source+=bloom;}float3 color=tone(source)+outlines(vertex.UV);if(TintFxaa.a>0){float3 left=tone(hdr(vertex.UV-float2(Texel.x,0))),right=tone(hdr(vertex.UV+float2(Texel.x,0))),up=tone(hdr(vertex.UV+float2(0,Texel.y))),down=tone(hdr(vertex.UV-float2(0,Texel.y)));float range=max(max(luminance(left),luminance(right)),max(luminance(up),luminance(down)))-min(min(luminance(left),luminance(right)),min(luminance(up),luminance(down)));if(range>.08)color=(color+left+right+up+down)/5;}return float4(color,1);}
+float3 imported_sky(float2 uv){float phi=(uv.x-.5)*6.2831853+SkyMode.w;float theta=uv.y*3.14159265;float3 direction=float3(sin(theta)*cos(phi),cos(theta),sin(theta)*sin(phi));return SkyMode.y>.5?SkyCube.Sample(SkyCube_sampler,direction).rgb:SkyTexture.Sample(SkyTexture_sampler,float2(frac(phi/6.2831853+.5),uv.y)).rgb;}
+float3 sky(float2 uv){if(SkyMode.x>.5)return imported_sky(uv)*SkyMode.z;float height=saturate(1-uv.y);float3 lower=lerp(SkyGround.rgb,SkyHorizon.rgb,smoothstep(0,.45,height));float3 result=lerp(lower,SkyZenith.rgb,smoothstep(.35,1,height));float2 centered=float2(uv.x-.5,(height-.5)*.9);float sun=smoothstep(.08,max(.081,SkySun.w),length(centered-float2(SkySun.x*.25,SkySun.y*.25)));return result+SkySunColor.rgb*sun*SkySunColor.a;}
+float4 PSMain(VertexOutput vertex):SV_TARGET {float depth=SceneDepth.Sample(SceneDepth_sampler,vertex.UV).r;float3 source=depth>=.999&&(SkyMode.x>.5||SkySun.w>0)?sky(vertex.UV):hdr(vertex.UV);float3 bloom=0;if(Bloom.z>0){float2 radius=Texel.xy*max(Bloom.w,1);float3 samples[5]={source,hdr(vertex.UV+float2(radius.x,0)),hdr(vertex.UV-float2(radius.x,0)),hdr(vertex.UV+float2(0,radius.y)),hdr(vertex.UV-float2(0,radius.y))};[unroll]for(uint i=0;i<5;++i){float l=luminance(samples[i]);float threshold=max(Bloom.x,0);float soft=max(Bloom.y,.001);float weight=smoothstep(threshold,threshold+soft,l);bloom+=samples[i]*weight;}bloom=bloom*(Bloom.z/5);source+=bloom;}float3 color=tone(source)+outlines(vertex.UV);if(TintFxaa.a>0){float3 left=tone(hdr(vertex.UV-float2(Texel.x,0))),right=tone(hdr(vertex.UV+float2(Texel.x,0))),up=tone(hdr(vertex.UV+float2(0,Texel.y))),down=tone(hdr(vertex.UV-float2(0,Texel.y)));float range=max(max(luminance(left),luminance(right)),max(luminance(up),luminance(down)))-min(min(luminance(left),luminance(right)),min(luminance(up),luminance(down)));if(range>.08)color=(color+left+right+up+down)/5;}return float4(color,1);}
 )";
     ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=source;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel post VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);shader.Desc.Name="DarkAngel post PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(vs&&ps,"Post-process shader compilation failed");
-    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variables[]={{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},{SHADER_TYPE_PIXEL,"OutlineInfo",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},{SHADER_TYPE_PIXEL,"SceneDepth",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};ci.PSODesc.ResourceLayout.Variables=variables;ci.PSODesc.ResourceLayout.NumVariables=_countof(variables);SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutables[]={{SHADER_TYPE_PIXEL,"SceneColor",sampler},{SHADER_TYPE_PIXEL,"OutlineInfo",sampler},{SHADER_TYPE_PIXEL,"SceneDepth",sampler}};ci.PSODesc.ResourceLayout.ImmutableSamplers=immutables;ci.PSODesc.ResourceLayout.NumImmutableSamplers=_countof(immutables);RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
+    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variables[]={{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},{SHADER_TYPE_PIXEL,"OutlineInfo",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},{SHADER_TYPE_PIXEL,"SceneDepth",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},{SHADER_TYPE_PIXEL,"SkyTexture",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},{SHADER_TYPE_PIXEL,"SkyCube",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};ci.PSODesc.ResourceLayout.Variables=variables;ci.PSODesc.ResourceLayout.NumVariables=_countof(variables);SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutables[]={{SHADER_TYPE_PIXEL,"SceneColor",sampler},{SHADER_TYPE_PIXEL,"OutlineInfo",sampler},{SHADER_TYPE_PIXEL,"SceneDepth",sampler},{SHADER_TYPE_PIXEL,"SkyTexture",sampler},{SHADER_TYPE_PIXEL,"SkyCube",sampler}};ci.PSODesc.ResourceLayout.ImmutableSamplers=immutables;ci.PSODesc.ResourceLayout.NumImmutableSamplers=_countof(immutables);RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
 }
 RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones) {
     static constexpr const char* depth_source = R"(
@@ -362,21 +377,24 @@ RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cook
     require(!cooked.mips.empty(), "Missing texture mips");
     TextureDesc desc;
     desc.Name = cooked.srgb ? "Cooked DarkAngel sRGB color" : "Cooked DarkAngel linear data";
-    desc.Type = RESOURCE_DIM_TEX_2D;
+    desc.Type = cooked.layers == 6 ? RESOURCE_DIM_TEX_CUBE : RESOURCE_DIM_TEX_2D;
+    desc.ArraySize = cooked.layers;
     desc.Width = cooked.mips[0].width;
     desc.Height = cooked.mips[0].height;
     desc.MipLevels = static_cast<Uint32>(cooked.mips.size());
     // Colour textures are sampled with sRGB decoding; data and normal maps (R5 A3) are linear.
-    desc.Format = cooked.srgb ? TEX_FORMAT_RGBA8_UNORM_SRGB : TEX_FORMAT_RGBA8_UNORM;
+    desc.Format = cooked.hdr ? TEX_FORMAT_RGBA16_FLOAT : (cooked.srgb ? TEX_FORMAT_RGBA8_UNORM_SRGB : TEX_FORMAT_RGBA8_UNORM);
     desc.Usage = USAGE_IMMUTABLE;
     desc.BindFlags = BIND_SHADER_RESOURCE;
     std::vector<TextureSubResData> subresources;
-    for (const auto& mip : cooked.mips) {
-        TextureSubResData data;
-        data.pData = mip.rgba.data();
-        data.Stride = mip.width * 4;
-        subresources.push_back(data);
-    }
+    const auto bytes_per_pixel = cooked.hdr ? 8u : 4u;
+    for (std::uint32_t layer = 0; layer < cooked.layers; ++layer)
+        for (const auto& mip : cooked.mips) {
+            TextureSubResData data;
+            data.pData = mip.rgba.data() + static_cast<std::size_t>(layer) * mip.width * mip.height * bytes_per_pixel;
+            data.Stride = mip.width * bytes_per_pixel;
+            subresources.push_back(data);
+        }
     TextureData data;
     data.pSubResources = subresources.data();
     data.NumSubresources = static_cast<Uint32>(subresources.size());
@@ -552,7 +570,11 @@ std::string shader_text() {
         return normalized_shader_source();
     require(in.tellg() >= 0 && in.tellg() <= 256 * 1024, "Shader source byte limit");
     in.seekg(0);
-    return normalize_shader_source({std::istreambuf_iterator<char>(in), {}});
+    auto source = normalize_shader_source({std::istreambuf_iterator<char>(in), {}});
+    // Older project shader overrides predate the R7 GPU light contract. Keep them loadable, but do not silently
+    // advertise GPU-driven shading while the override lacks the shared cluster resources; the built-in contract is
+    // the safe source of truth until the override is explicitly upgraded.
+    return source.find("ClusterLights") == source.npos ? normalized_shader_source() : source;
 }
 
 #ifdef DAE_ANIMATION
@@ -565,12 +587,12 @@ std::string skin_shader() {
     };
     replace("struct VertexInput", "cbuffer Skeleton {row_major float4x4 Bones[256];};\nstruct VertexInput");
     replace("float2 UV:ATTRIB2;", "float2 UV:ATTRIB2;uint4 Joints:ATTRIB3;float4 Weights:ATTRIB4;");
-    replace("result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);",
+    replace("result.Position=mul(local,Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);",
             "float4 position=0;float3 normal=0;[unroll]for(uint "
             "i=0;i<4;++i){position+=mul(float4(vertex.Position,1),Bones[vertex.Joints[i]])*vertex.Weights[i];normal+=mul(vertex.Normal,("
             "float3x3)Bones[vertex.Joints[i]])*vertex.Weights[i];}result.Position=mul(position,Mvp);result.Normal=mul(normal,(float3x3)"
             "Rotation);result.Local=mul(position.xyz,(float3x3)Rotation);");
-    replace("result.WorldPosition=mul(float4(vertex.Position,1),World).xyz;", "result.WorldPosition=mul(position,World).xyz;");
+    replace("result.WorldPosition=mul(local,World).xyz;", "result.WorldPosition=mul(position,World).xyz;");
     return source;
 }
 UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipelineState* pso, IPipelineState* cull,

@@ -71,6 +71,9 @@ class SceneViewport {
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> post_binding, post_binding_second;
     GpuClusterResources gpu_clusters;
     Diligent::RefCntAutoPtr<Diligent::ITexture> shadow_map, shadow_dummy, outline_info, outline_info_second;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> sky_texture, sky_fallback, sky_fallback_cube;
+    AssetId sky_asset{};
+    bool sky_texture_cube{};
     Diligent::RefCntAutoPtr<Diligent::ITextureView> shadow_srv;
     std::array<Diligent::RefCntAutoPtr<Diligent::ITextureView>,4> shadow_dsv{}, shadow_dummy_rtv{};
     unsigned scene_width = 700, scene_height = 500;

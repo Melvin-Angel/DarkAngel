@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "root": "7f3d3f68-80b2-4f42-a34d-1d38b0f6f701",
+  "placement": "00000000000000000000000000000001",
+  "sources": {
+    "7f3d3f68-80b2-4f42-a34d-1d38b0f6f701": {
+      "schema": 1,
+      "asset": "7f3d3f68-80b2-4f42-a34d-1d38b0f6f701",
+      "entities": {
+        "00000000000000000000000000000001": {
+          "name": "R7 validation temple",
+          "model": "415c93bd-946a-4e73-a155-4a7f08015d00",
+          "target": null,
+          "optional": {
+            "rendering": {
+              "schema": 1,
+              "gpu_clustered": true,
+              "clusters": {"tile_size": 16, "depth_slices": 24, "max_candidates": 8, "shading_budget": 4},
+              "sky_enabled": true,
+              "sky_color": [0.08, 0.12, 0.20],
+              "sky": {"procedural": true, "hdr_texture": null, "hdr_intensity": 1.0, "hdr_rotation_degrees": 0.0, "zenith": [0.06, 0.10, 0.22], "horizon": [0.42, 0.30, 0.24], "ground": [0.025, 0.02, 0.03], "sun_direction": [-0.35, 0.7, -0.55], "sun_color": [1.0, 0.75, 0.45], "sun_size": 0.025, "sun_intensity": 2.0, "cloud_amount": 0.0, "seed": 7},
+              "shadows": {"enabled": true, "cascade_count": 4, "resolution": 2048, "distance": 180.0, "depth_bias": 0.001, "normal_bias": 0.002, "split_distribution": 0.5},
+              "toon": {"ambient_color": [0.20, 0.22, 0.30], "ambient_strength": 0.7, "shadow_tint": [0.12, 0.16, 0.28], "thresholds": [0.18, 0.52, 0.82], "softness": 0.035, "local_strength": 1.0},
+              "fog": {"enabled": true, "mode": "linear", "color": [0.30, 0.36, 0.48], "start": 20.0, "end": 180.0, "density": 0.015, "height": 0.0, "height_falloff": 0.0},
+              "post": {"bloom": true, "bloom_threshold": 1.0, "bloom_intensity": 0.35, "exposure": 0.0, "exposure_compensation": 0.0, "contrast": 1.0, "saturation": 1.0, "fxaa": true, "outline": {"enabled": true, "color": [0.025, 0.015, 0.04], "thickness": 1.0, "depth_sensitivity": 80.0, "normal_sensitivity": 1.5, "group_sensitivity": 1.0, "fade_start": 20.0, "fade_end": 180.0}}
+            }
+          },
+          "types": {"1": {"version": 2, "fields": {"1": 0, "2": 0, "3": 0.5, "4": 0, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000006": {"name": "R7 static cutout hut", "model": "35d15141-eae0-400d-a616-78d890fc0982", "target": null, "types": {"1": {"version": 2, "fields": {"1": 0, "2": -7, "3": 0.5, "4": -4, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000007": {"name": "R7 second material hut", "model": "9a300109-7840-4bf0-bdae-94fb58759e99", "target": null, "types": {"1": {"version": 2, "fields": {"1": 0, "2": 7, "3": 0.5, "4": -4, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000008": {"name": "R7 skinned character", "model": "e87a6c8d-5708-4699-9a67-58249a4a7877", "target": null, "types": {"1": {"version": 2, "fields": {"1": 0, "2": 0, "3": 0.5, "4": 3, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000002": {"name": "R7 directional sun", "target": null, "optional": {"light": {"schema": 1, "type": "directional", "enabled": true, "cast_shadows": true, "color": [1, 0.82, 0.65], "intensity": 1.2}}, "types": {"1": {"version": 2, "fields": {"1": 0, "2": 3, "3": 1, "4": 0, "5": 0.7, "6": -0.55, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000003": {"name": "R7 point 01", "target": null, "optional": {"light": {"schema": 1, "type": "point", "enabled": true, "cast_shadows": false, "color": [1, 0.2, 0.08], "intensity": 6, "range": 18, "falloff": 2}}, "types": {"1": {"version": 2, "fields": {"1": -12, "2": 3, "3": 0.5, "4": -6, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000004": {"name": "R7 point 02", "target": null, "optional": {"light": {"schema": 1, "type": "point", "enabled": true, "cast_shadows": false, "color": [0.15, 0.45, 1], "intensity": 5, "range": 18, "falloff": 2}}, "types": {"1": {"version": 2, "fields": {"1": 12, "2": 3, "3": 0.5, "4": -6, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        },
+        "00000000000000000000000000000005": {"name": "R7 spot", "target": null, "optional": {"light": {"schema": 1, "type": "spot", "enabled": true, "cast_shadows": false, "color": [1, 0.65, 0.20], "intensity": 8, "range": 24, "inner_cone": 18, "outer_cone": 35, "falloff": 2}}, "types": {"1": {"version": 2, "fields": {"1": 0, "2": 10, "3": 0.5, "4": 0, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+        }
+      },
+      "mounts": {}
+    }
+  }
+}

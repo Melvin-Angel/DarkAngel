@@ -1,4 +1,5 @@
 #pragma once
+#include <darkangel/asset_id.hpp>
 #include <darkangel/world.hpp>
 #include <array>
 #include <cstddef>
@@ -12,7 +13,7 @@ struct SceneLight { StableId id; LightType type{LightType::Point}; bool enabled{
 struct ToonLighting { Color3 ambient_color{.16f,.18f,.24f}; float ambient_strength{.35f}; Color3 shadow_tint{.22f,.25f,.38f}; std::array<float,3> band_thresholds{.18f,.52f,.82f}; float transition_softness{.035f}; float local_light_strength{1}; };
 struct OutlineSettings { bool enabled{true}; Color3 color{.025f,.015f,.04f}; float thickness{1}; float depth_sensitivity{80}; float normal_sensitivity{1.5f}; float group_sensitivity{1}; float fade_start{20}; float fade_end{180}; };
 struct ShadowSettings { bool cascades_enabled{true}; unsigned cascade_count{4}; unsigned resolution{2048}; float distance{180}; float depth_bias{.001f}; float normal_bias{.002f}; float split_distribution{.5f}; };
-struct SkySettings { bool procedural{}; Color3 zenith{.06f,.10f,.22f}; Color3 horizon{.42f,.30f,.24f}; Color3 ground{.025f,.02f,.03f}; std::array<float,3> sun_direction{-.35f,.7f,-.55f}; Color3 sun_color{1,.75f,.45f}; float sun_size{.025f}; float sun_intensity{2}; float cloud_amount{}; unsigned seed{}; };
+struct SkySettings { bool procedural{}; AssetId hdr_texture{}; float hdr_intensity{1}, hdr_rotation_degrees{}; Color3 zenith{.06f,.10f,.22f}; Color3 horizon{.42f,.30f,.24f}; Color3 ground{.025f,.02f,.03f}; std::array<float,3> sun_direction{-.35f,.7f,-.55f}; Color3 sun_color{1,.75f,.45f}; float sun_size{.025f}; float sun_intensity{2}; float cloud_amount{}; unsigned seed{}; };
 struct FogSettings { bool enabled{}; Color3 color{.35f,.42f,.52f}; bool exponential{}; float start{20}, end{180}, density{.015f}, height{}, height_falloff{}; };
 struct PostProcessSettings { bool bloom{}; float bloom_threshold{1}, bloom_soft_threshold{.5f}, bloom_intensity{.35f}, bloom_radius{4}, exposure{}, exposure_compensation{}, contrast{1}, saturation{1}; Color3 tint{1,1,1}; bool fxaa{true}; OutlineSettings outline; };
 struct ClusterConfig { unsigned tile_size{16}, depth_slices{24}, max_candidates{64}, shading_budget{4}; };
