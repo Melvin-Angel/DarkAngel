@@ -50,3 +50,7 @@ The main roadmap retains scene-scale phase 6 GPU instancing, reduced-feature bui
 ## R9 World Tools integration
 
 The deferred future volumetric terrain proposal is specified in [VOLUMETRIC_TERRAIN_WORLD_AUTHORING_PLAN.md](VOLUMETRIC_TERRAIN_WORLD_AUTHORING_PLAN.md). It is not scheduled. If activated by a future roadmap decision, its terrain, spline, water, paint, scatter, placement, and greyboxing tools belong inside the existing Scene / Level Design workspace and must reuse this backlog's shared selection, viewport, gizmo, command-history, undo/redo, property, layout, and background-job conventions. Do not create one top-level tab per tool or a parallel scene format. R8 remains the separately deferred World Puzzle UI slot.
+
+## Deferred Ashen Roots stylized rendering
+
+The future stylized-rendering initiative is specified in [Environment, Lighting and Post Processing](ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md) and is **deferred / not scheduled**. R4 should preserve stable material-slot identity through prefab operations, R5 may establish the shared MaterialDefinition/MaterialInstance and material-editor contracts, R6 may consume those definitions for previews and authored UI surfaces, and R7 owns the environment/rendering prerequisites. Clustered Forward+, toon material families, outlines, stylized lights/shadows, fog, post processing, GPU optimization and advanced atmospheric work remain future work. Do not implement features, shaders, renderer behavior or new dependencies from this backlog entry.
