@@ -12,14 +12,14 @@ Party host prepared epoch=1 players=2
 Party host resumed epoch=1 players=2
 Script downed seat 1 tick=10
 Script party tick=446 seat0=100 seat1=50
-Viewport foreground pixels=301370 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party.png
-Script downed seat 0 tick=447
+Viewport foreground pixels=301361 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party.png
+Script downed seat 0 tick=446
 Script downed seat 1 tick=449
 Party host prepared epoch=2 players=2
 Party host resumed epoch=2 players=2
-Script party tick=19 seat0=100 seat1=100
-Script quit requested tick=19 steps=15/15
-DarkAngel editor rendered 10173 frames with d3d12
+Script party tick=23 seat0=100 seat1=100
+Script quit requested tick=23 steps=15/15
+DarkAngel editor rendered 11229 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 19/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

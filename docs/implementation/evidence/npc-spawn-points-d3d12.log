@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
-[39mViewport foreground pixels=434631 capture=C:\DarkAngel\docs\implementation\evidence\npc-spawn-points-d3d12.png
+[39mViewport foreground pixels=436615 capture=C:\DarkAngel\docs\implementation\evidence\npc-spawn-points-d3d12.png
 Editor attacked tick=260 player_health=0 reaction_tick=-1 death_tick=59 pending=0 actors=2 nav_polygons=52 behavior=Guard_Melee decision=Recover_(15_ticks_left) hud_health=0/100 hud_target=60/60 hud_target_name=Royal_Guard
 DarkAngel editor rendered 260 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

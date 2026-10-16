@@ -9,32 +9,33 @@
 [39mParty host bootstrap readiness=4 revision=8 player=1 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party host prepared epoch=1 players=2
 Party host resumed epoch=1 players=2
-Altar menu opened Training Altar tick=49
-Party host bootstrap readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=1 coherent=1 paired=1
+Altar menu opened Training Altar tick=50
+[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80207bb0000
+[39mParty host bootstrap readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=1 coherent=1 paired=1
 Party host prepared epoch=2 players=2
 Party host resumed epoch=2 players=2
-Altar menu opened Village Altar tick=51
+Altar menu opened Village Altar tick=52
 Party host prepared epoch=3 players=2
 Party host resumed epoch=3 players=2
-Altar menu opened Village Altar tick=13
+Altar menu opened Village Altar tick=12
 Party host bootstrap readiness=4 revision=8 player=1 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party host prepared epoch=4 players=2
 Party host resumed epoch=4 players=2
-Script downed seat 0 tick=9
+Script downed seat 0 tick=10
 Script downed seat 1 tick=10
 Party host bootstrap readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=1 coherent=1 paired=1
 Party host prepared epoch=5 players=2
 Party host resumed epoch=5 players=2
-Script party tick=19 seat0=100 seat1=100
-Script quit requested tick=19 steps=27/27
-Viewport foreground pixels=290668 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party-travel.png
-DarkAngel editor rendered 14797 frames with d3d12
+Script party tick=17 seat0=100 seat1=100
+Script quit requested tick=17 steps=27/27
+Viewport foreground pixels=290663 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party-travel.png
+DarkAngel editor rendered 16046 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
                        Peak used/aligned/allocated size: 156.00 KB / 156.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 15.2%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
-                       Total allocated memory: 3.00 MB
+                       Total allocated memory: 4.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:
 QUERY_TYPE_OCCLUSION          :    0/ 128
 QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
@@ -45,7 +46,7 @@ QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 118 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 10/16384 (0.06%) | 768/8192 (9.38%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 10/16384 (0.06%) | 1024/8192 (12.50%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 5/1024 (0.49%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).

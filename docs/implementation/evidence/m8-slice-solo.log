@@ -6,12 +6,12 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206550000
-[39mAltar menu opened Training Altar tick=165
-Altar menu opened Village Altar tick=58
+[39mAltar menu opened Training Altar tick=158
+Altar menu opened Village Altar tick=54
 Viewport foreground pixels=301741 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-solo.png
 Altar menu opened Training Altar tick=16
-Script quit requested tick=28 steps=27/27
-DarkAngel editor rendered 2472 frames with d3d12
+Script quit requested tick=25 steps=27/27
+DarkAngel editor rendered 2999 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 27/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

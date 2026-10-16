@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
-[39mViewport foreground pixels=428734 capture=C:\DarkAngel\docs\implementation\evidence\content-before-d3d12.png
+[39mViewport foreground pixels=430720 capture=C:\DarkAngel\docs\implementation\evidence\content-before-d3d12.png
 Editor cues tick=30 assets=5 closure=2 live=1 visual_live=1 audio_live=1 refused=0 visual_starts=2 audio_starts=2 audio_stops=1 unresolved=0 visual=Attack.Start,Status.Flinch audio=Attack.Start,Status.Flinch vfx_loaded=2 vfx_playing=1 vfx_particles=14 vfx_quads=30 vfx_draws=3 vfx_unsupported=0 vfx_missing=0 trails=1 trail_points=6 decals=1 primitive_quads=17 primitive_missing=0 effect_generations=vfx/placeholder/burn_aura.efkproj:8582eb1f611f;vfx/placeholder/hit_spark.efkproj:2dfc0fdec910 sound_generations=audio/placeholder/hit.wav:834794ce560a;audio/placeholder/step.wav:4bfbee2697fe;audio/placeholder/swing.wav:f80311d4264d audio_service=1 audio_device=0 audio_loaded=3 audio_played=2 audio_missing=0
 Native combat editor tick=30 target_health=75 stamina=90 pending=0
 DarkAngel editor rendered 30 frames with d3d12

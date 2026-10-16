@@ -14,13 +14,13 @@
   "console": [
     "Play activated an isolated Preview world; authoring remains unchanged.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 2193 ms, resources 4076 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 2238 ms, resources 1434 ms).",
     "The party arrived in RoyalVillage.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3326 ms, resources 2388 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 2622 ms, resources 1533 ms).",
     "The party arrived in RoyalTraining.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 2815 ms, resources 1567 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3000 ms, resources 1435 ms).",
     "The party arrived in RoyalTraining.dascene.",
     "Saving the game.",
     "Saved (revision 1)."
@@ -35,7 +35,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 2472,
+  "frame": 2999,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -114,8 +114,8 @@
     0.4999995231628418,
     2.5
   ],
-  "predicted_tick": 28,
-  "process": 9392,
+  "predicted_tick": 25,
+  "process": 25552,
   "ready": true,
   "rebases": 1,
   "refused": 0,
@@ -127,7 +127,7 @@
   "schema": 1,
   "script_count": 27,
   "script_steps": 27,
-  "tick": 28,
+  "tick": 25,
   "travel_failures": 0,
   "world": {
     "checkpoint": {

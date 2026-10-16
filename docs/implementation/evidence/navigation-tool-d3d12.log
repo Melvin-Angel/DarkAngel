@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201970000
-[39mViewport foreground pixels=103203 capture=C:\DarkAngel\docs\implementation\evidence\navigation-tool-d3d12.png
+[39mViewport foreground pixels=105181 capture=C:\DarkAngel\docs\implementation\evidence\navigation-tool-d3d12.png
 Navigation bake polygons=52 source_triangles=1320 play_reuses_bake=1 on_demand_for_other_collision=1
 DarkAngel editor rendered 5 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
