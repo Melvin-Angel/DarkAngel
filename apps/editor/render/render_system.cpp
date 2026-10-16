@@ -100,10 +100,11 @@ void RenderSystem::create_frame_pipelines() {
     device->CreateBuffer(constants_desc, nullptr, &constant_buffer);
     require(constant_buffer, "Constant buffer creation failed");
     auto source = render::shader_text();
-    pso = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, source.c_str());
-    pso_cull = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, source.c_str());
-    pso_blend = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, source.c_str(), nullptr, true);
-    pso_blend_cull = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, source.c_str(), nullptr, true);
+    constexpr auto scene_color_format = TEX_FORMAT_RGBA16_FLOAT;
+    pso = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, source.c_str());
+    pso_cull = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, source.c_str());
+    pso_blend = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, source.c_str(), nullptr, true);
+    pso_blend_cull = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, source.c_str(), nullptr, true);
 }
 
 bool RenderSystem::pump_messages() {

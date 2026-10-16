@@ -66,9 +66,12 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
     ShaderResourceVariableDesc variables[] = {{SHADER_TYPE_PIXEL, "Albedo", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "NormalMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "SurfaceMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-                                              {SHADER_TYPE_PIXEL, "EmissiveMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
+                                              {SHADER_TYPE_PIXEL, "EmissiveMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "DissolveMask", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "TerrainLayer1", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "TerrainLayer2", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
     ci.PSODesc.ResourceLayout.Variables = variables;
-    ci.PSODesc.ResourceLayout.NumVariables = 4;
+    ci.PSODesc.ResourceLayout.NumVariables = _countof(variables);
     SamplerDesc sampler;
     sampler.MinFilter = FILTER_TYPE_LINEAR;
     sampler.MagFilter = FILTER_TYPE_LINEAR;
@@ -78,9 +81,12 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
     ImmutableSamplerDesc samplers[] = {{SHADER_TYPE_PIXEL, "Albedo", sampler},
                                        {SHADER_TYPE_PIXEL, "NormalMap", sampler},
                                        {SHADER_TYPE_PIXEL, "SurfaceMap", sampler},
-                                       {SHADER_TYPE_PIXEL, "EmissiveMap", sampler}};
+                                       {SHADER_TYPE_PIXEL, "EmissiveMap", sampler},
+                                       {SHADER_TYPE_PIXEL, "DissolveMask", sampler},
+                                       {SHADER_TYPE_PIXEL, "TerrainLayer1", sampler},
+                                       {SHADER_TYPE_PIXEL, "TerrainLayer2", sampler}};
     ci.PSODesc.ResourceLayout.ImmutableSamplers = samplers;
-    ci.PSODesc.ResourceLayout.NumImmutableSamplers = 4;
+    ci.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(samplers);
     RefCntAutoPtr<IPipelineState> result;
     device->CreateGraphicsPipelineState(ci, &result);
     require(result, "Pipeline creation failed");
@@ -95,6 +101,20 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
         skeleton->Set(bones);
     }
     return result;
+}
+RefCntAutoPtr<IPipelineState> post_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color) {
+    static constexpr const char* source = R"(
+cbuffer PostFrame {float4 Exposure;float4 Bloom;float4 TintFxaa;float4 Texel;};
+Texture2D SceneColor;SamplerState SceneColor_sampler;
+struct VertexOutput {float4 Position:SV_POSITION;float2 UV:TEXCOORD0;};
+VertexOutput VSMain(uint id:SV_VertexID){float2 positions[3]={float2(-1,-1),float2(-1,3),float2(3,-1)};float2 uv[3]={float2(0,1),float2(0,-1),float2(2,1)};VertexOutput result;result.Position=float4(positions[id],0,1);result.UV=uv[id];return result;}
+float luminance(float3 v){return dot(v,float3(.2126,.7152,.0722));}
+float3 hdr(float2 uv){return max(SceneColor.Sample(SceneColor_sampler,uv).rgb,0);}
+float3 tone(float3 value){float exposure=exp2(Exposure.x+Exposure.y);float3 color=1-exp(-value*exposure);float l=luminance(color);color=lerp(l.xxx,color,Exposure.w);color=(color-.5)*Exposure.z+.5;return saturate(color*TintFxaa.rgb);}
+float4 PSMain(VertexOutput vertex):SV_TARGET {float3 source=hdr(vertex.UV);float3 bloom=0;if(Bloom.z>0){float2 radius=Texel.xy*max(Bloom.w,1);float3 samples[5]={source,hdr(vertex.UV+float2(radius.x,0)),hdr(vertex.UV-float2(radius.x,0)),hdr(vertex.UV+float2(0,radius.y)),hdr(vertex.UV-float2(0,radius.y))};[unroll]for(uint i=0;i<5;++i){float l=luminance(samples[i]);float threshold=max(Bloom.x,0);float soft=max(Bloom.y,.001);float weight=smoothstep(threshold,threshold+soft,l);bloom+=samples[i]*weight;}bloom=bloom*(Bloom.z/5);source+=bloom;}float3 color=tone(source);if(TintFxaa.a>0){float3 left=tone(hdr(vertex.UV-float2(Texel.x,0))),right=tone(hdr(vertex.UV+float2(Texel.x,0))),up=tone(hdr(vertex.UV+float2(0,Texel.y))),down=tone(hdr(vertex.UV-float2(0,Texel.y)));float range=max(max(luminance(left),luminance(right)),max(luminance(up),luminance(down)))-min(min(luminance(left),luminance(right)),min(luminance(up),luminance(down)));if(range>.08)color=(color+left+right+up+down)/5;}return float4(color,1);}
+)";
+    ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=source;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel post VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);shader.Desc.Name="DarkAngel post PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(vs&&ps,"Post-process shader compilation failed");
+    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variable{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE};ci.PSODesc.ResourceLayout.Variables=&variable;ci.PSODesc.ResourceLayout.NumVariables=1;SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutable{SHADER_TYPE_PIXEL,"SceneColor",sampler};ci.PSODesc.ResourceLayout.ImmutableSamplers=&immutable;ci.PSODesc.ResourceLayout.NumImmutableSamplers=1;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
 }
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked) {
     require(!cooked.mips.empty(), "Missing texture mips");
@@ -189,8 +209,11 @@ void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, c
 void apply_material(Constants& constants, const CookedMaterial& material) {
     constants.surface = {material.roughness, material.metallic, material.occlusion_strength, material.normal_scale};
     constants.emission = {material.emissive[0], material.emissive[1], material.emissive[2], 0};
-    const unsigned bits = (material.has_normal ? 1u : 0u) | (material.has_surface ? 2u : 0u) | (material.has_emissive_texture ? 4u : 0u);
-    constants.features = {static_cast<float>(bits), static_cast<float>(material.alpha_mode), material.alpha_cutoff, 0};
+    const unsigned bits = (material.has_normal ? 1u : 0u) | (material.has_surface ? 2u : 0u) | (material.has_emissive_texture ? 4u : 0u) | (material.triplanar ? 8u : 0u) | (material.has_dissolve_texture ? 16u : 0u) | (material.has_terrain_layer1 ? 32u : 0u) | (material.has_terrain_layer2 ? 64u : 0u);
+    const float family=material.family==material_family_toon_character?2.f:material.family==material_family_toon_terrain?3.f:material.family==material_family_toon_standard?1.f:0.f;
+    constants.features = {static_cast<float>(bits), static_cast<float>(material.alpha_mode), family, material.triplanar_scale};
+    constants.toon_bands={material.toon_thresholds[0],material.toon_thresholds[1],material.toon_thresholds[2],material.toon_softness};constants.shadow_tint={material.shadow_tint[0],material.shadow_tint[1],material.shadow_tint[2],1};constants.ambient={material.ambient_color[0]*material.ambient_strength,material.ambient_color[1]*material.ambient_strength,material.ambient_color[2]*material.ambient_strength,1};
+    constants.character_hit={material.hit_flash_color[0],material.hit_flash_color[1],material.hit_flash_color[2],material.hit_flash_color[3]};constants.character_status={material.status_color[0],material.status_color[1],material.status_color[2],material.status_color[3]};constants.character_params={material.hit_flash_strength,material.status_strength,material.dissolve,material.dissolve_edge_width};constants.terrain_params={material.terrain_blend_sharpness,material.terrain_slope_start,material.terrain_slope_end,material.terrain_height_blend};
 }
 void bind_surface(IShaderResourceBinding* binding, const CookedMaterial& material, const std::map<AssetId, RefCntAutoPtr<ITexture>>& textures,
                   ITexture* fallback) {
@@ -212,6 +235,18 @@ void bind_surface(IShaderResourceBinding* binding, const CookedMaterial& materia
         emissive->Set(view(material.has_emissive_texture, material.emissive_texture));
     else
         require(!material.has_emissive_texture, "The prop shader does not declare EmissiveMap, which this material needs");
+    if (auto* dissolve = binding->GetVariableByName(SHADER_TYPE_PIXEL, "DissolveMask"))
+        dissolve->Set(view(material.has_dissolve_texture, material.dissolve_texture));
+    else
+        require(!material.has_dissolve_texture, "The prop shader does not declare DissolveMask, which this material needs");
+    if (auto* layer1 = binding->GetVariableByName(SHADER_TYPE_PIXEL, "TerrainLayer1"))
+        layer1->Set(view(material.has_terrain_layer1, material.terrain_layer1));
+    else
+        require(!material.has_terrain_layer1, "The prop shader does not declare TerrainLayer1, which this material needs");
+    if (auto* layer2 = binding->GetVariableByName(SHADER_TYPE_PIXEL, "TerrainLayer2"))
+        layer2->Set(view(material.has_terrain_layer2, material.terrain_layer2));
+    else
+        require(!material.has_terrain_layer2, "The prop shader does not declare TerrainLayer2, which this material needs");
 }
 UploadedMaterial upload_material(IRenderDevice* device,const RuntimeMaterial& material,IPipelineState* pso,IPipelineState* cull,IPipelineState* skin,IPipelineState* skin_cull) {
     UploadedMaterial out;out.source=material;CookedTexture white;white.mips.push_back({1,1,{255,255,255,255}});out.fallback=texture(device,white);

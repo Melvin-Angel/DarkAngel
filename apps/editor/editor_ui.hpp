@@ -14,7 +14,7 @@
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
 enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items,Prefabs,Ui};
-enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation,Saves};
+enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation,Saves,Lighting};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
 public:
@@ -135,6 +135,7 @@ public:
     void open_tool(ToolView);
     void draw_game(Controller&,unsigned,unsigned,float,double,ImTextureID);
     void draw_auxiliary(Controller&,unsigned,unsigned,float);
+    void draw_lighting(Controller&);
     // Ctrl+1..9 / Ctrl+0 choose a workspace tab; Ctrl+PageUp/PageDown step through them. Not while typing, dragging or in Game input.
     void workspace_shortcuts(Controller&);
     // A tab switch chosen by the author (tab bar or shortcut): Ability and Animation restore their own last selection.

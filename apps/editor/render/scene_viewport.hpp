@@ -1,6 +1,9 @@
 #pragma once
 #include <RefCntAutoPtr.hpp>
 #include <Texture.h>
+#include <Buffer.h>
+#include <PipelineState.h>
+#include <ShaderResourceBinding.h>
 #include <DirectXMath.h>
 #include <imgui.h>
 #include <cstddef>
@@ -55,7 +58,10 @@ class SceneViewport {
 
   private:
     SceneViewportContext context_;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> scene_color, scene_depth, scene_color_second, scene_depth_second;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> scene_color, scene_display, scene_depth, scene_color_second, scene_display_second, scene_depth_second;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> post_buffer;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> post_pso;
+    Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> post_binding, post_binding_second;
     unsigned scene_width = 700, scene_height = 500;
     // The viewport's field of view this frame.
     float camera_fov = DirectX::XM_PIDIV4;

@@ -28,9 +28,15 @@ CookedTexture load_cooked_texture(const std::filesystem::path& registry,const st
 // R5 A3 surface features are optional: a material without them draws exactly as a lit-color-v1 material. alpha_mode: 0 opaque,
 // 1 cutout (alpha tested against alpha_cutoff), 2 transparent (blended after opaque surfaces). The surface texture packs
 // occlusion (R), roughness (G) and metallic (B) as glTF does; the normal texture is a linear tangent-space map.
-struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};
+struct CookedMaterial {AssetId id;std::string family;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};
     AssetId normal_texture,surface_texture,emissive_texture;bool has_normal{},has_surface{},has_emissive_texture{};float normal_scale{1},occlusion_strength{1},alpha_cutoff{.5f};
-    std::array<float,3> emissive{0,0,0};int alpha_mode{};};
+    std::array<float,3> emissive{0,0,0};int alpha_mode{};
+    std::array<float,3> toon_thresholds{.18f,.52f,.82f},shadow_tint{.22f,.25f,.38f},ambient_color{.22f,.25f,.34f};
+    float toon_softness{.035f},ambient_strength{1},local_light_strength{1};bool triplanar{};float triplanar_scale{1};
+    std::array<float,4> hit_flash_color{1,1,1,0},status_color{1,1,1,0};float hit_flash_strength{},status_strength{},dissolve{};
+    AssetId dissolve_texture,terrain_layer1,terrain_layer2;bool has_dissolve_texture{},has_terrain_layer1{},has_terrain_layer2{};
+    std::array<float,3> dissolve_edge{1,.35f,.1f};float dissolve_edge_width{.05f};
+    float terrain_blend_sharpness{4},terrain_slope_start{.35f},terrain_slope_end{.75f},terrain_height_blend{.5f};};
 struct RuntimeMaterial {CookedMaterial value;std::vector<std::pair<AssetId,CookedTexture>> textures;std::string generation;};
 // Standalone native material and its verified texture closure, without artist sources or a model copy.
 RuntimeMaterial load_cooked_material_instance(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);

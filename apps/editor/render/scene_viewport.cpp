@@ -3,6 +3,7 @@
 #include <darkangel/character_scene.hpp>
 #include "render_system.hpp"
 #include "scene_resources.hpp"
+#include "render_settings.hpp"
 #include "../editor_controller.hpp"
 #include "../editor_options.hpp"
 #include "../editor_ui.hpp"
@@ -39,14 +40,17 @@ void SceneViewport::prepare_targets() {
         color.Type = RESOURCE_DIM_TEX_2D;
         color.Width = scene_width;
         color.Height = scene_height;
-        color.Format = swap_desc.ColorBufferFormat;
+        color.Format = TEX_FORMAT_RGBA16_FLOAT;
         color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
         device->CreateTexture(color, nullptr, &scene_color);
+        color.Name = "Editor scene display";
+        color.Format = swap_desc.ColorBufferFormat;
+        device->CreateTexture(color, nullptr, &scene_display);
         color.Name = "Editor scene depth";
         color.Format = swap_desc.DepthBufferFormat;
         color.BindFlags = BIND_DEPTH_STENCIL;
         device->CreateTexture(color, nullptr, &scene_depth);
-        require(scene_color && scene_depth, "Viewport resource creation failed");
+        require(scene_color && scene_display && scene_depth, "Viewport resource creation failed");
     }
     // The second local player's view has its own target, sized to its viewport of the previous frame.
     if (shell.second_view) {
@@ -60,22 +64,27 @@ void SceneViewport::prepare_targets() {
             color.Type = RESOURCE_DIM_TEX_2D;
             color.Width = wide;
             color.Height = high;
-            color.Format = swap_desc.ColorBufferFormat;
+            color.Format = TEX_FORMAT_RGBA16_FLOAT;
             color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
             device->CreateTexture(color, nullptr, &scene_color_second);
+            color.Name = "Editor second viewport display";
+            color.Format = swap_desc.ColorBufferFormat;
+            device->CreateTexture(color, nullptr, &scene_display_second);
             color.Name = "Editor second player depth";
             color.Format = swap_desc.DepthBufferFormat;
             color.BindFlags = BIND_DEPTH_STENCIL;
             device->CreateTexture(color, nullptr, &scene_depth_second);
-            require(scene_color_second && scene_depth_second, "Second viewport resource creation failed");
+            require(scene_color_second && scene_display_second && scene_depth_second, "Second viewport resource creation failed");
         }
     }
-    shell.game_image_second = shell.second_view && scene_color_second
-                                  ? reinterpret_cast<ImTextureID>(scene_color_second->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE))
+    if (!post_buffer) { BufferDesc desc;desc.Name="Editor post-process constants";desc.Usage=USAGE_DYNAMIC;desc.BindFlags=BIND_UNIFORM_BUFFER;desc.CPUAccessFlags=CPU_ACCESS_WRITE;desc.Size=sizeof(PostConstants);device->CreateBuffer(desc,nullptr,&post_buffer);require(post_buffer,"Post-process constants buffer creation failed"); }
+    if (!post_pso) { post_pso=post_pipeline(device.RawPtr(),post_buffer.RawPtr(),swap_desc.ColorBufferFormat);post_pso->CreateShaderResourceBinding(&post_binding,true);post_pso->CreateShaderResourceBinding(&post_binding_second,true);require(post_binding&&post_binding_second,"Post-process binding creation failed"); }
+    shell.game_image_second = shell.second_view && scene_display_second
+                                  ? reinterpret_cast<ImTextureID>(scene_display_second->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE))
                                   : ImTextureID{};
 }
 ImTextureID SceneViewport::scene_texture() const {
-    return reinterpret_cast<ImTextureID>(scene_color->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+    return reinterpret_cast<ImTextureID>(scene_display->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 }
 void SceneViewport::resize(const ViewArea& area) {
     scene_width = std::max(1u, static_cast<unsigned>(area.width));
@@ -269,6 +278,11 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
     struct SceneViewer;
 #endif
+    struct FrameLight { darkangel::rendering::SceneLight light; std::array<float,3> world_position{}; };
+    render::SceneRenderingSettings frame_settings;
+    std::vector<FrameLight> frame_lights;
+    for(const auto& origin:editor.document->plan().origins){auto handle=editor.displayed().find(origin.object);if(!editor.displayed().valid(handle))continue;auto object=editor.displayed().read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering"))frame_settings=render::decode_rendering_settings(source.at("rendering"));if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
+    const float sky[4]={frame_settings.sky_enabled?frame_settings.sky_color.r:background[0],frame_settings.sky_enabled?frame_settings.sky_color.g:background[1],frame_settings.sky_enabled?frame_settings.sky_color.b:background[2],1};context->ClearRenderTarget(rtv,sky,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     // One pass over the scene's objects for a view. viewer: the client whose world and poses are shown; null for the editor's own.
     auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer) {
         const darkangel::World* shown_world = &editor.displayed();
@@ -429,6 +443,11 @@ void SceneViewport::render(double elapsed_seconds) {
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
                     apply_material(constants, material.value);
+                    if(frame_settings.main_light){for(const auto&prepared:frame_lights)if(prepared.light.id==frame_settings.main_light&&prepared.light.type==darkangel::rendering::LightType::Directional){constants.main_light={prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],1};constants.main_color={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity};break;}}
+                    const bool material_toon=material.value.family==material_family_toon_standard||material.value.family==material_family_toon_character||material.value.family==material_family_toon_terrain;
+                    if(!material_toon){constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1};constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness};constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1};}
+                    constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f};constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
+                    const float local_strength=material_toon?material.value.local_light_strength:frame_settings.toon.local_light_strength;unsigned local_index=0;const auto inverse_rotation=XMMatrixInverse(nullptr,rotation);for(const auto&prepared:frame_lights)if(prepared.light.id!=frame_settings.main_light&&prepared.light.type!=darkangel::rendering::LightType::Directional&&prepared.light.enabled&&local_index<4){const auto p=XMVector3TransformCoord(XMVectorSet(prepared.world_position[0]-float(pose.x),prepared.world_position[1]-float(pose.y),prepared.world_position[2]-float(pose.z),1),inverse_rotation);XMFLOAT3 local;XMStoreFloat3(&local,p);constants.local_positions[local_index]={local.x,local.y,local.z,prepared.light.range};constants.local_colors[local_index]={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity*local_strength};++local_index;}
                     void* mapped{};
                     context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                     require(mapped, "Uniform buffer mapping failed");
@@ -603,7 +622,7 @@ void SceneViewport::render(double elapsed_seconds) {
         auto* rtv_second = scene_color_second->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
         auto* dsv_second = scene_depth_second->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
         context->SetRenderTargets(1, &rtv_second, dsv_second, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        context->ClearRenderTarget(rtv_second, background, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        context->ClearRenderTarget(rtv_second, sky, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         context->ClearDepthStencil(dsv_second, CLEAR_DEPTH_FLAG, 1, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Viewport viewport_second;
         viewport_second.Width = static_cast<float>(scene_color_second->GetDesc().Width);
@@ -664,6 +683,36 @@ void SceneViewport::render(double elapsed_seconds) {
         }
     }
 #endif
+    auto present_post = [&](ITexture* source, ITexture* destination, IShaderResourceBinding* binding) {
+        PostConstants constants;
+        constants.exposure = {frame_settings.post.exposure, frame_settings.post.exposure_compensation, frame_settings.post.contrast, frame_settings.post.saturation};
+        constants.bloom = {frame_settings.post.bloom_threshold, frame_settings.post.bloom_soft_threshold, frame_settings.post.bloom ? frame_settings.post.bloom_intensity : 0.f, frame_settings.post.bloom_radius};
+        constants.tint_fxaa = {frame_settings.post.tint.r, frame_settings.post.tint.g, frame_settings.post.tint.b, frame_settings.post.fxaa ? 1.f : 0.f};
+        constants.texel = {1.f / std::max(1u, destination->GetDesc().Width), 1.f / std::max(1u, destination->GetDesc().Height), 0, 0};
+        void* mapped{};
+        context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+        require(mapped, "Post-process constants mapping failed");
+        std::memcpy(mapped, &constants, sizeof(constants));
+        context->UnmapBuffer(post_buffer, MAP_WRITE);
+        auto* source_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SceneColor");
+        require(source_variable, "Post-process source contract changed");
+        source_variable->Set(source->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        auto* target = destination->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+        context->SetRenderTargets(1, &target, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        Viewport post_view;
+        post_view.Width = static_cast<float>(destination->GetDesc().Width);
+        post_view.Height = static_cast<float>(destination->GetDesc().Height);
+        context->SetViewports(1, &post_view, destination->GetDesc().Width, destination->GetDesc().Height);
+        context->SetPipelineState(post_pso);
+        context->CommitShaderResources(binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        DrawAttribs draw;
+        draw.NumVertices = 3;
+        draw.Flags = DRAW_FLAG_VERIFY_ALL;
+        context->Draw(draw);
+    };
+    present_post(scene_color, scene_display, post_binding);
+    if (shell.second_view && scene_color_second && scene_display_second)
+        present_post(scene_color_second, scene_display_second, post_binding_second);
 }
 VfxView SceneViewport::vfx_view() const {
     using namespace DirectX;
