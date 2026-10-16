@@ -2,6 +2,7 @@
 #include <darkangel/assembly.hpp>
 #include <darkangel/editor_service.hpp>
 #include <filesystem>
+#include <functional>
 #include <optional>
 namespace darkangel {
 enum class EditScope {Placement,Definition};
@@ -9,12 +10,16 @@ struct PreparedDocumentEdit {std::uint64_t token,revision;std::string summary;};
 struct DocumentHistoryHead {std::uint64_t token{};std::string summary,origin;};
 class EditorDocument {
 public:
-    EditorDocument(AssetId root,StableId placement,AssemblySources,std::size_t history_limit=128);
+    // linked: externally owned assembly sources (R4 prefabs) the scene mounts. They resolve with the scene but are never edited,
+    // journaled or saved by it; the scene's manifest records only which ones it links.
+    EditorDocument(AssetId root,StableId placement,AssemblySources,std::size_t history_limit=128,AssemblySources linked={});
     ~EditorDocument();
     World& world();
     const SpawnPlan& plan() const;
     // The scene's own assembly source: structural edits to its objects go here.
     AssetId root() const;
+    // The scene placement every authored path starts with.
+    StableId placement() const;
     std::uint64_t revision() const;
     bool dirty() const;
     DocumentHistoryHead history_head() const;
@@ -28,7 +33,16 @@ public:
     void undo(std::uint64_t);
     void redo(std::uint64_t);
     void save(const std::filesystem::path&); // one journaled bundle, atomic replacement
-    static std::unique_ptr<EditorDocument> open(const std::filesystem::path&);
+    // The current text of a linked source by AssetID; none when the project has no such source.
+    using LinkSource=std::function<std::optional<std::string>(AssetId)>;
+    static std::unique_ptr<EditorDocument> open(const std::filesystem::path&,const LinkSource& links={});
+    // Linked sources (R4): the published definitions this scene resolves against, and the ones its own sources mount.
+    const AssemblySources& links() const;
+    std::vector<AssetId> linked_references() const;
+    // Adds or replaces linked definitions (for example after a prefab Save) and resolves the scene again. Owned sources,
+    // history and dirty state are unchanged; prepared edits are invalidated. Throws, leaving the document unchanged, when
+    // the scene no longer resolves against them.
+    void link(const AssemblySources&);
     std::string source(AssetId) const;
     // One entity record of the scene's own source by its local identity, as JSON text; none when there is no such entity.
     std::optional<std::string> entity(const std::string& local) const;

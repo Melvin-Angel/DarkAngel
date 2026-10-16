@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "editor_app.hpp"
 #include "exercises/scene_camera_exercise.hpp"
+#include "exercises/prefab_exercise.hpp"
 #include "exercises/editor_ux_exercise.hpp"
 #include "exercises/live_previews_exercise.hpp"
 #include "editor_controller.hpp"
@@ -368,6 +369,7 @@ int EditorApp::run() {
     auto editor_ux_exercise=exercises::make_editor_ux(args.exercise_editor_ux,editor,shell);
     auto live_previews_exercise=exercises::make_live_previews(args.exercise_live_previews,editor,shell);
     auto scene_camera_exercise = exercises::make_scene_camera(args.exercise_scene_camera,editor,shell);
+    auto prefab_exercise = exercises::make_prefabs(args.exercise_prefabs,editor,shell);
     auto scene_editing_exercise =
         darkangel::editor_app::exercises::make_scene_editing({args, editor, shell, import_baseline, import_count});
     auto acceptance_exercise = darkangel::editor_app::exercises::make_acceptance(
@@ -428,6 +430,7 @@ int EditorApp::run() {
         editor_ux_exercise->frame(frame);
         live_previews_exercise->frame(frame);
         scene_camera_exercise->frame(frame);
+        prefab_exercise->frame(frame);
         scene_editing_exercise->frame(frame);
         acceptance_exercise->frame(frame);
 #ifdef DAE_CHARACTER_SCENE
@@ -557,6 +560,7 @@ int EditorApp::run() {
     editor_ux_exercise->finish();
     live_previews_exercise->finish();
     scene_camera_exercise->finish();
+    prefab_exercise->finish();
     shell.save_preferences();
     render.shutdown();
     std::cout << "DarkAngel editor rendered " << frame << " frames with " << args.backend << '\n';

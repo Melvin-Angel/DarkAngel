@@ -7,7 +7,7 @@
 namespace darkangel::editor_app {
 struct EditorOptions {
     std::filesystem::path party_report, world_place, exercise_scale;
-    bool play_from_save{}, play{}, exercise_scene_camera{}, exercise_editor_ux{}, exercise_live_previews{};
+    bool play_from_save{}, play{}, exercise_scene_camera{}, exercise_editor_ux{}, exercise_live_previews{}, exercise_prefabs{};
     std::string join, listen;
     unsigned player{1}, local_profile{4};
     bool party_mismatch{};

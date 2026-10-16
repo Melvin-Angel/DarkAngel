@@ -8,6 +8,7 @@
 #include "script_state.hpp"
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <cmath>
 #include <set>
 #include <cstring>
 #include <stdexcept>
@@ -19,6 +20,30 @@ using Json=nlohmann::json;
 void require(bool test,const char* error){if(!test)throw std::runtime_error(error);}
 StableId persistent(std::string_view path){return StableId::parse(sha256(path).substr(0,32));}
 void migrate(Json& entity){auto& transform=entity.at("types").at("1");if(transform.at("version")==1){require(transform.at("fields").size()==1 && transform.at("fields").contains("1"),"Malformed legacy transform");Transform defaults;for(const auto& field:metadata()[0].properties)if(field.id!=1){double value;std::memcpy(&value,reinterpret_cast<const char*>(&defaults)+field.offset,sizeof(value));transform["fields"][std::to_string(field.id)]=value;}transform["version"]=2;}}
+// Gameplay components an instance may add, remove or override field by field. Structural roles (spawn points, encounters,
+// volumes, splines, entries, transitions, audio and collision profiles) stay definition-only.
+bool patchable_component(const std::string& component){return component=="altar"||component=="mover"||component=="pickup"||component=="interactable"||component=="trigger";}
+// A mount's placement (R4): position and yaw of the mounted assembly in its parent's space, scale one. Identity when absent,
+// so existing mounts resolve exactly as before.
+struct Placement {double x{},y{},z{},yaw{};bool identity()const{return x==0&&y==0&&z==0&&yaw==0;}
+    Placement then(const Placement& child)const{const double c=std::cos(yaw),s=std::sin(yaw);return {x+c*child.x+s*child.z,y+child.y,z-s*child.x+c*child.z,yaw+child.yaw};}};
+Placement mount_placement(const Json& mount){
+    if(!mount.contains("placement")||mount["placement"].is_null())return {};const auto& value=mount["placement"];
+    require(value.is_object()&&value.size()<=4,"Mount placement is a record of x, y, z and yaw");Placement result;
+    auto number=[&](const char* key,double& out,double bound){if(!value.contains(key))return;require(value[key].is_number(),"Mount placement values are numbers");out=value[key].get<double>();require(std::isfinite(out)&&std::abs(out)<=bound,"Mount placement is out of bounds");};
+    for(const auto& [key,unused]:value.items())require(key=="x"||key=="y"||key=="z"||key=="yaw","Mount placement supports x, y, z and yaw only (scale one)");
+    number("x",result.x,100000);number("y",result.y,100000);number("z",result.z,100000);number("yaw",result.yaw,6.2831853071795864*4);return result;}
+// Applies a placement to an entity's transform (type 1, version 2: 1 yaw, 2 x, 3 y, 4 z). Rotation matches the engine's yaw
+// convention (local +Z faces (sin yaw, cos yaw)); mover offsets and altar arrivals are object-local and turn with the object.
+void place(Json& entity,const Placement& placement){
+    if(placement.identity())return;auto& fields=entity.at("types").at("1").at("fields");
+    const double x=fields.at("2").get<double>(),z=fields.at("4").get<double>(),c=std::cos(placement.yaw),s=std::sin(placement.yaw);
+    fields["1"]=fields.at("1").get<double>()+placement.yaw;fields["2"]=placement.x+c*x+s*z;fields["3"]=placement.y+fields.at("3").get<double>();fields["4"]=placement.z-s*x+c*z;}
+// A mount's retained identities (R4 conversion and Swap): member local key -> the authored path whose persistent identity the
+// member keeps, so a converted or swapped object keeps its world-ledger state. Scene-owned; bounded.
+std::map<std::string,std::string> mount_retained(const Json& mount){
+    std::map<std::string,std::string> result;if(!mount.contains("retain")||mount["retain"].is_null())return result;const auto& value=mount["retain"];
+    require(value.is_object()&&value.size()<=64,"Mount retained identity map");for(const auto& [local,path]:value.items()){StableId::parse(local);require(path.is_string()&&!path.get<std::string>().empty()&&path.get<std::string>().size()<=1024,"Retained identity is an authored path");result.emplace(local,path.get<std::string>());}return result;}
 void patch(Json& graph,const Json& operation){
     auto op=operation.at("op").get<std::string>();auto target=operation.at("target").get<std::string>();StableId::parse(target);
     auto& entities=graph.at("entities");
@@ -32,6 +57,13 @@ void patch(Json& graph,const Json& operation){
     else if(op=="SetSpawn")entities[target]["spawn"]=operation.at("value");
     else if(op=="BindScript")entities[target]["scripts"][operation.at("binding").get<std::string>()]=operation.at("value");
     else if(op=="RemoveScript"){auto& scripts=entities[target].at("scripts");require(scripts.erase(operation.at("binding").get<std::string>())==1,"Missing script binding patch target");}
+    // Component operations (R4 instance overrides): a registered gameplay component of the target entity and one of its
+    // top-level fields. The entity's decoders validate the result; a removed component or field is an unresolved target.
+    else if(op=="SetComponentField"){auto component=operation.at("component").get<std::string>(),field=operation.at("field").get<std::string>();require(patchable_component(component),"Patch component is not overridable");
+        auto& entity=entities[target];require(entity.contains(component)&&entity[component].is_object()&&entity[component].contains(field),"Patch component field removed or unresolved; preserve source for explicit repair");entity[component][field]=operation.at("value");}
+    else if(op=="AddComponent"){auto component=operation.at("component").get<std::string>();require(patchable_component(component),"Patch component is not overridable");auto& entity=entities[target];require(!entity.contains(component)||entity[component].is_null(),"AddComponent target already has the component");require(operation.at("value").is_object(),"A component is a record");entity[component]=operation.at("value");}
+    else if(op=="RemoveComponent"){auto component=operation.at("component").get<std::string>();require(patchable_component(component),"Patch component is not overridable");require(entities[target].erase(component)==1,"RemoveComponent target has no such component");}
+    else if(op=="SetName"){require(operation.at("value").is_string()&&operation.at("value").get<std::string>().size()<=128,"Entity name patch");entities[target]["name"]=operation.at("value");}
     else throw std::runtime_error("Unsupported typed patch operation");
 }
 // An origin and a binding as SpawnPlan::serialize writes them.
@@ -48,8 +80,11 @@ struct EntityPart {
     ObjectData data;std::string record;              // the resolved scene object, and its record as World::serialize writes it
     std::string origin;std::vector<std::string> bindings; // its origin and bindings as SpawnPlan::serialize writes them
 };
-EntityPart entity_part(AssetId id,const std::string& scope,const std::string& local,Json entity,const char* layer){
-    StableId::parse(local);migrate(entity);EntityPart part;part.local=local;part.scope=scope;part.path=scope+"/"+local;part.object=persistent(part.path);
+EntityPart entity_part(AssetId id,const std::string& scope,const std::string& local,Json entity,const char* layer,const std::map<std::string,std::string>* retained=nullptr){
+    StableId::parse(local);migrate(entity);EntityPart part;part.local=local;part.scope=scope;part.path=scope+"/"+local;
+    // The authored path a member's identities derive from: its own, or the one its mount retains for it.
+    auto identity_path=[&](const std::string& key){if(retained)if(auto found=retained->find(key);found!=retained->end())return found->second;return scope+"/"+key;};
+    part.object=persistent(identity_path(local));const auto own_path=identity_path(local);
     const auto& path=part.path;const auto object=part.object;auto& plan=part.entries;
     part.native={{"id",object.text()},{"types",entity.at("types")},{"target",nullptr}};if(entity.contains("optional"))part.native["optional"]=entity["optional"];
     if(entity.contains("target") && !entity["target"].is_null())part.target=entity["target"];
@@ -58,12 +93,12 @@ EntityPart entity_part(AssetId id,const std::string& scope,const std::string& lo
     // A spawn point names the NPC definition it spawns. respawn and encounter are reserved: only "never" and no owner are accepted yet.
     if(entity.contains("spawn") && !entity["spawn"].is_null()){const auto& spawn=entity["spawn"];require(spawn.is_object()&&spawn.contains("npc")&&!entity.contains("model"),"Spawn point needs an NPC definition and no model");for(const auto& [key,value]:spawn.items())require(key=="npc"||(key=="respawn"&&value=="never")||(key=="encounter"&&(value.is_null()||value.is_string())),"Unsupported spawn point field");plan.spawns[object]=AssetId::parse(spawn["npc"].get<std::string>());
         // A spawn point that names an encounter (by its local identity in the same source) is used by it and does not spawn at Play start.
-        if(spawn.contains("encounter")&&spawn["encounter"].is_string()){StableId::parse(spawn["encounter"].get<std::string>());plan.spawn_owners[object]=persistent(scope+"/"+spawn["encounter"].get<std::string>());}}
+        if(spawn.contains("encounter")&&spawn["encounter"].is_string()){StableId::parse(spawn["encounter"].get<std::string>());plan.spawn_owners[object]=persistent(identity_path(spawn["encounter"].get<std::string>()));}}
     // Gameplay volumes: an encounter, a box of an encounter's bounds, a trigger volume. None of them is a model or a spawn point.
     if(entity.contains("encounter") && !entity["encounter"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"An encounter is its own object");decode_encounter(entity["encounter"].dump());plan.encounters[object]=entity["encounter"].dump();}
-    if(entity.contains("volume") && !entity["volume"].is_null()){const auto& volume=entity["volume"];require(volume.is_object()&&volume.size()==2&&volume.contains("encounter")&&volume["encounter"].is_string()&&volume.contains("half")&&volume["half"].is_array()&&volume["half"].size()==3&&!entity.contains("model")&&!entity.contains("spawn"),"An encounter volume names its encounter and three half extents");StableId::parse(volume["encounter"].get<std::string>());SpawnPlan::Volume made;made.encounter=persistent(scope+"/"+volume["encounter"].get<std::string>());for(unsigned axis=0;axis<3;++axis){require(volume["half"][axis].is_number(),"Encounter volume half extent type");made.half[axis]=volume["half"][axis].get<double>();require(made.half[axis]>0&&made.half[axis]<=200,"Encounter volume half extents are above 0, up to 200 m");}plan.volumes[object]=made;}
+    if(entity.contains("volume") && !entity["volume"].is_null()){const auto& volume=entity["volume"];require(volume.is_object()&&volume.size()==2&&volume.contains("encounter")&&volume["encounter"].is_string()&&volume.contains("half")&&volume["half"].is_array()&&volume["half"].size()==3&&!entity.contains("model")&&!entity.contains("spawn"),"An encounter volume names its encounter and three half extents");StableId::parse(volume["encounter"].get<std::string>());SpawnPlan::Volume made;made.encounter=persistent(identity_path(volume["encounter"].get<std::string>()));for(unsigned axis=0;axis<3;++axis){require(volume["half"][axis].is_number(),"Encounter volume half extent type");made.half[axis]=volume["half"][axis].get<double>();require(made.half[axis]>0&&made.half[axis]<=200,"Encounter volume half extents are above 0, up to 200 m");}plan.volumes[object]=made;}
     if(entity.contains("spline") && !entity["spline"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A spline is its own object");decode_spline(entity["spline"].dump());plan.splines[object]=entity["spline"].dump();}
-    if(entity.contains("spline_point") && !entity["spline_point"].is_null()){const auto& point=entity["spline_point"];require(point.is_object()&&point.size()==2&&point.contains("spline")&&point["spline"].is_string()&&point.contains("index")&&point["index"].is_number_unsigned()&&point["index"].get<std::uint64_t>()<4096&&!entity.contains("model")&&!entity.contains("spawn"),"A spline point names its spline and its place in the order");StableId::parse(point["spline"].get<std::string>());plan.spline_points[object]={persistent(scope+"/"+point["spline"].get<std::string>()),point["index"].get<unsigned>()};}
+    if(entity.contains("spline_point") && !entity["spline_point"].is_null()){const auto& point=entity["spline_point"];require(point.is_object()&&point.size()==2&&point.contains("spline")&&point["spline"].is_string()&&point.contains("index")&&point["index"].is_number_unsigned()&&point["index"].get<std::uint64_t>()<4096&&!entity.contains("model")&&!entity.contains("spawn"),"A spline point names its spline and its place in the order");StableId::parse(point["spline"].get<std::string>());plan.spline_points[object]={persistent(identity_path(point["spline"].get<std::string>())),point["index"].get<unsigned>()};}
     if(entity.contains("audio") && !entity["audio"].is_null()){const auto& audio=entity["audio"];require(audio.is_object()&&audio.size()==1&&audio.contains("profile")&&audio["profile"].is_string()&&!entity.contains("model")&&!entity.contains("spawn"),"A scene audio object names one audio profile and nothing else");const auto profile=AssetId::parse(audio["profile"].get<std::string>());require(profile!=AssetId{},"Scene audio profile identity");plan.audio_profiles[object]=profile;}
     if(entity.contains("interactable") && !entity["interactable"].is_null()){require(!entity.contains("spawn"),"A spawn point is not an interactable");decode_interactable(entity["interactable"].dump());plan.interactables[object]=entity["interactable"].dump();}
     if(entity.contains("entry") && !entity["entry"].is_null()){require(!entity.contains("model")&&!entity.contains("spawn"),"A scene entry point is its own object");decode_entry(entity["entry"].dump());plan.entries[object]=entity["entry"].dump();}
@@ -76,7 +111,7 @@ EntityPart entity_part(AssetId id,const std::string& scope,const std::string& lo
     auto scripts=entity.value("scripts",Json::object());for(const auto& [attachment,script]:scripts.items()){
         StableId::parse(attachment);auto asset=AssetId::parse(script.at("asset").get<std::string>());auto text=asset.text();text.erase(23,1);text.erase(18,1);text.erase(13,1);text.erase(8,1);
         auto config=script.value("config",Json::object());require(config.is_object(),"Binding config must be a record");
-        plan.bindings.push_back({object,{persistent(path+"/binding/"+attachment),StableId::parse(text),config.dump(),script.value("enabled",true)}});
+        plan.bindings.push_back({object,{persistent(own_path+"/binding/"+attachment),StableId::parse(text),config.dump(),script.value("enabled",true)}});
         if(script.contains("entity_refs"))part.configs.push_back({plan.bindings.size()-1,script["entity_refs"]});
     }
     return part;
@@ -138,11 +173,12 @@ struct Resolver {
         if(graph.contains("base_fingerprint"))require(graph["base_fingerprint"]==sha256(base.dump()),"Base fingerprint changed; explicit rebase required");
         for(const auto& operation:graph.value("patches",Json::array()))patch(base,operation);base["asset"]=id.text();return base;
     }return graph;}
-    void visit(AssetId id,const std::string& scope,const Json& edits,unsigned depth){
+    void visit(AssetId id,const std::string& scope,const Json& edits,unsigned depth,const Placement& placement={},const std::map<std::string,std::string>& retained={}){
         require(depth<=16 && stack.insert(id).second,"Cyclic/deep assembly composition");auto graph=definition(id);require(edits.is_array() && edits.size()<=1024,"Placement patch limit");
         for(const auto& operation:edits)patch(graph,operation);
-        for(const auto& [local,entity]:graph.at("entities").items()){
-            require(plan.origins.size()<scene_object_limit,"Assembly object limit");auto part=entity_part(id,scope,local,entity,edits.empty()?"definition":"placement patches");
+        for(const auto& [local,unused]:retained)require(graph.at("entities").contains(local),"Retained identity names a member the mounted assembly does not have");
+        for(auto [local,entity]:graph.at("entities").items()){
+            require(plan.origins.size()<scene_object_limit,"Assembly object limit");Json placed=entity;migrate(placed);place(placed,placement);auto part=entity_part(id,scope,local,std::move(placed),edits.empty()?"definition":"placement patches",retained.empty()?nullptr:&retained);
             require(paths.emplace(part.path,part.object).second,"Duplicate authored path");require(objects.insert(part.object).second,"Persistent identity collision");
             plan.origins.push_back(part.entries.origins.front());each_entry(plan,part.entries,[](auto& into,const auto& from){into.insert(from.begin(),from.end());});check_limits(plan);
             parts.push_back(std::move(part));
@@ -150,7 +186,7 @@ struct Resolver {
         if(depth==0)own=parts.size();
         auto export_records=graph.value("exports",Json::object());for(const auto& [export_id,local]:export_records.items()){StableId::parse(export_id);require(local.is_string(),"Export must address a stable local path");exports[scope+":"+export_id]=scope+"/"+local.get<std::string>();}
         auto mounts=graph.value("mounts",Json::object());require(mounts.is_object() && mounts.size()<=128,"Assembly mount limit");
-        for(const auto& [mount_id,mount]:mounts.items()){StableId::parse(mount_id);visit(AssetId::parse(mount.at("asset").get<std::string>()),scope+"/"+mount_id,mount.value("patches",Json::array()),depth+1);}
+        for(const auto& [mount_id,mount]:mounts.items()){StableId::parse(mount_id);visit(AssetId::parse(mount.at("asset").get<std::string>()),scope+"/"+mount_id,mount.value("patches",Json::array()),depth+1,placement.then(mount_placement(mount)),mount_retained(mount));}
         stack.erase(id);
     }
 };

@@ -6,7 +6,7 @@
 
 namespace darkangel::editor_app {
 inline bool native_authoring_extension(std::string_view extension){
- for(const auto* ext:{".daitem",".dacharacter",".daplayer",".danpc",".dabehavior",".damovement",".dafacemask",".dakit",".dainput",".dagraph",".daaction",".daability",".daeffect",".daattributes"})if(extension==ext)return true;
+ for(const auto* ext:{".daitem",".dacharacter",".daplayer",".danpc",".dabehavior",".damovement",".daprefab",".dafacemask",".dakit",".dainput",".dagraph",".daaction",".daability",".daeffect",".daattributes"})if(extension==ext)return true;
  return false;
 }
 inline bool reference_search(std::string_view value,std::string_view query){

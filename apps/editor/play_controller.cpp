@@ -1129,7 +1129,7 @@ darkangel::SceneLoadStatus PlayController::poll_load() {
                 load.path = find_scene(load.scene);
                 if (load.path.empty())
                     return {darkangel::SceneLoad::Failed, 0, "No scene with the identity " + load.scene.text() + " is in the project"};
-                load.document = darkangel::EditorDocument::open(load.path);
+                load.document = darkangel::EditorDocument::open(load.path, editor.prefab_links());
                 require(load.document->root() == load.scene, "The scene file names another scene");
             }
             load.step = 1;

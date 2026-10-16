@@ -1,3 +1,4 @@
+#include <fstream>
 #include "editor_controller.hpp"
 #include <nlohmann/json.hpp>
 namespace darkangel::editor_app {
@@ -24,9 +25,16 @@ void Controller::demo(){stop();World defaults(WorldDomain::Authoring);ObjectData
     Json behavior={{"schema",1},{"asset",script.text()},{"kind","script"},{"domain","presentation"},{"source","--!strict\nreturn {create=function(ctx:Context,config:BehaviorConfig):BehaviorState return {angle=ctx:get_yaw()} end,update=function(ctx:Context,state:BehaviorState,config:BehaviorConfig,dt:number) state.angle += config.speed*dt;ctx:set_yaw(state.angle) end}"}};
     document=std::make_unique<EditorDocument>(root,StableId{0,1},AssemblySources{{root,scene.dump()},{assembly,definition.dump()},{script,behavior.dump()}});selected=document->plan().origins.front().object;log("Created two linked Spinner placements; authoring is idle.");
 }
-void Controller::open(const std::filesystem::path& file){auto candidate=EditorDocument::open(file);candidate->scripts();for(const auto& [object,asset]:candidate->plan().models){if(prepare_model)prepare_model(asset);else if(asset!=model)throw std::runtime_error("Scene requires a model outside the loaded cooked registry");}stop();document=std::move(candidate);path=file;selected=document->plan().origins.empty()?StableId{}:document->plan().origins.front().object;log("Opened "+file.string());}
+EditorDocument::LinkSource Controller::prefab_links() const{
+    return [this](AssetId id)->std::optional<std::string>{if(!assets)return std::nullopt;for(const auto& asset:asset_inventory)if(asset.id==id&&std::filesystem::path(asset.path).extension()==".daprefab"){std::ifstream input(assets->source_root()/asset.path,std::ios::binary);if(!input)return std::nullopt;return std::string(std::istreambuf_iterator<char>(input),{});}return std::nullopt;};}
+bool Controller::refresh_prefab_links(){
+    if(!document)return false;auto source=prefab_links();AssemblySources changed;
+    for(const auto& [id,text]:document->links())if(auto published=source(id);published&&*published!=text)changed.emplace(id,*published);
+    if(changed.empty())return false;
+    try{document->link(changed);log("Scene refreshed from the saved prefab definitions.");return true;}catch(const std::exception& error){log(std::string("The scene does not resolve against the saved prefab; it keeps the previous definition until repaired: ")+error.what(),ConsoleSeverity::Error);return false;}}
+void Controller::open(const std::filesystem::path& file){auto candidate=EditorDocument::open(file,prefab_links());candidate->scripts();for(const auto& [object,asset]:candidate->plan().models){if(prepare_model)prepare_model(asset);else if(asset!=model)throw std::runtime_error("Scene requires a model outside the loaded cooked registry");}stop();document=std::move(candidate);path=file;selected=document->plan().origins.empty()?StableId{}:document->plan().origins.front().object;log("Opened "+file.string());}
 void Controller::save(const std::filesystem::path& file){document->save(file);path=file;log("Saved scene manifest and stable placement records.");}
-void Controller::save_gameplay(){if(preview.active())throw std::runtime_error("Stop Play before saving gameplay");if(!assets)throw std::runtime_error("Open a source mount before saving gameplay");auto roots=authoring_roots?authoring_roots():std::vector<AssetId>{};authoring.save_all(*assets,roots);}
+void Controller::save_gameplay(){if(preview.active())throw std::runtime_error("Stop Play before saving gameplay");if(!assets)throw std::runtime_error("Open a source mount before saving gameplay");auto roots=authoring_roots?authoring_roots():std::vector<AssetId>{};authoring.save_all(*assets,roots);refresh_prefab_links();}
 Controller::CookSweep Controller::cook_pending(unsigned budget){
     CookSweep sweep;if(!assets||preview.active())return sweep;bool changed=false;
     for(const auto& asset:asset_inventory){if(asset.generation)continue;if(auto draft=authoring.drafts.find(asset.id);draft!=authoring.drafts.end()&&draft->second.pending)continue;

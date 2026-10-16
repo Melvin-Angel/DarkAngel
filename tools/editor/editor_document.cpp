@@ -8,6 +8,9 @@
 #include <nlohmann/json.hpp>
 #include <Windows.h>
 #include <fstream>
+#include <cmath>
+#include <array>
+#include <set>
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -37,8 +40,10 @@ struct EditorDocument::Impl {
     // to restore when the step is applied (undone or redone).
     struct History {Records before,after;std::map<AssetId,std::string> sources_before,sources_after;DocumentHistoryHead head;};
     DocumentHistoryHead head;std::map<std::uint64_t,Candidate> prepared;std::vector<History> undo,redo;
-    Impl(AssetId id,StableId p,AssemblySources s,std::size_t l):root(id),placement(p),limit(l){require(l>0 && l<=1024,"Document history limit");
-        validate_native_sources(s);assembly=std::make_unique<SceneAssembly>(root,placement,s);set_root(s.at(root));s.erase(root);for(const auto& [asset,text]:s)set_other(asset,text);others=std::move(s);rebuild_world();saved=fingerprint();}
+    AssemblySources linked;
+    Impl(AssetId id,StableId p,AssemblySources s,std::size_t l,AssemblySources links):root(id),placement(p),limit(l),linked(std::move(links)){require(l>0 && l<=1024,"Document history limit");
+        for(const auto& [asset,text]:linked)require(!s.contains(asset),"A source is either owned by the scene or linked, not both");
+        validate_native_sources(s);{auto all=s;all.insert(linked.begin(),linked.end());assembly=std::make_unique<SceneAssembly>(root,placement,all);}set_root(s.at(root));s.erase(root);for(const auto& [asset,text]:s)set_other(asset,text);others=std::move(s);rebuild_world();saved=fingerprint();}
     static std::string key(const std::string& local){return Json(local).dump();}
     void set_root(std::string_view text){auto graph=parse(text);entities.clear();entity_bytes=0;for(const auto& [local,entity]:graph.at("entities").items()){auto record=entity.dump();entity_bytes+=key(local).size()+1+record.size();entities.emplace(local,std::move(record));}
         graph.erase("entities");header=std::move(graph);Json before=Json::object(),after=Json::object();for(auto it=header.begin();it!=header.end();++it)(it.key()<"entities"?before:after)[it.key()]=it.value();
@@ -51,7 +56,7 @@ struct EditorDocument::Impl {
     // The root source as canonical JSON text, the same as parsing it and dumping it again. Assembled once per revision.
     mutable std::uint64_t assembled=UINT64_MAX;mutable std::string root_cache;
     const std::string& root_text() const{if(assembled!=revision){std::string text;text.reserve(root_bytes(entity_bytes,entities.size()));text+=prefix;bool first=true;for(const auto& [local,record]:entities){if(!first)text+=",";first=false;text+=key(local);text+=":";text+=record;}text+=suffix;root_cache=std::move(text);assembled=revision;}return root_cache;}
-    AssemblySources sources() const{auto all=others;all[root]=root_text();return all;}
+    AssemblySources sources() const{auto all=others;all.insert(linked.begin(),linked.end());all[root]=root_text();return all;}
     // The bytes of the whole closure as one JSON record of canonical sources, the document's byte bound, with some sources resized.
     std::size_t closure_bytes(std::size_t root_size,const std::map<AssetId,std::size_t>& resized={}) const{std::size_t bytes=2+root.text().size()+3+root_size;
         for(const auto& [asset,known]:canonical){auto size=resized.contains(asset)?resized.at(asset):known.bytes;bytes+=1+asset.text().size()+3+size;}return bytes;}
@@ -73,6 +78,7 @@ struct EditorDocument::Impl {
         auto staged=no_op?nullptr:assembly->stage(records);return add({std::move(records),std::move(staged),{},nullptr,revision,std::move(summary),no_op});}
     // An edit of whole sources (canonical text): every source is validated and the whole scene resolved again.
     PreparedDocumentEdit stage_sources(std::map<AssetId,std::string> changed,std::string summary){require(prepared.size()<limit,"Prepared document queue full");
+        for(const auto& [asset,text]:changed)require(!linked.contains(asset),"A linked prefab is edited in the Prefabs workspace, not through the scene");
         auto candidate=sources();std::map<AssetId,std::size_t> resized;auto root_size=root_text().size();bool no_op=true;
         for(const auto& [asset,text]:changed){if(asset==root){root_size=text.size();no_op=no_op&&text==root_text();}else{resized[asset]=text.size();no_op=no_op&&sha256(text)==canonical.at(asset).digest;}candidate[asset]=text;}
         require(closure_bytes(root_size,resized)<=scene_document_byte_limit,"Document closure byte limit");validate_native_sources(candidate);
@@ -91,11 +97,20 @@ struct EditorDocument::Impl {
         for(const auto& [local,record]:after){auto old=entities.find(local);h.before[local]=old==entities.end()?std::nullopt:std::optional<std::string>(old->second);}
         for(const auto& [asset,text]:sources_after)h.sources_before[asset]=asset==root?root_text():others.at(asset);return h;}
 };
-EditorDocument::EditorDocument(AssetId root,StableId placement,AssemblySources sources,std::size_t limit):impl_(std::make_unique<Impl>(root,placement,std::move(sources),limit)){}
+EditorDocument::EditorDocument(AssetId root,StableId placement,AssemblySources sources,std::size_t limit,AssemblySources linked):impl_(std::make_unique<Impl>(root,placement,std::move(sources),limit,std::move(linked))){}
+const AssemblySources& EditorDocument::links() const{return impl_->linked;}
+std::vector<AssetId> EditorDocument::linked_references() const{auto& p=*impl_;std::set<AssetId> found;
+    auto scan=[&](const std::string& text){auto graph=parse(text);if(!graph.is_object()||!graph.contains("mounts")||!graph["mounts"].is_object())return;const auto mounts=graph["mounts"];for(const auto& [local,mount]:mounts.items()){if(!mount.is_object()||!mount.contains("asset")||!mount["asset"].is_string())continue;auto asset=AssetId::parse(mount["asset"].get<std::string>());if(p.linked.contains(asset))found.insert(asset);}};
+    scan(p.root_text());for(const auto& [asset,text]:p.others)scan(text);return {found.begin(),found.end()};}
+void EditorDocument::link(const AssemblySources& changed){auto& p=*impl_;p.check(p.revision);
+    for(const auto& [asset,text]:changed)require(asset!=p.root&&!p.others.contains(asset),"A source is either owned by the scene or linked, not both");
+    auto next=p.linked;for(const auto& [asset,text]:changed)next[asset]=text;auto all=p.others;all.insert(next.begin(),next.end());all[p.root]=p.root_text();
+    auto assembly=std::make_unique<SceneAssembly>(p.root,p.placement,all);p.linked=std::move(next);p.assembly=std::move(assembly);p.rebuild_world();p.prepared.clear();++p.revision;}
 EditorDocument::~EditorDocument()=default;
 World& EditorDocument::world(){impl_->world->domain();return *impl_->world;}
 const SpawnPlan& EditorDocument::plan() const{impl_->world->domain();return impl_->assembly->plan();}
 AssetId EditorDocument::root() const{impl_->world->domain();return impl_->root;}
+StableId EditorDocument::placement() const{return impl_->placement;}
 std::uint64_t EditorDocument::revision() const{impl_->world->domain();return impl_->revision;}
 bool EditorDocument::dirty() const{impl_->world->domain();return impl_->saved!=impl_->fingerprint();}
 std::string EditorDocument::source(AssetId id) const{impl_->world->domain();return id==impl_->root?impl_->root_text():impl_->others.at(id);}
@@ -112,13 +127,29 @@ PreparedDocumentEdit EditorDocument::prepare(std::uint64_t revision,std::span<co
             it->second["types"][std::to_string(change.type)]["fields"][std::to_string(change.property)]=change.value;}
         Impl::Records records;for(const auto& [local,record]:edited)records[local]=record.dump();return p.stage_records(records,summary);}
     std::map<AssetId,Json> graphs;
+    // Moving a member of a linked prefab instance (R4) moves the instance: its mount placement takes the requested position
+    // and yaw, and no transform override is written. Per mount: the moved object and its requested yaw, x, y and z.
+    std::map<std::string,std::pair<StableId,std::array<double,4>>> moved;
     for(std::size_t index=0;index<changes.size();++index){const auto& change=changes[index];const auto& [origin,path,slash,asset]=targets[index];auto found=graphs.find(asset);if(found==graphs.end())found=graphs.emplace(asset,parse(asset==p.root?p.root_text():p.others.at(asset))).first;auto& graph=found->second;
+        if(scope==EditScope::Placement&&slash!=path.npos&&path.find('/',slash+1)==path.npos&&change.type==1&&change.property>=1&&change.property<=4&&p.linked.contains(origin->definition)){
+            auto mount=path.substr(0,slash);auto at=moved.find(mount);
+            if(at==moved.end()){const auto t=p.world->read(p.world->find(origin->object)).transform;at=moved.emplace(mount,std::pair{origin->object,std::array<double,4>{t.yaw,t.x,t.y,t.z}}).first;}
+            require(at->second.first==origin->object,"Move one member of a prefab instance at a time");at->second.second[change.property-1]=change.value;continue;}
         if(scope==EditScope::Definition || slash==path.npos){auto local=path.substr(path.rfind('/')==path.npos?0:path.rfind('/')+1);auto& record=graph.at("entities").at(local);record["types"][std::to_string(change.type)]["fields"][std::to_string(change.property)]=change.value;}
         else{require(path.find('/',slash+1)==path.npos,"Nested placement edit requires explicit scoped mount document");auto mount=path.substr(0,slash),local=path.substr(slash+1);auto& patches=graph.at("mounts").at(mount)["patches"];if(patches.is_null())patches=Json::array();
             bool replaced=false;for(auto& patch:patches)if(patch.value("op","")=="SetProperty" && patch.at("target")==local && patch.at("type")==change.type && patch.at("property")==change.property){patch["value"]=change.value;replaced=true;}
             if(!replaced)patches.push_back({{"op","SetProperty"},{"target",local},{"type",change.type},{"property",change.property},{"value",change.value}});
         }
-    }std::map<AssetId,std::string> changed;for(const auto& [asset,graph]:graphs)changed[asset]=graph.dump();return p.stage_sources(std::move(changed),summary);
+    }
+    for(const auto& [mount_id,request]:moved){auto& root_graph=graphs.at(p.root);auto& mount=root_graph.at("mounts").at(mount_id);
+        // The member's pose inside the instance, from its current world pose and the current placement, then the placement
+        // that puts it at the requested pose: P' = W' * L^-1 with L = P^-1 * W (yaw about +Y, the resolver's convention).
+        const auto now=p.world->read(p.world->find(request.first)).transform;const auto old=mount.value("placement",Json::object());
+        const double px=old.value("x",0.),py=old.value("y",0.),pz=old.value("z",0.),pyaw=old.value("yaw",0.);
+        const double dx=now.x-px,dz=now.z-pz,c=std::cos(pyaw),s=std::sin(pyaw);const double lx=c*dx-s*dz,lz=s*dx+c*dz,ly=now.y-py,lyaw=now.yaw-pyaw;
+        const auto& [yaw,x,y,z]=request.second;const double nyaw=yaw-lyaw,nc=std::cos(nyaw),ns=std::sin(nyaw);
+        mount["placement"]={{"x",x-(nc*lx+ns*lz)},{"y",y-ly},{"z",z-(-ns*lx+nc*lz)},{"yaw",nyaw}};}
+    std::map<AssetId,std::string> changed;for(const auto& [asset,graph]:graphs)changed[asset]=graph.dump();return p.stage_sources(std::move(changed),summary);
 }
 PreparedDocumentEdit EditorDocument::prepare_source(std::uint64_t revision,AssetId asset,std::string_view source){auto& p=*impl_;p.check(revision);require(asset==p.root || p.others.contains(asset),"Source asset not owned by document");auto graph=parse(source);const std::string summary="Structural/source transaction; preview restart required";
     // A new root source that changes only entities is a record edit of those entities.
@@ -145,13 +176,16 @@ void EditorDocument::save(const std::filesystem::path& path){auto& p=*impl_;p.ch
     Json record={{"header",p.header},{"entities",Json::object()},{"mounts",Json::object()}};record["header"].erase("mounts");for(const auto& [local,entity]:p.entities)record["entities"][local]=store(entity);
     auto mounts=p.header.value("mounts",Json::object());for(const auto& [local,mount]:mounts.items())record["mounts"][local]=store(mount.dump());bundle["assets"][p.root.text()]=record;
     for(const auto& [id,text]:p.others){auto graph=parse(text);bundle["assets"][id.text()]={{graph.value("kind","")=="skeleton"?"source":"assembly",store(graph.dump())}};}
+    // Linked prefabs are named, never copied: opening the scene resolves them from the project's published sources.
+    if(auto linked=linked_references();!linked.empty()){bundle["links"]=Json::array();for(auto asset:linked)bundle["links"].push_back(asset.text());}
     auto text=bundle.dump(2)+"\n";require(text.size()<=scene_document_byte_limit,"Document manifest limit");auto pending=path;pending+=".pending";{std::ofstream out(pending,std::ios::binary);out<<text;out.close();require(!out.fail(),"Document journal write failed");}require(MoveFileExW(pending.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0,"Document head publication failed; pending manifest retained");p.saved=p.fingerprint();
 }
-std::unique_ptr<EditorDocument> EditorDocument::open(const std::filesystem::path& path){auto root=parse(read(path));AssemblySources sources;
+std::unique_ptr<EditorDocument> EditorDocument::open(const std::filesystem::path& path,const LinkSource& resolve){auto root=parse(read(path));AssemblySources sources,linked;
+    if(root.contains("links")){require(root["links"].is_array()&&root["links"].size()<=128,"Document link list");for(const auto& value:root["links"]){auto asset=AssetId::parse(value.get<std::string>());std::optional<std::string> text;if(resolve)text=resolve(asset);require(text.has_value(),"A linked prefab of this scene is missing from the project");linked.emplace(asset,std::move(*text));}}
     if(root.at("schema")==1){for(const auto& [id,value]:root.at("sources").items())sources.emplace(AssetId::parse(id),value.dump());}
     else{require(root.at("schema")==2,"Document manifest schema mismatch");auto folder=root.at("records").get<std::string>();require(!folder.empty() && folder.find_first_of("/\\:")==folder.npos && folder!=".." && folder.ends_with(".records"),"Unsafe document records directory");
         auto load=[&](const Json& digest){auto hash=digest.get<std::string>();require(hash.size()==64 && hash.find_first_not_of("0123456789abcdef")==hash.npos,"Invalid document record hash");auto text=read(path.parent_path()/folder/(hash+".json"));require(sha256(text)==hash,"Partial/corrupt document submission");return parse(text);};
         for(const auto& [id,record]:root.at("assets").items()){Json graph;if(record.contains("source"))graph=load(record.at("source"));else if(record.contains("assembly"))graph=load(record.at("assembly"));else{graph=record.at("header");graph["entities"]=Json::object();graph["mounts"]=Json::object();for(const auto& [local,digest]:record.at("entities").items())graph["entities"][local]=load(digest);for(const auto& [local,digest]:record.at("mounts").items())graph["mounts"][local]=load(digest);}sources.emplace(AssetId::parse(id),graph.dump());}
-    }return std::make_unique<EditorDocument>(AssetId::parse(root.at("root").get<std::string>()),StableId::parse(root.at("placement").get<std::string>()),std::move(sources));
+    }return std::make_unique<EditorDocument>(AssetId::parse(root.at("root").get<std::string>()),StableId::parse(root.at("placement").get<std::string>()),std::move(sources),128,std::move(linked));
 }
 }

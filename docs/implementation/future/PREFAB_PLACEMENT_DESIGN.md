@@ -1,5 +1,7 @@
 # Prefab placement, quick finding and instance swapping
 
+**16 October 2026: implemented for single-object prefabs (R4).** See the [R4 report](../current/PREFAB_AUTHORING_REPORT.md) for what shipped, the decisions taken and what remains for the later increment.
+
 **Scheduling: Planned, complete R4 (C + F)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after R3. Adopt the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md). P0–P4 are internal increments of one usable prefab authoring/publication milestone; all are required to close R4.
 
 15 October 2026. **Proposed design; unimplemented.** Companion to the [14 October prefab proposal](../PREFAB_WORKFLOW_PLAN.md), which supplies the detailed source ownership/publication design. Start/resume through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md).

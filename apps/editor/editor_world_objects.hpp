@@ -14,6 +14,11 @@ bool draw_world_object_components(Controller&,StableId object);
 // Placeable world objects. Gameplay place-item numbers: 9 pickup, 10 altar, 11 door or gate, 12 movable platform.
 constexpr int place_pickup=9,place_altar=10,place_door=11,place_platform=12;
 StableId place_world_object(Controller&,int gameplay,const Transform& at);
+// R4: Place item for a saved prefab, and placing one as a linked instance (its first member is selected and returned).
+constexpr int place_prefab_item=20;
+StableId place_prefab_instance(Controller&,AssetId prefab,const Transform& at);
+// Defaults of the world-object components an instance or a prefab can add (the same values the Place items use).
+nlohmann::json world_object_defaults(Controller&,const std::string& component);
 // The Encounter section's persistence: when a completed encounter comes back (a boss: never).
 bool encounter_policy_field(nlohmann::json& encounter);
 }

@@ -77,7 +77,7 @@ void Shell::toggle_viewport_maximize(){
 }
 namespace {
 struct Destination{const char* name;Workspace workspace;};
-constexpr Destination destinations[]={{"Scene / Level Design",Workspace::Scene},{"Assets",Workspace::Assets},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio},{"Items",Workspace::Items},{"Game",Workspace::Game}};
+constexpr Destination destinations[]={{"Scene / Level Design",Workspace::Scene},{"Assets",Workspace::Assets},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio},{"Items",Workspace::Items},{"Game",Workspace::Game},{"Prefabs",Workspace::Prefabs}};
 }
 void Shell::switch_tab(Workspace target){
     if(workspace==target)return;
@@ -107,7 +107,7 @@ void Shell::draw_workspace_navigation(){
             // Selection also follows Open/Edit routes from other workflows.
             const auto flags=external&&requested==target.workspace?ImGuiTabItemFlags_SetSelected:ImGuiTabItemFlags_None;
             const bool open=ImGui::BeginTabItem(target.name,nullptr,flags);
-            if(ImGui::IsItemHovered()){const auto index=static_cast<std::size_t>(&target-destinations);if(index<10)ImGui::SetTooltip("Ctrl+%zu",(index+1)%10);else ImGui::SetTooltip("Ctrl+G");}
+            if(ImGui::IsItemHovered()){const auto index=static_cast<std::size_t>(&target-destinations);if(index<10)ImGui::SetTooltip("Ctrl+%zu",(index+1)%10);else if(target.workspace==Workspace::Game)ImGui::SetTooltip("Ctrl+G");else ImGui::SetTooltip("Ctrl+PageUp / Ctrl+PageDown");}
             if(open){if(!external||ImGui::IsItemActivated()||((requested==Workspace::Tools||requested==Workspace::Settings)&&navigation_workspace!=target.workspace))switch_tab(target.workspace);ImGui::EndTabItem();}
         }ImGui::EndTabBar();
         if(workspace!=Workspace::Tools&&workspace!=Workspace::Settings)navigation_workspace=workspace;

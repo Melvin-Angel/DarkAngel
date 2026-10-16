@@ -1,4 +1,5 @@
 #pragma once
+#include <set>
 #include <functional>
 #include <darkangel/camera.hpp>
 #include <optional>
@@ -11,7 +12,7 @@
 #include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items};
+enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items,Prefabs};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation,Saves};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -162,6 +163,15 @@ public:
     // The Audio tab: supplied by the host, which owns the audio service.
     std::function<void()> draw_audio_panel;
     void draw_items(Controller&,unsigned,unsigned,float);
+    // R4 Prefabs workspace (prefab_workspace.cpp): browse, create and edit prefab definitions (.daprefab). Its drafts are the
+    // ordinary native authoring drafts, saved by Save gameplay changes; saved definitions refresh the scenes that link them.
+    void draw_prefabs(Controller&,unsigned,unsigned,float);
+    // Scene Inspector section for a selected member of a linked prefab instance: placement, overrides, Revert, Apply
+    // Selected, Swap, Duplicate, Delete and Open Prefab. True when it drew the object (the ordinary component forms are skipped).
+    bool draw_prefab_instance(Controller&,StableId object);
+    // Create Prefab from Selection for one of the scene's own objects.
+    void draw_create_prefab(Controller&,StableId object);
+    AssetId prefab_selection,prefab_swap_target;char prefab_name[65]{"NewPrefab"},prefab_filter[65]{};bool prefab_swap_defaults{};std::set<std::string> prefab_override_selection;
     AssetId item_selection,item_create_mask;int item_create_kind{};char item_name[129]{"New item"},item_filter[129]{};
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).

@@ -5,6 +5,7 @@
 #include <darkangel/scene_travel.hpp>
 #include <commdlg.h>
 #include "editor_ui.hpp"
+#include "prefab_commands.hpp"
 #include "editor_theme.hpp"
 #include "reference_picker.hpp"
 #include "editor_world_objects.hpp"
@@ -46,7 +47,7 @@ void set_component(Controller& editor,StableId object,const char* key,nlohmann::
 std::vector<Shell::TravelScene> list_travel_scenes(const Controller& editor){
     std::vector<Shell::TravelScene> found;if(!editor.assets)return found;const auto root=editor.assets->source_root();std::error_code failed;
     for(std::filesystem::recursive_directory_iterator file(root,failed),end;!failed&&file!=end;file.increment(failed)){if(!file->is_regular_file()||file->path().extension()!=".dascene")continue;
-        try{const auto document=EditorDocument::open(file->path());Shell::TravelScene scene;scene.id=document->root();scene.path=std::filesystem::relative(file->path(),root).generic_string();for(const auto& [entry,json]:document->plan().entries){std::string label=decode_entry(json).name;for(const auto& origin:document->plan().origins)if(origin.object==entry)label=origin.name+" ("+label+")";scene.entries.emplace_back(entry,label);}found.push_back(std::move(scene));}catch(const std::exception&){}}
+        try{const auto document=EditorDocument::open(file->path(),editor.prefab_links());Shell::TravelScene scene;scene.id=document->root();scene.path=std::filesystem::relative(file->path(),root).generic_string();for(const auto& [entry,json]:document->plan().entries){std::string label=decode_entry(json).name;for(const auto& origin:document->plan().origins)if(origin.object==entry)label=origin.name+" ("+label+")";scene.entries.emplace_back(entry,label);}found.push_back(std::move(scene));}catch(const std::exception&){}}
     std::sort(found.begin(),found.end(),[](const auto& a,const auto& b){return a.path<b.path;});return found;
 }
 std::string object_name(const Controller& editor,StableId object){for(const auto& origin:editor.document->plan().origins)if(origin.object==object)return origin.name;return "(missing)";}
@@ -158,6 +159,7 @@ void Shell::refresh_place_items(Controller& editor){
     place_items.push_back({{},"Encounter","Gameplay",false,1});place_items.push_back({{},"Encounter volume","Gameplay",false,2});place_items.push_back({{},"Trigger volume","Gameplay",false,3});place_items.push_back({{},"Interactable","Gameplay",false,4});place_items.push_back({{},"Spline","Gameplay",false,5});place_items.push_back({{},"Spline point","Gameplay",false,6});place_items.push_back({{},"Scene entry point","Gameplay",false,7});place_items.push_back({{},"Scene transition","Gameplay",false,8});place_items.push_back({{},"Item pickup","Gameplay",false,place_pickup});place_items.push_back({{},"Altar","Gameplay",false,place_altar});place_items.push_back({{},"Door or gate","Gameplay",false,place_door});place_items.push_back({{},"Movable platform","Gameplay",false,place_platform});
     for(const auto& asset:editor.asset_inventory){const std::filesystem::path path(asset.path);const auto extension=path.extension().string();
         if(extension==".danpc"){place_items.push_back({asset.id,path.stem().string(),"NPCs",true});continue;}
+        if(extension==".daprefab"){place_items.push_back({asset.id,path.stem().string(),"Prefabs",false,place_prefab_item});continue;}
         if(extension!=".gltf"&&extension!=".glb")continue;
         std::ifstream sidecar(editor.assets->source_root()/(asset.path+".daimport"));if(!sidecar)continue;
         try{if(nlohmann::json::parse(sidecar).value("importer",std::string())!="static-gltf-v1")continue;}catch(const std::exception&){continue;}
@@ -183,6 +185,7 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
     if(item.gameplay==7){placed=add_object(editor,{{"name","Entry point"},{"entry",{{"name","Entry"}}}},at,"Placed a scene entry point.");editor.selected=placed;return placed;}
     if(item.gameplay==8){placed=add_object(editor,{{"name","Scene transition"},{"transition",{{"scene",editor.document->root().text()},{"activation","enter"},{"half",nlohmann::json::array({2.0,2.0,1.0})}}}},at,"Placed a scene transition trigger.");editor.selected=placed;return placed;}
     if(item.gameplay>=place_pickup&&item.gameplay<=place_platform)return place_world_object(editor,item.gameplay,at);
+    if(item.gameplay==place_prefab_item)return place_prefab_instance(editor,item.id,at);
     if(item.gameplay==4){placed=add_object(editor,{{"name","Interactable"},{"interactable",{{"prompt","Use"},{"event","object.used"},{"radius",2.0},{"once",true}}}},at,"Placed an interactable.");editor.selected=placed;return placed;}
     if(item.gameplay==3){placed=add_object(editor,{{"name","Trigger volume"},{"trigger",{{"event","trigger.entered"},{"half",nlohmann::json::array({2.0,2.0,2.0})},{"once",true}}}},at,"Placed a trigger volume.");editor.selected=placed;return placed;}
     if(item.npc)placed=add_object(editor,{{"name",item.name+" spawn"},{"spawn",{{"npc",item.id.text()}}}},at,"Placed an NPC spawn point.");
@@ -196,6 +199,8 @@ StableId Shell::place(Controller& editor,const PlaceItem& item,double x,double z
 }
 void Shell::remove_object(Controller& editor,StableId object){
     if(editor.preview.active())throw std::runtime_error("Stop Play before deleting objects");
+    // Deleting a member of a linked prefab instance deletes the instance: one mount, one Undo step.
+    if(auto instance=prefab_instance_of(*editor.document,object)){delete_instance(*editor.document,instance->mount);editor.log("Deleted the prefab instance. Undo brings it back.");if(editor.selected==object)editor.selected=editor.document->plan().origins.empty()?StableId{}:editor.document->plan().origins.front().object;return;}
     const auto local=object_local(editor,object);const auto name=own_entity(editor,local).value("name",local);
     commit_entity(editor,local,nullptr,("Deleted "+name+". Undo brings it back.").c_str());if(editor.selected==object)editor.selected=editor.document->plan().origins.empty()?StableId{}:editor.document->plan().origins.front().object;
 }
@@ -218,7 +223,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     const auto* focused_window=ImGui::GetCurrentContext()->NavWindow;
     const auto* mask_window=ImGui::FindWindowByName("Mask Editor");
     const bool mask_owner=mask_editor!=AssetId{}&&focused_window&&mask_window&&focused_window->RootWindow==mask_window->RootWindow;
-    const bool native_owner=mask_owner||workspace==Workspace::Character||workspace==Workspace::Player||workspace==Workspace::Npc||workspace==Workspace::Ability||workspace==Workspace::Animation||workspace==Workspace::Items||(workspace==Workspace::Tools&&(tool==ToolView::AuthoringHistory||tool==ToolView::InputBindings));
+    const bool native_owner=mask_owner||workspace==Workspace::Character||workspace==Workspace::Player||workspace==Workspace::Npc||workspace==Workspace::Ability||workspace==Workspace::Animation||workspace==Workspace::Items||workspace==Workspace::Prefabs||(workspace==Workspace::Tools&&(tool==ToolView::AuthoringHistory||tool==ToolView::InputBindings));
     const bool scene_owner=!native_owner&&(workspace==Workspace::Scene||(workspace==Workspace::Tools&&tool==ToolView::ScriptSource));
     if((native_owner||scene_owner)&&shortcuts.KeyCtrl&&!shortcuts.KeyAlt&&!shortcuts.WantTextInput&&!ImGui::IsAnyItemActive()&&!dragging&&!composer_dragging&&!editor.preview.active()&&!ImGui::IsPopupOpen(nullptr,ImGuiPopupFlags_AnyPopupId)){
         const bool undo=ImGui::IsKeyPressed(ImGuiKey_Z,false)&&!shortcuts.KeyShift;
@@ -244,6 +249,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     if(workspace==Workspace::Assets){controls_focus=false;ImGui::SetNextWindowPos({0,workspace_top});ImGui::SetNextWindowSize({float(width),float(height)-workspace_top});ImGui::Begin("Assets workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);draw_assets(editor,true);ImGui::End();draw_import(editor);return area;}
     // Audio: the host's panel fills the workspace.
     if(workspace==Workspace::Items){controls_focus=false;draw_items(editor,width,height,workspace_top);return area;}
+    if(workspace==Workspace::Prefabs){controls_focus=false;draw_prefabs(editor,width,height,workspace_top);return area;}
     if(workspace==Workspace::Audio){controls_focus=false;ImGui::SetNextWindowPos({0,workspace_top});ImGui::SetNextWindowSize({float(width),float(height)-workspace_top});ImGui::Begin("Audio workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
         if(draw_audio_panel)draw_audio_panel();else ImGui::TextDisabled("Audio needs the project's sources (start the editor with --sources) and a build with the audio library.");ImGui::End();return area;}
     // VFX: the host's effect panel on the left, the effect preview (the scene render target) filling the rest.
@@ -288,7 +294,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
             ImGui::TextWrapped("Play spawns this NPC here with its own kit, attributes and behaviour. The object's Health is replaced by the NPC's.");ImGui::SetNextItemWidth(-1);
             if(ImGui::BeginCombo("##spawn-npc",npc_label(editor,spawn->second).c_str())){for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".danpc"&&ImGui::Selectable(std::filesystem::path(asset.path).stem().string().c_str(),asset.id==spawn->second)&&asset.id!=spawn->second){const auto point=object.id;const auto npc=asset.id;action(editor,[&]{set_spawn_npc(editor,point,npc);});break;}ImGui::EndCombo();}reference_routes(editor,spawn->second,ImGui::IsItemHovered());
             ImGui::TextDisabled("Respawn: never");}
-        draw_components(*this,editor,object.id);
+        if(!draw_prefab_instance(editor,object.id)){draw_components(*this,editor,object.id);draw_create_prefab(editor,object.id);}
         if(ImGui::Button("Delete object"))remove_request=object.id;ImGui::SameLine();
         if(ImGui::Button("Undo"))action(editor,[&]{editor.document->undo(editor.document->revision());});ImGui::SameLine();if(ImGui::Button("Redo"))action(editor,[&]{editor.document->redo(editor.document->revision());});ImGui::EndDisabled();
         if(ImGui::CollapsingHeader("Advanced / Debug")){

@@ -1,5 +1,7 @@
 # Prefab workflow proposal
 
+**16 October 2026: implemented for single-object prefabs (R4).** See the [R4 report](current/PREFAB_AUTHORING_REPORT.md) for what shipped, the decisions taken and what remains for the later increment.
+
 **Scheduling update, 15 October 2026: Planned, complete R4 (C + F)** in the [main roadmap](../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026). Refactor and agreed scene-scale implementation are complete except explicit deferrals. Keep this architecture proposal and its acceptance criteria; the [placement/swap design](future/PREFAB_PLACEMENT_DESIGN.md) supplies compatible Swap and P0–P4 sequencing. Apply Selected and identity-preserving conversion are required for R4 completion. Adopt the [UX standards](future/EDITOR_UX_OVERHAUL_PLAN.md). Source findings below are dated research, not fresh verification.
 
 Research and architecture inspection: 14 October 2026. Status: proposal only; no prefab implementation or new verification is claimed. This complements PREFABS_AND_COMPONENTS_TODO.md. It does not change the refactor prompt, approved runtime ownership, or milestone status. Claude's exercise extraction and verification remain separate work.

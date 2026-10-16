@@ -14,6 +14,11 @@ public:
     void open(const std::filesystem::path&);
     void save(const std::filesystem::path&);
     void save_gameplay();
+    // R4 prefabs: the published source of a linked prefab, read from the project source mount by AssetID, for opening scenes.
+    EditorDocument::LinkSource prefab_links() const;
+    // Resolves the open scene against the currently published prefab sources it links (after a prefab Save). Returns
+    // whether anything changed; a scene that no longer resolves keeps its previous definitions and logs why.
+    bool refresh_prefab_links();
     // Background cooking: project sources this cache has not cooked yet are cooked a few at a time while the editor is
     // idle, so anything copied or imported into the project is ready without a Play preparation. A source that fails
     // is reported once and tried again only after its file changes. Returns how many sources are still waiting.
