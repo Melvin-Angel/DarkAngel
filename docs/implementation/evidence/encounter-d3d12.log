@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
-[39mViewport foreground pixels=411112 capture=C:\DarkAngel\docs\implementation\evidence\encounter-d3d12.png
+[39mViewport foreground pixels=412132 capture=C:\DarkAngel\docs\implementation\evidence\encounter-d3d12.png
 Editor encounter fired=1 spawned=2 alive=2 wave=1 actors=2 volumes_drawn=2 player_z=9.66667 events=play.started,gate.entered,gate.fight_started hud_target=Royal Guard readouts=2
 DarkAngel editor rendered 200 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

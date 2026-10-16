@@ -13,15 +13,15 @@
   "client": "readiness=4 revision=8 player=1 collision=1 motors=3 corrections=1 public=3 frames=20 coherent=1 paired=1",
   "console": [
     "Created two linked Spinner placements; authoring is idle.",
-    "Opened C:\\DarkAngel\\.cache\\m8-slice-4305d507\\s\\royal_district\\RoyalTraining.dascene",
+    "Opened C:\\DarkAngel\\.cache\\m8-slice-456266e5\\s\\royal_district\\RoyalTraining.dascene",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 2864 ms, resources 1675 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 2131 ms, resources 1600 ms).",
     "Party host listening at 127.0.0.1:26510",
     "Native Loopback combat Play: light attack uses the cooked kit, action and authoritative target damage. Click Game for input.",
     "Play activated an isolated Preview world; authoring remains unchanged.",
     "The party arrived in RoyalTraining.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3514 ms, resources 2134 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3336 ms, resources 2017 ms).",
     "The party arrived in RoyalTraining.dascene."
   ],
   "downed": false,
@@ -34,7 +34,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 10962,
+  "frame": 11246,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -94,7 +94,7 @@
     }
   ],
   "owner": "b6a022aef5f944b11efb60f0b13e86a2",
-  "pending_motor": 2,
+  "pending_motor": 3,
   "players": [
     {
       "health": 100.0,
@@ -124,7 +124,7 @@
     3.0
   ],
   "predicted_tick": 21,
-  "process": 29920,
+  "process": 23148,
   "ready": true,
   "rebases": 0,
   "refused": 0,

@@ -4,19 +4,19 @@
   "actors": [],
   "arrivals": 5,
   "authority": true,
-  "client": "readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=19 coherent=1 paired=1",
+  "client": "readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=20 coherent=1 paired=1",
   "console": [
     "The party arrived in RoyalVillage.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3120 ms, resources 1915 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3124 ms, resources 1913 ms).",
     "The party arrived in RoyalVillage.dascene.",
     "Saving the game.",
     "Saved (revision 2).",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3365 ms, resources 2134 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3523 ms, resources 2112 ms).",
     "The party arrived in RoyalTraining.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3213 ms, resources 1806 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3155 ms, resources 1912 ms).",
     "The party arrived in RoyalVillage.dascene."
   ],
   "downed": false,
@@ -29,7 +29,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 16226,
+  "frame": 16175,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -118,8 +118,8 @@
     0.4999997615814209,
     2.5
   ],
-  "predicted_tick": 20,
-  "process": 37180,
+  "predicted_tick": 21,
+  "process": 13064,
   "ready": true,
   "rebases": 0,
   "refused": 0,
@@ -131,7 +131,7 @@
   "schema": 1,
   "script_count": 27,
   "script_steps": 27,
-  "tick": 18,
+  "tick": 19,
   "travel_failures": 0,
   "world": {
     "checkpoint": {

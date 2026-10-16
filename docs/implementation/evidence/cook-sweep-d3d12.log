@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201970000
 [39mEditor cook_sweep waiting_before=111 passes=111 failed=1 probe_generation=1
-Viewport foreground pixels=146501 capture=C:\DarkAngel\docs\implementation\evidence\cook-sweep-d3d12.png
+Viewport foreground pixels=148029 capture=C:\DarkAngel\docs\implementation\evidence\cook-sweep-d3d12.png
 DarkAngel editor rendered 5 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 1/256

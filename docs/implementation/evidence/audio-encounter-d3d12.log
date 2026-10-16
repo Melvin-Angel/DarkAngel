@@ -6,7 +6,7 @@
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206550000
-[39mViewport foreground pixels=411309 capture=C:\DarkAngel\docs\implementation\evidence\audio-encounter-d3d12.png
+[39mViewport foreground pixels=412334 capture=C:\DarkAngel\docs\implementation\evidence\audio-encounter-d3d12.png
 Editor audio workspace=0 waves=6 definitions=3 profiles=2 mixers=1 driver=null loaded=6 playing=2 started=15 audition=0 bus_music=1 bus_ambient=0.501187 bus_npc=0.25 limit=0 director=1 profile=be7471d9-3d66-4154-a5c7-c5ce55d425ea music=5bf01c2f-d8ef-4ef7-af7c-654151b2636b ambient=1 layers=1 missing=0
 Editor encounter fired=1 spawned=2 alive=2 wave=1 actors=2 volumes_drawn=2 player_z=9.66667 events=play.started,gate.entered,gate.fight_started hud_target=Royal Guard readouts=2
 DarkAngel editor rendered 200 frames with d3d12

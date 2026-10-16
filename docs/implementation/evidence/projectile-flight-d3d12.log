@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
-[39mViewport foreground pixels=449439 capture=C:\DarkAngel\docs\implementation\evidence\projectile-flight-d3d12.png
+[39mViewport foreground pixels=450431 capture=C:\DarkAngel\docs\implementation\evidence\projectile-flight-d3d12.png
 Editor ranged tick=48 camera=Aim range=20 distance=14 target_health=100 aim_pitch=-0.191289 projectile=1 in_flight=1 seen_in_flight=1 pending=0 hud_crosshair=1
 DarkAngel editor rendered 48 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
