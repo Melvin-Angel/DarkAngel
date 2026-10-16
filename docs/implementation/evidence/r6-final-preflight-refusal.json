@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "stage": "dry-run before full build",
+  "reason": "Stale CXX.dd predicted ImGuizmo compilation; guard refused. Refresh first-party dyndeps before definitive dry-run.",
+  "third_party_compiled": false,
+  "tests_started": false
+}

@@ -1,0 +1,19 @@
+Test project C:/DarkAngel/build/m5-editor-relwithdebinfo
+    Start 65: M5.hud
+1/4 Test #65: M5.hud ...........................   Passed    1.42 sec
+    Start 66: R6.puzzles
+2/4 Test #66: R6.puzzles .......................   Passed    0.09 sec
+    Start 67: R6.ui_service
+3/4 Test #67: R6.ui_service ....................   Passed    0.11 sec
+    Start 68: R6.ui_documents
+4/4 Test #68: R6.ui_documents ..................   Passed    3.00 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+M5              =   1.42 sec*proc (1 test)
+R6              =   3.11 sec*proc (2 tests)
+presentation    =   4.53 sec*proc (3 tests)
+ui              =   4.53 sec*proc (3 tests)
+
+Total Test time (real) =   4.89 sec

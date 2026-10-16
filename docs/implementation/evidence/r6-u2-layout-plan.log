@@ -1,0 +1,35 @@
+[1/35] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/35] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/35] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/35] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/35] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/35] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/35] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/35] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\ui_service.cpp.obj
+[9/35] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_play_exercise.cpp.obj
+[10/35] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_controller.cpp.obj
+[11/35] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_ui.cpp.obj
+[12/35] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\frontend_ui.cpp.obj
+[13/35] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\world_ui_presenter.cpp.obj
+[14/35] Building CXX object CMakeFiles\UiServiceTests.dir\tests\ui_service_tests.cpp.obj
+[15/35] Linking CXX executable ActorAssetTests.exe
+[16/35] Building CXX object CMakeFiles\DarkAngelNavigation.dir\engine\runtime\navigation.cpp.obj
+[17/35] Building CXX object CMakeFiles\DarkAngelNetwork.dir\engine\runtime\gns_transport.cpp.obj
+[18/35] Building CXX object CMakeFiles\DarkAngelBehavior.dir\engine\runtime\behavior_tree.cpp.obj
+[19/35] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_combat.cpp.obj
+[20/35] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_hud.cpp.obj
+[21/35] Building CXX object CMakeFiles\DarkAngelPersistence.dir\engine\persistence\persistence.cpp.obj
+[22/35] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_service.cpp.obj
+[23/35] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_director.cpp.obj
+[24/35] Building CXX object CMakeFiles\DarkAngelVfx.dir\engine\vfx\vfx_service.cpp.obj
+[25/35] Linking CXX static library DarkAngelHud.lib
+[26/35] Linking CXX static library DarkAngelNavigation.lib
+[27/35] Linking CXX static library DarkAngelNetwork.lib
+[28/35] Linking CXX static library AshenRootsCombat.lib
+[29/35] Linking CXX static library DarkAngelPersistence.lib
+[30/35] Linking CXX static library DarkAngelAudio.lib
+[31/35] Linking CXX static library DarkAngelVfx.lib
+[32/35] Linking CXX executable UiServiceTests.exe
+[33/35] Linking CXX executable UiDocumentTests.exe
+[34/35] Linking CXX static library DarkAngelBehavior.lib
+[35/35] Linking CXX executable DarkAngelEditor.exe

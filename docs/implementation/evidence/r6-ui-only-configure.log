@@ -1,0 +1,65 @@
+Optional program clang-format not found.
+-- ---------------------------------------------------------
+-- Selected options:
+-- - BUILD_SHARED_LIBS: OFF
+-- - ozz_build_tools: OFF
+-- - ozz_build_fbx: OFF
+-- - ozz_build_gltf: OFF
+-- - ozz_build_data: OFF
+-- - ozz_build_samples: OFF
+-- - ozz_build_howtos: OFF
+-- - ozz_build_tests: OFF
+-- - ozz_build_simd_ref: OFF
+-- - ozz_build_msvc_rt_dll: ON
+-- - ozz_build_postfix: ON
+Target processor: x86_64
+CMake generator: Ninja
+
+Windows SDK version: 10.0.26100.0
+-- Windows SDK bin directory: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64
+-- Found D3Dcompiler_47.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/D3Dcompiler_47.dll
+-- Found dxcompiler.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxcompiler.dll
+-- Found dxil.dll: C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64/dxil.dll
+
+Target platform: Win32 64
+
+Checking for Direct3D11 and Direct3D12 support:
+  d3d11.h found:   TRUE
+  d3d12.h found:   TRUE
+  atlbase.h found: TRUE
+
+D3D11_SUPPORTED:  FALSE
+D3D12_SUPPORTED:  TRUE
+GL_SUPPORTED:     FALSE
+GLES_SUPPORTED:   FALSE
+VULKAN_SUPPORTED: TRUE
+METAL_SUPPORTED:  FALSE
+WEBGPU_SUPPORTED: FALSE
+
+Additional MSVC compile options for release configurations: /GL/arch:AVX2
+Available .NET SDK versions: 9.0.203
+  Maximum .NET SDK version: 9.0.203
+CMake Warning (deprecated) at third_party/diligent-core/ThirdParty/glslang/CMakeLists.txt:111 (message):
+  ENABLE_HLSL is deprecated.  The HLSL front-end will be removed in a future
+  major release of glslang.  See
+  https://github.com/KhronosGroup/glslang/issues/4210 for details.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- optimizer enabled
+-- SPIRV-Cross: Finding Git version for SPIRV-Cross.
+-- SPIRV-Cross: Git hash: vulkan-sdk-1.4.363.0
+-- xxHash build type: RelWithDebInfo
+-- Architecture: AMD64
+-- DiligentCore commit hash: 074060cf
+-- Could NOT find Vulkan (missing: Vulkan_LIBRARY Vulkan_INCLUDE_DIR) (found version "")
+-- Using Amplitude Audio SDK at C:/DarkAngel/.cache/amplitude-sdk
+CMake Warning (author) at .tools/effekseer-runtime/src/EffekseerRendererCommon/CMakeLists.txt:89 (install):
+  Target EffekseerRendererCommon has PUBLIC_HEADER files but no PUBLIC_HEADER
+  DESTINATION.
+This warning is for project developers.  Use -Wno-author to suppress it.
+
+-- Found Freetype target Freetype::Freetype - Freetype font engine enabled
+-- Configuring done (11.1s)
+-- Generating done (2.3s)
+-- Build files have been written to: C:/DarkAngel/build/m5-editor-relwithdebinfo

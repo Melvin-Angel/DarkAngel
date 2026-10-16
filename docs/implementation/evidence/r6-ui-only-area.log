@@ -1,0 +1,12 @@
+UiDocumentTests passed
+UiServiceTests passed
+PuzzleTests passed
+ui-play passed
+ui passed
+ui-party passed
+Traceback (most recent call last):
+  File "C:\DarkAngel\scripts\verify_ui.py", line 109, in <module>
+    main()
+  File "C:\DarkAngel\scripts\verify_ui.py", line 95, in main
+    raise RuntimeError("Party member lacks confirmed puzzle result: " + str(path))
+RuntimeError: Party member lacks confirmed puzzle result: C:\DarkAngel\docs\implementation\evidence\r6-88522e3cc8-ui-party-player-1.json

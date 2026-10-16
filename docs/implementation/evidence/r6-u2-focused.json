@@ -1,0 +1,17 @@
+[
+  {
+    "name": "r6-u2-native",
+    "exit": 0,
+    "seconds": 3.359
+  },
+  {
+    "name": "r6-u2-actors",
+    "exit": 0,
+    "seconds": 42.125
+  },
+  {
+    "name": "r6-u2-area",
+    "exit": 1,
+    "seconds": 18.031
+  }
+]

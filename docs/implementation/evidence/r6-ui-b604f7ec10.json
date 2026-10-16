@@ -1,0 +1,38 @@
+{
+  "run": "b604f7ec10",
+  "gate": "all",
+  "fixture": "C:\\DarkAngel\\.cache\\r6-ui-b604f7ec10",
+  "gates": [
+    {
+      "name": "UiDocumentTests",
+      "exit": 0,
+      "seconds": 3.281,
+      "log": "docs\\implementation\\evidence\\r6-b604f7ec10-UiDocumentTests.log",
+      "markers": true
+    },
+    {
+      "name": "UiServiceTests",
+      "exit": 0,
+      "seconds": 0.062,
+      "log": "docs\\implementation\\evidence\\r6-b604f7ec10-UiServiceTests.log",
+      "markers": true
+    },
+    {
+      "name": "PuzzleTests",
+      "exit": 0,
+      "seconds": 0.032,
+      "log": "docs\\implementation\\evidence\\r6-b604f7ec10-PuzzleTests.log",
+      "markers": true
+    },
+    {
+      "name": "ui-play",
+      "exit": 1,
+      "seconds": 12.797,
+      "log": "docs\\implementation\\evidence\\r6-b604f7ec10-ui-play.log",
+      "markers": false
+    }
+  ],
+  "binary_sha256": "3e05157fd37696ad4bf34cffe8f88c10f29622c6dbfe80e2cb0bc2e9dc5646f5",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "protected_unchanged": true
+}

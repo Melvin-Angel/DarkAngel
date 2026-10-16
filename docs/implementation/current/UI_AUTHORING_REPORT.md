@@ -1,40 +1,39 @@
-# R6.1 UI Authoring (first part)
+# R6 UI authoring and runtime integration
 
-16 October 2026. **R6.1 delivered as a first working subset and locally verified; R6.2 (gameplay integration) is not started.** This covers the start of R6 (B) in the [main roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) against the [UI MVP design](../future/UI_AUTHORING_MVP_DESIGN.md) (U0/U1). It was implemented autonomously overnight; the scope cuts and decisions below were taken without the user and are listed so they can be revisited.
+16 October 2026. R6 U0/U1 and U2 are implemented and locally verified. The legacy Hud class and game HUD markup are removed; all new and migrated UI uses cooked documents through UiService. This report supersedes the earlier single-file subset description. The [UI MVP design](../future/UI_AUTHORING_MVP_DESIGN.md) defines the contract.
 
-## Delivered behavior
+## U0 and U1
 
-- **UI documents** (`.daui` under `ui/hud`, `ui/markers`, `ui/menus` or `ui/puzzles`): one native source holding the descriptor (name, purpose `hud`/`marker`/`menu`/`puzzle`, permitted surfaces `screen`/`world_anchor`/`world_surface`, logical size) and its owned RML markup and RCSS style. They cook like the other native sources (`ui.json` product) through the same drafts, Undo/Redo, validation and coordinated Save. Documents must be self-contained for now: links, scripts, templates, `@import` and `url(...)` are refused.
-- **Four templates**: Stamina bar (HUD element), Nameplate (world marker), Main menu (buttons with commands) and Rune panel (puzzle buttons and a solved flag). All bind the `ui` data model: health and stamina percentages and text, cooldown, name, prompt and a flag. Clicks use `data-event-click="command('id')"`.
-- **UI tab** (new fixed tab after Prefabs): documents grouped by purpose, *New from template*, *Duplicate*, purpose and surface controls, RML and RCSS text editors, Save, Undo/Redo and validation diagnostics. A live preview uses the same RmlUi backend and renderer as the game HUD, with an aspect choice and sample values (health, stamina, cooldown, flag, name). Clicks in the preview are logged as commands and never change the game. Load problems are shown, and a broken edit keeps the last good document on screen with a *Stale preview* badge. World-surface documents are labelled *2D preview; 3D runtime pending*.
-- **One RmlUi owner at a time**: the preview and the game HUD share the process's single RmlUi lifetime. Starting Play evicts the preview (the HUD wins); the preview returns after Stop. Previews pause during Play, like the editor's other previews.
+UI documents use schema 2 descriptors with owned `.rml` and `.rcss` members. Shared style documents, packaged TrueType/OpenType fonts with adjacent license files, and color textures addressed as `da://<asset-id>` are cooked into the frozen closure. Schema 1 remains readable and the UI workspace offers explicit migration. Native drafts include owned member texts; coordinated Save, duplication, Undo/Redo and stale-source checks use the existing authoring/publication owner. Undeclared images, external URLs and unsupported external markup includes are refused.
 
-## Decisions and scope cuts taken while the user was unavailable
+`UiRuntime` owns the process RmlUi lifetime. Authoring previews and UiService documents have independent contexts and models, and coexist during Play. The legacy Hud class and raw game UI markup loader are removed. Images resolve through the same runtime; project fonts replace the old Windows-font dependency in Play, using the shipped Roboto face as a packaged font asset. The UI workspace supplies four templates, shared-style documents, dependency editing, source/style editing, sample values, command logging and last-good preview retention.
 
-1. **Markup and style are stored inside the `.daui` source**, not as sibling `.rml`/`.rcss` member files. One file means one atomic native Save and no multi-file draft machinery yet. Splitting into owned member files, with shared stylesheets and virtual dependencies, is part of the remaining U0 work.
-2. **No shared UiRuntime yet**: instead of a preview that coexists with a running HUD, the preview is evicted during Play. The design names coexistence as a requirement for preview *alongside* Play, so this is a deliberate partial step.
-3. **Fonts are not packaged**: the preview uses the same system font path as the existing HUD (`segoeui.ttf`). Packaged font assets and their licence remain U0 work.
-4. Templates and the `ui` sample model are engine-provided; game-specific binding contracts and their registration are R6.2.
+These decisions replace the earlier scope cuts: markup/style are no longer confined to inline descriptor strings; previews are no longer evicted for Play; and fonts/images are packaged assets.
+
+## U2
+
+The user decision of 16 October removes the legacy HUD completely. Owner health, stamina, target, aim, interaction, party status and loading are modular cooked `.daui` documents. Inventory and altar menus use the same UiService lifetime, document loading, modal stack, rendering and input. Native binding contracts (`owner-v1`, `inventory-v1`, `altar-v1`) project the existing owner state and typed actions; gameplay requests still use the authenticated host channel. The actor marker fallback is also a cooked document. `PlayerUi` composes service handles and owns no RmlUi context or renderer. Each Game viewport owns its own service. Explicit Player HUD attachments replace the default HUD list. All new UI elements must use this document/service path.
+
+`UiService` provides generation-checked handles, passive screen layers, a modal stack, world anchors and owning scopes. Each instance binds independent model storage. Closing a scope or destroying its viewport releases its documents. Modal navigation supports directional keys, Confirm and Cancel; passive documents do not capture gameplay. The Play adapter blocks gameplay input while a modal is open and through release of its closing input.
+
+A document may own an optional `.luau` presentation script, limited to 16 KB. Cooking validates syntax. The local sandbox has memory and execution budgets and narrow `ui:open`, `close`, `set` and `request` methods; it has no DOM or authority access. Script-created documents inherit their caller's scope. Script callbacks can request application flow through a host bridge.
+
+Player definitions can own HUD and public marker lists; NPC definitions can own marker lists. Actor cooking validates document identity and permitted surface and freezes UI products with the actor. Player/NPC tabs edit these lists. Play projects marker positions from observed client state and the rendered camera, and feeds authored HUD models from the existing owner projection. Marker count is bounded. Scene puzzle documents are explicit Play roots.
+
+Puzzle interactables name a document and a native sequence. A targeted accepted interaction outcome opens the local modal; presses travel over the existing world request channel. Authority requires a prior accepted interaction for that member, checks living/range state, and applies the sequence. Confirmed progress/solved state is replicated; solved puzzles use the save ledger. UI markup and local scripts do not decide puzzle results.
+
+`content/ui/menus/MainMenu.*` is a sessionless example. Game > Open front end loads its frozen package without starting a scene session. The authored Start callback requests Play through the application bridge. This is an editor harness, not a standalone packaged game frontend.
 
 ## Verification
 
-All on this machine (D3D12, pinned toolchain, `VCPKG_MANIFEST_INSTALL=OFF`; no third-party objects rebuilt). Same-machine evidence only.
+Pinned MSVC/CMake, `VCPKG_MANIFEST_INSTALL=OFF`, D3D12 and no third-party compilation. The guarded migration build passed ([build](../evidence/r6-ui-only-compile-build.log)). Focused R6 native tests and the migrated HUD/menu regression passed 4/4 ([native log](../evidence/r6-ui-only-native.log)). The earlier actor suite passed UI attachment and frozen-package checks ([actor log](../evidence/r6-u2-actors.log)).
 
-- **New `R6.ui_documents` test** (passed) covers:
-  - the four templates decode, and scripts, `@import`, duplicate surfaces and unknown purposes are refused;
-  - every template loads, binds the sample model and draws in the preview;
-  - sample stamina and name values reach the document text;
-  - a click on the menu's Start button logs `menu.start`;
-  - a broken document is refused and the last good one stays shown, marked stale, and still updates;
-  - creating a Hud evicts the preview through its owner, and no preview can start while the Hud runs;
-  - `.daui` sources cook, and invalid markup is refused at cook.
-- **New D3D12 gate `scripts/verify_ui.py`** (`--exercise-ui`, passed: [receipt](../evidence/r6-ui-1648a19d47.json), [log](../evidence/r6-1648a19d47-ui.log), [capture](../evidence/r6-1648a19d47-ui.png)). It creates a menu document from its template in the UI tab, checks the live preview, edits the markup (the preview follows), clicks a button (command logged), checks that Undo reaches the preview, saves, and starts Play (the game HUD evicts the preview). After Stop the preview comes back with the saved text. The first run found that the game HUD kept RmlUi after Stop; Stop now releases it (`PlayController::stop_gameplay`).
-- **Full CTest: 117/117 passed** ([log](../evidence/r6-ctest.log)).
-- **Editor gates: 54/54 D3D12 gates passed** ([log](../evidence/r6-editor-gates.log)). These include the HUD, inventory, altar and Play gates affected by the shared RmlUi lifetime.
-- **M8 slice gates passed**: solo, save/load, party and party travel ([log](../evidence/r6-m8-slice.log)).
+The migration's first fresh UI gate `88522e3cc8` passed native tests, UI Play and authoring. The Play capture was inspected: custom Stamina replaces the shipped HUD list, the host confirms the puzzle, and authored/default markers are independent with no legacy overlay. Its party process ended before the second client's confirmation reached the final report; the gate correctly failed. Shutdown now waits for confirmed simulation ticks, rather than a short render-frame delay, retaining both-client solved assertions. The corrected complete area gate passed ([receipt](../evidence/r6-ui-7f2c0c3deb.json)): native checks, UI Play, authoring and both party clients' host-confirmed solved state. Protected content remained unchanged. Earlier pre-migration receipts are historical evidence only.
 
-## Not done (R6 remainder)
+Initial implementation failures were fixed before acceptance: a puzzle test omitted its required prompt; the editor fixture confused authored-local and placed identities; solved puzzle persistence needed its own deterministic ledger child identity so interactable capture could not erase it; migration compilation required the owner party fields and a direct PlayerUi include.
 
-- **U0 remainder**: owned member files, shared styles/templates, packaged fonts and images with virtual URLs, a frozen dependency closure for them, and a shared UiRuntime so previews can run alongside Play.
-- **R6.2 / U2**: attaching documents as Player HUD elements and NPC/Player world markers, the screen stack and input routing, the C++ and local Luau facade, and the sessionless menu and screen-puzzle examples with host-validated puzzle results.
-- Element outline/selection in the preview, resolution presets beyond aspect, and a consumer list before deletion. Delete is not offered.
+Final R6 verification used the guarded MSVC/CMake environment with `VCPKG_MANIFEST_INSTALL=OFF`; the full build passed with no third-party compilation ([build](../evidence/r6-final-build.log)). The first full CTest run recorded 118/119: `M5.actor_assets` collided with the newly shipped `ActorMarker.daui`. The test fixture was renamed to `TestActorMarker.daui`, rebuilt under the guard, and its isolated rerun passed ([full run](../evidence/r6-final-ctest.log), [fix and rerun](../evidence/r6-final-resume-actor-retest.log)); the other 118 cases passed in the full run. The fresh editor gate sequence passed, with the effect-reaction form rerun without screenshot capture after an empty-output interrupted capture attempt ([gate log](../evidence/r6-final-resume2-editor-gates.log), [form retry](../evidence/r6-final-effect-form-retry.log)). M8 passed 5/5; PrefabTests plus the prefab authoring gates passed; MaterialTests plus material authoring gates passed; and `verify_ui.py` passed UiDocumentTests, UiServiceTests, PuzzleTests, HudTests, `ui-play`, authoring and party checks ([resumed delivery receipt](../evidence/r6-final-resume2-delivery.json)). Product sources remained unchanged during the resumed gates. The focused migration build/native tests and fresh UI party/play receipts are linked above. Code and evidence are being committed separately; no remote push is part of the verification result.
+
+## Not done
+
+WorldSurface rendering, planar panels/ray input and scene/prefab UI Surface components are deferred U3. Depth occlusion, arbitrary socket attachment, a layout designer, rich widgets/localization, standalone front-end packaging and physical-controller/cross-machine/EOS qualification remain follow-up work. World anchors are bounded projected overlays. The initial actor attachment UI supports root offsets and distance, not socket selection. The local UI model remains the bounded initial model; new game-specific contracts need native adapters rather than arbitrary model fields.

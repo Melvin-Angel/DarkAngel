@@ -1,0 +1,128 @@
+[1/61] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/59] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[3/57] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[4/55] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[5/53] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[6/50] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[7/48] Scanning C:\DarkAngel\games\AshenRoots\royal_hud.cpp for CXX dependencies
+[8/48] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[9/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\player_ui.cpp.obj
+[10/47] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_hud.cpp.obj
+[11/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\ui_runtime.cpp.obj
+[12/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\ui_service.cpp.obj
+[13/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\owner_ui_binding.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelUi.dir/engine/runtime/owner_ui_binding.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP -DRMLUI_STATIC_LIB -IC:\DarkAngel\engine\runtime\include -external:IC:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include -external:IC:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include\luau -external:W0 /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc /showIncludes @CMakeFiles\DarkAngelUi.dir\engine\runtime\owner_ui_binding.cpp.obj.modmap /FoCMakeFiles\DarkAngelUi.dir\engine\runtime\owner_ui_binding.cpp.obj /FdCMakeFiles\DarkAngelUi.dir\DarkAngelUi.pdb /FS -c C:\DarkAngel\engine\runtime\owner_ui_binding.cpp
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2039: 'downed': is not a member of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.hpp(6): note: see declaration of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2672: 'Rml::DataModelConstructor::Bind': no matching overloaded function found
+C:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include\RmlUi\Core/DataModelHandle.h(42): note: could be 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): note: 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)': expects 2 arguments - 1 provided
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2039: 'wiped': is not a member of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.hpp(6): note: see declaration of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2672: 'Rml::DataModelConstructor::Bind': no matching overloaded function found
+C:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include\RmlUi\Core/DataModelHandle.h(42): note: could be 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): note: 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)': expects 2 arguments - 1 provided
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2039: 'reviving': is not a member of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.hpp(6): note: see declaration of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2672: 'Rml::DataModelConstructor::Bind': no matching overloaded function found
+C:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include\RmlUi\Core/DataModelHandle.h(42): note: could be 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): note: 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)': expects 2 arguments - 1 provided
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2039: 'revive_text': is not a member of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.hpp(6): note: see declaration of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2672: 'Rml::DataModelConstructor::Bind': no matching overloaded function found
+C:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include\RmlUi\Core/DataModelHandle.h(42): note: could be 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): note: 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)': expects 2 arguments - 1 provided
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2039: 'revive_percent': is not a member of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.hpp(6): note: see declaration of 'darkangel::OwnerUiBinding'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): error C2672: 'Rml::DataModelConstructor::Bind': no matching overloaded function found
+C:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include\RmlUi\Core/DataModelHandle.h(42): note: could be 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)'
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(8): note: 'bool Rml::DataModelConstructor::Bind(const Rml::String &,T *)': expects 2 arguments - 1 provided
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(19): error C2065: 'downed': undeclared identifier
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(19): error C2065: 'wiped': undeclared identifier
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(19): error C2065: 'revive_text': undeclared identifier
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(19): error C2065: 'reviving': undeclared identifier
+C:\DarkAngel\engine\runtime\owner_ui_binding.cpp(19): error C2065: 'revive_percent': undeclared identifier
+[14/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\world_ui.cpp.obj
+[15/47] Linking CXX static library AshenRootsCombat.lib
+[16/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\ui_document.cpp.obj
+[17/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\altar_document.cpp.obj
+[18/47] Building CXX object CMakeFiles\DarkAngelUi.dir\engine\runtime\inventory_document.cpp.obj
+[19/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_exercise.cpp.obj
+[20/47] Building CXX object CMakeFiles\ActorAssetTests.dir\tests\actor_asset_tests.cpp.obj
+[21/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_play_exercise.cpp.obj
+[22/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\ui_workspace.cpp.obj
+C:\DarkAngel\apps\editor\ui_workspace.cpp(133): warning C4457: declaration of 'top' hides function parameter
+C:\DarkAngel\apps\editor\ui_workspace.cpp(43): note: see declaration of 'top'
+[23/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+C:\DarkAngel\apps\editor\editor_controller.cpp(11): warning C4458: declaration of 'model' hides class member
+C:\DarkAngel\apps\editor\editor_controller.hpp(46): note: see declaration of 'darkangel::editor_app::Controller::model'
+[24/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\gameplay_results.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelEditor.dir/apps/editor/exercises/gameplay_results.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP -DD3D11_SUPPORTED=0 -DD3D12_SUPPORTED=1 -DDAE_ANIMATION=1 -DDAE_AUDIO=1 -DDAE_BEHAVIOR=1 -DDAE_CHARACTER_SCENE=1 -DDAE_DXC_DLL=\"C:/DarkAngel/.tools/dxc/bin/x64/dxcompiler.dll\" -DDAE_EDITOR_GNS=1 -DDAE_GAME_UI_DIR=\"C:/DarkAngel/games/AshenRoots/ui\" -DDAE_HUD=1 -DDAE_NAVIGATION=1 -DGLES_SUPPORTED=0 -DGL_SUPPORTED=0 -DIMGUI_DEFINE_MATH_OPERATORS -DIMGUI_USER_CONFIG=\"ImGuiDiligentConfig.h\" -DMETAL_SUPPORTED=0 -DPLATFORM_WIN32=1 -DRMLUI_STATIC_LIB -DVULKAN_SUPPORTED=1 -DWEBGPU_SUPPORTED=0 -IC:\DarkAngel\third_party\imguizmo\src -IC:\DarkAngel\third_party\imgui-docking -IC:\DarkAngel\third_party\diligent-core\Common\interface -IC:\DarkAngel\engine\persistence\include -IC:\DarkAngel\engine\foundation\include -IC:\DarkAngel\engine\assets\include -IC:\DarkAngel\engine\runtime\include -IC:\DarkAngel\tools\editor\include -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineD3D12\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineD3DBase\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngine\interface -IC:\DarkAngel\third_party\diligent-core\Primitives\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineVulkan\interface -IC:\DarkAngel\third_party\diligent-tools\Imgui\interface -IC:\DarkAngel\engine\vfx\include -IC:\DarkAngel\engine\audio\include -IC:\DarkAngel\games\AshenRoots\include -external:IC:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc -openmp /showIncludes @CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\gameplay_results.cpp.obj.modmap /FoCMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\gameplay_results.cpp.obj /FdCMakeFiles\DarkAngelEditor.dir\ /FS -c C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(153): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(153): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(179): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(179): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(204): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(204): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(226): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(303): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(351): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(353): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(354): error C3536: 'shown': cannot be used before it is initialized
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(355): error C2088: built-in operator '<<' cannot be applied to an operand of type 'std::basic_ostream<char,std::char_traits<char>>'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(356): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(357): error C3536: 'target_shown': cannot be used before it is initialized
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(358): error C2027: use of undefined type 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.hpp(15): note: see declaration of 'darkangel::PlayerUi'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(359): error C3536: 'named': cannot be used before it is initialized
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(359): error C2672: 'std::replace': no matching overloaded function found
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\algorithm(4473): note: could be 'void std::replace(_ExPo &&,_FwdIt,_FwdIt,const _Ty &,const _Ty &) noexcept'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(359): note: 'void std::replace(_ExPo &&,_FwdIt,_FwdIt,const _Ty &,const _Ty &) noexcept': expects 5 arguments - 3 provided
+C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\include\algorithm(4443): note: or       'void std::replace(const _FwdIt,const _FwdIt,const _Ty &,const _Ty &)'
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(359): note: 'void std::replace(const _FwdIt,const _FwdIt,const _Ty &,const _Ty &)': expects 4 arguments - 3 provided
+C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp(360): error C2088: built-in operator '<<' cannot be applied to an operand of type 'std::basic_ostream<char,std::char_traits<char>>'
+[25/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_authoring.cpp.obj
+[26/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_viewport.cpp.obj
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(285): warning C4457: declaration of 'viewer' hides function parameter
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(273): note: see declaration of 'viewer'
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(391): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(391): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(391): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(394): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(394): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(394): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(394): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(394): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(394): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[27/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_app.cpp.obj
+[28/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\play_exercises.cpp.obj
+[29/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\hud_overlay.cpp.obj
+[30/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\gameplay_inspector.cpp.obj
+[31/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_hud.cpp.obj
+[32/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\viewport_tools.cpp.obj
+[33/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\frontend_ui.cpp.obj
+[34/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\world_ui_presenter.cpp.obj
+[35/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_ui.cpp.obj
+[36/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_controller.cpp.obj
+C:\DarkAngel\apps\editor\play_controller.cpp(1719): warning C4456: declaration of 'at' hides previous local declaration
+C:\DarkAngel\apps\editor\play_controller.cpp(1659): note: see declaration of 'at'
+[37/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_altar.cpp.obj
+[38/47] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_inventory.cpp.obj
+[39/47] Building CXX object CMakeFiles\UiServiceTests.dir\tests\ui_service_tests.cpp.obj
+[40/47] Building CXX object CMakeFiles\HudTests.dir\tests\hud_tests.cpp.obj
+[41/47] Linking CXX executable ActorAssetTests.exe
+[42/47] Building CXX object CMakeFiles\UiDocumentTests.dir\tests\ui_document_tests.cpp.obj
+ninja: build stopped: cannot make progress due to previous errors.

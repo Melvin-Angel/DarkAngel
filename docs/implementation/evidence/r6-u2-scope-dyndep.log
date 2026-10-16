@@ -1,0 +1,29 @@
+[1/133] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/127] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[3/124] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[4/120] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[5/117] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[6/113] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[7/110] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[8/84] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[9/72] Scanning C:\DarkAngel\engine\runtime\interaction.cpp for CXX dependencies
+[10/72] Scanning C:\DarkAngel\engine\runtime\world_objects.cpp for CXX dependencies
+[11/72] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[12/71] Scanning C:\DarkAngel\engine\runtime\ui_service.cpp for CXX dependencies
+[13/71] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[14/28] Scanning C:\DarkAngel\tests\puzzle_tests.cpp for CXX dependencies
+[15/28] Scanning C:\DarkAngel\tests\ui_service_tests.cpp for CXX dependencies
+[16/28] Scanning C:\DarkAngel\tests\ui_document_tests.cpp for CXX dependencies
+[17/28] Generating CXX dyndep file CMakeFiles\ActorAssetTests.dir\CXX.dd
+[18/28] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[19/28] Generating CXX dyndep file CMakeFiles\PuzzleTests.dir\CXX.dd
+[20/28] Generating CXX dyndep file CMakeFiles\UiServiceTests.dir\CXX.dd
+[21/28] Generating CXX dyndep file CMakeFiles\UiDocumentTests.dir\CXX.dd
+[22/28] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\interaction.cpp.obj
+[23/28] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_objects.cpp.obj
+[24/28] Linking CXX static library DarkAngelRuntime.lib
+[25/28] Linking CXX executable AssetTool.exe
+[26/28] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[27/28] Scanning C:\DarkAngel\apps\editor\exercises\ui_play_exercise.cpp for CXX dependencies
+[28/28] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd

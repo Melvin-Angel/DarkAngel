@@ -1,6 +1,6 @@
 # UI workspace and reusable document MVP
 
-**16 October 2026: a first R6.1 subset is implemented** (single-file `.daui` documents, UI tab, live preview that pauses during Play). See the [R6.1 report](../current/UI_AUTHORING_REPORT.md) for the scope cuts; the rest of U0, and U2, remain.
+**16 October 2026: U0/U1 and U2 are implemented and locally verified.** The legacy HUD is removed at the user's request: all gameplay UI uses cooked documents through UiService. The guarded full build and resumed acceptance gates passed; the single full-CTest fixture collision was fixed and its isolated retest passed. See the [R6 report](../current/UI_AUTHORING_REPORT.md) for decisions, evidence and remaining U3 scope.
 
 **Scheduling: Planned, R6.1 (B: U0/U1), R6.2 (D: U2); E: U3 is in the deferred backlog (formerly R8, deferred 16 October 2026)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026). R6 follows R5 and uses the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md). U3 world-panel work must not block the screen/menu examples. U0–U3 here supersede the older UI_PLAN stage numbering.
 

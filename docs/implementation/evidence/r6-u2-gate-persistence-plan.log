@@ -1,0 +1,25 @@
+[1/25] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/25] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/25] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/25] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/25] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/25] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/25] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/25] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_play_exercise.cpp.obj
+[9/25] Building CXX object CMakeFiles\DarkAngelNavigation.dir\engine\runtime\navigation.cpp.obj
+[10/25] Building CXX object CMakeFiles\DarkAngelNetwork.dir\engine\runtime\gns_transport.cpp.obj
+[11/25] Building CXX object CMakeFiles\DarkAngelBehavior.dir\engine\runtime\behavior_tree.cpp.obj
+[12/25] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_combat.cpp.obj
+[13/25] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_hud.cpp.obj
+[14/25] Building CXX object CMakeFiles\DarkAngelPersistence.dir\engine\persistence\persistence.cpp.obj
+[15/25] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_service.cpp.obj
+[16/25] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_director.cpp.obj
+[17/25] Building CXX object CMakeFiles\DarkAngelVfx.dir\engine\vfx\vfx_service.cpp.obj
+[18/25] Linking CXX static library DarkAngelNavigation.lib
+[19/25] Linking CXX static library DarkAngelNetwork.lib
+[20/25] Linking CXX static library AshenRootsCombat.lib
+[21/25] Linking CXX static library DarkAngelPersistence.lib
+[22/25] Linking CXX static library DarkAngelAudio.lib
+[23/25] Linking CXX static library DarkAngelVfx.lib
+[24/25] Linking CXX static library DarkAngelBehavior.lib
+[25/25] Linking CXX executable DarkAngelEditor.exe

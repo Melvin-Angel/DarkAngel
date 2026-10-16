@@ -1,0 +1,114 @@
+[1/114] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/114] Scanning C:\DarkAngel\engine\runtime\world_objects.cpp for CXX dependencies
+[3/114] Scanning C:\DarkAngel\engine\runtime\party_lifecycle.cpp for CXX dependencies
+[4/114] Scanning C:\DarkAngel\engine\runtime\interaction.cpp for CXX dependencies
+[5/114] Scanning C:\DarkAngel\engine\runtime\encounter.cpp for CXX dependencies
+[6/114] Scanning C:\DarkAngel\engine\runtime\assembly.cpp for CXX dependencies
+[7/114] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[8/114] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[9/114] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[10/114] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[11/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\item_cooker.cpp.obj
+[12/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[13/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[14/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[15/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[16/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\model_collision.cpp.obj
+[17/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[18/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[19/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[20/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\cue_cooker.cpp.obj
+[21/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\audio_cooker.cpp.obj
+[22/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\primitive_cooker.cpp.obj
+[23/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\vfx_cooker.cpp.obj
+[24/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\sound_cooker.cpp.obj
+[25/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[26/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\effect_cooker.cpp.obj
+[27/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\prefab_cooker.cpp.obj
+[28/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\material_cooker.cpp.obj
+[29/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ui_cooker.cpp.obj
+[30/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\animation_cooker.cpp.obj
+[31/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\joint_mask_cooker.cpp.obj
+[32/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\graph_cooker.cpp.obj
+[33/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\combat_kit_cooker.cpp.obj
+[34/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\actor_cooker.cpp.obj
+[35/114] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\tag_codegen.cpp.obj
+[36/114] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\ui_runtime.cpp.obj
+[37/114] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\ui_service.cpp.obj
+[38/114] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\hud.cpp.obj
+[39/114] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\inventory_document.cpp.obj
+[40/114] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\altar_document.cpp.obj
+[41/114] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\world_ui.cpp.obj
+[42/114] Building CXX object CMakeFiles\UiServiceTests.dir\tests\ui_service_tests.cpp.obj
+[43/114] Building CXX object CMakeFiles\UiDocumentTests.dir\tests\ui_document_tests.cpp.obj
+[44/114] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[45/114] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\metadata.cpp.obj
+[46/114] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\world.cpp.obj
+[47/114] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\hash.cpp.obj
+[48/114] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\asset_id.cpp.obj
+[49/114] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[50/114] Building CXX object CMakeFiles\DarkAngelInventory.dir\engine\runtime\inventory.cpp.obj
+[51/114] Building CXX object CMakeFiles\DarkAngelInventory.dir\engine\runtime\item_definition.cpp.obj
+[52/114] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\party_inventory.cpp.obj
+[53/114] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\inventory_session.cpp.obj
+[54/114] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\scene_inventory.cpp.obj
+[55/114] Building CXX object CMakeFiles\DarkAngelAnimation.dir\engine\runtime\animation_pose.cpp.obj
+[56/114] Building CXX object CMakeFiles\DarkAngelAnimation.dir\engine\runtime\animation_graph.cpp.obj
+[57/114] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\character_motor.cpp.obj
+[58/114] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\static_collision.cpp.obj
+[59/114] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\melee_query.cpp.obj
+[60/114] Linking CXX static library DarkAngelHud.lib
+[61/114] Linking CXX static library DarkAngelFoundation.lib
+[62/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\party_control.cpp.obj
+[63/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_ledger.cpp.obj
+[64/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_objects.cpp.obj
+[65/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\party_lifecycle.cpp.obj
+[66/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\scene_travel.cpp.obj
+[67/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\interaction.cpp.obj
+[68/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\spline.cpp.obj
+[69/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\cue_player.cpp.obj
+[70/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\presentation_primitives.cpp.obj
+[71/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\camera.cpp.obj
+[72/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\targeting.cpp.obj
+[73/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\behavior.cpp.obj
+[74/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\perception.cpp.obj
+[75/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\encounter.cpp.obj
+[76/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\bootstrap.cpp.obj
+[77/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_runtime.cpp.obj
+[78/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_package.cpp.obj
+[79/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_state.cpp.obj
+[80/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\assembly.cpp.obj
+[81/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\transport.cpp.obj
+[82/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\session_frames.cpp.obj
+[83/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[84/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_transport.cpp.obj
+[85/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_abilities.cpp.obj
+[86/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_replication.cpp.obj
+[87/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_collision.cpp.obj
+[88/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_owner.cpp.obj
+[89/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\owner_mailbox.cpp.obj
+[90/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\motor_state.cpp.obj
+[91/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\animation_source.cpp.obj
+[92/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_source.cpp.obj
+[93/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_observer.cpp.obj
+[94/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\action.cpp.obj
+[95/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\joint_mask.cpp.obj
+[96/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\input.cpp.obj
+[97/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\combat_kit.cpp.obj
+[98/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\attributes.cpp.obj
+[99/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\tags.cpp.obj
+[100/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effects.cpp.obj
+[101/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effect_replication.cpp.obj
+[102/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[103/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_effects.cpp.obj
+[104/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
+[105/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
+[106/114] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[107/114] Linking CXX static library DarkAngelInventory.lib
+[108/114] Linking CXX static library DarkAngelRuntime.lib
+[109/114] Linking CXX static library DarkAngelInventorySession.lib
+[110/114] Linking CXX static library DarkAngelAnimation.lib
+[111/114] Linking CXX static library DarkAngelPhysics.lib
+[112/114] Linking CXX static library DarkAngelAssets.lib
+[113/114] Linking CXX executable UiServiceTests.exe
+[114/114] Linking CXX executable UiDocumentTests.exe

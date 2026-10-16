@@ -1,0 +1,12 @@
+Checking the legacy no-argument NativeAuthoringTests entry point
+Legacy NativeAuthoringTests entry point passed
+Other native checks supplied by this batch full CTest pass: ReactionPresentationTests,ObservedCharacterPoseTests,EffectAssetTests,CombatKitAssetTests,EffectReplicationTests,CombatEffectTests,CameraTests,CharacterCombatSceneTests,RoyalHeavySceneTests,HudTests,MotorTests,NavigationTests,BehaviorTreeTests
+Traceback (most recent call last):
+  File "C:\DarkAngel\.cache\r6_editor_gates.py", line 31, in <module>
+    exec(compile(ast.fix_missing_locations(tree),str(path),'exec'),{'__name__':'__main__','__file__':str(path)})
+  File "C:\DarkAngel\scripts\verify_effect_reaction.py", line 27, in <module>
+    run('effect-reaction-form',common+['--ability-workspace','--authoring-asset',f['reaction_effect'],'--height','1500','--frames','5','--capture',EVIDENCE/'effect-reaction-form.png'])
+  File "C:\DarkAngel\scripts\verify_effect_reaction.py", line 10, in run
+    if result.returncode:raise RuntimeError((result.stdout+result.stderr)[-4000:])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError

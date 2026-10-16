@@ -1,0 +1,17 @@
+[1/127] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/121] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/75] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[4/72] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[5/68] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[6/65] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/61] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[8/58] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[9/32] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[10/20] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[11/17] Generating CXX dyndep file CMakeFiles\ActorAssetTests.dir\CXX.dd
+[12/17] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[13/17] Generating CXX dyndep file CMakeFiles\PuzzleTests.dir\CXX.dd
+[14/17] Generating CXX dyndep file CMakeFiles\UiServiceTests.dir\CXX.dd
+[15/17] Generating CXX dyndep file CMakeFiles\UiDocumentTests.dir\CXX.dd
+[16/17] Scanning C:\DarkAngel\apps\editor\exercises\ui_play_exercise.cpp for CXX dependencies
+[17/17] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd

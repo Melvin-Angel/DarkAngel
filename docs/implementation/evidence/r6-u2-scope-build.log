@@ -1,0 +1,18 @@
+[1/34] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/32] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/30] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/28] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/25] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/23] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/20] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/18] Building CXX object CMakeFiles\PuzzleTests.dir\tests\puzzle_tests.cpp.obj
+[9/18] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\ui_service.cpp.obj
+[10/18] Linking CXX static library DarkAngelHud.lib
+[11/18] Building CXX object CMakeFiles\UiServiceTests.dir\tests\ui_service_tests.cpp.obj
+[12/18] Linking CXX executable ActorAssetTests.exe
+[13/18] Linking CXX executable PuzzleTests.exe
+[14/18] Linking CXX executable UiServiceTests.exe
+[15/18] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_play_exercise.cpp.obj
+[16/18] Building CXX object CMakeFiles\UiDocumentTests.dir\tests\ui_document_tests.cpp.obj
+[17/18] Linking CXX executable UiDocumentTests.exe
+[18/18] Linking CXX executable DarkAngelEditor.exe
