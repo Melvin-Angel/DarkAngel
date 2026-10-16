@@ -203,6 +203,24 @@ Authored ambient/environment first; GI and baked lighting deferred
 
 Water and full vegetation rendering deferred; extension points retained
 
+User rendering decisions, 16 October 2026 (refine DAE-005; no locked contract above is replaced):
+
+Real-time lighting first. Baked GI/lightmaps move to the deferred backlog and are not a prerequisite for playable levels or the first stylized-rendering milestone. No baker or bake dependency enters the current build; real-time lighting must not depend on precomputed data. Provisional future bake direction (not authorized for integration): Intel Embree (CPU ray tracing), Intel Open Image Denoise, xatlas UV preparation, engine-owned HDR lightmap assets and cooking, indirect diffuse only with direct light real-time, later light probes for moving actors. Blender Cycles (external offline), AMD RadeonRays and Godot LightmapperRD remain research options.
+
+Clustered Forward+ over the existing Diligent abstraction: directional, point and spot lights; multiple coloured dynamic lights with intensity, range, colour and attenuation; real-time shadow maps with cascades for the primary directional light (distance, resolution, bias, cascade count configurable); ambient/environment light; lightweight SSAO that mainly affects ambient/contact depth. Compute light assignment where justified. General-purpose and shading-model agnostic; no full PBR/deferred renderer because samples show one. D3D12 and Vulkan both kept.
+
+Materials: MaterialDefinition (shared configuration), MaterialInstance (reusable overrides), per-renderable runtime parameters, shader variants only for expensive optional features, cached PSOs, separate opaque/alpha-cutout/transparent states. Character, Entity and Terrain toon families share one shading library and belong to the deferred SR milestones.
+
+Outlines: object/group ID plus depth and normal discontinuities, per-object enable/colour/thickness/group, scaled or faded by camera distance/projected size; inverted hull only as a future override.
+
+Fog: distance fog is baseline (colour, density, start/end, linear/exponential; height fog if straightforward). Post stack: HDR, tone mapping, exposure, colour grading with optional LUT, bloom, one initial AA method chosen for stable cel edges, SSAO, fog, outline composition; disabled effects cost nothing. Motion blur, depth of field, advanced volumetrics, SSR, SSGI, ray tracing and temporal upscaling deferred.
+
+R7 holds engine foundations (render graph/resource contracts, lighting/shadows, environment, material prerequisites, editor configuration, D3D12/Vulkan) and the approved minimal shared HLSL toon-lighting core. Full toon families, advanced outlines, character effects, terrain shading, full stylized post presentation, instancing/optimisation and atmospherics stay in deferred SR0-SR7.
+
+Continuation refinement, 16 October 2026: tunable clustered defaults are 16x16 pixels, 24 logarithmic slices, 64 local lights per cluster, separate directional lighting, deterministic bounded overflow with counters/debugging. Prefer RGBA16_FLOAT HDR and SDR output with consistent linear/sRGB conversion. Initial AA is FXAA after tone mapping/composition and before UI. Directional shadow defaults are four 2048x2048 cascades, practical splits, texel snapping and 3x3 PCF with adjustable distance, bias, resolution and count. Prefer DiligentFX Bloom and tone mapping, evaluate ShadowMapManager/cascade utilities, and qualify SSAO/PostFXContext history prerequisites against the exact version and notices behind engine-owned adapters. No placeholder temporal inputs or whole PBR renderer import. Manual exposure and controllable grading precede any future auto-exposure.
+
+The minimal R7 toon core uses base color/texture, configurable three-band main-directional lighting, thresholds/softness/shadow tint, colored local-light additions, ambient color/strength, real shadow attenuation and qualified optional emission. Share HLSL across static/skinned/terrain consumers; use existing material authoring/runtime parameters and preserve existing assets. AO affects ambient/indirect contribution. Numeric material changes do not create shader permutations. See the environment plan's Approved R7 implementation refinement for the complete scope, pass ordering and validation contract. These decisions authorize implementation in roadmap order and do not assert implementation or visual verification.
+
 6. Physics & Character Movement
 
 Status: LOCKED DAE-006 - implementation validation pending

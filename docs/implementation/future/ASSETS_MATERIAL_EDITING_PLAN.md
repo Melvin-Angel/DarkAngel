@@ -89,7 +89,13 @@ Test through the same public asset/material/prefab commands the UI calls. Includ
 
 Likely owners for R5 on the completed refactor baseline: Assets workspace/routing, native authoring, AssetService/import metadata, model/texture cookers/loaders, the shared component/prefab command layer and renderer material resources. Preserve current pins; DiligentFX examples are optional implementation research, not automatic dependencies. The earlier prefab publication/link foundations still apply.
 
+## Material architecture decisions (16 October 2026)
+
+The user set the material architecture: **MaterialDefinition** for shared configuration, **MaterialInstance** for reusable overrides, **per-renderable parameters** for runtime visual effects, shader variants only for expensive optional features, cached PSOs, and separate opaque, alpha-cutout and transparent render states, integrated with material slots, prefab overrides, cooking, previews and shader hot reload. R5 establishes these contracts before significant stylized shader work. The Character, Entity and Terrain toon families (cel shading, rim, dissolve, triplanar, layer blending, outlines) share one shading library and belong to the deferred SR milestones; R5 A3 delivers only the supporting infrastructure (definitions, texture semantics, render states) that those families need. Unused features must not cost shader work or texture sampling.
+
 ## Shared stylized-rendering foundation
+
+The 16 October 2026 continuation decision brings a minimal shared toon-lighting library into R7 after R5/R6. Base color, band thresholds/softness, shadow tint, ambient contribution and qualified emission use this same `.damaterial` workflow and runtime parameters. The complete Character/Entity/Terrain families and advanced stylized effects remain deferred; older statements deferring all toon code are superseded by the [R7 refinement](ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md#approved-r7-implementation-refinement-16-october-2026-claude-handoff-continuation).
 
 R5 owns the reusable material-authoring boundary for the future Ashen Roots stylized-rendering initiative. The first architecture should be a versioned `MaterialDefinition` plus persistent `MaterialInstance`: a definition selects a supported shader family, typed parameters, feature set and legal render states; an instance owns values, texture references, tint and per-asset overrides. Character, entity and terrain families may expose different schemas, but they should share common toon-lighting code and material-key semantics rather than become separate ad-hoc shader systems.
 
