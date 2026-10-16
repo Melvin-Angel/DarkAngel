@@ -29,7 +29,10 @@ EditorDocument::LinkSource Controller::prefab_links() const{
     return [this](AssetId id)->std::optional<std::string>{if(!assets)return std::nullopt;for(const auto& asset:asset_inventory)if(asset.id==id&&std::filesystem::path(asset.path).extension()==".daprefab"){std::ifstream input(assets->source_root()/asset.path,std::ios::binary);if(!input)return std::nullopt;return std::string(std::istreambuf_iterator<char>(input),{});}return std::nullopt;};}
 bool Controller::refresh_prefab_links(){
     if(!document)return false;auto source=prefab_links();AssemblySources changed;
-    for(const auto& [id,text]:document->links())if(auto published=source(id);published&&*published!=text)changed.emplace(id,*published);
+    // A saved prefab may now mount (or derive from) prefabs the scene did not link yet: they are linked with it.
+    for(const auto& [id,text]:document->links())if(auto published=source(id);published&&*published!=text){
+        try{for(const auto& [inner,inner_text]:EditorDocument::link_closure(id,*published,source))if(!document->links().contains(inner)||document->links().at(inner)!=inner_text)changed.emplace(inner,inner_text);}
+        catch(const std::exception&){changed.emplace(id,*published);}}
     if(changed.empty())return false;
     try{document->link(changed);log("Scene refreshed from the saved prefab definitions.");return true;}catch(const std::exception& error){log(std::string("The scene does not resolve against the saved prefab; it keeps the previous definition until repaired: ")+error.what(),ConsoleSeverity::Error);return false;}}
 void Controller::open(const std::filesystem::path& file){auto candidate=EditorDocument::open(file,prefab_links());candidate->scripts();for(const auto& [object,asset]:candidate->plan().models){if(prepare_model)prepare_model(asset);else if(asset!=model)throw std::runtime_error("Scene requires a model outside the loaded cooked registry");}stop();document=std::move(candidate);path=file;selected=document->plan().origins.empty()?StableId{}:document->plan().origins.front().object;log("Opened "+file.string());}

@@ -108,8 +108,11 @@ public:
     CookResult assign_model_material(std::string_view relative_model,std::string_view slot,AssetId material,std::string_view material_source={});
     // The cooked values of one material slot as the model currently cooks them (its material product JSON).
     std::string material_values(std::string_view relative_model,std::string_view slot) const;
-    // Unreferenced item only. Stale writes reject; source bytes are archived in the cache.
+    // Unreferenced item or prefab (R4) only. Stale writes reject; source bytes are archived in the cache.
     std::filesystem::path delete_item(std::string_view relative_source,std::string_view expected_source_sha256);
+    // R4: moves an owned prefab source to a new path under prefabs/. Its AssetID lives in the source, so scenes and prefabs
+    // that link it by identity keep resolving. Stale bytes and existing targets are refused; a failed cook moves it back.
+    CookResult rename_native(std::string_view relative_source,std::string_view expected_source_sha256,std::string_view new_relative_source);
     void package(AssetId root,const std::filesystem::path& registry,std::span<const AssetId> additional_roots={}) const;
     std::filesystem::path cas_path() const;
     std::uint64_t conversion_count() const;

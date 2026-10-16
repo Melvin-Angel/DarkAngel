@@ -35,7 +35,15 @@ public:
     void save(const std::filesystem::path&); // one journaled bundle, atomic replacement
     // The current text of a linked source by AssetID; none when the project has no such source.
     using LinkSource=std::function<std::optional<std::string>(AssetId)>;
+    // Opening resolves the listed links and, through the same source, the prefabs those prefabs mount (nested prefabs).
     static std::unique_ptr<EditorDocument> open(const std::filesystem::path&,const LinkSource& links={});
+    // A link source over a project's source mount (R4): every .daprefab below `source_root`, by the AssetID in its source.
+    // Tools without an AssetService (AgentHost, the cooker's collision bake) open linked scenes with it.
+    static LinkSource project_links(const std::filesystem::path& source_root);
+    // The project source mount a scene file belongs to: the nearest folder above it that holds a prefabs/ folder.
+    static std::optional<std::filesystem::path> find_source_root(const std::filesystem::path& scene);
+    // A linked prefab and every prefab it mounts or derives from (a variant's base), directly or nested, by AssetID. Throws when one is missing or cyclic.
+    static AssemblySources link_closure(AssetId,const std::string& text,const LinkSource&);
     // Linked sources (R4): the published definitions this scene resolves against, and the ones its own sources mount.
     const AssemblySources& links() const;
     std::vector<AssetId> linked_references() const;

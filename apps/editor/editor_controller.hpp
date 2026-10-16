@@ -34,6 +34,14 @@ public:
     std::unique_ptr<EditorDocument> document;
     SceneSession preview{WorldDomain::Preview};
     StableId selected;bool paused{};std::vector<ConsoleEntry> console;
+    // Selection (R4): `selected` is the ObjectSelection. A MountSelection is a linked prefab instance chosen as a whole (its
+    // outliner row): the editor container, not a gameplay entity. It holds while `selected` is still the member it was made
+    // with (the gizmo moves the whole instance through that member), so any other selection returns to an ObjectSelection.
+    struct MountSelection {std::string mount;StableId anchor;};
+    std::optional<MountSelection> mount_selection;
+    const std::string* selected_mount() const{return mount_selection&&mount_selection->anchor==selected?&mount_selection->mount:nullptr;}
+    void select_mount(const std::string& mount,StableId anchor){selected=anchor;mount_selection=MountSelection{mount,anchor};}
+    void select_object(StableId object){selected=object;mount_selection.reset();}
     std::filesystem::path path{L".cache/editor/TestScene.dascene"};
     AssetId model;
     double radius;

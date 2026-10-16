@@ -186,6 +186,16 @@ void SceneViewport::render(double elapsed_seconds) {
                                 XMVectorSet(0, preview.height, 0, 1), XMVectorSet(0, 1, 0, 0));
         camera_fov = XM_PIDIV4;
     }
+    // R4 Prefabs workspace: the selected definition (or its instance in context), from an orbit camera around it.
+    const bool prefab_render = shell.workspace == darkangel::editor_app::Workspace::Prefabs && shell.prefab_preview.visible && !editor.preview.active();
+    if (prefab_render) {
+        const auto& preview = shell.prefab_preview;
+        const float distance = float(std::max(3.0, preview.radius * 2.6)), cx = float(preview.center[0]), cy = float(preview.center[1]), cz = float(preview.center[2]);
+        view = XMMatrixLookAtRH(XMVectorSet(cx + std::sin(preview.yaw) * std::cos(preview.pitch) * distance, cy + std::sin(preview.pitch) * distance,
+                                            cz + std::cos(preview.yaw) * std::cos(preview.pitch) * distance, 1),
+                                XMVectorSet(cx, cy, cz, 1), XMVectorSet(0, 1, 0, 0));
+        camera_fov = XM_PIDIV4;
+    }
     auto projection = XMMatrixPerspectiveFovRH(camera_fov, viewport.Width / viewport.Height, gpu.radius * .01f, gpu.radius * 40);
     if (shell.workspace==darkangel::editor_app::Workspace::Scene&&!editor.preview.active()) {
         // Use the exact matrices used by this frame's UI picking/drop rays, also during viewport resize.
@@ -245,6 +255,15 @@ void SceneViewport::render(double elapsed_seconds) {
                     drawn_objects.emplace_back(member, character_resources->skin);
     }
 #endif
+    // The Prefabs preview draws its own models (and context models) at their resolved poses instead of the scene's objects.
+    if (prefab_render) {
+        drawn_objects.clear();
+        scatter_poses.clear();
+        for (const auto& shown : shell.prefab_preview.models) {
+            drawn_objects.emplace_back(shown.object, shown.model);
+            scatter_poses.emplace(shown.object, shown.pose);
+        }
+    }
 #ifdef DAE_CHARACTER_SCENE
     using SceneViewer = darkangel::SceneClient;
 #else

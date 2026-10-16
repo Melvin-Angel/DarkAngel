@@ -3,6 +3,7 @@
 #include <darkangel/assets.hpp>
 #include <darkangel/editor_document.hpp>
 #include <darkangel/world_objects.hpp>
+#include <darkangel/hash.hpp>
 #include <nlohmann/json.hpp>
 #include <cmath>
 #include <filesystem>
@@ -88,6 +89,68 @@ int main(){try{
     {const auto source=folder/"sources";std::filesystem::create_directories(source/"prefabs");AssetService assets(source,folder/"cache");assets.scan();
      auto cooked=assets.create_native("prefabs/LooseAltar.daprefab",made);check(cooked.changed,"Prefab source cooks");
      rejects([&]{auto bad=Json::parse(prefab(AssetId::random(),member,"Altar"));bad["entities"][member]["altar"]["colour"]="red";assets.create_native("prefabs/Bad.daprefab",bad.dump());},"Invalid prefab source refused at cook");}
+    // R4 remainder. Create Prefab from Selection for a referenced object: the prefab exports it and the referencing object is
+    // rewritten to address the export; identities and the reference's target stay the same.
+    {const auto target="00000000000000000000000000000011",pointer="00000000000000000000000000000012",outside="00000000000000000000000000000013";const auto scene_id=AssetId::random();
+     Json graph={{"schema",1},{"asset",scene_id.text()},{"entities",{{target,{{"name","Target"},{"target",nullptr},{"types",transform(2,0,2,0)},{"altar",{{"name","Target"}}}}},{pointer,{{"name","Pointer"},{"target",target},{"types",transform(5,0,5,0)}}},{outside,{{"name","Outside"},{"target",nullptr},{"types",transform(9,0,9,.5)}}}}},{"mounts",Json::object()},{"exports",{{"00000000000000000000000000000021",target}}}};
+     EditorDocument scene_doc(scene_id,placement,{{scene_id,graph.dump()}});auto object_of=[&](const std::string& local){for(const auto& origin:scene_doc.plan().origins)if(origin.local_path==placement.text()+"/"+local)return origin.object;throw std::runtime_error("Object missing");};
+     const auto target_object=object_of(target),pointer_object=object_of(pointer),outside_object=object_of(outside);const auto made_id=AssetId::random();
+     // Multi-object capture: the pivot is the first object; the second keeps its pose relative to it.
+     const auto made=prefab_from_objects(scene_doc,{target_object,outside_object},made_id,"Captured");check(Json::parse(made).contains("exports"),"A referenced captured object is exported");
+     const auto mount=replace_with_instance(scene_doc,{target_object,outside_object},made_id,made);
+     check(member_object(scene_doc,mount)==target_object||member_object(scene_doc,mount)==outside_object,"Captured members keep their identities");
+     {auto at=pose(scene_doc,outside_object);check(std::abs(at.x-9)<1e-9&&std::abs(at.z-9)<1e-9&&std::abs(at.yaw-.5)<1e-12,"Captured member keeps its pose");}
+     check(scene_doc.world().read(scene_doc.world().find(pointer_object)).target==target_object,"The rewritten reference addresses the same object through the export");
+     check(Json::parse(scene_doc.source(scene_id))["entities"][pointer]["target"].is_object(),"The reference is rewritten to the prefab export");
+     rejects([&]{prefab_from_objects(scene_doc,{pointer_object},AssetId::random(),"Pointer");},"An object that references outside its capture is refused");
+     // Unpack keeps identities, values, poses and the reference.
+     const auto fingerprint_before=scene_doc.plan().fingerprint;auto keys=unpack_instance(scene_doc,mount);check(keys.size()==2&&prefab_instances(scene_doc).empty(),"Unpack removes the instance");
+     check(scene_doc.world().valid(scene_doc.world().find(target_object))&&scene_doc.world().valid(scene_doc.world().find(outside_object)),"Unpacked objects keep their persistent identities");
+     {auto at=pose(scene_doc,outside_object);check(std::abs(at.x-9)<1e-9&&std::abs(at.z-9)<1e-9&&std::abs(at.yaw-.5)<1e-12,"Unpacked object keeps its pose");}
+     check(scene_doc.world().read(scene_doc.world().find(pointer_object)).target==target_object,"Unpack rewrites the reference to the new object");
+     check(altar_name(scene_doc,target_object)=="Target","Unpacked object keeps its values");
+     // An unpacked object's record edits keep the retained identity (the scene's retained map applies to record edits too).
+     {auto record=Json::parse(*scene_doc.entity(keys.at(outside)));record["name"]="Moved";scene_doc.commit(scene_doc.prepare_entities(scene_doc.revision(),{{keys.at(outside),record.dump()}}),"Rename");check(scene_doc.world().valid(scene_doc.world().find(outside_object)),"Record edits keep retained identity");}
+     scene_doc.undo(scene_doc.revision());scene_doc.undo(scene_doc.revision());check(prefab_instances(scene_doc).size()==1&&scene_doc.plan().fingerprint==fingerprint_before,"Undo restores the instance exactly");}
+    // Nested prefabs: an outer prefab mounts an inner one with a placement; scenes link both, opening resolves the closure.
+    {const auto inner=AssetId::random(),outer=AssetId::random(),scene_id=AssetId::random();const auto inner_text=prefab(inner,member,"Inner",0);
+     Json outer_value={{"schema",1},{"kind","prefab"},{"asset",outer.text()},{"name","Outer"},{"entities",{{other_member,{{"name","Outer altar"},{"target",nullptr},{"types",transform(0,0,0,0)},{"altar",{{"name","Outer"}}}}}}},{"mounts",{{"00000000000000000000000000000031",{{"asset",inner.text()},{"placement",{{"x",2.0},{"y",0.0},{"z",0.0},{"yaw",0.0}}}}}}}};
+     rejects([&]{decode_prefab(outer_value.dump());},"A nested prefab needs its inner prefab's source");check(decode_prefab(outer_value.dump(),{{inner,inner_text}}).members.size()==1,"Nested prefab decodes with its closure");
+     Json empty={{"schema",1},{"asset",scene_id.text()},{"entities",Json::object()},{"mounts",Json::object()}};EditorDocument scene_doc(scene_id,placement,{{scene_id,empty.dump()}});
+     const AssemblySources project{{inner,inner_text},{outer,outer_value.dump()}};auto source=[&](AssetId id)->std::optional<std::string>{if(project.contains(id))return project.at(id);return std::nullopt;};
+     auto closure=EditorDocument::link_closure(outer,outer_value.dump(),source);check(closure.size()==2,"Link closure follows nested mounts");closure.erase(outer);
+     const auto mount=place_prefab(scene_doc,outer,outer_value.dump(),{10,0,0,0},closure);check(scene_doc.plan().altars.size()==2,"Nested prefab instance resolves both levels");
+     bool nested_found=false;for(const auto& origin:scene_doc.plan().origins)if(auto found=prefab_instance_of(scene_doc,origin.object);found&&found->nested){nested_found=true;check(found->mount==mount,"Nested member belongs to the top-level instance");auto at=pose(scene_doc,origin.object);check(std::abs(at.x-12)<1e-9,"Nested placement composes");}
+     check(nested_found,"Nested member is reported as nested");rejects([&]{unpack_instance(scene_doc,mount);},"Unpacking a prefab with nested prefabs is refused");
+     const auto folder2=std::filesystem::temp_directory_path()/("prefab-nested-"+AssetId::random().text());std::filesystem::create_directories(folder2/"prefabs");scene_doc.save(folder2/"scene.dascene");
+     check(Json::parse([&]{std::ifstream in(folder2/"scene.dascene");return std::string(std::istreambuf_iterator<char>(in),{});}())["links"].size()==1,"A scene saves only its direct links");
+     {std::ofstream(folder2/"prefabs/inner.daprefab",std::ios::binary)<<inner_text;std::ofstream(folder2/"prefabs/outer.daprefab",std::ios::binary)<<outer_value.dump();}
+     auto root_found=EditorDocument::find_source_root(folder2/"scene.dascene");check(root_found&&std::filesystem::equivalent(*root_found,folder2),"The source mount of a scene is found");
+     auto reopened=EditorDocument::open(folder2/"scene.dascene",EditorDocument::project_links(*root_found));check(reopened->plan().fingerprint==scene_doc.plan().fingerprint,"Tools resolve nested links through the project link source");
+     check(prefab_consumers(folder2,inner).size()==1&&prefab_consumers(folder2,inner)[0].kind=="prefab"&&prefab_consumers(folder2,outer).size()==1&&prefab_consumers(folder2,outer)[0].kind=="scene","Consumers list scenes and nesting prefabs");
+     // Prefab sources that mount others cook with their closure, rename keeps identity, delete refuses used prefabs.
+     {const auto source_root=folder2/"cook";std::filesystem::create_directories(source_root/"prefabs");AssetService assets(source_root,folder2/"cache");assets.scan();
+      check(assets.create_native("prefabs/inner.daprefab",inner_text).changed,"Inner prefab cooks");check(assets.create_native("prefabs/outer.daprefab",outer_value.dump()).changed,"Nested prefab cooks with its closure");
+      auto sha=[&](const char* path){std::ifstream in(source_root/path,std::ios::binary);return sha256(std::string(std::istreambuf_iterator<char>(in),{}));};
+      assets.rename_native("prefabs/inner.daprefab",sha("prefabs/inner.daprefab"),"prefabs/inner_renamed.daprefab");bool kept=false;for(const auto& asset:assets.assets())if(asset.id==inner&&asset.path=="prefabs/inner_renamed.daprefab")kept=true;check(kept,"Rename keeps the prefab identity");
+      rejects([&]{assets.delete_item("prefabs/inner_renamed.daprefab",sha("prefabs/inner_renamed.daprefab"));},"A prefab another prefab mounts cannot be deleted");
+      assets.delete_item("prefabs/outer.daprefab",sha("prefabs/outer.daprefab"));assets.delete_item("prefabs/inner_renamed.daprefab",sha("prefabs/inner_renamed.daprefab"));check(assets.assets().empty(),"Unused prefabs delete");}
+     std::filesystem::remove_all(folder2);}
+    // Variants: a variant patches its base; a base change needs an explicit rebase, which refuses broken patches.
+    {const auto base=AssetId::random(),variant=AssetId::random(),scene_id=AssetId::random();const auto base_text=prefab(base,member,"Base");
+     auto value=make_variant(variant,"Variant",base,base_text);set_variant_field(value,base_text,member,"altar","name",Json("Variant"));check(value["patches"].size()==1,"Variant field patch");
+     set_variant_field(value,base_text,member,"altar","name",Json("Base"));check(value["patches"].empty(),"Base value removes the variant patch");set_variant_field(value,base_text,member,"altar","name",Json("Variant"));
+     check(decode_prefab(value.dump(),{{base,base_text}}).members.size()==1,"Variant decodes against its base");
+     check(EditorDocument::link_closure(variant,value.dump(),[&](AssetId id)->std::optional<std::string>{if(id==base)return base_text;return std::nullopt;}).contains(base),"A variant's link closure includes its base");
+     Json empty={{"schema",1},{"asset",scene_id.text()},{"entities",Json::object()},{"mounts",Json::object()}};EditorDocument scene_doc(scene_id,placement,{{scene_id,empty.dump()}});
+     const auto mount=place_prefab(scene_doc,variant,value.dump(),{0,0,0,0},{{base,base_text}});check(altar_name(scene_doc,member_object(scene_doc,mount))=="Variant","Variant instance resolves its patch");
+     const auto changed=prefab(base,member,"Base 2",1.0);rejects([&]{scene_doc.link({{base,changed}});},"A changed base refuses the variant until rebase");
+     auto rebased=rebase_variant(value,changed);scene_doc.link({{base,changed},{variant,rebased.dump()}});check(altar_name(scene_doc,member_object(scene_doc,mount))=="Variant","Rebased variant keeps its patch");
+     Json broken=Json::parse(changed);broken["entities"][member].erase("altar");broken["entities"][member]["interactable"]={{"prompt","Use"},{"event","e"},{"radius",1.0},{"once",true}};
+     check(!variant_conflicts(rebased,broken.dump()).empty(),"Rebase reports patches the new base breaks");rejects([&]{rebase_variant(rebased,broken.dump());},"Rebase refuses broken patches");
+     // Apply Selected onto a variant becomes a variant patch.
+     set_instance_field(scene_doc,mount,member,"altar","name",Json("Instance"));auto applied=Json::parse(prefab_with_overrides(scene_doc,mount,{{member,"altar","name"}},scene_doc.links().at(variant)));
+     check(applied["patches"].size()==1&&applied["patches"][0]["value"]=="Instance","Apply Selected on a variant writes a variant patch");}
     std::filesystem::remove_all(folder);
-    std::cout<<"R4 prefabs: placement composition, independent instances, overrides/Revert, template propagation, Apply Selected, instance moves, Swap identity and refusal, conversion identity, duplicate isolation, links Save/open and cook passed\n";return 0;
+    std::cout<<"R4 prefabs: placement composition, independent instances, overrides/Revert, template propagation, Apply Selected, instance moves, Swap identity and refusal, conversion identity, duplicate isolation, links Save/open and cook, referenced capture with exports, multi-object capture, Unpack identity, nested prefabs and tool link resolution, consumers, rename/delete, variants and rebase passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

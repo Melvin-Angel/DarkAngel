@@ -32,7 +32,12 @@ void commit_entity(Controller& editor,const std::string& local,const nlohmann::j
 // Adds one entity to the scene's own source under the first free local identity and returns the placed object.
 StableId add_object(Controller& editor,nlohmann::json entity,const Transform& at,const char* message){
     std::string local;
-    for(std::size_t index=1;index<=scene_object_limit;++index){local=StableId{0,index}.text();if(!editor.document->entity(local))break;if(index==scene_object_limit)throw std::runtime_error("Scene object limit");}
+    // A key whose authored path a prefab instance or an unpacked object still retains (R4) is taken: reusing it would give
+    // the new object that retained persistent identity.
+    std::set<std::string> retained;{const auto root=editor.document->source(editor.document->root());if(root.find("\"retain\"")!=root.npos){const auto graph=nlohmann::json::parse(root);const auto prefix=editor.document->placement().text()+"/";
+        auto collect=[&](const nlohmann::json& map){if(map.is_object())for(const auto& [key,path]:map.items())if(path.is_string()&&path.get<std::string>().starts_with(prefix))retained.insert(path.get<std::string>().substr(prefix.size()));};
+        if(graph.contains("retain")&&graph["retain"].is_object()){collect(graph["retain"]);for(const auto& [key,path]:graph["retain"].items())retained.insert(key);}if(graph.contains("mounts")&&graph["mounts"].is_object())for(const auto& [key,mount]:graph["mounts"].items())if(mount.contains("retain"))collect(mount["retain"]);}}
+    for(std::size_t index=1;index<=scene_object_limit;++index){local=StableId{0,index}.text();if(!editor.document->entity(local)&&!retained.contains(local))break;if(index==scene_object_limit)throw std::runtime_error("Scene object limit");}
     entity["target"]=nullptr;entity["types"]={{"1",{{"version",2},{"fields",{{"1",at.yaw},{"2",at.x},{"3",at.y},{"4",at.z},{"5",0},{"6",0},{"7",1}}}}},{"2",{{"version",1},{"fields",{{"1",100},{"2",100}}}}}};
     commit_entity(editor,local,entity,message);for(const auto& origin:editor.document->plan().origins)if(origin.local_path.ends_with("/"+local))return origin.object;throw std::runtime_error("Placed object did not resolve");
 }
@@ -249,7 +254,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     if(workspace==Workspace::Assets){controls_focus=false;ImGui::SetNextWindowPos({0,workspace_top});ImGui::SetNextWindowSize({float(width),float(height)-workspace_top});ImGui::Begin("Assets workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);draw_assets(editor,true);ImGui::End();draw_import(editor);return area;}
     // Audio: the host's panel fills the workspace.
     if(workspace==Workspace::Items){controls_focus=false;draw_items(editor,width,height,workspace_top);return area;}
-    if(workspace==Workspace::Prefabs){controls_focus=false;draw_prefabs(editor,width,height,workspace_top);return area;}
+    if(workspace==Workspace::Prefabs){controls_focus=false;draw_prefabs(editor,width,height,workspace_top,scene_texture);return area;}
     if(workspace==Workspace::Ui){controls_focus=false;draw_ui(editor,width,height,workspace_top);return area;}
     if(workspace==Workspace::Audio){controls_focus=false;ImGui::SetNextWindowPos({0,workspace_top});ImGui::SetNextWindowSize({float(width),float(height)-workspace_top});ImGui::Begin("Audio workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
         if(draw_audio_panel)draw_audio_panel();else ImGui::TextDisabled("Audio needs the project's sources (start the editor with --sources) and a build with the audio library.");ImGui::End();return area;}
@@ -278,10 +283,31 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     StableId remove_request;
     const bool can_edit=editor.preview.active()==nullptr&&!dragging;
     if(!scene_maximized){
-    ImGui::Begin("World Outliner");if(can_edit&&ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)&&!ImGui::GetIO().WantTextInput&&ImGui::IsKeyPressed(ImGuiKey_Delete,false))remove_request=editor.selected;ImGui::SetNextItemWidth(-1);ImGui::InputTextWithHint("##filter","Search objects...",filter,sizeof(filter));probe("outliner-filter");icon_text(Icon::Object,"Scene placements");
+    ImGui::Begin("World Outliner");if(can_edit&&ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows)&&!ImGui::GetIO().WantTextInput&&ImGui::IsKeyPressed(ImGuiKey_Delete,false)){if(const auto* mount=editor.selected_mount())mount_delete=*mount;else remove_request=editor.selected;}ImGui::SetNextItemWidth(-1);ImGui::InputTextWithHint("##filter","Search objects...",filter,sizeof(filter));probe("outliner-filter");icon_text(Icon::Object,"Scene placements");
     // Only the rows in view are built: a scene of thousands of placements costs the rows on screen, not one row per object.
     std::vector<const ObjectOrigin*> listed;for(const auto& origin:editor.document->plan().origins)if(!filter[0]||reference_search(origin.name,filter)||reference_search(origin.object.text(),filter))listed.push_back(&origin);
-    ImGuiListClipper clipper;clipper.Begin(static_cast<int>(listed.size()));while(clipper.Step())for(int row=clipper.DisplayStart;row<clipper.DisplayEnd;++row){const auto& origin=*listed[static_cast<std::size_t>(row)];ImGui::PushID(origin.object.text().c_str());if(icon_selectable(Icon::Object,(origin.name+"##object").c_str(),editor.selected==origin.object))editor.selected=origin.object;probe("outliner:"+origin.object.text());if(ImGui::BeginPopupContextItem("##object-menu")){editor.selected=origin.object;if(ImGui::MenuItem("Frame selection","F",false,editor.preview.active()==nullptr&&!dragging)){if(auto bounds=scene_selection_bounds(editor))scene_navigation.camera.focus(*bounds,area.width/std::max(1.f,area.height));}if(ImGui::MenuItem("Delete","Del",false,editor.preview.active()==nullptr))remove_request=origin.object;probe("menu-delete");ImGui::EndPopup();}if(ImGui::IsItemHovered())ImGui::SetTooltip("%s\n%s",origin.name.c_str(),origin.object.text().c_str());ImGui::PopID();}
+    // Linked prefab instances (R4) are one expandable row each with a prefab badge: that row selects the instance as a whole
+    // (MountSelection); its member rows select single objects. A search lists the matching objects flat.
+    struct OutlinerRow {const ObjectOrigin* origin;std::string mount;AssetId prefab;int members{};bool member{};};
+    std::vector<OutlinerRow> rows;rows.reserve(listed.size());
+    {const auto prefix=editor.document->placement().text()+"/";std::map<std::string,std::size_t> mount_rows;
+     for(const auto* origin:listed){std::string mount;
+        if(!filter[0]&&editor.document->links().contains(origin->definition)&&origin->local_path.starts_with(prefix)){const std::string_view rest=std::string_view(origin->local_path).substr(prefix.size());if(const auto slash=rest.find('/');slash!=rest.npos)mount=std::string(rest.substr(0,slash));}
+        if(mount.empty()){rows.push_back({origin});continue;}
+        auto [found,first]=mount_rows.emplace(mount,rows.size());if(first)rows.push_back({origin,mount,origin->definition});++rows[found->second].members;
+        if(outliner_expanded.contains(mount))rows.push_back({origin,mount,{},0,true});}}
+    auto prefab_label=[&](AssetId prefab){for(const auto& asset:editor.asset_inventory)if(asset.id==prefab)return std::filesystem::path(asset.path).stem().string();return prefab.text();};
+    const auto* chosen_mount=editor.selected_mount();
+    ImGuiListClipper clipper;clipper.Begin(static_cast<int>(rows.size()));while(clipper.Step())for(int row=clipper.DisplayStart;row<clipper.DisplayEnd;++row){const auto& entry=rows[static_cast<std::size_t>(row)];const auto& origin=*entry.origin;
+        if(!entry.mount.empty()&&!entry.member){ImGui::PushID(("mount:"+entry.mount).c_str());const bool open=outliner_expanded.contains(entry.mount);
+            if(ImGui::ArrowButton("##expand",open?ImGuiDir_Down:ImGuiDir_Right)){if(open)outliner_expanded.erase(entry.mount);else outliner_expanded.insert(entry.mount);}ImGui::SameLine();
+            if(ImGui::Selectable(("[Prefab] "+prefab_label(entry.prefab)+" ("+std::to_string(entry.members)+")##instance").c_str(),chosen_mount&&*chosen_mount==entry.mount))editor.select_mount(entry.mount,origin.object);probe("outliner-mount:"+entry.mount);
+            if(ImGui::IsItemHovered())ImGui::SetTooltip("Linked prefab instance. Select to move or edit the whole instance; expand it to edit one member.");
+            if(ImGui::BeginPopupContextItem("##mount-menu")){editor.select_mount(entry.mount,origin.object);if(ImGui::MenuItem("Delete instance","Del",false,editor.preview.active()==nullptr))mount_delete=entry.mount;ImGui::EndPopup();}
+            ImGui::PopID();continue;}
+        if(entry.member)ImGui::Indent();
+        ImGui::PushID(origin.object.text().c_str());if(icon_selectable(Icon::Object,(origin.name+"##object").c_str(),editor.selected==origin.object&&!chosen_mount))editor.select_object(origin.object);probe("outliner:"+origin.object.text());if(ImGui::BeginPopupContextItem("##object-menu")){editor.selected=origin.object;if(ImGui::MenuItem("Frame selection","F",false,editor.preview.active()==nullptr&&!dragging)){if(auto bounds=scene_selection_bounds(editor))scene_navigation.camera.focus(*bounds,area.width/std::max(1.f,area.height));}if(ImGui::MenuItem("Delete","Del",false,editor.preview.active()==nullptr))remove_request=origin.object;probe("menu-delete");ImGui::EndPopup();}if(ImGui::IsItemHovered())ImGui::SetTooltip("%s\n%s",origin.name.c_str(),origin.object.text().c_str());ImGui::PopID();if(entry.member)ImGui::Unindent();}
+    if(!mount_delete.empty()){const auto mount=std::move(mount_delete);mount_delete.clear();action(editor,[&]{delete_instance(*editor.document,mount);editor.select_object(editor.document->plan().origins.empty()?StableId{}:editor.document->plan().origins.front().object);});}
     ImGui::Separator();ImGui::BeginDisabled(editor.preview.active()!=nullptr||dragging);if(ImGui::Button("Add NPC spawn point"))ImGui::OpenPopup("Add NPC spawn point");ImGui::EndDisabled();
     if(ImGui::BeginPopup("Add NPC spawn point")){bool any=false;for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".danpc"){any=true;if(ImGui::Selectable(std::filesystem::path(asset.path).stem().string().c_str()))action(editor,[&]{const auto at=beside_selection(editor,place_height);place(editor,{asset.id,std::filesystem::path(asset.path).stem().string(),"NPCs",true},at.x,at.z,at.yaw);});}if(!any)ImGui::TextDisabled("No NPC definitions. Create one in the NPC tab.");ImGui::EndPopup();}
     ImGui::End();

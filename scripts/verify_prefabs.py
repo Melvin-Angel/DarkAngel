@@ -1,4 +1,5 @@
-"""R4: prefab authoring loop in the D3D12 editor on disposable content (create, Place, override, Swap, convert, Apply Selected, Save/reopen, fresh Play).
+"""R4: prefab authoring loop in the D3D12 editor on disposable content (create, Place, override, Swap, convert, Apply Selected,
+preview, nested prefab, variant and rebase, multi-object capture, Unpack, Save/reopen, fresh Play).
 
 Build DarkAngelEditor and PrefabTests with the pinned MSVC environment first.
 Uses the existing authoring-fixture.json seed without running or rewriting its slow producer.
@@ -65,7 +66,7 @@ def main():
                 "--character-player", "00000000000000000000000000000004", "--sources", source,
                 "--asset-cache", cache, "--backend", "d3d12", "--hidden", "--no-audio", "--capture-workspace"]
         cases = {
-            "prefabs": (["--exercise-prefabs", "--frames", "26"], ["Editor prefabs place=1 override=1 swap=1 convert=1 apply=1 reopen=1 play=1"]),
+            "prefabs": (["--exercise-prefabs", "--frames", "32"], ["Editor prefabs place=1 override=1 swap=1 convert=1 apply=1 preview=1 nested=1 variant=1 rebase=1 capture=1 unpack=1 reopen=1 play=1"]),
         }
         for name, (options, markers) in cases.items():
             if args.gate not in ("all", name):

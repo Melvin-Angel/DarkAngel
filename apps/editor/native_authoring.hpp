@@ -70,6 +70,10 @@ public:
     AssetId create_mask(AssetService&,std::string_view name,AssetId kit,AssetId visual={});
     AssetId create_item(AssetService&,std::string_view name,std::string_view classification,AssetId mask={});
     void delete_item(AssetService&,AssetId);
+    // R4: renames a saved prefab's source file under prefabs/ (its AssetID, and so every link to it, is unchanged), and deletes
+    // a prefab no scene or prefab uses. Both refuse unsaved drafts; delete also refuses one another draft references.
+    void rename_prefab(AssetService&,AssetId,std::string_view name);
+    void delete_prefab(AssetService&,AssetId);
     void equip_mask(AssetService&,AssetId player,unsigned slot,AssetId mask);
     void select_mask(AssetService&,AssetId player,unsigned slot);
     // Visual models of a Player's equipped masks; Play packages them as loadable roots.

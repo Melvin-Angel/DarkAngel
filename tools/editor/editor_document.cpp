@@ -180,8 +180,28 @@ void EditorDocument::save(const std::filesystem::path& path){auto& p=*impl_;p.ch
     if(auto linked=linked_references();!linked.empty()){bundle["links"]=Json::array();for(auto asset:linked)bundle["links"].push_back(asset.text());}
     auto text=bundle.dump(2)+"\n";require(text.size()<=scene_document_byte_limit,"Document manifest limit");auto pending=path;pending+=".pending";{std::ofstream out(pending,std::ios::binary);out<<text;out.close();require(!out.fail(),"Document journal write failed");}require(MoveFileExW(pending.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0,"Document head publication failed; pending manifest retained");p.saved=p.fingerprint();
 }
+EditorDocument::LinkSource EditorDocument::project_links(const std::filesystem::path& source_root){
+    // Indexed once: AssetID -> file. The text is read when asked, so a later Save is seen.
+    auto index=std::make_shared<std::map<AssetId,std::filesystem::path>>();std::error_code failed;
+    for(std::filesystem::recursive_directory_iterator file(source_root,failed),end;!failed&&file!=end;file.increment(failed)){if(!file->is_regular_file()||file->path().extension()!=".daprefab")continue;
+        try{auto graph=parse(read(file->path()));if(graph.value("kind","")=="prefab")index->emplace(AssetId::parse(graph.at("asset").get<std::string>()),file->path());}catch(const std::exception&){}}
+    return [index](AssetId id)->std::optional<std::string>{auto found=index->find(id);if(found==index->end())return std::nullopt;try{return read(found->second);}catch(const std::exception&){return std::nullopt;}};
+}
+std::optional<std::filesystem::path> EditorDocument::find_source_root(const std::filesystem::path& scene){
+    std::error_code failed;for(auto folder=std::filesystem::absolute(scene).parent_path();!folder.empty();folder=folder.parent_path()){if(std::filesystem::is_directory(folder/"prefabs",failed))return folder;if(folder==folder.root_path())break;}
+    return std::nullopt;
+}
+AssemblySources EditorDocument::link_closure(AssetId asset,const std::string& text,const LinkSource& resolve){
+    AssemblySources found{{asset,text}};std::vector<AssetId> pending{asset};
+    while(!pending.empty()){auto next=pending.back();pending.pop_back();auto graph=parse(found.at(next));std::vector<AssetId> inners;const auto mounts=graph.value("mounts",Json::object());for(const auto& [local,mount]:mounts.items())inners.push_back(AssetId::parse(mount.at("asset").get<std::string>()));
+        // A variant prefab resolves against its base as well.
+        if(graph.contains("base")&&graph["base"].is_string())inners.push_back(AssetId::parse(graph["base"].get<std::string>()));
+        for(auto inner:inners){if(found.contains(inner))continue;std::optional<std::string> source;if(resolve)source=resolve(inner);
+            require(source.has_value(),"A prefab mounted by a linked prefab is missing from the project");require(found.size()<128,"Linked prefab closure limit");found.emplace(inner,std::move(*source));pending.push_back(inner);}}
+    return found;
+}
 std::unique_ptr<EditorDocument> EditorDocument::open(const std::filesystem::path& path,const LinkSource& resolve){auto root=parse(read(path));AssemblySources sources,linked;
-    if(root.contains("links")){require(root["links"].is_array()&&root["links"].size()<=128,"Document link list");for(const auto& value:root["links"]){auto asset=AssetId::parse(value.get<std::string>());std::optional<std::string> text;if(resolve)text=resolve(asset);require(text.has_value(),"A linked prefab of this scene is missing from the project");linked.emplace(asset,std::move(*text));}}
+    if(root.contains("links")){require(root["links"].is_array()&&root["links"].size()<=128,"Document link list");for(const auto& value:root["links"]){auto asset=AssetId::parse(value.get<std::string>());if(linked.contains(asset))continue;std::optional<std::string> text;if(resolve)text=resolve(asset);require(text.has_value(),"A linked prefab of this scene is missing from the project");for(auto& [id,source]:link_closure(asset,*text,resolve))linked.emplace(id,std::move(source));}}
     if(root.at("schema")==1){for(const auto& [id,value]:root.at("sources").items())sources.emplace(AssetId::parse(id),value.dump());}
     else{require(root.at("schema")==2,"Document manifest schema mismatch");auto folder=root.at("records").get<std::string>();require(!folder.empty() && folder.find_first_of("/\\:")==folder.npos && folder!=".." && folder.ends_with(".records"),"Unsafe document records directory");
         auto load=[&](const Json& digest){auto hash=digest.get<std::string>();require(hash.size()==64 && hash.find_first_not_of("0123456789abcdef")==hash.npos,"Invalid document record hash");auto text=read(path.parent_path()/folder/(hash+".json"));require(sha256(text)==hash,"Partial/corrupt document submission");return parse(text);};

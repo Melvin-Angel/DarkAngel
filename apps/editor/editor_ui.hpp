@@ -4,6 +4,7 @@
 #include <darkangel/camera.hpp>
 #include <optional>
 #include "editor_controller.hpp"
+#include "prefab_commands.hpp"
 #include "effect_preview.hpp"
 #include "scene_camera.hpp"
 #include <DirectXMath.h>
@@ -165,7 +166,7 @@ public:
     void draw_items(Controller&,unsigned,unsigned,float);
     // R4 Prefabs workspace (prefab_workspace.cpp): browse, create and edit prefab definitions (.daprefab). Its drafts are the
     // ordinary native authoring drafts, saved by Save gameplay changes; saved definitions refresh the scenes that link them.
-    void draw_prefabs(Controller&,unsigned,unsigned,float);
+    void draw_prefabs(Controller&,unsigned,unsigned,float,ImTextureID scene_texture);
     // Scene Inspector section for a selected member of a linked prefab instance: placement, overrides, Revert, Apply
     // Selected, Swap, Duplicate, Delete and Open Prefab. True when it drew the object (the ordinary component forms are skipped).
     bool draw_prefab_instance(Controller&,StableId object);
@@ -183,6 +184,18 @@ public:
     bool ui_preview_alive()const;std::string ui_preview_text(const std::string& id)const;bool ui_preview_click(const std::string& id);std::vector<std::string> ui_preview_commands()const;
     AssetId ui_selection;char ui_name[65]{"NewDocument"};int ui_template{};void* ui_renderer{};std::shared_ptr<struct UiWorkspaceState> ui_state;
     AssetId prefab_selection,prefab_swap_target;char prefab_name[65]{"NewPrefab"},prefab_filter[65]{};bool prefab_swap_defaults{};std::set<std::string> prefab_override_selection;
+    // R4 Prefabs workspace preview: the selected definition (draft) resolved on its own, or in context at one of the open scene's
+    // instances with the surrounding scene models shown but not editable. prefab_workspace.cpp builds it when its inputs change;
+    // the scene viewport draws it, from an orbit camera, while the Prefabs tab is open.
+    struct PrefabPreviewModel {StableId object;AssetId model;Transform pose;bool context{};};
+    struct PrefabPreview {std::string key,error;std::vector<PrefabPreviewModel> models;std::array<double,3> center{};double radius{2};float yaw{.7f},pitch{.35f};bool visible{},in_context{};};
+    PrefabPreview prefab_preview;
+    // Consumers of the selected prefab (scanned when the selection or a Save changes them), rename and variant names, the nested
+    // prefab chosen to add, the objects captured for a multi-object Create Prefab from Selection, and expanded outliner instances.
+    std::string mount_delete; // an instance the outliner deletes after drawing its rows
+    AssetId prefab_consumers_for;std::vector<PrefabConsumer> prefab_consumer_list;bool prefab_consumers_stale{true};
+    char prefab_rename[65]{},prefab_variant_name[65]{"NewVariant"};AssetId prefab_nested_choice;
+    std::vector<StableId> prefab_capture;std::set<std::string> outliner_expanded;
     AssetId item_selection,item_create_mask;int item_create_kind{};char item_name[129]{"New item"},item_filter[129]{};
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
     // Host hook drawn over the Game viewport image while Play is active (runtime HUD).

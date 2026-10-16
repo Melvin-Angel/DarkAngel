@@ -44,6 +44,11 @@ void place(Json& entity,const Placement& placement){
 std::map<std::string,std::string> mount_retained(const Json& mount){
     std::map<std::string,std::string> result;if(!mount.contains("retain")||mount["retain"].is_null())return result;const auto& value=mount["retain"];
     require(value.is_object()&&value.size()<=64,"Mount retained identity map");for(const auto& [local,path]:value.items()){StableId::parse(local);require(path.is_string()&&!path.get<std::string>().empty()&&path.get<std::string>().size()<=1024,"Retained identity is an authored path");result.emplace(local,path.get<std::string>());}return result;}
+// The scene's own retained identities (R4 Unpack): root entity local key -> the authored path whose identity it keeps, so an
+// unpacked prefab member stays the same persistent object. Scene-owned and bounded; a key with no entity is unused.
+std::map<std::string,std::string> root_retained(const Json& graph){
+    std::map<std::string,std::string> result;if(!graph.contains("retain")||graph["retain"].is_null())return result;const auto& value=graph["retain"];
+    require(value.is_object()&&value.size()<=scene_object_limit,"Scene retained identity map");for(const auto& [local,path]:value.items()){StableId::parse(local);require(path.is_string()&&!path.get<std::string>().empty()&&path.get<std::string>().size()<=1024,"Retained identity is an authored path");result.emplace(local,path.get<std::string>());}return result;}
 void patch(Json& graph,const Json& operation){
     auto op=operation.at("op").get<std::string>();auto target=operation.at("target").get<std::string>();StableId::parse(target);
     auto& entities=graph.at("entities");
@@ -166,6 +171,7 @@ struct Resolver {
     const AssemblySources& sources;SpawnPlan plan;
     std::set<AssetId> stack,variants;std::map<std::string,StableId> paths;std::map<std::string,std::string> exports;std::set<StableId> objects;
     std::vector<EntityPart> parts;std::size_t own{}; // every object in visit order; the first `own` are the root's own entities
+    std::map<std::string,std::string> own_retained;   // the root's retained identities (R4 Unpack)
     Json source(AssetId id){require(sources.contains(id),"Missing declared AssemblyAsset");auto graph=parse_script_data(sources.at(id),document_source_limit);require(graph.at("schema")==1 && graph.at("asset")==id.text() && graph.at("entities").is_object(),"Assembly schema/identity mismatch");for(auto& [local,entity]:graph["entities"].items())migrate(entity);return graph;}
     Json definition(AssetId id){auto graph=source(id);if(graph.contains("base") && !graph["base"].is_null()){variants.insert(id);
         auto base=source(AssetId::parse(graph["base"].get<std::string>()));require(!base.contains("base") || base["base"].is_null(),"Only one variant level is enabled");
@@ -177,8 +183,9 @@ struct Resolver {
         require(depth<=16 && stack.insert(id).second,"Cyclic/deep assembly composition");auto graph=definition(id);require(edits.is_array() && edits.size()<=1024,"Placement patch limit");
         for(const auto& operation:edits)patch(graph,operation);
         for(const auto& [local,unused]:retained)require(graph.at("entities").contains(local),"Retained identity names a member the mounted assembly does not have");
+        if(depth==0)own_retained=root_retained(graph);const auto& keeps=depth==0?own_retained:retained;
         for(auto [local,entity]:graph.at("entities").items()){
-            require(plan.origins.size()<scene_object_limit,"Assembly object limit");Json placed=entity;migrate(placed);place(placed,placement);auto part=entity_part(id,scope,local,std::move(placed),edits.empty()?"definition":"placement patches",retained.empty()?nullptr:&retained);
+            require(plan.origins.size()<scene_object_limit,"Assembly object limit");Json placed=entity;migrate(placed);place(placed,placement);auto part=entity_part(id,scope,local,std::move(placed),edits.empty()?"definition":"placement patches",keeps.empty()?nullptr:&keeps);
             require(paths.emplace(part.path,part.object).second,"Duplicate authored path");require(objects.insert(part.object).second,"Persistent identity collision");
             plan.origins.push_back(part.entries.origins.front());each_entry(plan,part.entries,[](auto& into,const auto& from){into.insert(from.begin(),from.end());});check_limits(plan);
             parts.push_back(std::move(part));
@@ -203,6 +210,7 @@ struct SceneAssembly::Impl {
     std::map<std::string,StableId> paths;std::map<std::string,std::string> exports;
     std::map<StableId,std::string> records;    // every object's scene record, in identity (scene) order
     std::map<std::string,unsigned> referenced; // how many references address each path
+    std::map<std::string,std::string> retained; // the root's retained identities (R4 Unpack), for record edits
     std::map<std::string,EntityPart> parts;    // the root's own entities by local identity: the first origins, in this order
     // The plan's origins and bindings (in plan order) and models as SpawnPlan::serialize writes them, so a fingerprint is text.
     std::vector<std::string> origin_texts,binding_texts;std::map<StableId,std::string> model_texts;
@@ -214,7 +222,7 @@ struct SceneAssembly::Impl {
         for(auto& part:resolver.parts){resolve_part(part,resolver.exports,find);plan.bindings.insert(plan.bindings.end(),part.entries.bindings.begin(),part.entries.bindings.end());
             origin_texts.push_back(part.origin);binding_texts.insert(binding_texts.end(),part.bindings.begin(),part.bindings.end());for(const auto& [object,asset]:part.entries.models)model_texts.emplace(object,model_text(object,asset));records.emplace(part.object,part.record);for(const auto& path:part.references)++referenced[path];}
         for(const auto& [key,path]:resolver.exports)require(resolver.paths.contains(path),"Export addresses removed entity");
-        editable=!resolver.variants.contains(root);if(editable)for(std::size_t index=0;index<resolver.own;++index)parts.emplace(resolver.parts[index].local,std::move(resolver.parts[index]));
+        retained=std::move(resolver.own_retained);editable=!resolver.variants.contains(root);if(editable)for(std::size_t index=0;index<resolver.own;++index)parts.emplace(resolver.parts[index].local,std::move(resolver.parts[index]));
         paths=std::move(resolver.paths);exports=std::move(resolver.exports);plan.scene_json=scene_text(records);plan.fingerprint=sha256(serialized(plan.scene_json));
     }
     // Where a root entity's origin and bindings sit: its index among the root's entities, and its first binding.
@@ -243,7 +251,7 @@ std::shared_ptr<const SceneAssembly::Staged> SceneAssembly::stage(const Records&
     auto& p=*impl_;require(p.editable,"A variant scene's entities are its base's: edit its source");require(!edits.empty() && edits.size()<=scene_object_limit,"Scene record edit limit");
     auto staged=std::make_shared<Staged>();staged->generation=p.generation;std::map<std::string,const StableId*> edited;
     for(const auto& [local,text]:edits){
-        if(text){auto part=entity_part(p.root,p.scope,local,parse_script_data(*text,document_source_limit),"definition");auto& slot=staged->parts[local];slot=std::move(part);edited[slot->path]=&slot->object;}
+        if(text){auto part=entity_part(p.root,p.scope,local,parse_script_data(*text,document_source_limit),"definition",p.retained.empty()?nullptr:&p.retained);auto& slot=staged->parts[local];slot=std::move(part);edited[slot->path]=&slot->object;}
         else{require(p.parts.contains(local),"Removed scene record is not in the scene");staged->parts[local]=std::nullopt;edited[p.scope+"/"+local]=nullptr;}
     }
     // The edited records' own paths resolve to their new objects (or nothing); every other path to the scene as it is.
