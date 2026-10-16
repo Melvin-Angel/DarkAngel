@@ -1,0 +1,31 @@
+[1/31] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/31] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/31] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/31] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/31] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/31] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/31] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/31] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[9/31] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+[10/31] Building CXX object CMakeFiles\DarkAngelNavigation.dir\engine\runtime\navigation.cpp.obj
+[11/31] Building CXX object CMakeFiles\DarkAngelNetwork.dir\engine\runtime\gns_transport.cpp.obj
+[12/31] Building CXX object CMakeFiles\DarkAngelBehavior.dir\engine\runtime\behavior_tree.cpp.obj
+[13/31] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_combat.cpp.obj
+[14/31] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_hud.cpp.obj
+[15/31] Building CXX object CMakeFiles\DarkAngelPersistence.dir\engine\persistence\persistence.cpp.obj
+[16/31] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_service.cpp.obj
+[17/31] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_director.cpp.obj
+[18/31] Building CXX object CMakeFiles\DarkAngelVfx.dir\engine\vfx\vfx_service.cpp.obj
+[19/31] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\hud.cpp.obj
+[20/31] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\inventory_document.cpp.obj
+[21/31] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\altar_document.cpp.obj
+[22/31] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\world_ui.cpp.obj
+[23/31] Linking CXX static library DarkAngelNavigation.lib
+[24/31] Linking CXX static library DarkAngelNetwork.lib
+[25/31] Linking CXX static library AshenRootsCombat.lib
+[26/31] Linking CXX static library DarkAngelPersistence.lib
+[27/31] Linking CXX static library DarkAngelAudio.lib
+[28/31] Linking CXX static library DarkAngelVfx.lib
+[29/31] Linking CXX static library DarkAngelHud.lib
+[30/31] Linking CXX static library DarkAngelBehavior.lib
+[31/31] Linking CXX executable DarkAngelEditor.exe

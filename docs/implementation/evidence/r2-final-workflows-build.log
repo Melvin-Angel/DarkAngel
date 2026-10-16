@@ -1,0 +1,14 @@
+[1/31] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/29] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/27] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/25] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/22] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/20] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/17] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/15] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[9/10] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(730): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(28): warning C4189: 'character': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(29): warning C4189: 'import_baseline': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(799): warning C4189: 'character_resources': local variable is initialized but not referenced
+[10/10] Linking CXX executable DarkAngelEditor.exe

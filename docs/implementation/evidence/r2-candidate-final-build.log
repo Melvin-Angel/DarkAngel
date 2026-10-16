@@ -1,0 +1,62 @@
+[1/50] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[2/48] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[3/46] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[4/43] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[5/41] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/39] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/36] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/34] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[9/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\editor_ux_exercise.cpp.obj
+[10/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_preferences.cpp.obj
+[11/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_splines.cpp.obj
+[12/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(208): warning C4458: declaration of 'area' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(158): note: see declaration of 'darkangel::editor_app::Shell::area'
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(337): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[13/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(191): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(188): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(463): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[14/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_app.cpp.obj
+[15/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_viewport.cpp.obj
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(266): warning C4457: declaration of 'viewer' hides function parameter
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(254): note: see declaration of 'viewer'
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(362): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(362): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(362): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(365): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(365): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(365): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(365): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(365): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(365): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[16/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\audio_workspace.cpp.obj
+[17/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\preview_results.cpp.obj
+[18/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\vfx_workspace.cpp.obj
+[19/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(717): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(28): warning C4189: 'character': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(29): warning C4189: 'import_baseline': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(786): warning C4189: 'character_resources': local variable is initialized but not referenced
+[20/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\navigation_exercises.cpp.obj
+[21/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\media_exercises.cpp.obj
+[22/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\play_exercises.cpp.obj
+[23/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\gameplay_results.cpp.obj
+[24/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scale_exercise.cpp.obj
+[25/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\gameplay_inspector.cpp.obj
+[26/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\pose_previews.cpp.obj
+[27/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_controller.cpp.obj
+C:\DarkAngel\apps\editor\play_controller.cpp(1739): warning C4456: declaration of 'at' hides previous local declaration
+C:\DarkAngel\apps\editor\play_controller.cpp(1679): note: see declaration of 'at'
+[28/29] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\viewport_tools.cpp.obj
+[29/29] Linking CXX executable DarkAngelEditor.exe

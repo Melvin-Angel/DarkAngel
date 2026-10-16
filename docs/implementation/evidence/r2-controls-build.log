@@ -1,0 +1,60 @@
+[1/61] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/59] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/57] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/55] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/52] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[6/50] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[7/48] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[8/45] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[9/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\acceptance.cpp.obj
+[10/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scene_camera_exercise.cpp.obj
+[11/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\editor_ux_exercise.cpp.obj
+[12/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scene_editing.cpp.obj
+[13/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\gpu_resources.cpp.obj
+[14/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_navigation.cpp.obj
+[15/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_items.cpp.obj
+C:\DarkAngel\apps\editor\editor_items.cpp(27): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\editor_items.cpp(29): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[16/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(208): warning C4458: declaration of 'area' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(158): note: see declaration of 'darkangel::editor_app::Shell::area'
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(326): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[17/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_assets.cpp.obj
+C:\DarkAngel\apps\editor\editor_assets.cpp(70): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[18/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\world_place_exercise.cpp.obj
+[19/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_world_objects.cpp.obj
+[20/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+FAILED: [code=2] CMakeFiles/DarkAngelEditor.dir/apps/editor/editor_authoring.cpp.obj 
+"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe"  /nologo /TP -DD3D11_SUPPORTED=0 -DD3D12_SUPPORTED=1 -DDAE_ANIMATION=1 -DDAE_AUDIO=1 -DDAE_BEHAVIOR=1 -DDAE_CHARACTER_SCENE=1 -DDAE_DXC_DLL=\"C:/DarkAngel/.tools/dxc/bin/x64/dxcompiler.dll\" -DDAE_EDITOR_GNS=1 -DDAE_GAME_UI_DIR=\"C:/DarkAngel/games/AshenRoots/ui\" -DDAE_HUD=1 -DDAE_NAVIGATION=1 -DGLES_SUPPORTED=0 -DGL_SUPPORTED=0 -DIMGUI_DEFINE_MATH_OPERATORS -DIMGUI_USER_CONFIG=\"ImGuiDiligentConfig.h\" -DMETAL_SUPPORTED=0 -DPLATFORM_WIN32=1 -DRMLUI_STATIC_LIB -DVULKAN_SUPPORTED=1 -DWEBGPU_SUPPORTED=0 -IC:\DarkAngel\third_party\imguizmo\src -IC:\DarkAngel\third_party\imgui-docking -IC:\DarkAngel\third_party\diligent-core\Common\interface -IC:\DarkAngel\engine\persistence\include -IC:\DarkAngel\engine\foundation\include -IC:\DarkAngel\engine\assets\include -IC:\DarkAngel\engine\runtime\include -IC:\DarkAngel\tools\editor\include -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineD3D12\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineD3DBase\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngine\interface -IC:\DarkAngel\third_party\diligent-core\Primitives\interface -IC:\DarkAngel\third_party\diligent-core\Graphics\GraphicsEngineVulkan\interface -IC:\DarkAngel\third_party\diligent-tools\Imgui\interface -IC:\DarkAngel\engine\vfx\include -IC:\DarkAngel\engine\audio\include -IC:\DarkAngel\games\AshenRoots\include -external:IC:\DarkAngel\build\m5-editor-relwithdebinfo\vcpkg_installed\x64-windows-darkangel\include -external:W0 /DWIN32 /D_WINDOWS /EHsc /O2 /Ob1 /DNDEBUG -std:c++20 -MD -Zi /W4 /utf-8 /EHsc -openmp /showIncludes @CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj.modmap /FoCMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj /FdCMakeFiles\DarkAngelEditor.dir\ /FS -c C:\DarkAngel\apps\editor\editor_authoring.cpp
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(175): error C3861: 'node_pick_reference': identifier not found
+C:\DarkAngel\apps\editor\editor_authoring.cpp(175): error C3861: 'node_pick_reference': identifier not found
+C:\DarkAngel\apps\editor\editor_authoring.cpp(190): error C3861: 'node_pick_reference': identifier not found
+C:\DarkAngel\apps\editor\editor_authoring.cpp(190): error C3861: 'node_pick_reference': identifier not found
+C:\DarkAngel\apps\editor\editor_authoring.cpp(191): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(188): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(191): error C3861: 'node_pick_reference': identifier not found
+C:\DarkAngel\apps\editor\editor_authoring.cpp(191): error C3861: 'node_pick_reference': identifier not found
+C:\DarkAngel\apps\editor\editor_authoring.cpp(463): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[21/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[22/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_workspaces.cpp.obj
+C:\DarkAngel\apps\editor\editor_workspaces.cpp(14): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\editor_workspaces.cpp(81): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[23/40] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_preferences.cpp.obj
+C:\DarkAngel\apps\editor\editor_preferences.cpp(14): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\DarkAngel\apps\editor\editor_preferences.cpp(15): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+ninja: build stopped: subcommand failed.

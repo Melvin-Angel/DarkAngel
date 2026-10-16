@@ -1,0 +1,1 @@
+Native Win32 keyboard/mouse edge capture, repeat rejection, between-frame taps and bounded overflow cancellation passed; XInput API=1 (hardware not exercised)

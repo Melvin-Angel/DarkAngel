@@ -1,0 +1,28 @@
+[1/33] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[2/31] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[3/29] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[4/27] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[5/24] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[6/22] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[7/19] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[8/17] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[9/12] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[10/12] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(208): warning C4458: declaration of 'area' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(158): note: see declaration of 'darkangel::editor_app::Shell::area'
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(342): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[11/12] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(192): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(189): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(471): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(145): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[12/12] Linking CXX executable DarkAngelEditor.exe
