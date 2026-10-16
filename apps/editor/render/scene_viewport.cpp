@@ -77,6 +77,27 @@ void SceneViewport::prepare_targets() {
             require(scene_color_second && scene_display_second && scene_depth_second, "Second viewport resource creation failed");
         }
     }
+    if (!shadow_map) {
+        TextureDesc shadow;
+        shadow.Name = "DarkAngel cascaded main-light shadows";
+        shadow.Type = RESOURCE_DIM_TEX_2D_ARRAY;
+        shadow.Width = shadow.Height = 2048;
+        shadow.ArraySize = 4;
+        shadow.Format = TEX_FORMAT_D32_FLOAT;
+        shadow.BindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
+        device->CreateTexture(shadow, nullptr, &shadow_map);
+        require(shadow_map, "Shadow map creation failed");
+        shadow_srv = shadow_map->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+        for (unsigned cascade = 0; cascade < 4; ++cascade) {
+            TextureViewDesc view;
+            view.ViewType = TEXTURE_VIEW_DEPTH_STENCIL;
+            view.Format = TEX_FORMAT_D32_FLOAT;
+            view.FirstArraySlice = cascade;
+            view.NumArraySlices = 1;
+            shadow_map->CreateView(view, &shadow_dsv[cascade]);
+            require(shadow_dsv[cascade], "Shadow cascade view creation failed");
+        }
+    }
     if (!post_buffer) { BufferDesc desc;desc.Name="Editor post-process constants";desc.Usage=USAGE_DYNAMIC;desc.BindFlags=BIND_UNIFORM_BUFFER;desc.CPUAccessFlags=CPU_ACCESS_WRITE;desc.Size=sizeof(PostConstants);device->CreateBuffer(desc,nullptr,&post_buffer);require(post_buffer,"Post-process constants buffer creation failed"); }
     if (!post_pso) { post_pso=post_pipeline(device.RawPtr(),post_buffer.RawPtr(),swap_desc.ColorBufferFormat);post_pso->CreateShaderResourceBinding(&post_binding,true);post_pso->CreateShaderResourceBinding(&post_binding_second,true);require(post_binding&&post_binding_second,"Post-process binding creation failed"); }
     shell.game_image_second = shell.second_view && scene_display_second
@@ -283,8 +304,9 @@ void SceneViewport::render(double elapsed_seconds) {
     std::vector<FrameLight> frame_lights;
     for(const auto& origin:editor.document->plan().origins){auto handle=editor.displayed().find(origin.object);if(!editor.displayed().valid(handle))continue;auto object=editor.displayed().read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering"))frame_settings=render::decode_rendering_settings(source.at("rendering"));if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
     const float sky[4]={frame_settings.sky_enabled?frame_settings.sky_color.r:background[0],frame_settings.sky_enabled?frame_settings.sky_color.g:background[1],frame_settings.sky_enabled?frame_settings.sky_color.b:background[2],1};context->ClearRenderTarget(rtv,sky,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    std::array<XMFLOAT4X4,4> shadow_matrices{};std::array<float,4> shadow_splits{.2f,.45f,.7f,1.f};bool shadow_enabled=false;
     // One pass over the scene's objects for a view. viewer: the client whose world and poses are shown; null for the editor's own.
-    auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer) {
+    auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer, bool shadow_pass = false) {
         const darkangel::World* shown_world = &editor.displayed();
         (void)viewer;
 #ifdef DAE_CHARACTER_SCENE
@@ -437,9 +459,17 @@ void SceneViewport::render(double elapsed_seconds) {
                     }
                     if(prefab_render)for(const auto& shown:shell.prefab_preview.models)if(shown.object==object_id)if(const auto assignment=shown.materials.find(part.material);assignment!=shown.materials.end())effective=&scene.native_materials.at(assignment->second).surface;
                     const auto& material=*effective;
+                    if(shadow_pass){Constants constants;XMStoreFloat4x4(&constants.mvp,world*view*projection);XMStoreFloat4x4(&constants.rotation,rotation);XMStoreFloat4x4(&constants.world,world);void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow constants mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
+#ifdef DAE_ANIMATION
+                        IPipelineState* shadow_pipeline=(drawn_ptr&&!args.skin_reference)?(material.value.double_sided?scene.skin_shadow_pso.RawPtr():scene.skin_shadow_cull.RawPtr()):(material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr());
+#else
+                        IPipelineState* shadow_pipeline=material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr();
+#endif
+                        if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;}DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);continue;}
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
+                    XMStoreFloat4x4(&constants.world, world);
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
                     apply_material(constants, material.value);
@@ -447,6 +477,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     const bool material_toon=material.value.family==material_family_toon_standard||material.value.family==material_family_toon_character||material.value.family==material_family_toon_terrain;
                     if(!material_toon){constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1};constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness};constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1};}
                     constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f};constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
+                    constants.shadow_splits={shadow_splits[0],shadow_splits[1],shadow_splits[2],shadow_splits[3]};constants.shadow_params={.001f,.002f,shadow_enabled?1.f:0.f,1.f/2048.f};for(unsigned cascade=0;cascade<4;++cascade)constants.shadow_matrices[cascade]=shadow_matrices[cascade];if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);
                     const float local_strength=material_toon?material.value.local_light_strength:frame_settings.toon.local_light_strength;unsigned local_index=0;const auto inverse_rotation=XMMatrixInverse(nullptr,rotation);for(const auto&prepared:frame_lights)if(prepared.light.id!=frame_settings.main_light&&prepared.light.type!=darkangel::rendering::LightType::Directional&&prepared.light.enabled&&local_index<4){const auto p=XMVector3TransformCoord(XMVectorSet(prepared.world_position[0]-float(pose.x),prepared.world_position[1]-float(pose.y),prepared.world_position[2]-float(pose.z),1),inverse_rotation);XMFLOAT3 local;XMStoreFloat3(&local,p);constants.local_positions[local_index]={local.x,local.y,local.z,prepared.light.range};constants.local_colors[local_index]={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity*local_strength};++local_index;}
                     void* mapped{};
                     context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
@@ -610,6 +641,8 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
     const bool travelling = false;
 #endif
+    if(frame_settings.main_light){for(const auto& prepared:frame_lights)if(prepared.light.id==frame_settings.main_light&&prepared.light.type==darkangel::rendering::LightType::Directional&&prepared.light.enabled&&prepared.light.cast_shadows){const auto direction=XMVector3Normalize(XMVectorSet(prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],0));const auto target=XMVectorZero();const auto light_position=XMVectorSubtract(target,XMVectorScale(direction,200));const auto light_view=XMMatrixLookAtRH(light_position,target,XMVectorSet(0,1,0,0));for(unsigned cascade=0;cascade<4;++cascade){const float extent=std::max(8.f,gpu.radius*(.8f+float(cascade+1)*1.5f));const auto light_projection=XMMatrixOrthographicOffCenterRH(-extent,extent,-extent,extent,.1f,extent*4);XMStoreFloat4x4(&shadow_matrices[cascade],light_view*light_projection);auto* dsv_shadow=shadow_dsv[cascade].RawPtr();context->SetRenderTargets(0,nullptr,dsv_shadow,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearDepthStencil(dsv_shadow,CLEAR_DEPTH_FLAG,1,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);Viewport shadow_viewport;shadow_viewport.Width=shadow_viewport.Height=2048;context->SetViewports(1,&shadow_viewport,2048,2048);draw_objects(light_view,light_projection,nullptr,true);}shadow_enabled=true;}}
+    context->SetRenderTargets(1,&rtv,dsv,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->SetViewports(1,&viewport,scene_color->GetDesc().Width,scene_color->GetDesc().Height);
     if (!travelling)
         draw_objects(view, projection, nullptr);
 #ifdef DAE_CHARACTER_SCENE
@@ -663,6 +696,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
+                    XMStoreFloat4x4(&constants.world, world);
                     constants.color = {material.value.color[0], material.value.color[1], material.value.color[2], material.value.color[3]};
                     apply_material(constants, material.value);
                     void* mapped{};
@@ -671,6 +705,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     std::memcpy(mapped, &constants, sizeof(constants));
                     context->UnmapBuffer(constant_buffer, MAP_WRITE);
                     context->SetPipelineState(pso.RawPtr());
+                    if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);
                     context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     DrawIndexedAttribs draw;
                     draw.NumIndices = part.count;

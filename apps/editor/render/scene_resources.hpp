@@ -55,7 +55,7 @@ class SceneResources {
     std::set<AssetId> worn_failed;
 #ifdef DAE_ANIMATION
     RefCntAutoPtr<IBuffer> bone_buffer;
-    RefCntAutoPtr<IPipelineState> skin_pso, skin_cull, skin_blend, skin_blend_cull;
+    RefCntAutoPtr<IPipelineState> skin_pso, skin_cull, skin_blend, skin_blend_cull, skin_shadow_pso, skin_shadow_cull;
     std::map<AssetId, UploadedSkin> scene_skins;
     std::unique_ptr<AnimationClip> diagnostic_clip;
 #endif

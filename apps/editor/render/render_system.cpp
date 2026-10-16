@@ -105,6 +105,8 @@ void RenderSystem::create_frame_pipelines() {
     pso_cull = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, source.c_str());
     pso_blend = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, source.c_str(), nullptr, true);
     pso_blend_cull = render::pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, source.c_str(), nullptr, true);
+    shadow_pso = render::shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, false, nullptr);
+    shadow_pso_cull = render::shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, true, nullptr);
 }
 
 bool RenderSystem::pump_messages() {

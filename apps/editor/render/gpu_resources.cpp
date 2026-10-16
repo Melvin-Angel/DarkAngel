@@ -69,7 +69,8 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                                               {SHADER_TYPE_PIXEL, "EmissiveMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "DissolveMask", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "TerrainLayer1", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
-                                              {SHADER_TYPE_PIXEL, "TerrainLayer2", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
+                                              {SHADER_TYPE_PIXEL, "TerrainLayer2", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "ShadowMap", SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};
     ci.PSODesc.ResourceLayout.Variables = variables;
     ci.PSODesc.ResourceLayout.NumVariables = _countof(variables);
     SamplerDesc sampler;
@@ -84,7 +85,8 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                                        {SHADER_TYPE_PIXEL, "EmissiveMap", sampler},
                                        {SHADER_TYPE_PIXEL, "DissolveMask", sampler},
                                        {SHADER_TYPE_PIXEL, "TerrainLayer1", sampler},
-                                       {SHADER_TYPE_PIXEL, "TerrainLayer2", sampler}};
+                                       {SHADER_TYPE_PIXEL, "TerrainLayer2", sampler},
+                                       {SHADER_TYPE_PIXEL, "ShadowMap", [&]{SamplerDesc comparison=sampler;comparison.ComparisonFunc=COMPARISON_FUNC_LESS_EQUAL;return comparison;}()}};
     ci.PSODesc.ResourceLayout.ImmutableSamplers = samplers;
     ci.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(samplers);
     RefCntAutoPtr<IPipelineState> result;
@@ -115,6 +117,17 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {float3 source=hdr(vertex.UV);float
 )";
     ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=source;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel post VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);shader.Desc.Name="DarkAngel post PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(vs&&ps,"Post-process shader compilation failed");
     GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variable{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE};ci.PSODesc.ResourceLayout.Variables=&variable;ci.PSODesc.ResourceLayout.NumVariables=1;SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutable{SHADER_TYPE_PIXEL,"SceneColor",sampler};ci.PSODesc.ResourceLayout.ImmutableSamplers=&immutable;ci.PSODesc.ResourceLayout.NumImmutableSamplers=1;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
+}
+RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones) {
+    static constexpr const char* depth_source = R"(
+cbuffer Frame {row_major float4x4 Mvp;};
+struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
+struct VertexOutput {float4 Position:SV_POSITION;};
+VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);return result;}
+float4 PSMain(VertexOutput vertex):SV_TARGET{return 1;}
+)";
+    const char* shader_source_text=source?source:depth_source;ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=shader_source_text;RefCntAutoPtr<IShader> vs;shader.Desc.Name="DarkAngel shadow VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);require(vs,"Shadow shader compilation failed");
+    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel cascaded shadow caster";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=0;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthWriteEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};graphics.InputLayout.LayoutElements=layout;graphics.InputLayout.NumElements=bones?5:3;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Shadow pipeline creation failed");auto* frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");require(frame,"Shadow Frame contract changed");frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Shadow skeleton contract missing");skeleton->Set(bones);}return result;
 }
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked) {
     require(!cooked.mips.empty(), "Missing texture mips");
@@ -327,6 +340,7 @@ std::string skin_shader() {
             "i=0;i<4;++i){position+=mul(float4(vertex.Position,1),Bones[vertex.Joints[i]])*vertex.Weights[i];normal+=mul(vertex.Normal,("
             "float3x3)Bones[vertex.Joints[i]])*vertex.Weights[i];}result.Position=mul(position,Mvp);result.Normal=mul(normal,(float3x3)"
             "Rotation);result.Local=mul(position.xyz,(float3x3)Rotation);");
+    replace("result.WorldPosition=mul(float4(vertex.Position,1),World).xyz;", "result.WorldPosition=mul(position,World).xyz;");
     return source;
 }
 UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipelineState* pso, IPipelineState* cull,

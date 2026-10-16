@@ -17,6 +17,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 - Shared toon constants and lighting evaluation for the existing static/skinned material pipelines, including deterministic local-light ordering, material-specific toon overrides, object-space triplanar base sampling, character hit/status/dissolve controls, terrain layer sampling/blending controls, emission and alpha modes.
 - Registered and cooked material families: `toon-standard-v1`, `toon-character-v1`, and `toon-terrain-v1`. Existing `lit-color-v1` and `lit-surface-v1` contracts remain compatible.
 - HDR viewport accumulation in `RGBA16_FLOAT` targets and a separate display target. The post stage performs exposure, neutral tone mapping, contrast/saturation/tint, bounded single-pass bloom sampling, and FXAA before ImGui composition.
+- Baseline real-time main directional shadows: four 2048x2048 D32 cascades, static/skinned caster PSOs, stable light-space matrices and 3x3 comparison-PCF receiver sampling. The current baseline uses fixed splits/bias values while the resource and shader contracts are established.
 - Scene-authored sky color and linear/exponential distance fog. Fog is applied in the material pass so transparent objects are not fogged again in the post stage.
 - Expanded resource bindings and shader feature bits are bounded; float/color edits do not create new PSO keys.
 
@@ -30,7 +31,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 
 ## Not yet implemented or not visually qualified
 
-- Real cascaded directional shadow maps, PCF sampling, shadow-caster passes, and skinned/alpha-cutout shadow qualification.
+- Shadow visual qualification, stable texel-snapped cascades, authored cascade/bias controls, alpha-cutout caster discard and transparent-shadow policy still require the dedicated rendering validation scene.
 - GPU compute clustered assignment and per-view GPU occupancy/overflow buffers; the current CPU assignment is a correctness reference, not the final GPU path.
 - Object/group-ID plus depth/normal screen-space outlines and distance fading.
 - Cubemap/equirectangular HDR sky import, procedural sky recipe publication and sun synchronization.

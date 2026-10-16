@@ -7,6 +7,7 @@
 #include <DirectXMath.h>
 #include <imgui.h>
 #include <cstddef>
+#include <array>
 
 namespace darkangel {
 struct VfxView;
@@ -62,6 +63,9 @@ class SceneViewport {
     Diligent::RefCntAutoPtr<Diligent::IBuffer> post_buffer;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> post_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> post_binding, post_binding_second;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> shadow_map;
+    Diligent::RefCntAutoPtr<Diligent::ITextureView> shadow_srv;
+    std::array<Diligent::RefCntAutoPtr<Diligent::ITextureView>,4> shadow_dsv{};
     unsigned scene_width = 700, scene_height = 500;
     // The viewport's field of view this frame.
     float camera_fov = DirectX::XM_PIDIV4;
