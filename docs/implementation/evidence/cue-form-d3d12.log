@@ -5,8 +5,8 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80204120000
-[39mViewport foreground pixels=751919 capture=C:\DarkAngel\docs\implementation\evidence\cue-form-d3d12.png
-Editor cue_form cues=5 path=vfx/cues/gate_67b2e090.dacue saved=1 tail=20 visual_resolved=1 audio_resolved=1
+[39mViewport foreground pixels=598198 capture=C:\DarkAngel\docs\implementation\evidence\cue-form-d3d12.png
+Editor cue_form cues=5 path=vfx/cues/gate_97d4f0a3.dacue saved=1 tail=20 visual_resolved=1 audio_resolved=1
 Editor vfx_tab effects=2 selected=vfx/placeholder/hit_spark.efkproj cooked=1 cooks=1 textures=1 playing=1 particles=3 quads=2 unsupported=0 refused=0
 DarkAngel editor rendered 20 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

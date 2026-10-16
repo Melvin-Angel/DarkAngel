@@ -4,15 +4,15 @@
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205250000
-[39mViewport foreground pixels=855377 capture=C:\DarkAngel\docs\implementation\evidence\npc-senses-d3d12.png
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
+[39mViewport foreground pixels=409488 capture=C:\DarkAngel\docs\implementation\evidence\npc-senses-d3d12.png
 Editor senses noticed_tick=109 noticed_z=6.70834 sensors=2 perceived=1 senses_drawn=1
 Editor attacked tick=330 player_health=50 reaction_tick=-1 death_tick=-1 pending=0 actors=1 nav_polygons=52 behavior=Guard_Melee decision=Recover_(42_ticks_left) hud_health=50/100 hud_target=0/0 hud_target_name=Target
 DarkAngel editor rendered 330 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 13/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 1000.25 KB / 1000.25 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 97.7%
+                       Peak used/aligned/allocated size: 904.25 KB / 904.25 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 88.3%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

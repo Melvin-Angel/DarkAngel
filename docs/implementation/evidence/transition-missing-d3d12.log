@@ -4,14 +4,14 @@
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802050e0000
-[39mViewport foreground pixels=847974 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
-Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=fe0b17e7-5b30-4a4f-917f-5e871f0ab157 document=fe0b17e7-5b30-4a4f-917f-5e871f0ab157 authoring=fe0b17e7-5b30-4a4f-917f-5e871f0ab157 lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_8e9a30e0-3d8e-419d-9a28-caa961cf5a7b_is_in_the_project
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
+[39mViewport foreground pixels=453648 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
+Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=48c8b18f-798c-4dec-b4d7-33f7292366e3 document=48c8b18f-798c-4dec-b4d7-33f7292366e3 authoring=48c8b18f-798c-4dec-b4d7-33f7292366e3 lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_5d1344fe-222f-49c3-a3b9-68ab950fabfa_is_in_the_project
 DarkAngel editor rendered 220 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 310.25 KB / 310.25 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 30.3%
+                       Peak used/aligned/allocated size: 219.00 KB / 219.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 21.4%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

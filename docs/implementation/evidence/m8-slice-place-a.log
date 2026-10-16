@@ -14,7 +14,7 @@ Editor world_place scene=92c7496a-31b5-4a3f-84df-a63d62a60559 objects=5
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 3/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 264.00 KB / 264.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 25.8%
+                       Peak used/aligned/allocated size: 295.50 KB / 295.75 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 99.9%. Peak utilization (used/allocated): 28.9%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 1.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:

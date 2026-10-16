@@ -4,12 +4,12 @@
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201860000
-[39mEditor mouse drag=1 drop_x=4.93867 drop_y=0.5 drop_z=6.06443
-[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201960000
-[39mEditor mouse double_click=1 delete_key=1 context_delete=1 objects=5
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201930000
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201a30000
+[39mEditor mouse drag=1 drop_x=4.95415 drop_y=0.5 drop_z=6.06784
+Editor mouse double_click=1 delete_key=1 context_delete=1 objects=5
 Editor mouse viewport_select=1
-Viewport foreground pixels=865842 capture=C:\DarkAngel\docs\implementation\evidence\place-mouse-d3d12.png
+Viewport foreground pixels=305509 capture=C:\DarkAngel\docs\implementation\evidence\place-mouse-d3d12.png
 DarkAngel editor rendered 44 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 3/256
