@@ -171,6 +171,11 @@ public:
     bool draw_prefab_instance(Controller&,StableId object);
     // Create Prefab from Selection for one of the scene's own objects.
     void draw_create_prefab(Controller&,StableId object);
+    // R5 (material_workspace.cpp): material slots of a selected imported model (assign, create editable material, reset to
+    // imported) and the form of a material instance draft. Both live in Assets.
+    void draw_model_materials(Controller&,const AssetInfo& model);
+    void draw_material_form(Controller&,AssetId material);
+    char material_name[65]{"NewMaterial"};
     AssetId prefab_selection,prefab_swap_target;char prefab_name[65]{"NewPrefab"},prefab_filter[65]{};bool prefab_swap_defaults{};std::set<std::string> prefab_override_selection;
     AssetId item_selection,item_create_mask;int item_create_kind{};char item_name[129]{"New item"},item_filter[129]{};
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};

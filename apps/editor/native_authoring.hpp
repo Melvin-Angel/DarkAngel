@@ -47,6 +47,8 @@ public:
     AssetId create_prefab(AssetService&,std::string_view name,AssetId model={});
     // A prefab source made elsewhere (Create Prefab from Selection), staged under prefabs/ with its own identity.
     AssetId create_prefab_source(AssetService&,std::string_view name,nlohmann::json value);
+    // R5: a material instance under materials/ initialised from a material slot's cooked values.
+    AssetId create_material(AssetService&,std::string_view name,const nlohmann::json& values);
     // Structure edits on a behaviour tree. path holds child indices from the root to the node (empty = root).
     // MoveUp/MoveDown/Remove act on that node among its siblings; AddChild appends a default node of `type` to that composite.
     enum class BehaviorEdit {MoveUp,MoveDown,Remove,AddChild};

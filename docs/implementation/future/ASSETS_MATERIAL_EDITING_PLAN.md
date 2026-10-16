@@ -1,5 +1,7 @@
 # Assets: imported-model materials and prefab editing entry points
 
+**16 October 2026: A0 and A1 implemented (R5, first half).** See the [R5 report](../current/MATERIAL_EDITING_REPORT.md); A2 and A3 remain.
+
 **Scheduling: Planned, R5 (G)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after the complete R4 prefab workflow. A0–A3 below are local material implementation IDs, not the old A movement feature. Use the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md); R2 specifies existing-surface conventions without implementing these new forms.
 
 15 October 2026. **Research/design for future implementation only.** Linked from the [authoring handoff](AUTHORING_NEXT_STEPS_2026-10-15.md), [prefab workflow](PREFAB_PLACEMENT_DESIGN.md) and [environment/rendering plan](ENVIRONMENT_LIGHTING_POST_PROCESSING_PLAN.md).

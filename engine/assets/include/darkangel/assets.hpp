@@ -102,6 +102,12 @@ public:
     PreparedNativeEdit preview_native(std::span<const NativeSourceEdit>,std::span<const AssetId> roots);
     std::vector<CookResult> commit_native(const PreparedNativeEdit&);
     CookResult create_native(std::string_view relative_source,std::string_view draft); // fresh owned UUID/path; validates before cook
+    // R5: assigns a native material instance (or none, returning the slot to its imported default) to a stable material
+    // slot key of an imported static model, in the model's import metadata. The model must cook with it, or the previous
+    // metadata is restored.
+    CookResult assign_model_material(std::string_view relative_model,std::string_view slot,AssetId material,std::string_view material_source={});
+    // The cooked values of one material slot as the model currently cooks them (its material product JSON).
+    std::string material_values(std::string_view relative_model,std::string_view slot) const;
     // Unreferenced item only. Stale writes reject; source bytes are archived in the cache.
     std::filesystem::path delete_item(std::string_view relative_source,std::string_view expected_source_sha256);
     void package(AssetId root,const std::filesystem::path& registry,std::span<const AssetId> additional_roots={}) const;

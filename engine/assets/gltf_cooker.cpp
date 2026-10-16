@@ -4,6 +4,7 @@
 #include <DirectXTex.h>
 #include <darkangel/hash.hpp>
 #include "assets_internal.hpp"
+#include <darkangel/material_assets.hpp>
 #include <darkangel/model_collision.hpp>
 #include <algorithm>
 #include <bit>
@@ -37,6 +38,15 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
     for(std::size_t i=0;i<data->buffers_count;++i){auto& buffer=data->buffers[i];if(buffer.uri){buffers.push_back(external(buffer.uri));require(buffers.back().size()>=buffer.size,"Short external glTF buffer");buffer.data=buffers.back().data();}else {require(data->bin && data->bin_size>=buffer.size,"Missing GLB buffer");buffer.data=const_cast<void*>(data->bin);}buffer.data_free_method=cgltf_data_free_method_none;}
     require(cgltf_validate(data.get())==cgltf_result_success,"cgltf validation failed");
     std::set<std::string> keys;auto declare=[&](std::string name){require(keys.insert(name).second,"Duplicate/ambiguous subasset key");out.keys.push_back(name);if(inspect)return AssetId::random();auto it=ids.find(name);require(it!=ids.end(),"New/ambiguous subasset requires explicit adoption/remap");return it->second;};
+    // R5: engine-owned material instances assigned to stable material slot keys in the model's import metadata. A slot key
+    // the model no longer has is refused (repair the assignment), never remapped by order or name.
+    std::map<std::string,MaterialInstanceDefinition> assigned;
+    {auto metadata_path=source;metadata_path+=".daimport";if(std::filesystem::exists(metadata_path)){auto metadata=json(read(metadata_path,1024*1024),1024*1024);
+        if(metadata.contains("materials")){const auto& table=metadata.at("materials");require(table.is_object()&&table.size()<=128,"Model material assignment table");
+            for(const auto& [slot,entry]:table.items()){require(slot.starts_with("material/")&&entry.is_object()&&entry.size()==2&&entry.contains("asset")&&entry.contains("source"),"Material assignment names a slot, a material and its source");
+                auto path=within(root,entry.at("source").get<std::string>());require(path.extension()==".damaterial","Material assignment source type");auto material=decode_material_instance(input(path));
+                require(material.id==AssetId::parse(entry.at("asset").get<std::string>()),"Material assignment source identity");assigned.emplace(slot,std::move(material));}}}}
+    std::set<std::string> assigned_seen;
     std::map<const cgltf_material*,AssetId> material_ids;
     for(std::size_t i=0;i<data->materials_count;++i){const auto& m=data->materials[i];auto name=key(data.get(),m.extras);auto id=declare(name);material_ids[&m]=id;
         require(m.alpha_mode==cgltf_alpha_mode_opaque && m.has_pbr_metallic_roughness && !m.unlit && !m.has_pbr_specular_glossiness && !m.has_clearcoat && !m.has_transmission && !m.has_volume && !m.has_sheen && !m.has_ior && !m.has_specular && !m.has_iridescence && !m.normal_texture.texture && !m.occlusion_texture.texture && !m.emissive_texture.texture,"Unsupported material feature in static color profile");
@@ -53,8 +63,12 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
             if(!image->uri){require(image->buffer_view && image->buffer_view->buffer->data,"Missing embedded image buffer");const auto* ptr=static_cast<const char*>(image->buffer_view->buffer->data)+image->buffer_view->offset;image_bytes.assign(ptr,image->buffer_view->size);}
             if(!inspect)out.products.push_back({texture_id,"texture","dds",texture_bytes(image_bytes),{}});
         }
+        if(auto found=assigned.find(name);found!=assigned.end()){const auto& instance=found->second;assigned_seen.insert(name);
+            material["color"]=instance.color;material["roughness"]=instance.roughness;material["metallic"]=instance.metallic;material["double_sided"]=instance.double_sided;material["texture"]=nullptr;dependencies.clear();
+            if(instance.texture!=AssetId{}){auto texture=material_texture(root,instance,inspect);for(const auto& [path,hash]:texture.inputs)out.inputs[path]=hash;for(auto& product:texture.products)out.products.push_back(std::move(product));material["texture"]=instance.texture.text();dependencies.push_back(instance.texture);}}
         if(!inspect)out.products.push_back({id,"material","material.json",material.dump(),dependencies});
     }
+    for(const auto& [slot,unused]:assigned)require(assigned_seen.contains(slot),"A material assignment names a slot this model no longer has; repair or clear it");
     std::vector<AssetId> meshes;std::vector<CookedMesh> cooked;
     for(std::size_t i=0;i<data->meshes_count;++i){auto& mesh=data->meshes[i];auto id=declare(key(data.get(),mesh.extras));meshes.push_back(id);require(mesh.weights_count==0 && mesh.primitives_count<=128,"Unsupported morph weights/primitive limit");
         cgltf_node* node{};for(std::size_t n=0;n<data->nodes_count;++n)if(data->nodes[n].mesh==&mesh){require(!node,"Instanced meshes require explicit scene assembly import");node=&data->nodes[n];}require(node,"Unused mesh has no static node placement");

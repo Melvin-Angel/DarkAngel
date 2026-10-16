@@ -1,4 +1,5 @@
 #pragma once
+#include <darkangel/material_assets.hpp>
 #include <darkangel/assets.hpp>
 #include <nlohmann/json.hpp>
 #include <map>
@@ -31,6 +32,9 @@ std::string cook_color_texture(std::string_view);
 Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_actor(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+Import import_material(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+
+Import material_texture(const std::filesystem::path& root,const MaterialInstanceDefinition&,bool inspect);
 Import import_prefab(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_combat_kit(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 unsigned graph_product_layer_bound(const std::map<AssetId,Product>&,AssetId);
