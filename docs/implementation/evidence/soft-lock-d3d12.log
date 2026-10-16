@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
-[39mViewport foreground pixels=441272 capture=C:\DarkAngel\docs\implementation\evidence\soft-lock-d3d12.png
+[39mViewport foreground pixels=441214 capture=C:\DarkAngel\docs\implementation\evidence\soft-lock-d3d12.png
 Editor soft lock tick=30 action_clock=9 yaw_error=0.00195129 distance=1.19622 predicted_error=0 pending=0 hud_lock=1
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0

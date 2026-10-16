@@ -3,35 +3,35 @@
     {
       "name": "m8-slice-place-b",
       "exit": 0,
-      "seconds": 7.172
+      "seconds": 7.484
     },
     {
       "name": "m8-slice-place-a",
       "exit": 0,
-      "seconds": 5.969
+      "seconds": 6.125
     },
     {
       "name": "m8-slice-solo",
       "exit": 0,
-      "seconds": 25.859
+      "seconds": 26.141
     },
     {
       "name": "m8-slice-load",
       "exit": 0,
-      "seconds": 7.296
+      "seconds": 8.125
     },
     {
       "name": "m8-slice-party",
       "exit": 0,
-      "seconds": 32.25
+      "seconds": 33.844
     },
     {
       "name": "m8-slice-party-travel",
       "exit": 0,
-      "seconds": 53.547
+      "seconds": 56.953
     }
   ],
-  "work": "C:\\DarkAngel\\.cache\\m8-slice-456266e5",
+  "work": "C:\\DarkAngel\\.cache\\m8-slice-849b1b95",
   "limits": [
     "Same-machine UDP and D3D12 only.",
     "Scenes share one collision profile (Q1 not used by Play yet).",

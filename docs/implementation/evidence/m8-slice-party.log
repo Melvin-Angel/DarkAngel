@@ -9,16 +9,16 @@
 [39mParty host bootstrap readiness=4 revision=8 player=1 collision=1 motors=3 corrections=1 public=3 frames=1 coherent=1 paired=1
 Party host prepared epoch=1 players=2
 Party host resumed epoch=1 players=2
-Script downed seat 1 tick=9
-Script party tick=444 seat0=100 seat1=50
-Viewport foreground pixels=301355 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party.png
-Script downed seat 0 tick=445
-Script downed seat 1 tick=447
+Script downed seat 1 tick=11
+Script party tick=449 seat0=100 seat1=50
+Viewport foreground pixels=301382 capture=C:\DarkAngel\docs\implementation\evidence\m8-slice-party.png
+Script downed seat 0 tick=449
+Script downed seat 1 tick=452
 Party host prepared epoch=2 players=2
 Party host resumed epoch=2 players=2
-Script party tick=18 seat0=100 seat1=100
-Script quit requested tick=18 steps=15/15
-DarkAngel editor rendered 11246 frames with d3d12
+Script party tick=28 seat0=100 seat1=100
+Script quit requested tick=28 steps=15/15
+DarkAngel editor rendered 11026 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 19/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:

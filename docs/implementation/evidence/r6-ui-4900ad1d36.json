@@ -1,0 +1,25 @@
+{
+  "run": "4900ad1d36",
+  "gate": "all",
+  "fixture": "C:\\DarkAngel\\.cache\\r6-ui-4900ad1d36",
+  "gates": [
+    {
+      "name": "UiDocumentTests",
+      "exit": 0,
+      "seconds": 0.281,
+      "log": "docs\\implementation\\evidence\\r6-4900ad1d36-UiDocumentTests.log",
+      "markers": true
+    },
+    {
+      "name": "ui",
+      "exit": 0,
+      "seconds": 14.391,
+      "log": "docs\\implementation\\evidence\\r6-4900ad1d36-ui.log",
+      "markers": true
+    }
+  ],
+  "binary_sha256": "17ae5b0c2b19ee0379ec3cfa06e36efbe809d4ca9b4c4177339ad748a0d3221a",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "passed": true,
+  "protected_unchanged": true
+}

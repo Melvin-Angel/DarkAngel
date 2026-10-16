@@ -1,0 +1,25 @@
+{
+  "run": "146d258995",
+  "gate": "all",
+  "fixture": "C:\\DarkAngel\\.cache\\r5-materials-146d258995",
+  "gates": [
+    {
+      "name": "MaterialTests",
+      "exit": 0,
+      "seconds": 5.406,
+      "log": "docs\\implementation\\evidence\\r5-146d258995-MaterialTests.log",
+      "markers": true
+    },
+    {
+      "name": "materials",
+      "exit": 0,
+      "seconds": 14.078,
+      "log": "docs\\implementation\\evidence\\r5-146d258995-materials.log",
+      "markers": true
+    }
+  ],
+  "binary_sha256": "17ae5b0c2b19ee0379ec3cfa06e36efbe809d4ca9b4c4177339ad748a0d3221a",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "passed": true,
+  "protected_unchanged": true
+}

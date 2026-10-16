@@ -1,0 +1,15 @@
+build start 08:52:57
+build exit 0 minutes 6.9
+ctest start 08:59:49
+ctest exit 0 minutes 10.9
+gates start 09:10:45
+gates exit 0 minutes 11.6
+slice start 09:22:20
+slice exit 0 minutes 2.3
+verify_prefabs start 09:24:40
+verify_prefabs exit 0 minutes 1.0
+verify_materials start 09:25:41
+verify_materials exit 0 minutes 0.3
+verify_ui start 09:26:01
+verify_ui exit 0 minutes 0.3
+ALL PASSED r4b

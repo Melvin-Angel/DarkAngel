@@ -1,5 +1,39 @@
 # R4 Prefab Authoring and Publishing
 
+## R4 continuation: chunk 1 (16 October 2026)
+
+Claude's implementation is preserved and committed as **`99bd477`**. **Chunk 1 is locally verified**: the guarded complete build passed (354 build actions; dependency rebuild guard enabled), followed by the complete verification sequence. The single-object report below is the previous delivered checkpoint and its deferred list is historical where superseded here.
+
+### Added behavior
+
+- Expandable outliner instance rows and separate whole-instance/member selection, with instance placement edits.
+- Orbitable 3D definition preview and a show-in-context view of nearby open-scene geometry. Draft definitions use the existing native draft owner; preview does not publish them.
+- Saved scene/prefab/variant consumer lists, identity-preserving file rename, and refusal to delete referenced prefabs.
+- Capture of one to 64 owned scene objects, preserving relative poses and persistent identities. Supported incoming target/script references are rewritten through exports; references leaving the capture and unsupported cross-boundary references are refused.
+- Unpack of non-nested instances preserves resolved values, world pose, incoming references and persistent identities through a scene-owned retained-path map. Subsequent record edits retain those identities. Duplicate instances do not copy retained identities.
+- Nested prefab mounts with placement composition and transitive dependency cooking/loading. AgentHost and collision cooker use the project link resolver.
+- Prefab variants against a saved base, typed field patches, explicit fingerprint rebase and conflict refusal. Apply Selected to a variant writes variant patches. Link closure traverses bases as well as nested mounts.
+
+### Verification
+
+- [Delivery receipt](../evidence/r4b-delivery.json) records current source/binary hashes and scope. [Driver summary](../evidence/r4b-summary.log) ends in `ALL PASSED r4b`; no active verification process remained at acceptance.
+- Guarded [configure](../evidence/r4b-all-configure.log), [build plan](../evidence/r4b-all-plan.log) and [complete build](../evidence/r4b-all-build.log) passed. Full [CTest](../evidence/r4b-ctest.log): **117/117**, 655.91 seconds, including R4.prefabs and D3D12/Vulkan device smoke tests.
+- Legacy composite NativeAuthoringTests passed, 414.671 seconds ([receipt](../evidence/r4b-native-default.json), [log](../evidence/r4b-native-default.log)). Editor/render gates: **53/53**, all exit 0 ([receipt](../evidence/r4b-editor-gates.json), [log](../evidence/r4b-editor-gates.log)). The log has 54 passing lines because it also counts the composite native check; this is not 54 editor gates.
+- Fresh [M8 slice](../evidence/r4b-m8-slice.json): **6/6**, including party travel ([log](../evidence/r4b-slice.log)). Retained generic fixture limitations are historical; this receipt does not expand the independently asserted scope.
+- Final prefab native + D3D12 [receipt](../evidence/r4-prefabs-dfa73703c5.json), material native + D3D12 [receipt](../evidence/r5-materials-146d258995.json) and UI native + D3D12 [receipt](../evidence/r6-ui-4900ad1d36.json) all pass; required markers and protected-content flags verified. Current binary/source hashes match the gate receipts. No product-code regression was found in the recovered full run.
+
+- Passing retained D3D12 gate: [receipt](../evidence/r4-prefabs-56dcc1daab.json), [log](../evidence/r4-56dcc1daab-prefabs.log), [capture](../evidence/r4-56dcc1daab-prefabs.png). Exit 0, all required markers, protected content unchanged. The current editor binary SHA256 matches the receipt: `17ae5b0c2b19ee0379ec3cfa06e36efbe809d4ca9b4c4177339ad748a0d3221a`. Assertions include preview, nested instance, variant/rebase, capture/Unpack, Save/reopen and fresh Play. Synthetic D3D12 evidence only.
+- Retained failed attempts `2d4d4e67f8`, `7396ecd8fd`, `75bbac4e09` and `7d6b9d2904` are not passes. They remain available; an image or partial log alone is not acceptance. The last of these ended before exercise acceptance.
+- Original full-run logs remain outside the repository: `C:/Users/bengt/AppData/Local/Temp/claude/C--DarkAngel/4daf679d-b7db-4e92-98ae-c42af2dc4fc8/scratchpad/logs/r4b-*.log`. Driver: sibling `verify_chunk.py r4b verify_prefabs.py verify_materials.py verify_ui.py`. Completed logs and final receipts are preserved in repository evidence above.
+
+### Explicit limits
+
+- Swap remains single-object, compatible gameplay contract only; multi-object member mapping is refused.
+- Unpack of a prefab containing nested mounts is refused. Nested members can be selected, but deep member editing is not a general nested-document editor.
+- Authoring a variant of another variant is refused; variants of nested base prefabs retain the base's mounted content.
+- Context preview shows the draft definition at an instance placement with nearby scene models; it is not direct scene editing or a live authority update.
+- Physical input, independent two-scene ledger/save qualification, remote/EOS and Vulkan prefab visual qualification have not been established by this run.
+
 16 October 2026. **Implemented for the first complete version (single-object gameplay prefabs) and locally verified**; see *Verification* and *Deferred or not done*. This delivers R4 (C + F) in the [main roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026) against the [prefab architecture](../PREFAB_WORKFLOW_PLAN.md), [placement and swap design](../future/PREFAB_PLACEMENT_DESIGN.md) and [request checklist](../future/PREFABS_AND_COMPONENTS_TODO.md). It was implemented autonomously overnight; the decisions below were taken without the user and are recorded so they can be revisited.
 
 ## Delivered behavior

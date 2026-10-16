@@ -5,8 +5,8 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
-[39mViewport foreground pixels=456645 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
-Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=7cd43261-1462-4935-8560-17ac29c2d661 document=7cd43261-1462-4935-8560-17ac29c2d661 authoring=7cd43261-1462-4935-8560-17ac29c2d661 lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_bf710f41-b4ea-414c-9aa6-856d5de65a56_is_in_the_project
+[39mViewport foreground pixels=456601 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
+Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=7f66593c-0303-4121-857c-86148fcfa8fe document=7f66593c-0303-4121-857c-86148fcfa8fe authoring=7f66593c-0303-4121-857c-86148fcfa8fe lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_15404b72-7b3d-4e06-b5b0-6f1d44ce2441_is_in_the_project
 DarkAngel editor rendered 220 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256

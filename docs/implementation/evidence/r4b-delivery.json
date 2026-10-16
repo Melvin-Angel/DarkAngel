@@ -1,0 +1,48 @@
+{
+  "scope": "R4 prefab continuation chunk 1",
+  "result": "passed",
+  "ctest": 117,
+  "editor_render_gates": 53,
+  "legacy_native_composite": {
+    "exit": 0,
+    "seconds": 414.671,
+    "binary_sha256": "de3daddb89b59cc7b6161292d9785cac475f21c82b0a6ce932a2e8e265620984",
+    "log": "docs\\implementation\\evidence\\r4b-native-default.log"
+  },
+  "m8_slice_gates": 6,
+  "area_receipts": [
+    "r4-prefabs-dfa73703c5.json",
+    "r5-materials-146d258995.json",
+    "r6-ui-4900ad1d36.json"
+  ],
+  "source_sha256": {
+    "apps/editor/editor_controller.cpp": "eb9950dbbd3d67e83ee6d64c3b985078845e4e05159e7ebc71a189651eb02193",
+    "apps/editor/editor_controller.hpp": "0a478b6b8b0085fe0583fc3cd5f68d209745d010a3dba30bfad5905816492180",
+    "apps/editor/editor_ui.cpp": "b4bdef70193b5e77c7f344c59352e974aaf9c19f73bee1c5de01fbd29b4dbd02",
+    "apps/editor/editor_ui.hpp": "b68c6847cf7ef0ccc3196759eb84e95cd90fe47c606b04bf2f929937f8ae8454",
+    "apps/editor/exercises/prefab_exercise.cpp": "2b8c920c37f95c9574f654c981a7bdb86109e1fc473770ef878fd5cf44ac821f",
+    "apps/editor/item_authoring.cpp": "ebb210d4282583ecbc29c826bda0473c9e41921f4063205dfbd784eeefbcf671",
+    "apps/editor/native_authoring.hpp": "6e7e6391df23677b1532b51c6864f7cf55544384c73987165e396ad4b6063eda",
+    "apps/editor/prefab_commands.cpp": "4865573289421d8edbdf13fd64d7a5b528ca1e03e33b0a89d186d7874dccb4ed",
+    "apps/editor/prefab_commands.hpp": "3a30ae0e424afd798d4cc002f9f0a4299f1d67690e040e8de19461acacd5259f",
+    "apps/editor/prefab_workspace.cpp": "ba9b129062ba5790795690d05121711cdd6a3f9c2263edbd127e6f1e5e83b559",
+    "apps/editor/render/scene_viewport.cpp": "0c25b9c418de3e240bdc07690dda7a55397952cf91c1d42cddec981748fcfcbd",
+    "engine/assets/asset_service.cpp": "b42c7f6a89d8a9f09f72aa0c47c8f844d8b0e0d6e205b74a749f35feed895053",
+    "engine/assets/include/darkangel/assets.hpp": "b41deb07714a53bee4a7b20d84bda4f4499a91f967886bec4b3d5f6093c04ff1",
+    "engine/assets/include/darkangel/prefab_assets.hpp": "2eb37ca8f1930a3eca1d67e6f97fcca99adc25101a31e9016fce5f6c9896e235",
+    "engine/assets/prefab_cooker.cpp": "bf348f7cfceb999a1adc73b75fa178ff7a635235358cefcfc75554df6ae38795",
+    "engine/runtime/assembly.cpp": "6152809b7de7fa9ef45ea2fd592f17ecb600c3b716b998ad47af3bbfd7666c57",
+    "scripts/verify_prefabs.py": "a96ee5eb31b70cf2e2e4ec0e129488a3616b497f233470ddb37ab1c5222aef3d",
+    "tests/prefab_tests.cpp": "0a6c6bc3f0f3c3942679e6b1fea144f2c9fe7de079fe339f42247488f3ade54a",
+    "tools/cooker/main.cpp": "9189dcd6c3a41abef6aa1dfc3748e22746d61ee89ad185f11a6d9ca7aba53d4e",
+    "tools/editor/agent_host.cpp": "bc575ea370851184cc1124c559f897326056adede0175388f094bc82e2eddc89",
+    "tools/editor/editor_document.cpp": "9f3f4626b4f5c885a5ede5650ea5882f1a75ed0b8cd474f336db597adc48b0be",
+    "tools/editor/include/darkangel/editor_document.hpp": "cfc3c0864e23238349691aa46285f51577ff5a6395b49607b1ea427f84c8dce6"
+  },
+  "binary_sha256": {
+    "DarkAngelEditor.exe": "17ae5b0c2b19ee0379ec3cfa06e36efbe809d4ca9b4c4177339ad748a0d3221a",
+    "NativeAuthoringTests.exe": "de3daddb89b59cc7b6161292d9785cac475f21c82b0a6ce932a2e8e265620984",
+    "ReactionPresentationTests.exe": "97f0a3d7d915b2e385a5f8ec0a8faef94760d6dc7c9242576f1ec9833c7656ba"
+  },
+  "qualification": "Same-machine D3D12 synthetic editor gates; CTest D3D12/Vulkan device smoke; no Vulkan prefab visual, physical-input, remote/EOS or independent two-scene ledger qualification."
+}
