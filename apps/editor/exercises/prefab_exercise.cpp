@@ -68,10 +68,12 @@ class PrefabExercise final:public Exercise {
             auto created=editor.authoring.create_prefab_source(*editor.assets,"GatePrefabVariant",value);editor.authoring.save(*editor.assets,created);editor.refresh_assets();variant_prefab=created;
             variant_object=place_prefab_instance(editor,variant_prefab,Transform{0,8,0,-8,0,0,1});variant_mount=*editor.selected_mount();require(altar(variant_object)=="Variant altar","Prefab exercise: variant patch");}
         if(frame==16){
-            // The base changes: the scene keeps its previous definitions until the variant is rebased explicitly.
-            auto& base=editor.authoring.open(*editor.assets,first_prefab);base.value["entities"].begin().value()["altar"]["name"]="Shrine 2";editor.authoring.record_changes(*editor.assets,"Edit prefab");editor.save_gameplay();editor.refresh_assets();
-            require(altar(first)=="Shrine","Prefab exercise: a base change was applied although its variant needs a rebase");
-            auto& variant=editor.authoring.open(*editor.assets,variant_prefab);variant.value=rebase_variant(variant.value,*editor.prefab_links()(first_prefab));editor.authoring.record_changes(*editor.assets,"Rebase variant");editor.save_gameplay();editor.refresh_assets();
+            // The base changes: the coordinated Save refuses it while its variant still names the old base, and nothing changes;
+            // the variant is rebased onto the unsaved base explicitly and both publish together.
+            auto& base=editor.authoring.open(*editor.assets,first_prefab);base.value["entities"].begin().value()["altar"]["name"]="Shrine 2";editor.authoring.record_changes(*editor.assets,"Edit prefab");
+            bool refused=false;try{editor.save_gameplay();}catch(const std::exception&){refused=true;}editor.refresh_assets();
+            require(refused&&altar(first)=="Shrine"&&editor.authoring.open(*editor.assets,first_prefab).dirty(),"Prefab exercise: a base change was published although its variant needs a rebase");
+            auto& variant=editor.authoring.open(*editor.assets,variant_prefab);variant.value=rebase_variant(variant.value,editor.authoring.open(*editor.assets,first_prefab).value.dump());editor.authoring.record_changes(*editor.assets,"Rebase variant");editor.save_gameplay();editor.refresh_assets();
             require(altar(first)=="Shrine 2"&&altar(variant_object)=="Variant altar","Prefab exercise: rebase");}
         if(frame==18){
             // Multi-object capture of two loose altars, then Unpack: both keep their persistent identities.

@@ -83,7 +83,9 @@ void Shell::draw_prefabs(Controller& editor,unsigned width,unsigned height,float
         if(variant){
             // A variant: its base's members changed by its own typed patches. A base edit needs an explicit rebase.
             const auto base=AssetId::parse(value["base"].get<std::string>());ImGui::SeparatorText(("Variant of "+prefab_label(editor,base)).c_str());
-            std::string base_text;try{base_text=published(editor,base);}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"%s",error.what());}
+            // The base as it will be saved: its unsaved draft when it has one (a base edit and the variant's rebase save together).
+            std::string base_text;bool base_draft=false;try{if(auto found=editor.authoring.drafts.find(base);found!=editor.authoring.drafts.end()&&found->second.dirty()){base_text=found->second.value.dump();base_draft=true;}else base_text=published(editor,base);}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"%s",error.what());}
+            if(base_draft)ImGui::TextDisabled("The base has unsaved changes; a rebase here saves together with it.");
             if(!base_text.empty()){
                 if(value.value("base_fingerprint","")!=prefab_fingerprint(base_text)){
                     ImGui::TextColored({1.f,.75f,.3f,1.f},"The base prefab changed since this variant was made or rebased. Play refuses it until you rebase.");
