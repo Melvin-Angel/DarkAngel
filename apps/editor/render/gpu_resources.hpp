@@ -50,6 +50,11 @@ struct PostConstants {
     DirectX::XMFLOAT4 outline{.025f,.015f,.04f,1};
     DirectX::XMFLOAT4 outline_params{1,80,1.5f,1};
     DirectX::XMFLOAT4 outline_fade{20,180,0,0};
+    DirectX::XMFLOAT4 sky_zenith{.06f,.10f,.22f,0};
+    DirectX::XMFLOAT4 sky_horizon{.42f,.30f,.24f,0};
+    DirectX::XMFLOAT4 sky_ground{.025f,.02f,.03f,0};
+    DirectX::XMFLOAT4 sky_sun{-.35f,.7f,-.55f,0};
+    DirectX::XMFLOAT4 sky_sun_color{1,.75f,.45f,0};
 };
 // Sets a draw's surface, emission and feature constants from its material (colour is set by the caller, which may tint it).
 void apply_material(Constants&, const CookedMaterial&);

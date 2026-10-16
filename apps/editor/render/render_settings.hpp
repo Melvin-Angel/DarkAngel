@@ -15,6 +15,7 @@ struct SceneRenderingSettings {
     StableId main_light;
     rendering::ToonLighting toon;
     rendering::ShadowSettings shadows;
+    rendering::SkySettings sky;
     rendering::FogSettings fog;
     rendering::PostProcessSettings post;
     rendering::Color3 sky_color{.08f,.12f,.20f};

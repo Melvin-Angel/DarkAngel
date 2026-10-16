@@ -21,6 +21,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 - Primary-view local-light selection now uses the per-view cluster assignment instead of scene insertion order. Candidate capacity and four-light shading budget are distinct, stable-ID tie-breaking is deterministic, and occupancy/overflow statistics are retained on `SceneViewport` for later GPU-stat/debug presentation.
 - Initial outlines are now a registered pre-FXAA composition stage: the existing opaque/cutout material passes can emit encoded visible normals and stable object-group IDs into an isolated per-view target, and the post shader combines depth, normal and group discontinuities with configurable thickness, sensitivity and distance fade. Transparent surfaces are intentionally excluded until their depth/ID policy is defined.
 - Scene-authored sky color and linear/exponential distance fog. Fog is applied in the material pass so transparent objects are not fogged again in the post stage.
+- Saved procedural sky recipe fields (zenith, horizon, ground, sun direction/size/colour/intensity, cloud amount and deterministic seed) now persist with the scene profile and render as a bounded HDR background gradient/sun disk in the post stage. The procedural sun is environment-only; the selected Main Light remains authoritative for toon lighting and shadows.
 - Expanded resource bindings and shader feature bits are bounded; float/color edits do not create new PSO keys.
 
 ## Verification receipts
@@ -36,7 +37,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 - Shadow visual qualification, stable texel-snapped cascades, alpha-cutout caster discard and transparent-shadow policy still require the dedicated rendering validation scene. The cascade count/resolution/distance/bias/split controls are now persisted and drive the bounded shadow resources.
 - GPU compute clustered assignment and per-view GPU occupancy/overflow buffers; the current CPU assignment is a correctness reference and the primary-view integration step, not the final GPU path.
 - Independent visual qualification of the object/group-ID plus depth/normal screen-space outlines and distance fading; the functional pass and persisted controls are present, but the current placement fixture does not contain the authored R7 validation scene.
-- Cubemap/equirectangular HDR sky import, procedural sky recipe publication and sun synchronization.
+- Cubemap/equirectangular HDR sky import, procedural recipe asset publication, simple-cloud generation and editor visual qualification. The scene-profile procedural recipe is functional; its sun synchronization policy is explicit and intentionally does not override the selected Main Light.
 - Full validation scene, material hot-reload qualification, save/reload/cook/run parity, Vulkan execution, GPU captures/timings, and Royal Temple visual qualification.
 - Advanced AO is not enabled; baked GI, lightmaps and the explicitly deferred systems remain out of scope.
 

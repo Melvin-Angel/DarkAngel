@@ -820,6 +820,11 @@ void SceneViewport::render(double elapsed_seconds) {
         constants.outline = {frame_settings.post.outline.color.r, frame_settings.post.outline.color.g, frame_settings.post.outline.color.b, frame_settings.post.outline.enabled ? 1.f : 0.f};
         constants.outline_params = {frame_settings.post.outline.thickness, frame_settings.post.outline.depth_sensitivity, frame_settings.post.outline.normal_sensitivity, frame_settings.post.outline.group_sensitivity};
         constants.outline_fade = {frame_settings.post.outline.fade_start, frame_settings.post.outline.fade_end, 0, 0};
+        constants.sky_zenith = {frame_settings.sky.zenith.r, frame_settings.sky.zenith.g, frame_settings.sky.zenith.b, 0};
+        constants.sky_horizon = {frame_settings.sky.horizon.r, frame_settings.sky.horizon.g, frame_settings.sky.horizon.b, 0};
+        constants.sky_ground = {frame_settings.sky.ground.r, frame_settings.sky.ground.g, frame_settings.sky.ground.b, 0};
+        constants.sky_sun = {frame_settings.sky.sun_direction[0], frame_settings.sky.sun_direction[1], frame_settings.sky.sun_direction[2], frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.sun_size : 0.f};
+        constants.sky_sun_color = {frame_settings.sky.sun_color.r, frame_settings.sky.sun_color.g, frame_settings.sky.sun_color.b, frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.sun_intensity : 0.f};
         void* mapped{};
         context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
         require(mapped, "Post-process constants mapping failed");
