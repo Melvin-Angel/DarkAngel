@@ -1,0 +1,26 @@
+[1/225] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/219] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/173] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[4/170] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[5/167] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[6/163] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/159] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[8/156] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[9/130] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[10/125] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[11/113] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[12/111] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[13/109] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[14/107] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[15/104] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[16/102] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[17/100] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[18/98] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[19/93] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[20/90] Generating CXX dyndep file CMakeFiles\PrefabTests.dir\CXX.dd
+[21/87] Scanning C:\DarkAngel\apps\editor\exercises\material_exercise.cpp for CXX dependencies
+[22/87] Scanning C:\DarkAngel\apps\editor\render\scene_resources.cpp for CXX dependencies
+[23/87] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[24/26] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_resources.cpp.obj
+[25/26] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\material_exercise.cpp.obj
+[26/26] Linking CXX executable DarkAngelEditor.exe

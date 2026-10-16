@@ -1,0 +1,24 @@
+[1/224] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/218] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[3/215] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[4/169] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[5/166] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[6/162] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/158] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[8/156] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[9/153] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[10/151] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[11/125] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[12/120] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[13/108] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[14/106] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[15/101] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[16/99] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[17/96] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[18/94] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[19/92] Generating CXX dyndep file CMakeFiles\PrefabTests.dir\CXX.dd
+[20/89] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[21/86] Scanning C:\DarkAngel\apps\editor\exercises\material_exercise.cpp for CXX dependencies
+[22/86] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[23/24] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\material_exercise.cpp.obj
+[24/24] Linking CXX executable DarkAngelEditor.exe

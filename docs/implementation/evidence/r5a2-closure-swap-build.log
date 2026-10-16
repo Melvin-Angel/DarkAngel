@@ -1,0 +1,235 @@
+[1/290] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/284] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/238] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[4/235] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[5/231] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[6/228] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/224] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[8/224] Scanning C:\DarkAngel\engine\assets\item_cooker.cpp for CXX dependencies
+[9/224] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
+[10/224] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
+[11/224] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[12/224] Scanning C:\DarkAngel\engine\assets\model_collision.cpp for CXX dependencies
+[13/224] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[14/224] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
+[15/224] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[16/224] Scanning C:\DarkAngel\engine\assets\audio_cooker.cpp for CXX dependencies
+[17/224] Scanning C:\DarkAngel\engine\assets\cue_cooker.cpp for CXX dependencies
+[18/224] Scanning C:\DarkAngel\engine\assets\primitive_cooker.cpp for CXX dependencies
+[19/224] Scanning C:\DarkAngel\engine\assets\sound_cooker.cpp for CXX dependencies
+[20/224] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
+[21/224] Scanning C:\DarkAngel\engine\assets\effect_cooker.cpp for CXX dependencies
+[22/224] Scanning C:\DarkAngel\engine\assets\prefab_cooker.cpp for CXX dependencies
+[23/224] Scanning C:\DarkAngel\engine\assets\material_cooker.cpp for CXX dependencies
+[24/224] Scanning C:\DarkAngel\engine\assets\vfx_cooker.cpp for CXX dependencies
+[25/224] Scanning C:\DarkAngel\engine\assets\ui_cooker.cpp for CXX dependencies
+[26/224] Scanning C:\DarkAngel\engine\assets\animation_cooker.cpp for CXX dependencies
+[27/224] Scanning C:\DarkAngel\engine\assets\joint_mask_cooker.cpp for CXX dependencies
+[28/224] Scanning C:\DarkAngel\engine\assets\combat_kit_cooker.cpp for CXX dependencies
+[29/224] Scanning C:\DarkAngel\engine\assets\graph_cooker.cpp for CXX dependencies
+[30/224] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[31/222] Scanning C:\DarkAngel\engine\assets\actor_cooker.cpp for CXX dependencies
+[32/222] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[33/219] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[34/207] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[35/206] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[36/204] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[37/202] Scanning C:\DarkAngel\engine\assets\tag_codegen.cpp for CXX dependencies
+[38/202] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[39/199] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[40/197] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[41/195] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[42/190] Scanning C:\DarkAngel\tests\material_tests.cpp for CXX dependencies
+[43/190] Scanning C:\DarkAngel\apps\editor\prefab_commands.cpp for CXX dependencies
+[44/190] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[45/190] Scanning C:\DarkAngel\tests\prefab_tests.cpp for CXX dependencies
+[46/190] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[47/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[48/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[49/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\item_cooker.cpp.obj
+C:\DarkAngel\engine\assets\item_cooker.cpp(28): warning C4456: declaration of 'path' hides previous local declaration
+C:\DarkAngel\engine\assets\item_cooker.cpp(12): note: see declaration of 'path'
+[50/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[51/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[52/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\model_collision.cpp.obj
+[53/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[54/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[55/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\primitive_cooker.cpp.obj
+[56/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\vfx_cooker.cpp.obj
+C:\DarkAngel\engine\assets\vfx_cooker.cpp(10): warning C4005: 'NOMINMAX': macro redefinition
+C:\DarkAngel\engine\assets\vfx_cooker.cpp(10): note: 'NOMINMAX' previously declared on the command line
+[57/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\audio_cooker.cpp.obj
+[58/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[59/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\sound_cooker.cpp.obj
+[60/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\cue_cooker.cpp.obj
+[61/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[62/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\material_cooker.cpp.obj
+[63/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ui_cooker.cpp.obj
+[64/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\effect_cooker.cpp.obj
+[65/190] Generating CXX dyndep file CMakeFiles\PrefabTests.dir\CXX.dd
+[66/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\prefab_cooker.cpp.obj
+[67/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\joint_mask_cooker.cpp.obj
+[68/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\tag_codegen.cpp.obj
+[69/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\graph_cooker.cpp.obj
+[70/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\combat_kit_cooker.cpp.obj
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(37): warning C4457: declaration of 'id' hides function parameter
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(30): note: see declaration of 'id'
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(55): warning C4456: declaration of 'locations' hides previous local declaration
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(53): note: see declaration of 'locations'
+[71/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\animation_cooker.cpp.obj
+[72/190] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\actor_cooker.cpp.obj
+[73/190] Building CXX object CMakeFiles\PrefabTests.dir\apps\editor\prefab_commands.cpp.obj
+[74/190] Building CXX object CMakeFiles\MaterialTests.dir\tests\material_tests.cpp.obj
+[75/190] Building CXX object CMakeFiles\PrefabTests.dir\tests\prefab_tests.cpp.obj
+C:\DarkAngel\tests\prefab_tests.cpp(99): warning C4456: declaration of 'made' hides previous local declaration
+C:\DarkAngel\tests\prefab_tests.cpp(70): note: see declaration of 'made'
+C:\DarkAngel\tests\prefab_tests.cpp(129): warning C4456: declaration of 'reopened' hides previous local declaration
+C:\DarkAngel\tests\prefab_tests.cpp(79): note: see declaration of 'reopened'
+C:\DarkAngel\tests\prefab_tests.cpp(152): warning C4456: declaration of 'applied' hides previous local declaration
+C:\DarkAngel\tests\prefab_tests.cpp(52): note: see declaration of 'applied'
+C:\DarkAngel\tests\prefab_tests.cpp(163): warning C4456: declaration of 'applied' hides previous local declaration
+C:\DarkAngel\tests\prefab_tests.cpp(52): note: see declaration of 'applied'
+[76/190] Linking CXX static library DarkAngelAssets.lib
+[77/190] Linking CXX executable AssetTool.exe
+[78/190] Linking CXX executable PrefabTests.exe
+[79/190] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[80/188] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[81/185] Scanning C:\DarkAngel\apps\editor\exercises\scene_editing.cpp for CXX dependencies
+[82/185] Scanning C:\DarkAngel\apps\editor\exercises\prefab_exercise.cpp for CXX dependencies
+[83/185] Scanning C:\DarkAngel\apps\editor\exercises\scene_camera_exercise.cpp for CXX dependencies
+[84/185] Scanning C:\DarkAngel\apps\editor\exercises\material_exercise.cpp for CXX dependencies
+[85/185] Scanning C:\DarkAngel\apps\editor\exercises\ui_exercise.cpp for CXX dependencies
+[86/185] Scanning C:\DarkAngel\apps\editor\exercises\live_previews_exercise.cpp for CXX dependencies
+[87/185] Scanning C:\DarkAngel\apps\editor\exercises\editor_ux_exercise.cpp for CXX dependencies
+[88/185] Scanning C:\DarkAngel\apps\editor\exercises\acceptance.cpp for CXX dependencies
+[89/185] Scanning C:\DarkAngel\apps\editor\editor_items.cpp for CXX dependencies
+[90/185] Scanning C:\DarkAngel\apps\editor\prefab_commands.cpp for CXX dependencies
+[91/185] Linking CXX executable MaterialTests.exe
+[92/185] Scanning C:\DarkAngel\apps\editor\material_workspace.cpp for CXX dependencies
+[93/185] Scanning C:\DarkAngel\apps\editor\prefab_workspace.cpp for CXX dependencies
+[94/185] Scanning C:\DarkAngel\apps\editor\render\gpu_resources.cpp for CXX dependencies
+[95/185] Scanning C:\DarkAngel\apps\editor\ui_workspace.cpp for CXX dependencies
+[96/185] Scanning C:\DarkAngel\apps\editor\scene_navigation.cpp for CXX dependencies
+[97/185] Scanning C:\DarkAngel\apps\editor\editor_world_objects.cpp for CXX dependencies
+[98/185] Scanning C:\DarkAngel\apps\editor\editor_ui.cpp for CXX dependencies
+[99/185] Scanning C:\DarkAngel\apps\editor\exercises\world_place_exercise.cpp for CXX dependencies
+[100/185] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[101/185] Scanning C:\DarkAngel\apps\editor\editor_composer.cpp for CXX dependencies
+[102/185] Scanning C:\DarkAngel\apps\editor\editor_workspaces.cpp for CXX dependencies
+[103/185] Scanning C:\DarkAngel\apps\editor\editor_assets.cpp for CXX dependencies
+[104/185] Scanning C:\DarkAngel\apps\editor\scene_splines.cpp for CXX dependencies
+[105/185] Scanning C:\DarkAngel\apps\editor\editor_preferences.cpp for CXX dependencies
+[106/185] Scanning C:\DarkAngel\apps\editor\audio_workspace.cpp for CXX dependencies
+[107/185] Scanning C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp for CXX dependencies
+[108/185] Scanning C:\DarkAngel\apps\editor\exercises\preview_results.cpp for CXX dependencies
+[109/185] Scanning C:\DarkAngel\apps\editor\render\scene_viewport.cpp for CXX dependencies
+[110/185] Scanning C:\DarkAngel\apps\editor\exercises\media_exercises.cpp for CXX dependencies
+[111/185] Scanning C:\DarkAngel\apps\editor\editor_app.cpp for CXX dependencies
+[112/185] Scanning C:\DarkAngel\apps\editor\vfx_workspace.cpp for CXX dependencies
+[113/185] Scanning C:\DarkAngel\apps\editor\exercises\navigation_exercises.cpp for CXX dependencies
+[114/185] Scanning C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp for CXX dependencies
+[115/185] Scanning C:\DarkAngel\apps\editor\exercises\play_exercises.cpp for CXX dependencies
+[116/185] Scanning C:\DarkAngel\apps\editor\exercises\scale_exercise.cpp for CXX dependencies
+[117/185] Scanning C:\DarkAngel\apps\editor\gameplay_inspector.cpp for CXX dependencies
+[118/185] Scanning C:\DarkAngel\apps\editor\play_controller.cpp for CXX dependencies
+[119/185] Scanning C:\DarkAngel\apps\editor\pose_previews.cpp for CXX dependencies
+[120/185] Scanning C:\DarkAngel\apps\editor\viewport_tools.cpp for CXX dependencies
+[121/185] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[122/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\acceptance.cpp.obj
+[123/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\live_previews_exercise.cpp.obj
+[124/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scene_camera_exercise.cpp.obj
+[125/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_exercise.cpp.obj
+[126/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\material_exercise.cpp.obj
+[127/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\editor_ux_exercise.cpp.obj
+[128/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\prefab_exercise.cpp.obj
+[129/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scene_editing.cpp.obj
+[130/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\gpu_resources.cpp.obj
+[131/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_items.cpp.obj
+C:\DarkAngel\apps\editor\editor_items.cpp(30): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\editor_items.cpp(32): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[132/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_navigation.cpp.obj
+[133/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\prefab_commands.cpp.obj
+[134/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\ui_workspace.cpp.obj
+[135/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\material_workspace.cpp.obj
+C:\DarkAngel\apps\editor\material_workspace.cpp(25): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[136/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\prefab_workspace.cpp.obj
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(72): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(73): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(76): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(193): warning C4458: declaration of 'prefab_name' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(192): note: see declaration of 'darkangel::editor_app::Shell::prefab_name'
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(253): warning C4458: declaration of 'input' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(154): note: see declaration of 'darkangel::editor_app::Shell::input'
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(255): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\prefab_workspace.cpp(246): note: see declaration of 'label'
+[137/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_world_objects.cpp.obj
+[138/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_assets.cpp.obj
+C:\DarkAngel\apps\editor\editor_assets.cpp(73): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[139/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+C:\DarkAngel\apps\editor\editor_ui.cpp(219): warning C4458: declaration of 'area' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(230): note: see declaration of 'darkangel::editor_app::Shell::area'
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_ui.cpp(385): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[140/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[141/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\world_place_exercise.cpp.obj
+[142/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_workspaces.cpp.obj
+C:\DarkAngel\apps\editor\editor_workspaces.cpp(15): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+C:\DarkAngel\apps\editor\editor_workspaces.cpp(117): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[143/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_preferences.cpp.obj
+[144/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_splines.cpp.obj
+[145/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_viewport.cpp.obj
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(285): warning C4457: declaration of 'viewer' hides function parameter
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(273): note: see declaration of 'viewer'
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(381): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(381): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(381): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[146/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(735): warning C4244: 'argument': conversion from 'uint64_t' to 'unsigned int', possible loss of data
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(28): warning C4189: 'character': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(29): warning C4189: 'import_baseline': local variable is initialized but not referenced
+C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp(804): warning C4189: 'character_resources': local variable is initialized but not referenced
+[147/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\preview_results.cpp.obj
+[148/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\audio_workspace.cpp.obj
+[149/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_app.cpp.obj
+[150/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\media_exercises.cpp.obj
+[151/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\vfx_workspace.cpp.obj
+[152/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+C:\DarkAngel\apps\editor\blend_space.hpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\editor_authoring.cpp(217): warning C4456: declaration of 'label' hides previous local declaration
+C:\DarkAngel\apps\editor\editor_authoring.cpp(214): note: see declaration of 'label'
+C:\DarkAngel\apps\editor\editor_authoring.cpp(551): warning C4458: declaration of 'draft' hides class member
+C:\DarkAngel\apps\editor\editor_ui.hpp(217): note: see declaration of 'darkangel::editor_app::Shell::draft'
+[153/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\navigation_exercises.cpp.obj
+[154/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\play_exercises.cpp.obj
+[155/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\gameplay_results.cpp.obj
+[156/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scale_exercise.cpp.obj
+[157/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\pose_previews.cpp.obj
+[158/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\gameplay_inspector.cpp.obj
+[159/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\viewport_tools.cpp.obj
+[160/161] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_controller.cpp.obj
+C:\DarkAngel\apps\editor\play_controller.cpp(1744): warning C4456: declaration of 'at' hides previous local declaration
+C:\DarkAngel\apps\editor\play_controller.cpp(1684): note: see declaration of 'at'
+[161/161] Linking CXX executable DarkAngelEditor.exe

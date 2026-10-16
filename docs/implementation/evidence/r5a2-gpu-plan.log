@@ -1,0 +1,301 @@
+[1/301] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/301] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/301] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[4/301] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[5/301] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[6/301] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/301] Scanning C:\DarkAngel\engine\assets\item_cooker.cpp for CXX dependencies
+[8/301] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[9/301] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[10/301] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[11/301] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[12/301] Scanning C:\DarkAngel\engine\assets\model_collision.cpp for CXX dependencies
+[13/301] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
+[14/301] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
+[15/301] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
+[16/301] Scanning C:\DarkAngel\engine\assets\cue_cooker.cpp for CXX dependencies
+[17/301] Scanning C:\DarkAngel\engine\assets\audio_cooker.cpp for CXX dependencies
+[18/301] Scanning C:\DarkAngel\engine\assets\primitive_cooker.cpp for CXX dependencies
+[19/301] Scanning C:\DarkAngel\engine\assets\vfx_cooker.cpp for CXX dependencies
+[20/301] Scanning C:\DarkAngel\engine\assets\sound_cooker.cpp for CXX dependencies
+[21/301] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
+[22/301] Scanning C:\DarkAngel\engine\assets\effect_cooker.cpp for CXX dependencies
+[23/301] Scanning C:\DarkAngel\engine\assets\prefab_cooker.cpp for CXX dependencies
+[24/301] Scanning C:\DarkAngel\engine\assets\material_cooker.cpp for CXX dependencies
+[25/301] Scanning C:\DarkAngel\engine\assets\ui_cooker.cpp for CXX dependencies
+[26/301] Scanning C:\DarkAngel\engine\assets\animation_cooker.cpp for CXX dependencies
+[27/301] Scanning C:\DarkAngel\engine\assets\joint_mask_cooker.cpp for CXX dependencies
+[28/301] Scanning C:\DarkAngel\engine\assets\graph_cooker.cpp for CXX dependencies
+[29/301] Scanning C:\DarkAngel\engine\assets\combat_kit_cooker.cpp for CXX dependencies
+[30/301] Scanning C:\DarkAngel\engine\assets\actor_cooker.cpp for CXX dependencies
+[31/301] Scanning C:\DarkAngel\engine\assets\tag_codegen.cpp for CXX dependencies
+[32/301] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[33/301] Scanning C:\DarkAngel\tools\cooker\main.cpp for CXX dependencies
+[34/301] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[35/301] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[36/301] Scanning C:\DarkAngel\engine\audio\audio_service.cpp for CXX dependencies
+[37/301] Scanning C:\DarkAngel\engine\audio\audio_director.cpp for CXX dependencies
+[38/301] Scanning C:\DarkAngel\engine\vfx\vfx_service.cpp for CXX dependencies
+[39/301] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[40/301] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[41/301] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[42/301] Scanning C:\DarkAngel\tests\material_tests.cpp for CXX dependencies
+[43/301] Scanning C:\DarkAngel\tests\prefab_tests.cpp for CXX dependencies
+[44/301] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[45/301] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\build_info.cpp.obj
+[46/301] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\metadata.cpp.obj
+[47/301] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\world.cpp.obj
+[48/301] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\hash.cpp.obj
+[49/301] Building CXX object CMakeFiles\DarkAngelFoundation.dir\engine\foundation\asset_id.cpp.obj
+[50/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\party_control.cpp.obj
+[51/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_ledger.cpp.obj
+[52/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_objects.cpp.obj
+[53/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\party_lifecycle.cpp.obj
+[54/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\scene_travel.cpp.obj
+[55/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\interaction.cpp.obj
+[56/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\spline.cpp.obj
+[57/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\cue_player.cpp.obj
+[58/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\presentation_primitives.cpp.obj
+[59/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\camera.cpp.obj
+[60/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\targeting.cpp.obj
+[61/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\behavior.cpp.obj
+[62/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\perception.cpp.obj
+[63/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\encounter.cpp.obj
+[64/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\bootstrap.cpp.obj
+[65/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_runtime.cpp.obj
+[66/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_package.cpp.obj
+[67/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\script_state.cpp.obj
+[68/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\assembly.cpp.obj
+[69/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\transport.cpp.obj
+[70/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\session_frames.cpp.obj
+[71/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session.cpp.obj
+[72/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_transport.cpp.obj
+[73/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_abilities.cpp.obj
+[74/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_replication.cpp.obj
+[75/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_collision.cpp.obj
+[76/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\world_session_owner.cpp.obj
+[77/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\owner_mailbox.cpp.obj
+[78/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\motor_state.cpp.obj
+[79/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\animation_source.cpp.obj
+[80/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_source.cpp.obj
+[81/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\collision_observer.cpp.obj
+[82/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\action.cpp.obj
+[83/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\joint_mask.cpp.obj
+[84/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\input.cpp.obj
+[85/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\combat_kit.cpp.obj
+[86/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\attributes.cpp.obj
+[87/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\tags.cpp.obj
+[88/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effects.cpp.obj
+[89/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\effect_replication.cpp.obj
+[90/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability.cpp.obj
+[91/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_effects.cpp.obj
+[92/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_prediction.cpp.obj
+[93/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_observer.cpp.obj
+[94/301] Building CXX object CMakeFiles\DarkAngelRuntime.dir\engine\runtime\ability_wire.cpp.obj
+[95/301] Building CXX object CMakeFiles\DarkAngelInventory.dir\engine\runtime\inventory.cpp.obj
+[96/301] Building CXX object CMakeFiles\DarkAngelInventory.dir\engine\runtime\item_definition.cpp.obj
+[97/301] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\party_inventory.cpp.obj
+[98/301] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\inventory_session.cpp.obj
+[99/301] Building CXX object CMakeFiles\DarkAngelInventorySession.dir\engine\runtime\scene_inventory.cpp.obj
+[100/301] Building CXX object CMakeFiles\DarkAngelAnimation.dir\engine\runtime\animation_pose.cpp.obj
+[101/301] Building CXX object CMakeFiles\DarkAngelAnimation.dir\engine\runtime\animation_graph.cpp.obj
+[102/301] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\character_motor.cpp.obj
+[103/301] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\static_collision.cpp.obj
+[104/301] Building CXX object CMakeFiles\DarkAngelPhysics.dir\engine\runtime\melee_query.cpp.obj
+[105/301] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[106/301] Building CXX object CMakeFiles\DarkAngelEditorService.dir\tools\editor\editor_service.cpp.obj
+[107/301] Building CXX object CMakeFiles\DarkAngelEditorService.dir\tools\editor\editor_document.cpp.obj
+[108/301] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[109/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_scene.cpp.obj
+[110/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority.cpp.obj
+[111/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_lifetime.cpp.obj
+[112/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_actors.cpp.obj
+[113/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_world.cpp.obj
+[114/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_party.cpp.obj
+[115/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_authority_tick.cpp.obj
+[116/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_client.cpp.obj
+[117/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_transition.cpp.obj
+[118/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\scene_world_objects.cpp.obj
+[119/301] Building CXX object CMakeFiles\DarkAngelCharacterScene.dir\engine\runtime\character_presentation.cpp.obj
+[120/301] Building CXX object CMakeFiles\DarkAngelNavigation.dir\engine\runtime\navigation.cpp.obj
+[121/301] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[122/301] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[123/301] Building CXX object CMakeFiles\DarkAngelNetwork.dir\engine\runtime\gns_transport.cpp.obj
+[124/301] Building CXX object CMakeFiles\DarkAngelBehavior.dir\engine\runtime\behavior_tree.cpp.obj
+[125/301] Building CXX object CMakeFiles\DarkAngelPersistence.dir\engine\persistence\persistence.cpp.obj
+[126/301] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[127/301] Generating CXX dyndep file CMakeFiles\PrefabTests.dir\CXX.dd
+[128/301] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\hud.cpp.obj
+[129/301] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\inventory_document.cpp.obj
+[130/301] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\altar_document.cpp.obj
+[131/301] Building CXX object CMakeFiles\DarkAngelHud.dir\engine\runtime\world_ui.cpp.obj
+[132/301] Linking CXX static library DarkAngelFoundation.lib
+[133/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\item_cooker.cpp.obj
+[134/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[135/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[136/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[137/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[138/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\model_collision.cpp.obj
+[139/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[140/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[141/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[142/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\cue_cooker.cpp.obj
+[143/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\audio_cooker.cpp.obj
+[144/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\primitive_cooker.cpp.obj
+[145/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\vfx_cooker.cpp.obj
+[146/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\sound_cooker.cpp.obj
+[147/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[148/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\effect_cooker.cpp.obj
+[149/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\prefab_cooker.cpp.obj
+[150/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\material_cooker.cpp.obj
+[151/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ui_cooker.cpp.obj
+[152/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\animation_cooker.cpp.obj
+[153/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\joint_mask_cooker.cpp.obj
+[154/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\graph_cooker.cpp.obj
+[155/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\combat_kit_cooker.cpp.obj
+[156/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\actor_cooker.cpp.obj
+[157/301] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\tag_codegen.cpp.obj
+[158/301] Building CXX object CMakeFiles\AssetTool.dir\tools\cooker\main.cpp.obj
+[159/301] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_service.cpp.obj
+[160/301] Building CXX object CMakeFiles\DarkAngelAudio.dir\engine\audio\audio_director.cpp.obj
+[161/301] Building CXX object CMakeFiles\DarkAngelVfx.dir\engine\vfx\vfx_service.cpp.obj
+[162/301] Building CXX object CMakeFiles\MaterialTests.dir\tests\material_tests.cpp.obj
+[163/301] Building CXX object CMakeFiles\PrefabTests.dir\tests\prefab_tests.cpp.obj
+[164/301] Building CXX object CMakeFiles\PrefabTests.dir\apps\editor\prefab_commands.cpp.obj
+[165/301] Linking CXX static library DarkAngelHud.lib
+[166/301] Linking CXX static library DarkAngelRuntime.lib
+[167/301] Linking CXX static library DarkAngelInventory.lib
+[168/301] Linking CXX static library DarkAngelPersistence.lib
+[169/301] Linking CXX static library DarkAngelAnimation.lib
+[170/301] Linking CXX static library DarkAngelPhysics.lib
+[171/301] Linking CXX static library DarkAngelEditorService.lib
+[172/301] Linking CXX static library DarkAngelNetwork.lib
+[173/301] Linking CXX static library DarkAngelInventorySession.lib
+[174/301] Linking CXX static library DarkAngelNavigation.lib
+[175/301] Linking CXX static library DarkAngelAssets.lib
+[176/301] Linking CXX static library DarkAngelCharacterScene.lib
+[177/301] Linking CXX static library DarkAngelBehavior.lib
+[178/301] Linking CXX executable AssetTool.exe
+[179/301] Linking CXX static library DarkAngelAudio.lib
+[180/301] Linking CXX static library DarkAngelVfx.lib
+[181/301] Linking CXX executable MaterialTests.exe
+[182/301] Linking CXX executable PrefabTests.exe
+[183/301] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+[184/301] Scanning C:\DarkAngel\games\AshenRoots\royal_combat.cpp for CXX dependencies
+[185/301] Scanning C:\DarkAngel\games\AshenRoots\royal_hud.cpp for CXX dependencies
+[186/301] Scanning C:\DarkAngel\apps\editor\exercises\scene_editing.cpp for CXX dependencies
+[187/301] Scanning C:\DarkAngel\apps\editor\exercises\scene_camera_exercise.cpp for CXX dependencies
+[188/301] Scanning C:\DarkAngel\apps\editor\exercises\prefab_exercise.cpp for CXX dependencies
+[189/301] Scanning C:\DarkAngel\apps\editor\exercises\material_exercise.cpp for CXX dependencies
+[190/301] Scanning C:\DarkAngel\apps\editor\exercises\ui_exercise.cpp for CXX dependencies
+[191/301] Scanning C:\DarkAngel\apps\editor\exercises\editor_ux_exercise.cpp for CXX dependencies
+[192/301] Scanning C:\DarkAngel\apps\editor\exercises\live_previews_exercise.cpp for CXX dependencies
+[193/301] Scanning C:\DarkAngel\apps\editor\exercises\acceptance.cpp for CXX dependencies
+[194/301] Scanning C:\DarkAngel\apps\editor\render\gpu_resources.cpp for CXX dependencies
+[195/301] Scanning C:\DarkAngel\apps\editor\render\render_system.cpp for CXX dependencies
+[196/301] Scanning C:\DarkAngel\apps\editor\editor_items.cpp for CXX dependencies
+[197/301] Scanning C:\DarkAngel\apps\editor\prefab_workspace.cpp for CXX dependencies
+[198/301] Scanning C:\DarkAngel\apps\editor\material_workspace.cpp for CXX dependencies
+[199/301] Scanning C:\DarkAngel\apps\editor\ui_workspace.cpp for CXX dependencies
+[200/301] Scanning C:\DarkAngel\apps\editor\item_authoring.cpp for CXX dependencies
+[201/301] Scanning C:\DarkAngel\apps\editor\main.cpp for CXX dependencies
+[202/301] Scanning C:\DarkAngel\apps\editor\editor_controller.cpp for CXX dependencies
+[203/301] Scanning C:\DarkAngel\apps\editor\editor_ui.cpp for CXX dependencies
+[204/301] Scanning C:\DarkAngel\apps\editor\scene_navigation.cpp for CXX dependencies
+[205/301] Scanning C:\DarkAngel\apps\editor\editor_world_objects.cpp for CXX dependencies
+[206/301] Scanning C:\DarkAngel\apps\editor\exercises\world_place_exercise.cpp for CXX dependencies
+[207/301] Scanning C:\DarkAngel\apps\editor\editor_assets.cpp for CXX dependencies
+[208/301] Scanning C:\DarkAngel\apps\editor\editor_authoring.cpp for CXX dependencies
+[209/301] Scanning C:\DarkAngel\apps\editor\editor_composer.cpp for CXX dependencies
+[210/301] Scanning C:\DarkAngel\apps\editor\native_authoring.cpp for CXX dependencies
+[211/301] Scanning C:\DarkAngel\apps\editor\editor_workspaces.cpp for CXX dependencies
+[212/301] Scanning C:\DarkAngel\apps\editor\editor_preferences.cpp for CXX dependencies
+[213/301] Scanning C:\DarkAngel\apps\editor\scene_splines.cpp for CXX dependencies
+[214/301] Scanning C:\DarkAngel\apps\editor\editor_app.cpp for CXX dependencies
+[215/301] Scanning C:\DarkAngel\apps\editor\render\scene_resources.cpp for CXX dependencies
+[216/301] Scanning C:\DarkAngel\apps\editor\render\scene_viewport.cpp for CXX dependencies
+[217/301] Scanning C:\DarkAngel\apps\editor\audio_workspace.cpp for CXX dependencies
+[218/301] Scanning C:\DarkAngel\apps\editor\exercises\authoring_sources.cpp for CXX dependencies
+[219/301] Scanning C:\DarkAngel\apps\editor\exercises\preview_results.cpp for CXX dependencies
+[220/301] Scanning C:\DarkAngel\apps\editor\vfx_workspace.cpp for CXX dependencies
+[221/301] Scanning C:\DarkAngel\apps\editor\exercises\media_exercises.cpp for CXX dependencies
+[222/301] Scanning C:\DarkAngel\apps\editor\exercises\navigation_exercises.cpp for CXX dependencies
+[223/301] Scanning C:\DarkAngel\apps\editor\exercises\gameplay_results.cpp for CXX dependencies
+[224/301] Scanning C:\DarkAngel\apps\editor\exercises\play_exercises.cpp for CXX dependencies
+[225/301] Scanning C:\DarkAngel\apps\editor\exercises\scale_exercise.cpp for CXX dependencies
+[226/301] Scanning C:\DarkAngel\apps\editor\play_controller.cpp for CXX dependencies
+[227/301] Scanning C:\DarkAngel\apps\editor\gameplay_inspector.cpp for CXX dependencies
+[228/301] Scanning C:\DarkAngel\apps\editor\pose_previews.cpp for CXX dependencies
+[229/301] Scanning C:\DarkAngel\apps\editor\viewport_tools.cpp for CXX dependencies
+[230/301] Scanning C:\DarkAngel\apps\editor\character_preview.cpp for CXX dependencies
+[231/301] Scanning C:\DarkAngel\apps\editor\inventory_resources.cpp for CXX dependencies
+[232/301] Scanning C:\DarkAngel\apps\editor\runtime_inventory.cpp for CXX dependencies
+[233/301] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[234/301] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[235/301] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_combat.cpp.obj
+[236/301] Building CXX object CMakeFiles\AshenRootsCombat.dir\games\AshenRoots\royal_hud.cpp.obj
+[237/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_options.cpp.obj
+[238/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\registry.cpp.obj
+[239/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scene_editing.cpp.obj
+[240/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scene_camera_exercise.cpp.obj
+[241/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\prefab_exercise.cpp.obj
+[242/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\material_exercise.cpp.obj
+[243/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\ui_exercise.cpp.obj
+[244/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\editor_ux_exercise.cpp.obj
+[245/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\live_previews_exercise.cpp.obj
+[246/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\synthetic_input.cpp.obj
+[247/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\acceptance.cpp.obj
+[248/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\gpu_resources.cpp.obj
+[249/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\render_system.cpp.obj
+[250/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_items.cpp.obj
+[251/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\prefab_commands.cpp.obj
+[252/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\prefab_workspace.cpp.obj
+[253/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\material_workspace.cpp.obj
+[254/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\ui_workspace.cpp.obj
+[255/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\item_authoring.cpp.obj
+[256/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\main.cpp.obj
+[257/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_controller.cpp.obj
+[258/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_ui.cpp.obj
+[259/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_camera.cpp.obj
+[260/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_navigation.cpp.obj
+[261/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_world_objects.cpp.obj
+[262/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_saves.cpp.obj
+[263/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\world_place_exercise.cpp.obj
+[264/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_assets.cpp.obj
+[265/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_authoring.cpp.obj
+[266/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_composer.cpp.obj
+[267/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_authoring.cpp.obj
+[268/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_workspaces.cpp.obj
+[269/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\native_input.cpp.obj
+[270/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_theme.cpp.obj
+[271/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_preferences.cpp.obj
+[272/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\scene_splines.cpp.obj
+[273/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_app.cpp.obj
+[274/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_resources.cpp.obj
+[275/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_viewport.cpp.obj
+[276/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\third_party\imguizmo\src\ImGuizmo.cpp.obj
+[277/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\audio_workspace.cpp.obj
+[278/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\authoring_sources.cpp.obj
+[279/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\script_runner.cpp.obj
+[280/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\preview_results.cpp.obj
+[281/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\vfx_workspace.cpp.obj
+[282/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\media_exercises.cpp.obj
+[283/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\navigation_exercises.cpp.obj
+[284/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\gameplay_results.cpp.obj
+[285/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\play_exercises.cpp.obj
+[286/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\scale_exercise.cpp.obj
+[287/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_controller.cpp.obj
+[288/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\gameplay_inspector.cpp.obj
+[289/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\pose_previews.cpp.obj
+[290/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\viewport_tools.cpp.obj
+[291/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\character_preview.cpp.obj
+[292/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\inventory_resources.cpp.obj
+[293/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\network_play.cpp.obj
+[294/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\navigation_tool.cpp.obj
+[295/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\hud_overlay.cpp.obj
+[296/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_hud.cpp.obj
+[297/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\world_ui_presenter.cpp.obj
+[298/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_inventory.cpp.obj
+[299/301] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\runtime_altar.cpp.obj
+[300/301] Linking CXX static library AshenRootsCombat.lib
+[301/301] Linking CXX executable DarkAngelEditor.exe

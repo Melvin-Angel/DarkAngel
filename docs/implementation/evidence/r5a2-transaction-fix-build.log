@@ -1,0 +1,84 @@
+[1/244] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/238] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/192] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[4/189] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[5/185] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[6/182] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/178] Scanning C:\DarkAngel\engine\assets\item_cooker.cpp for CXX dependencies
+[8/178] Scanning C:\DarkAngel\engine\assets\collision_cooker.cpp for CXX dependencies
+[9/178] Scanning C:\DarkAngel\engine\assets\action_cooker.cpp for CXX dependencies
+[10/178] Scanning C:\DarkAngel\engine\assets\assets_common.cpp for CXX dependencies
+[11/178] Scanning C:\DarkAngel\engine\assets\external_import.cpp for CXX dependencies
+[12/178] Scanning C:\DarkAngel\engine\assets\gltf_cooker.cpp for CXX dependencies
+[13/178] Scanning C:\DarkAngel\engine\assets\asset_service.cpp for CXX dependencies
+[14/178] Scanning C:\DarkAngel\engine\assets\model_collision.cpp for CXX dependencies
+[15/178] Scanning C:\DarkAngel\engine\assets\input_cooker.cpp for CXX dependencies
+[16/178] Scanning C:\DarkAngel\engine\assets\cue_cooker.cpp for CXX dependencies
+[17/178] Scanning C:\DarkAngel\engine\assets\audio_cooker.cpp for CXX dependencies
+[18/178] Scanning C:\DarkAngel\engine\assets\primitive_cooker.cpp for CXX dependencies
+[19/178] Scanning C:\DarkAngel\engine\assets\effect_cooker.cpp for CXX dependencies
+[20/178] Scanning C:\DarkAngel\engine\assets\sound_cooker.cpp for CXX dependencies
+[21/178] Scanning C:\DarkAngel\engine\assets\ability_cooker.cpp for CXX dependencies
+[22/178] Scanning C:\DarkAngel\engine\assets\vfx_cooker.cpp for CXX dependencies
+[23/178] Scanning C:\DarkAngel\engine\assets\prefab_cooker.cpp for CXX dependencies
+[24/178] Scanning C:\DarkAngel\engine\assets\material_cooker.cpp for CXX dependencies
+[25/178] Scanning C:\DarkAngel\engine\assets\ui_cooker.cpp for CXX dependencies
+[26/178] Scanning C:\DarkAngel\engine\assets\animation_cooker.cpp for CXX dependencies
+[27/178] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[28/175] Scanning C:\DarkAngel\engine\assets\joint_mask_cooker.cpp for CXX dependencies
+[29/175] Scanning C:\DarkAngel\engine\assets\combat_kit_cooker.cpp for CXX dependencies
+[30/175] Scanning C:\DarkAngel\engine\assets\graph_cooker.cpp for CXX dependencies
+[31/175] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[32/174] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[33/162] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[34/160] Scanning C:\DarkAngel\engine\assets\actor_cooker.cpp for CXX dependencies
+[35/160] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[36/158] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[37/156] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[38/153] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[39/151] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[40/146] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[41/144] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[42/143] Scanning C:\DarkAngel\engine\assets\tag_codegen.cpp for CXX dependencies
+[43/143] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[44/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\action_cooker.cpp.obj
+[45/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\item_cooker.cpp.obj
+C:\DarkAngel\engine\assets\item_cooker.cpp(28): warning C4456: declaration of 'path' hides previous local declaration
+C:\DarkAngel\engine\assets\item_cooker.cpp(12): note: see declaration of 'path'
+[46/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\collision_cooker.cpp.obj
+[47/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\external_import.cpp.obj
+[48/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\model_collision.cpp.obj
+[49/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\assets_common.cpp.obj
+[50/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\gltf_cooker.cpp.obj
+[51/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\input_cooker.cpp.obj
+[52/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\asset_service.cpp.obj
+[53/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\cue_cooker.cpp.obj
+[54/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\primitive_cooker.cpp.obj
+[55/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\sound_cooker.cpp.obj
+[56/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\audio_cooker.cpp.obj
+[57/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ability_cooker.cpp.obj
+[58/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\vfx_cooker.cpp.obj
+C:\DarkAngel\engine\assets\vfx_cooker.cpp(10): warning C4005: 'NOMINMAX': macro redefinition
+C:\DarkAngel\engine\assets\vfx_cooker.cpp(10): note: 'NOMINMAX' previously declared on the command line
+[59/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\prefab_cooker.cpp.obj
+[60/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\ui_cooker.cpp.obj
+[61/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\material_cooker.cpp.obj
+[62/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\effect_cooker.cpp.obj
+[63/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\joint_mask_cooker.cpp.obj
+[64/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\tag_codegen.cpp.obj
+[65/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\animation_cooker.cpp.obj
+[66/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\graph_cooker.cpp.obj
+[67/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\combat_kit_cooker.cpp.obj
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(37): warning C4457: declaration of 'id' hides function parameter
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(30): note: see declaration of 'id'
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(55): warning C4456: declaration of 'locations' hides previous local declaration
+C:\DarkAngel\engine\assets\combat_kit_cooker.cpp(53): note: see declaration of 'locations'
+[68/143] Building CXX object CMakeFiles\DarkAngelAssets.dir\engine\assets\actor_cooker.cpp.obj
+[69/143] Linking CXX static library DarkAngelAssets.lib
+[70/143] Linking CXX executable MaterialTests.exe
+[71/143] Linking CXX executable AssetTool.exe
+[72/143] Generating generated/royal-tags/ashen_roots/royal_tags.hpp, generated/royal-tags/royal_tags.luau
+Royal generated tag constants prepared: C:\DarkAngel\build\m5-editor-relwithdebinfo\generated\royal-tags\exports\71455b4a-0142-4e01-ba8f-210057736def\29311b59fc613d346b9ece8aa4da0f447a9adb1bde2d664f3e0733d2f212ba40
+[73/141] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[74/138] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[75/75] Linking CXX executable DarkAngelEditor.exe

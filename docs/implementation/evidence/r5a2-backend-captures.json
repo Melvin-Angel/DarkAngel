@@ -1,0 +1,23 @@
+{
+  "scope": "Observed static material verification viewport, excluding editor UI; numeric capture comparison, not validation-layer or timing qualification",
+  "captures": [
+    {
+      "path": "docs\\implementation\\evidence\\r5-98caa8cab4-materials.png",
+      "sha256": "b97b59fd8916be82af0a968b57b763bb966fbb9db1cd77e442a6288bc0e86192"
+    },
+    {
+      "path": "docs\\implementation\\evidence\\r5-ec0252cd0a-materials.png",
+      "sha256": "6910dde981150679e89dc16b14a45f86497c44b59733d26878d0264d64d8ac1d"
+    }
+  ],
+  "viewport_box": [
+    230,
+    190,
+    1003,
+    615
+  ],
+  "pixels": 328525,
+  "mean_absolute_channel_error_0_255": 1.0146361261192705e-06,
+  "pixels_over_two_channel_levels": 0,
+  "fraction_within_two_channel_levels": 1.0
+}

@@ -1,0 +1,19 @@
+{
+  "run": "ec0252cd0a",
+  "gate": "materials",
+  "backend": "vulkan",
+  "fixture": "C:\\DarkAngel\\.cache\\r5-materials-ec0252cd0a",
+  "gates": [
+    {
+      "name": "materials",
+      "exit": 0,
+      "seconds": 66.36,
+      "log": "docs\\implementation\\evidence\\r5-ec0252cd0a-materials.log",
+      "markers": true
+    }
+  ],
+  "binary_sha256": "6cc78257076c53bca0f54992f45a534cc28a951660e0a9d28ac1499b8be870a8",
+  "qualification": "Synthetic ImGui input in the vulkan editor on this machine; no physical-device or remote/EOS qualification.",
+  "passed": true,
+  "protected_unchanged": true
+}

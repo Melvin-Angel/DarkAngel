@@ -1,0 +1,27 @@
+{
+  "scope": "R5 A2 binding data and standalone material closure; rendering/authoring integration pending",
+  "tests": [
+    {
+      "name": "MaterialTests",
+      "exit": 0,
+      "seconds": 18.297,
+      "binary_sha256": "f6ef8bef1dc0a80610695f37c79e685db3e51032ca09457e3f2a36cb31ac757e",
+      "log": "docs\\implementation\\evidence\\r5a2-bindings-MaterialTests.log"
+    },
+    {
+      "name": "PrefabTests",
+      "exit": 0,
+      "seconds": 0.578,
+      "binary_sha256": "81353b8dce2bbd650312641ea4618fe568a3b3e3ca3ba4bbacbb68c6ead755cc",
+      "log": "docs\\implementation\\evidence\\r5a2-bindings-PrefabTests.log"
+    },
+    {
+      "name": "DocumentIncrementalTests",
+      "exit": 0,
+      "seconds": 30.781,
+      "binary_sha256": "2a61d8f90492519f451f552d0de6a3f50e6bbde670ff71b6ad7902afadce6ab7",
+      "log": "docs\\implementation\\evidence\\r5a2-bindings-DocumentIncrementalTests.log"
+    }
+  ],
+  "passed": true
+}

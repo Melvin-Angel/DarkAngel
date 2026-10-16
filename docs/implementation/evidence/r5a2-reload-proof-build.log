@@ -1,0 +1,45 @@
+[1/229] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/223] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[3/177] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[4/174] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[5/170] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[6/166] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[7/163] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[8/137] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[9/125] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[10/124] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[11/122] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[12/120] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[13/118] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[14/116] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[15/109] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[16/106] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[17/104] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[18/99] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[19/97] Generating CXX dyndep file CMakeFiles\PrefabTests.dir\CXX.dd
+[20/94] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[21/91] Scanning C:\DarkAngel\apps\editor\exercises\material_exercise.cpp for CXX dependencies
+[22/91] Scanning C:\DarkAngel\apps\editor\render\scene_resources.cpp for CXX dependencies
+[23/91] Scanning C:\DarkAngel\apps\editor\render\scene_viewport.cpp for CXX dependencies
+[24/91] Scanning C:\DarkAngel\apps\editor\pose_previews.cpp for CXX dependencies
+[25/91] Scanning C:\DarkAngel\apps\editor\viewport_tools.cpp for CXX dependencies
+[26/91] Scanning C:\DarkAngel\apps\editor\editor_app.cpp for CXX dependencies
+[27/91] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[28/34] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_resources.cpp.obj
+[29/34] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\pose_previews.cpp.obj
+[30/34] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\material_exercise.cpp.obj
+[31/34] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\viewport_tools.cpp.obj
+[32/34] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\render\scene_viewport.cpp.obj
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(285): warning C4457: declaration of 'viewer' hides function parameter
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(273): note: see declaration of 'viewer'
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(381): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(381): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(381): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\DarkAngel\apps\editor\render\scene_viewport.cpp(384): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+[33/34] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\editor_app.cpp.obj
+[34/34] Linking CXX executable DarkAngelEditor.exe

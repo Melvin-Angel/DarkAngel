@@ -1,0 +1,28 @@
+[1/225] Generating CXX dyndep file CMakeFiles\DarkAngelFoundation.dir\CXX.dd
+[2/219] Generating CXX dyndep file CMakeFiles\DarkAngelInventory.dir\CXX.dd
+[3/216] Generating CXX dyndep file CMakeFiles\DarkAngelInventorySession.dir\CXX.dd
+[4/212] Generating CXX dyndep file CMakeFiles\DarkAngelEditorService.dir\CXX.dd
+[5/209] Generating CXX dyndep file CMakeFiles\DarkAngelRuntime.dir\CXX.dd
+[6/163] Generating CXX dyndep file CMakeFiles\DarkAngelPhysics.dir\CXX.dd
+[7/159] Generating CXX dyndep file CMakeFiles\DarkAngelCharacterScene.dir\CXX.dd
+[8/147] Generating CXX dyndep file CMakeFiles\DarkAngelAnimation.dir\CXX.dd
+[9/144] Generating CXX dyndep file CMakeFiles\AssetTool.dir\CXX.dd
+[10/143] Generating CXX dyndep file CMakeFiles\DarkAngelNavigation.dir\CXX.dd
+[11/141] Generating CXX dyndep file CMakeFiles\DarkAngelAssets.dir\CXX.dd
+[12/111] Generating CXX dyndep file CMakeFiles\DarkAngelNetwork.dir\CXX.dd
+[13/109] Generating CXX dyndep file CMakeFiles\DarkAngelBehavior.dir\CXX.dd
+[14/107] Generating CXX dyndep file CMakeFiles\DarkAngelAudio.dir\CXX.dd
+[15/104] Generating CXX dyndep file CMakeFiles\DarkAngelPersistence.dir\CXX.dd
+[16/102] Generating CXX dyndep file CMakeFiles\DarkAngelVfx.dir\CXX.dd
+[17/100] Generating CXX dyndep file CMakeFiles\DarkAngelHud.dir\CXX.dd
+[18/95] Generating CXX dyndep file CMakeFiles\MaterialTests.dir\CXX.dd
+[19/93] Generating CXX dyndep file CMakeFiles\AshenRootsCombat.dir\CXX.dd
+[20/90] Generating CXX dyndep file CMakeFiles\PrefabTests.dir\CXX.dd
+[21/87] Scanning C:\DarkAngel\apps\editor\exercises\world_place_exercise.cpp for CXX dependencies
+[22/87] Scanning C:\DarkAngel\apps\editor\play_controller.cpp for CXX dependencies
+[23/87] Generating CXX dyndep file CMakeFiles\DarkAngelEditor.dir\CXX.dd
+[24/26] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\exercises\world_place_exercise.cpp.obj
+[25/26] Building CXX object CMakeFiles\DarkAngelEditor.dir\apps\editor\play_controller.cpp.obj
+C:\DarkAngel\apps\editor\play_controller.cpp(1746): warning C4456: declaration of 'at' hides previous local declaration
+C:\DarkAngel\apps\editor\play_controller.cpp(1686): note: see declaration of 'at'
+[26/26] Linking CXX executable DarkAngelEditor.exe

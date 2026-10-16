@@ -1,25 +1,26 @@
 {
-  "run": "146d258995",
+  "run": "6c1abb95a6",
   "gate": "all",
-  "fixture": "C:\\DarkAngel\\.cache\\r5-materials-146d258995",
+  "backend": "d3d12",
+  "fixture": "C:\\DarkAngel\\.cache\\r5-materials-6c1abb95a6",
   "gates": [
     {
       "name": "MaterialTests",
       "exit": 0,
-      "seconds": 5.406,
-      "log": "docs\\implementation\\evidence\\r5-146d258995-MaterialTests.log",
+      "seconds": 16.843,
+      "log": "docs\\implementation\\evidence\\r5-6c1abb95a6-MaterialTests.log",
       "markers": true
     },
     {
       "name": "materials",
       "exit": 0,
-      "seconds": 14.078,
-      "log": "docs\\implementation\\evidence\\r5-146d258995-materials.log",
+      "seconds": 39.469,
+      "log": "docs\\implementation\\evidence\\r5-6c1abb95a6-materials.log",
       "markers": true
     }
   ],
-  "binary_sha256": "17ae5b0c2b19ee0379ec3cfa06e36efbe809d4ca9b4c4177339ad748a0d3221a",
-  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "binary_sha256": "da90d061a881f818f197311ff2bec0913d469bf866badd28c10c2e1e4f9acfc9",
+  "qualification": "Synthetic ImGui input in the d3d12 editor on this machine; no physical-device or remote/EOS qualification.",
   "passed": true,
   "protected_unchanged": true
 }
