@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80206450000
-[39mViewport foreground pixels=403279 capture=C:\DarkAngel\docs\implementation\evidence\camera-free-look-d3d12.png
+[39mViewport foreground pixels=403299 capture=C:\DarkAngel\docs\implementation\evidence\camera-free-look-d3d12.png
 Camera scripted mouse right/up yaw=-0.21 pitch=0.10444 pending=0
 DarkAngel editor rendered 30 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
@@ -24,7 +24,7 @@ QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 118 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) | 512/8192 (6.25%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 36/16384 (0.22%) | 512/8192 (6.25%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 3/1024 (0.29%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 5/1024 (0.49%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).

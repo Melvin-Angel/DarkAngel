@@ -4,19 +4,19 @@
   "actors": [],
   "arrivals": 5,
   "authority": true,
-  "client": "readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=20 coherent=1 paired=1",
+  "client": "readiness=4 revision=5 player=1 collision=1 motors=2 corrections=1 public=2 frames=23 coherent=1 paired=1",
   "console": [
     "The party arrived in RoyalVillage.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3431 ms, resources 2199 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3832 ms, resources 2202 ms).",
     "The party arrived in RoyalVillage.dascene.",
     "Saving the game.",
     "Saved (revision 2).",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3588 ms, resources 2161 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3904 ms, resources 2291 ms).",
     "The party arrived in RoyalTraining.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3205 ms, resources 2032 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3651 ms, resources 2258 ms).",
     "The party arrived in RoyalVillage.dascene."
   ],
   "downed": false,
@@ -29,7 +29,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 16425,
+  "frame": 16893,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -118,11 +118,16 @@
     0.4999997615814209,
     2.5
   ],
-  "predicted_tick": 21,
-  "process": 31076,
+  "predicted_tick": 24,
+  "process": 37288,
   "ready": true,
   "rebases": 0,
   "refused": 0,
+  "render_material_bindings": {
+    "35988a1faaaf5a4b7a2d770acb826d0b": {
+      "8e4e7a9b-15ca-4536-80bc-b6b7c87dddb2": "ff87c18f-e41e-4f11-88a1-3e8f83c86523"
+    }
+  },
   "role": "host",
   "running": true,
   "save_status": "Saved (revision 2).",
@@ -131,7 +136,7 @@
   "schema": 1,
   "script_count": 27,
   "script_steps": 27,
-  "tick": 19,
+  "tick": 22,
   "travel_failures": 0,
   "world": {
     "checkpoint": {

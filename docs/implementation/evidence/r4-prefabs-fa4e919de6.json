@@ -1,0 +1,24 @@
+{
+  "run": "fa4e919de6",
+  "gate": "all",
+  "fixture": "C:\\DarkAngel\\.cache\\r4-prefabs-fa4e919de6",
+  "gates": [
+    {
+      "name": "PrefabTests",
+      "exit": 0,
+      "seconds": 0.687,
+      "log": "docs\\implementation\\evidence\\r4-fa4e919de6-PrefabTests.log",
+      "markers": true
+    },
+    {
+      "name": "prefabs",
+      "exit": 1,
+      "seconds": 42.328,
+      "log": "docs\\implementation\\evidence\\r4-fa4e919de6-prefabs.log",
+      "markers": false
+    }
+  ],
+  "binary_sha256": "3eee1adfa6bd950908d8b7596ff65ce264e88e0644ce15dbeec6678ec4e8726a",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "protected_unchanged": true
+}

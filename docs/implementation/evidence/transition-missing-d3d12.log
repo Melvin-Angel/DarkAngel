@@ -5,8 +5,8 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
-[39mViewport foreground pixels=456601 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
-Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=7f66593c-0303-4121-857c-86148fcfa8fe document=7f66593c-0303-4121-857c-86148fcfa8fe authoring=7f66593c-0303-4121-857c-86148fcfa8fe lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_15404b72-7b3d-4e06-b5b0-6f1d44ce2441_is_in_the_project
+[39mViewport foreground pixels=456627 capture=C:\DarkAngel\docs\implementation\evidence\transition-missing-d3d12.png
+Editor transition tick=220 players=2 arrivals=0 failures=1 phase=Idle scene=f2e596e2-7e7b-4140-a9a6-d5879b3735e8 document=f2e596e2-7e7b-4140-a9a6-d5879b3735e8 authoring=f2e596e2-7e7b-4140-a9a6-d5879b3735e8 lever_used=0 first_prompt=0 overlay_frames=2 loading=0 ledger_records=0 scripts=5/5,0/0 pending=0 failure=The_destination_scene_could_not_be_loaded:_No_scene_with_the_identity_93606bbd-5e52-46e6-8b21-bdc91d5ffa26_is_in_the_project
 DarkAngel editor rendered 220 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 28/256
@@ -24,7 +24,7 @@ QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 118 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) | 512/8192 (6.25%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 36/16384 (0.22%) | 512/8192 (6.25%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 4/1024 (0.39%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 6/1024 (0.59%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).

@@ -4,7 +4,7 @@
 [39m[39mDiligent Engine: Info: Max device shader model: 6_7
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
-[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201930000
+[39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80201970000
 [39mViewport foreground pixels=252743 capture=C:\DarkAngel\docs\implementation\evidence\audio-tab-d3d12.png
 Editor audio workspace=1 waves=6 definitions=3 profiles=2 mixers=1 driver=null loaded=2 playing=3 started=3 audition=1 bus_music=0.3 bus_ambient=1 bus_npc=1 limit=0 director=1 profile=bd4a032e-5a41-41f1-bde1-6c3b00e54d09 music=cba7e107-c2f9-4352-9a9d-f30fa3cf083a ambient=1 layers=0 missing=0
 DarkAngel editor rendered 30 frames with d3d12
@@ -24,7 +24,7 @@ QUERY_TYPE_DURATION           :    0/ 512
 [39m[39mDiligent Engine: Info: Command list manager: created 0 allocators
 [39m[39mDiligent Engine: Info: Command list manager: created 62 allocators
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
-[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 5/16384 (0.03%) | 512/8192 (6.25%).
+[39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 20/16384 (0.12%) | 512/8192 (6.25%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 2/1024 (0.20%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 4/1024 (0.39%).
 [39m[39mDiligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
