@@ -7,6 +7,7 @@
 namespace darkangel::assets_detail {
 using Json=nlohmann::json;
 void require(bool,const char*);
+void require(bool,const std::string&);
 std::string read(const std::filesystem::path&,std::size_t limit=64*1024*1024);
 Json json(std::string_view,std::size_t limit=1024*1024);
 // A runtime package registry, parsed once per file revision (path, size and write time) and shared by every loader that reads
@@ -29,12 +30,21 @@ Import import_clip(const std::filesystem::path&,const std::filesystem::path&,con
 void set_clip_memo(std::filesystem::path folder,std::filesystem::path cas);
 Import import_human(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,const std::filesystem::path& canonical,bool inspect=false,bool renderable=false);
 std::string cook_color_texture(std::string_view);
-Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+// R5 A3: a texture product for its semantic: sRGB colour, or linear data / normal map (normal mips are renormalised).
+std::string cook_texture(std::string_view,TextureSemantic);
+Import import_texture(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false,TextureSemantic=TextureSemantic::Color);
 Import import_action(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_actor(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_material(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 
 Import material_texture(const std::filesystem::path& root,const MaterialInstanceDefinition&,bool inspect);
+// A texture a material slot names, validated against the semantic the slot requires.
+Import material_texture(const std::filesystem::path& root,const MaterialTextureRef&,TextureSemantic,bool inspect);
+// The cooked "material" fields an instance writes (base fields always; surface features only when used), and their reader.
+Json material_product_fields(const MaterialInstanceDefinition&);
+void read_material_fields(CookedMaterial&,const Json&);
+// The textures a cooked material samples, base colour first.
+std::vector<AssetId> material_textures(const CookedMaterial&);
 Import import_ui(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_prefab(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_combat_kit(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);

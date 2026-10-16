@@ -175,6 +175,9 @@ public:
     // R5 (material_workspace.cpp): material slots of a selected imported model (assign, create editable material, reset to
     // imported) and the form of a material instance draft. Both live in Assets.
     void draw_model_materials(Controller&,const AssetInfo& model);
+    // R5 A3: what an imported texture's texels mean (colour, data or normal map), and changing it (refused while a consumer
+    // needs the current meaning).
+    void draw_texture_semantic(Controller&,const AssetInfo& texture);
     void draw_material_form(Controller&,AssetId material);
     void draw_material_assignments(Controller&,const nlohmann::json&,const std::function<void(AssetId,AssetId)>&,const std::function<void(AssetId)>& revert={});
     void draw_object_materials(Controller&,StableId);
@@ -231,7 +234,7 @@ private:
     std::vector<float> frame_ms;
     EditScope scope{EditScope::Placement};std::uint64_t gesture_revision{};StableId gesture_object;
     int operation{};bool dragging{},cancelled{},show_script{};char script[8192]{};char filter[128]{};
-    bool import_open{};std::filesystem::path import_file;int import_type{-1};
+    bool import_open{};std::filesystem::path import_file;int import_type{-1};int import_semantic{}; // texture meaning (R5 A3): 0 colour, 1 data, 2 normal
     char canonical[512]{"animation/canonical_human.daskeleton"};bool import_loop{};
     PreparedAssetImport import_prepared;std::string import_error,import_status;
     char asset_filter[128]{};int asset_kind{};AssetId selected_asset;bool reveal_scroll{};

@@ -26,17 +26,44 @@ void Shell::draw_material_form(Controller& editor,AssetId material){
         ImGui::SeparatorText("Material");ImGui::Text("%s",value.value("name","").c_str());ImGui::TextDisabled("%s  |  %s",draft.asset.path.c_str(),draft.pending?"New draft: Save publishes it":draft.dirty()?"Unsaved material changes":"Saved");
         const auto consumers=material_consumers(editor,material);ImGui::TextWrapped(consumers.empty()?"No model slot uses this material yet.":"Shared material: editing it changes every model slot listed below. Duplicate it for a variation.");
         for(auto model:consumers)if(const auto* asset=asset_by_id(editor,model))ImGui::BulletText("%s",asset->path.c_str());
+        // R5 A3: the family decides which controls exist; a control the family's shader ignores is not shown.
+        {const auto family=value.value("family",std::string(material_family_lit_color));ImGui::SetNextItemWidth(220);
+         if(ImGui::BeginCombo("Family",family.c_str())){for(const auto& definition:material_definitions())if(ImGui::Selectable(definition.family.c_str(),definition.family==family)&&definition.family!=family){
+                 value["family"]=definition.family;
+                 // Fields of the old family that the new one does not have are dropped (Undo restores them).
+                 for(const char* key:{"normal_texture","normal_scale","surface_texture","occlusion_strength","emissive","emissive_texture","alpha_mode","alpha_cutoff"})if(std::find(definition.parameters.begin(),definition.parameters.end(),key)==definition.parameters.end()&&std::none_of(definition.textures.begin(),definition.textures.end(),[&](const auto& slot){return slot.key==key;})){value.erase(key);if(value.contains("sources"))value["sources"].erase(key);}}
+             ImGui::EndCombo();}
+         if(ImGui::IsItemHovered())ImGui::SetTooltip("lit-color-v1: colour, roughness, metallic and a colour texture.\nlit-surface-v1: adds normal, packed surface (occlusion/roughness/metallic) and emissive maps, and cutout or transparent alpha.");}
+        const bool surface=value.value("family","")==material_family_lit_surface;
         float color[4];for(int i=0;i<4;++i)color[i]=value["color"][i].get<float>();if(ImGui::ColorEdit4("Base colour",color))for(int i=0;i<4;++i)value["color"][i]=double(color[i]);
         float roughness=value["roughness"].get<float>(),metallic=value["metallic"].get<float>();if(ImGui::SliderFloat("Roughness",&roughness,0,1))value["roughness"]=double(roughness);if(ImGui::SliderFloat("Metallic",&metallic,0,1))value["metallic"]=double(metallic);
         bool sides=value["double_sided"].get<bool>();if(ImGui::Checkbox("Double-sided",&sides))value["double_sided"]=sides;
-        // Base-colour texture: any imported colour texture of the project (sRGB colour data only in this family).
-        std::string current="No texture";if(value["texture"].is_string())if(const auto* asset=asset_by_id(editor,AssetId::parse(value["texture"].get<std::string>())))current=asset->path;
-        ImGui::SetNextItemWidth(300);if(ImGui::BeginCombo("Base-colour texture",current.c_str())){
-            if(ImGui::Selectable("No texture",value["texture"].is_null())){value["texture"]=nullptr;value.erase("sources");}
-            for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension!=".png"&&extension!=".jpg"&&extension!=".jpeg")continue;
-                auto metadata=read_json(editor.assets->source_root()/(asset.path+".daimport"));if(!metadata.is_object()||metadata.value("importer","")!="texture-color-v1")continue;
-                if(ImGui::Selectable(asset.path.c_str(),current==asset.path)){value["texture"]=asset.id.text();value["sources"]={{"texture",asset.path}};}}
-            ImGui::EndCombo();}
+        // Texture slots: only imported textures whose semantic matches the slot are offered (colour is sRGB; normal and packed
+        // surface maps are linear). The texture's meaning is changed in Assets, not here.
+        auto texture_picker=[&](const char* label,const char* key,TextureSemantic semantic){
+            std::string current="No texture";if(value.contains(key)&&value[key].is_string())if(const auto* asset=asset_by_id(editor,AssetId::parse(value[key].get<std::string>())))current=asset->path;
+            ImGui::SetNextItemWidth(300);if(ImGui::BeginCombo(label,current.c_str())){
+                if(ImGui::Selectable("No texture",!value.contains(key)||value[key].is_null())){value[key]=nullptr;if(value.contains("sources")){value["sources"].erase(key);if(value["sources"].empty())value.erase("sources");}}
+                for(const auto& asset:editor.asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension!=".png"&&extension!=".jpg"&&extension!=".jpeg")continue;
+                    auto metadata=read_json(editor.assets->source_root()/(asset.path+".daimport"));if(!metadata.is_object()||metadata.value("importer","")!=texture_importer(semantic))continue;
+                    if(ImGui::Selectable(asset.path.c_str(),current==asset.path)){value[key]=asset.id.text();value["sources"][key]=asset.path;}}
+                ImGui::EndCombo();}
+            if(ImGui::IsItemHovered())ImGui::SetTooltip("%s textures only",texture_semantic_label(semantic).data());};
+        texture_picker("Base-colour texture","texture",TextureSemantic::Color);
+        if(surface){
+            ImGui::SeparatorText("Surface maps");
+            texture_picker("Normal map","normal_texture",TextureSemantic::Normal);
+            if(value.contains("normal_texture")&&value["normal_texture"].is_string()){float scale=value.value("normal_scale",1.f);if(ImGui::SliderFloat("Normal strength",&scale,0,2))value["normal_scale"]=double(scale);}
+            texture_picker("Surface map (R occlusion, G roughness, B metallic)","surface_texture",TextureSemantic::Data);
+            if(value.contains("surface_texture")&&value["surface_texture"].is_string()){float strength=value.value("occlusion_strength",1.f);if(ImGui::SliderFloat("Occlusion strength",&strength,0,1))value["occlusion_strength"]=double(strength);}
+            float emissive[3]{0,0,0};if(value.contains("emissive"))for(int i=0;i<3;++i)emissive[i]=value["emissive"][i].get<float>();
+            if(ImGui::ColorEdit3("Emissive",emissive,ImGuiColorEditFlags_HDR|ImGuiColorEditFlags_Float)){for(float& e:emissive)e=std::clamp(e,0.f,16.f);value["emissive"]={emissive[0],emissive[1],emissive[2]};}
+            texture_picker("Emissive map","emissive_texture",TextureSemantic::Color);
+            ImGui::SeparatorText("Alpha");
+            const auto mode=value.value("alpha_mode",std::string("opaque"));ImGui::SetNextItemWidth(220);
+            if(ImGui::BeginCombo("Alpha mode",mode.c_str())){for(const char* option:{"opaque","cutout","transparent"})if(ImGui::Selectable(option,mode==option))value["alpha_mode"]=option;ImGui::EndCombo();}
+            if(ImGui::IsItemHovered())ImGui::SetTooltip("Opaque ignores alpha. Cutout discards texels below the cutoff. Transparent blends and is drawn after opaque surfaces.");
+            if(mode=="cutout"){float cutoff=value.value("alpha_cutoff",.5f);if(ImGui::SliderFloat("Alpha cutoff",&cutoff,0,1))value["alpha_cutoff"]=double(cutoff);}}
         editor.authoring.record_changes(*editor.assets,"Edit material");
         try{decode_material_instance(value.dump());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"Needs attention: %s. Save will reject it.",error.what());}
         if(ImGui::Button("Save material")){try{editor.save_gameplay();editor.refresh_assets();refresh_consumers(editor,material);prefab_preview.key.clear();author_diagnostic="Saved the material; models that use it were refreshed.";}catch(const std::exception& error){author_diagnostic=error.what();}}
@@ -69,13 +96,16 @@ void Shell::draw_object_materials(Controller& editor,StableId object){
 }
 void Shell::draw_model_materials(Controller& editor,const AssetInfo& model){
     if(!editor.assets)return;auto metadata=read_json(editor.assets->source_root()/(model.path+".daimport"));
-    if(!metadata.is_object()||metadata.value("importer","")!="static-gltf-v1"||!metadata.contains("subassets"))return;
+    // Static models: one slot per material key. Renderable skins (R5 A3): one slot per primitive (its mesh key).
+    const bool skin=metadata.is_object()&&metadata.value("importer","")=="human-gltf-v2";
+    if(!metadata.is_object()||(metadata.value("importer","")!="static-gltf-v1"&&!skin)||!metadata.contains("subassets"))return;
     if(!ImGui::CollapsingHeader("Materials",ImGuiTreeNodeFlags_DefaultOpen))return;
+    if(skin)ImGui::TextWrapped("Skinned model: each primitive is a material slot. Unassigned primitives draw with the shared atlas and their imported colour.");
     ImGui::TextWrapped("Each slot uses its imported material unless an engine-owned material is assigned. Assignments are kept by the slot's stable key, so they survive reimport of the model.");
     const bool playing=editor.preview.active()!=nullptr;ImGui::BeginDisabled(playing);
     const auto assignments=metadata.value("materials",Json::object());const auto model_path=model.path;const auto model_id=model.id;
     auto run=[&](auto&& f){try{f();author_diagnostic.clear();}catch(const std::exception& error){author_diagnostic=error.what();editor.log(error.what(),ConsoleSeverity::Error);}};
-    if(ImGui::Button("Review reimport changes"))run([&]{
+    if(!skin&&ImGui::Button("Review reimport changes"))run([&]{
         material_reimport_changes=editor.assets->model_reimport_changes(model_path);material_reimport_model=model_id;material_reimport_remap.clear();
         std::ifstream input(editor.assets->source_root()/(model_path+".daimport"),std::ios::binary);material_reimport_hash=sha256(std::string(std::istreambuf_iterator<char>(input),{}));});
     if(material_reimport_model==model_id){
@@ -86,9 +116,9 @@ void Shell::draw_model_materials(Controller& editor,const AssetInfo& model){
         for(const auto& key:material_reimport_changes.added)ImGui::BulletText("New: %s",key.c_str());
         if(material_reimport_changes.removed.empty()&&material_reimport_changes.added.empty())ImGui::TextDisabled("No stable-key changes.");
         else{ImGui::BeginDisabled(material_reimport_remap.size()!=material_reimport_changes.removed.size());if(ImGui::Button("Apply explicit reimport repair"))run([&]{auto repair=editor.assets->model_reimport_edit(model_path,material_reimport_hash,material_reimport_remap);editor.authoring.save_all(*editor.assets,{},std::span<const NativeSourceEdit>(&repair,1));material_reimport_model={};editor.refresh_assets();if(editor.refresh_model)editor.refresh_model(model_id);else if(editor.prepare_model)editor.prepare_model(model_id);});ImGui::EndDisabled();}}
-    for(const auto& [slot,unused]:metadata["subassets"].items()){if(!slot.starts_with("material/"))continue;ImGui::PushID(slot.c_str());
+    for(const auto& [slot,unused]:metadata["subassets"].items()){if(skin?slot.find("/primitive/")==std::string::npos:!slot.starts_with("material/"))continue;ImGui::PushID(slot.c_str());
         AssetId assigned;std::string label="Imported default";if(assignments.contains(slot)){assigned=AssetId::parse(assignments[slot].at("asset").get<std::string>());label=assignments[slot].at("source").get<std::string>();}
-        ImGui::SeparatorText(slot.substr(9).c_str());ImGui::TextDisabled("%s",label.c_str());
+        ImGui::SeparatorText(skin?slot.c_str():slot.substr(9).c_str());ImGui::TextDisabled("%s",label.c_str());
         ImGui::SetNextItemWidth(260);if(ImGui::BeginCombo("Material",assigned==AssetId{}?"Imported default":label.c_str())){
             if(ImGui::Selectable("Imported default",assigned==AssetId{})&&assigned!=AssetId{}){const std::string key=slot;run([&]{editor.assets->assign_model_material(model_path,key,{});editor.refresh_assets();if(editor.refresh_model)editor.refresh_model(model_id);else if(editor.prepare_model)editor.prepare_model(model_id);});}
             for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".damaterial"&&asset.generation&&ImGui::Selectable(asset.path.c_str(),asset.id==assigned)&&asset.id!=assigned){const std::string key=slot;const auto chosen=asset.id;const auto path=asset.path;run([&]{editor.assets->assign_model_material(model_path,key,chosen,path);editor.refresh_assets();if(editor.refresh_model)editor.refresh_model(model_id);else if(editor.prepare_model)editor.prepare_model(model_id);});}
@@ -98,11 +128,22 @@ void Shell::draw_model_materials(Controller& editor,const AssetInfo& model){
             // A new instance from the slot's current cooked values (or a copy of the assigned one), published, then assigned.
             auto values=from==AssetId{}?Json::parse(editor.assets->material_values(model_path,key)):editor.authoring.open(*editor.assets,from).value;
             auto created=editor.authoring.create_material(*editor.assets,material_name,values);
-            if(from!=AssetId{}&&values.contains("texture")&&values["texture"].is_string()){auto& draft=editor.authoring.open(*editor.assets,created).value;draft["texture"]=values["texture"];draft["sources"]=values["sources"];editor.authoring.record_changes(*editor.assets,"Copy material texture");}
+            // A duplicate copies every value of the assigned material, including its family and texture maps.
+            if(from!=AssetId{}){auto& draft=editor.authoring.open(*editor.assets,created).value;auto copy=values;copy["asset"]=draft["asset"];copy["name"]=draft["name"];draft=copy;editor.authoring.record_changes(*editor.assets,"Copy material values");}
             const auto& draft=editor.authoring.open(*editor.assets,created);auto assignment=editor.assets->model_material_edit(model_path,key,created,draft.asset.path);
             editor.authoring.save_all(*editor.assets,{},std::span<const NativeSourceEdit>(&assignment,1));editor.refresh_assets();if(editor.refresh_model)editor.refresh_model(model_id);else if(editor.prepare_model)editor.prepare_model(model_id);});}
         if(assigned!=AssetId{}&&ImGui::TreeNode("Edit assigned material")){draw_material_form(editor,assigned);ImGui::TreePop();}
         ImGui::PopID();}
     ImGui::EndDisabled();if(playing)ImGui::TextDisabled("Stop Play to change material assignments.");
+}
+void Shell::draw_texture_semantic(Controller& editor,const AssetInfo& texture){
+    if(!editor.assets)return;auto metadata=read_json(editor.assets->source_root()/(texture.path+".daimport"));if(!metadata.is_object())return;
+    const auto current=texture_semantic(metadata.value("importer",""));if(!current)return;
+    if(!ImGui::CollapsingHeader("Texture meaning",ImGuiTreeNodeFlags_DefaultOpen))return;
+    ImGui::TextWrapped("Colour textures are sampled as sRGB. Packed surface data (R occlusion, G roughness, B metallic) and normal maps are linear. Material slots offer only textures with the meaning they need.");
+    int chosen=static_cast<int>(*current);const char* meanings[]={"Colour (sRGB)","Data: packed occlusion / roughness / metallic (linear)","Normal map (linear)"};
+    ImGui::BeginDisabled(editor.preview.active()!=nullptr);ImGui::SetNextItemWidth(360);
+    if(ImGui::Combo("Meaning",&chosen,meanings,3)&&chosen!=static_cast<int>(*current)){try{editor.assets->set_texture_semantic(texture.path,static_cast<TextureSemantic>(chosen));editor.refresh_assets();author_diagnostic="Texture recooked with its new meaning.";}catch(const std::exception& error){author_diagnostic=error.what();editor.log(error.what(),ConsoleSeverity::Error);}}
+    ImGui::EndDisabled();if(!author_diagnostic.empty())ImGui::TextWrapped("%s",author_diagnostic.c_str());
 }
 }

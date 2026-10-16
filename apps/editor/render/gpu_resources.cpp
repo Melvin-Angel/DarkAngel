@@ -16,7 +16,7 @@
 
 namespace darkangel::editor_app::render {
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
-                                       const char* source, IBuffer* bones) {
+                                       const char* source, IBuffer* bones, bool blend) {
     ShaderCreateInfo shader;
     shader.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
     shader.ShaderCompiler = SHADER_COMPILER_DXC;
@@ -47,6 +47,15 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
     graphics.RasterizerDesc.FrontCounterClockwise = true;
     graphics.DepthStencilDesc.DepthEnable = true;
     graphics.DepthStencilDesc.DepthFunc = COMPARISON_FUNC_LESS;
+    if (blend) {
+        graphics.DepthStencilDesc.DepthWriteEnable = false;
+        auto& target = graphics.BlendDesc.RenderTargets[0];
+        target.BlendEnable = true;
+        target.SrcBlend = BLEND_FACTOR_SRC_ALPHA;
+        target.DestBlend = BLEND_FACTOR_INV_SRC_ALPHA;
+        target.SrcBlendAlpha = BLEND_FACTOR_ONE;
+        target.DestBlendAlpha = BLEND_FACTOR_INV_SRC_ALPHA;
+    }
     LayoutElement layout[] = {{0, 0, 3, VT_FLOAT32, false},
                               {1, 0, 3, VT_FLOAT32, false},
                               {2, 0, 2, VT_FLOAT32, false},
@@ -54,18 +63,24 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                               {4, 0, 4, VT_FLOAT32, false}};
     graphics.InputLayout.LayoutElements = layout;
     graphics.InputLayout.NumElements = bones ? 5 : 3;
-    ShaderResourceVariableDesc variables[] = {{SHADER_TYPE_PIXEL, "Albedo", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
+    ShaderResourceVariableDesc variables[] = {{SHADER_TYPE_PIXEL, "Albedo", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "NormalMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "SurfaceMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
+                                              {SHADER_TYPE_PIXEL, "EmissiveMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE}};
     ci.PSODesc.ResourceLayout.Variables = variables;
-    ci.PSODesc.ResourceLayout.NumVariables = 1;
+    ci.PSODesc.ResourceLayout.NumVariables = 4;
     SamplerDesc sampler;
     sampler.MinFilter = FILTER_TYPE_LINEAR;
     sampler.MagFilter = FILTER_TYPE_LINEAR;
     sampler.MipFilter = FILTER_TYPE_LINEAR;
     sampler.AddressU = TEXTURE_ADDRESS_WRAP;
     sampler.AddressV = TEXTURE_ADDRESS_WRAP;
-    ImmutableSamplerDesc samplers[] = {{SHADER_TYPE_PIXEL, "Albedo", sampler}};
+    ImmutableSamplerDesc samplers[] = {{SHADER_TYPE_PIXEL, "Albedo", sampler},
+                                       {SHADER_TYPE_PIXEL, "NormalMap", sampler},
+                                       {SHADER_TYPE_PIXEL, "SurfaceMap", sampler},
+                                       {SHADER_TYPE_PIXEL, "EmissiveMap", sampler}};
     ci.PSODesc.ResourceLayout.ImmutableSamplers = samplers;
-    ci.PSODesc.ResourceLayout.NumImmutableSamplers = 1;
+    ci.PSODesc.ResourceLayout.NumImmutableSamplers = 4;
     RefCntAutoPtr<IPipelineState> result;
     device->CreateGraphicsPipelineState(ci, &result);
     require(result, "Pipeline creation failed");
@@ -84,12 +99,13 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked) {
     require(!cooked.mips.empty(), "Missing texture mips");
     TextureDesc desc;
-    desc.Name = "Cooked DarkAngel sRGB color";
+    desc.Name = cooked.srgb ? "Cooked DarkAngel sRGB color" : "Cooked DarkAngel linear data";
     desc.Type = RESOURCE_DIM_TEX_2D;
     desc.Width = cooked.mips[0].width;
     desc.Height = cooked.mips[0].height;
     desc.MipLevels = static_cast<Uint32>(cooked.mips.size());
-    desc.Format = TEX_FORMAT_RGBA8_UNORM_SRGB;
+    // Colour textures are sampled with sRGB decoding; data and normal maps (R5 A3) are linear.
+    desc.Format = cooked.srgb ? TEX_FORMAT_RGBA8_UNORM_SRGB : TEX_FORMAT_RGBA8_UNORM;
     desc.Usage = USAGE_IMMUTABLE;
     desc.BindFlags = BIND_SHADER_RESOURCE;
     std::vector<TextureSubResData> subresources;
@@ -170,11 +186,38 @@ void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, c
     require(written, "The capture could not be written: its file is held by another program");
     std::cout << "Viewport foreground pixels=" << changed << " capture=" << path.string() << '\n';
 }
+void apply_material(Constants& constants, const CookedMaterial& material) {
+    constants.surface = {material.roughness, material.metallic, material.occlusion_strength, material.normal_scale};
+    constants.emission = {material.emissive[0], material.emissive[1], material.emissive[2], 0};
+    const unsigned bits = (material.has_normal ? 1u : 0u) | (material.has_surface ? 2u : 0u) | (material.has_emissive_texture ? 4u : 0u);
+    constants.features = {static_cast<float>(bits), static_cast<float>(material.alpha_mode), material.alpha_cutoff, 0};
+}
+void bind_surface(IShaderResourceBinding* binding, const CookedMaterial& material, const std::map<AssetId, RefCntAutoPtr<ITexture>>& textures,
+                  ITexture* fallback) {
+    auto view = [&](bool used, AssetId id) {
+        return (used ? textures.at(id).RawPtr() : fallback)->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+    };
+    auto* albedo = binding->GetVariableByName(SHADER_TYPE_PIXEL, "Albedo");
+    require(albedo, "Shader changed the declared Albedo resource contract");
+    albedo->Set(view(material.has_texture, material.texture));
+    if (auto* normal = binding->GetVariableByName(SHADER_TYPE_PIXEL, "NormalMap"))
+        normal->Set(view(material.has_normal, material.normal_texture));
+    else
+        require(!material.has_normal, "The prop shader does not declare NormalMap, which this material needs");
+    if (auto* surface = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SurfaceMap"))
+        surface->Set(view(material.has_surface, material.surface_texture));
+    else
+        require(!material.has_surface, "The prop shader does not declare SurfaceMap, which this material needs");
+    if (auto* emissive = binding->GetVariableByName(SHADER_TYPE_PIXEL, "EmissiveMap"))
+        emissive->Set(view(material.has_emissive_texture, material.emissive_texture));
+    else
+        require(!material.has_emissive_texture, "The prop shader does not declare EmissiveMap, which this material needs");
+}
 UploadedMaterial upload_material(IRenderDevice* device,const RuntimeMaterial& material,IPipelineState* pso,IPipelineState* cull,IPipelineState* skin,IPipelineState* skin_cull) {
     UploadedMaterial out;out.source=material;CookedTexture white;white.mips.push_back({1,1,{255,255,255,255}});out.fallback=texture(device,white);
     for(const auto& [id,cooked]:material.textures)out.textures.emplace(id,texture(device,cooked));
     auto bind=[&](Material& destination,IPipelineState* double_sided,IPipelineState* single_sided){destination.value=material.value;auto* chosen=material.value.double_sided?double_sided:single_sided;require(chosen,"Missing material pipeline");chosen->CreateShaderResourceBinding(&destination.binding,true);require(destination.binding,"Native material binding failed");
-        auto* variable=destination.binding->GetVariableByName(SHADER_TYPE_PIXEL,"Albedo");require(variable,"Shader changed native material Albedo contract");auto* view=(material.value.has_texture?out.textures.at(material.value.texture):out.fallback)->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);variable->Set(view);};
+        bind_surface(destination.binding,material.value,out.textures,out.fallback);};
     bind(out.surface,pso,cull);if(skin)bind(out.skinned,skin,skin_cull);return out;
 }
 UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull) {
@@ -214,11 +257,7 @@ UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipeline
         auto* chosen = material.double_sided ? pso : pso_cull;
         chosen->CreateShaderResourceBinding(&gpu.binding, true);
         require(gpu.binding, "Material binding creation failed");
-        auto* variable = gpu.binding->GetVariableByName(SHADER_TYPE_PIXEL, "Albedo");
-        require(variable, "Shader changed the declared Albedo resource contract");
-        auto* view =
-            (material.has_texture ? out.textures.at(material.texture) : out.fallback)->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
-        variable->Set(view);
+        bind_surface(gpu.binding, material, out.textures, out.fallback);
         out.materials.emplace(material.id, std::move(gpu));
     }
     for (unsigned c = 0; c < 3; ++c) {
@@ -248,11 +287,11 @@ std::string skin_shader() {
     };
     replace("struct VertexInput", "cbuffer Skeleton {row_major float4x4 Bones[256];};\nstruct VertexInput");
     replace("float2 UV:ATTRIB2;", "float2 UV:ATTRIB2;uint4 Joints:ATTRIB3;float4 Weights:ATTRIB4;");
-    replace("result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);",
+    replace("result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);",
             "float4 position=0;float3 normal=0;[unroll]for(uint "
             "i=0;i<4;++i){position+=mul(float4(vertex.Position,1),Bones[vertex.Joints[i]])*vertex.Weights[i];normal+=mul(vertex.Normal,("
             "float3x3)Bones[vertex.Joints[i]])*vertex.Weights[i];}result.Position=mul(position,Mvp);result.Normal=mul(normal,(float3x3)"
-            "Rotation);");
+            "Rotation);result.Local=mul(position.xyz,(float3x3)Rotation);");
     return source;
 }
 UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipelineState* pso, IPipelineState* cull,
@@ -278,6 +317,12 @@ UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipe
     visible.materials.push_back(material);
     if (model.textured)
         visible.textures.emplace_back(model.id, model.texture);
+    // A primitive with an assigned material instance draws with it (R5 A3 skinned parity); the others share the atlas.
+    for (const auto& skin : model.meshes)
+        if (skin.material)
+            visible.materials.push_back(*skin.material);
+    for (const auto& texture : model.textures)
+        visible.textures.push_back(texture);
     for (const auto& skin : model.meshes) {
         CookedMesh mesh;
         mesh.indices = skin.indices;
@@ -307,13 +352,13 @@ UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipe
                 mesh.maximum[c] = std::max(mesh.maximum[c], vertex.geometry.position[c]);
             }
         }
-        mesh.parts.push_back({model.id, 0, static_cast<unsigned>(mesh.indices.size())});
+        mesh.parts.push_back({skin.material ? skin.material->id : model.id, 0, static_cast<unsigned>(mesh.indices.size())});
         visible.meshes.push_back(std::move(mesh));
     }
     UploadedSkin result;
     result.gpu = upload(device, visible, pso, cull);
     for (unsigned index = 0; index < model.meshes.size(); ++index)
-        result.gpu.meshes[index].color = model.meshes[index].color;
+        result.gpu.meshes[index].color = model.meshes[index].material ? std::array<float, 4>{1, 1, 1, 1} : model.meshes[index].color;
     if (!reference)
         for (unsigned index = 0; index < model.meshes.size(); ++index) {
             const auto& mesh = model.meshes[index];

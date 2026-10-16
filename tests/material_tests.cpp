@@ -109,6 +109,50 @@ int main(){try{
      write(model_path,original_model);auto reverse=assets.model_reimport_changes(first);check(reverse.removed.size()==2,"Reverse reimport changes");assets.repair_model_reimport(first,sha256(read(sidecar)),{{"material/renamed","material/trim"},{"texture/base-color/material/renamed","texture/base-color/material/trim"}});}
     assets.assign_model_material(first,"material/trim",{});check(!metadata(first).contains("materials"),"Reset removed the assignment");
     {auto a=slot(assets,folder,first_id,first_slot);check(a.color==before.color&&a.roughness==before.roughness&&a.has_texture==before.has_texture,"Reset to imported values");}
+    // R5 A3: texture semantics. The same image adopted twice is cooked sRGB as colour and linear as data or a normal map.
+    std::filesystem::copy_file(huts/"mudhut-trim.png",source/"textures/normal.png");std::filesystem::copy_file(huts/"mudhut-trim.png",source/"textures/surface.png");
+    const auto normal_map=assets.adopt("textures/normal.png"),surface_map=assets.adopt("textures/surface.png");assets.scan();
+    assets.cook("textures/trim.png");assets.set_texture_semantic("textures/normal.png",TextureSemantic::Normal);assets.set_texture_semantic("textures/surface.png",TextureSemantic::Data);
+    check(metadata("textures/normal.png").at("importer")=="texture-normal-v1"&&metadata("textures/surface.png").at("importer")=="texture-data-v1","Texture semantics are recorded in import metadata");
+    auto cooked_texture=[&](AssetId id){assets.package(id,folder/"texture.json");return load_cooked_texture(folder/"texture.json",assets.cas_path(),id);};
+    {auto color=cooked_texture(texture),normal=cooked_texture(normal_map),data=cooked_texture(surface_map);check(color.srgb&&!normal.srgb&&!data.srgb,"Colour is sRGB; normal and data textures are linear");
+     // A normal map's mips are renormalised: every texel of the smallest mip encodes a unit vector.
+     const auto& last=normal.mips.back();for(std::size_t i=0;i+3<last.rgba.size();i+=4){double length=0;for(int c=0;c<3;++c){double n=last.rgba[i+c]/127.5-1;length+=n*n;}check(std::abs(std::sqrt(length)-1)<.03,"Normal map mips are renormalised");}}
+    // The lit-surface-v1 family: normal, packed surface and emissive maps, emissive colour and cutout alpha.
+    const auto surface_material=AssetId::random();
+    auto surface_json=[&](){auto value=material(surface_material,"Surface",{.8,.8,.8,1});value["family"]="lit-surface-v1";value["texture"]=texture.text();value["normal_texture"]=normal_map.text();value["normal_scale"]=1.5;value["surface_texture"]=surface_map.text();value["occlusion_strength"]=.7;
+        value["emissive"]={.5,.25,0};value["emissive_texture"]=texture.text();value["alpha_mode"]="cutout";value["alpha_cutoff"]=.4;value["sources"]={{"texture","textures/trim.png"},{"normal_texture","textures/normal.png"},{"surface_texture","textures/surface.png"},{"emissive_texture","textures/trim.png"}};return value;};
+    {auto bad=surface_json();bad["asset"]=AssetId::random().text();bad["normal_texture"]=texture.text();bad["sources"]["normal_texture"]="textures/trim.png";rejects([&]{assets.create_native("materials/BadNormal.damaterial",bad.dump());},"A colour texture in a normal-map slot is refused");}
+    {auto bad=material(AssetId::random(),"Bad",{1,1,1,1});bad["normal_scale"]=1.0;rejects([&]{assets.create_native("materials/BadField.damaterial",bad.dump());},"A field the family does not have is refused");}
+    {auto bad=surface_json();bad["asset"]=AssetId::random().text();bad["alpha_mode"]="additive";rejects([&]{assets.create_native("materials/BadAlpha.damaterial",bad.dump());},"An unknown alpha mode is refused");}
+    assets.create_native("materials/Surface.damaterial",surface_json().dump());
+    assets.assign_model_material(first,"material/trim",surface_material,"materials/Surface.damaterial");
+    {auto a=slot(assets,folder,first_id,first_slot);check(a.has_texture&&a.has_normal&&a.has_surface&&a.has_emissive_texture&&a.alpha_mode==1&&std::abs(a.alpha_cutoff-.4f)<1e-6&&std::abs(a.normal_scale-1.5f)<1e-6&&std::abs(a.occlusion_strength-.7f)<1e-6&&std::abs(a.emissive[1]-.25f)<1e-6,"Assigned surface material values reach the cooked slot");
+     assets.package(first_id,folder/"model.json");auto cooked=load_cooked_model(folder/"model.json",assets.cas_path(),first_id);
+     auto find=[&](AssetId id)->const CookedTexture*{for(const auto& [texture_id,data]:cooked.textures)if(texture_id==id)return &data;return nullptr;};
+     check(find(normal_map)&&!find(normal_map)->srgb&&find(surface_map)&&!find(surface_map)->srgb&&find(texture)&&find(texture)->srgb,"Surface maps join the model closure with their own transfer function");}
+    // A standalone instance loads with its whole texture closure (per-placement bindings).
+    {assets.package(surface_material,folder/"material.json");auto loaded=load_cooked_material_instance(folder/"material.json",assets.cas_path(),surface_material);check(loaded.value.has_normal&&loaded.value.has_surface&&loaded.textures.size()==3,"Standalone surface material closure");}
+    // A texture's meaning cannot change while a material slot needs the current one.
+    rejects([&]{assets.set_texture_semantic("textures/normal.png",TextureSemantic::Color);},"Changing a used texture's meaning is refused");
+    assets.assign_model_material(first,"material/trim",{});
+    // The static glTF profile accepts normal, packed occlusion/roughness/metallic and emissive textures and masked alpha.
+    {const auto tri=source/"models/tri";std::filesystem::create_directories(tri);for(const char* name:{"base.png","normal.png","orm.png","glow.png"})std::filesystem::copy_file(huts/"mudhut-trim.png",tri/name);
+     std::string bin;auto f32=[&](float v){bin.append(reinterpret_cast<const char*>(&v),4);};auto u16=[&](std::uint16_t v){bin.append(reinterpret_cast<const char*>(&v),2);};
+     for(float v:{0.f,0.f,0.f,1.f,0.f,0.f,0.f,1.f,0.f})f32(v);for(int i=0;i<3;++i){f32(0);f32(0);f32(1);}for(float v:{0.f,0.f,1.f,0.f,0.f,1.f})f32(v);u16(0);u16(1);u16(2);u16(0);write(tri/"tri.bin",bin);
+     Json gltf={{"asset",{{"version","2.0"}}},{"buffers",{{{"uri","tri.bin"},{"byteLength",bin.size()}}}},
+        {"bufferViews",{{{"buffer",0},{"byteOffset",0},{"byteLength",36}},{{"buffer",0},{"byteOffset",36},{"byteLength",36}},{{"buffer",0},{"byteOffset",72},{"byteLength",24}},{{"buffer",0},{"byteOffset",96},{"byteLength",6}}}},
+        {"accessors",{{{"bufferView",0},{"componentType",5126},{"count",3},{"type","VEC3"},{"min",{0,0,0}},{"max",{1,1,0}}},{{"bufferView",1},{"componentType",5126},{"count",3},{"type","VEC3"}},{{"bufferView",2},{"componentType",5126},{"count",3},{"type","VEC2"}},{{"bufferView",3},{"componentType",5123},{"count",3},{"type","SCALAR"}}}},
+        {"images",{{{"uri","base.png"}},{{"uri","normal.png"}},{{"uri","orm.png"}},{{"uri","glow.png"}}}},{"textures",{{{"source",0}},{{"source",1}},{{"source",2}},{{"source",3}}}},
+        {"materials",{{{"name","Surface"},{"extras",{{"darkangel_key","material/surface"}}},{"pbrMetallicRoughness",{{"baseColorTexture",{{"index",0}}},{"metallicRoughnessTexture",{{"index",2}}}}},{"normalTexture",{{"index",1},{"scale",.8}}},{"occlusionTexture",{{"index",2},{"strength",.5}}},{"emissiveTexture",{{"index",3}}},{"emissiveFactor",{1,.5,0}},{"alphaMode","MASK"},{"alphaCutoff",.3}}}},
+        {"meshes",{{{"extras",{{"darkangel_key","mesh/tri"}}},{"primitives",{{{"attributes",{{"POSITION",0},{"NORMAL",1},{"TEXCOORD_0",2}}},{"indices",3},{"material",0}}}}}}},
+        {"nodes",{{{"mesh",0}}}},{"scenes",{{{"nodes",{0}}}}},{"scene",0}};
+     write(tri/"tri.gltf",gltf.dump());const auto tri_id=assets.adopt("models/tri/tri.gltf");assets.scan();assets.cook("models/tri/tri.gltf");
+     const auto tri_meta=metadata("models/tri/tri.gltf");check(tri_meta["subassets"].contains("texture/normal/material/surface")&&tri_meta["subassets"].contains("texture/surface/material/surface")&&tri_meta["subassets"].contains("texture/emissive/material/surface"),"Surface textures get stable subasset keys");
+     auto a=slot(assets,folder,tri_id,AssetId::parse(tri_meta["subassets"]["material/surface"].get<std::string>()));
+     check(a.has_normal&&a.has_surface&&a.has_emissive_texture&&a.alpha_mode==1&&std::abs(a.alpha_cutoff-.3f)<1e-6&&std::abs(a.occlusion_strength-.5f)<1e-6&&std::abs(a.normal_scale-.8f)<1e-6&&a.emissive[0]==1,"glTF surface features reach the cooked material");
+     // Occlusion in a separate image (not packed with metallic-roughness) is refused.
+     gltf["images"].push_back({{"uri","glow.png"}});gltf["textures"].push_back({{"source",4}});gltf["materials"][0]["occlusionTexture"]["index"]=4;write(tri/"tri.gltf",gltf.dump());rejects([&]{assets.cook("models/tri/tri.gltf");},"A separate occlusion image is refused");}
     {std::error_code ignored;std::filesystem::remove_all(folder,ignored);} // the catalog may still be open; a temp folder is left behind then
-    std::cout<<"R5 materials: imported values, shared assignment, shared edit propagation, texture closure, refusals, stale-key repair and reset passed\n";return 0;
+    std::cout<<"R5 materials: imported values, shared assignment, shared edit propagation, texture closure, refusals, stale-key repair, reset, texture semantics, lit-surface family, glTF surface profile passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

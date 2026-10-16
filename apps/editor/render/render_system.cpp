@@ -82,6 +82,8 @@ RenderSystem::RenderSystem(unsigned width, unsigned height, const std::string& b
 RenderSystem::~RenderSystem() {
     // An exception that skipped shutdown(): release what main's locals would have released, in the same order.
     input = nullptr;
+    pso_blend_cull.Release();
+    pso_blend.Release();
     pso_cull.Release();
     pso.Release();
     constant_buffer.Release();
@@ -100,6 +102,8 @@ void RenderSystem::create_frame_pipelines() {
     auto source = render::shader_text();
     pso = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, source.c_str());
     pso_cull = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, source.c_str());
+    pso_blend = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, source.c_str(), nullptr, true);
+    pso_blend_cull = render::pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, source.c_str(), nullptr, true);
 }
 
 bool RenderSystem::pump_messages() {

@@ -51,6 +51,10 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
                         bone_buffer);
     skin_cull =
         pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, skin_source.c_str(), bone_buffer);
+    skin_blend = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, skin_source.c_str(),
+                          bone_buffer, true);
+    skin_blend_cull = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, skin_source.c_str(),
+                               bone_buffer, true);
     if (!args.pose_clip.empty()) {
         auto cooked = load_cooked_clip(args.registry, args.cas, AssetId::parse(args.pose_clip));
         diagnostic_clip = std::make_unique<AnimationClip>(std::move(cooked.definition), cooked.archive);
@@ -126,6 +130,8 @@ void SceneResources::reload_shader(const std::string& text, const ModelGeneratio
     auto& pso_cull = render_.pso_cull;
     auto next = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, text.c_str());
     auto next_cull = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, text.c_str());
+    auto next_blend = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, text.c_str(), nullptr, true);
+    auto next_blend_cull = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, text.c_str(), nullptr, true);
     auto resources = upload(device, refreshed_main?*refreshed_main:*lease.model, next, next_cull);
     std::map<AssetId, UploadedModel> other;
     for (const auto& [asset, unused] : scene_models)
@@ -143,6 +149,8 @@ void SceneResources::reload_shader(const std::string& text, const ModelGeneratio
     gpu = std::move(resources);
     pso = std::move(next);
     pso_cull = std::move(next_cull);
+    render_.pso_blend = std::move(next_blend);
+    render_.pso_blend_cull = std::move(next_blend_cull);
 }
 SceneResources::Reload SceneResources::prepare_reload(const ModelStore& store) {
     auto& device = render_.device;

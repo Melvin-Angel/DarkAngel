@@ -1,6 +1,7 @@
 #pragma once
 #include <span>
 #include <darkangel/asset_id.hpp>
+#include <darkangel/material_assets.hpp>
 #include <array>
 #include <cstdint>
 #include <compare>
@@ -24,7 +25,12 @@ struct CookedMesh {std::vector<Vertex> vertices;std::vector<std::uint32_t> indic
 struct TextureMip {std::uint32_t width,height;std::vector<std::uint8_t> rgba;};
 struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};};
 CookedTexture load_cooked_texture(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
-struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};};
+// R5 A3 surface features are optional: a material without them draws exactly as a lit-color-v1 material. alpha_mode: 0 opaque,
+// 1 cutout (alpha tested against alpha_cutoff), 2 transparent (blended after opaque surfaces). The surface texture packs
+// occlusion (R), roughness (G) and metallic (B) as glTF does; the normal texture is a linear tangent-space map.
+struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};
+    AssetId normal_texture,surface_texture,emissive_texture;bool has_normal{},has_surface{},has_emissive_texture{};float normal_scale{1},occlusion_strength{1},alpha_cutoff{.5f};
+    std::array<float,3> emissive{0,0,0};int alpha_mode{};};
 struct RuntimeMaterial {CookedMaterial value;std::vector<std::pair<AssetId,CookedTexture>> textures;std::string generation;};
 // Standalone native material and its verified texture closure, without artist sources or a model copy.
 RuntimeMaterial load_cooked_material_instance(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
@@ -69,6 +75,8 @@ struct AssetImportRequest {
     AssetImportType type{AssetImportType::Model};
     std::string canonical_skeleton;
     bool loop{};
+    // Textures only (R5 A3): what the texels mean. Normal maps and packed surface data are linear; colour is sRGB.
+    TextureSemantic semantic{TextureSemantic::Color};
 };
 class PreparedAssetImport {
 public:
@@ -122,6 +130,9 @@ public:
     CookResult repair_model_reimport(std::string_view relative_model,std::string_view expected_metadata_sha256,const std::map<std::string,std::string>& remap);
     // The cooked values of one material slot as the model currently cooks them (its material product JSON).
     std::string material_values(std::string_view relative_model,std::string_view slot) const;
+    // R5 A3: changes what an imported texture's texels mean (its importer) and recooks it. Refused while a material slot or
+    // an item icon uses the texture with its current meaning; a failed cook restores the previous metadata.
+    CookResult set_texture_semantic(std::string_view relative_texture,TextureSemantic);
     // Unreferenced item or prefab (R4) only. Stale writes reject; source bytes are archived in the cache.
     std::filesystem::path delete_item(std::string_view relative_source,std::string_view expected_source_sha256);
     // R4: moves an owned prefab source to a new path under prefabs/. Its AssetID lives in the source, so scenes and prefabs

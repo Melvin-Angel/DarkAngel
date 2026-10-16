@@ -2,40 +2,91 @@
 #include <darkangel/material_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/assembly.hpp>
+#include <algorithm>
 #include <cmath>
 #include <set>
 namespace darkangel {
 using namespace assets_detail;
+std::string_view texture_importer(TextureSemantic semantic){return semantic==TextureSemantic::Color?"texture-color-v1":semantic==TextureSemantic::Data?"texture-data-v1":"texture-normal-v1";}
+std::optional<TextureSemantic> texture_semantic(std::string_view importer){if(importer=="texture-color-v1")return TextureSemantic::Color;if(importer=="texture-data-v1")return TextureSemantic::Data;if(importer=="texture-normal-v1")return TextureSemantic::Normal;return std::nullopt;}
+std::string_view texture_semantic_label(TextureSemantic semantic){return semantic==TextureSemantic::Color?"Colour (sRGB)":semantic==TextureSemantic::Data?"Data (linear)":"Normal map (linear)";}
+std::string_view alpha_mode_name(AlphaMode mode){return mode==AlphaMode::Opaque?"opaque":mode==AlphaMode::Cutout?"cutout":"transparent";}
+const std::vector<MaterialDefinition>& material_definitions(){
+    static const std::vector<MaterialDefinition> families{
+        {std::string(material_family_lit_color),{"color","roughness","metallic","double_sided"},{{"texture",TextureSemantic::Color}},{AlphaMode::Opaque}},
+        {std::string(material_family_lit_surface),{"color","roughness","metallic","double_sided","normal_scale","occlusion_strength","emissive","alpha_mode","alpha_cutoff"},
+            {{"texture",TextureSemantic::Color},{"normal_texture",TextureSemantic::Normal},{"surface_texture",TextureSemantic::Data},{"emissive_texture",TextureSemantic::Color}},{AlphaMode::Opaque,AlphaMode::Cutout,AlphaMode::Transparent}}};
+    return families;
+}
+const MaterialDefinition& material_definition(std::string_view family){for(const auto& definition:material_definitions())if(definition.family==family)return definition;throw std::runtime_error("Unsupported material family: "+std::string(family));}
+std::vector<std::pair<MaterialTextureRef,TextureSemantic>> MaterialInstanceDefinition::textures() const{
+    std::vector<std::pair<MaterialTextureRef,TextureSemantic>> result;if(texture!=AssetId{})result.push_back({{texture,texture_source},TextureSemantic::Color});
+    if(normal_texture)result.push_back({normal_texture,TextureSemantic::Normal});if(surface_texture)result.push_back({surface_texture,TextureSemantic::Data});if(emissive_texture)result.push_back({emissive_texture,TextureSemantic::Color});return result;}
 MaterialInstanceDefinition decode_material_instance(std::string_view text){
     require(text.size()<=16384,"Material source size bound");auto value=json(text,16384);
     require(value.is_object()&&value.at("schema")==1&&value.at("kind")=="material","Material schema/type");
-    for(const auto& [key,unused]:value.items())require(key=="schema"||key=="kind"||key=="asset"||key=="name"||key=="family"||key=="color"||key=="roughness"||key=="metallic"||key=="double_sided"||key=="texture"||key=="sources","Material fields: schema, kind, asset, name, family, color, roughness, metallic, double_sided, texture and sources");
-    MaterialInstanceDefinition result;result.id=AssetId::parse(value.at("asset").get<std::string>());require(result.id!=AssetId{},"Material identity");
+    MaterialInstanceDefinition result;result.family=value.at("family").get<std::string>();const auto& definition=material_definition(result.family);const bool surface=result.family==material_family_lit_surface;
+    for(const auto& [key,unused]:value.items()){bool known=key=="schema"||key=="kind"||key=="asset"||key=="name"||key=="family"||key=="sources";for(const auto& parameter:definition.parameters)known|=key==parameter;for(const auto& slot:definition.textures)known|=key==slot.key;
+        require(known,"Material field "+key+" is not part of the "+result.family+" family");}
+    result.id=AssetId::parse(value.at("asset").get<std::string>());require(result.id!=AssetId{},"Material identity");
     require(value.at("name").is_string(),"Material name type");result.name=value.at("name").get<std::string>();require(!result.name.empty()&&result.name.size()<=64,"Material name bounds");
-    result.family=value.at("family").get<std::string>();require(result.family==material_family_lit_color,"Unsupported material family; the static renderer draws lit-color-v1");
     const auto& color=value.at("color");require(color.is_array()&&color.size()==4,"Material color is four numbers");
     for(std::size_t i=0;i<4;++i){require(color[i].is_number(),"Material color is four numbers");auto c=color[i].get<double>();require(std::isfinite(c)&&c>=0&&c<=1,"Material color components are 0 to 1");result.color[i]=float(c);}
-    auto unit=[&](const char* key){require(value.at(key).is_number(),"Material factors are numbers");auto n=value.at(key).get<double>();require(std::isfinite(n)&&n>=0&&n<=1,"Material roughness and metallic are 0 to 1");return float(n);};
-    result.roughness=unit("roughness");result.metallic=unit("metallic");require(value.at("double_sided").is_boolean(),"Material double_sided is a flag");result.double_sided=value.at("double_sided").get<bool>();
+    auto ranged=[&](const char* key,double low,double high,double fallback){if(!value.contains(key))return float(fallback);require(value.at(key).is_number(),"Material factors are numbers");auto n=value.at(key).get<double>();require(std::isfinite(n)&&n>=low&&n<=high,std::string("Material ")+key+" is out of range");return float(n);};
+    require(value.contains("roughness")&&value.contains("metallic"),"Material roughness and metallic");result.roughness=ranged("roughness",0,1,1);result.metallic=ranged("metallic",0,1,0);
+    require(value.at("double_sided").is_boolean(),"Material double_sided is a flag");result.double_sided=value.at("double_sided").get<bool>();
     const auto& sources=value.value("sources",Json::object());require(sources.is_object(),"Material sources");
-    if(!value.at("texture").is_null()){result.texture=AssetId::parse(value.at("texture").get<std::string>());require(result.texture!=AssetId{}&&sources.contains("texture")&&sources.at("texture").is_string(),"A material texture needs its source locator");result.texture_source=sources.at("texture").get<std::string>();}
-    for(const auto& [key,unused]:sources.items())require(key=="texture"&&!result.texture_source.empty(),"Material source locators name the texture only");
+    // A texture slot holds an AssetID (or null) and needs its source locator under the same key in "sources".
+    auto texture_ref=[&](const char* key){MaterialTextureRef ref;if(!value.contains(key)||value.at(key).is_null())return ref;ref.id=AssetId::parse(value.at(key).get<std::string>());require(ref.id!=AssetId{}&&sources.contains(key)&&sources.at(key).is_string(),std::string("A material texture needs its source locator: sources.")+key);ref.source=sources.at(key).get<std::string>();return ref;};
+    require(value.contains("texture"),"Material base-colour texture field (null for none)");{auto base=texture_ref("texture");result.texture=base.id;result.texture_source=base.source;}
+    if(surface){
+        result.normal_texture=texture_ref("normal_texture");result.surface_texture=texture_ref("surface_texture");result.emissive_texture=texture_ref("emissive_texture");
+        result.normal_scale=ranged("normal_scale",0,2,1);result.occlusion_strength=ranged("occlusion_strength",0,1,1);result.alpha_cutoff=ranged("alpha_cutoff",0,1,.5);
+        if(value.contains("emissive")){const auto& emissive=value.at("emissive");require(emissive.is_array()&&emissive.size()==3,"Material emissive is three numbers");for(std::size_t i=0;i<3;++i){require(emissive[i].is_number(),"Material emissive is three numbers");auto e=emissive[i].get<double>();require(std::isfinite(e)&&e>=0&&e<=16,"Material emissive components are 0 to 16");result.emissive[i]=float(e);}}
+        const auto mode=value.value("alpha_mode",std::string("opaque"));result.alpha_mode=mode=="opaque"?AlphaMode::Opaque:mode=="cutout"?AlphaMode::Cutout:mode=="transparent"?AlphaMode::Transparent:throw std::runtime_error("Material alpha_mode is opaque, cutout or transparent");}
+    std::set<std::string> named;if(result.texture!=AssetId{})named.insert("texture");if(result.normal_texture)named.insert("normal_texture");if(result.surface_texture)named.insert("surface_texture");if(result.emissive_texture)named.insert("emissive_texture");
+    for(const auto& [key,unused]:sources.items())require(named.contains(key),"Material source locators name its textures only");
     return result;
 }
 namespace assets_detail {
-// The texture a material names: an imported colour texture of the project, checked against its own import identity.
-Import material_texture(const std::filesystem::path& root,const MaterialInstanceDefinition& material,bool inspect){
-    auto path=within(root,material.texture_source);auto extension=path.extension();require(extension==".png"||extension==".jpg"||extension==".jpeg","A material texture is an imported .png or .jpg");
+// A texture a material slot names: an imported texture of the project whose semantic is the one the slot requires, checked
+// against its own import identity.
+Import material_texture(const std::filesystem::path& root,const MaterialTextureRef& texture,TextureSemantic semantic,bool inspect){
+    auto path=within(root,texture.source);auto extension=path.extension();require(extension==".png"||extension==".jpg"||extension==".jpeg","A material texture is an imported .png or .jpg");
     auto metadata_path=path;metadata_path+=".daimport";auto metadata=json(read(metadata_path,1024*1024),1024*1024);
-    require(metadata.at("importer")=="texture-color-v1"&&AssetId::parse(metadata.at("id").get<std::string>())==material.texture,"Material texture source type/identity");
-    auto imported=import_texture(root,path,{{"$source",material.texture}},inspect);imported.inputs[metadata_path.lexically_relative(root).generic_string()]=sha256(read(metadata_path,1024*1024));return imported;
+    require(AssetId::parse(metadata.at("id").get<std::string>())==texture.id,"Material texture source identity");
+    require(metadata.at("importer")==std::string(texture_importer(semantic)),"Material texture semantic mismatch: this slot needs a "+std::string(texture_semantic_label(semantic))+" texture");
+    auto imported=import_texture(root,path,{{"$source",texture.id}},inspect,semantic);imported.inputs[metadata_path.lexically_relative(root).generic_string()]=sha256(read(metadata_path,1024*1024));return imported;
 }
+Import material_texture(const std::filesystem::path& root,const MaterialInstanceDefinition& material,bool inspect){return material_texture(root,{material.texture,material.texture_source},TextureSemantic::Color,inspect);}
+Json material_product_fields(const MaterialInstanceDefinition& material){
+    Json fields={{"color",material.color},{"roughness",material.roughness},{"metallic",material.metallic},{"double_sided",material.double_sided},{"texture",material.texture==AssetId{}?Json():Json(material.texture.text())}};
+    if(material.family==material_family_lit_surface){
+        if(material.normal_texture){fields["normal_texture"]=material.normal_texture.id.text();fields["normal_scale"]=material.normal_scale;}
+        if(material.surface_texture){fields["surface_texture"]=material.surface_texture.id.text();fields["occlusion_strength"]=material.occlusion_strength;}
+        if(material.emissive!=std::array<float,3>{0,0,0}||material.emissive_texture){fields["emissive"]=material.emissive;if(material.emissive_texture)fields["emissive_texture"]=material.emissive_texture.id.text();}
+        if(material.alpha_mode!=AlphaMode::Opaque){fields["alpha_mode"]=alpha_mode_name(material.alpha_mode);fields["alpha_cutoff"]=material.alpha_cutoff;}}
+    return fields;
+}
+void read_material_fields(CookedMaterial& material,const Json& fields){
+    material.color=fields.at("color").get<std::array<float,4>>();material.roughness=fields.at("roughness").get<float>();material.metallic=fields.at("metallic").get<float>();material.double_sided=fields.at("double_sided").get<bool>();
+    if(fields.contains("texture")&&!fields.at("texture").is_null()){material.texture=AssetId::parse(fields.at("texture").get<std::string>());material.has_texture=true;}
+    // Optional surface features (R5 A3); products written before them have none and draw exactly as before.
+    auto finite=[](float v,float low,float high,const char* what){require(std::isfinite(v)&&v>=low&&v<=high,what);return v;};
+    if(fields.contains("normal_texture")){material.normal_texture=AssetId::parse(fields.at("normal_texture").get<std::string>());material.has_normal=true;material.normal_scale=finite(fields.value("normal_scale",1.f),0,2,"Cooked normal scale");}
+    if(fields.contains("surface_texture")){material.surface_texture=AssetId::parse(fields.at("surface_texture").get<std::string>());material.has_surface=true;material.occlusion_strength=finite(fields.value("occlusion_strength",1.f),0,1,"Cooked occlusion strength");}
+    if(fields.contains("emissive")){material.emissive=fields.at("emissive").get<std::array<float,3>>();for(float e:material.emissive)finite(e,0,16,"Cooked emissive colour");}
+    if(fields.contains("emissive_texture")){material.emissive_texture=AssetId::parse(fields.at("emissive_texture").get<std::string>());material.has_emissive_texture=true;}
+    if(fields.contains("alpha_mode")){const auto mode=fields.at("alpha_mode").get<std::string>();require(mode=="cutout"||mode=="transparent","Cooked alpha mode");material.alpha_mode=mode=="cutout"?1:2;material.alpha_cutoff=finite(fields.value("alpha_cutoff",.5f),0,1,"Cooked alpha cutoff");}
+}
+std::vector<AssetId> material_textures(const CookedMaterial& material){std::vector<AssetId> result;if(material.has_texture)result.push_back(material.texture);if(material.has_normal)result.push_back(material.normal_texture);if(material.has_surface)result.push_back(material.surface_texture);if(material.has_emissive_texture)result.push_back(material.emissive_texture);return result;}
 Import import_material(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
     auto bytes=read(source,16384);auto material=decode_material_instance(bytes);if(!inspect)require(ids.size()==1&&ids.at("$source")==material.id,"Material source identity");
     Import result;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);result.identities.push_back(material.id);result.product_count=1;
     // Standalone per-renderable bindings need the same frozen texture closure as model-level assignments.
     std::vector<AssetId> required;
-    if(material.texture!=AssetId{}){auto texture=material_texture(root,material,inspect);for(const auto& [path,hash]:texture.inputs)result.inputs[path]=hash;required.push_back(material.texture);
+    // Every slot is validated for its semantic; a texture used by two slots (for example base colour and emissive) is one product.
+    for(const auto& [ref,semantic]:material.textures()){auto texture=material_texture(root,ref,semantic,inspect);for(const auto& [path,hash]:texture.inputs)result.inputs[path]=hash;if(std::find(required.begin(),required.end(),ref.id)!=required.end())continue;required.push_back(ref.id);
         result.product_count+=texture.product_count?texture.product_count:1;for(auto& product:texture.products)result.products.push_back(std::move(product));}
     if(!inspect)result.products.push_back({material.id,"material_instance","material-instance.json",json(bytes,16384).dump(),required});return result;
 }
@@ -45,8 +96,8 @@ RuntimeMaterial load_cooked_material_instance(const std::filesystem::path& regis
     const Json* selected{};std::set<AssetId> unique;for(const auto& record:manifest.at("assets")){const auto asset=AssetId::parse(record.at("id").get<std::string>());require(unique.insert(asset).second,"Duplicate material registry identity");if(asset==id)selected=&record;}
     require(selected&&selected->at("kind")=="material_instance"&&selected->at("extension")=="material-instance.json","Material registry product type");const auto digest=selected->at("sha256").get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Material product digest");
     const auto bytes=read(cas/(digest+".material-instance.json"),16384);require(sha256(bytes)==digest,"Material product hash mismatch");const auto definition=decode_material_instance(bytes);require(definition.id==id,"Material product identity mismatch");
-    RuntimeMaterial result;auto& value=result.value;value.id=id;value.color=definition.color;value.roughness=definition.roughness;value.metallic=definition.metallic;value.double_sided=definition.double_sided;value.texture=definition.texture;value.has_texture=definition.texture!=AssetId{};
-    std::string generation=digest;if(value.has_texture){result.textures.emplace_back(value.texture,load_cooked_texture(registry,cas,value.texture));for(const auto& record:manifest.at("assets"))if(record.at("id")==value.texture.text())generation+=record.at("sha256").get<std::string>();}result.generation=sha256(generation);return result;
+    RuntimeMaterial result;auto& value=result.value;value.id=id;assets_detail::read_material_fields(value,assets_detail::material_product_fields(definition));
+    std::string generation=digest;for(auto texture:assets_detail::material_textures(value)){if(std::any_of(result.textures.begin(),result.textures.end(),[&](const auto& loaded){return loaded.first==texture;}))continue;result.textures.emplace_back(texture,load_cooked_texture(registry,cas,texture));for(const auto& record:manifest.at("assets"))if(record.at("id")==texture.text())generation+=record.at("sha256").get<std::string>();}result.generation=sha256(generation);return result;
 }
 void validate_cooked_material_bindings(const std::filesystem::path& registry,const std::filesystem::path& cas,const SpawnPlan& plan){
     require(plan.materials.size()<=scene_object_limit,"Material binding object limit");std::map<AssetId,std::set<AssetId>> available;std::set<AssetId> loaded;

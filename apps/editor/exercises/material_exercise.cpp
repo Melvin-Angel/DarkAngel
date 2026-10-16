@@ -2,6 +2,7 @@
 #include "../editor_ui.hpp"
 #include "../editor_world_objects.hpp"
 #include <darkangel/check.hpp>
+#include <darkangel/material_assets.hpp>
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -12,7 +13,7 @@ namespace {
 // R5 gate: material editing in Assets on disposable content. Create an editable material from an imported model slot,
 // assign it, edit and save it, and check the model cooks the new values; then reset the slot to its imported default.
 class MaterialExercise final:public Exercise {
-    bool enabled_,done_{};Controller& editor;Shell& shell;AssetInfo model;std::string slot;AssetId material,local_material,prefab_id,replacement_prefab,replacement_model,replacement_slot;unsigned shader_reloads{},model_reloads{};StableId first_object,second_object;std::string first_mount,member,fingerprint;std::array<float,4> imported{};
+    bool enabled_,done_{};Controller& editor;Shell& shell;AssetInfo model;std::string slot;AssetId material,local_material,glass_material,prefab_id,replacement_prefab,replacement_model,replacement_slot;unsigned shader_reloads{},model_reloads{};StableId first_object,second_object;std::string first_mount,member,fingerprint;std::array<float,4> imported{};
     nlohmann::json metadata() const{std::ifstream input(editor.assets->source_root()/(model.path+".daimport"));return nlohmann::json::parse(input);}
     CookedMaterial cooked() const{const auto registry=editor.package_model(model.id);auto runtime=load_cooked_model(registry,editor.assets->cas_path(),model.id);const auto id=AssetId::parse(metadata()["subassets"][slot].get<std::string>());
         for(const auto& m:runtime.materials)if(m.id==id)return m;require(false,"Material exercise: slot missing from the cooked model");return {};}
@@ -56,8 +57,26 @@ class MaterialExercise final:public Exercise {
             editor.authoring.open(*editor.assets,material).value["color"]=nlohmann::json::array({.1,.2,.9,1.0});editor.authoring.record_changes(*editor.assets,"Shared edit with local override");editor.save_gameplay();if(editor.refresh_model)editor.refresh_model(model.id);
             const auto shared_values=load_cooked_material_instance(editor.package_model(material),editor.assets->cas_path(),material);const auto local_values=load_cooked_material_instance(editor.package_model(local_material),editor.assets->cas_path(),local_material);
             require(shared_values.value.color[2]==.9f&&local_values.value.color[1]==.9f&&editor.document->plan().fingerprint==fingerprint,"Material exercise: shared edit changed local appearance or scene identity");}
-        if(frame==18){editor.play();require(editor.preview.active()&&editor.preview.active()->plan.materials==editor.document->plan().materials,"Material exercise: frozen Play bindings");}
-        if(frame==24){editor.stop();shell.select_workspace(Workspace::Scene);editor.select_object(first_object);shell.scene_navigation.camera.look_from({0,9,29},{0,2,0});done_=true;std::cout<<"Editor materials create=1 assign=1 edit=1 save=1 reset=1 local=1 revert=1 reopen=1 play=1 swap=1 shader_reload=1 model_reload=1 navigation=1 shared_local=1\n";}
+        if(frame==18){
+            // R5 A3: texture semantics and the lit-surface-v1 family. Two copies of the trim image become a normal map and a packed
+            // surface map; the local material gains them, emissive colour and cutout alpha, and a glass material blends.
+            const auto root=editor.assets->source_root();const auto trim=root/"royal_district/static/mud_huts/mudhut-trim.png";require(std::filesystem::exists(trim),"Material exercise: trim texture missing");
+            std::filesystem::create_directories(root/"textures");for(const char* name:{"gate_normal.png","gate_surface.png","gate_glass.png"})std::filesystem::copy_file(trim,root/"textures"/name,std::filesystem::copy_options::overwrite_existing);
+            const auto normal=editor.assets->adopt("textures/gate_normal.png"),surface=editor.assets->adopt("textures/gate_surface.png"),glass_texture=editor.assets->adopt("textures/gate_glass.png");editor.assets->scan();
+            editor.assets->set_texture_semantic("textures/gate_normal.png",TextureSemantic::Normal);editor.assets->set_texture_semantic("textures/gate_surface.png",TextureSemantic::Data);editor.assets->cook("textures/gate_glass.png");editor.refresh_assets();
+            auto& local=editor.authoring.open(*editor.assets,local_material).value;local["family"]="lit-surface-v1";local["normal_texture"]=normal.text();local["normal_scale"]=1.2;local["surface_texture"]=surface.text();local["occlusion_strength"]=.8;local["emissive"]={.05,.2,.05};local["alpha_mode"]="cutout";local["alpha_cutoff"]=.1;
+            local["sources"]["normal_texture"]="textures/gate_normal.png";local["sources"]["surface_texture"]="textures/gate_surface.png";
+            glass_material=editor.authoring.create_material(*editor.assets,"GateGlass",nlohmann::json{{"color",{.4,.7,1.0,.45}}});auto& glass=editor.authoring.open(*editor.assets,glass_material).value;glass["family"]="lit-surface-v1";glass["alpha_mode"]="transparent";glass["texture"]=glass_texture.text();glass["sources"]={{"texture","textures/gate_glass.png"}};
+            editor.authoring.record_changes(*editor.assets,"Surface materials");editor.save_gameplay();editor.refresh_assets();
+            const auto loaded=load_cooked_material_instance(editor.package_model(local_material),editor.assets->cas_path(),local_material);
+            unsigned linear{};for(const auto& [id,data]:loaded.textures)if(!data.srgb)++linear;
+            require(loaded.value.has_normal&&loaded.value.has_surface&&loaded.value.alpha_mode==1&&linear==2,"Material exercise: surface material closure or texture transfer functions");
+            editor.prepare_material(replacement_model,replacement_slot,local_material);
+            const auto slot_id=AssetId::parse(metadata()["subassets"][slot].get<std::string>());const auto second_mount=prefab_instance_of(*editor.document,second_object)->mount;
+            editor.prepare_material(model.id,slot_id,glass_material);set_instance_material(*editor.document,second_mount,member,slot_id,glass_material);editor.prepare_render_materials(editor.document->plan());
+            require(editor.document->plan().materials.at(second_object).at(slot_id)==glass_material,"Material exercise: transparent material assignment");}
+        if(frame==20){editor.play();require(editor.preview.active()&&editor.preview.active()->plan.materials==editor.document->plan().materials,"Material exercise: frozen Play bindings");}
+        if(frame==26){editor.stop();shell.select_workspace(Workspace::Scene);editor.select_object(first_object);shell.scene_navigation.camera.look_from({0,9,29},{0,2,0});done_=true;std::cout<<"Editor materials create=1 assign=1 edit=1 save=1 reset=1 local=1 revert=1 reopen=1 play=1 swap=1 shader_reload=1 model_reload=1 navigation=1 shared_local=1 surface=1 transparent=1\n";}
 
     }
     void finish() override{require(!enabled_||done_,"Material exercise ended before acceptance");}

@@ -11,6 +11,7 @@
 #include <stdexcept>
 namespace darkangel::assets_detail {
 void require(bool condition,const char* error){if(!condition)throw std::runtime_error(error);}
+void require(bool condition,const std::string& error){if(!condition)throw std::runtime_error(error);}
 std::string read(const std::filesystem::path& path,std::size_t limit){std::ifstream in(path,std::ios::binary|std::ios::ate);require(in.good(),"Cannot open asset input");auto size=in.tellg();require(size>=0 && static_cast<std::uint64_t>(size)<=limit,"Asset input size limit");std::string bytes(static_cast<std::size_t>(size),'\0');in.seekg(0);in.read(bytes.data(),static_cast<std::streamsize>(bytes.size()));require(in.good(),"Asset read failed");return bytes;}
 std::shared_ptr<const Json> registry_json(const std::filesystem::path& path){
     using Key=std::tuple<std::string,std::uintmax_t,std::int64_t>;static std::mutex lock;static std::list<std::pair<Key,std::shared_ptr<const Json>>> recent;

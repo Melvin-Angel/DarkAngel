@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 #include <cmath>
 using namespace darkangel;
 namespace {
@@ -16,5 +17,17 @@ int main(){try{
     require(vertices>3000&&max_error<.0005,"Complete modular inverse-bind skinning reference");
     const auto frozen=read(root/"human.json");auto bytes=read(source/"human.glb");bytes[0]='X';{std::ofstream out(source/"human.glb",std::ios::binary);out<<bytes;}bool rejected=false;try{assets.cook("human.glb");}catch(...){rejected=true;}require(rejected,"Malformed renderable reimport rejected");assets.package(id,root/"retained.json");require(read(root/"retained.json")==frozen,"Failed renderable reimport preserves all frozen products");
     auto manifest=nlohmann::json::parse(frozen);auto malformed=manifest;malformed["assets"].push_back(malformed["assets"][0]);{std::ofstream out(root/"duplicate.json");out<<malformed.dump();}rejected=false;try{load_cooked_skinned_model(root/"duplicate.json",assets.cas_path(),id);}catch(...){rejected=true;}require(rejected,"Duplicate runtime product rejects");
-    std::cout<<"Renderable canonical human parts="<<human.meshes.size()<<" vertices="<<vertices<<" atlas="<<human.texture.mips[0].width<<'x'<<human.texture.mips[0].height<<" rest_error_m="<<max_error<<"; frozen binary skin/load/reimport passed\n";return 0;
+    // R5 A3 skinned parity: a material instance assigned to one primitive slot (its mesh key) replaces that primitive's colour
+    // and atlas with its own values and textures; the other primitives keep the shared atlas. Reset removes it again.
+    {std::filesystem::remove(source/"human.glb");std::filesystem::copy_file(project/"content/royal_district/character/canonical-human.glb",source/"human.glb");
+     std::filesystem::create_directories(source/"textures");std::filesystem::create_directories(source/"materials");std::filesystem::copy_file(project/"content/royal_district/static/mud_huts/mudhut-trim.png",source/"textures/skin.png");const auto texture=assets.adopt("textures/skin.png");assets.scan();
+     auto sidecar=nlohmann::json::parse(read(source/"human.glb.daimport"));std::string slot;for(const auto& [key,value]:sidecar.at("subassets").items())if(key.find("/primitive/")!=std::string::npos){slot=key;break;}require(!slot.empty(),"Skin primitive slot");
+     const auto mesh=AssetId::parse(sidecar["subassets"][slot].get<std::string>());const auto imported=nlohmann::json::parse(assets.material_values("human.glb",slot));require(imported.at("color").size()==4&&imported.at("texture").is_null(),"Skin slot values");
+     const auto material=AssetId::random();nlohmann::json value={{"schema",1},{"kind","material"},{"asset",material.text()},{"name","SkinPart"},{"family","lit-surface-v1"},{"color",{.2,.4,.9,1}},{"roughness",.5},{"metallic",0.0},{"double_sided",true},{"texture",texture.text()},{"emissive",{.1,0,0}},{"sources",{{"texture","textures/skin.png"}}}};
+     assets.create_native("materials/SkinPart.damaterial",value.dump());assets.assign_model_material("human.glb",slot,material,"materials/SkinPart.damaterial");assets.package(id,root/"assigned.json");auto assigned=load_cooked_skinned_model(root/"assigned.json",assets.cas_path(),id);
+     unsigned with_material{};for(const auto& part:assigned.meshes)if(part.material){++with_material;require(part.id==mesh&&part.material->id==mesh&&std::abs(part.material->color[2]-.9f)<1e-6&&part.material->has_texture&&part.material->texture==texture&&std::abs(part.material->emissive[0]-.1f)<1e-6,"Assigned skin primitive material");}
+     require(with_material==1&&assigned.textured&&assigned.textures.size()==1&&assigned.textures[0].first==texture,"Only the assigned primitive changes; its texture joins the skin closure");
+     {bool refused=false;try{assets.assign_model_material("human.glb","mesh/none/primitive/0",material,"materials/SkinPart.damaterial");}catch(const std::exception&){refused=true;}require(refused,"An unknown skin slot is refused");}
+     assets.assign_model_material("human.glb",slot,{});assets.package(id,root/"reset.json");auto reset=load_cooked_skinned_model(root/"reset.json",assets.cas_path(),id);require(std::none_of(reset.meshes.begin(),reset.meshes.end(),[](const auto& part){return part.material.has_value();}),"Reset returns the skin to its atlas");}
+    std::cout<<"Renderable canonical human parts="<<human.meshes.size()<<" vertices="<<vertices<<" atlas="<<human.texture.mips[0].width<<'x'<<human.texture.mips[0].height<<" rest_error_m="<<max_error<<"; frozen binary skin/load/reimport and skinned material slots passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

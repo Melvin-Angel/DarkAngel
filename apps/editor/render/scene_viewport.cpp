@@ -306,6 +306,16 @@ void SceneViewport::render(double elapsed_seconds) {
                     return false;
             return true;
         };
+        // Transparent static surfaces collected while drawing, drawn last and sorted back to front (R5 A3).
+        struct TransparentDraw {
+            float depth;
+            Constants constants;
+            IPipelineState* pipeline;
+            IShaderResourceBinding* binding;
+            IBuffer *vertices, *indices;
+            std::uint32_t first, count;
+        };
+        std::vector<TransparentDraw> transparent;
         // Pipeline, material binding and buffers carry over between consecutive draws that share them.
         IPipelineState* bound_pipeline = nullptr;
         IShaderResourceBinding* bound_material = nullptr;
@@ -418,7 +428,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     XMStoreFloat4x4(&constants.rotation, rotation);
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
-                    constants.surface = {material.value.roughness, material.value.metallic, 0, 0};
+                    apply_material(constants, material.value);
                     void* mapped{};
                     context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                     require(mapped, "Uniform buffer mapping failed");
@@ -432,6 +442,22 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
                     IPipelineState* pipeline = material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr();
 #endif
+                    // Transparent surfaces (R5 A3) use the blending pipelines. Static ones are drawn after every opaque surface,
+                    // farthest first; a skinned one is drawn in place, because its pose palette belongs to this object only.
+                    if (material.value.alpha_mode == 2) {
+                        const bool skinned_draw = drawn_ptr && !args.skin_reference;
+#ifdef DAE_ANIMATION
+                        if (skinned_draw)
+                            pipeline = material.value.double_sided ? scene.skin_blend.RawPtr() : scene.skin_blend_cull.RawPtr();
+                        else
+#endif
+                            pipeline = material.value.double_sided ? context_.render.pso_blend.RawPtr() : context_.render.pso_blend_cull.RawPtr();
+                        if (!skinned_draw) {
+                            transparent.push_back({XMVectorGetZ(XMVector3TransformCoord(world.r[3], view)), constants, pipeline, material.binding.RawPtr(),
+                                                   mesh.vertices.RawPtr(), mesh.indices.RawPtr(), part.first, part.count});
+                            continue;
+                        }
+                    }
                     // The Frame buffer is dynamic: each draw's mapped constants reach the GPU without committing the binding again.
                     if (pipeline != bound_pipeline) {
                         context->SetPipelineState(pipeline);
@@ -515,7 +541,7 @@ void SceneViewport::render(double elapsed_seconds) {
                                                material.value.color[1] * mesh.color[1] * worn.tint[1],
                                                material.value.color[2] * mesh.color[2] * worn.tint[2],
                                                material.value.color[3] * mesh.color[3] * worn.tint[3]};
-                            constants.surface = {material.value.roughness, material.value.metallic, 0, 0};
+                            apply_material(constants, material.value);
                             void* mapped{};
                             context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                             require(mapped, "Uniform buffer mapping failed");
@@ -537,6 +563,26 @@ void SceneViewport::render(double elapsed_seconds) {
                 worn_failed.clear();
             }
 #endif
+        }
+        std::sort(transparent.begin(), transparent.end(), [](const TransparentDraw& a, const TransparentDraw& b) { return a.depth < b.depth; });
+        for (const auto& item : transparent) {
+            void* mapped{};
+            context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+            require(mapped, "Uniform buffer mapping failed");
+            std::memcpy(mapped, &item.constants, sizeof(item.constants));
+            context->UnmapBuffer(constant_buffer, MAP_WRITE);
+            context->SetPipelineState(item.pipeline);
+            IBuffer* vb = item.vertices;
+            Uint64 offset{};
+            context->SetVertexBuffers(0, 1, &vb, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
+            context->SetIndexBuffer(item.indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            context->CommitShaderResources(item.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            DrawIndexedAttribs draw;
+            draw.NumIndices = item.count;
+            draw.IndexType = VT_UINT32;
+            draw.FirstIndexLocation = item.first;
+            context->DrawIndexed(draw);
+            ++shell.scene_draws;
         }
     };
 #ifdef DAE_CHARACTER_SCENE
@@ -599,7 +645,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
                     constants.color = {material.value.color[0], material.value.color[1], material.value.color[2], material.value.color[3]};
-                    constants.surface = {material.value.roughness, material.value.metallic, 0, 0};
+                    apply_material(constants, material.value);
                     void* mapped{};
                     context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                     require(mapped, "Uniform buffer mapping failed");

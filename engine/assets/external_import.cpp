@@ -39,16 +39,16 @@ std::string normalized(Interchange& source,AssetImportType type){
     auto bytes=source.document.dump();if(!source.binary)return bytes+"\n";
     while(bytes.size()%4)bytes+=' ';std::string result;append32(result,0x46546c67);append32(result,2);append32(result,static_cast<std::uint32_t>(20+bytes.size()+source.tail.size()));append32(result,static_cast<std::uint32_t>(bytes.size()));append32(result,0x4e4f534a);result+=bytes;result+=source.tail;return result;
 }
-Import convert(AssetImportType type,const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,const std::filesystem::path& canonical,bool loop,bool inspect){
+Import convert(AssetImportType type,const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,const std::filesystem::path& canonical,bool loop,bool inspect,TextureSemantic semantic=TextureSemantic::Color){
     if(type==AssetImportType::Model)return import_gltf(root,source,ids,inspect);
-    if(type==AssetImportType::Texture)return import_texture(root,source,ids,inspect);
+    if(type==AssetImportType::Texture)return import_texture(root,source,ids,inspect,semantic);
 #ifdef DAE_ANIMATION
     if(type==AssetImportType::SkinnedMesh)return import_human(root,source,ids,canonical,inspect,true);
     if(type==AssetImportType::Animation)return import_clip(root,source,ids,canonical,loop,inspect);
 #endif
     throw std::runtime_error("Selected import type is unavailable in this build");
 }
-std::string importer(AssetImportType type){switch(type){case AssetImportType::Model:return "static-gltf-v1";case AssetImportType::SkinnedMesh:return "human-gltf-v2";case AssetImportType::Animation:return "clip-gltf-v1";case AssetImportType::Texture:return "texture-color-v1";default:throw std::runtime_error("Unsupported import type");}}
+std::string importer(AssetImportType type,TextureSemantic semantic=TextureSemantic::Color){if(type==AssetImportType::Texture)return std::string(texture_importer(semantic));switch(type){case AssetImportType::Model:return "static-gltf-v1";case AssetImportType::SkinnedMesh:return "human-gltf-v2";case AssetImportType::Animation:return "clip-gltf-v1";case AssetImportType::Texture:return "texture-color-v1";default:throw std::runtime_error("Unsupported import type");}}
 }
 struct PreparedAssetImport::State {
     AssetId owner;std::filesystem::path project,directory;
@@ -68,8 +68,8 @@ return "Requires an animation-enabled editor build.";
 #endif
 case AssetImportType::Vfx:return "VFX import and preview are planned for M7.";case AssetImportType::Audio:return "Audio import and bank authoring are planned for M7.";case AssetImportType::Material:return "Standalone material authoring is planned; supported model materials import with their model.";case AssetImportType::UI:return "UI document import is planned with the native runtime UI workflow.";}return "Unknown import type.";}
 
-Import assets_detail::import_texture(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
-    auto bytes=read(source,32*1024*1024);auto cooked=cook_color_texture(bytes);Import result;result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);
+Import assets_detail::import_texture(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect,TextureSemantic semantic){
+    auto bytes=read(source,32*1024*1024);auto cooked=cook_texture(bytes,semantic);Import result;result.product_count=1;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);
     if(!inspect){require(ids.size()==1&&ids.contains("$source"),"Texture UUID mapping mismatch");result.products.push_back({ids.at("$source"),"texture","dds",std::move(cooked),{}});}return result;
 }
 PreparedAssetImport AssetService::prepare_import(const AssetImportRequest& request){
@@ -98,11 +98,11 @@ PreparedAssetImport AssetService::prepare_import(const AssetImportRequest& reque
     if(canonical){auto rig=within(project,request.canonical_skeleton);require(rig.extension()==".daskeleton","Choose a native canonical skeleton in this project");state->canonical=rig.lexically_relative(project).generic_string();write(within(scratch.root,state->canonical),snapshot(rig));}
     for(const auto& [path,content]:staged)write(within(scratch.root,state->directory/path),content);
     auto candidate=within(scratch.root,state->relative);auto rig=canonical?within(scratch.root,state->canonical):std::filesystem::path{};
-    auto inspected=convert(request.type,scratch.root,candidate,{},rig,request.loop,true);std::map<std::string,AssetId> ids{{"$source",state->id}};
-    Json metadata={{"schema",1},{"id",state->id.text()},{"importer",importer(request.type)},{"tags",Json::array()},{"subassets",Json::object()}};
+    auto inspected=convert(request.type,scratch.root,candidate,{},rig,request.loop,true,request.semantic);std::map<std::string,AssetId> ids{{"$source",state->id}};
+    Json metadata={{"schema",1},{"id",state->id.text()},{"importer",importer(request.type,request.semantic)},{"tags",Json::array()},{"subassets",Json::object()}};
     for(const auto& key:inspected.keys){auto id=AssetId::random();require(ids.emplace(key,id).second,"Duplicate imported subasset key");metadata["subassets"][key]=id.text();}
     if(canonical)metadata["canonical_source"]=state->canonical;if(request.type==AssetImportType::Animation)metadata["loop"]=request.loop;
-    auto converted=convert(request.type,scratch.root,candidate,ids,rig,request.loop,false);require(!converted.products.empty(),"Import produced no cooked products");for(const auto& product:converted.products)require(product.bytes.size()<=64*1024*1024,"Imported product size limit");
+    auto converted=convert(request.type,scratch.root,candidate,ids,rig,request.loop,false,request.semantic);require(!converted.products.empty(),"Import produced no cooked products");for(const auto& product:converted.products)require(product.bytes.size()<=64*1024*1024,"Imported product size limit");
     staged[filename+".daimport"]=metadata.dump(2)+"\n";state->files=std::move(staged);
     for(const auto& input:state->inputs)require(file_sha256(input.path)==input.hash,"Source changed during import validation; validate again");
     PreparedAssetImport prepared;prepared.state_=std::move(state);return prepared;

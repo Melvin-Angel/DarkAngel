@@ -66,7 +66,7 @@ def main():
                 "--character-player", "00000000000000000000000000000004", "--sources", source,
                 "--asset-cache", cache, "--backend", args.backend, "--hidden", "--no-audio", "--capture-workspace"]
         cases = {
-            "materials": (["--exercise-materials", "--frames", "28"], ["Editor materials create=1 assign=1 edit=1 save=1 reset=1 local=1 revert=1 reopen=1 play=1 swap=1 shader_reload=1 model_reload=1 navigation=1 shared_local=1"]),
+            "materials": (["--exercise-materials", "--frames", "30"], ["Editor materials create=1 assign=1 edit=1 save=1 reset=1 local=1 revert=1 reopen=1 play=1 swap=1 shader_reload=1 model_reload=1 navigation=1 shared_local=1 surface=1 transparent=1"]),
         }
         for name, (options, markers) in cases.items():
             if args.gate not in ("all", name):

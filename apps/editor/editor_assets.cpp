@@ -15,7 +15,7 @@ std::string lowercase(std::string value){for(auto& c:value)c=static_cast<char>(s
 }
 void Shell::open_import(const std::filesystem::path& file,std::optional<AssetImportType> type){import_file=file;import_type=-1;if(type)for(int i=0;i<static_cast<int>(std::size(types));++i)if(types[i]==*type)import_type=i;import_prepared={};import_error.clear();import_status.clear();import_open=true;}
 void Shell::choose_asset_import(){auto file=choose_import();if(!file.empty())open_import(file);}
-void Shell::validate_import(Controller& editor){if(import_type<0||!editor.assets||editor.preview.active())throw std::runtime_error("Choose an import type and stop Play before validating");import_prepared={};import_error.clear();import_status.clear();import_prepared=editor.assets->prepare_import({import_file,types[import_type],canonical,import_loop});}
+void Shell::validate_import(Controller& editor){if(import_type<0||!editor.assets||editor.preview.active())throw std::runtime_error("Choose an import type and stop Play before validating");import_prepared={};import_error.clear();import_status.clear();import_prepared=editor.assets->prepare_import({import_file,types[import_type],canonical,import_loop,static_cast<TextureSemantic>(import_semantic)});}
 void Shell::commit_import(Controller& editor){if(editor.preview.active())throw std::runtime_error("Stop Play before importing");auto result=editor.import_asset(import_prepared);selected_asset=result.root;import_prepared={};import_status="Imported. Find the new asset in the Assets workspace.";}
 void Shell::draw_import(Controller& editor){
     if(import_open){ImGui::OpenPopup("Import asset");import_open=false;}
@@ -26,7 +26,8 @@ void Shell::draw_import(Controller& editor){
     bool supported=false;if(import_type>=0){auto type=types[import_type];auto reason=asset_import_support(type);supported=reason.empty();
         ImGui::TextWrapped("Project folder: %s/",asset_import_folder(type).data());
         if(!supported)ImGui::TextWrapped("%s",reason.data());else if(type==AssetImportType::Model)ImGui::TextWrapped("glTF / GLB static models. Local buffers and color textures come with the model. FBX requires offline conversion.");
-        else if(type==AssetImportType::Texture)ImGui::TextWrapped("PNG / JPEG color textures, imported as sRGB with mipmaps. Normal maps and other data textures need a later profile.");
+        else if(type==AssetImportType::Texture){ImGui::TextWrapped("PNG / JPEG textures with mipmaps. Choose what the texels mean: colour is stored sRGB; packed surface data and normal maps stay linear (normal mips are renormalised).");
+            const char* meanings[]={"Colour (sRGB)","Data: packed occlusion / roughness / metallic (linear)","Normal map (linear)"};ImGui::SetNextItemWidth(360);if(ImGui::Combo("Texture meaning",&import_semantic,meanings,3)){import_prepared={};import_error.clear();import_status.clear();}}
         else{ImGui::TextWrapped(type==AssetImportType::SkinnedMesh?"Canonical human GLB, with an embedded atlas. Other rig profiles require later support.":"Normalized canonical GLB clips. Raw FBX animation requires offline conversion.");
             if(ImGui::InputText("Canonical skeleton",canonical,sizeof(canonical))){import_prepared={};import_error.clear();}if(type==AssetImportType::Animation&&ImGui::Checkbox("Loop",&import_loop))import_prepared={};
         }
@@ -54,7 +55,8 @@ void Shell::draw_assets(Controller& editor,bool expanded){
         workflow_header(std::filesystem::path(selected->path).filename().string().c_str(),selected->path.c_str());
         ImGui::TextDisabled(selected->generation?"Cooked and available":"Not cooked in this cache");
         {const auto extension=std::filesystem::path(selected->path).extension().string();
-         if(extension==".gltf"||extension==".glb")draw_model_materials(editor,*selected);else if(extension==".damaterial")draw_material_form(editor,selected->id);}
+         if(extension==".gltf"||extension==".glb")draw_model_materials(editor,*selected);else if(extension==".damaterial")draw_material_form(editor,selected->id);
+         else if(extension==".png"||extension==".jpg"||extension==".jpeg")draw_texture_semantic(editor,*selected);}
         if(ImGui::CollapsingHeader("Advanced asset details")){ImGui::TextWrapped("Asset ID: %s",selected->id.text().c_str());ImGui::Text("Cook generation: %llu",static_cast<unsigned long long>(selected->generation));if(ImGui::SmallButton("Copy project path"))ImGui::SetClipboardText(selected->path.c_str());}
     }
     ImGui::SetNextItemWidth(expanded?std::min(320.f*ImGui::GetStyle().FontScaleDpi,ImGui::GetContentRegionAvail().x):-1.f);ImGui::InputTextWithHint("##assetsearch","Search path or UUID...",asset_filter,sizeof(asset_filter));
