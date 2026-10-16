@@ -8,7 +8,7 @@ Status: In progress. This report records the first implementation checkpoint; it
 
 The renderer keeps the existing Diligent device/context, scene viewport ownership, cooked model/material resources, GPU skinning path, Place/Inspector transaction path, and `ObjectData::optional_json` preservation. R7 scene-authored lighting and rendering settings are ordinary optional components, so they follow existing selection, undo/redo, save/load, prefab and cooking routes. No parallel scene or material format was introduced.
 
-The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`). It provides stable-ID scene lights, toon parameters, fog/post settings, a deterministic CPU light-cluster preparation path, bounded 64-candidate cluster capacity, and a four-light shading budget. Directional lights are kept separate from local-light selection. The current assignment is intentionally a CPU reference implementation while the GPU compute assignment and per-view clustered buffers remain future work in R7.3.
+The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`). It provides stable-ID scene lights, toon parameters, fog/post settings, a deterministic CPU light-cluster preparation path, bounded 64-candidate cluster capacity, and a four-light shading budget. Directional lights are kept separate from local-light selection. The primary viewport now prepares one assignment per frame and uses the selected stable IDs for each renderable's screen/depth cluster; the CPU assignment remains the correctness reference while GPU compute buffers remain future work in R7.3.
 
 ## Implemented in this checkpoint
 
@@ -18,6 +18,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 - Registered and cooked material families: `toon-standard-v1`, `toon-character-v1`, and `toon-terrain-v1`. Existing `lit-color-v1` and `lit-surface-v1` contracts remain compatible.
 - HDR viewport accumulation in `RGBA16_FLOAT` targets and a separate display target. The post stage performs exposure, neutral tone mapping, contrast/saturation/tint, bounded single-pass bloom sampling, and FXAA before ImGui composition.
 - Baseline real-time main directional shadows: four 2048x2048 D32 cascades, static/skinned caster PSOs, stable light-space matrices and 3x3 comparison-PCF receiver sampling. The current baseline uses fixed splits/bias values while the resource and shader contracts are established.
+- Primary-view local-light selection now uses the per-view cluster assignment instead of scene insertion order. Candidate capacity and four-light shading budget are distinct, stable-ID tie-breaking is deterministic, and occupancy/overflow statistics are retained on `SceneViewport` for later GPU-stat/debug presentation.
 - Scene-authored sky color and linear/exponential distance fog. Fog is applied in the material pass so transparent objects are not fogged again in the post stage.
 - Expanded resource bindings and shader feature bits are bounded; float/color edits do not create new PSO keys.
 
@@ -32,7 +33,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 ## Not yet implemented or not visually qualified
 
 - Shadow visual qualification, stable texel-snapped cascades, authored cascade/bias controls, alpha-cutout caster discard and transparent-shadow policy still require the dedicated rendering validation scene.
-- GPU compute clustered assignment and per-view GPU occupancy/overflow buffers; the current CPU assignment is a correctness reference, not the final GPU path.
+- GPU compute clustered assignment and per-view GPU occupancy/overflow buffers; the current CPU assignment is a correctness reference and the primary-view integration step, not the final GPU path.
 - Object/group-ID plus depth/normal screen-space outlines and distance fading.
 - Cubemap/equirectangular HDR sky import, procedural sky recipe publication and sun synchronization.
 - Full validation scene, material hot-reload qualification, save/reload/cook/run parity, Vulkan execution, GPU captures/timings, and Royal Temple visual qualification.

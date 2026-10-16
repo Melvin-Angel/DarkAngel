@@ -5,6 +5,7 @@
 #include <PipelineState.h>
 #include <ShaderResourceBinding.h>
 #include <DirectXMath.h>
+#include <darkangel/rendering.hpp>
 #include <imgui.h>
 #include <cstddef>
 #include <array>
@@ -56,6 +57,9 @@ class SceneViewport {
     // What the last frames drew, for the end-of-run checks.
     std::size_t projectiles_seen{};
     unsigned scatter_drawn = 0;
+    // CPU reference assignment for the current primary view. The renderer keeps this receipt so the editor and
+    // later GPU assignment path can report occupancy and deterministic overflow without changing shading semantics.
+    rendering::ClusterStats cluster_stats{};
 
   private:
     SceneViewportContext context_;

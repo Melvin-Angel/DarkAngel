@@ -303,6 +303,35 @@ void SceneViewport::render(double elapsed_seconds) {
     render::SceneRenderingSettings frame_settings;
     std::vector<FrameLight> frame_lights;
     for(const auto& origin:editor.document->plan().origins){auto handle=editor.displayed().find(origin.object);if(!editor.displayed().valid(handle))continue;auto object=editor.displayed().read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering"))frame_settings=render::decode_rendering_settings(source.at("rendering"));if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
+    std::vector<darkangel::rendering::SceneLight> cluster_lights;
+    cluster_lights.reserve(frame_lights.size());
+    const auto frame_view = XMLoadFloat4x4(&view_matrix);
+    for (const auto& prepared : frame_lights) {
+        auto light = prepared.light;
+        XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(light.position_view.data()),
+                      XMVector3TransformCoord(XMVectorSet(prepared.world_position[0], prepared.world_position[1], prepared.world_position[2], 1), frame_view));
+        cluster_lights.push_back(light);
+    }
+    const rendering::ClusterView cluster_view{scene_width, scene_height, gpu.radius * .01f, gpu.radius * 40.f,
+                                               std::tan(camera_fov * .5f), float(scene_width) / std::max(1u, scene_height)};
+    const rendering::ClusterConfig cluster_config{};
+    const auto cluster_assignment = rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
+    cluster_stats = cluster_assignment.stats;
+    const auto cluster_for_center = [&](FXMVECTOR center) -> const rendering::ClusterCell* {
+        const auto view_position = XMVector3TransformCoord(center, frame_view);
+        const float depth = -XMVectorGetZ(view_position);
+        if (depth <= cluster_view.near_plane || depth > cluster_view.far_plane)
+            return nullptr;
+        const auto clip = XMVector3TransformCoord(view_position, XMLoadFloat4x4(&projection_matrix));
+        const float ndc_x = XMVectorGetX(clip), ndc_y = XMVectorGetY(clip);
+        if (ndc_x < -1.f || ndc_x > 1.f || ndc_y < -1.f || ndc_y > 1.f)
+            return nullptr;
+        const unsigned x = std::min(cluster_assignment.tiles_x - 1, unsigned(std::clamp((ndc_x * .5f + .5f) * cluster_assignment.tiles_x, 0.f, float(cluster_assignment.tiles_x - 1))));
+        const unsigned y = std::min(cluster_assignment.tiles_y - 1, unsigned(std::clamp((.5f - ndc_y * .5f) * cluster_assignment.tiles_y, 0.f, float(cluster_assignment.tiles_y - 1))));
+        const float log_range = std::log(cluster_view.far_plane / cluster_view.near_plane);
+        const unsigned z = std::min(cluster_assignment.slices - 1, unsigned(std::max(0.f, std::log(depth / cluster_view.near_plane) / std::max(.001f, log_range) * cluster_assignment.slices)));
+        return &cluster_assignment.at(x, y, z);
+    };
     const float sky[4]={frame_settings.sky_enabled?frame_settings.sky_color.r:background[0],frame_settings.sky_enabled?frame_settings.sky_color.g:background[1],frame_settings.sky_enabled?frame_settings.sky_color.b:background[2],1};context->ClearRenderTarget(rtv,sky,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     std::array<XMFLOAT4X4,4> shadow_matrices{};std::array<float,4> shadow_splits{.2f,.45f,.7f,1.f};bool shadow_enabled=false;
     // One pass over the scene's objects for a view. viewer: the client whose world and poses are shown; null for the editor's own.
@@ -438,6 +467,7 @@ void SceneViewport::render(double elapsed_seconds) {
                 }
             }
             ++shell.scene_visible;
+            const auto* cluster_cell = shadow_pass ? nullptr : cluster_for_center(XMVector3TransformCoord(XMVectorSet(drawn.center[0], drawn.center[1], drawn.center[2], 1), world));
             for (const auto& mesh : drawn.meshes) {
                 IBuffer* vb = mesh.vertices;
                 if (vb != bound_vertices) {
@@ -478,7 +508,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     if(!material_toon){constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1};constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness};constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1};}
                     constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f};constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
                     constants.shadow_splits={shadow_splits[0],shadow_splits[1],shadow_splits[2],shadow_splits[3]};constants.shadow_params={.001f,.002f,shadow_enabled?1.f:0.f,1.f/2048.f};for(unsigned cascade=0;cascade<4;++cascade)constants.shadow_matrices[cascade]=shadow_matrices[cascade];if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);
-                    const float local_strength=material_toon?material.value.local_light_strength:frame_settings.toon.local_light_strength;unsigned local_index=0;const auto inverse_rotation=XMMatrixInverse(nullptr,rotation);for(const auto&prepared:frame_lights)if(prepared.light.id!=frame_settings.main_light&&prepared.light.type!=darkangel::rendering::LightType::Directional&&prepared.light.enabled&&local_index<4){const auto p=XMVector3TransformCoord(XMVectorSet(prepared.world_position[0]-float(pose.x),prepared.world_position[1]-float(pose.y),prepared.world_position[2]-float(pose.z),1),inverse_rotation);XMFLOAT3 local;XMStoreFloat3(&local,p);constants.local_positions[local_index]={local.x,local.y,local.z,prepared.light.range};constants.local_colors[local_index]={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity*local_strength};++local_index;}
+                    const float local_strength=material_toon?material.value.local_light_strength:frame_settings.toon.local_light_strength;unsigned local_index=0;const auto inverse_rotation=XMMatrixInverse(nullptr,rotation);for(const auto&prepared:frame_lights)if(prepared.light.id!=frame_settings.main_light&&prepared.light.type!=darkangel::rendering::LightType::Directional&&prepared.light.enabled&&local_index<4&&cluster_cell&&std::find(cluster_cell->selected.begin(),cluster_cell->selected.end(),prepared.light.id)!=cluster_cell->selected.end()){const auto p=XMVector3TransformCoord(XMVectorSet(prepared.world_position[0]-float(pose.x),prepared.world_position[1]-float(pose.y),prepared.world_position[2]-float(pose.z),1),inverse_rotation);XMFLOAT3 local;XMStoreFloat3(&local,p);constants.local_positions[local_index]={local.x,local.y,local.z,prepared.light.range};constants.local_colors[local_index]={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity*local_strength};++local_index;}
                     void* mapped{};
                     context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                     require(mapped, "Uniform buffer mapping failed");

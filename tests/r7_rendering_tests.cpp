@@ -1,5 +1,48 @@
 #include <darkangel/rendering.hpp>
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
-using namespace darkangel;using namespace darkangel::rendering;namespace{void check(bool v,const char*m){if(!v)throw std::runtime_error(m);}StableId id(std::uint64_t v){return{0xabc,v};}}
-int main(){try{ClusterView view{320,180,.1f,100.f,.57735f,16.f/9.f};SceneLight a;a.id=id(1);a.position_view={-1,0,-5};a.range=6;SceneLight b;b.id=id(2);b.position_view={1,0,-5};b.range=6;b.intensity=3;b.color={1,0,0};SceneLight d;d.id=id(3);d.type=LightType::Directional;auto r=assign_lights({},view,std::array<SceneLight,3>{a,b,d});check(r.tiles_x==20&&r.tiles_y==12&&r.slices==24,"cluster dimensions");check(r.stats.directional_lights==1&&r.stats.non_empty>0,"directional separation");for(const auto&cell:r.cells){check(cell.candidates.size()<=64,"cluster bounds");check(cell.selected.size()<=4,"shading budget");}auto lit=evaluate_toon({}, {1,1,1},{1,1,1},1,1,1,std::array<SceneLight,1>{b});check(lit[0]>lit[1]&&lit[0]>lit[2],"colored local light");FogSettings fog;fog.enabled=true;check(evaluate_fog(fog,0)==0&&evaluate_fog(fog,200)>0,"fog response");std::cout<<"R7 rendering core passed: clusters="<<r.stats.clusters<<" non_empty="<<r.stats.non_empty<<" overflow="<<r.stats.overflowed<<'\n';return 0;}catch(const std::exception&e){std::cerr<<"R7 rendering core failed: "<<e.what()<<'\n';return 1;}}
+#include <vector>
+using namespace darkangel;
+using namespace darkangel::rendering;
+namespace {
+void check(bool value, const char* message) { if (!value) throw std::runtime_error(message); }
+StableId id(std::uint64_t value) { return {0xabc, value}; }
+}
+int main() {
+    try {
+        ClusterView view{320, 180, .1f, 100.f, .57735f, 16.f / 9.f};
+        SceneLight a; a.id = id(1); a.position_view = {-1, 0, -5}; a.range = 6;
+        SceneLight b; b.id = id(2); b.position_view = {1, 0, -5}; b.range = 6; b.intensity = 3; b.color = {1, 0, 0};
+        SceneLight d; d.id = id(3); d.type = LightType::Directional;
+        auto result = assign_lights({}, view, std::array<SceneLight, 3>{a, b, d});
+        check(result.tiles_x == 20 && result.tiles_y == 12 && result.slices == 24, "cluster dimensions");
+        check(result.stats.directional_lights == 1 && result.stats.non_empty > 0, "directional separation");
+        for (const auto& cell : result.cells) {
+            check(cell.candidates.size() <= 64, "cluster bounds");
+            check(cell.selected.size() <= 4, "shading budget");
+        }
+        std::vector<SceneLight> many;
+        for (std::uint64_t i = 0; i < 70; ++i) {
+            SceneLight light; light.id = id(100 + i); light.position_view = {0, 0, -5}; light.range = 8;
+            light.intensity = float(i % 5 + 1); many.push_back(light);
+        }
+        auto limited = ClusterConfig{}; limited.max_candidates = 2; limited.shading_budget = 1;
+        const auto bounded = assign_lights(limited, view, many);
+        check(bounded.stats.overflowed > 0, "deterministic overflow counter");
+        check(bounded.at(10, 5, 12).candidates.size() <= 2 && bounded.at(10, 5, 12).selected.size() <= 1, "overflow bounds");
+        std::reverse(many.begin(), many.end());
+        const auto reordered = assign_lights(limited, view, many);
+        check(bounded.at(10, 5, 12).selected == reordered.at(10, 5, 12).selected, "stable light tie breaking");
+        auto lit = evaluate_toon({}, {1, 1, 1}, {1, 1, 1}, 1, 1, 1, std::array<SceneLight, 1>{b});
+        check(lit[0] > lit[1] && lit[0] > lit[2], "colored local light");
+        FogSettings fog; fog.enabled = true;
+        check(evaluate_fog(fog, 0) == 0 && evaluate_fog(fog, 200) > 0, "fog response");
+        std::cout << "R7 rendering core passed: clusters=" << result.stats.clusters << " non_empty=" << result.stats.non_empty
+                  << " overflow=" << bounded.stats.overflowed << '\n';
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << "R7 rendering core failed: " << error.what() << '\n';
+        return 1;
+    }
+}
