@@ -114,7 +114,12 @@ void SceneResources::prepare_material(AssetId model,AssetId slot,const RuntimeMa
 #ifdef DAE_ANIMATION
     if(!target&&scene_skins.contains(model))target=&scene_skins.at(model).gpu;
 #endif
-    require(target&&target->materials.contains(slot),"Material slot no longer exists on this model; repair the assignment explicitly");
+    bool slot_exists=target&&target->materials.contains(slot);
+#ifdef DAE_ANIMATION
+    if(!slot_exists&&scene_skins.contains(model))
+        slot_exists=std::any_of(scene_skins.at(model).model.meshes.begin(),scene_skins.at(model).model.meshes.end(),[&](const auto& mesh){return mesh.id==slot;});
+#endif
+    require(slot_exists,"Material slot no longer exists on this model; repair the assignment explicitly");
     const auto found=native_materials.find(material.value.id);if(found!=native_materials.end()&&found->second.source.generation==material.generation)return;
     require(found!=native_materials.end()||native_materials.size()<4096,"Native material resource limit (4096)");
     auto prepared=upload_material(render_.device,material,render_.pso,render_.pso_cull

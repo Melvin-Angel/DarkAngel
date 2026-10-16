@@ -1,4 +1,5 @@
 #include "assets_internal.hpp"
+#include <darkangel/animation_assets.hpp>
 #include <darkangel/material_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/assembly.hpp>
@@ -129,7 +130,19 @@ RuntimeMaterial load_cooked_material_instance(const std::filesystem::path& regis
 void validate_cooked_material_bindings(const std::filesystem::path& registry,const std::filesystem::path& cas,const SpawnPlan& plan){
     require(plan.materials.size()<=scene_object_limit,"Material binding object limit");std::map<AssetId,std::set<AssetId>> available;std::set<AssetId> loaded;
     for(const auto& [object,bindings]:plan.materials){require(plan.models.contains(object)&&bindings.size()<=128,"Material bindings require a model and bounded slots");const auto model=plan.models.at(object);
-        if(!available.contains(model)){const auto cooked=load_cooked_model(registry,cas,model);auto& slots=available[model];for(const auto& material:cooked.materials)slots.insert(material.id);}
+        if(!available.contains(model)){
+            auto& slots=available[model];
+            const auto manifest=registry_json(registry);
+            const auto found=std::find_if(manifest->at("assets").begin(),manifest->at("assets").end(),[&](const auto& record){return record.at("id")==model.text();});
+            require(found!=manifest->at("assets").end(),"Material binding model is missing from the cooked registry");
+            if(found->at("kind")=="human-binding"){
+                const auto cooked=load_cooked_skinned_model(registry,cas,model);
+                for(const auto& mesh:cooked.meshes)slots.insert(mesh.id);
+            }else{
+                const auto cooked=load_cooked_model(registry,cas,model);
+                for(const auto& material:cooked.materials)slots.insert(material.id);
+            }
+        }
         for(const auto& [slot,material]:bindings){require(available.at(model).contains(slot),"A material slot was removed; repair the preserved assignment before Play");if(loaded.insert(material).second)load_cooked_material_instance(registry,cas,material);}}
 }
 

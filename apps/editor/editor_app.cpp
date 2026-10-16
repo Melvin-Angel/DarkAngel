@@ -105,8 +105,8 @@ EditorApp::EditorApp(EditorOptions options)
         // Active scene travel consumes the freshly prepared frozen package, never an ad-hoc recook of artist sources.
         const auto registry=editor_->assets&&!editor_->preview.active()?editor_->package_model(material):args.registry;
         const auto cas=editor_->assets&&!editor_->preview.active()?editor_->assets->cas_path():args.cas;
-        const auto model_registry=editor_->assets&&!editor_->preview.active()?editor_->package_model(model):args.registry;
-        const auto cooked=load_cooked_model(model_registry,cas,model);require(std::any_of(cooked.materials.begin(),cooked.materials.end(),[&](const auto& value){return value.id==slot;}),"A material slot was removed; repair its preserved assignment");
+        // SceneResources owns the model/skin slot table and validates the slot against the uploaded resource.
+        // Calling load_cooked_model here would misclassify a human-binding asset as a static model.
         scene_->prepare_material(model,slot,load_cooked_material_instance(registry,cas,material));
     };
     if (!args.scene.empty())

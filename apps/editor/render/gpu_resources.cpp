@@ -618,10 +618,18 @@ UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipe
     visible.materials.push_back(material);
     if (model.textured)
         visible.textures.emplace_back(model.id, model.texture);
-    // A primitive with an assigned material instance draws with it (R5 A3 skinned parity); the others share the atlas.
-    for (const auto& skin : model.meshes)
+    // Every skinned primitive keeps its stable mesh slot as the draw material key. Assigned primitives use their
+    // native material instance; unassigned primitives get an atlas-backed fallback with the same slot identity so
+    // scene-local material bindings can replace them without modifying the shared imported skin.
+    for (const auto& skin : model.meshes) {
         if (skin.material)
             visible.materials.push_back(*skin.material);
+        else {
+            auto fallback = material;
+            fallback.id = skin.id;
+            visible.materials.push_back(fallback);
+        }
+    }
     for (const auto& texture : model.textures)
         visible.textures.push_back(texture);
     for (const auto& skin : model.meshes) {
@@ -653,7 +661,7 @@ UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipe
                 mesh.maximum[c] = std::max(mesh.maximum[c], vertex.geometry.position[c]);
             }
         }
-        mesh.parts.push_back({skin.material ? skin.material->id : model.id, 0, static_cast<unsigned>(mesh.indices.size())});
+        mesh.parts.push_back({skin.id, 0, static_cast<unsigned>(mesh.indices.size())});
         visible.meshes.push_back(std::move(mesh));
     }
     UploadedSkin result;
