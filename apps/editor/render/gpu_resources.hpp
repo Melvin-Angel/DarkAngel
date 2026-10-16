@@ -40,12 +40,16 @@ struct Constants {
     DirectX::XMFLOAT4 shadow_splits{.2f,.45f,.7f,1};
     DirectX::XMFLOAT4 shadow_params{.001f,.002f,0,0};
     DirectX::XMFLOAT4X4 shadow_matrices[4]{};
+    DirectX::XMFLOAT4 outline{};
 };
 struct PostConstants {
     DirectX::XMFLOAT4 exposure{0,0,1,1};
     DirectX::XMFLOAT4 bloom{1,.5f,.35f,4};
     DirectX::XMFLOAT4 tint_fxaa{1,1,1,1};
     DirectX::XMFLOAT4 texel{};
+    DirectX::XMFLOAT4 outline{.025f,.015f,.04f,1};
+    DirectX::XMFLOAT4 outline_params{1,80,1.5f,1};
+    DirectX::XMFLOAT4 outline_fade{20,180,0,0};
 };
 // Sets a draw's surface, emission and feature constants from its material (colour is set by the caller, which may tint it).
 void apply_material(Constants&, const CookedMaterial&);
@@ -78,7 +82,7 @@ struct UploadedModel {
     float radius{};
 };
 constexpr const char* shader_source = R"(
-cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];};
+    cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
 struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;float3 Local:TEXCOORD2;float3 WorldPosition:TEXCOORD3;};
 VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);result.WorldPosition=mul(float4(vertex.Position,1),World).xyz;result.UV=vertex.UV;return result;}
@@ -114,6 +118,7 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     float3 color=base.rgb*(Ambient.rgb*occlusion+MainColor.rgb*MainColor.a*bands);[unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*attenuation*attenuation;}
     if(Features.z==3){float3 coordinates=vertex.Local*Features.w;float3 l1=TerrainLayer1.Sample(TerrainLayer1_sampler,coordinates.xz).rgb,l2=TerrainLayer2.Sample(TerrainLayer2_sampler,coordinates.yz).rgb;float slope=saturate((abs(normal.y)-TerrainParams.y)/max(TerrainParams.z-TerrainParams.y,.001));if(features&32u)color=lerp(color,base.rgb*l1,slope);if(features&64u)color=lerp(color,base.rgb*l2,saturate(TerrainParams.w+(1-slope)*.5));}
     if(Features.z==2){float hit=saturate(CharacterParams.x*CharacterHit.a),status=saturate(CharacterParams.y*CharacterStatus.a);color=lerp(color,CharacterHit.rgb,hit);color=lerp(color,CharacterStatus.rgb,status);if(features&16u){float noise=DissolveMask.Sample(DissolveMask_sampler,vertex.UV).r;float edge=saturate((noise-CharacterParams.z)/max(CharacterParams.w,.001));if(noise<CharacterParams.z)discard;color=lerp(CharacterHit.rgb,color,edge);}}
+    if(Outline.x>0) return float4(normalize(normal)*.5+.5,Outline.y);
     if(ShadowParams.z>0){float depth=saturate(vertex.Position.z/max(vertex.Position.w,.0001));uint cascade=depth<ShadowSplits.x?0:depth<ShadowSplits.y?1:depth<ShadowSplits.z?2:3;float4 shadow_position=mul(float4(vertex.WorldPosition,1),ShadowMatrices[cascade]);shadow_position.xyz/=max(shadow_position.w,.0001);float2 uv=shadow_position.xy*.5+.5;float shadow=0;[unroll]for(int y=-1;y<=1;++y)[unroll]for(int x=-1;x<=1;++x)shadow+=ShadowMap.SampleCmpLevelZero(ShadowMap_sampler,float3(uv+float2(x,y)*ShadowParams.ww,cascade),shadow_position.z-ShadowParams.x);shadow/=9;color*=lerp(ShadowTint.rgb,1,shadow);}
     if(FogColor.a>0){float distance=max(vertex.Position.z/max(vertex.Position.w,.0001),0);float fog=FogParams.w>0?1-exp(-distance*FogParams.z):saturate((distance-FogParams.x)/max(FogParams.y-FogParams.x,.001));color=lerp(color,FogColor.rgb,saturate(fog));}
     return float4(color+specular*.08*lerp(float3(1,1,1),color,metallic)+emissive,Features.y==2?base.a:1);

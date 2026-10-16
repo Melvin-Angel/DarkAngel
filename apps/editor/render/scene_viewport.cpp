@@ -43,14 +43,18 @@ void SceneViewport::prepare_targets() {
         color.Format = TEX_FORMAT_RGBA16_FLOAT;
         color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
         device->CreateTexture(color, nullptr, &scene_color);
+        color.Name = "Editor scene outline information";
+        color.Format = TEX_FORMAT_RGBA16_FLOAT;
+        color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+        device->CreateTexture(color, nullptr, &outline_info);
         color.Name = "Editor scene display";
         color.Format = swap_desc.ColorBufferFormat;
         device->CreateTexture(color, nullptr, &scene_display);
         color.Name = "Editor scene depth";
         color.Format = swap_desc.DepthBufferFormat;
-        color.BindFlags = BIND_DEPTH_STENCIL;
+        color.BindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
         device->CreateTexture(color, nullptr, &scene_depth);
-        require(scene_color && scene_display && scene_depth, "Viewport resource creation failed");
+        require(scene_color && outline_info && scene_display && scene_depth, "Viewport resource creation failed");
     }
     // The second local player's view has its own target, sized to its viewport of the previous frame.
     if (shell.second_view) {
@@ -67,14 +71,18 @@ void SceneViewport::prepare_targets() {
             color.Format = TEX_FORMAT_RGBA16_FLOAT;
             color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
             device->CreateTexture(color, nullptr, &scene_color_second);
+            color.Name = "Editor second viewport outline information";
+            color.Format = TEX_FORMAT_RGBA16_FLOAT;
+            color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+            device->CreateTexture(color, nullptr, &outline_info_second);
             color.Name = "Editor second viewport display";
             color.Format = swap_desc.ColorBufferFormat;
             device->CreateTexture(color, nullptr, &scene_display_second);
             color.Name = "Editor second player depth";
             color.Format = swap_desc.DepthBufferFormat;
-            color.BindFlags = BIND_DEPTH_STENCIL;
+            color.BindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
             device->CreateTexture(color, nullptr, &scene_depth_second);
-            require(scene_color_second && scene_display_second && scene_depth_second, "Second viewport resource creation failed");
+            require(scene_color_second && outline_info_second && scene_display_second && scene_depth_second, "Second viewport resource creation failed");
         }
     }
     if (!shadow_map) {
@@ -335,7 +343,7 @@ void SceneViewport::render(double elapsed_seconds) {
     const float sky[4]={frame_settings.sky_enabled?frame_settings.sky_color.r:background[0],frame_settings.sky_enabled?frame_settings.sky_color.g:background[1],frame_settings.sky_enabled?frame_settings.sky_color.b:background[2],1};context->ClearRenderTarget(rtv,sky,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     std::array<XMFLOAT4X4,4> shadow_matrices{};std::array<float,4> shadow_splits{.2f,.45f,.7f,1.f};bool shadow_enabled=false;
     // One pass over the scene's objects for a view. viewer: the client whose world and poses are shown; null for the editor's own.
-    auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer, bool shadow_pass = false) {
+    auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer, bool shadow_pass = false, bool outline_pass = false) {
         const darkangel::World* shown_world = &editor.displayed();
         (void)viewer;
 #ifdef DAE_CHARACTER_SCENE
@@ -503,6 +511,30 @@ void SceneViewport::render(double elapsed_seconds) {
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
                     apply_material(constants, material.value);
+                    if (outline_pass) {
+                        if (!frame_settings.post.outline.enabled || material.value.alpha_mode == 2)
+                            continue;
+                        const auto group = float(((object_id.high ^ object_id.low) % 1000) + 1) / 1001.f;
+                        constants.outline = {1, group, 0, 0};
+                        void* mapped{};
+                        context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+                        require(mapped, "Outline constants mapping failed");
+                        std::memcpy(mapped, &constants, sizeof(constants));
+                        context->UnmapBuffer(constant_buffer, MAP_WRITE);
+#ifdef DAE_ANIMATION
+                        IPipelineState* outline_pipeline = (drawn_ptr && !args.skin_reference)
+                                                               ? (material.value.double_sided ? skin_pso.RawPtr() : skin_cull.RawPtr())
+                                                               : (material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr());
+#else
+                        IPipelineState* outline_pipeline = material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr();
+#endif
+                        if (outline_pipeline != bound_pipeline) { context->SetPipelineState(outline_pipeline); bound_pipeline = outline_pipeline; }
+                        if (auto* shadow = material.binding->GetVariableByName(SHADER_TYPE_PIXEL, "ShadowMap")) shadow->Set(shadow_srv);
+                        context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                        DrawIndexedAttribs outline_draw; outline_draw.NumIndices = part.count; outline_draw.IndexType = VT_UINT32; outline_draw.FirstIndexLocation = part.first; outline_draw.Flags = DRAW_FLAG_VERIFY_ALL;
+                        context->DrawIndexed(outline_draw);
+                        continue;
+                    }
                     if(frame_settings.main_light){for(const auto&prepared:frame_lights)if(prepared.light.id==frame_settings.main_light&&prepared.light.type==darkangel::rendering::LightType::Directional){constants.main_light={prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],1};constants.main_color={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity};break;}}
                     const bool material_toon=material.value.family==material_family_toon_standard||material.value.family==material_family_toon_character||material.value.family==material_family_toon_terrain;
                     if(!material_toon){constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1};constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness};constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1};}
@@ -675,6 +707,16 @@ void SceneViewport::render(double elapsed_seconds) {
     context->SetRenderTargets(1,&rtv,dsv,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->SetViewports(1,&viewport,scene_color->GetDesc().Width,scene_color->GetDesc().Height);
     if (!travelling)
         draw_objects(view, projection, nullptr);
+    if (!travelling && outline_info && frame_settings.post.outline.enabled) {
+        auto* outline_rtv = outline_info->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+        context->SetRenderTargets(1, &outline_rtv, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        const float clear_outline[4]{0, 0, 0, 0};
+        context->ClearRenderTarget(outline_rtv, clear_outline, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        context->SetViewports(1, &viewport, outline_info->GetDesc().Width, outline_info->GetDesc().Height);
+        draw_objects(view, projection, nullptr, false, true);
+        context->SetRenderTargets(1, &rtv, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        context->SetViewports(1, &viewport, scene_color->GetDesc().Width, scene_color->GetDesc().Height);
+    }
 #ifdef DAE_CHARACTER_SCENE
     // A second local player's view: the same objects from its own client's world and poses, through its own camera.
     shell.second_view = character && character->players().size() > 1 && character->client(character->players()[1]) &&
@@ -700,6 +742,14 @@ void SceneViewport::render(double elapsed_seconds) {
         XMStoreFloat4x4(&shell.game_projection_second, projection_second);
         if (!travelling)
             draw_objects(view_second, projection_second, second);
+        if (!travelling && outline_info_second && frame_settings.post.outline.enabled) {
+            auto* outline_rtv_second = outline_info_second->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+            context->SetRenderTargets(1, &outline_rtv_second, dsv_second, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            const float clear_outline[4]{0, 0, 0, 0};
+            context->ClearRenderTarget(outline_rtv_second, clear_outline, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            context->SetViewports(1, &viewport_second, outline_info_second->GetDesc().Width, outline_info_second->GetDesc().Height);
+            draw_objects(view_second, projection_second, second, false, true);
+        }
         context->SetRenderTargets(1, &rtv, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         context->SetViewports(1, &viewport, scene_color->GetDesc().Width, scene_color->GetDesc().Height);
     }
@@ -748,12 +798,15 @@ void SceneViewport::render(double elapsed_seconds) {
         }
     }
 #endif
-    auto present_post = [&](ITexture* source, ITexture* destination, IShaderResourceBinding* binding) {
+    auto present_post = [&](ITexture* source, ITexture* destination, ITexture* info, ITexture* depth, IShaderResourceBinding* binding) {
         PostConstants constants;
         constants.exposure = {frame_settings.post.exposure, frame_settings.post.exposure_compensation, frame_settings.post.contrast, frame_settings.post.saturation};
         constants.bloom = {frame_settings.post.bloom_threshold, frame_settings.post.bloom_soft_threshold, frame_settings.post.bloom ? frame_settings.post.bloom_intensity : 0.f, frame_settings.post.bloom_radius};
         constants.tint_fxaa = {frame_settings.post.tint.r, frame_settings.post.tint.g, frame_settings.post.tint.b, frame_settings.post.fxaa ? 1.f : 0.f};
         constants.texel = {1.f / std::max(1u, destination->GetDesc().Width), 1.f / std::max(1u, destination->GetDesc().Height), 0, 0};
+        constants.outline = {frame_settings.post.outline.color.r, frame_settings.post.outline.color.g, frame_settings.post.outline.color.b, frame_settings.post.outline.enabled ? 1.f : 0.f};
+        constants.outline_params = {frame_settings.post.outline.thickness, frame_settings.post.outline.depth_sensitivity, frame_settings.post.outline.normal_sensitivity, frame_settings.post.outline.group_sensitivity};
+        constants.outline_fade = {frame_settings.post.outline.fade_start, frame_settings.post.outline.fade_end, 0, 0};
         void* mapped{};
         context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
         require(mapped, "Post-process constants mapping failed");
@@ -762,6 +815,11 @@ void SceneViewport::render(double elapsed_seconds) {
         auto* source_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SceneColor");
         require(source_variable, "Post-process source contract changed");
         source_variable->Set(source->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        auto* info_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "OutlineInfo");
+        auto* depth_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SceneDepth");
+        require(info_variable && depth_variable, "Post-process outline contract changed");
+        info_variable->Set(info->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        depth_variable->Set(depth->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         auto* target = destination->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
         context->SetRenderTargets(1, &target, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Viewport post_view;
@@ -775,9 +833,9 @@ void SceneViewport::render(double elapsed_seconds) {
         draw.Flags = DRAW_FLAG_VERIFY_ALL;
         context->Draw(draw);
     };
-    present_post(scene_color, scene_display, post_binding);
+    present_post(scene_color, scene_display, outline_info, scene_depth, post_binding);
     if (shell.second_view && scene_color_second && scene_display_second)
-        present_post(scene_color_second, scene_display_second, post_binding_second);
+        present_post(scene_color_second, scene_display_second, outline_info_second, scene_depth_second, post_binding_second);
 }
 VfxView SceneViewport::vfx_view() const {
     using namespace DirectX;
