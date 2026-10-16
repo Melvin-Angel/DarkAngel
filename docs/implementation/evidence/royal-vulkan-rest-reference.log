@@ -83,7 +83,7 @@
 [39m[39mDiligent Engine: Info: Using SURFACE_TRANSFORM_IDENTITY swap chain pretransform
 [39m[39mDiligent Engine: Info: Using VK_PRESENT_MODE_IMMEDIATE_KHR swap chain present mode
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager': created new host-visible page. (16.00 MB, type idx: 2). Current allocated size: 48.00 MB
-[39mViewport foreground pixels=9037 capture=C:\DarkAngel\docs\implementation\evidence\royal-vulkan-rest-reference.png
+[39mViewport foreground pixels=213107 capture=C:\DarkAngel\docs\implementation\evidence\royal-vulkan-rest-reference.png
 DarkAngel editor rendered 8 frames with vulkan
 [39mDiligent Engine: Info: Dynamic descriptor set allocator of immediate context peak descriptor pool count: 1
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
@@ -91,7 +91,7 @@ DarkAngel editor rendered 8 frames with vulkan
 [39m[39mDiligent Engine: Info: Upload heap of immediate context peak used/allocated frame size: 0.03 MB / 1.00 MB (1 page)
 [39m[39mDiligent Engine: Info: Transient command buffer pool manager allocated descriptor pool count: 47
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
-                       Total size: 8.00 MB. Peak allocated size: 0.50 MB. Peak utilization: 6.2%
+                       Total size: 8.00 MB. Peak allocated size: 0.75 MB. Peak utilization: 9.4%
 [39m[39mDiligent Engine: Info: MemoryManager 'Global resource memory manager' stats:
                        Peak used/allocated device-local memory size: 120.59 MB / 176.00 MB (11 pages)
                        Peak used/allocated host-visible memory size: 23.12 MB / 48.00 MB (3 pages)
@@ -99,6 +99,6 @@ DarkAngel editor rendered 8 frames with vulkan
 QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
 QUERY_TYPE_TIMESTAMP          :    0/ 512
 QUERY_TYPE_DURATION           :    0/ 512
-[39m[39mDiligent Engine: Info: Dynamic descriptor pool stats: allocated 2 pool(s)
+[39m[39mDiligent Engine: Info: Dynamic descriptor pool stats: allocated 3 pool(s)
 [39m[39mDiligent Engine: Info: Main descriptor pool stats: allocated 1 pool(s)
 [39m

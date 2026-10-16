@@ -32,7 +32,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 - CTest `R7.rendering_core`: passed.
 - `DarkAngelEditor` guarded target build: passed with the pinned MSVC/CMake environment and `VCPKG_MANIFEST_INSTALL=OFF`.
 - `scripts/verify_scene_navigation.py --gate place`: passed on D3D12 after the HDR/post/fog shader changes. The gate exercised DXC and the post-process pipeline and wrote a foreground capture.
-- `scripts/verify_royal_renderer.py`: partial only. Royal document load, D3D12/Vulkan process execution, and GPU/reference image parity all passed for the generated rest/attack captures; the final visible-attack-delta assertion failed because the captured camera contained no qualifying pose change. The retained `royal-*.log/png` files are evidence, not a cross-backend acceptance pass.
+- `scripts/verify_royal_renderer.py`: passed after correcting the hidden-renderer camera boundary. Royal document load, D3D12/Vulkan process execution, visible rest/attack captures, GPU/reference image parity, and the editor regression all passed. The deterministic `--camera-close` view is now preserved for hidden renderer runs while the R1 scene-navigation exercise still uses its authored matrices.
 
 ## Not yet implemented or not visually qualified
 
@@ -40,7 +40,7 @@ The first runtime rendering core is game-agnostic (`engine/runtime/rendering.*`)
 - GPU compute clustered assignment and per-view GPU occupancy/overflow buffers; the current CPU assignment is a correctness reference and the primary-view integration step, not the final GPU path.
 - Independent visual qualification of the object/group-ID plus depth/normal screen-space outlines and distance fading; the functional pass and persisted controls are present, but the current placement fixture does not contain the authored R7 validation scene.
 - Cubemap/equirectangular HDR sky import, procedural recipe asset publication, simple-cloud generation and editor visual qualification. The scene-profile procedural recipe is functional; its sun synchronization policy is explicit and intentionally does not override the selected Main Light.
-- Full validation scene, material hot-reload qualification, save/reload/cook/run parity, a qualifying visible Royal pose delta, GPU captures/timings, and Royal Temple visual qualification.
+- Full validation scene, material hot-reload qualification, save/reload/cook/run parity, GPU captures/timings, and Royal Temple visual qualification.
 - Advanced AO is not enabled; baked GI, lightmaps and the explicitly deferred systems remain out of scope.
 
 The D3D12 capture is evidence that the modified pipeline executes; it is not evidence that the final R7 visuals or all material families are artistically qualified.

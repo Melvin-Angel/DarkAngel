@@ -5,7 +5,7 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb802028e0000
-[39mViewport foreground pixels=9037 capture=C:\DarkAngel\docs\implementation\evidence\royal-d3d12-attack-gpu.png
+[39mViewport foreground pixels=213164 capture=C:\DarkAngel\docs\implementation\evidence\royal-d3d12-attack-gpu.png
 DarkAngel editor rendered 8 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 24/256

@@ -247,7 +247,7 @@ void SceneViewport::render(double elapsed_seconds) {
         camera_fov = XM_PIDIV4;
     }
     auto projection = XMMatrixPerspectiveFovRH(camera_fov, viewport.Width / viewport.Height, gpu.radius * .01f, gpu.radius * 40);
-    if (shell.workspace==darkangel::editor_app::Workspace::Scene&&!editor.preview.active()) {
+    if (shell.workspace==darkangel::editor_app::Workspace::Scene&&!editor.preview.active()&&(!args.hidden||args.exercise_scene_camera)) {
         // Use the exact matrices used by this frame's UI picking/drop rays, also during viewport resize.
         view=XMLoadFloat4x4(&shell.scene_view);
         projection=XMLoadFloat4x4(&shell.scene_projection);
