@@ -181,7 +181,7 @@ SceneAuthority::Impl::Impl(SessionHandshake hello, std::span<const ObjectData> o
         seen.reserve(actors.size() + members.size());
     }
     for (auto& member : members)
-        member.motor = std::make_unique<CharacterMotor>(authoritative, member.foot, member.id);
+        member.motor = std::make_unique<CharacterMotor>(authoritative, member.foot, member.id, false, combat ? combat->movement : MotorParameters{});
     if (combat) {
         require(combat->kit && combat->evaluator && (bool(combat->damage) || bool(combat->combat_damage)),
                 "Combat scene requires frozen kit/game evaluator");

@@ -64,7 +64,7 @@ auto SceneAuthority::Impl::arm(Actor& actor) -> void {
     require(!config.attributes.empty(), "Combat actor needs resolved attributes");
     AttributeSet(config.attributes);
     actor.perception = std::make_unique<Perception>(config.senses);
-    actor.motor = std::make_unique<CharacterMotor>(authoritative, actor.foot, actor.id);
+    actor.motor = std::make_unique<CharacterMotor>(authoritative, actor.foot, actor.id, false, config.movement);
     auto state = actor.motor->state();
     state.yaw = actor.yaw;
     state.tick = state.sequence = authoritative.tick();

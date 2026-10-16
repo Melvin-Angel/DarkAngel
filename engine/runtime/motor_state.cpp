@@ -31,9 +31,18 @@ namespace darkangel {
         return MotionWarpResult{toward,{dx/distance*travel,0,dz/distance*travel}};
     }
     void validate_motor_state(const MotorState& s){
-        check(s.epoch&&s.topology&&finite(s.yaw)&&finite(s.pitch)&&std::abs(s.pitch)<=1.5&&s.coyote<=6&&s.jump_buffer<=6,"Invalid motor state header");
+        check(s.epoch&&s.topology&&finite(s.yaw)&&finite(s.pitch)&&std::abs(s.pitch)<=1.5&&s.coyote<=motor_timer_tick_limit&&s.jump_buffer<=motor_timer_tick_limit,"Invalid motor state header");
         for(auto a:{
             s.position,s.velocity,s.momentum,s.desired,s.achieved,s.support_local,s.support_velocity
         })check(valid(a),"Invalid motor state vector");
+    }
+    void validate_motor_parameters(const MotorParameters& p){
+        auto within=[](double value,MotorParameterRange range){return std::isfinite(value)&&value>=range.minimum&&value<=range.maximum;};
+        check(within(p.walk_speed_mps,motor_walk_speed_range),"Movement walk speed must be 0.5 to 12 m/s");
+        check(within(p.crouch_speed_mps,motor_crouch_speed_range),"Movement crouch speed must be 0.25 to 12 m/s");
+        check(within(p.acceleration_mps2,motor_acceleration_range),"Movement acceleration must be 1 to 120 m/s2");
+        check(within(p.jump_velocity_mps,motor_jump_velocity_range),"Movement jump velocity must be 0 to 20 m/s");
+        check(within(p.gravity_mps2,motor_gravity_range),"Movement gravity must be 1 to 60 m/s2");
+        check(p.coyote_ticks<=motor_timer_tick_limit&&p.jump_buffer_ticks<=motor_timer_tick_limit,"Movement coyote and jump buffer must be 0 to 30 ticks");
     }
 }

@@ -93,7 +93,7 @@ auto SceneAuthority::Impl::enter(const SceneSeat& seat) -> void {
     try {
         require(members.back().id < entering.id, "A party member's network identity is out of order");
         server.assign_team(entering.id, player_faction);
-        entering.motor = std::make_unique<CharacterMotor>(authoritative, entering.foot, entering.id);
+        entering.motor = std::make_unique<CharacterMotor>(authoritative, entering.foot, entering.id, false, combat ? combat->movement : MotorParameters{});
         auto state = entering.motor->state();
         state.yaw = entering.yaw;
         state.tick = state.sequence = authoritative.tick();

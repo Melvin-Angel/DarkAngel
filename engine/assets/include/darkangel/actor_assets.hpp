@@ -4,6 +4,7 @@
 #include <darkangel/behavior.hpp>
 #include <darkangel/perception.hpp>
 #include <darkangel/item_assets.hpp>
+#include <darkangel/motor_parameters.hpp>
 namespace darkangel {
 // Initial authored references only; never a live actor or a gameplay inheritance tree.
 struct CharacterDefinition {AssetId id,skin;std::string generation;};
@@ -14,7 +15,11 @@ struct MaskDefinition {AssetId id,kit,visual;std::string name,generation,socket{
 inline constexpr unsigned mask_slot_count=4;
 // masks: up to four equipped Mask references (empty slots are legal); active_mask
 // selects the one whose kit the actor starts with. Without masks, kit is used.
-struct ActorLoadoutDefinition {AssetId kit;std::vector<AbilityAttributeValue> starting_attributes;std::array<AssetId,mask_slot_count> masks{};unsigned active_mask{};bool masked{};};
+// movement: optional shared Movement Profile (.damovement); empty means the exact legacy built-in profile.
+struct ActorLoadoutDefinition {AssetId kit;std::vector<AbilityAttributeValue> starting_attributes;std::array<AssetId,mask_slot_count> masks{};unsigned active_mask{};bool masked{};AssetId movement;};
+// A reusable locomotion profile referenced by Player and NPC loadouts. Validated against the frozen motor ranges.
+struct MovementProfileDefinition {AssetId id;std::string name,generation;MotorParameters parameters;};
+MovementProfileDefinition decode_movement_profile(std::string_view json);
 struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
 // cameras: the Player's virtual camera rig; the built-in FreeLook + Aim rig when not authored.
 struct PlayerStartingInventory {std::vector<InventoryStartingItem> items;std::array<AssetId,4> equipped{};unsigned active{};};
@@ -31,12 +36,13 @@ SensesDefinition decode_npc_senses(std::string_view json);
 struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;SensesDefinition senses;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
-struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;CookedCombatKit base_kit;std::vector<CookedItem> items;};
-struct CookedNpc {std::array<std::optional<CookedMask>,mask_slot_count> masks;NpcDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;std::optional<BehaviorDefinition> behavior;};
+struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;CookedCombatKit base_kit;std::vector<CookedItem> items;MotorParameters movement;};
+struct CookedNpc {std::array<std::optional<CookedMask>,mask_slot_count> masks;NpcDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;std::optional<BehaviorDefinition> behavior;MotorParameters movement;};
 std::vector<AttributeDefinition> resolve_actor_attributes(const AttributeAsset&,std::span<const AbilityAttributeValue>);
 CookedCharacter load_cooked_character(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedPlayer load_cooked_player(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedMask load_cooked_mask(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 CookedNpc load_cooked_npc(const std::filesystem::path&,const std::filesystem::path&,AssetId);
+MovementProfileDefinition load_cooked_movement(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 BehaviorDefinition load_cooked_behavior(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 }

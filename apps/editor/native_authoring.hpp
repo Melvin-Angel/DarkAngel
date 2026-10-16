@@ -39,6 +39,10 @@ public:
     AssetId create_audio_mix(AssetService&);
     AssetId create_audio_profile(AssetService&,std::string_view name);
     void assign_npc_behavior(AssetService&,AssetId npc,AssetId behavior);
+    // Movement Profiles (R3): a shared .damovement under movement/ seeded with the exact legacy motor values, or copied
+    // from `from`; and its assignment to a Player or NPC loadout (empty returns the actor to the built-in legacy profile).
+    AssetId create_movement(AssetService&,std::string_view name,AssetId from={});
+    void assign_movement(AssetService&,AssetId actor,AssetId movement);
     // Structure edits on a behaviour tree. path holds child indices from the root to the node (empty = root).
     // MoveUp/MoveDown/Remove act on that node among its siblings; AddChild appends a default node of `type` to that composite.
     enum class BehaviorEdit {MoveUp,MoveDown,Remove,AddChild};

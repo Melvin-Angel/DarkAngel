@@ -93,10 +93,12 @@ struct SceneClient::Impl {
             for(const auto& encounter:combat->encounters)for(unsigned index=0;index<encounter.definition.enemies();++index){auto found=encounter.npcs.find(enemy_definition(encounter.definition,index));if(found!=encounter.npcs.end())prepared.emplace(encounter_actor(encounter.id,index),&found->second);}
             for(const auto& item:combat->interactables)reach.emplace_back(item.definition,item.position);}
     }
+    // The Player profile the host simulates this party with; prediction, resynchronization and replay must match it.
+    MotorParameters movement()const{return combat?combat->movement:MotorParameters{};}
     // The replicated world names the player's character: its predicted motor starts where the object stands.
     void arm(){
         const auto handle=client.world().find(player_identity);if(!client.world().valid(handle))return;const auto& object=client.world().read(handle);player=object.network.value;
-        owner_motor=std::make_unique<CharacterMotor>(*prediction,MotorVec{object.transform.x,object.transform.y,object.transform.z},player);auto state=owner_motor->state();state.yaw=object.transform.yaw;owner_motor->restore(state);
+        owner_motor=std::make_unique<CharacterMotor>(*prediction,MotorVec{object.transform.x,object.transform.y,object.transform.z},player,false,movement());auto state=owner_motor->state();state.yaw=object.transform.yaw;owner_motor->restore(state);
         owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);prepared_statics=prediction->static_layer();
     }
     // The characters of the replicated world: one that entered is described from the prepared content, one that left
@@ -135,7 +137,7 @@ struct SceneClient::Impl {
             // A new baseline retires the old prediction world. No live world
             // is moved backward and no unacknowledged input is silently kept.
             require(snapshot->second.tick==owner_motor->state().tick&&snapshot->second.sequence==owner_motor->state().sequence,"Character scene topology baseline has pending input; resynchronize");
-            auto replacement=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);replacement->load(frame,player);auto motor=std::make_unique<CharacterMotor>(*replacement,snapshot->second.position,player,snapshot->second.crouched);replacement->load(frame,player);motor->restore(snapshot->second);
+            auto replacement=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);replacement->load(frame,player);auto motor=std::make_unique<CharacterMotor>(*replacement,snapshot->second.position,player,snapshot->second.crouched,movement());replacement->load(frame,player);motor->restore(snapshot->second);
             owner.reset();owner_motor.reset();prediction=std::move(replacement);owner_motor=std::move(motor);owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);++resynchronizations;
         }else require(prediction->update_prediction(frame,*owner_motor),"Character scene prediction collision preparation failed");
         const auto tick=frame.tick;if(!history.find(tick))history.retain(std::move(frame));
@@ -151,7 +153,7 @@ struct SceneClient::Impl {
     void rebase(const char* cause="start"){if(started&&rebase_causes.size()<16)++rebase_causes[std::string(cause).substr(0,80)];
         require(coherent_baseline(),"Independent scene baseline is incomplete");const auto state=*correction_motor();auto frame=*collision_at(state.tick);frame.tick=state.tick;
         auto replacement=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Prediction);replacement->load(frame,player);
-        auto motor=std::make_unique<CharacterMotor>(*replacement,state.position,player,state.crouched);replacement->load(frame,player);motor->restore(state);
+        auto motor=std::make_unique<CharacterMotor>(*replacement,state.position,player,state.crouched,movement());replacement->load(frame,player);motor->restore(state);
         std::unique_ptr<OwnerAbilityPrediction> abilities;
         if(combat){const auto& baseline=client.ability_corrections().at(player).ability;abilities=std::make_unique<OwnerAbilityPrediction>(baseline,combat->attributes,combat->kit,combat->input,combat->abilities,state.epoch,combat->tags,loadouts(baseline));next_operation=std::max(next_operation,baseline.highest_operation+1);}
         owner.reset();owner_motor.reset();prediction=std::move(replacement);owner_motor=std::move(motor);owner=std::make_unique<OwnerPrediction>(*prediction,*owner_motor);ability_prediction=std::move(abilities);

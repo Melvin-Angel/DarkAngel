@@ -2,7 +2,7 @@
 
 **Scheduling: Planned, R3 (A)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after Scene navigation and the dedicated UX overhaul. Its Player/NPC form adopts the [shared UX standards](EDITOR_UX_OVERHAUL_PLAN.md). The steps below are internal to R3; this file does not set project order.
 
-15 October 2026. **Design only; no settings or asset types added yet.** Resume through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md). This follows the existing [actor ownership contract](../../architecture/Actor_Gameplay_Design.md), qualifying the Character/Player wording in the older [extensibility audit](../current/EXTENSIBILITY_AUDIT.md).
+15 October 2026, design. **16 October 2026: the movement MVP is implemented (R3)**; see [R3 decisions and frozen ranges](#r3-implementation-decisions-16-october-2026) below and the [R3 report](../current/MOVEMENT_AUTHORING_REPORT.md). Resume other configuration families through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md). This follows the existing [actor ownership contract](../../architecture/Actor_Gameplay_Design.md), qualifying the Character/Player wording in the older [extensibility audit](../current/EXTENSIBILITY_AUDIT.md).
 
 ## Recommendation
 
@@ -108,3 +108,28 @@ Avoid an editor-wide reflection sweep or a generic configurable-everything syste
 Focused existing motor/session/actor tests should cover unchanged default traces, authored movement under collision, owner correction/replay with nondefault parameters, and constructor replacement paths. Run the existing actual-mesh hut regression at motor integration without raising bounds. One editor gate proves both forms change the intended asset; one separate-process host/guest gate proves matching parameters and mismatch refusal at the integration checkpoint. Same-machine evidence remains same-machine evidence. A full unrelated UI/network matrix is unnecessary per numeric form change.
 
 Likely files: `engine/runtime/character_motor.cpp`, `engine/runtime/include/darkangel/character_motor.hpp`, actor assets/cooker, scene preparation/authority/client, existing native authoring forms/commands and focused tests. Use the completed refactor's narrower headers/services; add no gameplay configuration to `main.cpp`.
+
+## R3 implementation decisions (16 October 2026)
+
+Decisions taken while implementing R3 without the user available; each picks the conservative option that matches existing code.
+
+**Frozen motor ranges** (inclusive, `engine/runtime/include/darkangel/motor_parameters.hpp`, checked by `validate_motor_parameters` at cook, at load and in every `CharacterMotor` constructor):
+
+| Field | Legacy default | Range | Why this bound |
+| --- | --- | --- | --- |
+| `walk_speed_mps` | 5 | 0.5 – 12 | 12 m/s is 0.2 m per tick, well inside the step/sweep distances the 32-hit contact collector and the hut regression were qualified with |
+| `crouch_speed_mps` | 2 | 0.25 – 12 | Independent of walk speed; no ordering rule is imposed |
+| `acceleration_mps2` | 30 | 1 – 120 | Per-axis approach of at most 2 m/s per tick; the original X/Z calculation is kept |
+| `jump_velocity_mps` | 7 | 0 – 20 | 0 disables jumping; 20 stays below the 30 m/s motion-impulse bound |
+| `gravity_mps2` | 20 | 1 – 60 | Used for both the velocity integration and Jolt's `ExtendedUpdate` gravity, as before |
+| `coyote_ticks`, `jump_buffer_ticks` | 6, 6 | 0 – 30 | `motor_timer_tick_limit`; replicated motor state and the wire reader accept timers up to 30 (was a literal 6) |
+
+The legacy profile is exact: the motor computes the same float and double expressions as before (for example `-gravity*dt` with `gravity=20.0f` equals the old `-20*dt`), and the M4 motor test proves an explicit legacy profile and the default constructor produce identical traces.
+
+**Source format.** `.damovement` under the source root's `movement/` folder: `schema` 1, `kind` `"movement"`, embedded `asset` UUID, `name`, and the seven fields above, all required. It is a leaf source (no dependencies) cooked to a `movement.json` product. The loadout reference is `loadout.movement` with the locator `sources.movement`, valid on both Players and NPCs. A reference without a locator, a locator without a reference, a wrong-kind or missing source, and an out-of-range value are all refused; a missing field means the legacy built-in profile.
+
+**New actors keep no profile.** The design suggested that new Player/NPC templates assign an owned default profile. R3 instead leaves new actors on the built-in profile (which is identical to the legacy default) and lets the author create one from the Movement panel when they want to change it. This avoids creating one profile file per new actor that nobody edits; Player/NPC creation and its existing tests stay unchanged.
+
+**Editor.** One shared Movement panel appears in both the Player and NPC tabs: a reference picker, the shared profile's fields (editing them edits the shared source, with a note saying every consumer changes), *Create profile* / *Duplicate and assign*, and *Use built-in profile*. Timers are whole ticks with milliseconds shown beside them. Movement profiles are also listed in the Player and NPC tab browsers and open in the Player tab with the same fields. Creating and assigning are two Undo steps, because creation Undo only removes the created draft. A consumer list is not shown yet; the panel says the profile is shared.
+
+**Runtime and fingerprint.** `CharacterSceneCombat::movement` (the Player profile) feeds every party member's host motor, the owner's prediction motor, both prediction-world replacement paths and `OwnerPrediction` replay (which now passes `CharacterMotor::parameters()` to `replay_motor`). `CharacterSceneActor::movement` feeds spawned and encounter NPC motors. Session fingerprint coverage was checked in source: the editor's handshake hashes the Player product generation (`actor_generation`) and every NPC product generation (`spawn_generation`), and each of those digests covers the actor's frozen closure, which now includes the movement product hash. A changed profile therefore changes the fingerprint and a mismatched host/guest pair refuses readiness. The native authoring test checks that both generations change.

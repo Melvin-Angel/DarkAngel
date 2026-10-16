@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <darkangel/motor_parameters.hpp>
 namespace darkangel {
 // Process-wide diagnostic counters for the private Jolt allocator hooks.
 struct PhysicsAllocationCounters {std::uint64_t allocations{},reallocations{},requested_bytes{},frees{};};
@@ -115,7 +116,9 @@ private:struct Impl;std::unique_ptr<Impl> impl_;friend class CharacterMotor;
 };
 class CharacterMotor {
 public:
-    CharacterMotor(PhysicsWorld&,MotorVec foot,std::uint64_t identity=0,bool crouched=false);~CharacterMotor();CharacterMotor(const CharacterMotor&)=delete;
+    // parameters are validated here and frozen for the motor's lifetime; the default is the legacy built-in profile.
+    CharacterMotor(PhysicsWorld&,MotorVec foot,std::uint64_t identity=0,bool crouched=false,const MotorParameters& parameters={});~CharacterMotor();CharacterMotor(const CharacterMotor&)=delete;
+    const MotorParameters& parameters()const;
     MotorState step(const MotorInput&,const MotionRequest& = {});
     std::uint64_t identity() const;
     void post_physics();bool needs_resync() const;const MotorState& state() const;void restore(const MotorState&);bool teleport(MotorVec foot);
@@ -130,11 +133,12 @@ private:std::deque<CollisionFrame> frames_;
 // All work happens in a disposable Jolt world. Failure leaves output unchanged.
 // Multi-character history requires an explicit owner identity. Single-character
 // histories infer it for existing callers; ambiguity fails without changing output.
-ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput>,const CollisionHistory&,MotorState& output,std::uint64_t owner=0);
-ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner=0);
+// parameters: the profile the replayed motor was frozen with; replay never assumes the legacy default for an authored motor.
+ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput>,const CollisionHistory&,MotorState& output,std::uint64_t owner=0,const MotorParameters& parameters={});
+ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner=0,const MotorParameters& parameters={});
 // Replays in a caller-kept Replay-mode world without motors, so its static bodies persist across replays; its other state is
 // replaced from history. After a failed replay the caller discards that world.
-ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner,PhysicsWorld& replay_world);
+ReplayResult replay_motor(const MotorState&,std::span<const MotorCommand>,const CollisionHistory&,MotorState&,std::uint64_t owner,PhysicsWorld& replay_world,const MotorParameters& parameters={});
 class OwnerPrediction {
 public:
     OwnerPrediction(PhysicsWorld&,CharacterMotor&);

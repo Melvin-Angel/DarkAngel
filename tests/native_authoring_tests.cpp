@@ -1844,6 +1844,72 @@ int main(int argc, char** argv) {
                       "Frozen NPC lost its senses");
                 rejects([&] { load_cooked_player(root / "npc.json", assets.cas_path(), guard); });
                 rejects([&] { load_cooked_npc(root / "npc.json", assets.cas_path(), player); });
+                // R3 Movement Profiles: unreferenced actors cook the legacy profile; a shared profile and a duplicated
+                // variation reach the NPC and the Player through their frozen closures; invalid values and missing
+                // profiles are refused without touching the published products.
+                {
+                    check(npc.movement == MotorParameters{} && owner.movement == MotorParameters{} &&
+                              npc.definition.loadout.movement == AssetId{},
+                          "An actor without a movement reference must cook the exact legacy profile");
+                    const auto heavy = masking.create_movement(assets, "test_heavy");
+                    auto& heavy_value = masking.open(assets, heavy).value;
+                    check(heavy_value["walk_speed_mps"] == 5.0 && heavy_value["coyote_ticks"] == 6,
+                          "A new Movement Profile must start from the legacy values");
+                    heavy_value["walk_speed_mps"] = 3.0;
+                    heavy_value["jump_velocity_mps"] = 6.0;
+                    heavy_value["coyote_ticks"] = 10u;
+                    masking.record_changes(assets, "Edit movement");
+                    masking.assign_movement(assets, guard, heavy);
+                    const auto hero = masking.create_movement(assets, "test_hero", heavy);
+                    masking.open(assets, hero).value["walk_speed_mps"] = 7.0;
+                    masking.record_changes(assets, "Edit movement");
+                    masking.assign_movement(assets, player, hero);
+                    masking.undo(assets);
+                    check(!masking.open(assets, player).value["loadout"].contains("movement"), "Undo kept the Player movement assignment");
+                    masking.redo(assets);
+                    check(masking.open(assets, player).value["sources"]["movement"] == "movement/test_hero.damovement",
+                          "Redo lost the Player movement locator");
+                    {
+                        masking.open(assets, heavy).value["walk_speed_mps"] = 50.0;
+                        masking.record_changes(assets, "Out-of-range movement");
+                        rejects([&] { masking.validate(assets, guard, npc_roots); });
+                        masking.undo(assets);
+                    }
+                    masking.save_all(assets, npc_roots);
+                    check(std::filesystem::exists(assets.source_root() / "movement/test_heavy.damovement") &&
+                              std::filesystem::exists(assets.source_root() / "movement/test_hero.damovement"),
+                          "Coordinated Save did not publish the Movement Profiles");
+                    package_authoring(assets, npc_roots, root / "npc.json");
+                    const auto moving = load_cooked_npc(root / "npc.json", assets.cas_path(), guard);
+                    const auto leading = load_cooked_player(root / "npc.json", assets.cas_path(), player);
+                    check(moving.definition.loadout.movement == heavy && moving.movement.walk_speed_mps == 3 &&
+                              moving.movement.jump_velocity_mps == 6 && moving.movement.coyote_ticks == 10 &&
+                              moving.movement.gravity_mps2 == 20,
+                          "Frozen NPC lost its shared Movement Profile");
+                    check(leading.definition.loadout.movement == hero && leading.movement.walk_speed_mps == 7 &&
+                              leading.movement.jump_velocity_mps == 6 && leading.movement.coyote_ticks == 10,
+                          "Frozen Player lost its duplicated Movement Profile");
+                    check(moving.definition.generation != npc.definition.generation &&
+                              leading.definition.generation != owner.definition.generation,
+                          "A Movement Profile must change the actor generations the session fingerprint covers");
+                    check(load_cooked_movement(root / "npc.json", assets.cas_path(), heavy).name == "test_heavy",
+                          "Movement Profile product is not loadable");
+                    {
+                        auto missing = masking.open(assets, guard).value;
+                        missing["sources"].erase("movement");
+                        masking.apply(assets, guard, masking.revision(), missing, "Movement without a locator");
+                        rejects([&] { masking.validate(assets, guard, npc_roots); });
+                        masking.undo(assets);
+                    }
+                    check(load_cooked_npc(root / "npc.json", assets.cas_path(), guard).movement.walk_speed_mps == 3,
+                          "Rejected movement candidate changed the frozen NPC");
+                    masking.assign_movement(assets, guard, {});
+                    masking.assign_movement(assets, player, {});
+                    masking.save_all(assets, npc_roots);
+                    package_authoring(assets, npc_roots, root / "npc.json");
+                    check(load_cooked_npc(root / "npc.json", assets.cas_path(), guard).movement == MotorParameters{},
+                          "Clearing the reference must return the NPC to the legacy profile");
+                }
                 // Failed Save keeps the published source and the frozen product.
                 {
                     auto bad = masked;

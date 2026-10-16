@@ -14,6 +14,7 @@
 #include <darkangel/party_lifecycle.hpp>
 
 #include <darkangel/scene_definitions.hpp>
+#include <darkangel/motor_parameters.hpp>
 
 namespace darkangel {
 // A server-driven actor of a combat scene: a spawned NPC or a training dummy. The scene
@@ -32,6 +33,8 @@ struct CharacterSceneActor {
     std::shared_ptr<ActorController> controller;
     // What the actor can notice. Without sensors it perceives nothing and its controller finds no target.
     SensesDefinition senses;
+    // The NPC's frozen Movement Profile; the default is the legacy built-in motor.
+    MotorParameters movement;
 };
 // An encounter of the scene: its definition, bounds and spawn points, a prepared actor for each NPC definition it
 // spawns (kit, abilities, attributes, name, faction, senses; identity and controller are filled per enemy), and the
@@ -98,6 +101,8 @@ struct CharacterSceneCombat {
     std::map<std::uint32_t, EffectEvaluator> effect_evaluators;
     std::vector<std::shared_ptr<const EffectDefinition>> effects;
     std::string actor_generation;
+    // The Player's frozen Movement Profile: every party member's host motor and the owner's prediction and replay use it.
+    MotorParameters movement;
     // Optional presentation-only death timeline from the frozen kit closure.
     std::shared_ptr<const ActionDefinition> death;
     // Optional equipped-mask loadouts (empty, or exactly four slots). abilities, effects

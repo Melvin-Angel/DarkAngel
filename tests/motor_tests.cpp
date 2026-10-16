@@ -435,6 +435,32 @@ int main(int argc,char** argv){
             MotionRequest plain;plain.lock=true;plain.warp=warp;plain.warp.point={-3,0,-3};moved=mover.step({moved.sequence+1,field.tick()+1,moved.epoch,0,0,.3},plain);field.step();mover.post_physics();
             require(std::abs(moved.yaw-.3)<1e-12,"A gated-out warp must leave the commanded yaw alone");
         }
+        {
+            // R3 Movement Profiles: the explicit legacy profile is the default motor exactly; authored speed, jump and
+            // gravity act; invalid profiles are refused; owner replay uses the motor's frozen profile, never the default.
+            auto trace=[](const MotorParameters& p,bool jump){PhysicsWorld field;floor(field);CharacterMotor m(field,{0,.05,0},0,false,p);run(field,m,20);auto s=m.state();double peak=s.position.y;
+                for(unsigned n=0;n<60;++n){s=m.step({s.sequence+1,field.tick()+1,s.epoch,1,0,0,jump&&n==0,false});field.step();m.post_physics();s=m.state();peak=std::max(peak,s.position.y);}
+                return std::pair{s,peak};};
+            const MotorParameters legacy;
+            const auto [base,base_peak]=trace({},true);const auto [explicit_legacy,explicit_peak]=trace(legacy,true);
+            require(base.position==explicit_legacy.position&&base.velocity==explicit_legacy.velocity&&base_peak==explicit_peak,"Explicit legacy profile must reproduce the default motor exactly");
+            MotorParameters slow;slow.walk_speed_mps=2.5;const auto [walked,walk_peak]=trace(slow,false);const auto [legacy_walk,legacy_peak]=trace({},false);
+            require(std::abs(walked.velocity.x-2.5)<.05&&std::abs(legacy_walk.velocity.x-5)<.05&&walked.position.x<legacy_walk.position.x*.6,"Authored walk speed");
+            MotorParameters high;high.jump_velocity_mps=10;const auto [jumped,high_peak]=trace(high,true);
+            require(high_peak>base_peak+.8,"Authored jump velocity raises the peak");
+            MotorParameters heavy;heavy.gravity_mps2=40;const auto [fallen,heavy_peak]=trace(heavy,true);
+            require(heavy_peak-.05<(base_peak-.05)*.7,"Authored gravity lowers the peak");
+            auto rejected=[](auto change){MotorParameters p;change(p);try{validate_motor_parameters(p);}catch(const std::exception&){return true;}return false;};
+            require(rejected([](auto& p){p.walk_speed_mps=0;})&&rejected([](auto& p){p.walk_speed_mps=12.5;})&&rejected([](auto& p){p.gravity_mps2=std::nan("");})&&rejected([](auto& p){p.acceleration_mps2=0;})&&rejected([](auto& p){p.jump_velocity_mps=-1;})&&rejected([](auto& p){p.coyote_ticks=31;})&&rejected([](auto& p){p.jump_buffer_ticks=31;})&&!rejected([](auto&){}),"Movement profile ranges");
+            {PhysicsWorld field;floor(field);MotorParameters bad;bad.crouch_speed_mps=0;bool refused=false;try{CharacterMotor m(field,{0,.05,0},0,false,bad);}catch(const std::exception&){refused=true;}require(refused,"Motor construction validates its profile");}
+            {MotorState state;state.coyote=state.jump_buffer=motor_timer_tick_limit;validate_motor_state(state);MotorParameters timers;timers.coyote_ticks=timers.jump_buffer_ticks=motor_timer_tick_limit;
+             PhysicsWorld field;floor(field);CharacterMotor m(field,{0,.05,0},0,false,timers);run(field,m,5);require(m.state().coyote==motor_timer_tick_limit,"Authored coyote time");}
+            PhysicsWorld predicted;floor(predicted);MotorParameters profile;profile.walk_speed_mps=2;profile.acceleration_mps2=10;
+            CharacterMotor motor(predicted,{0,0,0},0,false,profile);require(motor.parameters()==profile,"Motor keeps its frozen profile");OwnerPrediction owner(predicted,motor);MotorState at6;
+            for(std::uint64_t n=1;n<=12;++n){owner.predict({n,n,1,1,0,0});predicted.step();motor.post_physics();if(n==6)at6=motor.state();}
+            const auto before=motor.state();require(owner.reconcile(at6)==ReplayResult::Applied,"Profile replay applies");
+            require(std::abs(motor.state().position.x-before.position.x)<1e-4&&std::abs(motor.state().velocity.x-before.velocity.x)<1e-4,"Owner replay must use the motor's frozen profile");
+        }
         std::cout<<"M4 motor contracts: soft-lock warp, obstruction/root, teleport, jump, impulse, stance, steps/slopes, elevator/rotation/removal, isolated replay failures, observer and 30/60/144 Hz passed\n";
         return 0;
     }catch(const std::exception& e){

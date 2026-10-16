@@ -584,6 +584,7 @@ namespace darkangel {
             capsule(true)
         };
         JPH::Ref<JPH::CharacterVirtual> character;
+        MotorParameters parameters;
         MotorState state;
         MotorLayers filter;
         std::uint64_t previous_support{
@@ -591,8 +592,9 @@ namespace darkangel {
         bool failed{};
         bool jumped{
         };
-        Impl(PhysicsWorld::Impl& w,MotorVec foot,std::uint64_t identity,bool crouched):world(w){
+        Impl(PhysicsWorld::Impl& w,MotorVec foot,std::uint64_t identity,bool crouched,const MotorParameters& p):world(w),parameters(p){
             check(valid(foot)&&w.motors<session_character_capacity,"Invalid motor spawn/budget");
+            validate_motor_parameters(p);
             JPH::CharacterVirtualSettings settings;
             state.crouched=crouched;settings.mShape=crouched?low:standing;
             settings.mInnerBodyShape=settings.mShape;
@@ -676,8 +678,9 @@ namespace darkangel {
             return !collector.hit;
         }
     };
-    CharacterMotor::CharacterMotor(PhysicsWorld& w,MotorVec f,std::uint64_t id,bool crouched):impl_(std::make_unique<Impl>(*w.impl_,f,id,crouched)){
+    CharacterMotor::CharacterMotor(PhysicsWorld& w,MotorVec f,std::uint64_t id,bool crouched,const MotorParameters& p):impl_(std::make_unique<Impl>(*w.impl_,f,id,crouched,p)){
     }CharacterMotor::~CharacterMotor()=default;
+    const MotorParameters& CharacterMotor::parameters()const{return impl_->parameters;}
     std::uint64_t CharacterMotor::identity()const{return impl_->character->GetUserData()&~(1ULL<<63);}
     MotorState CharacterMotor::step(const MotorInput& input,const MotionRequest& request){
         auto& s=*impl_;
@@ -687,7 +690,7 @@ namespace darkangel {
         validate_motor_input(input);
         check(input.tick==s.world.tick+1&&input.tick>s.state.tick&&input.sequence>=s.state.sequence&&input.epoch==s.state.epoch,"Motor input clock/epoch mismatch");
         check(valid(request.root)&&valid(request.impulse)&&std::sqrt(request.root.x*request.root.x+request.root.y*request.root.y+request.root.z*request.root.z)<=1&&std::sqrt(request.impulse.x*request.impulse.x+request.impulse.y*request.impulse.y+request.impulse.z*request.impulse.z)<=30,"Motion request bounds");
-        auto& state=s.state;
+        auto& state=s.state;const auto& p=s.parameters;
         // A resolved warp turns the root request with the new facing and adds its travel,
         // clamped so the whole request stays inside the bound checked above.
         MotorVec root=request.root;double yaw=input.yaw;
@@ -702,8 +705,8 @@ namespace darkangel {
         s.refresh();
         s.previous_support=state.support;
         if(input.crouch!=state.crouched)s.shape(input.crouch);
-        state.coyote=state.grounded?6:(state.coyote?state.coyote-1:0);
-        state.jump_buffer=input.jump?6:(state.jump_buffer?state.jump_buffer-1:0);
+        state.coyote=state.grounded?p.coyote_ticks:(state.coyote?state.coyote-1:0);
+        state.jump_buffer=input.jump?p.jump_buffer_ticks:(state.jump_buffer?state.jump_buffer-1:0);
         bool jump=state.jump_buffer&&state.coyote;
         s.jumped=jump;
         auto before=s.character->GetPosition();
@@ -712,9 +715,11 @@ namespace darkangel {
         JPH::Vec3 vel(0,float(vertical),0);
         if(state.grounded&&vel.GetY()-ground.GetY()<.1f)vel=ground;
         // Acceleration/braking uses achieved prior velocity relative to support.
-        double target_x=request.lock?0:input.x*(state.crouched?2:5),target_z=request.lock?0:input.z*(state.crouched?2:5);
-        auto approach=[](double a,double b){
-            return a+std::clamp(b-a,-30.0/60,30.0/60);
+        // The legacy profile (5/2 m/s, 30 m/s2) reproduces the original constants bit for bit.
+        const double speed=state.crouched?p.crouch_speed_mps:p.walk_speed_mps,limit=p.acceleration_mps2/60;
+        double target_x=request.lock?0:input.x*speed,target_z=request.lock?0:input.z*speed;
+        auto approach=[limit](double a,double b){
+            return a+std::clamp(b-a,-limit,limit);
         };
         double px=state.momentum.x,pz=state.momentum.z;
         // Horizontal movement memory is support-relative while grounded and
@@ -723,9 +728,10 @@ namespace darkangel {
         else if(!was_grounded&&state.grounded){px-=ground.GetX();pz-=ground.GetZ();}
         vel+=JPH::Vec3(float(approach(px,target_x)),0,float(approach(pz,target_z)));
         if(jump){
-            vel.SetY(ground.GetY()+7);
+            vel.SetY(ground.GetY()+float(p.jump_velocity_mps));
             state.coyote=state.jump_buffer=0;
-        }vel+=JPH::Vec3(0,-20*dt,0)+v(request.impulse);
+        }const float gravity=float(p.gravity_mps2);
+        vel+=JPH::Vec3(0,-gravity*dt,0)+v(request.impulse);
         auto native_velocity=vel;
         vel+=v(root)/dt;
         state.desired=m(vel);
@@ -744,7 +750,7 @@ namespace darkangel {
             settings.mStickToFloorStepDown=JPH::Vec3::sZero();
             settings.mWalkStairsStepUp=JPH::Vec3::sZero();
         }s.character->ExtendedUpdate(dt,{
-            0,-20,0
+            0,-gravity,0
         },settings,s.world.system.GetDefaultBroadPhaseLayerFilter(1),s.filter,{
         },{
         },s.world.temp);
@@ -853,11 +859,11 @@ namespace darkangel {
         for(const auto& f:frames_)if(f.tick==tick)return &f;
         return nullptr;
     }
-    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner){
+    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner,const MotorParameters& parameters){
         if(commands.size()>30)return ReplayResult::WorkLimit;
-        try{PhysicsWorld isolated(PhysicsWorld::Mode::Replay);return replay_motor(baseline,commands,history,output,owner,isolated);}catch(...){return ReplayResult::Invalid;}
+        try{PhysicsWorld isolated(PhysicsWorld::Mode::Replay);return replay_motor(baseline,commands,history,output,owner,isolated,parameters);}catch(...){return ReplayResult::Invalid;}
     }
-    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner,PhysicsWorld& isolated){
+    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorCommand> commands,const CollisionHistory& history,MotorState& output,std::uint64_t owner,PhysicsWorld& isolated,const MotorParameters& parameters){
         if(commands.size()>30)return ReplayResult::WorkLimit;
         try{
             validate_motor_state(baseline);
@@ -885,7 +891,7 @@ namespace darkangel {
             if(status!=ReplayResult::Applied)return status;
             if(isolated.mode()!=PhysicsWorld::Mode::Replay)return ReplayResult::Invalid;
             isolated.load(*f,owner);
-            CharacterMotor motor(isolated,baseline.position,owner,baseline.crouched);
+            CharacterMotor motor(isolated,baseline.position,owner,baseline.crouched,parameters);
             // Constructing a live motor advances topology; restore the retained
             // version only inside this disposable replay world.
             isolated.load(*f,owner);
@@ -919,14 +925,14 @@ namespace darkangel {
             return ReplayResult::Invalid;
         }
     }
-    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput> inputs,const CollisionHistory& history,MotorState& out,std::uint64_t owner){
+    ReplayResult replay_motor(const MotorState& baseline,std::span<const MotorInput> inputs,const CollisionHistory& history,MotorState& out,std::uint64_t owner,const MotorParameters& parameters){
         if(inputs.size()>30)return ReplayResult::WorkLimit;
         std::vector<MotorCommand> commands;
         for(auto input:inputs)commands.push_back({
             input,{
             }
         });
-        return replay_motor(baseline,commands,history,out,owner);
+        return replay_motor(baseline,commands,history,out,owner,parameters);
     }
     OwnerPrediction::OwnerPrediction(PhysicsWorld& world,CharacterMotor& motor):world_(world),motor_(motor){
     }
@@ -977,7 +983,7 @@ namespace darkangel {
         pending.assign(regenerated.begin(),regenerated.end());
         MotorState output;
         ReplayResult result;
-        try{if(!replay_)replay_=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Replay);result=replay_motor(baseline,pending,authoritative_history,output,motor_.identity(),*replay_);}catch(...){result=ReplayResult::Invalid;}
+        try{if(!replay_)replay_=std::make_unique<PhysicsWorld>(PhysicsWorld::Mode::Replay);result=replay_motor(baseline,pending,authoritative_history,output,motor_.identity(),*replay_,motor_.parameters());}catch(...){result=ReplayResult::Invalid;}
         if(result!=ReplayResult::Applied){
             replay_.reset();resync_=true;
             return result;
