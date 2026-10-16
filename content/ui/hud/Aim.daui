@@ -1,0 +1,32 @@
+{
+  "schema": 2,
+  "kind": "ui",
+  "asset": "9089b151-6178-44f3-bef1-4838c650a410",
+  "name": "Aim",
+  "purpose": "hud",
+  "binding": "owner-v1",
+  "surfaces": [
+    "screen"
+  ],
+  "size": [
+    1280,
+    720
+  ],
+  "members": {
+    "style": "Aim.rcss",
+    "markup": "Aim.rml"
+  },
+  "fonts": [
+    {
+      "asset": "4f1d2a7c-6b0e-4c55-9a3e-8d2f5b7c1e90",
+      "source": "ui/fonts/Roboto-Medium.ttf",
+      "family": "HUD"
+    }
+  ],
+  "styles": [
+    {
+      "asset": "649574c1-62f6-48b6-92fc-e85467fd9e63",
+      "source": "ui/shared/CoreStyle.daui"
+    }
+  ]
+}

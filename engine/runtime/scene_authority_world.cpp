@@ -180,6 +180,7 @@ auto SceneAuthority::Impl::run_world(std::uint64_t tick) -> void {
                     break;
                 }
         }
+        if(result==InteractionResult::Accepted&&world_objects)world_objects->accepted_puzzle(request.network,request.object);
         server.answer_interaction(request.network, request.object, std::uint8_t(result));
     }
     // Altar menus: rest and fast travel, decided here. A malformed request closes its sender.

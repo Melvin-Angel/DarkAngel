@@ -7,13 +7,12 @@ namespace darkangel {
 // The game-owned altar menu document: rest, and fast travel to discovered altars. Events become queued actions.
 class AltarDocument {
 public:
-    AltarDocument(Rml::Context&,const std::filesystem::path&);
+    AltarDocument(Rml::Context&);
     void update(const AltarUiModel&);
-    Rml::Element* find(const std::string&)const;
     std::vector<AltarUiAction> drain();
     const AltarUiModel& model()const{return model_;}
 private:
-    AltarUiModel model_;Rml::ElementDocument* document_{};Rml::DataModelHandle handle_;std::vector<AltarUiAction> actions_;
+    AltarUiModel model_;Rml::DataModelHandle handle_;std::vector<AltarUiAction> actions_;
     void queue(AltarUiAction);
 };
 }

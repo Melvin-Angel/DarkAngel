@@ -1,0 +1,1 @@
+<rml><head><title>Ashen Roots</title></head><body data-model="ui"><div id="menu"><h1>Ashen Roots</h1><button id="menu-start" data-event-click="command('menu.start')">Start</button><div id="menu-status">{{prompt}}</div></div></body></rml>

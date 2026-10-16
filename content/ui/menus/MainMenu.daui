@@ -1,0 +1,26 @@
+{
+  "schema": 2,
+  "kind": "ui",
+  "asset": "18d6f3be-0fb6-456b-a4b2-d543a8e13600",
+  "name": "Main menu",
+  "purpose": "menu",
+  "surfaces": [
+    "screen"
+  ],
+  "size": [
+    1280,
+    720
+  ],
+  "members": {
+    "markup": "MainMenu.rml",
+    "style": "MainMenu.rcss",
+    "script": "MainMenu.luau"
+  },
+  "fonts": [
+    {
+      "asset": "4f1d2a7c-6b0e-4c55-9a3e-8d2f5b7c1e90",
+      "source": "ui/fonts/Roboto-Medium.ttf",
+      "family": "HUD"
+    }
+  ]
+}

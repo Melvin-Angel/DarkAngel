@@ -1,4 +1,5 @@
 #include <darkangel/check.hpp>
+#include <darkangel/hash.hpp>
 #include <darkangel/json_fields.hpp>
 #include <darkangel/world_objects.hpp>
 #include <nlohmann/json.hpp>
@@ -275,6 +276,12 @@ std::string encode_world_state(const WorldStateView& v) {
         result["destinations"].push_back(destination(d));
     if (v.checkpoint)
         result["checkpoint"] = destination(*v.checkpoint);
+    // Written only when the scene has puzzles, so views without them encode as before.
+    if (!v.puzzles.empty()) {
+        result["puzzles"] = Json::array();
+        for (const auto& p : v.puzzles)
+            result["puzzles"].push_back(Json{{"object", p.object.text()}, {"progress", p.progress}, {"length", p.length}, {"solved", p.solved}});
+    }
     auto text = result.dump();
     require(text.size() <= 24 * 1024, "World state view bound");
     return text;
@@ -304,12 +311,36 @@ WorldStateView decode_world_state(std::string_view text) {
         v.destinations.push_back(destination(d));
     if (j.contains("checkpoint"))
         v.checkpoint = destination(j.at("checkpoint"));
+    if (j.contains("puzzles")) {
+        require(j.at("puzzles").is_array() && j.at("puzzles").size() <= 64, "World state puzzle bound");
+        for (const auto& p : j.at("puzzles")) {
+            WorldPuzzleState state{StableId::parse(p.at("object").get<std::string>()), p.at("progress").get<unsigned>(), p.at("length").get<unsigned>(), p.at("solved").get<bool>()};
+            require(state.length >= 1 && state.length <= 8 && state.progress <= state.length, "World state puzzle progress");
+            v.puzzles.push_back(state);
+        }
+    }
     return v;
 }
+bool apply_puzzle_press(const std::vector<unsigned>& sequence, WorldPuzzleState& state, unsigned press) {
+    require(!sequence.empty() && sequence.size() <= 8 && (state.solved?state.progress==sequence.size():state.progress<sequence.size())&&press>=1&&press<=9, "Puzzle state");
+    state.length = static_cast<unsigned>(sequence.size());
+    if (state.solved)
+        return false;
+    if (press == sequence[state.progress])
+        ++state.progress;
+    else
+        state.progress = press == sequence[0] ? 1u : 0u;
+    state.solved = state.progress == sequence.size();
+    return state.solved;
+}
 std::string encode_world_request(const WorldRequest& r) {
-    Json result{{"schema", 1}, {"kind", r.kind == WorldRequestKind::Rest ? "rest" : "travel"}, {"altar", r.altar.text()}};
+    Json result{{"schema", 1},
+                {"kind", r.kind == WorldRequestKind::Rest ? "rest" : r.kind == WorldRequestKind::Travel ? "travel" : "puzzle"},
+                {"altar", r.altar.text()}};
     if (r.kind == WorldRequestKind::Travel)
         result["destination"] = destination(r.destination);
+    if (r.kind == WorldRequestKind::Puzzle)
+        result["value"] = r.value;
     return result.dump();
 }
 WorldRequest decode_world_request(std::string_view text) {
@@ -318,11 +349,16 @@ WorldRequest decode_world_request(std::string_view text) {
     require(j.is_object() && j.at("schema") == 1, "World request schema");
     WorldRequest r;
     const auto kind = j.at("kind").get<std::string>();
-    require(kind == "rest" || kind == "travel", "World request kind");
-    r.kind = kind == "rest" ? WorldRequestKind::Rest : WorldRequestKind::Travel;
+    require(kind == "rest" || kind == "travel" || kind == "puzzle", "World request kind");
+    r.kind = kind == "rest" ? WorldRequestKind::Rest : kind == "travel" ? WorldRequestKind::Travel : WorldRequestKind::Puzzle;
     r.altar = StableId::parse(j.at("altar").get<std::string>());
     if (r.kind == WorldRequestKind::Travel)
         r.destination = destination(j.at("destination"));
+    if (r.kind == WorldRequestKind::Puzzle) {
+        require(j.at("value").is_number_unsigned()&&j.at("value").get<std::uint64_t>()>=1&&j.at("value").get<std::uint64_t>()<=9,"Puzzle press wire bound");
+        r.value = j.at("value").get<unsigned>();
+        require(r.value >= 1 && r.value <= 9, "Puzzle press value");
+    }
     return r;
 }
 
@@ -362,6 +398,14 @@ void record_altar(WorldLedger& ledger, AssetId scene, StableId altar, const Alta
     ledger.set(id, "altar", 1, "discovered", true, keep);
     ledger.set(id, "altar", 1, "name", definition.name, keep);
     ledger.set(id, "altar", 1, "fast_travel", definition.fast_travel, keep);
+}
+namespace {PersistentId puzzle_record(AssetId scene,StableId object){return {scene,StableId::parse(sha256("darkangel:puzzle:v1:"+object.text()).substr(0,32))};}}
+void record_puzzle_solved(WorldLedger& ledger, AssetId scene, StableId object) {
+    ledger.set(puzzle_record(scene,object), "puzzle", 1, "solved", true, LedgerPolicy{LedgerScope::Save});
+}
+bool puzzle_solved(const WorldLedger& ledger, AssetId scene, StableId object) {
+    const auto* value = ledger.value(puzzle_record(scene,object), "solved");
+    return value && std::holds_alternative<bool>(*value) && std::get<bool>(*value);
 }
 bool altar_discovered(const WorldLedger& ledger, AssetId scene, StableId altar) {
     const auto* value = ledger.value({scene, altar}, "discovered");

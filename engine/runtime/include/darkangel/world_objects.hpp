@@ -83,15 +83,22 @@ private:MoverDefinition definition_;double at_{},target_{},waited_{};bool unlock
 enum class PartyMemberState:std::uint8_t{Alive,Downed};
 struct WorldPartyMember {std::uint64_t network{};PartyMemberState state{};double revive{};bool operator==(const WorldPartyMember&)const=default;};
 struct WorldDestination {AssetId scene;StableId altar;std::string name;bool operator==(const WorldDestination&)const=default;};
+// R6.2: the host's confirmed state of one screen puzzle: presses matched so far out of its length, and whether it is solved.
+struct WorldPuzzleState {StableId object;unsigned progress{},length{};bool solved{};bool operator==(const WorldPuzzleState&)const=default;};
 struct WorldStateView {
     std::uint64_t revision{};std::vector<StableId> collected,discovered,unlocked,open;std::vector<WorldPartyMember> members;
     std::vector<WorldDestination> destinations;std::optional<WorldDestination> checkpoint;bool wiped{};double wipe{};
+    std::vector<WorldPuzzleState> puzzles; // R6.2; written only when the scene has puzzles
     bool operator==(const WorldStateView&)const=default;};
 std::string encode_world_state(const WorldStateView&);
 WorldStateView decode_world_state(std::string_view);
-// A client's request about the party's world beyond interactions: rest at an altar or fast travel from it.
-enum class WorldRequestKind:std::uint8_t{Rest,Travel};
-struct WorldRequest {WorldRequestKind kind{};StableId altar;WorldDestination destination;bool operator==(const WorldRequest&)const=default;};
+// A client's request about the party's world beyond interactions: rest at an altar or fast travel from it, or (R6.2) one
+// press on a screen puzzle (altar: the puzzle object, value: the press 1-9). The host validates every request.
+enum class WorldRequestKind:std::uint8_t{Rest,Travel,Puzzle};
+struct WorldRequest {WorldRequestKind kind{};StableId altar;WorldDestination destination;unsigned value{};bool operator==(const WorldRequest&)const=default;};
+// One press on a puzzle as the host applies it: the next expected press advances it; a wrong press starts it over; a solved
+// puzzle takes no more presses. Returns whether this press solved it.
+bool apply_puzzle_press(const std::vector<unsigned>& sequence,WorldPuzzleState& state,unsigned press);
 std::string encode_world_request(const WorldRequest&);
 WorldRequest decode_world_request(std::string_view);
 // The owner-service channel both travel on.
@@ -108,4 +115,7 @@ void write_checkpoint(WorldLedger&,const WorldDestination&);
 std::vector<WorldDestination> fast_travel_destinations(const WorldLedger&);
 void record_altar(WorldLedger&,AssetId scene,StableId altar,const AltarDefinition&);
 bool altar_discovered(const WorldLedger&,AssetId scene,StableId altar);
+// R6.2: a solved puzzle is a save-scoped ledger record of its scene object.
+void record_puzzle_solved(WorldLedger&,AssetId scene,StableId object);
+bool puzzle_solved(const WorldLedger&,AssetId scene,StableId object);
 }

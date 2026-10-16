@@ -1,0 +1,5 @@
+<rml><head><title>Loading</title></head><body data-model="owner"><div id="loading" data-if="loading">
+	<div id="loading-title">Travelling</div>
+	<div id="loading-text">{{loading_text}}</div>
+	<div id="loading-bar"><div id="loading-fill" class="fill progress" data-style-width="loading_percent + '%'"></div></div>
+</div></body></rml>

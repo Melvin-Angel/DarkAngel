@@ -202,7 +202,35 @@ std::optional<InteractionResult> SceneWorldObjects::interact(const Who& who, Sta
     return std::nullopt;
 }
 
+void SceneWorldObjects::accepted_puzzle(std::uint64_t network,StableId object){
+    if(std::any_of(combat_->interactables.begin(),combat_->interactables.end(),[&](const auto& item){return item.id==object&&item.definition.puzzle.has_value();}))puzzle_open_[network]=object;
+}
 InteractionResult SceneWorldObjects::request(const Who& who, const WorldRequest& asked, std::optional<SceneTransitionRequest>& travel) {
+    // R6.2: a press on a screen puzzle, from the player who has its panel open. The host checks the object, the player's reach
+    // and the sequence; a refused press changes nothing.
+    if (asked.kind == WorldRequestKind::Puzzle) {
+        const auto puzzle = std::find_if(combat_->interactables.begin(), combat_->interactables.end(),
+                                         [&](const auto& item) { return item.id == asked.altar && item.definition.puzzle; });
+        if (puzzle == combat_->interactables.end())
+            return InteractionResult::Unknown;
+        if (!who.living){puzzle_open_.erase(who.network);return InteractionResult::Dead;}
+        if (!reaches(who.position, puzzle->position, puzzle->definition.radius + 2)){puzzle_open_.erase(who.network);return InteractionResult::OutOfReach;}
+        if(asked.value<1||asked.value>9||!puzzle_open_.contains(who.network)||puzzle_open_.at(who.network)!=asked.altar)return InteractionResult::Unavailable;
+        const auto& sequence = puzzle->definition.puzzle->sequence;
+        auto& state = puzzles_[puzzle->id];
+        state.object = puzzle->id;
+        state.length = static_cast<unsigned>(sequence.size());
+        if (ledger_ && puzzle_solved(*ledger_, combat_->scene, puzzle->id)) {
+            state.solved = true;
+            state.progress = state.length;
+        }
+        if (state.solved)
+            return InteractionResult::Unavailable;
+        if (apply_puzzle_press(sequence, state, asked.value) && ledger_)
+            record_puzzle_solved(*ledger_, combat_->scene, puzzle->id);
+        ++revision_;
+        return InteractionResult::Accepted;
+    }
     auto altar = std::find_if(combat_->altars.begin(), combat_->altars.end(), [&](const auto& a) { return a.id == asked.altar; });
     if (altar == combat_->altars.end())
         return InteractionResult::Unknown;
@@ -273,6 +301,17 @@ void SceneWorldObjects::view(WorldStateView& out) const {
         out.destinations = fast_travel_destinations(*ledger_);
         out.checkpoint = read_checkpoint(*ledger_);
     }
+    for (const auto& item : combat_->interactables)
+        if (item.definition.puzzle) {
+            WorldPuzzleState state{item.id, 0, static_cast<unsigned>(item.definition.puzzle->sequence.size()), false};
+            if (const auto found = puzzles_.find(item.id); found != puzzles_.end())
+                state = found->second;
+            if (ledger_ && puzzle_solved(*ledger_, combat_->scene, item.id)) {
+                state.solved = true;
+                state.progress = state.length;
+            }
+            out.puzzles.push_back(state);
+        }
 }
 SceneTransitionRequest SceneWorldObjects::respawn() const {
     SceneTransitionRequest result;

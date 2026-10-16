@@ -68,6 +68,7 @@ public:
     // The one place a mask definition is edited: a movable, dockable window that stays open across workspaces.
     // The Player and NPC tabs open it for a mask in a slot or in their browser; a later Items tab can do the same.
     void draw_mask_editor(Controller&);AssetId mask_editor,mask_editor_raised;
+    std::function<void()> open_frontend;
     AssetId graph_preview_asset,graph_character,graph_tag_registry;TagId graph_new_tag{};nlohmann::json graph_preview_tags=nlohmann::json::array();std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
     void cancel_composer_drag(Controller&);
@@ -190,7 +191,7 @@ public:
     // preview that pauses during Play. ui_renderer is the HUD's ImGui render interface, set by the app.
     void draw_ui(Controller&,unsigned,unsigned,float);
     // Inspection for gates: whether the preview holds RmlUi, an element's text, a click on an element, the command log.
-    bool ui_preview_alive()const;std::string ui_preview_text(const std::string& id)const;bool ui_preview_click(const std::string& id);std::vector<std::string> ui_preview_commands()const;
+    bool ui_preview_alive()const;std::string ui_preview_problems()const;std::string ui_preview_text(const std::string& id)const;bool ui_preview_click(const std::string& id);std::vector<std::string> ui_preview_commands()const;
     AssetId ui_selection;char ui_name[65]{"NewDocument"};int ui_template{};void* ui_renderer{};std::shared_ptr<struct UiWorkspaceState> ui_state;
     AssetId prefab_selection,prefab_swap_target;char prefab_name[65]{"NewPrefab"},prefab_filter[65]{};bool prefab_swap_defaults{};std::set<std::string> prefab_override_selection;
     MaterialSwap prefab_material_swap;std::string prefab_material_swap_key;

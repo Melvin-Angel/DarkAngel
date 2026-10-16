@@ -1,0 +1,26 @@
+{
+  "schema": 2,
+  "kind": "ui",
+  "asset": "22196656-1f6e-4816-aa96-a7f24baf4d45",
+  "name": "Altar",
+  "purpose": "menu",
+  "binding": "altar-v1",
+  "surfaces": [
+    "screen"
+  ],
+  "size": [
+    1280,
+    720
+  ],
+  "members": {
+    "style": "Altar.rcss",
+    "markup": "Altar.rml"
+  },
+  "fonts": [
+    {
+      "asset": "4f1d2a7c-6b0e-4c55-9a3e-8d2f5b7c1e90",
+      "source": "ui/fonts/Roboto-Medium.ttf",
+      "family": "HUD"
+    }
+  ]
+}

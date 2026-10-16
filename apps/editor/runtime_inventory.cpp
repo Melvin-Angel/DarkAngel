@@ -24,7 +24,7 @@ InventoryUiModel RuntimeInventory::model(const SceneClient* client,const Charact
     if(view.status.empty())view.status=!view.ready?"Waiting for the owner's inventory...":view.busy?"Waiting for the host...":"Select a mask to equip it, or a consumable to use it.";
     return view;
 }
-void RuntimeInventory::actions(Hud& hud,SceneClient* client){
+void RuntimeInventory::actions(PlayerUi& hud,SceneClient* client){
     for(const auto& action:hud.drain_inventory_actions()){
         if(action.kind==InventoryUiActionKind::Toggle){open_=!open_;error_.clear();continue;}
         if(action.kind==InventoryUiActionKind::Close){open_=false;continue;}
@@ -33,10 +33,11 @@ void RuntimeInventory::actions(Hud& hud,SceneClient* client){
         if(!client||!client->inventory_request(request))error_="Inventory is not ready. Try again when synchronized.";else error_.clear();
     }
 }
-void RuntimeInventory::frame(Hud& hud,SceneClient* client,const CharacterPreviewResources& resources,float x,float y,float width,float height,bool focused,bool loading){
-    if(focused&&ImGui::IsKeyPressed(ImGuiKey_I,false)){open_=!open_;error_.clear();}if(open_&&focused&&ImGui::IsKeyPressed(ImGuiKey_Escape,false))open_=false;
-    hud.update_inventory(model(client,resources,loading));const auto mouse=ImGui::GetMousePos();const bool inside=mouse.x>=x&&mouse.y>=y&&mouse.x<x+width&&mouse.y<y+height;
-    if(inside||ImGui::IsMouseReleased(ImGuiMouseButton_Left))hud.pointer(int(mouse.x-x),int(mouse.y-y),inside&&ImGui::IsMouseClicked(ImGuiMouseButton_Left),ImGui::IsMouseReleased(ImGuiMouseButton_Left),open_&&inside?ImGui::GetIO().MouseWheel:0);
+void RuntimeInventory::flush(PlayerUi& hud,SceneClient* client,const CharacterPreviewResources& resources,bool loading){actions(hud,client);hud.update_inventory(model(client,resources,loading));}
+void RuntimeInventory::frame(PlayerUi& hud,SceneClient* client,const CharacterPreviewResources& resources,float x,float y,float width,float height,bool focused,bool loading){
+    if(focused&&hud.inventory_input_allowed()&&ImGui::IsKeyPressed(ImGuiKey_I,false)){open_=!open_;error_.clear();}
+    hud.update_inventory(model(client,resources,loading));
+    (void)x;(void)y;(void)width;(void)height;
     actions(hud,client);hud.update_inventory(model(client,resources,loading));
 }
 void RuntimeInventory::inspector(CharacterSceneSession& session,StableId player,const CharacterPreviewResources& resources){
@@ -55,8 +56,8 @@ void RuntimeInventory::inspector(CharacterSceneSession& session,StableId player,
     if(!grant_status_.empty())ImGui::TextWrapped("%s",grant_status_.c_str());
     ImGui::TextDisabled("Only items in this Player's prepared catalogue can be granted: its starting items and their masks.");
 }
-bool RuntimeInventory::click(Hud& hud,const std::string& id){auto box=hud.box(id);if(!box)return false;const int x=int(box->x+box->width/2),y=int(box->y+box->height/2);hud.pointer(x,y,true,false);hud.pointer(x,y,false,true);return true;}
-bool RuntimeInventory::exercise(std::string_view verb,unsigned value,Hud& hud,SceneClient* client,const CharacterPreviewResources& resources){
+bool RuntimeInventory::click(PlayerUi& hud,const std::string& id){auto box=hud.box(id);if(!box)return false;const int x=int(box->x+box->width/2),y=int(box->y+box->height/2);hud.pointer(x,y,true,false);hud.pointer(x,y,false,true);return true;}
+bool RuntimeInventory::exercise(std::string_view verb,unsigned value,PlayerUi& hud,SceneClient* client,const CharacterPreviewResources& resources){
     hud.update_inventory(model(client,resources,false));bool done{};
     if(verb=="inventory-open")done=open_||click(hud,"inventory-toggle");
     else if(verb=="inventory-close")done=!open_||click(hud,"inventory-close");

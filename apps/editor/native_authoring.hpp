@@ -12,7 +12,14 @@
 #include <darkangel/ability_assets.hpp>
 namespace darkangel::editor_app {
 ActionDefinition authoring_action(const nlohmann::json&);
-struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool pending{};bool dirty()const{return pending||nlohmann::json::parse(saved)!=value;}};
+// A draft of one native source. A multi-file UI document (R6 U0) keeps its owned member texts in value["$members"] (file name
+// -> text) so edits, Undo/Redo and Save cover descriptor and members together; `saved` is the descriptor's bytes on disk and
+// saved_members the members' texts on disk.
+struct NativeDraft {AssetInfo asset;std::string saved; nlohmann::json value;bool pending{};std::map<std::string,std::string> saved_members;
+    nlohmann::json saved_value()const{auto v=nlohmann::json::parse(saved);if(!saved_members.empty())v["$members"]=saved_members;return v;}
+    bool dirty()const{return pending||saved_value()!=value;}};
+// The source edits that publish a draft: its descriptor (without "$members") and each owned member file.
+std::vector<NativeSourceEdit> draft_source_edits(const NativeDraft&);
 struct NativeSourceComparison {AssetId asset;std::string path,baseline_sha,disk_sha;std::uint64_t revision{};bool pending{},exists{},matches{};};
 struct NativeValidationSummary {std::uint64_t revision{};std::size_t sources{};AssetId selected;};
 struct NativeHistoryEntry {std::string label;std::vector<AssetId> assets;bool creation{};};
@@ -51,6 +58,9 @@ public:
     AssetId create_material(AssetService&,std::string_view name,const nlohmann::json& values);
     // R6.1: a UI document under ui/<purpose folder>/ from the purpose's template (hud, marker, menu or puzzle).
     AssetId create_ui_document(AssetService&,std::string_view name,std::string_view purpose);
+    // R6 U0: turns an inline (schema 1) UI document draft into a multi-file one: <name>.rml and <name>.rcss member files beside
+    // the descriptor. One Undo step; Save publishes descriptor and members together.
+    void migrate_ui_document(AssetService&,AssetId);
     // Structure edits on a behaviour tree. path holds child indices from the root to the node (empty = root).
     // MoveUp/MoveDown/Remove act on that node among its siblings; AddChild appends a default node of `type` to that composite.
     enum class BehaviorEdit {MoveUp,MoveDown,Remove,AddChild};

@@ -1,0 +1,1 @@
+<rml><head><title>Interaction</title></head><body data-model="owner"><div id="prompt" data-if="has_prompt">{{prompt}}</div></body></rml>

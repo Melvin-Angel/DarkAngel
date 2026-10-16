@@ -1,0 +1,1 @@
+body{font-family:HUD;font-size:14px;color:#f2e8d5;}div{display:block;}#nameplate{width:160px;text-align:center;}#nameplate-name{background-color:#101216c8;padding:2px;}.bar{height:6px;background-color:#101216d8;margin-top:3px;}.fill{height:100%;background-color:#c4762a;}

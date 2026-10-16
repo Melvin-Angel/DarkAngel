@@ -1,0 +1,1 @@
+<rml><head><title>ActorMarker</title></head><body data-model="ui"><div id="nameplate" data-style-width="160 * scale + 'px'" data-style-font-size="14 * scale + 'px'"><div id="nameplate-name">{{name}}</div><div class="bar" data-style-height="6 * scale + 'px'" data-if="flag"><div class="fill" data-style-width="health_percent + '%'"></div></div></div></body></rml>

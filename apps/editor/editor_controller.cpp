@@ -1,6 +1,7 @@
 #include <fstream>
 #include <set>
 #include "editor_controller.hpp"
+#include <darkangel/ui_assets.hpp>
 #include <nlohmann/json.hpp>
 namespace darkangel::editor_app {
 using Json=nlohmann::json;
@@ -25,6 +26,12 @@ void Controller::demo(){stop();World defaults(WorldDomain::Authoring);ObjectData
     for(unsigned i=2;i<=3;++i){scene["mounts"][StableId{0,i}.text()]={{"asset",assembly.text()},{"patches",Json::array({{{"op","SetProperty"},{"target",StableId{0,1}.text()},{"type",1},{"property",2},{"value",i==2?-radius*1.35:radius*1.35}},{{"op","SetProperty"},{"target",StableId{0,1}.text()},{"type",1},{"property",7},{"value",.8}}})}};}
     Json behavior={{"schema",1},{"asset",script.text()},{"kind","script"},{"domain","presentation"},{"source","--!strict\nreturn {create=function(ctx:Context,config:BehaviorConfig):BehaviorState return {angle=ctx:get_yaw()} end,update=function(ctx:Context,state:BehaviorState,config:BehaviorConfig,dt:number) state.angle += config.speed*dt;ctx:set_yaw(state.angle) end}"}};
     document=std::make_unique<EditorDocument>(root,StableId{0,1},AssemblySources{{root,scene.dump()},{assembly,definition.dump()},{script,behavior.dump()}});selected=document->plan().origins.front().object;log("Created two linked Spinner placements; authoring is idle.");
+}
+std::optional<std::pair<std::string,std::string>> Controller::packaged_ui_font(){
+    if(!assets)return std::nullopt;const AssetInfo* chosen=nullptr;
+    for(const auto& asset:asset_inventory){const auto extension=std::filesystem::path(asset.path).extension();if(extension!=".ttf"&&extension!=".otf")continue;if(!chosen||(asset.path.starts_with("ui/fonts/")&&!chosen->path.starts_with("ui/fonts/"))||(asset.path.starts_with("ui/fonts/")==chosen->path.starts_with("ui/fonts/")&&asset.path<chosen->path))chosen=&asset;}
+    if(!chosen)return std::nullopt;const auto id=chosen->id;const auto family=std::filesystem::path(chosen->path).stem().string();
+    return std::pair{family,load_cooked_font(package_model(id),assets->cas_path(),id)};
 }
 EditorDocument::LinkSource Controller::prefab_links() const{
     return [this](AssetId id)->std::optional<std::string>{if(!assets)return std::nullopt;for(const auto& asset:asset_inventory)if(asset.id==id&&std::filesystem::path(asset.path).extension()==".daprefab"){std::ifstream input(assets->source_root()/asset.path,std::ios::binary);if(!input)return std::nullopt;return std::string(std::istreambuf_iterator<char>(input),{});}return std::nullopt;};}

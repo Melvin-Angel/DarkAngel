@@ -1,4 +1,5 @@
 #include "hud_overlay.hpp"
+#include <darkangel/ui_runtime.hpp>
 #include <algorithm>
 #include <stdexcept>
 namespace darkangel::editor_app {
@@ -11,7 +12,7 @@ ImU32 straight(Rml::ColourbPremultiplied colour){
 }
 ImGuiHudRenderer::ImGuiHudRenderer(Create create,Release release):create_(std::move(create)),release_(std::move(release)){if(!create_||!release_)throw std::invalid_argument("HUD renderer needs texture callbacks");}
 ImGuiHudRenderer::~ImGuiHudRenderer(){for(auto& [handle,texture]:textures_)release_(texture);}
-void ImGuiHudRenderer::begin(ImDrawList* draw,ImVec2 origin,ImVec2 size){draw_=draw;origin_=origin;size_=size;scissor_=false;drawn_=0;}
+void ImGuiHudRenderer::begin(ImDrawList* draw,ImVec2 origin,ImVec2 size,bool reset_drawn){draw_=draw;origin_=origin;size_=size;scissor_=false;if(reset_drawn)drawn_=0;}
 void ImGuiHudRenderer::end(){draw_=nullptr;}
 Rml::CompiledGeometryHandle ImGuiHudRenderer::CompileGeometry(Rml::Span<const Rml::Vertex> vertices,Rml::Span<const int> indices){
     auto geometry=std::make_unique<Geometry>();geometry->vertices.assign(vertices.begin(),vertices.end());geometry->indices.assign(indices.begin(),indices.end());
@@ -30,8 +31,12 @@ void ImGuiHudRenderer::RenderGeometry(Rml::CompiledGeometryHandle handle,Rml::Ve
     if(textured)draw_->PopTexture();draw_->PopClipRect();++drawn_;
 }
 void ImGuiHudRenderer::ReleaseGeometry(Rml::CompiledGeometryHandle handle){geometry_.erase(handle);}
-// The HUD document uses no image files; decorators that need them are not supported here.
-Rml::TextureHandle ImGuiHudRenderer::LoadTexture(Rml::Vector2i&,const Rml::String&){return 0;}
+// R6 U0: images are packaged assets addressed by virtual URL (da://<asset-id>), registered in the shared UiRuntime by the
+// consumer that loads the document. Anything else (a file path) is not loaded.
+Rml::TextureHandle ImGuiHudRenderer::LoadTexture(Rml::Vector2i& dimensions,const Rml::String& source){
+    auto image=UiRuntime::image(source);if(!image)return 0;
+    auto texture=create_(image->rgba.data(),image->width,image->height);if(!texture)return 0;dimensions={image->width,image->height};auto handle=next_texture_++;textures_.emplace(handle,texture);return handle;
+}
 Rml::TextureHandle ImGuiHudRenderer::GenerateTexture(Rml::Span<const Rml::byte> source,Rml::Vector2i dimensions){
     if(dimensions.x<=0||dimensions.y<=0||source.size()!=std::size_t(dimensions.x)*std::size_t(dimensions.y)*4)return 0;
     std::vector<unsigned char> pixels(source.begin(),source.end());

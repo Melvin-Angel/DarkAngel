@@ -15,7 +15,11 @@ namespace darkangel {
 //   radius        how near the player's position must be, 0.5 to 10 m
 //   once          used up after the first success
 //   requires_tag  a world tag that must be held; empty for none
-struct InteractableDefinition {std::string prompt,event,requires_tag;double radius{2};bool once{true};};
+// R6.2: an interactable may be a screen puzzle: using it opens a UI document for the interacting player, whose buttons send
+// presses (1-9) the host checks against the sequence; the host's confirmed progress and solved state come back to every
+// client in the world state, and a solved puzzle is kept by the save (a ledger record of the scene object).
+struct InteractablePuzzle {std::string document;std::vector<unsigned> sequence;bool operator==(const InteractablePuzzle&)const=default;};
+struct InteractableDefinition {std::string prompt,event,requires_tag;double radius{2};bool once{true};std::optional<InteractablePuzzle> puzzle;};
 void validate_interactable(const InteractableDefinition&);
 // Decodes and validates the "interactable" component of a scene object.
 InteractableDefinition decode_interactable(std::string_view json);

@@ -26,7 +26,8 @@ class SceneWorldObjects {
     SceneWorldObjects(std::shared_ptr<const CharacterSceneCombat>, PhysicsWorld&, WorldLedger*, PartyInventory*);
     // Answers a use of one of its objects; empty when the object is not one of them. A use can raise party travel.
     std::optional<InteractionResult> interact(const Who&, StableId object, const Context&, std::optional<SceneTransitionRequest>& travel);
-    // A rest or fast travel request from a member's altar menu. Refused requests change nothing.
+    // A rest or fast travel request from a member's altar menu, or a press on a screen puzzle. Refused requests change nothing.
+    void accepted_puzzle(std::uint64_t network,StableId object);
     InteractionResult request(const Who&, const WorldRequest&, std::optional<SceneTransitionRequest>& travel);
     // One fixed tick: world events delivered this tick start movers; movers move.
     void step(double seconds, const WorldEvents&);
@@ -55,6 +56,9 @@ class SceneWorldObjects {
     PartyInventory* inventory_{};
     std::vector<bool> collected_;
     std::vector<Mover> movers_;
+    // R6.2 screen puzzles: the host's progress per puzzle interactable (solved ones are also ledger records).
+    std::map<StableId, WorldPuzzleState> puzzles_;
+    std::map<std::uint64_t,StableId> puzzle_open_;
     std::uint64_t revision_{1};
     PersistentId persistent(StableId id) const {
         return {combat_->scene, id};

@@ -1,0 +1,26 @@
+{
+  "schema": 2,
+  "kind": "ui",
+  "asset": "c7d21ad1-1557-4264-adbc-97f91ea932ad",
+  "name": "ActorMarker",
+  "purpose": "marker",
+  "binding": "ui-v1",
+  "surfaces": [
+    "world_anchor"
+  ],
+  "size": [
+    200,
+    80
+  ],
+  "members": {
+    "style": "ActorMarker.rcss",
+    "markup": "ActorMarker.rml"
+  },
+  "fonts": [
+    {
+      "asset": "4f1d2a7c-6b0e-4c55-9a3e-8d2f5b7c1e90",
+      "source": "ui/fonts/Roboto-Medium.ttf",
+      "family": "HUD"
+    }
+  ]
+}

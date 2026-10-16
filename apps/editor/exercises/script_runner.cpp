@@ -27,7 +27,7 @@ ScriptRunner::ScriptRunner(std::string_view text) {
                    step.verb == "inventory-open" || step.verb == "inventory-close" || step.verb == "inventory-select" ||
                    step.verb == "inventory-equip" || step.verb == "inventory-unequip" || step.verb == "inventory-use" ||
                    step.verb == "inventory-await" || step.verb == "altar-await" || step.verb == "altar-rest" ||
-                   step.verb == "altar-travel" || step.verb == "altar-close" || step.verb == "hold-interact" || step.verb == "down" ||
+                   step.verb == "ui-await" || step.verb == "ui-next" || step.verb == "ui-confirm" || step.verb == "ui-cancel" || step.verb == "ui-solved" || step.verb == "altar-travel" || step.verb == "altar-close" || step.verb == "hold-interact" || step.verb == "down" ||
                    step.verb == "approach" || step.verb == "log-party")
             step.frames = value.empty() ? 0u : unsigned(std::stoul(value));
         else
@@ -45,7 +45,7 @@ void ScriptRunner::frame(const ScriptContext& context, unsigned frame, Character
     if (context.travelling || at_step >= steps.size())
         return;
     auto& step = steps[at_step];
-    if (context.menu && (step.verb.starts_with("inventory-") || step.verb.starts_with("altar-"))) {
+    if (context.menu && (step.verb.starts_with("inventory-") || step.verb.starts_with("altar-") || step.verb.starts_with("ui-"))) {
         if (context.menu(step.verb, step.frames))
             ++at_step;
         return;

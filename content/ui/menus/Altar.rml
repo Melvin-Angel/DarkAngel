@@ -1,0 +1,17 @@
+<rml>
+<head><title>Altar</title></head>
+<body data-model="altar">
+<div id="altar-backdrop" data-if="open">
+ <div id="altar-panel">
+  <div class="heading"><span class="title" id="altar-name">{{name}}</span><button id="altar-close" data-event-click="close()">Leave [Esc]</button></div>
+  <div class="content">
+   <button id="altar-rest" data-if="can_rest" data-attr-disabled="busy" data-event-click="rest()">Rest</button>
+   <div class="minor" data-if="can_rest">Restores the party and resets what resets on rest. Enemies return.</div>
+   <div class="section">Fast travel</div>
+   <div class="minor" data-if="destinations.size == 0">No other altar has been discovered.</div>
+   <button class="destination" data-for="d : destinations" data-attr-id="d.element" data-attr-disabled="!can_travel || busy || d.here" data-event-click="travel(d.key)">{{d.name}}<span class="minor" data-if="d.here"> (here)</span></button>
+  </div>
+  <div id="altar-status" class="status">{{status}}</div>
+ </div>
+</div>
+</body></rml>

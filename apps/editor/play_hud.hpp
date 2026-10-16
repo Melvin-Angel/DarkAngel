@@ -1,6 +1,6 @@
 #pragma once
 #include "hud_overlay.hpp"
-#include <darkangel/hud.hpp>
+#include <darkangel/player_ui.hpp>
 #include <RefCntAutoPtr.hpp>
 #include <RenderDevice.h>
 #include <Texture.h>
@@ -14,7 +14,7 @@ struct HudResources {
     explicit HudResources(Diligent::IRenderDevice* device);
     std::map<ImTextureID, Diligent::RefCntAutoPtr<Diligent::ITexture>> hud_textures;
     ImGuiHudRenderer hud_renderer;
-    std::unique_ptr<Hud> hud;
+    PlayerUi* hud{};
     bool hud_failed = false, hud_second_drawn = false;
 };
 } // namespace darkangel::editor_app

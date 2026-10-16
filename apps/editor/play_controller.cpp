@@ -4,6 +4,12 @@
 #include <Windows.h>
 #include <darkangel/scene_authority.hpp>
 #include "play_controller.hpp"
+#ifdef DAE_HUD
+#include "play_ui.hpp"
+#include <ashen_roots/royal_ui_assets.hpp>
+#include "frontend_ui.hpp"
+#include <darkangel/ui_assets.hpp>
+#endif
 #include "editor_options.hpp"
 #include "editor_ui.hpp"
 #include "package_file.hpp"
@@ -117,6 +123,13 @@ PlayController::PlayController(PlayContext context)
         });
     };
 #ifdef DAE_HUD
+    shell.open_frontend=[this]{
+        if(editor.preview.active())throw std::runtime_error("Stop Play before opening the front end");
+        for(const auto& a:editor.asset_inventory)if(a.path=="ui/menus/MainMenu.daui"){
+            auto font=editor.packaged_ui_font();require(font.has_value(),"Front end requires a packaged font");
+            frontend=std::make_unique<FrontendUi>(hud_renderer,UiFont{"HUD",font->second},editor.package_model(a.id),editor.assets->cas_path(),a.id.text());return;
+        }throw std::runtime_error("Create ui/menus/MainMenu.daui in the UI tab first");
+    };
     shell.game_overlay = [this](ImDrawList* draw, darkangel::editor_app::ViewArea area) { draw_hud(draw, area); };
     shell.game_overlay_second = [this](ImDrawList* draw, darkangel::editor_app::ViewArea area) { draw_second_hud(draw, area); };
 #endif
@@ -266,112 +279,61 @@ PlayCueState PlayController::cue_state() const {
 #ifdef DAE_HUD
 // Runtime HUD: the game's RmlUi document over the Game viewport, fed by a native view model of confirmed
 // state. Its geometry goes into the viewport's draw list; font atlases are device textures.
-void PlayController::draw_hud(ImDrawList* draw, const ViewArea& area) {
-    if (!character || !character_resources || !character_resources->combat || !character->ability()) {
-        hud.reset();
-        return;
+UiService* PlayController::authored_ui(){return play_ui?&play_ui->service:nullptr;}
+UiService* PlayController::frontend_service(){return frontend?&frontend->service:nullptr;}
+PlayUi& PlayController::ensure_ui(bool second){
+    if(ui_resources!=character_resources.get()||ui_registry!=args.registry){hud=nullptr;play_ui.reset();play_ui_second.reset();ui_resources=character_resources.get();ui_registry=args.registry;}
+    auto& destination=second?play_ui_second:play_ui;
+    if(!destination){auto font=editor.packaged_ui_font();std::string bytes=font?std::move(font->second):load_cooked_font(args.registry,args.cas,AssetId::parse("4f1d2a7c-6b0e-4c55-9a3e-8d2f5b7c1e90"));
+        destination=std::make_unique<PlayUi>(hud_renderer,UiFont{"HUD",std::move(bytes)},args.registry,args.cas,character_resources->player_ui,character_resources->actor_ui);
     }
-    if (hud_failed)
-        return;
-    try {
-        const int width = std::max(1, int(area.width)), height = std::max(1, int(area.height));
-        if (!hud)
-            hud = std::make_unique<darkangel::Hud>(hud_renderer, std::filesystem::path(DAE_GAME_UI_DIR) / "hud.rml",
-                                                   "C:/Windows/Fonts/segoeui.ttf", width, height);
-        hud->resize(width, height);
-        const auto& combat = *character_resources->combat;
-        std::optional<darkangel::Health> target;
-        const auto shown = choose_hud_target();
-        if (shown) {
-            auto handle = character->presentation().find(*shown);
-            if (character->presentation().valid(handle))
-                target = character->presentation().read(handle).health;
-        }
-        auto hud_model = ashen_roots::royal_hud(*character->ability(), combat.attributes, target,
-                                                darkangel::editor_app::RuntimeInventory::name(*character_resources, character->ability()));
-        hud_model.target_locked = character->soft_lock().has_value();
-        if (shown)
-            if (const auto* actor = character->actor(*shown))
-                hud_model.target_name = actor->name;
-        hud_model.crosshair = director && director->rig().cameras[director->live()].facing == CameraFacing::Camera;
-        const auto offered_now = character->interaction_prompt();
-        if (offered_now)
-            hud_model.prompt = offered_now->prompt;
-        if (const auto* owner = character->client(character_player))
-            darkangel::editor_app::party_lifecycle_hud(hud_model, *owner, offered_now, interact_held);
-        if (travel && travel->busy()) {
-            const auto status = travel->status();
-            hud_model.loading = true;
-            hud_model.loading_text = status.text.substr(0, 96);
-            hud_model.loading_progress = status.progress;
-            ++travel_overlay_frames;
-        }
-        if (!hud_model.loading && shell.scene_camera)
-            if (const auto* viewer = character->client(character_player)) {
-                std::vector<PartyMember> roster;
-#ifdef DAE_EDITOR_GNS
-                if (party_host)
-                    roster = party_host->roster();
-                else if (party_guest)
-                    roster = party_guest->roster();
-#endif
-                hud_model.world_markers = darkangel::editor_app::character_world_ui(
-                    *character, *viewer,
-                    darkangel::editor_app::world_ui_camera(shell.scene_view, shell.scene_projection, area.width, area.height), roster);
-            }
-        hud->update(hud_model);
-        runtime_inventory.frame(*hud, character->client(character_player), *character_resources, area.x, area.y, area.width, area.height,
-                                ImGui::IsWindowFocused(), hud_model.loading);
-        runtime_altar.frame(*hud, character->client(character_player), character->hosting(), ImGui::IsWindowFocused(), hud_model.loading);
-        shell.inventory_open = runtime_inventory.open() || runtime_altar.open();
-        hud_renderer.begin(draw, {area.x, area.y}, {area.width, area.height});
-        hud->render();
-        hud_renderer.end();
-    } catch (const std::exception& error) {
-        hud_renderer.end();
-        hud.reset();
-        hud_failed = true;
-        editor.log(std::string("Runtime HUD unavailable: ") + error.what());
-    }
+    if(!second)hud=&destination->player;
+    return *destination;
 }
-// The second local player's HUD, from its own client: its attributes, mask and what it is offered. RmlUi allows one
-// Hud at a time, so the first viewport's Hud is laid out again with the second player's values and drawn here.
-void PlayController::draw_second_hud(ImDrawList* draw, const ViewArea& area) {
-    if (!character || character->players().size() < 2 || !character_resources || !character_resources->combat || !hud || hud_failed)
-        return;
-    const auto* second = character->client(character->players()[1]);
-    if (!second || !second->ability())
-        return;
-    try {
-        hud->resize(std::max(1, int(area.width)), std::max(1, int(area.height)));
-        auto hud_model =
-            ashen_roots::royal_hud(*second->ability(), character_resources->combat->attributes, std::optional<darkangel::Health>{},
-                                   darkangel::editor_app::RuntimeInventory::name(*character_resources, second->ability()));
-        hud_model.target_locked = second->soft_lock().has_value();
-        if (const auto offered = second->interaction_prompt())
-            hud_model.prompt = offered->prompt;
-        if (travel && travel->busy()) {
-            const auto status = travel->status();
-            hud_model.loading = true;
-            hud_model.loading_text = status.text.substr(0, 96);
-            hud_model.loading_progress = status.progress;
-        }
-        if (!hud_model.loading)
-            hud_model.world_markers = darkangel::editor_app::character_world_ui(
-                *character, *second,
-                darkangel::editor_app::world_ui_camera(shell.game_view_second, shell.game_projection_second, area.width, area.height));
-        hud->update(hud_model);
-        hud_renderer.begin(draw, {area.x, area.y}, {area.width, area.height});
-        hud->render();
-        hud_renderer.end();
-        hud_second_drawn = true;
-    } catch (const std::exception& error) {
-        hud_renderer.end();
-        hud.reset();
-        hud_failed = true;
-        editor.log(std::string("Runtime HUD unavailable: ") + error.what());
+namespace {std::vector<UiActorInfo> ui_actors(const CharacterSceneSession& session){std::vector<UiActorInfo> result;for(auto id:session.actors())if(const auto* actor=session.actor(id))result.push_back({id,actor->name});return result;}}
+void PlayController::draw_hud(ImDrawList* draw,const ViewArea& area){
+    if(frontend&&!editor.preview.active()){
+        if(frontend->frame(draw,area.x,area.y,area.width,area.height,ImGui::IsWindowFocused())){frontend.reset();editor.play();}return;
     }
+    if(!character||!character_resources||!character_resources->combat||!character->ability()){hud=nullptr;play_ui.reset();play_ui_second.reset();ui_resources=nullptr;return;}
+    if(hud_failed)return;
+    try{
+        auto& ui=ensure_ui();hud->resize(std::max(1,int(area.width)),std::max(1,int(area.height)));
+        const auto& combat=*character_resources->combat;std::optional<Health> target;const auto shown=choose_hud_target();
+        if(shown){auto handle=character->presentation().find(*shown);if(character->presentation().valid(handle))target=character->presentation().read(handle).health;}
+        auto model=ashen_roots::royal_hud(*character->ability(),combat.attributes,target,RuntimeInventory::name(*character_resources,character->ability()));
+        model.target_locked=character->soft_lock().has_value();if(shown)if(const auto* actor=character->actor(*shown))model.target_name=actor->name;
+        model.crosshair=director&&director->rig().cameras[director->live()].facing==CameraFacing::Camera;
+        const auto offered=character->interaction_prompt();if(offered)model.prompt=offered->prompt;
+        auto* client=character->client(character_player);if(client)party_lifecycle_hud(model,*client,offered,interact_held);
+        if(travel&&travel->busy()){const auto status=travel->status();model.loading=true;model.loading_text=status.text.substr(0,96);model.loading_progress=status.progress;++travel_overlay_frames;}
+        hud->update(model);
+        runtime_inventory.frame(*hud,client,*character_resources,area.x,area.y,area.width,area.height,ImGui::IsWindowFocused(),model.loading);
+        runtime_altar.frame(*hud,client,character->hosting(),ImGui::IsWindowFocused(),model.loading);
+        if(client)ui.frame(*client,model,world_ui_camera(shell.scene_view,shell.scene_projection,area.width,area.height),ImGui::IsWindowFocused(),model.loading,area.x,area.y,character->players(),ui_actors(*character));
+        runtime_inventory.flush(*hud,client,*character_resources,model.loading);runtime_altar.flush(*hud,client,character->hosting(),model.loading);ui.service.update();
+        shell.inventory_open=(shell.controls_player==0)&&(runtime_inventory.open()||runtime_altar.open()||ui.modal());
+        ui.render(draw,area.x,area.y,area.width,area.height);
+    }catch(const std::exception& error){hud_renderer.end();hud=nullptr;play_ui.reset();play_ui_second.reset();hud_failed=true;editor.log(std::string("Game UI unavailable: ")+error.what());}
 }
+void PlayController::draw_second_hud(ImDrawList* draw,const ViewArea& area){
+    if(!character||character->players().size()<2||!character_resources||!character_resources->combat||hud_failed)return;
+    auto* client=character->client(character->players()[1]);if(!client||!client->ability())return;
+    try{
+        auto& ui=ensure_ui(true);if(!inventory_second)inventory_second=std::make_unique<RuntimeInventory>();if(!altar_second)altar_second=std::make_unique<RuntimeAltar>();
+        auto model=ashen_roots::royal_hud(*client->ability(),character_resources->combat->attributes,{},RuntimeInventory::name(*character_resources,client->ability()));
+        model.target_locked=client->soft_lock().has_value();if(const auto offered=client->interaction_prompt())model.prompt=offered->prompt;
+        if(travel&&travel->busy()){const auto status=travel->status();model.loading=true;model.loading_text=status.text.substr(0,96);model.loading_progress=status.progress;}
+        ui.player.resize(std::max(1,int(area.width)),std::max(1,int(area.height)));ui.player.update(model);
+        inventory_second->frame(ui.player,client,*character_resources,area.x,area.y,area.width,area.height,ImGui::IsWindowFocused(),model.loading);
+        altar_second->frame(ui.player,client,false,ImGui::IsWindowFocused(),model.loading);
+        ui.frame(*client,model,world_ui_camera(shell.game_view_second,shell.game_projection_second,area.width,area.height),ImGui::IsWindowFocused(),model.loading,area.x,area.y,character->players(),ui_actors(*character));
+        inventory_second->flush(ui.player,client,*character_resources,model.loading);altar_second->flush(ui.player,client,false,model.loading);ui.service.update();
+        if(shell.controls_player==1)shell.inventory_open=inventory_second->open()||altar_second->open()||ui.modal();
+        ui.render(draw,area.x,area.y,area.width,area.height);hud_second_drawn=true;
+    }catch(const std::exception& error){hud_renderer.end();editor.log(std::string("Second viewport UI unavailable: ")+error.what());}
+}
+
 #endif
 
 void PlayController::start(std::size_t skins, const RuntimeSkinnedModel* skin) {
@@ -877,7 +839,7 @@ void PlayController::stop_gameplay() {
     runtime_altar.reset();
     shell.inventory_open = false;
     // Stop releases RmlUi, so the UI tab's preview can take it again; the next Play makes a fresh HUD.
-    hud.reset();
+    hud=nullptr;play_ui.reset();play_ui_second.reset();inventory_second.reset();altar_second.reset();ui_resources=nullptr;frontend.reset();
     hud_failed = false;
 #endif
     hud_target.reset();
@@ -989,6 +951,8 @@ void PlayController::install_preparation() {
         editor.authoring_roots = [this] {
             const auto id = editor.model;
             std::set<AssetId> unique{id, editor.authoring_player == AssetId{} ? editor.authoring_kit : editor.authoring_player};
+            for(auto ui:ashen_roots::core_ui_roots())unique.insert(ui);
+            for(const auto& [object,text]:editor.document->plan().interactables){auto d=decode_interactable(text);if(d.puzzle)unique.insert(AssetId::parse(d.puzzle->document));}
             for (auto npc : encounter_npcs())
                 unique.insert(npc);
             for (const auto& [point, npc] : editor.document->plan().spawns) {
@@ -1386,6 +1350,15 @@ void PlayController::frame(unsigned frame, double elapsed_seconds) {
             context.menu = [this](std::string_view verb, unsigned value) {
                 if (!hud)
                     return false;
+                if(verb.starts_with("ui-")){
+                    if(!play_ui)return false;
+                    if(verb=="ui-await")return play_ui->service.modal_open();
+                    if(verb=="ui-next")return play_ui->service.key(UiKey::Down);
+                    if(verb=="ui-confirm")return play_ui->service.key(UiKey::Confirm);
+                    if(verb=="ui-cancel")return play_ui->service.key(UiKey::Cancel);
+                    if(verb=="ui-solved"){auto* c=character->client(character_player);const auto* state=c?c->world_state():nullptr;if(!state||state->puzzles.empty()||!std::all_of(state->puzzles.begin(),state->puzzles.end(),[](const auto& p){return p.solved;}))return false;std::cout<<"Script UI solved seat="<<args.player<<std::endl;return true;}
+                    return false;
+                }
                 if (verb.starts_with("inventory-"))
                     return runtime_inventory.exercise(verb, value, *hud, character->client(character_player), *character_resources);
                 return runtime_altar.exercise(verb, value, *hud, character->client(character_player), character->hosting());
@@ -1667,7 +1640,7 @@ void PlayController::party_receipt(unsigned frame) {
 #ifdef DAE_HUD
     value["world_ui"] = nlohmann::json::array();
     if (hud && !hud_failed)
-        for (const auto& marker : hud->model().world_markers)
+        for (const auto& marker : play_ui->world_markers())
             value["world_ui"].push_back({{"label", marker.label},
                                          {"x", marker.x},
                                          {"y", marker.y},

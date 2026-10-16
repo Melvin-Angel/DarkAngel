@@ -15,8 +15,8 @@ public:
     using Release=std::function<void(ImTextureID)>;
     ImGuiHudRenderer(Create,Release);
     ~ImGuiHudRenderer()override;
-    // Target for the next Hud::render(): a draw list and the viewport rectangle in screen pixels.
-    void begin(ImDrawList*,ImVec2 origin,ImVec2 size);
+    // Target for the next PlayerUi::render(): a draw list and the viewport rectangle in screen pixels.
+    void begin(ImDrawList*,ImVec2 origin,ImVec2 size,bool reset_drawn=true);
     void end();
     unsigned drawn()const{return drawn_;}
     Rml::CompiledGeometryHandle CompileGeometry(Rml::Span<const Rml::Vertex>,Rml::Span<const int>)override;

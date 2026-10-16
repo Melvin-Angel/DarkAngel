@@ -38,7 +38,7 @@ void initialize_theme(float scale){
     for(auto key:{ImGuiCol_CheckMark,ImGuiCol_SliderGrab,ImGuiCol_SliderGrabActive,ImGuiCol_NavCursor,ImGuiCol_TabSelectedOverline,ImGuiCol_DockingPreview,ImGuiCol_ResizeGripHovered,ImGuiCol_ResizeGripActive})c[key]=primary;
     c[ImGuiCol_DockingPreview].w=.28f;c[ImGuiCol_TextSelectedBg]={.086f,.56f,1,.3f};
     c[ImGuiCol_Separator]=theme::border;c[ImGuiCol_SeparatorHovered]=c[ImGuiCol_SeparatorActive]=primary;
-    auto& io=ImGui::GetIO();io.ConfigFlags|=ImGuiConfigFlags_NavEnableKeyboard;if(std::filesystem::exists(L"C:/Windows/Fonts/segoeui.ttf"))io.FontDefault=io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf",16);else io.FontDefault=io.Fonts->AddFontDefault();
+    auto& io=ImGui::GetIO();io.ConfigFlags|=ImGuiConfigFlags_NavEnableKeyboard|ImGuiConfigFlags_NavEnableGamepad;if(std::filesystem::exists(L"C:/Windows/Fonts/segoeui.ttf"))io.FontDefault=io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/segoeui.ttf",16);else io.FontDefault=io.Fonts->AddFontDefault();
     if(std::filesystem::exists(L"C:/Windows/Fonts/SegoeIcons.ttf") && covered()){static ImWchar ranges[23]{};auto sorted=codes;std::sort(sorted.begin(),sorted.end());for(std::size_t i=0;i<sorted.size();++i)ranges[i*2]=ranges[i*2+1]=sorted[i];ImFontConfig config;config.MergeMode=false;icons=io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/SegoeIcons.ttf",16,&config,ranges);}
     base=s;set_theme_dpi(scale);
 }

@@ -1,0 +1,1 @@
+body{font-family:HUD;font-size:20px;color:#f2e7d5;}#menu{position:absolute;left:80px;top:100px;width:360px;padding:24px;background-color:#15131bee;}h1{font-size:36px;margin-bottom:24px;}button{display:block;padding:12px;background-color:#594726;}button:focus{background-color:#967437;}

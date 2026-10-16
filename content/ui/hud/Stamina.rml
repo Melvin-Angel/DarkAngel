@@ -1,0 +1,1 @@
+<rml><head><title>Stamina</title></head><body data-model="owner"><div id="owner-stamina"><div id="stamina-bar" class="bar"><div id="stamina-fill" class="fill stamina" data-style-width="stamina_percent + '%'"></div><div id="stamina-text" class="label">{{stamina_text}}</div></div></div></body></rml>

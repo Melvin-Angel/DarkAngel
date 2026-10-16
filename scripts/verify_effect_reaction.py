@@ -15,14 +15,61 @@ if args.build:
 for name,binary in [('effect-reaction-authoring','NativeAuthoringTests'),('effect-reaction-presentation','ReactionPresentationTests'),('effect-reaction-public-pose','ObservedCharacterPoseTests'),('effect-reaction-effect-assets','EffectAssetTests'),('effect-reaction-kit-assets','CombatKitAssetTests'),('effect-reaction-replication','EffectReplicationTests'),('effect-reaction-combat-effects','CombatEffectTests'),('camera-rig','CameraTests'),('scripted-attacker','CharacterCombatSceneTests'),('royal-heavy-scene','RoyalHeavySceneTests'),('runtime-hud','HudTests'),('motor-warp','MotorTests'),('navigation','NavigationTests'),('behavior-tree','BehaviorTreeTests')]:run(name,[BUILD/(binary+'.exe')])
 f=json.loads((BUILD/'authoring-fixture.json').read_text());source=Path(f['source']);cache=Path(f['cache']);model=json.loads((source/'royal_district/static/terrain/SM_RC_Terrain_Ground_32x32.gltf.daimport').read_text())['id'];collision=json.loads((source/'royal_district/collision/environment.dacollision').read_text())['asset']
 
-def write_fixture_scene(name, scene):
-    # A copied scene owns a distinct collision asset, derived from its scene identity.
+def write_fixture_scene(name, scene, entity_values=None):
+    # A copied scene owns a distinct identity. Preserve the editor document's hashed record format.
     made = json.loads(json.dumps(scene))
     old, root = made['root'], str(uuid.uuid4())
-    made['root'] = root
-    made['sources'][root] = made['sources'].pop(old)
-    made['sources'][root]['asset'] = root
+    if made.get('schema') == 2:
+        directory = source/'royal_district'
+        record = made['assets'].pop(old)
+        record['header']['asset'] = root
+        original = directory/made['records']
+        records_name = name+'.records'
+        target = directory/records_name
+        target.mkdir(parents=True, exist_ok=True)
+        entities = {}
+        for local, digest in record['entities'].items():
+            value = (entity_values or scene_entities(made, record))[local]
+            text = json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+            data = text.encode('utf-8')
+            key = hashlib.sha256(data).hexdigest()
+            (target/(key+'.json')).write_bytes(data)
+            entities[local] = key
+        record['entities'] = entities
+        for local, digest in record['mounts'].items():
+            data = (original/(digest+'.json')).read_bytes()
+            (target/(digest+'.json')).write_bytes(data)
+        made['root'] = root
+        made['records'] = records_name
+        made['assets'][root] = record
+    else:
+        made['root'] = root
+        made['sources'][root] = made['sources'].pop(old)
+        made['sources'][root]['asset'] = root
     (source/'royal_district'/name).write_text(json.dumps(made, indent=2)+chr(10))
+
+def scene_entities(scene, record=None):
+    if scene.get('schema') == 2:
+        record = record or scene['assets'][scene['root']]
+        original = source/'royal_district'/scene['records']
+        return {local: json.loads((original/(digest+'.json')).read_text())
+                for local, digest in record['entities'].items()}
+    return scene['sources'][scene['root']]['entities']
+
+# NativeAuthoringTests now saves schema 2 records. This legacy gate still edits inline schema 1 scenes,
+# so expand just its disposable training fixture before running those mutation scenarios.
+training=source/'royal_district/RoyalTraining.dascene'
+manifest=json.loads(training.read_text())
+if manifest.get('schema') == 2:
+    record=manifest['assets'][manifest['root']]
+    graph=dict(record['header'])
+    graph['entities']=scene_entities(manifest,record)
+    records=source/'royal_district'/manifest['records']
+    graph['mounts']={local:json.loads((records/(digest+'.json')).read_text()) for local,digest in record['mounts'].items()}
+    legacy={'schema':1,'root':manifest['root'],'placement':manifest['placement'],'sources':{manifest['root']:graph}}
+    if 'links' in manifest: legacy['links']=manifest['links']
+    training.write_text(json.dumps(legacy,indent=2)+chr(10))
+
 common=[BUILD/'DarkAngelEditor.exe','--registry',f['reaction_registry'],'--cas',cache/'cas','--model',model,'--scene',source/'royal_district/RoyalTraining.dascene','--character-kit',f['kit'],'--character-collision',collision,'--character-player','00000000000000000000000000000004','--sources',source,'--asset-cache',cache,'--backend','d3d12','--hidden','--capture-workspace']
 run('effect-reaction-form',common+['--ability-workspace','--authoring-asset',f['reaction_effect'],'--height','1500','--frames','5','--capture',EVIDENCE/'effect-reaction-form.png'])
 run('effect-reaction-d3d12',common+['--exercise-reaction','--frames','30','--capture',EVIDENCE/'effect-reaction-d3d12.png'])
@@ -31,9 +78,10 @@ run('kit-death-d3d12',death+['--exercise-death','--frames','210','--capture',EVI
 # Scenes for the NPC gates. The training scene (common) spawns one passive Training Dummy. The duel scene is the same
 # layout with the owned Royal Guard at that spawn point; the owned combat scene spawns two Royal Guards further away.
 duel_source=json.loads((source/'royal_district/RoyalTraining.dascene').read_text());duel_root=duel_source['root']
-for entity in duel_source['sources'][duel_root]['entities'].values():
+duel_entities=scene_entities(duel_source)
+for entity in duel_entities.values():
     if 'spawn' in entity:entity['spawn']['npc']=f['npc']
-write_fixture_scene('RoyalDuel.dascene', duel_source)
+write_fixture_scene('RoyalDuel.dascene', duel_source, duel_entities)
 def scene(arguments,name):
     out=[x for x in arguments];out[out.index('--scene')+1]=source/('royal_district/'+name);return out
 # A spawned Royal Guard attacks through its behaviour tree: the player is hit, flinches and dies on its own confirmed pose.
@@ -259,6 +307,6 @@ if 'Editor save_all saved=1 restored=1' not in log:raise RuntimeError('File > Sa
 run('behavior-form-d3d12',common+['--npc-workspace','--authoring-asset',f['behavior'],'--height','1500','--frames','5','--capture',EVIDENCE/'behavior-form-d3d12.png'])
 # M6 track: the owned Royal Guard NPC definition opened in the NPC workspace.
 run('npc-form-d3d12',common+['--npc-workspace','--authoring-asset',f['npc'],'--height','1500','--frames','5','--capture',EVIDENCE/'npc-form-d3d12.png'])
-files=['apps/editor/character_preview.cpp','engine/runtime/melee_query.cpp','engine/runtime/world_session.cpp','engine/runtime/include/darkangel/world_session.hpp','engine/assets/ability_cooker.cpp','engine/runtime/assembly.cpp','engine/runtime/include/darkangel/assembly.hpp','apps/editor/editor_ui.cpp','content/npcs/training_dummy.danpc','content/royal_district/RoyalCombat.dascene','content/royal_district/RoyalTraining.dascene','engine/assets/actor_cooker.cpp','content/npcs/royal_guard.danpc','apps/editor/editor_workspaces.cpp','apps/editor/editor_authoring.cpp','apps/editor/editor_ui.hpp','apps/editor/main.cpp','apps/editor/native_authoring.cpp','apps/editor/native_authoring.hpp','engine/assets/effect_cooker.cpp','engine/assets/actor_cooker.cpp','engine/assets/asset_service.cpp','engine/assets/include/darkangel/actor_assets.hpp','apps/editor/character_preview.hpp','engine/assets/combat_kit_cooker.cpp','engine/runtime/action.cpp','engine/runtime/camera.cpp','engine/runtime/include/darkangel/camera.hpp','tests/camera_tests.cpp','engine/runtime/ability.cpp','engine/runtime/ability_prediction.cpp','engine/runtime/combat_kit.cpp','engine/assets/ability_cooker.cpp','engine/runtime/include/darkangel/ability.hpp','engine/runtime/include/darkangel/combat_kit.hpp','engine/runtime/effects.cpp','engine/runtime/character_presentation.cpp','engine/runtime/character_scene.cpp','engine/runtime/include/darkangel/effects.hpp','engine/runtime/include/darkangel/character_presentation.hpp','engine/runtime/include/darkangel/character_scene.hpp','tests/native_authoring_tests.cpp','tests/character_combat_scene_tests.cpp','tests/royal_heavy_scene_tests.cpp','tests/hud_tests.cpp','engine/runtime/hud.cpp','engine/runtime/include/darkangel/hud.hpp','apps/editor/hud_overlay.cpp','games/AshenRoots/royal_hud.cpp','games/AshenRoots/ui/hud.rml','engine/runtime/effects.cpp','content/royal_district/combat/player.dakit','content/royal_district/combat/flinch.daeffect','content/royal_district/combat/stun.daeffect','content/royal_district/combat/stun.daaction','tests/reaction_presentation_tests.cpp','engine/runtime/targeting.cpp','engine/runtime/navigation.cpp','engine/runtime/behavior.cpp','engine/runtime/behavior_tree.cpp','engine/runtime/include/darkangel/behavior.hpp','engine/runtime/include/darkangel/behavior_tree.hpp','tests/behavior_tree_tests.cpp','content/npcs/guard_melee.dabehavior','engine/runtime/include/darkangel/navigation.hpp','tests/navigation_tests.cpp','engine/runtime/melee_query.cpp','content/royal_district/combat/bow.daability','content/royal_district/combat/bow.daaction','engine/runtime/include/darkangel/actor_controller.hpp','apps/editor/editor_controller.hpp','engine/runtime/include/darkangel/targeting.hpp','engine/runtime/motor_state.cpp','engine/runtime/character_motor.cpp','engine/runtime/include/darkangel/character_motor.hpp','engine/runtime/include/darkangel/ability_prediction.hpp','tests/motor_tests.cpp','content/royal_district/combat/light.daability','scripts/verify_effect_reaction.py']
+files=['apps/editor/character_preview.cpp','engine/runtime/melee_query.cpp','engine/runtime/world_session.cpp','engine/runtime/include/darkangel/world_session.hpp','engine/assets/ability_cooker.cpp','engine/runtime/assembly.cpp','engine/runtime/include/darkangel/assembly.hpp','apps/editor/editor_ui.cpp','content/npcs/training_dummy.danpc','content/royal_district/RoyalCombat.dascene','content/royal_district/RoyalTraining.dascene','engine/assets/actor_cooker.cpp','content/npcs/royal_guard.danpc','apps/editor/editor_workspaces.cpp','apps/editor/editor_authoring.cpp','apps/editor/editor_ui.hpp','apps/editor/main.cpp','apps/editor/native_authoring.cpp','apps/editor/native_authoring.hpp','engine/assets/effect_cooker.cpp','engine/assets/actor_cooker.cpp','engine/assets/asset_service.cpp','engine/assets/include/darkangel/actor_assets.hpp','apps/editor/character_preview.hpp','engine/assets/combat_kit_cooker.cpp','engine/runtime/action.cpp','engine/runtime/camera.cpp','engine/runtime/include/darkangel/camera.hpp','tests/camera_tests.cpp','engine/runtime/ability.cpp','engine/runtime/ability_prediction.cpp','engine/runtime/combat_kit.cpp','engine/assets/ability_cooker.cpp','engine/runtime/include/darkangel/ability.hpp','engine/runtime/include/darkangel/combat_kit.hpp','engine/runtime/effects.cpp','engine/runtime/character_presentation.cpp','engine/runtime/character_scene.cpp','engine/runtime/include/darkangel/effects.hpp','engine/runtime/include/darkangel/character_presentation.hpp','engine/runtime/include/darkangel/character_scene.hpp','tests/native_authoring_tests.cpp','tests/character_combat_scene_tests.cpp','tests/royal_heavy_scene_tests.cpp','tests/hud_tests.cpp','engine/runtime/ui_document.cpp','engine/runtime/include/darkangel/ui_document.hpp','engine/runtime/ui_service.cpp','engine/runtime/player_ui.cpp','apps/editor/hud_overlay.cpp','games/AshenRoots/royal_hud.cpp','content/ui/hud/Health.rml','engine/runtime/effects.cpp','content/royal_district/combat/player.dakit','content/royal_district/combat/flinch.daeffect','content/royal_district/combat/stun.daeffect','content/royal_district/combat/stun.daaction','tests/reaction_presentation_tests.cpp','engine/runtime/targeting.cpp','engine/runtime/navigation.cpp','engine/runtime/behavior.cpp','engine/runtime/behavior_tree.cpp','engine/runtime/include/darkangel/behavior.hpp','engine/runtime/include/darkangel/behavior_tree.hpp','tests/behavior_tree_tests.cpp','content/npcs/guard_melee.dabehavior','engine/runtime/include/darkangel/navigation.hpp','tests/navigation_tests.cpp','engine/runtime/melee_query.cpp','content/royal_district/combat/bow.daability','content/royal_district/combat/bow.daaction','engine/runtime/include/darkangel/actor_controller.hpp','apps/editor/editor_controller.hpp','engine/runtime/include/darkangel/targeting.hpp','engine/runtime/motor_state.cpp','engine/runtime/character_motor.cpp','engine/runtime/include/darkangel/character_motor.hpp','engine/runtime/include/darkangel/ability_prediction.hpp','tests/motor_tests.cpp','content/royal_district/combat/light.daability','scripts/verify_effect_reaction.py']
 receipt=dict(schema=1,base_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),scope='Multi-entity combat (an actor list on stable identities, per-actor controllers, factions, nearest soft lock) and NPC spawn points (scene objects that reference an NPC definition, derived actor identities, Play preparation, two Royal Guards from spawn points); melee soft lock from the player targeting module (authored on the Ability, proposed by the targeting module, resolved by the motor on authoritative, predicted and replayed ticks, HUD indicator); runtime Health HUD through RmlUi with a native view model, drawn in the editor Game viewport; stagger as gameplay (effect movement lock predicted by the owner, looping stun reaction, death movement lock, Flinch bound to the Royal Light hit); scripted training attacker on the combat target (owner damage, flinch, interruption, dodge invulnerability and death in fresh Play); Player virtual camera rig (free-look and aim) with blending; in-Play mask switching; mask assets with four Player slots, active-mask kit and worn face-socket visual; dodge as an authored ability on the kit utility ingress with dash and facing lock; kit death timeline with terminal precedence and held final pose; optional native effect reaction binding, frozen action/clip closure, stateless checked public reaction selection shared by owner and observed poses, authoring commands/forms and fresh authoritative Play',gates=gates,source_sha256={p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in files},binary_sha256={p:hashlib.sha256((BUILD/p).read_bytes()).hexdigest() for p in ['DarkAngelEditor.exe','NativeAuthoringTests.exe','ReactionPresentationTests.exe']},limitations=['One visible full-body reaction per actor, root policy none; no reaction queue, blend ramps, additive or upper-body reactions.','Reaction timelines carry cue blocks only and no cue is dispatched by presentation in this slice.','The fixture reuses the existing attack clip as its flinch; no flinch clip or default Royal reaction content is shipped.','All actors in a scene share the player rig and skin; a spawn point never respawns; hits do not check faction, so NPCs can hit each other; nothing regenerates Stamina yet.','Scripted native commands and D3D12 form/rendering evidence, not physical pointer input, remote graphical timing/loss or multiplayer qualification.','M4/M5 In progress; EOS blocked; M6-M9 not started; publication crash-recovery limits unchanged.'])
 (EVIDENCE/'effect-reaction.json').write_text(json.dumps(receipt,indent=2)+'\n')

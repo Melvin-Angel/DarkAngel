@@ -29,7 +29,8 @@ struct ImDrawList;
 namespace darkangel {
 class CharacterSceneSession;
 struct RuntimeSkinnedModel;
-class Hud;
+class PlayerUi;
+class UiService;
 class VfxService;
 struct VfxView;
 namespace editor_app {
@@ -41,6 +42,8 @@ class AudioCueSink;
 class PlaySaves;
 class RuntimeInventory;
 class RuntimeAltar;
+class PlayUi;
+class FrontendUi;
 class ImGuiHudRenderer;
 class EditorPartyHost;
 class EditorPartyGuest;
@@ -158,6 +161,10 @@ class PlayController {
     Reload prepare_reload(std::size_t skins, const RuntimeSkinnedModel* skin);
     void commit_reload(Reload);
 
+#ifdef DAE_HUD
+    UiService* authored_ui();
+    UiService* frontend_service();
+#endif
     // Exercises act on the scene's first spawned actor.
     StableId first_actor();
     // HUD target: the soft-locked actor if there is one, else the nearest live hostile in front of the camera.
@@ -251,7 +258,14 @@ class PlayController {
     void drop_load();
     darkangel::SceneLoadStatus poll_load();
 #ifdef DAE_HUD
+    PlayUi& ensure_ui(bool second=false);
     void draw_hud(ImDrawList* draw, const ViewArea& area);
+    std::unique_ptr<PlayUi> play_ui,play_ui_second;
+    std::unique_ptr<RuntimeInventory> inventory_second;
+    std::unique_ptr<RuntimeAltar> altar_second;
+    std::unique_ptr<FrontendUi> frontend;
+    const CharacterPreviewResources* ui_resources{};
+    std::filesystem::path ui_registry;
     void draw_second_hud(ImDrawList* draw, const ViewArea& area);
 #endif
 
@@ -277,7 +291,7 @@ class PlayController {
     NavigationTool* navigation_;
 #ifdef DAE_HUD
     ImGuiHudRenderer& hud_renderer;
-    std::unique_ptr<Hud>& hud;
+    PlayerUi*& hud;
     bool& hud_failed;
     bool& hud_second_drawn;
 #endif

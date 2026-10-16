@@ -46,6 +46,8 @@ void read_material_fields(CookedMaterial&,const Json&);
 // The textures a cooked material samples, base colour first.
 std::vector<AssetId> material_textures(const CookedMaterial&);
 Import import_ui(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
+// R6 U0: a packaged UI font (.ttf/.otf with its licence beside it).
+Import import_font(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_prefab(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_combat_kit(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 unsigned graph_product_layer_bound(const std::map<AssetId,Product>&,AssetId);

@@ -1,0 +1,16 @@
+{
+  "schema": 2,
+  "kind": "ui",
+  "asset": "649574c1-62f6-48b6-92fc-e85467fd9e63",
+  "name": "CoreStyle",
+  "purpose": "style",
+  "binding": "ui-v1",
+  "surfaces": [],
+  "size": [
+    1280,
+    720
+  ],
+  "members": {
+    "style": "CoreStyle.rcss"
+  }
+}

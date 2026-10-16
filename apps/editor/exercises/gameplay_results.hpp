@@ -12,7 +12,7 @@ class CharacterSceneSession;
 class CameraDirector;
 class SceneTransitionCoordinator;
 class WorldLedger;
-class Hud;
+class PlayerUi;
 namespace editor_app {
 class Controller;
 class Shell;
@@ -52,7 +52,7 @@ struct GameplayResultContext {
     const std::unique_ptr<CharacterPreviewResources>& resources;
     const std::unique_ptr<CameraDirector>& director;
     const std::unique_ptr<SceneTransitionCoordinator>& travel;
-    const std::unique_ptr<Hud>& hud;
+    PlayerUi* const& hud;
     const ImGuiHudRenderer* hud_renderer{};
     const WorldLedger& ledger;
     const AssetId& authoring_scene;

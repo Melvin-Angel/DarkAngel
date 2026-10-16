@@ -6,6 +6,7 @@
 #include "exercises/prefab_exercise.hpp"
 #include "exercises/material_exercise.hpp"
 #include "exercises/ui_exercise.hpp"
+#include "exercises/ui_play_exercise.hpp"
 #include "exercises/editor_ux_exercise.hpp"
 #include "exercises/live_previews_exercise.hpp"
 #include "editor_controller.hpp"
@@ -394,6 +395,7 @@ int EditorApp::run() {
         {args, editor, store, id, [this] { reload_model(); }, [this](const std::string& text) { reload_shader(text); }});
 #ifdef DAE_CHARACTER_SCENE
     auto& play = *play_;
+    auto ui_play_exercise=exercises::make_ui_play(args.exercise_ui_play,editor,shell,play);
     auto& tools = *tools_;
     auto& previews = *previews_;
     auto authoring_source_exercise = darkangel::editor_app::exercises::make_authoring_sources(
@@ -437,6 +439,7 @@ int EditorApp::run() {
         last_ = now;
         seconds = std::clamp(seconds, 0., .1);
 #ifdef DAE_CHARACTER_SCENE
+        ui_play_exercise->frame(frame);
         play_exercise->frame(frame);
         media_exercise->frame(frame);
         authoring_source_exercise->frame(frame);
@@ -584,6 +587,9 @@ int EditorApp::run() {
     prefab_exercise->finish();
     material_exercise->finish();
     ui_exercise->finish();
+#ifdef DAE_CHARACTER_SCENE
+    ui_play_exercise->finish();
+#endif
     shell.save_preferences();
     render.shutdown();
     std::cout << "DarkAngel editor rendered " << frame << " frames with " << args.backend << '\n';

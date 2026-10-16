@@ -21,7 +21,7 @@ AltarUiModel RuntimeAltar::model(const SceneClient* client,bool host,bool loadin
     if(view.status.empty())view.status=!altar->definition.fast_travel?"This altar is not a fast-travel destination.":!host?"Only the host chooses fast travel.":"Choose a destination, or rest.";
     return view;
 }
-void RuntimeAltar::actions(Hud& hud,SceneClient* client,bool host){
+void RuntimeAltar::actions(PlayerUi& hud,SceneClient* client,bool host){
     for(const auto& action:hud.drain_altar_actions()){
         if(action.kind==AltarUiActionKind::Close){altar_.reset();continue;}if(!altar_||!client)continue;
         WorldRequest request;request.altar=*altar_;
@@ -30,20 +30,21 @@ void RuntimeAltar::actions(Hud& hud,SceneClient* client,bool host){
         status_=client->world_request(request)?(request.kind==WorldRequestKind::Rest?"Resting...":"Travelling to "+request.destination.name+"..."):"Not connected yet. Try again.";
     }
 }
-void RuntimeAltar::frame(Hud& hud,SceneClient* client,bool host,bool focused,bool loading){
+void RuntimeAltar::flush(PlayerUi& hud,SceneClient* client,bool host,bool loading){actions(hud,client,host);hud.update_altar(model(client,host,loading));}
+void RuntimeAltar::frame(PlayerUi& hud,SceneClient* client,bool host,bool focused,bool loading){
     notice(client);if(loading)altar_.reset();
-    if(altar_&&focused&&ImGui::IsKeyPressed(ImGuiKey_Escape,false))altar_.reset();
+    (void)focused;
     // Leaving the altar closes its menu.
     if(altar_&&client){const auto* altar=find(client,*altar_);const auto& at=client->predicted_motor().position;if(!altar||std::hypot(at.x-altar->position.x,at.z-altar->position.z)>altar->definition.radius+2.5)altar_.reset();}
     hud.update_altar(model(client,host,loading));actions(hud,client,host);hud.update_altar(model(client,host,loading));
 }
-void party_lifecycle_hud(HudViewModel& model,const SceneClient& client,const std::optional<InteractionPrompt>& offered,bool interact_held){
+void party_lifecycle_hud(OwnerUiModel& model,const SceneClient& client,const std::optional<InteractionPrompt>& offered,bool interact_held){
     const auto* state=client.world_state();if(!state)return;model.wiped=state->wiped;model.downed=client.downed();
     for(const auto& member:state->members){if(member.state!=PartyMemberState::Downed||member.revive<=0)continue;
         if(member.network==client.network()){model.revive_text="Being revived";model.revive_progress=member.revive;}
         else if(offered&&offered->hold&&interact_held&&client.identity(member.network)==offered->id){model.revive_text="Reviving";model.revive_progress=member.revive;}}
 }
-bool RuntimeAltar::exercise(std::string_view verb,unsigned value,Hud& hud,SceneClient* client,bool host){
+bool RuntimeAltar::exercise(std::string_view verb,unsigned value,PlayerUi& hud,SceneClient* client,bool host){
     notice(client);hud.update_altar(model(client,host,false));
     auto click=[&](const std::string& id){auto box=hud.box(id);if(!box)return false;const int x=int(box->x+box->width/2),y=int(box->y+box->height/2);hud.pointer(x,y,true,false);hud.pointer(x,y,false,true);return true;};
     bool done{};

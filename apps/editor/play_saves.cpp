@@ -7,7 +7,7 @@
 
 namespace darkangel::editor_app {
 namespace {void require(bool b,const char* e){if(!b)throw std::runtime_error(e);}}
-std::span<const LedgerKind> play_ledger_kinds(){static const std::array<LedgerKind,8> kinds{LedgerKind{"interactable",1},LedgerKind{"trigger",1},LedgerKind{"encounter",1},LedgerKind{"actor",1},LedgerKind{"pickup",1},LedgerKind{"mover",1},LedgerKind{"altar",1},LedgerKind{"checkpoint",1}};return kinds;}
+std::span<const LedgerKind> play_ledger_kinds(){static const std::array<LedgerKind,9> kinds{LedgerKind{"interactable",1},LedgerKind{"trigger",1},LedgerKind{"encounter",1},LedgerKind{"actor",1},LedgerKind{"pickup",1},LedgerKind{"mover",1},LedgerKind{"altar",1},LedgerKind{"checkpoint",1},LedgerKind{"puzzle",1}};return kinds;}
 std::string encode_play_save(const WorldLedger& ledger,const PartyInventory* inventory,AssetId scene,StableId entry){
     nlohmann::json value{{"version",play_save_version},{"kind","darkangel.play"},{"ledger",nlohmann::json::parse(ledger.serialize())},{"inventories",nlohmann::json::array()},{"scene",scene.text()},{"entry",entry?nlohmann::json(entry.text()):nlohmann::json(nullptr)}};
     if(inventory)for(const auto& snapshot:inventory->capture())value["inventories"].push_back(nlohmann::json::parse(encode_inventory(snapshot)));

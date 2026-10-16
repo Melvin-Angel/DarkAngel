@@ -1,0 +1,6 @@
+<rml><head><title>Health</title></head><body data-model="owner"><div id="player" class="panel">
+	<div id="mask" class="mask" data-if="has_mask">{{mask}}</div>
+	<div id="stagger" class="caption" data-if="staggered">Staggered</div>
+	<div id="health-bar" class="bar"><div id="health-fill" class="fill health" data-style-width="health_percent + '%'"></div><div id="health-text" class="label">{{health_text}}</div></div>
+
+</div></body></rml>

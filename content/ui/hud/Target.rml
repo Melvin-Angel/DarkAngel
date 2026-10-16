@@ -1,0 +1,5 @@
+<rml><head><title>Target</title></head><body data-model="owner"><div id="target" class="panel" data-if="has_target">
+	<div id="target-name" class="caption">{{target_name}}</div>
+	<div id="target-bar" class="bar"><div id="target-fill" class="fill enemy" data-style-width="target_percent + '%'"></div><div id="target-text" class="label">{{target_text}}</div></div>
+	<div id="lock" class="lock" data-if="target_locked">Locked on</div>
+</div></body></rml>

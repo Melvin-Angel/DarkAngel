@@ -24,7 +24,9 @@ struct CookedMask {MaskDefinition definition;CookedCombatKit kit;};
 // cameras: the Player's virtual camera rig; the built-in FreeLook + Aim rig when not authored.
 struct PlayerStartingInventory {std::vector<InventoryStartingItem> items;std::array<AssetId,4> equipped{};unsigned active{};};
 PlayerStartingInventory decode_player_inventory(std::string_view);
-struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};std::optional<PlayerStartingInventory> inventory;};
+struct ActorUiAttachment {AssetId document;std::string source;std::array<float,3> offset{0,2,0};float distance{40};};
+struct ActorUiDefinition {std::vector<ActorUiAttachment> hud,markers;};
+struct PlayerDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string generation;AssetId input_profile;CameraRigDefinition cameras{default_camera_rig()};bool authored_cameras{};std::optional<PlayerStartingInventory> inventory;ActorUiDefinition ui;};
 // Typed Player "cameras" array (also used by the editor's authoring preview).
 CameraRigDefinition decode_camera_rig(std::string_view json);
 // Decodes and validates the "senses" object of an NPC source; the cooker reads it with the same rules.
@@ -33,7 +35,7 @@ SensesDefinition decode_npc_senses(std::string_view json);
 // plus a display name and a faction. No input profile, cameras or behaviour live here.
 // behavior: optional authored behaviour tree the NPC runs in Play (a native .dabehavior source).
 // senses: what the NPC can notice in Play; without them it perceives nothing.
-struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;SensesDefinition senses;};
+struct NpcDefinition {AssetId id,character;ActorLoadoutDefinition loadout;std::string name,faction,generation;AssetId behavior;BehaviorTuning tuning;SensesDefinition senses;ActorUiDefinition ui;};
 struct CookedCharacter {CharacterDefinition definition;RuntimeSkinnedModel skin;};
 // kit is the effective starting kit: the active mask's kit when masks are equipped.
 struct CookedPlayer {std::array<std::optional<CookedMask>,mask_slot_count> masks;PlayerDefinition definition;CookedCharacter character;CookedCombatKit kit;std::vector<AttributeDefinition> attributes;InputProfile input;CookedCombatKit base_kit;std::vector<CookedItem> items;MotorParameters movement;};

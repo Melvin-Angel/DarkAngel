@@ -1,3 +1,4 @@
+#include <darkangel/player_ui.hpp>
 #include "gameplay_results.hpp"
 #include <darkangel/scene_client.hpp>
 #include <darkangel/scene_authority.hpp>
@@ -8,7 +9,7 @@
 #include "../character_preview.hpp"
 #ifdef DAE_HUD
 #include "../hud_overlay.hpp"
-#include <darkangel/hud.hpp>
+#include <darkangel/ui_document.hpp>
 #endif
 #include <darkangel/camera.hpp>
 #include <darkangel/check.hpp>
