@@ -68,12 +68,18 @@ bool SceneResources::is_skin(AssetId asset, const std::filesystem::path& package
             return record.at("kind") == "human-binding";
     return false;
 }
-void SceneResources::prepare_model(AssetId requested, const std::filesystem::path& registry, const std::filesystem::path& cas) {
+void SceneResources::prepare_model(AssetId requested, const std::filesystem::path& registry, const std::filesystem::path& cas,bool refresh) {
     const auto& source = registry.empty() ? args.registry : registry;
     const auto& store = cas.empty() ? args.cas : cas;
     auto& device = render_.device;
     auto& pso = render_.pso;
     auto& pso_cull = render_.pso_cull;
+    if(refresh&&!is_skin(requested,source)){
+        require(requested==id||scene_models.contains(requested)||scene_models.size()<4096,"Editor model resource limit (4096 distinct models)");
+        auto cooked=std::make_shared<RuntimeModel>(load_cooked_model(source,store,requested));auto uploaded=upload(device,*cooked,pso,pso_cull);
+        render_.context->Flush();render_.context->WaitForIdle();
+        if(requested==id){gpu=std::move(uploaded);refreshed_main=std::move(cooked);}else{scene_models[requested]=std::move(uploaded);refreshed_models[requested]=std::move(cooked);}return;
+    }
     if (requested == id || scene_models.contains(requested))
         return;
     // Distinct uploaded models; a scene places each as often as it likes.
@@ -94,6 +100,23 @@ void SceneResources::prepare_model(AssetId requested, const std::filesystem::pat
     auto resources = upload(device, cooked, pso, pso_cull);
     scene_models.emplace(requested, std::move(resources));
 }
+void SceneResources::prepare_material(AssetId model,AssetId slot,const RuntimeMaterial& material) {
+    const UploadedModel* target=model==id?&gpu:scene_models.contains(model)?&scene_models.at(model):nullptr;
+#ifdef DAE_ANIMATION
+    if(!target&&scene_skins.contains(model))target=&scene_skins.at(model).gpu;
+#endif
+    require(target&&target->materials.contains(slot),"Material slot no longer exists on this model; repair the assignment explicitly");
+    const auto found=native_materials.find(material.value.id);if(found!=native_materials.end()&&found->second.source.generation==material.generation)return;
+    require(found!=native_materials.end()||native_materials.size()<4096,"Native material resource limit (4096)");
+    auto prepared=upload_material(render_.device,material,render_.pso,render_.pso_cull
+#ifdef DAE_ANIMATION
+        ,skin_pso,skin_cull
+#endif
+    );
+    // Keep the old binding alive until every submitted draw using it has completed.
+    if(found!=native_materials.end()){render_.context->Flush();render_.context->WaitForIdle();}
+    native_materials[material.value.id]=std::move(prepared);
+}
 void SceneResources::reload_shader(const std::string& text, const ModelGeneration& lease) {
     auto& device = render_.device;
     auto& context = render_.context;
@@ -103,12 +126,19 @@ void SceneResources::reload_shader(const std::string& text, const ModelGeneratio
     auto& pso_cull = render_.pso_cull;
     auto next = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, false, text.c_str());
     auto next_cull = pipeline(device, constant_buffer, swap_desc.ColorBufferFormat, swap_desc.DepthBufferFormat, true, text.c_str());
-    auto resources = upload(device, *lease.model, next, next_cull);
+    auto resources = upload(device, refreshed_main?*refreshed_main:*lease.model, next, next_cull);
     std::map<AssetId, UploadedModel> other;
     for (const auto& [asset, unused] : scene_models)
-        other.emplace(asset, upload(device, load_cooked_model(args.registry, args.cas, asset), next, next_cull));
+        if(const auto refreshed=refreshed_models.find(asset);refreshed!=refreshed_models.end())other.emplace(asset,upload(device,*refreshed->second,next,next_cull));
+        else other.emplace(asset, upload(device, load_cooked_model(args.registry, args.cas, asset), next, next_cull));
+    std::map<AssetId,UploadedMaterial> next_materials;for(const auto& [asset,material]:native_materials)next_materials.emplace(asset,upload_material(device,material.source,next,next_cull
+#ifdef DAE_ANIMATION
+        ,skin_pso,skin_cull
+#endif
+    ));
     context->Flush();
     context->WaitForIdle();
+    native_materials=std::move(next_materials);
     scene_models = std::move(other);
     gpu = std::move(resources);
     pso = std::move(next);
@@ -134,6 +164,11 @@ SceneResources::Reload SceneResources::prepare_reload(const ModelStore& store) {
                                          args.skin_reference ? pso_cull.RawPtr() : skin_cull.RawPtr(), diagnostic_clip.get(),
                                          args.pose_tick, args.skin_reference));
 #endif
+    for(const auto& [asset,material]:native_materials)reload.materials.emplace(asset,upload_material(device,material.source,pso,pso_cull
+#ifdef DAE_ANIMATION
+        ,skin_pso,skin_cull
+#endif
+    ));
     return reload;
 }
 void SceneResources::commit_models(Reload& reload) {
@@ -141,6 +176,8 @@ void SceneResources::commit_models(Reload& reload) {
     context->Flush();
     context->WaitForIdle();
     scene_models = std::move(reload.other);
+    refreshed_models.clear();
+    native_materials=std::move(reload.materials);
 #ifdef DAE_ANIMATION
     scene_skins = std::move(reload.skins);
 #endif
@@ -148,6 +185,7 @@ void SceneResources::commit_models(Reload& reload) {
 void SceneResources::commit_model(Reload& reload, ModelStore& store, ModelGeneration& lease) {
     store.publish(reload.candidate);
     gpu = std::move(reload.resources);
+    refreshed_main.reset();
     lease = store.acquire();
     store.collect();
 }

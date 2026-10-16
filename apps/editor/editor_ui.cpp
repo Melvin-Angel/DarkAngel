@@ -321,7 +321,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
             ImGui::TextWrapped("Play spawns this NPC here with its own kit, attributes and behaviour. The object's Health is replaced by the NPC's.");ImGui::SetNextItemWidth(-1);
             if(ImGui::BeginCombo("##spawn-npc",npc_label(editor,spawn->second).c_str())){for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".danpc"&&ImGui::Selectable(std::filesystem::path(asset.path).stem().string().c_str(),asset.id==spawn->second)&&asset.id!=spawn->second){const auto point=object.id;const auto npc=asset.id;action(editor,[&]{set_spawn_npc(editor,point,npc);});break;}ImGui::EndCombo();}reference_routes(editor,spawn->second,ImGui::IsItemHovered());
             ImGui::TextDisabled("Respawn: never");}
-        if(!draw_prefab_instance(editor,object.id)){draw_components(*this,editor,object.id);draw_create_prefab(editor,object.id);}
+        if(!draw_prefab_instance(editor,object.id)){draw_components(*this,editor,object.id);draw_create_prefab(editor,object.id);}draw_object_materials(editor,object.id);
         if(ImGui::Button("Delete object"))remove_request=object.id;ImGui::SameLine();
         if(ImGui::Button("Undo"))action(editor,[&]{editor.document->undo(editor.document->revision());});ImGui::SameLine();if(ImGui::Button("Redo"))action(editor,[&]{editor.document->redo(editor.document->revision());});ImGui::EndDisabled();
         if(ImGui::CollapsingHeader("Advanced / Debug")){

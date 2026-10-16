@@ -20,7 +20,9 @@ class SceneResources {
     SceneResources& operator=(const SceneResources&) = delete;
     // Uploads a model or skin a scene places, once (the Controller's prepare_model), from the Play package or from the given
     // package of that model alone (its registry and content store).
-    void prepare_model(AssetId, const std::filesystem::path& registry = {}, const std::filesystem::path& cas = {});
+    void prepare_model(AssetId, const std::filesystem::path& registry = {}, const std::filesystem::path& cas = {},bool refresh=false);
+    void prepare_material(AssetId model,AssetId slot,const RuntimeMaterial&);
+    std::map<AssetId,UploadedMaterial> native_materials;
     // The editor's main model, drawn when a scene places it.
     AssetId model() const {
         return id;
@@ -33,6 +35,7 @@ class SceneResources {
         ModelGeneration candidate;
         UploadedModel resources;
         std::map<AssetId, UploadedModel> other;
+        std::map<AssetId,UploadedMaterial> materials;
 #ifdef DAE_ANIMATION
         std::map<AssetId, UploadedSkin> skins;
 #endif
@@ -62,6 +65,8 @@ class SceneResources {
     RenderSystem& render_;
     const EditorOptions& args;
     AssetId id;
+    std::shared_ptr<const RuntimeModel> refreshed_main;
+    std::map<AssetId,std::shared_ptr<const RuntimeModel>> refreshed_models;
 };
 } // namespace render
 } // namespace darkangel::editor_app

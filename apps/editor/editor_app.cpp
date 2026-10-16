@@ -97,6 +97,17 @@ EditorApp::EditorApp(EditorOptions options)
             scene_->prepare_model(requested, editor_->package_model(requested), editor_->assets->cas_path());
         }
     };
+    editor.refresh_model=[this](AssetId requested){require(!editor_->preview.active(),"Stop Play before refreshing model materials");const auto registry=editor_->package_model(requested);const auto cooked=load_cooked_model(registry,editor_->assets->cas_path(),requested);
+        for(const auto& [object,slots]:editor_->document->plan().materials)if(editor_->document->plan().models.at(object)==requested)for(const auto& [slot,material]:slots)require(std::any_of(cooked.materials.begin(),cooked.materials.end(),[&](const auto& value){return value.id==slot;}),"A scene material slot was removed; repair the preserved assignment before refreshing");
+        scene_->prepare_model(requested,registry,editor_->assets->cas_path(),true);};
+    editor.prepare_material=[this](AssetId model,AssetId slot,AssetId material){
+        // Active scene travel consumes the freshly prepared frozen package, never an ad-hoc recook of artist sources.
+        const auto registry=editor_->assets&&!editor_->preview.active()?editor_->package_model(material):args.registry;
+        const auto cas=editor_->assets&&!editor_->preview.active()?editor_->assets->cas_path():args.cas;
+        const auto model_registry=editor_->assets&&!editor_->preview.active()?editor_->package_model(model):args.registry;
+        const auto cooked=load_cooked_model(model_registry,cas,model);require(std::any_of(cooked.materials.begin(),cooked.materials.end(),[&](const auto& value){return value.id==slot;}),"A material slot was removed; repair its preserved assignment");
+        scene_->prepare_material(model,slot,load_cooked_material_instance(registry,cas,material));
+    };
     if (!args.scene.empty())
         editor.open(args.scene);
     shell.navigation_scene=editor.document->root();
@@ -474,7 +485,8 @@ int EditorApp::run() {
         viewport.resize(area);
         if (shell.reload_model) {
             try {
-                reload_model();
+                // A stopped authoring session reloads published sources, including edited material assignments.
+                if(editor.prepare_play_resources&&!editor.preview.active()&&!editor.authoring.dirty())editor.prepare_play_resources();else reload_model();
             } catch (const std::exception& error) {
                 context->Flush();
                 context->WaitForIdle();

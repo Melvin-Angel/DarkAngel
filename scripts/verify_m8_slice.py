@@ -30,6 +30,15 @@ collision = json.loads((source/'royal_district/collision/environment.dacollision
 player = json.loads((source/'players/royal_player.daplayer').read_text())['asset']
 scene_a, scene_b = 'RoyalTraining.dascene', 'RoyalVillage.dascene'
 scene_id = lambda name: json.loads((source/'royal_district'/name).read_text())['root']
+# A destination-only appearance override exercises frozen material preparation on host and guest scene travel.
+material_path = source/'materials/m8_travel.damaterial'
+if not reuse:
+    material_path.parent.mkdir(parents=True, exist_ok=True)
+    material_path.write_text(json.dumps(dict(schema=1, kind='material', asset=str(uuid.uuid4()), name='Travel material', family='lit-color-v1',
+                                           color=[.1,.2,.9,1], roughness=.4, metallic=.1, double_sided=False, texture=None)))
+travel_material = json.loads(material_path.read_text())['asset'] if material_path.exists() else None
+travel_model = json.loads((source/'royal_district/static/mud_huts/SM_RC_MudHut_Round_1F.gltf.daimport').read_text())
+travel_slot = travel_model['subassets']['material/trim']
 def editor(scene):
     return [BUILD/'DarkAngelEditor.exe', '--registry', work/'registry.json', '--cas', cache/'cas', '--model', model, '--scene', source/'royal_district'/scene,
             '--character-kit', fixture['kit'], '--character-collision', collision, '--character-player', '00000000000000000000000000000004', '--player-asset', player,
@@ -62,7 +71,8 @@ if reuse: a, b = state['a'], state['b']
 else: b = place('m8-slice-place-b', scene_b, [
     {'key': 'entry', 'kind': 'entry', 'x': 0, 'z': 1, 'component': {'name': 'From the training ground'}},
     {'key': 'altar', 'kind': 'altar', 'x': 3, 'z': 1, 'component': {'name': 'Village Altar'}},
-    {'key': 'platform', 'kind': 'platform', 'x': -5, 'z': 6}])
+    {'key': 'platform', 'kind': 'platform', 'x': -5, 'z': 6},
+    {'key': 'material_copy', 'kind': 'model', 'asset': travel_model['id'], 'x': -18, 'z': -18, 'materials': {travel_slot: travel_material}}])
 if not reuse: a = place('m8-slice-place-a', scene_a, [
     {'key': 'key', 'kind': 'pickup', 'x': 3, 'z': 3, 'component': {'item': '@item:items/traveller_token.daitem', 'prompt': 'Take the temple key'}},
     {'key': 'door', 'kind': 'door', 'x': -3, 'z': 6, 'component': {'locked': True, 'prompt': 'Open the gate', 'locked_prompt': 'The gate is locked', 'requires': {'item': '@item:items/traveller_token.daitem', 'consume': True}}},
@@ -138,9 +148,14 @@ if seen.get('arrivals', 0) < 5: fail(name, 'the party did not make all five arri
 if not world.get('checkpoint') or world['checkpoint']['altar'] != b['altar']: fail(name, 'fast travel or the wipe changed the checkpoint set by resting in the village', seen)
 if seen.get('scene_now') != scene_id(scene_b): fail(name, 'the wipe in the training ground did not respawn the party in the village', seen)
 if not re.findall(r'Script party tick=\d+ seat0=([1-9][0-9.]*) seat1=([1-9][0-9.]*)', log): fail(name, 'both players are not alive after the respawn in the other scene', log)
+if travel_material:
+  expected = {travel_slot: travel_material}
+  if seen.get('render_material_bindings', {}).get(b['material_copy']) != expected: fail(name, 'host destination material bindings were not preserved through travel/respawn', seen)
+  guest = latest(receipt(EVIDENCE/(name+'-player-1.json')))
+  if guest.get('render_material_bindings', {}).get(b['material_copy']) != expected: fail(name, 'guest destination material bindings were not preserved through travel/respawn', guest)
 print(name+' passed', flush=True)
 
-(EVIDENCE/'m8-slice.json').write_text(json.dumps(dict(gates=gates, work=str(work), limits=[
+(EVIDENCE/'m8-slice.json').write_text(json.dumps(dict(gates=gates, work=str(work), material_travel=bool(travel_material), limits=[
     'Same-machine UDP and D3D12 only.', 'Scenes share one collision profile (Q1 not used by Play yet).',
     'Revive progress is asserted through the completed revive and respawn, not through the HUD capture.']), indent=2)+'\n')
 print('All M8 slice gates passed', flush=True)

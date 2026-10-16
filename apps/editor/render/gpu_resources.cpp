@@ -170,6 +170,13 @@ void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, c
     require(written, "The capture could not be written: its file is held by another program");
     std::cout << "Viewport foreground pixels=" << changed << " capture=" << path.string() << '\n';
 }
+UploadedMaterial upload_material(IRenderDevice* device,const RuntimeMaterial& material,IPipelineState* pso,IPipelineState* cull,IPipelineState* skin,IPipelineState* skin_cull) {
+    UploadedMaterial out;out.source=material;CookedTexture white;white.mips.push_back({1,1,{255,255,255,255}});out.fallback=texture(device,white);
+    for(const auto& [id,cooked]:material.textures)out.textures.emplace(id,texture(device,cooked));
+    auto bind=[&](Material& destination,IPipelineState* double_sided,IPipelineState* single_sided){destination.value=material.value;auto* chosen=material.value.double_sided?double_sided:single_sided;require(chosen,"Missing material pipeline");chosen->CreateShaderResourceBinding(&destination.binding,true);require(destination.binding,"Native material binding failed");
+        auto* variable=destination.binding->GetVariableByName(SHADER_TYPE_PIXEL,"Albedo");require(variable,"Shader changed native material Albedo contract");auto* view=(material.value.has_texture?out.textures.at(material.value.texture):out.fallback)->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);variable->Set(view);};
+    bind(out.surface,pso,cull);if(skin)bind(out.skinned,skin,skin_cull);return out;
+}
 UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull) {
     require(!model.meshes.empty(), "Empty cooked model");
     UploadedModel out;

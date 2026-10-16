@@ -1001,6 +1001,7 @@ void PlayController::install_preparation() {
                     unique.insert(visual);
             for (const auto& [object, asset] : editor.document->plan().models)
                 unique.insert(asset);
+            for(const auto& [object,slots]:editor.document->plan().materials)for(const auto& [slot,material]:slots)unique.insert(material);
             for (const auto& asset : editor.asset_inventory)
                 if (std::filesystem::path(asset.path).extension() == ".daitem") {
                     unique.insert(asset.id);
@@ -1042,6 +1043,7 @@ void PlayController::install_preparation() {
                 darkangel::editor_app::package_authoring(*editor.assets, roots, candidate);
             // Static collision needs no bake: the package holds every placed model's cooked collision shape, and host and guests
             // each build the same static layer from the scene when Play starts.
+            validate_cooked_material_bindings(candidate,editor.assets->cas_path(),editor.document->plan());
             const auto packaged = std::chrono::steady_clock::now();
             auto old_registry = args.registry, old_cas = args.cas;
             auto old_clips = args.character_clips;
@@ -1101,6 +1103,7 @@ void PlayController::enter_scene(AssetId scene, std::unique_ptr<darkangel::Edito
     travel_preparing = true;
     try {
         editor.prepare_play_resources();
+        editor.prepare_render_materials(editor.document->plan());
     } catch (...) {
         travel_preparing = false;
         throw;
@@ -1672,6 +1675,7 @@ void PlayController::party_receipt(unsigned frame) {
                                          {"health_bar", marker.health_bar},
                                          {"percent", marker.percent}});
 #endif
+    value["render_material_bindings"]=nlohmann::json::object();if(editor.preview.active())for(const auto& [object,slots]:editor.preview.active()->plan.materials)for(const auto& [slot,material]:slots)value["render_material_bindings"][object.text()][slot.text()]=material.text();
     for (std::size_t line = editor.console.size() > 12 ? editor.console.size() - 12 : 0; line < editor.console.size(); ++line)
         value["console"].push_back(editor.console[line].message.substr(0, 300));
     if (character && character->bootstrapped()) {

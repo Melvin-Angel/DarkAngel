@@ -21,6 +21,7 @@ EVIDENCE = ROOT / "docs/implementation/evidence"
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gate", choices=("all", "materials"), default="all")
+    parser.add_argument("--backend", choices=("d3d12", "vulkan"), default="d3d12")
     args = parser.parse_args()
     seed = json.loads((BUILD / "authoring-fixture.json").read_text(encoding="utf-8"))
     run_id = uuid.uuid4().hex[:10]
@@ -32,9 +33,9 @@ def main():
                  and (p.name in ("RoyalCombat.dascene", "RoyalTraining.dascene") or ".records" in str(p))]
     before = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in protected}
     receipt = {
-        "run": run_id, "gate": args.gate, "fixture": str(work), "gates": [],
+        "run": run_id, "gate": args.gate, "backend":args.backend, "fixture": str(work), "gates": [],
         "binary_sha256": hashlib.sha256((BUILD / "DarkAngelEditor.exe").read_bytes()).hexdigest(),
-        "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+        "qualification": "Synthetic ImGui input in the "+args.backend+" editor on this machine; no physical-device or remote/EOS qualification.",
     }
     receipt_path = EVIDENCE / ("r5-materials-" + run_id + ".json")
 
@@ -63,9 +64,9 @@ def main():
                 "--model", model, "--scene", source / "royal_district/RoyalTraining.dascene",
                 "--character-kit", seed["kit"], "--character-collision", collision,
                 "--character-player", "00000000000000000000000000000004", "--sources", source,
-                "--asset-cache", cache, "--backend", "d3d12", "--hidden", "--no-audio", "--capture-workspace"]
+                "--asset-cache", cache, "--backend", args.backend, "--hidden", "--no-audio", "--capture-workspace"]
         cases = {
-            "materials": (["--exercise-materials", "--frames", "16"], ["Editor materials create=1 assign=1 edit=1 save=1 reset=1"]),
+            "materials": (["--exercise-materials", "--frames", "28"], ["Editor materials create=1 assign=1 edit=1 save=1 reset=1 local=1 revert=1 reopen=1 play=1 swap=1 shader_reload=1 model_reload=1 navigation=1 shared_local=1"]),
         }
         for name, (options, markers) in cases.items():
             if args.gate not in ("all", name):

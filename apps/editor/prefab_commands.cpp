@@ -20,11 +20,13 @@ Json& mount_of(Json& graph,const std::string& mount){require(graph.contains("mou
 Json& patches_of(Json& mount){if(!mount.contains("patches")||mount["patches"].is_null())mount["patches"]=Json::array();return mount["patches"];}
 Json placement_json(const PrefabPlacement& p){for(double v:{p.x,p.y,p.z,p.yaw})require(std::isfinite(v),"Prefab placement must be finite");return {{"x",p.x},{"y",p.y},{"z",p.z},{"yaw",p.yaw}};}
 const std::string& linked_text(const EditorDocument& document,AssetId prefab){auto found=document.links().find(prefab);require(found!=document.links().end(),"The prefab is not linked by this scene");return found->second;}
-bool component_patch(const Json& patch){auto op=patch.value("op","");return op=="SetComponentField"||op=="AddComponent"||op=="RemoveComponent";}
+bool component_patch(const Json& patch){auto op=patch.value("op","");return op=="SetMaterial"||op=="SetComponentField"||op=="AddComponent"||op=="RemoveComponent";}
 // The same component operations the assembly resolver applies, on one entity.
 void apply_component_patch(Json& entity,const Json& patch){
     auto op=patch.at("op").get<std::string>();auto component=patch.at("component").get<std::string>();
-    if(op=="SetComponentField"){require(entity.contains(component)&&entity[component].is_object(),"Override names a component the prefab no longer has");entity[component][patch.at("field").get<std::string>()]=patch.at("value");}
+    if(op=="SetMaterial"){require(entity.contains("model")&&entity["model"].is_string()&&component=="materials","Material patch needs a model");const auto slot=patch.at("field").get<std::string>();require(AssetId::parse(slot)!=AssetId{},"Material slot identity");
+        if(patch.at("value").is_null()){if(entity.contains("materials"))entity["materials"].erase(slot);}else{require(AssetId::parse(patch.at("value").get<std::string>())!=AssetId{},"Material instance identity");entity["materials"][slot]=patch.at("value");}}
+    else if(op=="SetComponentField"){require(entity.contains(component)&&entity[component].is_object(),"Override names a component the prefab no longer has");entity[component][patch.at("field").get<std::string>()]=patch.at("value");}
     else if(op=="AddComponent")entity[component]=patch.at("value");
     else if(op=="RemoveComponent")entity.erase(component);}
 // Every typed patch operation of the assembly resolver, on an assembly graph (its entities by local key).
@@ -124,11 +126,20 @@ std::vector<PrefabOverride> instance_overrides(const EditorDocument& document,co
     auto graph=root_graph(document);auto& value=mount_of(graph,mount);auto prefab=AssetId::parse(value.at("asset").get<std::string>());std::vector<PrefabOverride> result;
     for(const auto& patch:value.value("patches",Json::array())){if(!component_patch(patch))continue;
         PrefabOverride entry;entry.member=patch.at("target");entry.component=patch.at("component");auto source=prefab_member(document,prefab,entry.member);auto op=patch.at("op").get<std::string>();
-        if(op=="SetComponentField"){entry.field=patch.at("field");entry.instance_value=patch.at("value");if(source.contains(entry.component)&&source[entry.component].is_object()&&source[entry.component].contains(entry.field))entry.prefab_value=source[entry.component][entry.field];}
+        if(op=="SetMaterial"||op=="SetComponentField"){entry.field=patch.at("field");entry.instance_value=patch.at("value");if(source.contains(entry.component)&&source[entry.component].is_object()&&source[entry.component].contains(entry.field))entry.prefab_value=source[entry.component][entry.field];}
         else if(op=="AddComponent"){entry.kind=PrefabOverride::AddedComponent;entry.instance_value=patch.at("value");}
         else{entry.kind=PrefabOverride::RemovedComponent;if(source.contains(entry.component))entry.prefab_value=source[entry.component];}
         result.push_back(std::move(entry));}
     return result;
+}
+void set_instance_material(EditorDocument& document,const std::string& mount,const std::string& member,AssetId slot,AssetId material){
+    require(slot!=AssetId{},"Material slot identity");auto graph=root_graph(document);auto& mounted=mount_of(graph,mount);auto& patches=patches_of(mounted);
+    const auto source=prefab_member(document,AssetId::parse(mounted.at("asset").get<std::string>()),member);require(source.contains("model")&&source.at("model").is_string(),"Material assignments need a model");
+    const auto key=slot.text();Json inherited;if(source.contains("materials")&&source.at("materials").contains(key))inherited=source.at("materials").at(key);
+    Json value;if(material!=AssetId{})value=material.text();
+    patches.erase(std::remove_if(patches.begin(),patches.end(),[&](const Json& patch){return patch.value("op","")=="SetMaterial"&&patch.at("target")==member&&patch.at("field")==key;}),patches.end());
+    if(value!=inherited)patches.push_back({{"op","SetMaterial"},{"target",member},{"component","materials"},{"field",key},{"value",value}});
+    commit_root(document,graph,"Assign instance material");
 }
 void set_instance_field(EditorDocument& document,const std::string& mount,const std::string& member,const std::string& component,const std::string& field,const Json& value){
     require(world_object(component),"Only world-object component fields can be overridden on an instance");
@@ -172,7 +183,7 @@ std::string prefab_with_overrides(const EditorDocument& document,const std::stri
         ++applied;}
     require(applied>0,"The selected overrides are no longer present");decode_prefab(prefab.dump(),document.links());return prefab.dump();
 }
-SwapPreview prepare_swap(EditorDocument& document,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_defaults,const AssemblySources& dependencies){
+SwapPreview prepare_swap(EditorDocument& document,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_defaults,const AssemblySources& dependencies,const MaterialSwap& materials){
     SwapPreview preview;auto graph=root_graph(document);auto& mounted=mount_of(graph,mount);auto current=AssetId::parse(mounted.at("asset").get<std::string>());
     auto sources=with(document,dependencies);sources[replacement]=replacement_text;
     auto definition=decode_prefab(replacement_text,sources);require(definition.id==replacement,"Replacement prefab identity");
@@ -180,25 +191,33 @@ SwapPreview prepare_swap(EditorDocument& document,const std::string& mount,Asset
     auto old_entities=prefab_entities(current,document.links()),new_entities=prefab_entities(replacement,sources);
     if(old_entities.size()!=1||new_entities.size()!=1||parse(linked_text(document,current)).value("mounts",Json::object()).size()!=0||parse(replacement_text).value("mounts",Json::object()).size()!=0){preview.reason="Swap supports single-object prefabs; multi-object member mapping is later work";return preview;}
     auto old_entity=old_entities.begin().value();auto new_entity=new_entities.begin().value();
+    std::set<AssetId> overridden_slots;for(const auto& patch:mounted.value("patches",Json::array()))if(patch.value("op","")=="SetMaterial")overridden_slots.insert(AssetId::parse(patch.at("field").get<std::string>()));
+    if(!use_defaults){std::set<AssetId> mapped;for(const auto& [from,to]:materials.remap)if(!overridden_slots.contains(from)||!materials.replacement_slots.contains(to)||!mapped.insert(to).second){preview.reason="Material mapping must name overridden source slots and unique existing replacement slots";return preview;}
+        mapped.clear();for(auto slot:overridden_slots)if(!mapped.insert(materials.remap.contains(slot)?materials.remap.at(slot):slot).second){preview.reason="Material mapping collides with another carried slot";return preview;}}
     if(contract(old_entity)!=contract(new_entity)){preview.reason="The replacement has a different gameplay contract (its world-object components differ); persistent state cannot carry over";return preview;}
     for(const auto& patch:mounted.value("patches",Json::array())){
         std::string label=patch.value("op","")+" "+patch.value("component",std::string{})+(patch.contains("field")?"."+patch.at("field").get<std::string>():std::string{});
         if(!component_patch(patch)){preview.carried.push_back(label);continue;}
         if(use_defaults){preview.discarded.push_back(label);continue;}
         auto component=patch.at("component").get<std::string>();auto op=patch.at("op").get<std::string>();
+        if(op=="SetMaterial"){
+            const auto source_slot=AssetId::parse(patch.at("field").get<std::string>());const bool explicit_map=materials.remap.contains(source_slot);const auto target=explicit_map?materials.remap.at(source_slot):source_slot;
+            const bool same_model=old_entity.value("model",Json())==new_entity.value("model",Json());const bool fits=(same_model||explicit_map)&&(materials.replacement_slots.empty()?same_model&&!explicit_map:materials.replacement_slots.contains(target));
+            if(fits)preview.carried.push_back(label+(explicit_map?" -> "+target.text():" (same stable slot)"));else preview.discarded.push_back(label+" (choose an explicit replacement slot or replacement defaults)");continue;
+        }
         bool fits=op=="SetComponentField"?new_entity.contains(component)&&new_entity[component].is_object()&&new_entity[component].contains(patch.at("field").get<std::string>()):op=="AddComponent"?!new_entity.contains(component):new_entity.contains(component);
         (fits?preview.carried:preview.discarded).push_back(label);}
     if(!preview.discarded.empty()&&!use_defaults){preview.reason="Some overrides do not fit the replacement; choose Use replacement defaults to discard them";return preview;}
     preview.compatible=true;return preview;
 }
-void commit_swap(EditorDocument& document,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_defaults,const AssemblySources& dependencies){
-    auto preview=prepare_swap(document,mount,replacement,replacement_text,use_defaults,dependencies);require(preview.compatible,preview.reason);
+void commit_swap(EditorDocument& document,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_defaults,const AssemblySources& dependencies,const MaterialSwap& materials){
+    auto preview=prepare_swap(document,mount,replacement,replacement_text,use_defaults,dependencies,materials);require(preview.compatible,preview.reason);
     auto graph=root_graph(document);auto& mounted=mount_of(graph,mount);auto current=AssetId::parse(mounted.at("asset").get<std::string>());
     auto sources=with(document,dependencies);sources[replacement]=replacement_text;
     const auto old_member=member_keys(prefab_entities(current,document.links()))[0],new_member=member_keys(prefab_entities(replacement,sources))[0];
     // The gameplay member keeps the authored path its identity already derives from.
     auto retained=mounted.value("retain",Json::object());const std::string path=retained.contains(old_member)?retained[old_member].get<std::string>():document.placement().text()+"/"+mount+"/"+old_member;
-    Json patches=Json::array();for(auto patch:mounted.value("patches",Json::array())){if(use_defaults&&component_patch(patch))continue;if(patch.at("target")==old_member)patch["target"]=new_member;patches.push_back(std::move(patch));}
+    Json patches=Json::array();for(auto patch:mounted.value("patches",Json::array())){if(use_defaults&&component_patch(patch))continue;if(patch.value("op","")=="SetMaterial"){const auto slot=AssetId::parse(patch.at("field").get<std::string>());if(materials.remap.contains(slot))patch["field"]=materials.remap.at(slot).text();}if(patch.at("target")==old_member)patch["target"]=new_member;patches.push_back(std::move(patch));}
     mounted["asset"]=replacement.text();mounted["patches"]=std::move(patches);mounted.erase("retain");
     if(path!=document.placement().text()+"/"+mount+"/"+new_member)mounted["retain"]={{new_member,path}};
     link_with(document,replacement,replacement_text,dependencies);
@@ -214,6 +233,11 @@ std::string own_local(EditorDocument& document,StableId object){
 // The scene's own retained identity of a local key (R4 Unpack), or its derived path.
 std::string own_identity_path(const EditorDocument& document,const Json& graph,const std::string& local){
     if(graph.contains("retain")&&graph["retain"].is_object()&&graph["retain"].contains(local))return graph["retain"][local].get<std::string>();return document.placement().text()+"/"+local;}
+}
+void set_object_material(EditorDocument& document,StableId object,AssetId slot,AssetId material){
+    require(slot!=AssetId{},"Material slot identity");const auto local=own_local(document,object);auto graph=root_graph(document);auto& entity=graph.at("entities").at(local);require(entity.contains("model")&&entity.at("model").is_string(),"Material assignments need a model");
+    if(material==AssetId{}){if(entity.contains("materials")){entity["materials"].erase(slot.text());if(entity["materials"].empty())entity.erase("materials");}}
+    else entity["materials"][slot.text()]=material.text();commit_root(document,graph,"Assign object material");
 }
 std::string prefab_from_objects(EditorDocument& document,const std::vector<StableId>& objects,AssetId prefab,const std::string& name){
     require(!objects.empty()&&objects.size()<=prefab_member_limit,"Capture one to 64 of the scene's own objects");
@@ -285,6 +309,12 @@ Json rebase_variant(const Json& variant,const std::string& base_text){
     auto result=variant;result["base_fingerprint"]=prefab_fingerprint(base_text);return result;
 }
 void set_variant_field(Json& variant,const std::string& base_text,const std::string& member,const std::string& component,const std::string& field,const Json& value){
+    if(component=="materials"){
+        require(AssetId::parse(field)!=AssetId{},"Material slot identity");if(!value.is_null())require(AssetId::parse(value.get<std::string>())!=AssetId{},"Material instance identity");
+        const auto base=parse(base_text).value("entities",Json::object());require(base.contains(member)&&base.at(member).contains("model"),"Variant material needs a base model member");Json inherited;if(base.at(member).contains("materials")&&base.at(member).at("materials").contains(field))inherited=base.at(member).at("materials").at(field);
+        auto& patches=variant["patches"];if(patches.is_null())patches=Json::array();patches.erase(std::remove_if(patches.begin(),patches.end(),[&](const Json& patch){return patch.value("op","")=="SetMaterial"&&patch.at("target")==member&&patch.at("field")==field;}),patches.end());
+        if(value!=inherited)patches.push_back({{"op","SetMaterial"},{"target",member},{"component","materials"},{"field",field},{"value",value}});return;
+    }
     require(world_object(component),"Only world-object component fields can be patched by a variant");
     auto base=parse(base_text).value("entities",Json::object());require(base.contains(member),"The base prefab has no such member");auto& patches=variant["patches"];if(patches.is_null())patches=Json::array();
     for(auto& patch:patches)if(patch.value("op","")=="AddComponent"&&patch.at("target")==member&&patch.at("component")==component){patch["value"][field]=value;return;}

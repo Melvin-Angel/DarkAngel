@@ -7,10 +7,13 @@
 #include <string_view>
 #include <filesystem>
 #include <memory>
+#include <map>
 #include <string>
 #include <vector>
 namespace darkangel {
 struct ActionDefinition;
+struct SpawnPlan;
+void validate_cooked_material_bindings(const std::filesystem::path& registry,const std::filesystem::path& cas,const SpawnPlan&);
 struct InputProfile;
 InputProfile load_cooked_input(const std::filesystem::path&,const std::filesystem::path&,AssetId);
 ActionDefinition load_cooked_action(const std::filesystem::path&,const std::filesystem::path&,AssetId);
@@ -22,6 +25,9 @@ struct TextureMip {std::uint32_t width,height;std::vector<std::uint8_t> rgba;};
 struct CookedTexture {std::vector<TextureMip> mips;bool srgb{true};};
 CookedTexture load_cooked_texture(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 struct CookedMaterial {AssetId id;std::array<float,4> color{1,1,1,1};float roughness{1},metallic{};bool double_sided{};AssetId texture;bool has_texture{};};
+struct RuntimeMaterial {CookedMaterial value;std::vector<std::pair<AssetId,CookedTexture>> textures;std::string generation;};
+// Standalone native material and its verified texture closure, without artist sources or a model copy.
+RuntimeMaterial load_cooked_material_instance(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId);
 // collision: the model's "model-collision" product (load_cooked_model_collision), nil when it was imported without collision.
 struct RuntimeModel {AssetId id;std::vector<CookedMesh> meshes;std::vector<CookedMaterial> materials;std::vector<std::pair<AssetId,CookedTexture>> textures;AssetId collision;};
 // Load solely from the verified cooked registry/CAS; no SQLite, source assets or editor state.
@@ -106,6 +112,14 @@ public:
     // slot key of an imported static model, in the model's import metadata. The model must cook with it, or the previous
     // metadata is restored.
     CookResult assign_model_material(std::string_view relative_model,std::string_view slot,AssetId material,std::string_view material_source={});
+    // Compose this metadata edit with native material creation/edits in prepare_native; publication is one recoverable Save.
+    NativeSourceEdit model_material_edit(std::string_view relative_model,std::string_view slot,AssetId material,std::string_view material_source={}) const;
+    struct ModelReimportChanges {std::vector<std::string> removed,added;};
+    ModelReimportChanges model_reimport_changes(std::string_view relative_model) const;
+    // Every removed key requires an explicit destination among the added keys, or an empty destination to retire it.
+    // Matching identities survive; explicitly unmapped new keys receive fresh identities. Stale metadata refuses publication.
+    NativeSourceEdit model_reimport_edit(std::string_view relative_model,std::string_view expected_metadata_sha256,const std::map<std::string,std::string>& remap) const;
+    CookResult repair_model_reimport(std::string_view relative_model,std::string_view expected_metadata_sha256,const std::map<std::string,std::string>& remap);
     // The cooked values of one material slot as the model currently cooks them (its material product JSON).
     std::string material_values(std::string_view relative_model,std::string_view slot) const;
     // Unreferenced item or prefab (R4) only. Stale writes reject; source bytes are archived in the cache.

@@ -93,7 +93,8 @@ void Shell::draw_prefabs(Controller& editor,unsigned width,unsigned height,float
                 Json entities;try{entities=prefab_entities(selection,[&]{auto all=dependencies;all[selection]=value.dump();all[base]=base_text;return all;}());}catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"%s",error.what());}
                 const auto base_entities=Json::parse(base_text).value("entities",Json::object());
                 for(auto& [local,entity]:entities.items()){ImGui::PushID(local.c_str());ImGui::SeparatorText(entity.value("name",local).c_str());
-                    for(const char* component:world_components){if(!entity.contains(component)||entity[component].is_null())continue;ImGui::PushID(component);
+                    draw_material_assignments(editor,entity,[&](AssetId slot,AssetId material){set_variant_field(value,base_text,local,"materials",slot.text(),material==AssetId{}?Json():Json(material.text()));});
+            for(const char* component:world_components){if(!entity.contains(component)||entity[component].is_null())continue;ImGui::PushID(component);
                         if(ImGui::CollapsingHeader(component_label(component),ImGuiTreeNodeFlags_DefaultOpen))for(auto& [field,field_value]:entity[component].items()){
                             const bool patched=!base_entities.contains(local)||!base_entities[local].contains(component)||!base_entities[local][component].contains(field)||base_entities[local][component][field]!=field_value;
                             auto edited=field_value;if(edit_value((patched?"* "+field:field).c_str(),edited)){try{set_variant_field(value,base_text,local,component,field,edited);}catch(const std::exception& error){author_diagnostic=error.what();}}}
@@ -110,6 +111,7 @@ void Shell::draw_prefabs(Controller& editor,unsigned width,unsigned height,float
             // Model reference: any imported static model; replacing it here changes every instance.
             std::string current="No model";AssetId model;if(entity.contains("model")&&entity["model"].is_string()){model=AssetId::parse(entity["model"].get<std::string>());current=model.text();for(const auto& item:place_items)if(item.id==model)current=item.name;}
             ImGui::SetNextItemWidth(260);if(ImGui::BeginCombo("Model",current.c_str())){if(ImGui::Selectable("No model",model==AssetId{}))entity.erase("model");for(const auto& item:place_items)if(!item.npc&&item.gameplay==0&&ImGui::Selectable(item.name.c_str(),item.id==model)){entity["model"]=item.id.text();if(editor.prepare_model)editor.prepare_model(item.id);}ImGui::EndCombo();}
+            draw_material_assignments(editor,entity,[&](AssetId slot,AssetId material){if(material==AssetId{}){if(entity.contains("materials"))entity["materials"].erase(slot.text());}else entity["materials"][slot.text()]=material.text();});
             for(const char* component:world_components){if(!entity.contains(component)||entity[component].is_null())continue;ImGui::PushID(component);
                 if(ImGui::CollapsingHeader(component_label(component),ImGuiTreeNodeFlags_DefaultOpen)){for(auto& [field,field_value]:entity[component].items())edit_value(field.c_str(),field_value);if(ImGui::SmallButton("Remove component"))entity.erase(component);}
                 ImGui::PopID();}
@@ -133,6 +135,7 @@ void Shell::draw_prefabs(Controller& editor,unsigned width,unsigned height,float
         if(ImGui::Button("Save prefab")){editor.save_gameplay();editor.refresh_assets();prefab_consumers_stale=true;author_diagnostic="Saved. Scenes that link this prefab now show the new definition.";}ImGui::SameLine();
         ImGui::BeginDisabled(!editor.authoring.can_undo());if(ImGui::Button("Undo")){editor.authoring.undo(*editor.assets);}ImGui::EndDisabled();ImGui::SameLine();ImGui::BeginDisabled(!editor.authoring.can_redo());if(ImGui::Button("Redo")){editor.authoring.redo(*editor.assets);}ImGui::EndDisabled();
         ImGui::SameLine();if(ImGui::Button("Place in scene")){select_workspace(Workspace::Scene);place_category="Prefabs";}
+        ImGui::SameLine();if(ImGui::Button("Reveal in Assets"))reveal_asset(selection);
         std::size_t used=0;if(editor.document){for(const auto& instance:prefab_instances(*editor.document))if(instance.prefab==selection)++used;ImGui::TextDisabled("Instances in the open scene: %zu",used);}
         // Variants and consumers: who uses this prefab, which decides whether it can be deleted.
         ImGui::SeparatorText("Variants, file and users");
@@ -152,11 +155,11 @@ void Shell::draw_prefabs(Controller& editor,unsigned width,unsigned height,float
         // Preview inputs: the draft as it stands, and the instance shown in context.
         if(prefab_selection==selection){
             std::optional<std::string> context;if(prefab_preview.in_context&&editor.document)for(const auto& instance:prefab_instances(*editor.document))if(instance.prefab==selection){context=instance.mount;break;}
-            const auto key=selection.text()+"|"+std::to_string(std::hash<std::string>{}(value.dump()))+"|"+(context?*context+"|"+std::to_string(editor.document->revision()):std::string{});
+            const auto key=selection.text()+"|"+std::to_string(editor.authoring.revision())+"|"+std::to_string(std::hash<std::string>{}(value.dump()))+"|"+(context?*context+"|"+std::to_string(editor.document->revision()):std::string{});
             if(key!=prefab_preview.key){prefab_preview.key=key;try{
                 AssemblySources linked=dependencies;EditorDocument resolved(selection,preview_placement,{{selection,value.dump()}},1,linked);
-                std::vector<PrefabPreviewModel> models;PrefabPlacement at;if(context)at=instance_placement(*editor.document,*context);
-                for(const auto& [object,model]:resolved.plan().models){if(editor.prepare_model)editor.prepare_model(model);auto pose=resolved.world().read(resolved.world().find(object)).transform;models.push_back({object,model,context?compose(at,pose):pose,false});}
+                editor.prepare_render_materials(resolved.plan());std::vector<PrefabPreviewModel> models;PrefabPlacement at;if(context)at=instance_placement(*editor.document,*context);
+                for(const auto& [object,model]:resolved.plan().models){if(editor.prepare_model)editor.prepare_model(model);auto pose=resolved.world().read(resolved.world().find(object)).transform;models.push_back({object,model,context?compose(at,pose):pose,false,resolved.plan().materials.contains(object)?resolved.plan().materials.at(object):std::map<AssetId,AssetId>{}});}
                 std::array<double,3> low{1e9,1e9,1e9},high{-1e9,-1e9,-1e9};for(const auto& shown:models){const double p[3]{shown.pose.x,shown.pose.y,shown.pose.z};for(int axis=0;axis<3;++axis){low[axis]=std::min(low[axis],p[axis]);high[axis]=std::max(high[axis],p[axis]);}}
                 if(models.empty()){low={at.x,at.y,at.z};high=low;}
                 for(int axis=0;axis<3;++axis)prefab_preview.center[axis]=(low[axis]+high[axis])*.5;prefab_preview.center[1]+=1;
@@ -164,7 +167,7 @@ void Shell::draw_prefabs(Controller& editor,unsigned width,unsigned height,float
                 // In context: the open scene's other models near the instance, drawn but not part of the definition.
                 if(context){const auto prefix=editor.document->placement().text()+"/"+*context+"/";std::set<StableId> own;for(const auto& origin:editor.document->plan().origins)if(origin.local_path.starts_with(prefix))own.insert(origin.object);
                     for(const auto& [object,model]:editor.document->plan().models){if(own.contains(object))continue;auto handle=editor.document->world().find(object);if(!editor.document->world().valid(handle))continue;auto pose=editor.document->world().read(handle).transform;
-                        if(std::hypot(pose.x-at.x,pose.z-at.z)<=30&&models.size()<512)models.push_back({object,model,pose,true});}}
+                        if(std::hypot(pose.x-at.x,pose.z-at.z)<=30&&models.size()<512)models.push_back({object,model,pose,true,editor.document->plan().materials.contains(object)?editor.document->plan().materials.at(object):std::map<AssetId,AssetId>{}});}}
                 prefab_preview.models=std::move(models);prefab_preview.error.clear();}
                 catch(const std::exception& error){prefab_preview.error=error.what();}}}
     }else ImGui::TextDisabled("Select or create a prefab.");}catch(const std::exception& error){author_diagnostic=error.what();}
@@ -244,12 +247,27 @@ bool Shell::draw_prefab_instance(Controller& editor,StableId object){
         std::string label="Choose replacement";for(const auto& [id,name]:prefab_assets(editor))if(id==prefab_swap_target)label=name;
         ImGui::SetNextItemWidth(220);if(ImGui::BeginCombo("Replacement",label.c_str())){for(const auto& [id,name]:prefab_assets(editor))if(id!=prefab&&ImGui::Selectable(name.c_str(),id==prefab_swap_target))prefab_swap_target=id;ImGui::EndCombo();}
         ImGui::Checkbox("Use replacement defaults (discard this instance's component overrides)",&prefab_swap_defaults);
-        if(prefab_swap_target!=AssetId{}){try{const auto text=published(editor,prefab_swap_target);const auto dependencies=dependencies_of(editor,prefab_swap_target,text);auto preview=prepare_swap(document,mount,prefab_swap_target,text,prefab_swap_defaults,dependencies);
+        if(prefab_swap_target!=AssetId{}){try{const auto text=published(editor,prefab_swap_target);const auto dependencies=dependencies_of(editor,prefab_swap_target,text);
+            const auto swap_key=mount+"|"+prefab_swap_target.text();if(prefab_material_swap_key!=swap_key){prefab_material_swap={};prefab_material_swap_key=swap_key;}
+            AssemblySources all_sources=dependencies;all_sources[prefab_swap_target]=text;const auto replacement_entities=prefab_entities(prefab_swap_target,all_sources);std::vector<std::pair<std::string,AssetId>> slots;prefab_material_swap.replacement_slots.clear();
+            if(replacement_entities.size()==1&&replacement_entities.begin().value().contains("model")){const auto model=AssetId::parse(replacement_entities.begin().value().at("model").get<std::string>());
+                for(const auto& asset:editor.asset_inventory)if(asset.id==model){std::ifstream input(editor.assets->source_root()/(asset.path+".daimport"));if(input){const auto metadata=Json::parse(input);for(const auto& [key,id]:metadata.at("subassets").items())if(key.starts_with("material/")){auto slot=AssetId::parse(id.get<std::string>());slots.push_back({key,slot});prefab_material_swap.replacement_slots.insert(slot);}}}}
+            ImGui::BeginDisabled(prefab_swap_defaults);
+            for(const auto& entry:instance_overrides(document,mount))if(entry.component=="materials"){const auto old_slot=AssetId::parse(entry.field);ImGui::PushID(entry.field.c_str());std::string label="Choose replacement slot";
+                if(prefab_material_swap.remap.contains(old_slot))for(const auto& [name,id]:slots)if(id==prefab_material_swap.remap.at(old_slot))label=name;
+                if(ImGui::BeginCombo(("Map material slot "+entry.field).c_str(),label.c_str())){if(ImGui::Selectable("Use same stable slot when compatible"))prefab_material_swap.remap.erase(old_slot);for(const auto& [name,id]:slots)if(ImGui::Selectable(name.c_str()))prefab_material_swap.remap[old_slot]=id;ImGui::EndCombo();}ImGui::PopID();}
+            ImGui::EndDisabled();
+            auto preview=prepare_swap(document,mount,prefab_swap_target,text,prefab_swap_defaults,dependencies,prefab_material_swap);
             ImGui::TextWrapped("Kept: placement, mount and the object's persistent identity (world state such as discovery or collection).");
             for(const auto& carried:preview.carried)ImGui::BulletText("Carried: %s",carried.c_str());for(const auto& dropped:preview.discarded)ImGui::BulletText("Discarded: %s",dropped.c_str());
             if(!preview.compatible)ImGui::TextColored({1.f,.55f,.3f,1.f},"%s",preview.reason.c_str());
             ImGui::BeginDisabled(!preview.compatible);if(ImGui::Button("Swap")){const auto target=prefab_swap_target;const bool defaults=prefab_swap_defaults;ImGui::EndDisabled();ImGui::TreePop();
-                run([&]{AssemblySources all=dependencies;all[target]=text;for(const auto& [id,source]:all)prepare_models(editor,Json::parse(source).value("entities",Json::object()));commit_swap(document,mount,target,text,defaults,dependencies);select_first(mount);prefab_swap_target={};});return true;}ImGui::EndDisabled();
+                run([&]{AssemblySources all=dependencies;all[target]=text;for(const auto& [id,source]:all)prepare_models(editor,Json::parse(source).value("entities",Json::object()));
+                    // Validate native resources and destination slots before changing the owned scene source.
+                    if(replacement_entities.size()==1){const auto& entity=replacement_entities.begin().value();if(entity.contains("model")){const auto model=AssetId::parse(entity.at("model").get<std::string>());auto assignments=entity.value("materials",Json::object());
+                        if(!defaults)for(const auto& entry:instance_overrides(document,mount))if(entry.component=="materials"){auto slot=AssetId::parse(entry.field);if(prefab_material_swap.remap.contains(slot))slot=prefab_material_swap.remap.at(slot);if(entry.instance_value.is_null())assignments.erase(slot.text());else assignments[slot.text()]=entry.instance_value;}
+                        if(editor.prepare_material)for(const auto& [slot,material]:assignments.items())editor.prepare_material(model,AssetId::parse(slot),AssetId::parse(material.get<std::string>()));}}
+                    commit_swap(document,mount,target,text,defaults,dependencies,prefab_material_swap);select_first(mount);prefab_swap_target={};});return true;}ImGui::EndDisabled();
         }catch(const std::exception& error){ImGui::TextColored({1.f,.55f,.3f,1.f},"%s",error.what());}}
         ImGui::TreePop();}
     return true;

@@ -58,6 +58,11 @@ void patch(Json& graph,const Json& operation){
     if(op=="SetProperty"){
         auto type=std::to_string(operation.at("type").get<TypeId>()),property=std::to_string(operation.at("property").get<PropertyId>());
         auto& fields=entities[target].at("types").at(type).at("fields");require(fields.contains(property),"Patch property removed/unknown");fields[property]=operation.at("value");
+    }else if(op=="SetMaterial"){
+        auto& entity=entities[target];require(entity.contains("model")&&entity["model"].is_string(),"Material patch needs a model");
+        const auto slot=operation.at("field").get<std::string>();require(AssetId::parse(slot)!=AssetId{},"Material slot identity");require(operation.at("component")=="materials","Material patch component");
+        if(operation.at("value").is_null()){if(entity.contains("materials"))entity["materials"].erase(slot);}
+        else{require(AssetId::parse(operation.at("value").get<std::string>())!=AssetId{},"Material instance identity");entity["materials"][slot]=operation.at("value");}
     }else if(op=="ReplaceSlot")entities[target]["model"]=operation.at("asset");
     else if(op=="SetSpawn")entities[target]["spawn"]=operation.at("value");
     else if(op=="BindScript")entities[target]["scripts"][operation.at("binding").get<std::string>()]=operation.at("value");
@@ -95,6 +100,8 @@ EntityPart entity_part(AssetId id,const std::string& scope,const std::string& lo
     if(entity.contains("target") && !entity["target"].is_null())part.target=entity["target"];
     plan.origins.push_back({object,id,path,entity.value("name",local),layer});
     if(entity.contains("model") && !entity["model"].is_null())plan.models[object]=AssetId::parse(entity["model"].get<std::string>());
+    if(entity.contains("materials")){const auto& table=entity.at("materials");require(plan.models.contains(object)&&table.is_object()&&table.size()<=128,"Material assignments need a model and up to 128 stable slots");
+        for(const auto& [slot,material]:table.items()){const auto slot_id=AssetId::parse(slot),material_id=AssetId::parse(material.get<std::string>());require(slot_id!=AssetId{}&&material_id!=AssetId{},"Material assignment identities");plan.materials[object].emplace(slot_id,material_id);}}
     // A spawn point names the NPC definition it spawns. respawn and encounter are reserved: only "never" and no owner are accepted yet.
     if(entity.contains("spawn") && !entity["spawn"].is_null()){const auto& spawn=entity["spawn"];require(spawn.is_object()&&spawn.contains("npc")&&!entity.contains("model"),"Spawn point needs an NPC definition and no model");for(const auto& [key,value]:spawn.items())require(key=="npc"||(key=="respawn"&&value=="never")||(key=="encounter"&&(value.is_null()||value.is_string())),"Unsupported spawn point field");plan.spawns[object]=AssetId::parse(spawn["npc"].get<std::string>());
         // A spawn point that names an encounter (by its local identity in the same source) is used by it and does not spawn at Play start.
@@ -139,7 +146,7 @@ template<class Find> void resolve_part(EntityPart& part,const std::map<std::stri
 }
 // Every plan entry keyed by object, as pairs of the same member of two plans.
 template<class F> void each_entry(SpawnPlan& a,const SpawnPlan& b,F&& f){
-    f(a.models,b.models);f(a.spawns,b.spawns);f(a.interactables,b.interactables);f(a.entries,b.entries);f(a.transitions,b.transitions);f(a.splines,b.splines);
+    f(a.models,b.models);f(a.materials,b.materials);f(a.spawns,b.spawns);f(a.interactables,b.interactables);f(a.entries,b.entries);f(a.transitions,b.transitions);f(a.splines,b.splines);
     f(a.spline_points,b.spline_points);f(a.audio_profiles,b.audio_profiles);f(a.pickups,b.pickups);f(a.altars,b.altars);f(a.movers,b.movers);
     f(a.collision_profiles,b.collision_profiles);f(a.encounters,b.encounters);f(a.triggers,b.triggers);f(a.volumes,b.volumes);f(a.spawn_owners,b.spawn_owners);
 }
@@ -287,6 +294,7 @@ Json origin_json(const ObjectOrigin& origin){return {{"object",origin.object.tex
 Json binding_json(const PlannedBinding& binding){return {{"object",binding.object.text()},{"id",binding.binding.id.text()},{"asset",asset_id(binding.binding.asset).text()},{"config",parse_script_data(binding.binding.config_json)},{"enabled",binding.binding.enabled}};}
 // The plan's fields whose size is bounded by the component limits: everything but its origins, bindings, models and scene.
 Json bounded_fields(const SpawnPlan& plan){Json root={{"schema",1}};
+    if(!plan.materials.empty()){auto& tables=root["materials"]=Json::object();for(const auto& [object,slots]:plan.materials)for(const auto& [slot,material]:slots)tables[object.text()][slot.text()]=material.text();}
     // Written only when present so plans without spawn points keep their fingerprint.
     if(!plan.spawns.empty()){root["spawns"]=Json::object();for(const auto& [object,asset]:plan.spawns)root["spawns"][object.text()]=asset.text();}
     if(!plan.splines.empty()||!plan.spline_points.empty()){auto& curves=root["splines"]=Json::object();for(const auto& [object,text]:plan.splines)curves[object.text()]=Json::parse(text);auto& points=root["spline_points"]=Json::object();for(const auto& [object,point]:plan.spline_points)points[object.text()]={{"spline",point.spline.text()},{"index",point.index}};}
@@ -310,6 +318,9 @@ Json plan_fields(const SpawnPlan& plan){auto root=bounded_fields(plan);root["ori
 std::string SpawnPlan::serialize() const{auto root=plan_fields(*this);root["scene"]=parse_script_data(scene_json,document_source_limit);auto text=root.dump();require(text.size()<=scene_document_byte_limit,"Spawn plan byte limit");return text;
 }
 SpawnPlan SpawnPlan::deserialize(std::string_view text){auto root=parse_script_data(text,scene_document_byte_limit);require(root.at("schema")==1,"Spawn plan schema mismatch");SpawnPlan plan;plan.scene_json=root.at("scene").dump();World validation(WorldDomain::Authoring);validation.load(plan.scene_json);
+    if(root.contains("materials")){const auto& tables=root.at("materials");require(tables.is_object()&&tables.size()<=scene_object_limit,"Spawn plan material table bounds");
+        for(const auto& [object,slots]:tables.items()){auto owner=StableId::parse(object);require(root.at("models").contains(object)&&slots.is_object()&&slots.size()<=128,"Spawn plan material assignments need a model");
+            for(const auto& [slot,material]:slots.items()){const auto slot_id=AssetId::parse(slot),material_id=AssetId::parse(material.get<std::string>());require(slot_id!=AssetId{}&&material_id!=AssetId{},"Spawn plan material identities");plan.materials[owner].emplace(slot_id,material_id);}}}
     for(const auto& origin:root.at("origins"))plan.origins.push_back({StableId::parse(origin.at("object").get<std::string>()),AssetId::parse(origin.at("asset").get<std::string>()),origin.at("path"),origin.at("name"),origin.at("layer")});
     for(const auto& b:root.at("bindings"))plan.bindings.push_back({StableId::parse(b.at("object").get<std::string>()),{StableId::parse(b.at("id").get<std::string>()),asset_key(AssetId::parse(b.at("asset").get<std::string>())),b.at("config").dump(),b.at("enabled").get<bool>()}});
     for(const auto& [object,asset]:root.at("models").items())plan.models[StableId::parse(object)]=AssetId::parse(asset.get<std::string>());if(root.contains("spawns")){require(root.at("spawns").size()<=64,"Spawn plan spawn point limit");for(const auto& [object,asset]:root.at("spawns").items())plan.spawns[StableId::parse(object)]=AssetId::parse(asset.get<std::string>());}

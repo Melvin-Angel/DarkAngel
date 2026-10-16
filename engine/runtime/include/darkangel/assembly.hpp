@@ -17,6 +17,9 @@ struct SpawnPlan {
     std::vector<ObjectOrigin> origins;
     std::vector<PlannedBinding> bindings;
     std::map<StableId,AssetId> models;
+    // Render-only overrides: imported material subasset identity -> native material instance identity.
+    // An absent slot inherits the model's assignment/default. No collision or persistent object identity changes.
+    std::map<StableId,std::map<AssetId,AssetId>> materials;
     // Spawn point objects and the NPC definition each one spawns.
     std::map<StableId,AssetId> spawns;
     // Gameplay volumes. encounters and triggers hold the object's validated component JSON. A volume names the

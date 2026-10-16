@@ -56,7 +56,7 @@ Import import_collision(const std::filesystem::path&,const std::filesystem::path
 // collision: also cook the model's own collision shape (the sidecar's "collision": "mesh", the default) or not ("none").
 // A static model sidecar's collision setting: "mesh" (the default) or "none".
 bool static_model_collision(const Json& sidecar);
-Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false,bool collision=true);
+Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect=false,bool collision=true,bool assignments=true);
 CookedMesh decode_mesh(std::string_view);
 CookedTexture decode_texture(std::string_view);
 }

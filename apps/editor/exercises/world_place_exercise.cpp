@@ -1,5 +1,6 @@
 #include "world_place_exercise.hpp"
 #include "../editor_world_objects.hpp"
+#include "../prefab_commands.hpp"
 #include <darkangel/scene_travel.hpp>
 #include <darkangel/world_objects.hpp>
 #include <algorithm>
@@ -59,6 +60,8 @@ std::map<std::string, StableId> place_world_plan(Controller& editor, Shell& shel
             const auto object =
                 shell.place(editor, Shell::PlaceItem{AssetId::parse(step.at("asset").get<std::string>()), "Model", "Environment", false, 0},
                             step.at("x").get<double>(), step.at("z").get<double>(), step.value("yaw", 0.0));
+            if(step.contains("materials")){const auto model=AssetId::parse(step.at("asset").get<std::string>());const auto& table=step.at("materials");require(table.is_object()&&table.size()<=128,"World placement material table limit");
+                for(const auto& [slot,value]:table.items()){const auto material=value.is_null()?AssetId{}:AssetId::parse(value.get<std::string>());if(material!=AssetId{}&&editor.prepare_material)editor.prepare_material(model,AssetId::parse(slot),material);set_object_material(*editor.document,object,AssetId::parse(slot),material);}}
             if (step.contains("key"))
                 placed[step.at("key").get<std::string>()] = object;
             continue;

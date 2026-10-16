@@ -302,8 +302,8 @@ bool NativeAuthoring::dirty()const{for(const auto& [id,d]:drafts)if(d.dirty())re
 NativeValidationSummary NativeAuthoring::validate(AssetService& assets,AssetId selected,std::span<const AssetId> roots){
  record_changes(assets,"Edit gameplay fields");if(selected==AssetId{}){auto found=std::find_if(drafts.begin(),drafts.end(),[](const auto& entry){return entry.second.dirty();});if(found==drafts.end())found=drafts.begin();require(found!=drafts.end(),"Open a native source before validation");selected=found->first;}open(assets,selected);std::vector<NativeSourceEdit> edits;for(const auto& [id,draft]:drafts)if(id==selected||draft.dirty())edits.push_back({draft.asset.path,draft.pending?std::string{}:sha256(draft.saved),draft.value.dump(2)+"\n",draft.pending});auto candidate=assets.prepare_native(edits,roots);return {revision_,edits.size(),selected};
 }
-void NativeAuthoring::save_all(AssetService& assets,std::span<const AssetId> roots){
- record_changes(assets,"Edit gameplay fields");std::vector<NativeSourceEdit> edits;
+void NativeAuthoring::save_all(AssetService& assets,std::span<const AssetId> roots,std::span<const NativeSourceEdit> extra_edits){
+ record_changes(assets,"Edit gameplay fields");std::vector<NativeSourceEdit> edits(extra_edits.begin(),extra_edits.end());
  for(const auto& [id,d]:drafts)if(d.dirty())edits.push_back({d.asset.path,d.pending?std::string{}:sha256(d.saved),d.value.dump(2)+"\n",d.pending});
  if(edits.empty())return;auto candidate=assets.prepare_native(edits,roots);auto results=assets.commit_native(candidate);
  std::set<AssetId> published;for(auto& [id,d]:drafts)if(d.dirty()){if(d.pending)published.insert(id);d.pending=false;d.saved=d.value.dump(2)+"\n";for(const auto& r:results)if(r.root==id)d.asset.generation=r.generation;}

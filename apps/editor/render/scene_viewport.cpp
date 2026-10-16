@@ -401,7 +401,18 @@ void SceneViewport::render(double elapsed_seconds) {
                     bound_vertices = vb;
                 }
                 for (const auto& part : mesh.parts) {
-                    const auto& material = drawn.materials.at(part.material);
+                    const Material* effective=&drawn.materials.at(part.material);
+                    const auto& material_plan=editor.preview.active()?editor.preview.active()->plan:editor.document->plan();
+                    if(!prefab_render)if(const auto object=material_plan.materials.find(object_id);object!=material_plan.materials.end())if(const auto assignment=object->second.find(part.material);assignment!=object->second.end()){
+                        const auto& native=scene.native_materials.at(assignment->second);
+#ifdef DAE_ANIMATION
+                        effective=drawn_ptr&&!args.skin_reference?&native.skinned:&native.surface;
+#else
+                        effective=&native.surface;
+#endif
+                    }
+                    if(prefab_render)for(const auto& shown:shell.prefab_preview.models)if(shown.object==object_id)if(const auto assignment=shown.materials.find(part.material);assignment!=shown.materials.end())effective=&scene.native_materials.at(assignment->second).surface;
+                    const auto& material=*effective;
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);

@@ -151,6 +151,38 @@ int main(){try{
      // Apply Selected onto a variant becomes a variant patch.
      set_instance_field(scene_doc,mount,member,"altar","name",Json("Instance"));auto applied=Json::parse(prefab_with_overrides(scene_doc,mount,{{member,"altar","name"}},scene_doc.links().at(variant)));
      check(applied["patches"].size()==1&&applied["patches"][0]["value"]=="Instance","Apply Selected on a variant writes a variant patch");}
+    // Per-renderable materials belong to a model component, never the imported model or physical material identity.
+    {const auto model=AssetId::random(),slot=AssetId::random(),shared=AssetId::random(),local_material=AssetId::random();
+     auto source=Json::parse(prefab(a,member,"Material altar"));source["entities"][member]["model"]=model.text();source["entities"][member]["materials"]={{slot.text(),shared.text()}};
+     Json empty={{"schema",1},{"asset",root.text()},{"entities",Json::object()},{"mounts",Json::object()}};EditorDocument doc(root,placement,{{root,empty.dump()}});
+     auto one=place_prefab(doc,a,source.dump(),{0,0,0,0}),two=place_prefab(doc,a,source.dump(),{2,0,0,0});const auto object=member_object(doc,one),other=member_object(doc,two);
+     check(doc.plan().materials.at(object).at(slot)==shared,"Prefab material default missing");const auto native=doc.world().serialize();
+     set_instance_material(doc,one,member,slot,local_material);check(doc.plan().materials.at(object).at(slot)==local_material&&doc.plan().materials.at(other).at(slot)==shared,"Instance material leaked to another copy");
+     check(doc.world().serialize()==native&&doc.plan().models.at(object)==model,"Appearance assignment changed world or model identity");
+     auto roundtrip=SpawnPlan::deserialize(doc.plan().serialize());check(roundtrip.materials==doc.plan().materials,"Material bindings failed frozen-plan roundtrip");
+     const auto applied=Json::parse(prefab_with_overrides(doc,one,{{member,"materials",slot.text()}},source.dump()));check(applied["entities"][member]["materials"][slot.text()]==local_material.text(),"Apply Selected lost material assignment");
+     revert_overrides(doc,one,{{member,"materials",slot.text()}});check(doc.plan().materials.at(object).at(slot)==shared,"Material Revert did not restore prefab inheritance");
+     set_instance_material(doc,one,member,slot,{});check(!doc.plan().materials.contains(object)&&doc.plan().materials.at(other).at(slot)==shared,"Explicit model-default assignment did not clear inherited prefab material");
+     check(instance_overrides(doc,one).size()==1&&instance_overrides(doc,one).front().instance_value.is_null(),"Model-default override is not inspectable");
+     doc.undo(doc.revision());check(doc.plan().materials.at(object).at(slot)==shared,"Material Undo failed");doc.redo(doc.revision());check(!doc.plan().materials.contains(object),"Material Redo failed");
+     set_instance_material(doc,one,member,slot,shared);check(instance_overrides(doc,one).empty(),"Redundant inherited material left an override");
+     set_instance_material(doc,one,member,slot,local_material);
+     {const auto replacement_model=AssetId::random(),replacement_slot=AssetId::random();auto replacement=source;replacement["asset"]=b.text();replacement["entities"][member]["model"]=replacement_model.text();replacement["entities"][member]["materials"]={{replacement_slot.text(),shared.text()}};
+      const auto before_swap=doc.plan().fingerprint;check(!prepare_swap(doc,one,b,replacement.dump(),false).compatible,"Cross-model material Swap guessed a destination");
+      rejects([&]{commit_swap(doc,one,b,replacement.dump(),false);},"Swap without explicit material mapping accepted");check(doc.plan().fingerprint==before_swap,"Refused material Swap changed scene");
+      MaterialSwap mapping;mapping.remap[slot]=replacement_slot;check(!prepare_swap(doc,one,b,replacement.dump(),false,{},mapping).compatible,"Swap mapping accepted a target without declared destination slots");
+      mapping.replacement_slots.insert(replacement_slot);check(prepare_swap(doc,one,b,replacement.dump(),false,{},mapping).compatible,"Valid explicit material Swap refused");
+      auto invalid=mapping;invalid.remap[AssetId::random()]=replacement_slot;check(!prepare_swap(doc,one,b,replacement.dump(),false,{},invalid).compatible,"Unknown source mapping accepted");
+      commit_swap(doc,one,b,replacement.dump(),false,{},mapping);check(doc.plan().materials.at(object).at(replacement_slot)==local_material&&!doc.plan().materials.at(object).contains(slot)&&doc.plan().models.at(object)==replacement_model,"Mapped Swap lost material or persistent object identity");
+      doc.undo(doc.revision());check(doc.plan().fingerprint==before_swap,"Undo did not restore material Swap exactly");
+      check(prepare_swap(doc,one,b,replacement.dump(),true,{},invalid).compatible,"Explicit replacement defaults did not discard stale mappings");commit_swap(doc,one,b,replacement.dump(),true);check(doc.plan().materials.at(object).at(replacement_slot)==shared,"Replacement defaults did not discard local material override");doc.undo(doc.revision());}
+     set_instance_material(doc,one,member,slot,shared);
+     auto unpacked=unpack_instance(doc,one);check(doc.plan().materials.at(object).at(slot)==shared,"Unpack lost material assignment");
+     set_object_material(doc,object,slot,local_material);check(doc.plan().materials.at(object).at(slot)==local_material,"Owned record edit lost material assignment");
+     const auto own=doc.source(doc.root());auto full=resolve_assembly(doc.root(),doc.placement(),{{doc.root(),own},{a,source.dump()}});check(full.serialize()==doc.plan().serialize(),"Incremental and full material resolution differ");
+     set_object_material(doc,object,slot,{});check(!doc.plan().materials.contains(object),"Clearing owned assignment failed");
+     rejects([&]{set_instance_material(doc,two,member,AssetId{},shared);},"Empty slot identity accepted");
+     auto invalid=source;invalid["entities"][member].erase("model");rejects([&]{decode_prefab(invalid.dump());},"Material assignment without model accepted");}
     std::filesystem::remove_all(folder);
     std::cout<<"R4 prefabs: placement composition, independent instances, overrides/Revert, template propagation, Apply Selected, instance moves, Swap identity and refusal, conversion identity, duplicate isolation, links Save/open and cook, referenced capture with exports, multi-object capture, Unpack identity, nested prefabs and tool link resolution, consumers, rename/delete, variants and rebase passed\n";return 0;
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}

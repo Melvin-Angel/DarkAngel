@@ -24,7 +24,7 @@ std::string texture_bytes(std::string_view source){DirectX::TexMetadata metadata
 }
 std::string cook_color_texture(std::string_view source){return texture_bytes(source);}
 bool static_model_collision(const Json& sidecar){const auto setting=sidecar.value("collision","mesh");require(setting=="mesh"||setting=="none","A model's collision setting is \"mesh\" or \"none\"");return setting=="mesh";}
-Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect,bool collision){
+Import import_gltf(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect,bool collision,bool assignments){
     Import out;std::size_t input_bytes{};
     auto input=[&](const std::filesystem::path& p){auto bytes=read(p);input_bytes+=bytes.size();require(input_bytes<=128*1024*1024,"Import input closure limit");out.inputs[p.lexically_relative(root).generic_string()]=sha256(bytes);return bytes;};
     auto bytes=input(source);cgltf_options options{};cgltf_data* raw{};require(cgltf_parse(&options,bytes.data(),bytes.size(),&raw)==cgltf_result_success,"cgltf parse failed");std::unique_ptr<cgltf_data,decltype(&cgltf_free)> data(raw,cgltf_free);
@@ -42,7 +42,7 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
     // the model no longer has is refused (repair the assignment), never remapped by order or name.
     std::map<std::string,MaterialInstanceDefinition> assigned;
     {auto metadata_path=source;metadata_path+=".daimport";if(std::filesystem::exists(metadata_path)){auto metadata=json(read(metadata_path,1024*1024),1024*1024);
-        if(metadata.contains("materials")){const auto& table=metadata.at("materials");require(table.is_object()&&table.size()<=128,"Model material assignment table");
+        if(assignments&&metadata.contains("materials")){const auto& table=metadata.at("materials");require(table.is_object()&&table.size()<=128,"Model material assignment table");
             for(const auto& [slot,entry]:table.items()){require(slot.starts_with("material/")&&entry.is_object()&&entry.size()==2&&entry.contains("asset")&&entry.contains("source"),"Material assignment names a slot, a material and its source");
                 auto path=within(root,entry.at("source").get<std::string>());require(path.extension()==".damaterial","Material assignment source type");auto material=decode_material_instance(input(path));
                 require(material.id==AssetId::parse(entry.at("asset").get<std::string>()),"Material assignment source identity");assigned.emplace(slot,std::move(material));}}}}

@@ -1,5 +1,6 @@
 #include "assets_internal.hpp"
 #include <darkangel/hash.hpp>
+#include <darkangel/prefab_assets.hpp>
 #include <sqlite3.h>
 #include <DirectXTex.h>
 #include <wincodec.h>
@@ -192,15 +193,40 @@ CookResult AssetService::cook(std::string_view relative){auto& p=*impl_;p.thread
     }catch(...){exec(p.db,"ROLLBACK");throw;}
     return {root,revision+1,true};
 }
-CookResult AssetService::assign_model_material(std::string_view relative,std::string_view slot,AssetId material,std::string_view material_source){
+NativeSourceEdit AssetService::model_material_edit(std::string_view relative,std::string_view slot,AssetId material,std::string_view material_source) const{
     auto& p=*impl_;p.thread();auto source=p.source(relative);require(source.extension()==".gltf"||source.extension()==".glb","Material slots belong to imported models");
     auto sidecar=source;sidecar+=".daimport";auto original=read(sidecar,1024*1024);auto data=json(original,1024*1024);
     require(data.at("importer")=="static-gltf-v1","Material slots are edited on imported static models");require(std::string_view(slot).starts_with("material/")&&data.at("subassets").contains(std::string(slot)),"The model has no such material slot");
     if(material==AssetId{}){if(data.contains("materials")){data["materials"].erase(std::string(slot));if(data["materials"].empty())data.erase("materials");}}
     else{auto path=p.source(material_source);require(path.extension()==".damaterial","Assign a native material instance");data["materials"][std::string(slot)]={{"asset",material.text()},{"source",std::string(material_source)}};}
-    // Same recovery as a native edit: the model must cook with the new table, or the previous metadata comes back.
-    auto draft=data.dump(2)+"\n";if(draft==original)return cook(relative);auto written=sha256(draft);atomic_write(sidecar,draft);
-    try{return cook(relative);}catch(...){require(file_sha256(sidecar)==written,"Import metadata changed externally during failed cook; external edit preserved");atomic_write(sidecar,original);throw;}
+    return {sidecar.lexically_relative(p.sources).generic_string(),sha256(original),data.dump(2)+"\n"};
+}
+CookResult AssetService::assign_model_material(std::string_view relative,std::string_view slot,AssetId material,std::string_view material_source){
+    auto edit=model_material_edit(relative,slot,material,material_source);auto prepared=prepare_native({&edit,1});const auto results=commit_native(prepared);
+    auto id=AssetId::parse(json(edit.draft).at("id").get<std::string>());for(const auto& result:results)if(result.root==id)return result;throw std::runtime_error("Material assignment result missing");
+}
+AssetService::ModelReimportChanges AssetService::model_reimport_changes(std::string_view relative) const{
+    auto& p=*impl_;p.thread();auto source=p.source(relative);auto metadata=source_metadata(source);require(metadata.at("importer")=="static-gltf-v1","Reimport repair supports imported static models");
+    auto inspected=import_gltf(p.sources,source,{},true,false,false);std::set<std::string> keys(inspected.keys.begin(),inspected.keys.end());ModelReimportChanges result;
+    for(const auto& key:keys)if(!metadata.at("subassets").contains(key))result.added.push_back(key);
+    std::set<std::string> removed;for(const auto& [key,value]:metadata.at("subassets").items())if(!keys.contains(key))removed.insert(key);
+    const auto assignments=metadata.value("materials",Json::object());for(const auto& [key,value]:assignments.items())if(!keys.contains(key))removed.insert(key);
+    result.removed.assign(removed.begin(),removed.end());return result;
+}
+NativeSourceEdit AssetService::model_reimport_edit(std::string_view relative,std::string_view expected,const std::map<std::string,std::string>& remap) const{
+    auto& p=*impl_;p.thread();digest_check(expected);auto source=p.source(relative);auto sidecar=source;sidecar+=".daimport";const auto original=read(sidecar,1024*1024);require(sha256(original)==expected,"Reimport repair is stale; reload metadata");
+    auto data=json(original,1024*1024);auto changes=model_reimport_changes(relative);require(remap.size()==changes.removed.size(),"Choose a mapping or retirement for every removed key");std::set<std::string> targets;
+    const auto old_ids=data.at("subassets");const auto old_materials=data.value("materials",Json::object());
+    for(const auto& key:changes.removed){require(remap.contains(key),"Choose a mapping or retirement for every removed key");const auto& target=remap.at(key);
+        if(!target.empty()){require(std::find(changes.added.begin(),changes.added.end(),target)!=changes.added.end()&&targets.insert(target).second,"Repair destination must be a unique newly declared key");require(key.substr(0,key.find('/'))==target.substr(0,target.find('/')),"Repair cannot change a subasset kind");
+            if(old_ids.contains(key))data["subassets"][target]=old_ids.at(key);if(old_materials.contains(key))data["materials"][target]=old_materials.at(key);}
+        data["subassets"].erase(key);if(data.contains("materials"))data["materials"].erase(key);}
+    for(const auto& key:changes.added)if(!data["subassets"].contains(key))data["subassets"][key]=AssetId::random().text();
+    if(data.contains("materials")&&data["materials"].empty())data.erase("materials");
+    return {sidecar.lexically_relative(p.sources).generic_string(),std::string(expected),data.dump(2)+"\n"};
+}
+CookResult AssetService::repair_model_reimport(std::string_view relative,std::string_view expected,const std::map<std::string,std::string>& remap){
+    auto edit=model_reimport_edit(relative,expected,remap);const auto results=commit_native(prepare_native({&edit,1}));const auto id=AssetId::parse(json(edit.draft).at("id").get<std::string>());for(const auto& result:results)if(result.root==id)return result;throw std::runtime_error("Reimport repair result missing");
 }
 std::string AssetService::material_values(std::string_view relative,std::string_view slot) const{
     auto& p=*impl_;p.thread();auto source=p.source(relative);auto metadata=source_metadata(source);auto ids=metadata_ids(metadata);
@@ -236,13 +262,15 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     }
     std::set<AssetId> selected(scene_roots.begin(),scene_roots.end());
     for(const auto& edit:edits){
-        if(!edit.create)digest_check(edit.expected_sha256);else require(edit.expected_sha256.empty(),"New source has no previous digest");auto source=p.source(edit.path);auto ext=source.extension();
-        require(ext==".dagraph"||ext==".dainput"||ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".daattributes","Coordinated Save supports native gameplay sources");
-        auto relative=source.lexically_relative(p.sources).generic_string();std::string original;auto after=json(edit.draft,65536);
+        if(!edit.create)digest_check(edit.expected_sha256);else require(edit.expected_sha256.empty(),"New source has no previous digest");auto source=std::filesystem::path(edit.path).extension()==".daimport"?within(p.sources,edit.path):p.source(edit.path);auto ext=source.extension();
+        require(ext==".daimport"||ext==".dagraph"||ext==".dainput"||ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".daattributes","Coordinated Save supports native gameplay sources");
+        auto relative=source.lexically_relative(p.sources).generic_string();std::string original;auto after=json(edit.draft,1024*1024);const bool model_metadata=ext==".daimport";require(!model_metadata||!edit.create,"Model metadata edits require an existing imported model");
         if(edit.create){require(!std::filesystem::exists(source)&&!std::filesystem::exists(within(snapshot,relative)),"New source path already exists; existing work preserved");auto id=AssetId::parse(after.at("asset").get<std::string>());require(id!=AssetId{},"New source requires a persistent UUID");state->created.emplace(relative,id);}
-        else{original=read(within(snapshot,relative),65536);if(sha256(original)!=edit.expected_sha256)throw std::runtime_error("Coordinated Save is stale for "+relative+"; reload the changed source");auto before=json(original,65536);require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&before.at("schema")==after.at("schema"),"Native Save preserves UUID/type/schema");}
+        else{original=read(within(snapshot,relative),1024*1024);if(sha256(original)!=edit.expected_sha256)throw std::runtime_error("Coordinated Save is stale for "+relative+"; reload the changed source");auto before=json(original,1024*1024);
+            if(model_metadata){auto unchanged_before=before,unchanged_after=after;for(const char* field:{"materials","subassets"}){unchanged_before.erase(field);unchanged_after.erase(field);}require(unchanged_before==unchanged_after&&before.at("importer")=="static-gltf-v1","Material metadata Save preserves model identity, importer and settings");auto model=source;model.replace_extension();require(model.extension()==".gltf"||model.extension()==".glb","Metadata must belong to an imported model");}
+            else require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&before.at("schema")==after.at("schema"),"Native Save preserves UUID/type/schema");}
         total=total-original.size()+edit.draft.size();require(total<=256*1024*1024,"Native Save candidate byte limit");require(state->drafts.emplace(relative,edit.draft).second,"Duplicate native Save source");state->originals.emplace(relative,original);
-        selected.insert(AssetId::parse(after.at("asset").get<std::string>()));atomic_write(within(snapshot,relative),edit.draft);
+        selected.insert(AssetId::parse(after.at(model_metadata?"id":"asset").get<std::string>()));atomic_write(within(snapshot,relative),edit.draft);
         atomic_write(within(state->directory/"o",relative),original,false);
     }
     std::map<AssetId,std::string> inventory;std::set<AssetId> identities;std::set<std::string> paths;std::set<std::string> candidate_paths;for(const auto& [path,digest]:state->inputs)candidate_paths.insert(path);for(const auto& [path,id]:state->created)candidate_paths.insert(path);require(candidate_paths.size()<=4096,"Native Save candidate file limit");
@@ -259,12 +287,22 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     affected=[&](const std::string& relative,std::set<std::string>& visited){
         if(state->drafts.contains(relative))return true;if(!visited.insert(relative).second)return false;
         require(visited.size()<=256,"Native Save consumer traversal limit");auto source=within(snapshot,relative);auto ext=source.extension();
+        if(ext==".gltf"||ext==".glb"){
+            if(state->drafts.contains(relative+".daimport"))return true;const auto metadata=source_metadata(source);const auto table=metadata.value("materials",Json::object());bool changed=false;
+            for(const auto& [slot,entry]:table.items())changed|=affected(within(snapshot,entry.at("source").get<std::string>()).lexically_relative(snapshot).generic_string(),visited);return changed;
+        }
         if((ext!=".dagraph"&&ext!=".dacharacter"&&ext!=".daplayer"&&ext!=".dafacemask"&&ext!=".danpc"&&ext!=".dabehavior"&&ext!=".damovement"&&ext!=".daprefab"&&ext!=".damaterial"&&ext!=".daui"&&ext!=".dacue"&&ext!=".daitem"&&ext!=".datrail"&&ext!=".dadecal"&&ext!=".dasound"&&ext!=".damix"&&ext!=".daaudioprofile"&&ext!=".dakit"&&ext!=".daability"&&ext!=".daeffect"&&ext!=".daaction")||!std::filesystem::is_regular_file(source))return false;
-        auto value=json(read(source,65536),65536);bool changed=false;
+        const auto source_limit=ext==".daprefab"?1024*1024:65536;auto value=json(read(source,source_limit),source_limit);bool changed=false;
         std::function<void(const Json&)> locators=[&](const Json& v){if(v.is_string()){auto path=within(snapshot,v.get<std::string>()).lexically_relative(snapshot).generic_string();changed|=affected(path,visited);}else if(v.is_object()||v.is_array())for(const auto& entry:v)locators(entry);};
-        if(value.contains("sources"))locators(value.at("sources"));return changed;
+        if(value.contains("sources"))locators(value.at("sources"));
+        if(ext==".daprefab"){
+            auto reference=[&](AssetId id){if(inventory.contains(id))changed|=affected(inventory.at(id),visited);};
+            for(auto dependency:prefab_references(value.dump()))reference(dependency);
+            const auto entities=value.value("entities",Json::object());for(const auto& [member,entity]:entities.items()){if(entity.contains("model")&&entity.at("model").is_string())reference(AssetId::parse(entity.at("model").get<std::string>()));const auto slots=entity.value("materials",Json::object());for(const auto& [slot,material]:slots.items())reference(AssetId::parse(material.get<std::string>()));}
+            const auto patches=value.value("patches",Json::array());for(const auto& patch:patches)if(patch.value("op","")=="SetMaterial"&&!patch.at("value").is_null())reference(AssetId::parse(patch.at("value").get<std::string>()));
+        }return changed;
     };
-    for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".dagraph"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".daability"||ext==".daeffect"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
+    for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".gltf"||ext==".glb"||ext==".dagraph"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".daability"||ext==".daeffect"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
     require(selected.size()<=64,"Coordinated Save root limit");
     for(auto id:selected){
         if(!inventory.contains(id))throw std::runtime_error("Native candidate root is missing: "+id.text());const auto& relative=inventory.at(id);try{auto source=within(snapshot,relative);auto metadata=read(metadata_path(source),1024*1024);auto sidecar=source_metadata(source);auto ids=metadata_ids(sidecar);

@@ -3,6 +3,7 @@
 #include <darkangel/prefab_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <algorithm>
+#include <set>
 namespace darkangel {
 using namespace assets_detail;
 namespace {
@@ -50,7 +51,25 @@ Import import_prefab(const std::filesystem::path& root,const std::filesystem::pa
         while(!pending.empty()){auto next=pending.back();pending.pop_back();if(linked.contains(next))continue;require(index.contains(next),"A prefab this prefab mounts or derives from is missing from the project");require(linked.size()<64,"Nested prefab closure limit");
             auto text=read(index.at(next),1024*1024);result.inputs[index.at(next).lexically_relative(root).generic_string()]=sha256(text);for(auto inner:prefab_references(text))pending.push_back(inner);linked.emplace(next,std::move(text));}}
     auto prefab=decode_prefab(bytes,linked);if(!inspect)require(ids.size()==1&&ids.at("$source")==prefab.id,"Prefab source identity");result.identities.push_back(prefab.id);result.product_count=1;
-    if(!inspect)result.products.push_back({prefab.id,"prefab","prefab.json",json(bytes,1024*1024).dump(),{}});return result;
+    auto resolved_sources=linked;resolved_sources[prefab.id]=bytes;const auto plan=resolve_assembly(prefab.id,validation_placement,resolved_sources);std::set<AssetId> materials;
+    for(const auto& [object,slots]:plan.materials)for(const auto& [slot,material]:slots)materials.insert(material);
+    std::map<AssetId,std::filesystem::path> index;
+    if(!materials.empty())for(const auto& file:std::filesystem::recursive_directory_iterator(root))if(file.is_regular_file()&&file.path().extension()==".damaterial"){
+        std::optional<AssetId> id;try{id=AssetId::parse(json(read(file.path(),16384)).at("asset").get<std::string>());}catch(const std::exception&){}if(id)require(index.emplace(*id,file.path()).second,"Duplicate prefab material identity");}
+    std::map<AssetId,std::filesystem::path> models;std::map<AssetId,std::set<AssetId>> slots;
+    if(!materials.empty())for(const auto& file:std::filesystem::recursive_directory_iterator(root))if(file.is_regular_file()&&(file.path().extension()==".gltf"||file.path().extension()==".glb")){
+        auto sidecar=file.path();sidecar+=".daimport";std::optional<AssetId> id;try{const auto metadata=json(read(sidecar,1024*1024));if(metadata.at("importer")=="static-gltf-v1")id=AssetId::parse(metadata.at("id").get<std::string>());}catch(const std::exception&){}if(id)require(models.emplace(*id,file.path()).second,"Duplicate prefab model identity");}
+    for(const auto& [object,bindings]:plan.materials){const auto model=plan.models.at(object);require(models.contains(model),"Prefab material assignments require an imported model with stable slots");
+        if(!slots.contains(model)){const auto& path=models.at(model);auto sidecar=path;sidecar+=".daimport";const auto metadata_bytes=read(sidecar,1024*1024);result.inputs[sidecar.lexically_relative(root).generic_string()]=sha256(metadata_bytes);const auto metadata=json(metadata_bytes);const auto inspected=import_gltf(root,path,{},true,false,false);
+            for(const auto& [input,digest]:inspected.inputs)result.inputs[input]=digest;auto& available=slots[model];for(const auto& key:inspected.keys)if(key.starts_with("material/")&&metadata.at("subassets").contains(key))available.insert(AssetId::parse(metadata.at("subassets").at(key).get<std::string>()));}
+        for(const auto& [slot,material]:bindings)require(slots.at(model).contains(slot),"Prefab material slot was removed; repair its assignment explicitly");}
+    std::set<AssetId> products{prefab.id};std::map<AssetId,Product> frozen;
+    for(auto material:materials){require(index.contains(material),"Prefab material instance is missing from the project");const auto& path=index.at(material);const auto definition=decode_material_instance(read(path,16384));
+        auto imported=import_material(root,path,{{"$source",material}},inspect);for(const auto& [input,digest]:imported.inputs)result.inputs[input]=digest;
+        products.insert(material);if(definition.texture!=AssetId{})products.insert(definition.texture);
+        for(auto& product:imported.products){const auto found=frozen.find(product.id);require(found==frozen.end()||(found->second.kind==product.kind&&found->second.bytes==product.bytes&&found->second.extension==product.extension&&found->second.required==product.required),"Conflicting prefab material products");frozen[product.id]=std::move(product);}}
+    result.product_count=products.size();
+    if(!inspect){for(auto& [id,product]:frozen)result.products.push_back(std::move(product));result.products.push_back({prefab.id,"prefab","prefab.json",json(bytes,1024*1024).dump(),std::vector<AssetId>(materials.begin(),materials.end())});}return result;
 }
 }
 }

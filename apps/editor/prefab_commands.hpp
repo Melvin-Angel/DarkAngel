@@ -1,4 +1,5 @@
 #pragma once
+#include <set>
 #include <darkangel/editor_document.hpp>
 #include <nlohmann/json.hpp>
 #include <filesystem>
@@ -35,6 +36,10 @@ nlohmann::json instance_member(const EditorDocument&,const std::string& mount,co
 nlohmann::json prefab_member(const EditorDocument&,AssetId prefab,const std::string& member);
 // Sets one component field on this instance. Setting the prefab's own value removes the override instead.
 void set_instance_field(EditorDocument&,const std::string& mount,const std::string& member,const std::string& component,const std::string& field,const nlohmann::json& value);
+// Render-only stable slot assignment. Empty material explicitly selects the model default; Revert restores prefab inheritance.
+void set_instance_material(EditorDocument&,const std::string& mount,const std::string& member,AssetId slot,AssetId material);
+// A scene-owned object's assignment; no prefab definition or imported model metadata is changed.
+void set_object_material(EditorDocument&,StableId object,AssetId slot,AssetId material);
 // Adds a component (with its defaults) to, or removes one from, this instance's member.
 void add_instance_component(EditorDocument&,const std::string& mount,const std::string& member,const std::string& component,const nlohmann::json& defaults);
 void remove_instance_component(EditorDocument&,const std::string& mount,const std::string& member,const std::string& component);
@@ -48,8 +53,9 @@ std::string prefab_with_overrides(const EditorDocument&,const std::string& mount
 // Swap: replaces the prefab an instance links while keeping its mount, placement and the persistent identity of its gameplay
 // member. Only single-member prefabs with the same gameplay contract (the same world-object components) are compatible.
 struct SwapPreview {bool compatible{};std::string reason;std::vector<std::string> carried,discarded;};
-SwapPreview prepare_swap(EditorDocument&,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_replacement_defaults,const AssemblySources& dependencies={});
-void commit_swap(EditorDocument&,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_replacement_defaults,const AssemblySources& dependencies={});
+struct MaterialSwap {std::map<AssetId,AssetId> remap;std::set<AssetId> replacement_slots;};
+SwapPreview prepare_swap(EditorDocument&,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_replacement_defaults,const AssemblySources& dependencies={},const MaterialSwap& materials={});
+void commit_swap(EditorDocument&,const std::string& mount,AssetId replacement,const std::string& replacement_text,bool use_replacement_defaults,const AssemblySources& dependencies={},const MaterialSwap& materials={});
 // Create Prefab from Selection: a prefab source made from scene objects of the scene's own source (the first object's pose is
 // the pivot and becomes the instance placement; the others keep their pose relative to it), and the replacement of those
 // objects by one linked instance whose members retain their persistent identities. References among the captured objects stay

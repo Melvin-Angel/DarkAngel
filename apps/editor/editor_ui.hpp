@@ -176,7 +176,13 @@ public:
     // imported) and the form of a material instance draft. Both live in Assets.
     void draw_model_materials(Controller&,const AssetInfo& model);
     void draw_material_form(Controller&,AssetId material);
+    void draw_material_assignments(Controller&,const nlohmann::json&,const std::function<void(AssetId,AssetId)>&,const std::function<void(AssetId)>& revert={});
+    void draw_object_materials(Controller&,StableId);
     char material_name[65]{"NewMaterial"};
+    AssetId material_reimport_model;
+    AssetService::ModelReimportChanges material_reimport_changes;
+    std::map<std::string,std::string> material_reimport_remap;
+    std::string material_reimport_hash;
     // R6.1 UI workspace (ui_workspace.cpp): UI documents (.daui) with markup/style editors, sample values and a live RmlUi
     // preview that pauses during Play. ui_renderer is the HUD's ImGui render interface, set by the app.
     void draw_ui(Controller&,unsigned,unsigned,float);
@@ -184,10 +190,11 @@ public:
     bool ui_preview_alive()const;std::string ui_preview_text(const std::string& id)const;bool ui_preview_click(const std::string& id);std::vector<std::string> ui_preview_commands()const;
     AssetId ui_selection;char ui_name[65]{"NewDocument"};int ui_template{};void* ui_renderer{};std::shared_ptr<struct UiWorkspaceState> ui_state;
     AssetId prefab_selection,prefab_swap_target;char prefab_name[65]{"NewPrefab"},prefab_filter[65]{};bool prefab_swap_defaults{};std::set<std::string> prefab_override_selection;
+    MaterialSwap prefab_material_swap;std::string prefab_material_swap_key;
     // R4 Prefabs workspace preview: the selected definition (draft) resolved on its own, or in context at one of the open scene's
     // instances with the surrounding scene models shown but not editable. prefab_workspace.cpp builds it when its inputs change;
     // the scene viewport draws it, from an orbit camera, while the Prefabs tab is open.
-    struct PrefabPreviewModel {StableId object;AssetId model;Transform pose;bool context{};};
+    struct PrefabPreviewModel {StableId object;AssetId model;Transform pose;bool context{};std::map<AssetId,AssetId> materials;};
     struct PrefabPreview {std::string key,error;std::vector<PrefabPreviewModel> models;std::array<double,3> center{};double radius{2};float yaw{.7f},pitch{.35f};bool visible{},in_context{};};
     PrefabPreview prefab_preview;
     // Consumers of the selected prefab (scanned when the selection or a Save changes them), rename and variant names, the nested

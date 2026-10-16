@@ -1,7 +1,9 @@
 #include "assets_internal.hpp"
 #include <darkangel/material_assets.hpp>
 #include <darkangel/hash.hpp>
+#include <darkangel/assembly.hpp>
 #include <cmath>
+#include <set>
 namespace darkangel {
 using namespace assets_detail;
 MaterialInstanceDefinition decode_material_instance(std::string_view text){
@@ -31,9 +33,26 @@ Import material_texture(const std::filesystem::path& root,const MaterialInstance
 Import import_material(const std::filesystem::path& root,const std::filesystem::path& source,const std::map<std::string,AssetId>& ids,bool inspect){
     auto bytes=read(source,16384);auto material=decode_material_instance(bytes);if(!inspect)require(ids.size()==1&&ids.at("$source")==material.id,"Material source identity");
     Import result;result.inputs[source.lexically_relative(root).generic_string()]=sha256(bytes);result.identities.push_back(material.id);result.product_count=1;
-    // The texture is validated (and its closure recorded) here; models that assign this material carry the texture product.
-    if(material.texture!=AssetId{}){auto texture=material_texture(root,material,true);for(const auto& [path,hash]:texture.inputs)result.inputs[path]=hash;}
-    if(!inspect)result.products.push_back({material.id,"material_instance","material-instance.json",json(bytes,16384).dump(),{}});return result;
+    // Standalone per-renderable bindings need the same frozen texture closure as model-level assignments.
+    std::vector<AssetId> required;
+    if(material.texture!=AssetId{}){auto texture=material_texture(root,material,inspect);for(const auto& [path,hash]:texture.inputs)result.inputs[path]=hash;required.push_back(material.texture);
+        result.product_count+=texture.product_count?texture.product_count:1;for(auto& product:texture.products)result.products.push_back(std::move(product));}
+    if(!inspect)result.products.push_back({material.id,"material_instance","material-instance.json",json(bytes,16384).dump(),required});return result;
 }
 }
+RuntimeMaterial load_cooked_material_instance(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){
+    const auto held=registry_json(registry);const auto& manifest=*held;require(manifest.at("schema")==1&&manifest.at("assets").is_array()&&manifest.at("assets").size()<=runtime_package_product_limit,"Material registry contract");
+    const Json* selected{};std::set<AssetId> unique;for(const auto& record:manifest.at("assets")){const auto asset=AssetId::parse(record.at("id").get<std::string>());require(unique.insert(asset).second,"Duplicate material registry identity");if(asset==id)selected=&record;}
+    require(selected&&selected->at("kind")=="material_instance"&&selected->at("extension")=="material-instance.json","Material registry product type");const auto digest=selected->at("sha256").get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Material product digest");
+    const auto bytes=read(cas/(digest+".material-instance.json"),16384);require(sha256(bytes)==digest,"Material product hash mismatch");const auto definition=decode_material_instance(bytes);require(definition.id==id,"Material product identity mismatch");
+    RuntimeMaterial result;auto& value=result.value;value.id=id;value.color=definition.color;value.roughness=definition.roughness;value.metallic=definition.metallic;value.double_sided=definition.double_sided;value.texture=definition.texture;value.has_texture=definition.texture!=AssetId{};
+    std::string generation=digest;if(value.has_texture){result.textures.emplace_back(value.texture,load_cooked_texture(registry,cas,value.texture));for(const auto& record:manifest.at("assets"))if(record.at("id")==value.texture.text())generation+=record.at("sha256").get<std::string>();}result.generation=sha256(generation);return result;
+}
+void validate_cooked_material_bindings(const std::filesystem::path& registry,const std::filesystem::path& cas,const SpawnPlan& plan){
+    require(plan.materials.size()<=scene_object_limit,"Material binding object limit");std::map<AssetId,std::set<AssetId>> available;std::set<AssetId> loaded;
+    for(const auto& [object,bindings]:plan.materials){require(plan.models.contains(object)&&bindings.size()<=128,"Material bindings require a model and bounded slots");const auto model=plan.models.at(object);
+        if(!available.contains(model)){const auto cooked=load_cooked_model(registry,cas,model);auto& slots=available[model];for(const auto& material:cooked.materials)slots.insert(material.id);}
+        for(const auto& [slot,material]:bindings){require(available.at(model).contains(slot),"A material slot was removed; repair the preserved assignment before Play");if(loaded.insert(material).second)load_cooked_material_instance(registry,cas,material);}}
+}
+
 }

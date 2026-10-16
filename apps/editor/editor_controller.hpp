@@ -55,6 +55,9 @@ public:
     std::filesystem::path package_model(AssetId);
     std::function<std::vector<AssetId>()> authoring_roots;
     std::function<void(AssetId)> prepare_model;
+    std::function<void(AssetId)> refresh_model;
+    std::function<void(AssetId model,AssetId slot,AssetId material)> prepare_material;
+    void prepare_render_materials(const SpawnPlan&);
     std::function<void(const SpawnPlan&,const World&)> prepare_gameplay;
     std::function<void()> stop_gameplay,step_gameplay;
     std::function<void(double)> update_gameplay;

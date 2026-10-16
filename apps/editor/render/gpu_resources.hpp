@@ -37,6 +37,14 @@ struct Material {
     CookedMaterial value;
     RefCntAutoPtr<IShaderResourceBinding> binding;
 };
+// A native instance's bindings/textures, independent of model geometry. The same textures serve static and skin pipelines.
+struct UploadedMaterial {
+    RuntimeMaterial source;
+    Material surface,skinned;
+    std::map<AssetId,RefCntAutoPtr<ITexture>> textures;
+    RefCntAutoPtr<ITexture> fallback;
+};
+UploadedMaterial upload_material(IRenderDevice*,const RuntimeMaterial&,IPipelineState*,IPipelineState*,IPipelineState* skin=nullptr,IPipelineState* skin_cull=nullptr);
 struct UploadedModel {
     std::vector<GpuMesh> meshes;
     std::map<AssetId, RefCntAutoPtr<ITexture>> textures;

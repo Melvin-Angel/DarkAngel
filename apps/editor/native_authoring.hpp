@@ -100,7 +100,7 @@ public:
     void cancel_edit(AssetService&,std::uint64_t expected_revision,std::string_view label);
     bool dirty()const;
     NativeValidationSummary validate(AssetService&,AssetId selected={},std::span<const AssetId> scene_roots={});
-    void save_all(AssetService&,std::span<const AssetId> scene_roots={});
+    void save_all(AssetService&,std::span<const AssetId> scene_roots={},std::span<const NativeSourceEdit> extra_edits={});
     void apply(AssetService&,AssetId,std::uint64_t expected_revision,nlohmann::json,std::string_view label,bool continuous=false);
     void record_changes(AssetService&,std::string_view label,bool continuous=false);
     void undo(AssetService&);void redo(AssetService&);
