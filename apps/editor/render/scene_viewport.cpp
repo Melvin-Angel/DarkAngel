@@ -510,6 +510,10 @@ void SceneViewport::render(double elapsed_seconds) {
                     }
                     if(prefab_render)for(const auto& shown:shell.prefab_preview.models)if(shown.object==object_id)if(const auto assignment=shown.materials.find(part.material);assignment!=shown.materials.end())effective=&scene.native_materials.at(assignment->second).surface;
                     const auto& material=*effective;
+                    // The depth-only caster has no material texture bindings yet. Keep transparent and cutout surfaces out of
+                    // the map until alpha-tested caster variants are added; this is safer than casting a full-mesh silhouette.
+                    if (shadow_pass && material.value.alpha_mode != 0)
+                        continue;
                     if(shadow_pass){Constants constants;XMStoreFloat4x4(&constants.mvp,world*view*projection);XMStoreFloat4x4(&constants.rotation,rotation);XMStoreFloat4x4(&constants.world,world);void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow constants mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
 #ifdef DAE_ANIMATION
                         IPipelineState* shadow_pipeline=(drawn_ptr&&!args.skin_reference)?(material.value.double_sided?scene.skin_shadow_pso.RawPtr():scene.skin_shadow_cull.RawPtr()):(material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr());
@@ -716,7 +720,36 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
     const bool travelling = false;
 #endif
-    if(frame_settings.main_light&&frame_settings.shadows.cascades_enabled){for(const auto& prepared:frame_lights)if(prepared.light.id==frame_settings.main_light&&prepared.light.type==darkangel::rendering::LightType::Directional&&prepared.light.enabled&&prepared.light.cast_shadows){const auto direction=XMVector3Normalize(XMVectorSet(prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],0));const auto target=XMVectorZero();const auto light_position=XMVectorSubtract(target,XMVectorScale(direction,200));const auto light_view=XMMatrixLookAtRH(light_position,target,XMVectorSet(0,1,0,0));for(unsigned cascade=0;cascade<shadow_cascades;++cascade){const float extent=std::max(8.f,frame_settings.shadows.distance*(.08f+float(cascade+1)/shadow_cascades));const auto light_projection=XMMatrixOrthographicOffCenterRH(-extent,extent,-extent,extent,.1f,std::max(extent*4,frame_settings.shadows.distance));XMStoreFloat4x4(&shadow_matrices[cascade],light_view*light_projection);auto* dsv_shadow=shadow_dsv[cascade].RawPtr();context->SetRenderTargets(0,nullptr,dsv_shadow,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->ClearDepthStencil(dsv_shadow,CLEAR_DEPTH_FLAG,1,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);Viewport shadow_viewport;shadow_viewport.Width=shadow_viewport.Height=float(shadow_resolution);context->SetViewports(1,&shadow_viewport,shadow_resolution,shadow_resolution);draw_objects(light_view,light_projection,nullptr,true);}shadow_enabled=true;}}
+    if (frame_settings.main_light && frame_settings.shadows.cascades_enabled) {
+        for (const auto& prepared : frame_lights)
+            if (prepared.light.id == frame_settings.main_light && prepared.light.type == darkangel::rendering::LightType::Directional &&
+                prepared.light.enabled && prepared.light.cast_shadows) {
+                const auto direction = XMVector3Normalize(XMVectorSet(prepared.light.direction_view[0], prepared.light.direction_view[1],
+                                                                       prepared.light.direction_view[2], 0));
+                const auto target = XMVectorZero();
+                const auto light_position = XMVectorSubtract(target, XMVectorScale(direction, 200));
+                const auto light_view = XMMatrixLookAtRH(light_position, target, XMVectorSet(0, 1, 0, 0));
+                for (unsigned cascade = 0; cascade < shadow_cascades; ++cascade) {
+                    const float extent = std::max(8.f, frame_settings.shadows.distance * (.08f + float(cascade + 1) / shadow_cascades));
+                    const float texel = 2.f * extent / std::max(1u, shadow_resolution);
+                    const auto light_target = XMVector3TransformCoord(target, light_view);
+                    const float snapped_x = std::floor(XMVectorGetX(light_target) / texel + .5f) * texel;
+                    const float snapped_y = std::floor(XMVectorGetY(light_target) / texel + .5f) * texel;
+                    const auto light_projection = XMMatrixOrthographicOffCenterRH(
+                        -extent + snapped_x, extent + snapped_x, -extent + snapped_y, extent + snapped_y, .1f,
+                        std::max(extent * 4, frame_settings.shadows.distance));
+                    XMStoreFloat4x4(&shadow_matrices[cascade], light_view * light_projection);
+                    auto* dsv_shadow = shadow_dsv[cascade].RawPtr();
+                    context->SetRenderTargets(0, nullptr, dsv_shadow, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    context->ClearDepthStencil(dsv_shadow, CLEAR_DEPTH_FLAG, 1, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    Viewport shadow_viewport;
+                    shadow_viewport.Width = shadow_viewport.Height = float(shadow_resolution);
+                    context->SetViewports(1, &shadow_viewport, shadow_resolution, shadow_resolution);
+                    draw_objects(light_view, light_projection, nullptr, true);
+                }
+                shadow_enabled = true;
+            }
+    }
     context->SetRenderTargets(1,&rtv,dsv,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->SetViewports(1,&viewport,scene_color->GetDesc().Width,scene_color->GetDesc().Height);
     if (!travelling)
         draw_objects(view, projection, nullptr);
