@@ -1,5 +1,7 @@
 #pragma once
 #include <filesystem>
+#include <functional>
+#include <string_view>
 #include <memory>
 #include <optional>
 #include <string>
@@ -64,4 +66,33 @@ public:
     void pointer(int x,int y,bool pressed,bool released,float wheel=0);
 private:struct Impl;std::unique_ptr<Impl> impl_;
 };
+// R6 UI authoring preview: sample values for the "ui" data model every authored UI document binds. The document decides
+// what to show; health/stamina also arrive as percentages and "current / maximum" text.
+struct UiPreviewSample {double health{75},maximum_health{100},stamina{40},maximum_stamina{100},cooldown{.5};std::string name{"Royal Guard"},prompt{"Use"};bool flag{};
+    bool operator==(const UiPreviewSample&)const=default;};
+// One authored UI document rendered from source text (markup plus style) with sample values, for the editor's UI tab. It
+// shares the process's single RmlUi lifetime with Hud: creating a Hud evicts a live preview first (Play wins), and the
+// owner is told through on_evicted, which must drop the preview. Clicks run data-event-click="command('id')" callbacks
+// and are only logged.
+class UiDocumentPreview {
+public:
+    UiDocumentPreview(Rml::RenderInterface&,const std::filesystem::path& font,int width,int height,std::function<void()> on_evicted);
+    ~UiDocumentPreview();
+    UiDocumentPreview(const UiDocumentPreview&)=delete;
+    UiDocumentPreview& operator=(const UiDocumentPreview&)=delete;
+    // Replaces the document. On problems the previous good document stays shown (stale) and false is returned.
+    bool load(std::string_view markup,std::string_view style);
+    bool stale()const;
+    const std::string& problems()const;
+    void resize(int width,int height);
+    void update(const UiPreviewSample&);
+    void render();
+    void pointer(int x,int y,bool pressed,bool released);
+    std::vector<std::string> drain_commands();
+    std::string text(const std::string& id)const;
+    std::optional<Hud::Box> box(const std::string& id)const;
+private:struct Impl;std::unique_ptr<Impl> impl_;
+};
+// The markup with the style placed inside its <head>, as one self-contained RmlUi document.
+std::string compose_ui_document(std::string_view markup,std::string_view style);
 }

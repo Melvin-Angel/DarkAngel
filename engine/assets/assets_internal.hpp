@@ -35,6 +35,7 @@ Import import_actor(const std::filesystem::path&,const std::filesystem::path&,co
 Import import_material(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 
 Import material_texture(const std::filesystem::path& root,const MaterialInstanceDefinition&,bool inspect);
+Import import_ui(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_prefab(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 Import import_combat_kit(const std::filesystem::path&,const std::filesystem::path&,const std::map<std::string,AssetId>&,bool inspect=false);
 unsigned graph_product_layer_bound(const std::map<AssetId,Product>&,AssetId);

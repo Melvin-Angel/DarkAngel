@@ -13,6 +13,8 @@ namespace darkangel {
 namespace {
 void require(bool value,const char* error){if(!value)throw std::runtime_error(error);}
 bool hud_alive=false;
+// The live UI authoring preview, if any, and how to make its owner drop it before a Hud takes RmlUi.
+bool preview_alive=false;std::function<void()> evict_preview;
 std::string read(const std::filesystem::path& path,std::size_t limit){
     std::ifstream file(path,std::ios::binary);require(bool(file),"HUD file missing");std::string bytes((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>());require(!bytes.empty()&&bytes.size()<=limit,"HUD file size bound");return bytes;
 }
@@ -38,7 +40,8 @@ struct Hud::Impl {
     Rml::Element* find(const std::string& id)const{auto* element=document->GetElementById(id);if(!element&&inventory)element=inventory->find(id);if(!element&&altar)element=altar->find(id);return element;}
 };
 Hud::Hud(Rml::RenderInterface& renderer,const std::filesystem::path& document,const std::filesystem::path& font,int width,int height):impl_(std::make_unique<Impl>()){
-    require(!hud_alive,"Only one HUD can exist at a time");require(width>0&&height>0&&width<=16384&&height<=16384,"HUD dimensions");
+    if(preview_alive&&evict_preview){auto evict=evict_preview;evict();}
+    require(!hud_alive&&!preview_alive,"Only one HUD can exist at a time");require(width>0&&height>0&&width<=16384&&height<=16384,"HUD dimensions");
     // The document is self-contained (inline style, no images), so it is read here and given a plain name:
     // RmlUi's URL parser does not accept Windows drive paths.
     auto source=read(document,1024*1024);impl_->font=read(font,64*1024*1024);
@@ -80,4 +83,57 @@ void Hud::update_altar(const AltarUiModel& value){impl_->altar->update(value);im
 const AltarUiModel& Hud::altar()const{return impl_->altar->model();}
 std::vector<AltarUiAction> Hud::drain_altar_actions(){return impl_->altar->drain();}
 void Hud::pointer(int x,int y,bool pressed,bool released,float wheel){impl_->context->ProcessMouseMove(x,y,0);if(pressed)impl_->context->ProcessMouseButtonDown(0,0);if(released)impl_->context->ProcessMouseButtonUp(0,0);if(wheel)impl_->context->ProcessMouseWheel(-wheel,0);impl_->context->Update();}
+}
+
+namespace darkangel {
+std::string compose_ui_document(std::string_view markup,std::string_view style){
+    std::string document(markup);const auto head=document.find("</head>");if(head==std::string::npos)throw std::runtime_error("A UI document needs a <head> for its style");
+    document.insert(head,"<style>"+std::string(style)+"</style>");return document;
+}
+struct UiDocumentPreview::Impl {
+    System system;std::string font;Rml::Context* context{};Rml::ElementDocument* document{};Rml::DataModelHandle handle;std::string good_markup,good_style,problems;bool stale{};
+    UiPreviewSample sample;float health_percent{},stamina_percent{},cooldown_percent{};Rml::String health_text,stamina_text,name,prompt;bool flag{};std::vector<std::string> commands;
+    void assign(const UiPreviewSample& value){sample=value;health_percent=float(percent(value.health,value.maximum_health));stamina_percent=float(percent(value.stamina,value.maximum_stamina));
+        cooldown_percent=float(std::clamp(value.cooldown,0.,1.)*100);health_text=amount(value.health,value.maximum_health);stamina_text=amount(value.stamina,value.maximum_stamina);name=value.name;prompt=value.prompt;flag=value.flag;}
+    // Loads one document; problems leave nothing loaded and are returned.
+    std::string try_load(std::string_view markup,std::string_view style){
+        system.problems.clear();std::string text;try{text=compose_ui_document(markup,style);}catch(const std::exception& error){return error.what();}
+        auto* loaded=context->LoadDocumentFromMemory(text,"authored-ui.rml");if(!loaded)return system.problems.empty()?"The document did not load":system.problems;
+        if(!system.problems.empty()){auto found=system.problems;loaded->Close();context->Update();return found;}
+        if(document){document->Close();}document=loaded;document->Show();context->Update();return {};}
+};
+UiDocumentPreview::UiDocumentPreview(Rml::RenderInterface& renderer,const std::filesystem::path& font,int width,int height,std::function<void()> on_evicted):impl_(std::make_unique<Impl>()){
+    require(!hud_alive&&!preview_alive,"The UI preview waits while the game HUD runs");require(width>0&&height>0&&width<=16384&&height<=16384,"UI preview dimensions");
+    impl_->font=read(font,64*1024*1024);Rml::SetSystemInterface(&impl_->system);require(Rml::Initialise(),"RmlUi initialisation failed");preview_alive=true;evict_preview=std::move(on_evicted);
+    try{
+        impl_->context=Rml::CreateContext("darkangel-ui-preview",{width,height},&renderer);require(impl_->context!=nullptr,"UI preview context creation failed");
+        require(Rml::LoadFontFace({reinterpret_cast<const Rml::byte*>(impl_->font.data()),impl_->font.size()},"HUD",Rml::Style::FontStyle::Normal,Rml::Style::FontWeight::Normal,true),"UI preview font face rejected");
+        auto model=impl_->context->CreateDataModel("ui");require(bool(model),"UI preview data model creation failed");auto& p=*impl_;
+        bool bound=model.Bind("health_percent",&p.health_percent)&&model.Bind("stamina_percent",&p.stamina_percent)&&model.Bind("cooldown_percent",&p.cooldown_percent)&&model.Bind("health_text",&p.health_text)&&model.Bind("stamina_text",&p.stamina_text)&&model.Bind("name",&p.name)&&model.Bind("prompt",&p.prompt)&&model.Bind("flag",&p.flag);
+        bound=bound&&model.BindEventCallback("command",[&p](Rml::DataModelHandle,Rml::Event&,const Rml::VariantList& arguments){if(p.commands.size()<64)p.commands.push_back(arguments.empty()?std::string("(no id)"):arguments[0].Get<Rml::String>());});
+        require(bound,"UI preview data model binding failed");impl_->handle=model.GetModelHandle();impl_->assign({});
+    }catch(...){Rml::Shutdown();preview_alive=false;evict_preview=nullptr;throw;}
+}
+UiDocumentPreview::~UiDocumentPreview(){Rml::Shutdown();preview_alive=false;evict_preview=nullptr;}
+bool UiDocumentPreview::load(std::string_view markup,std::string_view style){
+    auto& p=*impl_;require(markup.size()<=65536&&style.size()<=65536,"UI document text bound");auto problems=p.try_load(markup,style);
+    if(problems.empty()){p.good_markup=markup;p.good_style=style;p.problems.clear();p.stale=false;p.handle.DirtyAllVariables();return true;}
+    p.problems=problems.substr(0,4096);p.stale=p.document!=nullptr;return false;
+}
+bool UiDocumentPreview::stale()const{return impl_->stale;}
+const std::string& UiDocumentPreview::problems()const{return impl_->problems;}
+void UiDocumentPreview::resize(int width,int height){require(width>0&&height>0&&width<=16384&&height<=16384,"UI preview dimensions");if(impl_->context->GetDimensions()!=Rml::Vector2i{width,height})impl_->context->SetDimensions({width,height});}
+void UiDocumentPreview::update(const UiPreviewSample& value){
+    for(double number:{value.health,value.maximum_health,value.stamina,value.maximum_stamina,value.cooldown})require(std::isfinite(number)&&number>=0&&number<=1e9,"UI preview sample bounds");
+    require(value.name.size()<=64&&value.prompt.size()<=64,"UI preview sample text bounds");
+    if(!(value==impl_->sample)){impl_->assign(value);impl_->handle.DirtyAllVariables();}impl_->context->Update();impl_->system.problems.clear();
+}
+void UiDocumentPreview::render(){impl_->context->Render();}
+void UiDocumentPreview::pointer(int x,int y,bool pressed,bool released){impl_->context->ProcessMouseMove(x,y,0);if(pressed)impl_->context->ProcessMouseButtonDown(0,0);if(released)impl_->context->ProcessMouseButtonUp(0,0);impl_->context->Update();}
+std::vector<std::string> UiDocumentPreview::drain_commands(){auto result=std::move(impl_->commands);impl_->commands.clear();return result;}
+std::optional<Hud::Box> UiDocumentPreview::box(const std::string& id)const{
+    if(!impl_->document)return std::nullopt;auto* element=impl_->document->GetElementById(id);if(!element||!element->IsVisible(true))return std::nullopt;
+    auto offset=element->GetAbsoluteOffset(Rml::BoxArea::Border);auto size=element->GetBox().GetSize(Rml::BoxArea::Border);return Hud::Box{offset.x,offset.y,size.x,size.y};
+}
+std::string UiDocumentPreview::text(const std::string& id)const{if(!impl_->document)return {};auto* element=impl_->document->GetElementById(id);return element?std::string(element->GetInnerRML()):std::string{};}
 }

@@ -223,7 +223,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     const auto* focused_window=ImGui::GetCurrentContext()->NavWindow;
     const auto* mask_window=ImGui::FindWindowByName("Mask Editor");
     const bool mask_owner=mask_editor!=AssetId{}&&focused_window&&mask_window&&focused_window->RootWindow==mask_window->RootWindow;
-    const bool native_owner=mask_owner||workspace==Workspace::Character||workspace==Workspace::Player||workspace==Workspace::Npc||workspace==Workspace::Ability||workspace==Workspace::Animation||workspace==Workspace::Items||workspace==Workspace::Prefabs||(workspace==Workspace::Tools&&(tool==ToolView::AuthoringHistory||tool==ToolView::InputBindings));
+    const bool native_owner=mask_owner||workspace==Workspace::Character||workspace==Workspace::Player||workspace==Workspace::Npc||workspace==Workspace::Ability||workspace==Workspace::Animation||workspace==Workspace::Items||workspace==Workspace::Prefabs||workspace==Workspace::Ui||(workspace==Workspace::Tools&&(tool==ToolView::AuthoringHistory||tool==ToolView::InputBindings));
     const bool scene_owner=!native_owner&&(workspace==Workspace::Scene||(workspace==Workspace::Tools&&tool==ToolView::ScriptSource));
     if((native_owner||scene_owner)&&shortcuts.KeyCtrl&&!shortcuts.KeyAlt&&!shortcuts.WantTextInput&&!ImGui::IsAnyItemActive()&&!dragging&&!composer_dragging&&!editor.preview.active()&&!ImGui::IsPopupOpen(nullptr,ImGuiPopupFlags_AnyPopupId)){
         const bool undo=ImGui::IsKeyPressed(ImGuiKey_Z,false)&&!shortcuts.KeyShift;
@@ -250,6 +250,7 @@ ViewArea Shell::draw(Controller& editor,unsigned width,unsigned height,const cha
     // Audio: the host's panel fills the workspace.
     if(workspace==Workspace::Items){controls_focus=false;draw_items(editor,width,height,workspace_top);return area;}
     if(workspace==Workspace::Prefabs){controls_focus=false;draw_prefabs(editor,width,height,workspace_top);return area;}
+    if(workspace==Workspace::Ui){controls_focus=false;draw_ui(editor,width,height,workspace_top);return area;}
     if(workspace==Workspace::Audio){controls_focus=false;ImGui::SetNextWindowPos({0,workspace_top});ImGui::SetNextWindowSize({float(width),float(height)-workspace_top});ImGui::Begin("Audio workspace",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoDocking|ImGuiWindowFlags_NoSavedSettings);
         if(draw_audio_panel)draw_audio_panel();else ImGui::TextDisabled("Audio needs the project's sources (start the editor with --sources) and a build with the audio library.");ImGui::End();return area;}
     // VFX: the host's effect panel on the left, the effect preview (the scene render target) filling the rest.

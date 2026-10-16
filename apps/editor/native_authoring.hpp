@@ -49,6 +49,8 @@ public:
     AssetId create_prefab_source(AssetService&,std::string_view name,nlohmann::json value);
     // R5: a material instance under materials/ initialised from a material slot's cooked values.
     AssetId create_material(AssetService&,std::string_view name,const nlohmann::json& values);
+    // R6.1: a UI document under ui/<purpose folder>/ from the purpose's template (hud, marker, menu or puzzle).
+    AssetId create_ui_document(AssetService&,std::string_view name,std::string_view purpose);
     // Structure edits on a behaviour tree. path holds child indices from the root to the node (empty = root).
     // MoveUp/MoveDown/Remove act on that node among its siblings; AddChild appends a default node of `type` to that composite.
     enum class BehaviorEdit {MoveUp,MoveDown,Remove,AddChild};

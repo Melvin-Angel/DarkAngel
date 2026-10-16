@@ -18,6 +18,7 @@ constexpr auto flags = std::to_array<Flag>({
     {"--exercise-scene-camera", {&EditorOptions::exercise_scene_camera}},
     {"--exercise-prefabs", {&EditorOptions::exercise_prefabs}},
     {"--exercise-materials", {&EditorOptions::exercise_materials}},
+    {"--exercise-ui", {&EditorOptions::exercise_ui}},
     {"--exercise-place", {&EditorOptions::exercise_place}},
     {"--exercise-navigation-bake", {&EditorOptions::exercise_navigation_bake, &EditorOptions::navigation_tool}},
     {"--exercise-ranged", {&EditorOptions::exercise_ranged, &EditorOptions::exercise_heavy}},

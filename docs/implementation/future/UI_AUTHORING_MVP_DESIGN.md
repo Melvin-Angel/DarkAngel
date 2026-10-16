@@ -1,5 +1,7 @@
 # UI workspace and reusable document MVP
 
+**16 October 2026: a first R6.1 subset is implemented** (single-file `.daui` documents, UI tab, live preview that pauses during Play). See the [R6.1 report](../current/UI_AUTHORING_REPORT.md) for the scope cuts; the rest of U0, and U2, remain.
+
 **Scheduling: Planned, R6.1 (B: U0/U1), R6.2 (D: U2); E: U3 is in the deferred backlog (formerly R8, deferred 16 October 2026)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026). R6 follows R5 and uses the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md). U3 world-panel work must not block the screen/menu examples. U0–U3 here supersede the older UI_PLAN stage numbering.
 
 15 October 2026. **Proposed design, not an implemented UI tab or API.** Resume through [next authoring work](AUTHORING_NEXT_STEPS_2026-10-15.md). This updates the current-state assumptions and sequence of the [12 October UI plan](UI_PLAN.md); [DAE-010](../../architecture/Decision_Log.txt) remains the locked contract.

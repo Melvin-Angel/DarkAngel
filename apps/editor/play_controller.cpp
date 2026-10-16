@@ -876,6 +876,9 @@ void PlayController::stop_gameplay() {
     runtime_inventory.reset();
     runtime_altar.reset();
     shell.inventory_open = false;
+    // Stop releases RmlUi, so the UI tab's preview can take it again; the next Play makes a fresh HUD.
+    hud.reset();
+    hud_failed = false;
 #endif
     hud_target.reset();
     director.reset();

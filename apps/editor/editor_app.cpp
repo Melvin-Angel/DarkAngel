@@ -5,6 +5,7 @@
 #include "exercises/scene_camera_exercise.hpp"
 #include "exercises/prefab_exercise.hpp"
 #include "exercises/material_exercise.hpp"
+#include "exercises/ui_exercise.hpp"
 #include "exercises/editor_ux_exercise.hpp"
 #include "exercises/live_previews_exercise.hpp"
 #include "editor_controller.hpp"
@@ -154,6 +155,7 @@ EditorApp::EditorApp(EditorOptions options)
 #ifdef DAE_HUD
     // Runtime HUD resources, and the game menus drawn into it.
     hud_ = std::make_unique<HudResources>(render.device);
+    shell_->ui_renderer = &hud_->hud_renderer;
     inventory_ = std::make_unique<RuntimeInventory>();
     altar_ = std::make_unique<RuntimeAltar>();
 #endif
@@ -247,6 +249,8 @@ EditorApp::~EditorApp() {
 #ifdef DAE_HUD
     altar_.reset();
     inventory_.reset();
+    if (shell_)
+        shell_->ui_state.reset(); // the UI preview renders through the HUD renderer
     hud_.reset();
 #endif
     play_saves_.reset();
@@ -372,6 +376,7 @@ int EditorApp::run() {
     auto scene_camera_exercise = exercises::make_scene_camera(args.exercise_scene_camera,editor,shell);
     auto prefab_exercise = exercises::make_prefabs(args.exercise_prefabs,editor,shell);
     auto material_exercise = exercises::make_materials(args.exercise_materials,editor,shell);
+    auto ui_exercise = exercises::make_ui(args.exercise_ui,editor,shell);
     auto scene_editing_exercise =
         darkangel::editor_app::exercises::make_scene_editing({args, editor, shell, import_baseline, import_count});
     auto acceptance_exercise = darkangel::editor_app::exercises::make_acceptance(
@@ -434,6 +439,7 @@ int EditorApp::run() {
         scene_camera_exercise->frame(frame);
         prefab_exercise->frame(frame);
         material_exercise->frame(frame);
+        ui_exercise->frame(frame);
         scene_editing_exercise->frame(frame);
         acceptance_exercise->frame(frame);
 #ifdef DAE_CHARACTER_SCENE
@@ -565,6 +571,7 @@ int EditorApp::run() {
     scene_camera_exercise->finish();
     prefab_exercise->finish();
     material_exercise->finish();
+    ui_exercise->finish();
     shell.save_preferences();
     render.shutdown();
     std::cout << "DarkAngel editor rendered " << frame << " frames with " << args.backend << '\n';

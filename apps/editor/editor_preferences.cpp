@@ -77,7 +77,7 @@ void Shell::toggle_viewport_maximize(){
 }
 namespace {
 struct Destination{const char* name;Workspace workspace;};
-constexpr Destination destinations[]={{"Scene / Level Design",Workspace::Scene},{"Assets",Workspace::Assets},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio},{"Items",Workspace::Items},{"Game",Workspace::Game},{"Prefabs",Workspace::Prefabs}};
+constexpr Destination destinations[]={{"Scene / Level Design",Workspace::Scene},{"Assets",Workspace::Assets},{"Character",Workspace::Character},{"Player",Workspace::Player},{"NPC",Workspace::Npc},{"Ability",Workspace::Ability},{"Animation",Workspace::Animation},{"VFX",Workspace::Vfx},{"Audio",Workspace::Audio},{"Items",Workspace::Items},{"Game",Workspace::Game},{"Prefabs",Workspace::Prefabs},{"UI",Workspace::Ui}};
 }
 void Shell::switch_tab(Workspace target){
     if(workspace==target)return;

@@ -12,7 +12,7 @@
 #include <array>
 #include <darkangel/input.hpp>
 namespace darkangel::editor_app {
-enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items,Prefabs};
+enum class Workspace {Scene,Assets,Character,Player,Npc,Ability,Animation,Game,Tools,Settings,Vfx,Audio,Items,Prefabs,Ui};
 enum class ToolView {Console,InputBindings,ScriptSource,RuntimePhases,AuthoringHistory,Navigation,Saves};
 struct ViewArea {float x{280},y{90},width{700},height{500};};
 class Shell {
@@ -176,6 +176,12 @@ public:
     void draw_model_materials(Controller&,const AssetInfo& model);
     void draw_material_form(Controller&,AssetId material);
     char material_name[65]{"NewMaterial"};
+    // R6.1 UI workspace (ui_workspace.cpp): UI documents (.daui) with markup/style editors, sample values and a live RmlUi
+    // preview that pauses during Play. ui_renderer is the HUD's ImGui render interface, set by the app.
+    void draw_ui(Controller&,unsigned,unsigned,float);
+    // Inspection for gates: whether the preview holds RmlUi, an element's text, a click on an element, the command log.
+    bool ui_preview_alive()const;std::string ui_preview_text(const std::string& id)const;bool ui_preview_click(const std::string& id);std::vector<std::string> ui_preview_commands()const;
+    AssetId ui_selection;char ui_name[65]{"NewDocument"};int ui_template{};void* ui_renderer{};std::shared_ptr<struct UiWorkspaceState> ui_state;
     AssetId prefab_selection,prefab_swap_target;char prefab_name[65]{"NewPrefab"},prefab_filter[65]{};bool prefab_swap_defaults{};std::set<std::string> prefab_override_selection;
     AssetId item_selection,item_create_mask;int item_create_kind{};char item_name[129]{"New item"},item_filter[129]{};
     std::function<void()> draw_gameplay_inspector;bool focus_gameplay_inspector{},select_effect_debug{};
