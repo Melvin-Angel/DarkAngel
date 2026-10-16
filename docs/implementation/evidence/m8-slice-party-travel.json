@@ -8,15 +8,15 @@
   "console": [
     "The party arrived in RoyalVillage.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3074 ms, resources 2006 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3120 ms, resources 1915 ms).",
     "The party arrived in RoyalVillage.dascene.",
     "Saving the game.",
     "Saved (revision 2).",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3577 ms, resources 1993 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (14 roots; package 3365 ms, resources 2134 ms).",
     "The party arrived in RoyalTraining.dascene.",
     "Published resource generation after GPU upload; retired unpinned data at GPU idle.",
-    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3040 ms, resources 1866 ms).",
+    "Prepared current scene and combat kit for a fresh Play session (13 roots; package 3213 ms, resources 1806 ms).",
     "The party arrived in RoyalVillage.dascene."
   ],
   "downed": false,
@@ -29,7 +29,7 @@
   ],
   "error": "",
   "failures": 0,
-  "frame": 16046,
+  "frame": 16226,
   "highest_operation": 0,
   "inventory": {
     "entries": [
@@ -89,7 +89,7 @@
     }
   ],
   "owner": "b6a022aef5f944b11efb60f0b13e86a2",
-  "pending_motor": 3,
+  "pending_motor": 2,
   "players": [
     {
       "health": 100.0,
@@ -119,7 +119,7 @@
     2.5
   ],
   "predicted_tick": 20,
-  "process": 24040,
+  "process": 37180,
   "ready": true,
   "rebases": 0,
   "refused": 0,

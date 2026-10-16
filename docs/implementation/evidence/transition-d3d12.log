@@ -5,13 +5,13 @@
 [39m[39mDiligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
 [39m[93mDiligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
 [39m[39mDiligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205170000
-[39mViewport foreground pixels=455540 capture=C:\DarkAngel\docs\implementation\evidence\transition-d3d12.png
-Editor transition tick=293 players=2 arrivals=2 failures=0 phase=Idle scene=a43f75d7-e4d1-434e-a2b2-cd5f94f8fc4c document=a43f75d7-e4d1-434e-a2b2-cd5f94f8fc4c authoring=a43f75d7-e4d1-434e-a2b2-cd5f94f8fc4c lever_used=1 first_prompt=0 overlay_frames=38 loading=0 ledger_records=1 scripts=7/7,5/5 pending=0
+[39mViewport foreground pixels=455516 capture=C:\DarkAngel\docs\implementation\evidence\transition-d3d12.png
+Editor transition tick=293 players=2 arrivals=2 failures=0 phase=Idle scene=ccb8e496-d1f9-44ea-8a03-6599935183c4 document=ccb8e496-d1f9-44ea-8a03-6599935183c4 authoring=ccb8e496-d1f9-44ea-8a03-6599935183c4 lever_used=1 first_prompt=0 overlay_frames=38 loading=0 ledger_records=1 scripts=7/7,5/5 pending=0
 DarkAngel editor rendered 420 frames with d3d12
 [39mDiligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
 [39m[39mDiligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 29/256
 [39m[39mDiligent Engine: Info: Dynamic heap of immediate context usage stats:
-                       Peak used/aligned/allocated size: 214.50 KB / 214.50 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 20.9%
+                       Peak used/aligned/allocated size: 217.00 KB / 217.00 KB / 1.00 MB (1 page). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 21.2%
 [39m[39mDiligent Engine: Info: Dynamic memory manager usage stats:
                        Total allocated memory: 2.00 MB
 [39m[39mDiligent Engine: Info: D3D12 query manager peak usage:
