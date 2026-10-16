@@ -74,6 +74,8 @@ class SceneViewport {
     // The viewport's field of view this frame.
     float camera_fov = DirectX::XM_PIDIV4;
     DirectX::XMFLOAT4X4 view_matrix{}, projection_matrix{};
+    unsigned shadow_resolution{};
+    void ensure_shadow_targets(unsigned resolution);
 };
 } // namespace render
 } // namespace editor_app
