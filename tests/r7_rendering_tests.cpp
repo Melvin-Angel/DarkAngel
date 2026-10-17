@@ -42,6 +42,14 @@ int main() {
         check(lit[0] > lit[1] && lit[0] > lit[2], "colored local light");
         FogSettings fog; fog.enabled = true;
         check(evaluate_fog(fog, 0) == 0 && evaluate_fog(fog, 200) > 0, "fog response");
+        fog.height = 2; fog.height_falloff = 1;
+        check(evaluate_fog(fog, 200, 4) < evaluate_fog(fog, 200, 0), "height fog response");
+        PostProcessSettings grading;
+        const auto neutral = apply_color_grading(grading, {0.2f, 0.4f, 0.6f});
+        check(std::abs(neutral.r - .2f) < .0001f && std::abs(neutral.g - .4f) < .0001f && std::abs(neutral.b - .6f) < .0001f, "neutral color grade");
+        grading.grade_lift = {.1f, 0, 0}; grading.grade_gamma = {2, 1, 1}; grading.grade_gain = {1.2f, 1, 1}; grading.grade_temperature = .5f;
+        const auto graded = apply_color_grading(grading, {0.2f, 0.4f, 0.6f});
+        check(graded.r > neutral.r && graded.b < neutral.b, "extended color grade response");
         std::cout << "R7 rendering core passed: clusters=" << result.stats.clusters << " non_empty=" << result.stats.non_empty
                   << " overflow=" << bounded.stats.overflowed << '\n';
         return 0;

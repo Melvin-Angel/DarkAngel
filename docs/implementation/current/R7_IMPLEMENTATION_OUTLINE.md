@@ -102,6 +102,15 @@ procedural sky, warm linear distance fog, olive terrain tint, and restrained
 exposure/contrast values. D3D12 and Vulkan close captures are recorded as
 `royalcombat_unity_grade_d3d12.png` and `royalcombat_unity_grade_vulkan.png`.
 
+The follow-on Lighting UI increment closes the remaining authoring gaps for
+fog height/falloff, exposure compensation and post tint, and also exposes bloom
+softness/radius. Post tint is persisted in the schema-1 scene component. The
+same post pass now has neutral lift/gamma/gain and temperature controls, with
+matching CPU reference math and GPU frame constants; no separate grading or
+lightmap path was introduced. D3D12/Vulkan smoke captures after the shader
+contract change are `royalcombat_post_grade_d3d12.png` and
+`royalcombat_post_grade_vulkan.png`.
+
 ## Explicit boundaries
 
 The first implementation does not add baked GI, lightmaps, a bake cooker,

@@ -54,6 +54,10 @@ struct PostConstants {
     DirectX::XMFLOAT4 exposure{0,0,1,1};
     DirectX::XMFLOAT4 bloom{1,.5f,.35f,4};
     DirectX::XMFLOAT4 tint_fxaa{1,1,1,1};
+    DirectX::XMFLOAT4 grade_lift{};
+    DirectX::XMFLOAT4 grade_gamma{1,1,1,0};
+    DirectX::XMFLOAT4 grade_gain{1,1,1,0};
+    DirectX::XMFLOAT4 grade_params{};
     DirectX::XMFLOAT4 texel{};
     DirectX::XMFLOAT4 outline{.025f,.015f,.04f,1};
     DirectX::XMFLOAT4 outline_params{1,80,1.5f,1};

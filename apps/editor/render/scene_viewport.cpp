@@ -967,6 +967,10 @@ void SceneViewport::render(double elapsed_seconds) {
         constants.exposure = {frame_settings.post.exposure, frame_settings.post.exposure_compensation, frame_settings.post.contrast, frame_settings.post.saturation};
         constants.bloom = {frame_settings.post.bloom_threshold, frame_settings.post.bloom_soft_threshold, frame_settings.post.bloom ? frame_settings.post.bloom_intensity : 0.f, frame_settings.post.bloom_radius};
         constants.tint_fxaa = {frame_settings.post.tint.r, frame_settings.post.tint.g, frame_settings.post.tint.b, frame_settings.post.fxaa ? 1.f : 0.f};
+        constants.grade_lift = {frame_settings.post.grade_lift.r, frame_settings.post.grade_lift.g, frame_settings.post.grade_lift.b, 0};
+        constants.grade_gamma = {frame_settings.post.grade_gamma.r, frame_settings.post.grade_gamma.g, frame_settings.post.grade_gamma.b, 0};
+        constants.grade_gain = {frame_settings.post.grade_gain.r, frame_settings.post.grade_gain.g, frame_settings.post.grade_gain.b, 0};
+        constants.grade_params = {frame_settings.post.grade_temperature, 0, 0, 0};
         constants.texel = {1.f / std::max(1u, destination->GetDesc().Width), 1.f / std::max(1u, destination->GetDesc().Height), 0, 0};
         constants.outline = {frame_settings.post.outline.color.r, frame_settings.post.outline.color.g, frame_settings.post.outline.color.b, frame_settings.post.outline.enabled ? 1.f : 0.f};
         constants.outline_params = {frame_settings.post.outline.thickness, frame_settings.post.outline.depth_sensitivity, frame_settings.post.outline.normal_sensitivity, frame_settings.post.outline.group_sensitivity};

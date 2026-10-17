@@ -84,6 +84,29 @@ authored RoyalCombat document valid with 10 objects. Focused CTest
 receipt and an interactive Lighting-window edit receipt remain separate
 qualification work.
 
+## 17 October Lighting UI and colour grading increment
+
+Tools > Lighting now exposes the previously hidden scene-authored controls:
+Fog Height and Height falloff, Exposure compensation, and Colour tint. Bloom
+soft threshold and radius are also exposed because they were already part of
+the post contract but had no editor path. Post tint is now serialized instead
+of being silently reset on scene reload.
+
+The existing post pass now supports neutral-by-default lift, gamma, gain and
+temperature controls. They are stored in the same schema-1 `post` component,
+uploaded in the existing `PostConstants` buffer, and applied after exposure,
+tone mapping, contrast and saturation but before tint/FXAA. This adds artist
+control without adding a second grading system or changing the default image.
+The CPU reference helper and `R7.rendering_core` receipt cover neutral grading,
+temperature/lift response and height fog attenuation.
+
+The actual RoyalCombat post pass rendered successfully for 30 hidden frames on
+D3D12 and Vulkan after the cbuffer/shader contract change. Captures are
+`artifacts/r7/visual_polish/royalcombat_post_grade_d3d12.png` and
+`royalcombat_post_grade_vulkan.png`; both report 76,789 foreground pixels and
+were inspected. The captures intentionally use neutral new grading defaults;
+the new controls are ready for the next authored Unity-look tuning pass.
+
 ## Architecture used
 
 The renderer keeps the existing Diligent device/context, scene viewport ownership, cooked model/material resources, GPU skinning path, Place/Inspector transaction path, and `ObjectData::optional_json` preservation. R7 scene-authored lighting and rendering settings are ordinary optional components, so they follow existing selection, undo/redo, save/load, prefab and cooking routes. No parallel scene or material format was introduced.
@@ -93,10 +116,10 @@ The rendering core is game-agnostic (`engine/runtime/rendering.*`). It provides 
 ## Implemented in this checkpoint
 
 - R7 scene light components: Directional, Point and Spot, with stable scene identity, authored defaults, Inspector editing and Place-panel creation under Lighting.
-- Tools > Lighting: sky/ambient settings, main directional-light selection, toon bands, fog and post settings. Scene settings and light components use schema 1 JSON and stable references.
+- Tools > Lighting: sky/ambient settings, main directional-light selection, toon bands, fog and post settings. Scene settings and light components use schema 1 JSON and stable references. Fog height/falloff, exposure compensation, post tint, bloom threshold/softness/radius, and lift/gamma/gain/temperature are editable and persisted.
 - Shared toon constants and lighting evaluation for the existing static/skinned material pipelines, including deterministic local-light ordering, material-specific toon overrides, object-space triplanar base sampling, character hit/status/dissolve controls, terrain layer sampling/blending controls, emission and alpha modes.
 - Registered and cooked material families: `toon-standard-v1`, `toon-character-v1`, and `toon-terrain-v1`. Existing `lit-color-v1` and `lit-surface-v1` contracts remain compatible.
-- HDR viewport accumulation in `RGBA16_FLOAT` targets and a separate display target. The post stage performs exposure, neutral tone mapping, contrast/saturation/tint, bounded single-pass bloom sampling, and FXAA before ImGui composition.
+- HDR viewport accumulation in `RGBA16_FLOAT` targets and a separate display target. The post stage performs exposure, neutral tone mapping, contrast/saturation, lift/gamma/gain/temperature/tint grading, bounded single-pass bloom sampling, and FXAA before ImGui composition.
 - Real-time main directional shadows: bounded one-to-four D32 cascades, configurable 512/1024/2048/4096 resolution, authored distance, depth/normal bias and split distribution, static/skinned caster PSOs, texel-snapped light-space projections, and 3x3 comparison-PCF receiver sampling. The four-slice resource array safely disables unused slices by the authored count. Transparent surfaces remain conservatively excluded from the opaque shadow map.
 - Texture-aware alpha-tested shadow casters: cutout materials use a shared static/skinned material-shader variant against a depth-plus-dummy-colour cascade target, sample the authoritative Albedo binding and compare the authored alpha cutoff; transparent surfaces remain excluded.
 - GPU clustered-light assignment: Diligent compute resources own packed view-space lights, fixed-capacity candidate/selected index buffers, per-cluster occupancy and GPU overflow counters, and one-frame-late non-blocking staging readback. GPU light order is deterministic influence-descending/StableId tie-broken; the CPU result remains an independent reference.
@@ -123,6 +146,7 @@ The rendering core is game-agnostic (`engine/runtime/rendering.*`). It provides 
 - `ctest --test-dir build/m5-editor-relwithdebinfo -R 'R5.materials|R7.rendering_core'`: passed 2/2 after the HDR importer fixture and direct GPU shader changes.
 - `EditorCli.exe validate content/royal_district/R7Validation.dascene`: passed; eight authored objects and the deterministic fingerprint above.
 - R7 validation scene capture: eight hidden frames passed on D3D12 and Vulkan, each reporting `Viewport foreground pixels=221475`. The viewport crop comparison had maximum channel error 4, 212 pixels beyond error 2, and zero pixels beyond error 8. Captures are `evidence/r7-validation-d3d12.png` and `evidence/r7-validation-vulkan.png`.
+- Direct `DarkAngelEditor` post-grade smoke capture: 30 hidden frames passed on D3D12 and Vulkan after the new post cbuffer contract; both reported `Viewport foreground pixels=76789` and produced inspected receipts under `artifacts/r7/visual_polish/`.
 
 ## Not yet implemented or not visually qualified
 
