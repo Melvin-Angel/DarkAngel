@@ -358,9 +358,10 @@ void SceneSession::activate(std::unique_ptr<Prepared> prepared){require(prepared
 void SceneSession::retire(){require(!active_ || active_->world->phase()==Phase::Idle,"Scene retirement requires safe point");active_.reset();}
 void SceneSession::step(double seconds){require(active_!=nullptr,"No active scene");auto& state=*active_;state.world->begin_scripts();state.scripts->tick(seconds);state.world->commit();state.world->publish();}
 bool static_scenery(const SpawnPlan& plan,StableId object,AssetId skin){
-    const auto model=plan.models.find(object);if(model==plan.models.end()||model->second==skin)return false;
+    const auto model=plan.models.find(object);if(model!=plan.models.end()&&model->second==skin)return false;
     for(const auto* roles:{&plan.interactables,&plan.entries,&plan.transitions,&plan.splines,&plan.pickups,&plan.altars,&plan.movers,&plan.encounters,&plan.triggers})if(roles->contains(object))return false;
     if(plan.spawns.contains(object)||plan.spline_points.contains(object)||plan.audio_profiles.contains(object)||plan.collision_profiles.contains(object)||plan.volumes.contains(object)||plan.spawn_owners.contains(object))return false;
-    return std::none_of(plan.bindings.begin(),plan.bindings.end(),[&](const auto& binding){return binding.object==object;});
+    if(std::any_of(plan.bindings.begin(),plan.bindings.end(),[&](const auto& binding){return binding.object==object;}))return false;
+    return model==plan.models.end()||model->second!=skin;
 }
 }
