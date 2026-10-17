@@ -1,6 +1,11 @@
 # Skyboxes, procedural skies, lighting, fog and post processing
 
-**Scheduling: Planned, R7 (H + I + J)** in the [authoritative roadmap](../../architecture/DarkAngel_Implementation_Handoff.md#recommended-development-order-15-october-2026), after R6. R7.1 covers sky/Lighting/fog/lights, R7.2 scene/camera post profiles and legal effect stages, R7.3 real-time lighting completion (clustered local lights, cascaded shadows, ambient light, SSAO). **Baked GI/lightmaps were moved to the deferred backlog on 16 October 2026** (see [Rendering decisions](#rendering-decisions-16-october-2026)); the Baking sections below are kept as future design only. Future tools adopt the [UX standards](EDITOR_UX_OVERHAUL_PLAN.md), not implementation during R2.
+**Status: R7 accepted and complete for the current development phase (17
+October 2026).** This document is retained as the architectural reference for
+the implemented environment/lighting/post contracts and historical decisions.
+It is no longer a schedule for additional rendering milestones. Future work
+must be proposed as small game-driven increments; existing R7 functionality
+must not be reimplemented under a new rendering initiative.
 
 ## Rendering decisions (16 October 2026)
 
@@ -8,18 +13,22 @@ The user decided the following; they resolve most of the open questions further 
 
 | Topic | Decision |
 | --- | --- |
-| Baked GI / lightmaps | **Deferred backlog.** Levels are built and played with real-time lighting, dynamic shadows, ambient light and SSAO. No baker, no bake dependency, no real-time path that needs precomputed data. R7.3's bake-backend choice no longer blocks R7. Keep renderer/asset contracts open to a later bake. Provisional future direction (not authorized): Intel Embree, Intel Open Image Denoise, xatlas, engine-owned HDR lightmap assets and cooking, indirect diffuse only (direct stays real-time), later light probes for moving actors; Blender Cycles, AMD RadeonRays and Godot LightmapperRD as research options. |
+| Baked GI / lightmaps | **Out of scope and not planned.** Levels use real-time lighting, dynamic shadows and ambient contribution. No baker, lightmap authoring workflow, probe dependency or precomputed-data requirement is part of the Ashen Roots engine plan. The old bake research remains historical only. |
 | Renderer architecture | Clustered Forward+ on the existing Diligent abstraction. Directional, point and spot lights; multiple coloured dynamic lights with intensity, range, colour and attenuation; compute light assignment where justified. General-purpose and shading-model agnostic; no full PBR/deferred renderer. D3D12 and Vulkan. Inspect current infrastructure first and document a migration path instead of rewriting. |
 | Shadows | Real-time shadow maps; cascaded shadow maps for the primary directional light with configurable distance, resolution, bias and cascades. |
-| Ambient / AO | Ambient/environment contribution plus lightweight SSAO that reinforces ambient/contact depth rather than darkening toon lighting. No SSGI, ray tracing or advanced GI as substitutes for baking. |
-| Fog | Distance fog is baseline: colour, density, start/end, linear and exponential modes; height fog when straightforward. Integrates with depth, lighting and transparency. Volumetric fog and epipolar scattering deferred. |
-| Post stack | HDR, tone mapping, exposure, colour grading (contrast, saturation, colour), optional LUT, bloom, one initial AA chosen for stable cel edges and outlines, SSAO, fog, outline composition. Each effect configurable; disabled effects use no resources. Research DiligentFX first and reuse it where clean. Motion blur, DOF, advanced volumetrics, SSR, SSGI, ray tracing and temporal upscaling deferred. |
-| Materials | MaterialDefinition, MaterialInstance, per-renderable runtime parameters, variants only for expensive optional features, cached PSOs, opaque/alpha-cutout/transparent states, integrated with slots, prefab overrides, cooking, previews and shader hot reload. Character/Entity/Terrain toon families share one shading library and belong to the deferred SR milestones. |
+| Ambient / AO | Ambient/environment contribution is implemented. Lightweight SSAO is a future candidate only if a concrete scene need and profile justify it; it is not an R7 gate. No SSGI, ray tracing or advanced GI is planned. |
+| Fog | Distance fog is baseline: colour, density, start/end, linear and exponential modes; height fog when straightforward. Integrates with depth, lighting and transparency. Volumetric fog and epipolar scattering are not planned unless a concrete game requirement later justifies a separate proposal. |
+| Post stack | HDR, tone mapping, exposure, colour grading, bloom, FXAA, fog and outline composition are implemented. LUT grading is a future candidate only when a concrete art workflow needs it. Motion blur, DOF, advanced volumetrics, SSR, SSGI, ray tracing, temporal reconstruction and HDR10 are not planned. |
+| Materials | MaterialDefinition, MaterialInstance, per-renderable runtime parameters, bounded variants, cached PSOs, opaque/alpha-cutout/transparent states, slots, prefab overrides, cooking, previews and shader hot reload are existing foundations. Standard/Character/Terrain toon families are already part of R7; they are not SR deliverables. |
 | Outlines | Object/group ID plus depth and normal discontinuity outlines; per-object enable, colour, thickness and grouping; thickness/visibility scaled by distance or projected size. Inverted hull only as a later override. Compatible with characters, terrain, transparency, dissolve and AA. |
-| R7 versus SR | R7: foundational infrastructure, lighting/shadows, render graph/resource contracts, environment foundations, material prerequisites, editor configuration, D3D12/Vulkan. SR0–SR7: toon families, advanced outlines, character effects, terrain shading, full stylized post presentation, instancing/optimization, atmospherics. Where they overlap, R7 builds the reusable foundation only. |
+| R7 versus SR | R7 is accepted as the reusable environment, lighting, shadow, material and post foundation. The former SR0–SR7 initiative is retired as a standalone roadmap; future polish is selected individually from game value, visual need or profiling evidence. |
 | Validation | A repeatable test scene with dynamic lights, shadows, skinned characters, terrain, transparency and post processing; D3D12 and Vulkan where available. |
 
-### Approved R7 implementation refinement (16 October 2026, Claude handoff continuation)
+### Historical R7 implementation refinement (16 October 2026)
+
+The following records the implementation decisions that led to the now-accepted
+R7 result. It is retained for traceability, not as an authorization for a new
+R7 phase or for the removed rendering systems.
 
 This refinement supersedes conflicting deferrals and open choices below. It is implementation authorization after R4, R5 A2/A3 and R6 U0/U2, not implementation evidence.
 
@@ -34,11 +43,11 @@ This refinement supersedes conflicting deferrals and open choices below. It is i
 - Logical dependencies: shadows, required geometry buffers, clusters, eligible AO, opaque Forward+ toon, sky/fog, transparent/VFX, HDR bloom, tone mapping/grading, available outlines, FXAA, UI. Actual pass order follows correctness and the existing graph. Disabled effects avoid unnecessary allocations/execution.
 - Validate shader compilation/variant resolution, material cook/save/reload/editor persistence, cluster bounds/overflow, cascade stability, optional effects, fog and resource resizing on D3D12/Vulkan. A repeatable scene includes static and supported animated skin meshes, colored point/spot lights, directional shadows and receivers, visible toon bands, fog, emission/bloom, a transparent object and post controls. Record captures, GPU timings/statistics where available; compilation alone is not visual qualification.
 
-Full Character/Entity/Terrain families, terrain layering/triplanar, rim/specular, status/hit/dissolve effects, advanced outlines, GPU-driven/advanced instancing, atmosphere and baked GI remain deferred. Add no Embree/OIDN/Cycles/RadeonRays/lightmap/probe dependency. The provisional future native baking preference remains Embree + OIDN + xatlas.
+Full Character/Entity/Terrain families, terrain layering/triplanar, rim/specular, status/hit/dissolve effects, advanced outlines, GPU-driven/advanced instancing and atmosphere are historical research topics or individually proposed candidates, not an SR schedule. Baked GI/lightmaps and bake dependencies are out of scope and not planned. Add no Embree/OIDN/Cycles/RadeonRays/lightmap/probe dependency.
 
 Follow-up decisions left to implementation: exact SSAO configuration and prerequisites, local-shadow allocation/budget, total light budgets, and exact-version DiligentFX component compatibility/licensing and adapter choices.
 
-15 October 2026. **Research and future-work design only. No renderer features, assets, tools, dependencies or bake backend added.** Extends the [authoring handoff](AUTHORING_NEXT_STEPS_2026-10-15.md) at the user's request. [DAE-005](../../architecture/Decision_Log.txt) still owns rendering architecture; its deferred lightmaps/probes are now explicitly planned work, not implemented or a newly locked backend choice.
+15 October 2026. **Historical research and future-work design only. No renderer features, assets, tools, dependencies or bake backend added.** Extends the [authoring handoff](AUTHORING_NEXT_STEPS_2026-10-15.md) at the user's request. Current roadmap decisions supersede the old bake/probe proposals: they are out of scope and not planned for Ashen Roots.
 
 ## Authoring locations and ownership
 
@@ -160,20 +169,31 @@ Workers read an immutable candidate snapshot. Jobs never write source heads or r
 | Render2 (formerly R2) | Procedural Skybox tool and simple global fog; sun linkage | Save/reopen/regenerate/assign; consistent cube/panorama output; cancellation/stale result retention; scene/Game agreement |
 | Render3 (formerly R3) | Useful post stack and direct-light/shadow controls | Per-view isolation; HDR/color correctness; UI unaffected; invalid ordering and resize/history reset; supported feature budgets |
 | Render4 (new, 16 October 2026) | Real-time lighting completion: clustered colored local lights, cascaded directional shadows, ambient light, SSAO | Coloured light accumulation, shadow controls, overflow diagnostics, AO limited to ambient, both backends |
-| Deferred backlog | Bake settings/status tool, UV/backend spike, static indirect bake integration (formerly Render4/R7.3) | UV1 preserved separately, static placement bindings, no double diffuse light, stale-result rejection and cold packaged sampling |
+| Historical / not planned | Bake settings/status tool, UV/backend spike and static indirect bake integration are retained only as design history, not as milestones. | No bake dependency or lightmap authoring contract is required by the current engine. |
 | Later | Probes, local volumes, richer atmosphere/weather and temporal effects | Dynamic actors/doors/travel, quality/performance and resource-lifetime qualification |
 
-Renderer-local steps are now labelled Render0–Render4 (old R0–R4 retained above for traceability), distinct from project R1–R8. Map them to R7: Render0 is the foundation; Render1/Render2 plus Render3's direct-light/shadow controls belong to 7.1; Render3's post stack belongs to 7.2; the new Render4 (real-time lighting completion) belongs to 7.3; baking is deferred. Direct-light controls must not wait for post processing merely because they shared an older row. Material editing and render texture profiles from [Assets and materials](ASSETS_MATERIAL_EDITING_PLAN.md) are shared prerequisites. Follow the main roadmap rather than the former parallel rendering-stream suggestion; preserve active build/dependency state. Use focused cook/transaction tests plus a small reference scene (neutral swatches, chrome/rough spheres, alpha foliage, a cave/interior, moving character and UI). Broaden to D3D12/Vulkan when render graph/format/shader changes land; no multiplayer protocol matrix is needed for a numeric fog form. Track actual bake quality/time/memory and renderer timings instead of assuming a supported dependency guarantees a finished feature.
+Renderer-local steps are now labelled Render0–Render4 (old R0–R4 retained above for traceability), distinct from project R1–R8. Historically, Render0 was the foundation; Render1/Render2 plus Render3's direct-light/shadow controls mapped to 7.1; Render3's post stack mapped to 7.2; and Render4 mapped to 7.3. R7 is now accepted; this mapping is historical only, and baking is out of scope and not planned. Direct-light controls must not wait for post processing merely because they shared an older row. Material editing and render texture profiles from [Assets and materials](ASSETS_MATERIAL_EDITING_PLAN.md) are shared prerequisites. Follow the main roadmap rather than the former parallel rendering-stream suggestion; preserve active build/dependency state. Use focused cook/transaction tests plus a small reference scene (neutral swatches, chrome/rough spheres, alpha foliage, a cave/interior, moving character and UI). Broaden to D3D12/Vulkan when render graph/format/shader changes land; no multiplayer protocol matrix is needed for a numeric fog form. Track actual renderer timings only when a concrete performance question justifies measurement.
 
-## Ashen Roots stylized rendering initiative (deferred)
+## Ashen Roots stylized rendering research (retired as a standalone roadmap)
 
-**Status: Deferred future work / not scheduled.** This initiative is a planning boundary for Ashen Roots, not an implementation authorization. R4–R6 establish source ownership, stable material assignments, MaterialDefinition/MaterialInstance contracts and preview/editor integration. R7 establishes the environment, render-graph, lighting-profile and post-process prerequisites. The remaining work below is deferred until the roadmap explicitly schedules it. Do not create shaders, runtime classes, renderer behavior or new dependencies from this section.
+**Status: Historical design reference; no SR0–SR7 schedule is approved.** R4–R6 establish source ownership, stable material assignments, MaterialDefinition/MaterialInstance contracts and preview/editor integration. R7 now provides the environment, lighting, material and post-process foundation. Retain the useful architecture notes, but propose future improvements individually from Ashen Roots gameplay, visual requirements or profiling. Do not create a large replacement rendering program from this section.
 
 ### Current capability boundary
 
-The inspected renderer path currently provides DiligentCore/DiligentTools infrastructure, a basic color-oriented material path with 2D sRGB RGBA8 textures, simple color/roughness/metallic/double-sided fields, and a stylized light in the proof viewport. It does not currently provide authored HDR/cubemap loading, a general light/fog editor, a profile-driven render graph/post stack, toon material families, outline composition, or qualified local-light/shadow products. DiligentFX is not integrated; its PBR, post-processing and atmospheric examples are research references only. xatlas is UV tooling, not a GI solver. These are current source findings, not claims about future implementation.
+The current renderer provides DiligentCore/DiligentTools-backed D3D12 and
+Vulkan viewport rendering, HDR scene/display targets, procedural and imported
+sky plumbing, authored Lighting controls, Standard/Character/Terrain toon
+families, clustered coloured local lights, cascaded directional shadows,
+outlines, fog, bloom, FXAA and exposure/colour grading. AssetService and the
+existing material/scene cook paths remain authoritative. The remaining limits
+are documented in the current R7 report; this historical plan is not evidence
+for capabilities beyond those receipts. DiligentFX is not an approved
+dependency, and xatlas is UV tooling rather than a GI solver.
 
-### Target architecture
+### Historical target architecture
+
+This section records the design direction that informed R7. It is not a
+commitment to implement every listed feature.
 
 The deferred target is a clustered Forward+ pipeline over DarkAngel's existing Diligent abstraction, render graph, resource lifetime, HLSL/DXC compilation, PSO cache and AssetService/cooker boundaries. D3D12 remains the first path and Vulkan remains an early and required validation path. The design must remain game-agnostic while using Ashen Roots' stylized third-person environments as the initial acceptance target; it must not become a PBR-centered architecture.
 
@@ -187,18 +207,13 @@ Material families are three schemas over shared lighting code:
 
 Feature-based variants, cached PSOs, separate opaque/cutout/transparent states, conditional texture sampling, shared definitions with per-instance parameters, material sorting, bindless resources where beneficial, static instancing and future instanced skinning are optimization directions. A variant budget, stable keys and fallback materials are required to prevent uncontrolled permutation growth.
 
-### Deferred implementation order
+### Retired SR phase map (historical, not a development order)
 
-| Phase | Objective and scope | Dependencies / acceptance boundary |
+| Candidate class | Examples | Scheduling rule |
 | --- | --- | --- |
-| SR0 — renderer qualification | Record DiligentCore/DiligentTools revision/API boundaries, render-graph/resource/PSO integration points, D3D12/Vulkan format support, shader variant accounting and reuse candidates | R7 renderer foundation. Acceptance is a written capability matrix and small isolated prototypes; no feature is considered available because an upstream sample exists |
-| SR1 — shared toon surface and lighting | Shared toon-lighting library, HDR intermediates, directional light, bounded point/spot lights, clustered Forward+ prototype, ambient contribution and shadow contract | R5 MaterialDefinition/Instance and R7 lighting profile. Qualify colored-light accumulation, D3D12/Vulkan parity, overflow diagnostics, shadow budgets and no-PBR assumptions |
-| SR2 — material families and editor | Character/entity/terrain family schemas, feature variants, material serialization/cook/hot reload, relevant-property editor, previews and GPU effect parameters | R4 stable slot identity, R5 asset/material editor, R6 preview routing. Acceptance includes save/reopen/reimport, variant bounds, no-op controls hidden/diagnosed and cold cooked load |
-| SR3 — stylized presentation | Renderer-level object/group, depth-discontinuity and normal-discontinuity outlines; distance scaling/fade; hit flash, status tint, dissolve, transparency and AA interaction | SR1/SR2 depth/normal/HDR contracts. Choose a practical initial outline method; retain inverted hull only as fallback. Qualify connected character grouping, transparent/dissolve ordering and distant visual noise |
-| SR4 — environment lighting | Cascaded main directional shadows, budgeted local shadows, ambient/AO treatment, distance and optional height fog, terrain material integration | R7 sky/lighting/fog profiles and SR1. AO primarily affects ambient/indirect contribution; acceptance covers shadow bias/cascade controls, fog with transparency and toon compatibility |
-| SR5 — post processing | HDR output/tone mapping, exposure, color grading/LUT option, bloom, one qualified AA baseline, AO/fog/outline composition as legal graph stages | R7 post profile/render graph and SR3/SR4. Effects are independently disabled with minimal overhead; choose one AA baseline for stable cel edges rather than multiple competing methods |
-| SR6 — production optimization | Material sorting, batching, static GPU instancing, upload/frame buffers, bindless where useful, GPU culling/indirect draws, skinning direction, async streaming/residency, texture mips and mesh LOD | Measured SR1–SR5 workloads and existing AssetService/WorldSession budgets. Acceptance is profiling evidence, bounded memory/variants and cold packaged loading, not a successful compile |
-| SR7 — advanced deferred features | Atmospheric scattering, epipolar light shafts, GPU particles, instanced skinned meshes and selected higher-end effects | Only after SR0–SR6 and a new priority decision. Investigate reusable DiligentFX atmospheric components; advanced GI, ray tracing, SSR/SSGI, motion blur, DOF and temporal reconstruction remain explicitly deferred |
+| High-value game-driven polish | Material authoring improvements, advanced outlines, hit/status/dissolve effects, practical transparency, SSAO, LUT colour grading | Propose as a small vertical slice only when a real Ashen Roots scene or workflow demonstrates the need. Reuse R7 contracts; do not recreate SR1–SR5. |
+| Measured production improvements | GPU instancing/batching, practical frustum/occlusion culling, mesh LOD and texture streaming | Require captured workload evidence, a bounded memory/variant budget and cold packaged-load checks before scheduling. |
+| Conditional research | Indirect rendering, advanced GPU culling, volumetric fog, atmospheric scattering, light shafts, GPU particles and temporal reconstruction | Not commitments. Schedule only after a concrete visual/gameplay requirement and profiling justify the cost. |
 
 ### Outlines, fog, shadows and post-process decisions
 
@@ -218,7 +233,7 @@ Initial budgets are proposals requiring measurement: clustered-light assignment 
 
 ### Open architectural decisions
 
-Resolved on 16 October 2026 (see [Rendering decisions](#rendering-decisions-16-october-2026)): clustered Forward+ with compute assignment where justified; cascaded main-directional shadows; AO limited to ambient/contact; distance fog modes; the post-stack contents and a single initial AA; the combined ID/depth/normal outline strategy with distance scaling; baked GI deferred. Still open, to be decided during implementation:
+Resolved on 16 October 2026 (see [Rendering decisions](#rendering-decisions-16-october-2026)): clustered Forward+ with compute assignment where justified; cascaded main-directional shadows; AO limited to ambient/contact; distance fog modes; the post-stack contents and a single initial AA; and the combined ID/depth/normal outline strategy with distance scaling. R7 was accepted on 17 October 2026. Baked GI/lightmaps/probes and the removed rendering systems are out of scope and not planned; SSAO, LUT grading and other listed polish are candidates only. The remaining bullets are historical design questions, not open R7 gates:
 
 - Forward+ cluster dimensions, light-list overflow/fallback behavior, and whether compute assignment is always enabled or workload-gated.
 - HDR format/output transform, exposure ownership, toon ramp representation, shadow color/ambient energy model and colored-light accumulation rules.
@@ -229,7 +244,7 @@ Resolved on 16 October 2026 (see [Rendering decisions](#rendering-decisions-16-o
 
 ### Cross-reference to the roadmap
 
-R4 carries stable prefab/material-slot identity. R5 carries the shared MaterialDefinition/MaterialInstance and editor/cook foundation. R6 consumes the definitions for preview and authored UI surfaces without a second material editor. R7 carries environment, lighting profile, render-graph and post-process prerequisites. SR0–SR7 remain a deferred future initiative and must be scheduled explicitly before implementation.
+R4 carries stable prefab/material-slot identity. R5 carries the shared MaterialDefinition/MaterialInstance and editor/cook foundation. R6 consumes the definitions for preview and authored UI surfaces without a second material editor. R7 carries the environment, lighting profile, render-graph and post-process foundation. The old SR0–SR7 labels are historical only; the standalone initiative is retired and no reimplementation schedule is authorized.
 
 ## Research boundaries
 

@@ -1,9 +1,9 @@
 # R7 renderer implementation outline
 
-Status: implementation increment complete and cross-backend exercised, 17
-October 2026. R7 is not marked fully accepted: dedicated cutout-shadow/HDR
-visual receipts, cooked save/reload/run parity, and GPU timing qualification
-remain open.
+Status: **accepted and complete for the current development phase, 17 October
+2026.** Dedicated cutout-shadow/HDR visual receipts, cooked save/reload/run
+parity, and GPU timing qualification remain documented non-blocking follow-up;
+they do not justify another R7 phase.
 
 ## Existing systems reused
 
@@ -113,13 +113,14 @@ contract change are `royalcombat_post_grade_d3d12.png` and
 
 ## Explicit boundaries
 
-The first implementation does not add baked GI, lightmaps, a bake cooker,
-deferred PBR/G-buffer infrastructure, temporal AA, HDR10, volumetric fog,
-unrestricted point-light shadows, virtual texturing or GPU-driven rendering.
-The result must be called complete only after runtime/editor save-reload-cook
-and D3D12/Vulkan visual evidence, not after a build or shader compile alone.
+R7 intentionally does not include baked GI/lightmaps, deferred PBR/G-buffer
+infrastructure, temporal reconstruction, HDR10, volumetric fog, unrestricted
+point-light shadows, virtual texturing or broad GPU-driven rendering. These
+are scope boundaries, not pending R7 acceptance gates. The retained receipts
+show supported D3D12/Vulkan execution; the documented follow-up captures are
+non-blocking.
 
-## Initial dependency order
+## Historical implementation order
 
 R7.1: scene light/environment/fog data and editor workflow.
 

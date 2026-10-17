@@ -2,8 +2,102 @@
 
 Date: 17 October 2026
 
-Status: In progress with the runtime/editor increment verified. This is not a
-claim that every expanded R7 acceptance criterion is complete.
+Status: **Accepted and complete for the current development phase (17 October
+2026).** This is a deliberate project-management closure, not a claim that
+every optional historical R7 qualification receipt has been produced.
+
+## R7 closure decision
+
+R7 is now the accepted renderer foundation for Ashen Roots. It provides the
+supported D3D12/Vulkan path, HDR scene/display targets, procedural and imported
+sky plumbing, Standard/Character/Terrain toon materials, clustered directional/
+point/spot lighting, cascaded directional shadows, outlines, fog, bloom, FXAA,
+exposure/tone mapping/colour grading, editor-authored settings, scene
+serialization and focused cross-backend evidence. The implementation is not to
+be extended with a new R7 phase merely to close optional receipts.
+
+The shared forward material shader receives the main directional cascade map
+for opaque and alpha-cutout static/skinned materials. Opaque and cutout
+static/skinned submissions also enter the cascade shadow pass, so supported
+opaque/cutout materials can cast and receive the directional shadows of other
+supported casters, including self-shadowing where the map resolution and bias
+allow it. Transparent materials are intentionally excluded from the opaque
+shadow map. Point- and spot-light shadows are not implemented. `ShadowTint` is
+an authored toon-lighting option: it is serialized, sent through the shared
+material constants, applied to shadowed directional lighting, and exposed as
+`Tools > Lighting > Toon lighting > Shadow tint`.
+
+The remaining cutout-shadow, isolated-outline, project-HDR, save/reload/cook,
+hot-reload, broader visual and profiling receipts are **non-blocking follow-up
+work**. They remain documented below so evidence is not overstated, but they
+do not keep R7 open.
+
+## Roadmap review: proposed priorities, not approved milestones
+
+The source audit found that the highest value after R7 is gameplay/editor
+integration rather than another rendering program. The following shortlist is
+recommendation only; it is not an approved replacement roadmap:
+
+1. Finish R2 editor UX qualification and workflow reliability: qualify the
+   already-built editor surface with real task sessions, restart/DPI,
+   cross-window routing, save/cook/Play recovery and unsaved-preview latency.
+2. Complete M8 inventory/equipment integration: connect the verified
+   persistent-profile inventory and mask-slot contracts to fresh Play,
+   starting loadouts, atomic live equipment, pickups, ledger/grant flow and
+   the existing UiService inventory surface.
+3. Deliver a playable combat vertical slice: close the gaps between the
+   existing native action/ability/effect foundations and an authored Ashen
+   Roots encounter, including graph/socket authoring, hit presentation,
+   status/motor integration, prediction/correction and usable runtime UI.
+4. Make encounters and NPC workflows production-usable: finish authoring and
+   runtime integration for behavior, sensing, spawn/encounter state, triggers,
+   interaction and navigation with a small playable level receipt.
+5. Close multiplayer development qualification: cross-machine transport,
+   controlled latency/loss cases, lifecycle/streaming behavior and EOS
+   qualification only when the required external identities and deployment
+   are available.
+6. Add measured scene-scale performance only where needed: GPU instancing,
+   batching, frustum/occlusion culling, mesh LOD and texture streaming should
+   follow captured Ashen Roots workloads rather than a new SR program.
+7. Keep selected rendering polish as small game-driven increments: advanced
+   outlines, hit/status/dissolve, practical transparency, SSAO and LUT colour
+   grading are candidates when a concrete scene or profiling result justifies
+   them. Volumetric fog, atmospheric scattering, light shafts, GPU particles,
+   temporal reconstruction and indirect rendering remain conditional, not
+   commitments.
+
+The former SR0–SR7 initiative is therefore retired as a standalone schedule.
+Its useful research remains historical reference; existing R7 functionality
+must not be reimplemented under SR names.
+
+## Current engine capability assessment
+
+The repository audit separates capability from roadmap intent:
+
+- **Implemented and locally verified foundations:** AssetService import/cook/CAS
+  and registry paths; MaterialDefinition/MaterialInstance editing and
+  previews; scene/place/inspector/Lighting/Assets authoring; WorldSession and
+  CharacterSceneSession foundations; movement profiles; native ability/effect,
+  tag and combat-kit contracts; cooked-document `UiService`; audio and VFX
+  services; and the R7 renderer/material stack. These are the systems to reuse.
+- **Implemented but incomplete or qualification-limited:** R2 still needs
+  end-to-end UX qualification; M8 inventory/equipment and mask-slot runtime
+  integration is incomplete; M4/M5 combat and multiplayer gates remain
+  partial; M6 NPC/encounter integration is not production-usable; navigation
+  authoring exists but tiled streaming is not complete; and networking has
+  same-machine evidence but not cross-machine/EOS qualification.
+- **Present but not yet a dependable production workflow:** encounter/NPC
+  authoring, inventory/equipment setup, packaged standalone game delivery,
+  cross-machine network testing, and performance diagnostics. These are larger
+  production bottlenecks than additional renderer features.
+- **Planned but not approved as the next schedule:** World Puzzle UI and
+  volumetric terrain/world authoring remain candidates in the broader roadmap;
+  GPU instancing phase 6, navigation/world streaming and EOS work require
+  concrete workload or deployment evidence before scheduling. The removed
+  rendering systems and the retired SR0–SR7 program are not candidates.
+
+This assessment is a planning boundary, not a claim that every listed
+foundation has passed a complete production-release qualification matrix.
 
 ## 17 October stabilization and RoyalCombat visual receipt
 
@@ -148,7 +242,7 @@ The rendering core is game-agnostic (`engine/runtime/rendering.*`). It provides 
 - R7 validation scene capture: eight hidden frames passed on D3D12 and Vulkan, each reporting `Viewport foreground pixels=221475`. The viewport crop comparison had maximum channel error 4, 212 pixels beyond error 2, and zero pixels beyond error 8. Captures are `evidence/r7-validation-d3d12.png` and `evidence/r7-validation-vulkan.png`.
 - Direct `DarkAngelEditor` post-grade smoke capture: 30 hidden frames passed on D3D12 and Vulkan after the new post cbuffer contract; both reported `Viewport foreground pixels=76789` and produced inspected receipts under `artifacts/r7/visual_polish/`.
 
-## Not yet implemented or not visually qualified
+## Non-blocking follow-up and qualification limits
 
 - Dedicated shadow visual qualification with an authored cutout caster is still required. The alpha-tested caster path is implemented and backend-exercised, but no isolated cutout-shadow image receipt exists yet.
 - Isolated visual qualification of the object/group-ID plus depth/normal screen-space outlines and distance fading remains open; the R7 validation capture exercises the stage, but does not separate its contribution from the complete scene.
@@ -156,6 +250,6 @@ The rendering core is game-agnostic (`engine/runtime/rendering.*`). It provides 
 - Full save/reload/cook/run parity for the new validation scene and material hot-reload qualification remain open. The scene is source-valid and runs from the existing cooked Royal registry, but a dedicated persisted/cooked receipt has not been produced.
 - GPU timings remain open. A Diligent duration-query attempt was removed after both asynchronous and synchronized D3D12 readback crashed the editor; no GPU milliseconds are claimed. Current captures provide foreground-pixel counts and device allocation/query-manager diagnostics only.
 - Royal Temple visual qualification remains scoped to the deterministic R7 scene plus the existing Royal rest/attack parity gate. Broader artist-facing quality review and a dedicated foliage/cutout asset are still required.
-- Advanced AO is not enabled; baked GI, lightmaps and the explicitly deferred systems remain out of scope.
+- Advanced AO is not enabled; SSAO and LUT grading remain optional future candidates. Baked GI, lightmaps, probes, advanced GI, hardware ray tracing, SSR/SSGI, motion blur, depth of field and HDR10 are out of scope and not planned.
 
 The D3D12 capture is evidence that the modified pipeline executes; it is not evidence that the final R7 visuals or all material families are artistically qualified.
