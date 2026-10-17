@@ -22,11 +22,11 @@
               "clusters": {"tile_size": 16, "depth_slices": 28, "max_candidates": 16, "shading_budget": 4},
               "sky_enabled": true,
               "sky_color": [0.10, 0.14, 0.24],
-              "sky": {"procedural": true, "hdr_texture": null, "hdr_intensity": 1.0, "hdr_rotation_degrees": 0.0, "zenith": [0.08, 0.13, 0.30], "horizon": [0.68, 0.38, 0.20], "ground": [0.045, 0.032, 0.045], "sun_direction": [-0.40, 0.78, -0.38], "sun_color": [1.0, 0.70, 0.42], "sun_size": 0.035, "sun_intensity": 1.8, "cloud_amount": 0.06, "seed": 13},
-              "shadows": {"enabled": false, "cascade_count": 4, "resolution": 2048, "distance": 160.0, "depth_bias": 0.001, "normal_bias": 0.002, "split_distribution": 0.55},
-              "toon": {"ambient_color": [0.20, 0.22, 0.30], "ambient_strength": 0.72, "shadow_tint": [0.10, 0.10, 0.18], "thresholds": [0.20, 0.50, 0.80], "softness": 0.045, "local_strength": 1.0},
+              "sky": {"procedural": true, "hdr_texture": null, "hdr_intensity": 1.0, "hdr_rotation_degrees": 0.0, "zenith": [0.08, 0.13, 0.30], "horizon": [0.68, 0.38, 0.20], "ground": [0.045, 0.032, 0.045], "sun_direction": [-0.40, 0.78, -0.38], "sun_color": [1.0, 0.76, 0.52], "sun_size": 0.022, "sun_intensity": 1.8, "cloud_amount": 0.06, "seed": 13},
+              "shadows": {"enabled": false, "cascade_count": 4, "resolution": 1024, "distance": 160.0, "depth_bias": 0.001, "normal_bias": 0.002, "split_distribution": 0.55},
+              "toon": {"ambient_color": [0.28, 0.30, 0.38], "ambient_strength": 1.0, "shadow_tint": [0.16, 0.16, 0.24], "thresholds": [0.16, 0.42, 0.72], "softness": 0.045, "local_strength": 1.15},
               "fog": {"enabled": true, "mode": "linear", "color": [0.30, 0.32, 0.46], "start": 22.0, "end": 150.0, "density": 0.012, "height": 0.0, "height_falloff": 0.0},
-              "post": {"bloom": true, "bloom_threshold": 1.1, "bloom_intensity": 0.30, "exposure": 0.05, "exposure_compensation": 0.0, "contrast": 1.06, "saturation": 1.04, "fxaa": true, "outline": {"enabled": true, "color": [0.025, 0.015, 0.045], "thickness": 1.0, "depth_sensitivity": 72.0, "normal_sensitivity": 1.4, "group_sensitivity": 1.0, "fade_start": 18.0, "fade_end": 150.0}}
+              "post": {"bloom": true, "bloom_threshold": 1.1, "bloom_intensity": 0.24, "exposure": 0.08, "exposure_compensation": 0.0, "contrast": 1.06, "saturation": 1.04, "fxaa": true, "outline": {"enabled": true, "color": [0.025, 0.015, 0.045], "thickness": 1.4, "depth_sensitivity": 72.0, "normal_sensitivity": 1.4, "group_sensitivity": 1.0, "fade_start": 0.0, "fade_end": 115.0}}
             }
           },
           "types": {
@@ -210,25 +210,25 @@
         "00000000000000000000000000000007": {
           "name": "R7 late afternoon sun",
           "target": null,
-          "optional": {"light": {"schema": 1, "type": "directional", "enabled": true, "cast_shadows": false, "color": [1.0, 0.78, 0.60], "intensity": 1.35}},
+          "optional": {"light": {"schema": 1, "type": "directional", "enabled": true, "cast_shadows": false, "color": [1.0, 0.82, 0.68], "intensity": 1.65}},
           "types": {"1": {"version": 2, "fields": {"1": 0, "2": 0, "3": 6, "4": 0, "5": 2.45, "6": -0.55, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
         },
         "00000000000000000000000000000008": {
           "name": "R7 warm fill",
           "target": null,
-          "optional": {"light": {"schema": 1, "type": "point", "enabled": true, "cast_shadows": false, "color": [1.0, 0.28, 0.10], "intensity": 4.0, "range": 18.0, "falloff": 2.0}},
+          "optional": {"light": {"schema": 1, "type": "point", "enabled": true, "cast_shadows": false, "color": [1.0, 0.38, 0.16], "intensity": 6.0, "range": 24.0, "falloff": 2.0}},
           "types": {"1": {"version": 2, "fields": {"1": 0, "2": -10, "3": 4, "4": -2, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
         },
         "00000000000000000000000000000009": {
           "name": "R7 cool fill",
           "target": null,
-          "optional": {"light": {"schema": 1, "type": "point", "enabled": true, "cast_shadows": false, "color": [0.18, 0.38, 1.0], "intensity": 3.0, "range": 18.0, "falloff": 2.0}},
+          "optional": {"light": {"schema": 1, "type": "point", "enabled": true, "cast_shadows": false, "color": [0.28, 0.46, 1.0], "intensity": 5.0, "range": 24.0, "falloff": 2.0}},
           "types": {"1": {"version": 2, "fields": {"1": 0, "2": 10, "3": 4, "4": -2, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
         },
         "0000000000000000000000000000000a": {
           "name": "R7 overhead spot",
           "target": null,
-          "optional": {"light": {"schema": 1, "type": "spot", "enabled": true, "cast_shadows": false, "color": [1.0, 0.58, 0.22], "intensity": 5.0, "range": 24.0, "inner_cone": 18.0, "outer_cone": 35.0, "falloff": 2.0}},
+          "optional": {"light": {"schema": 1, "type": "spot", "enabled": true, "cast_shadows": false, "color": [1.0, 0.62, 0.26], "intensity": 7.0, "range": 28.0, "inner_cone": 18.0, "outer_cone": 35.0, "falloff": 2.0}},
           "types": {"1": {"version": 2, "fields": {"1": 0, "2": 0, "3": 8, "4": 2, "5": 0, "6": 0, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
         }
       },
