@@ -95,6 +95,13 @@ Actual D3D12 and Vulkan RoyalCombat captures are recorded under
 outline on/off receipts. Dedicated cutout-shadow, project HDR asset,
 save/reload/cook/run, and GPU timing receipts remain follow-up work.
 
+The 17 October environment-grade pass also corrected the fog distance contract:
+fog now evaluates world-space view distance rather than normalized clip depth.
+RoyalCombat is authored with a lower warm directional angle, brown-to-amber
+procedural sky, warm linear distance fog, olive terrain tint, and restrained
+exposure/contrast values. D3D12 and Vulkan close captures are recorded as
+`royalcombat_unity_grade_d3d12.png` and `royalcombat_unity_grade_vulkan.png`.
+
 ## Explicit boundaries
 
 The first implementation does not add baked GI, lightmaps, a bake cooker,

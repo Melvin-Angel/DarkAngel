@@ -21,12 +21,12 @@
               "gpu_clustered": true,
               "clusters": {"tile_size": 16, "depth_slices": 28, "max_candidates": 16, "shading_budget": 4},
               "sky_enabled": true,
-              "sky_color": [0.10, 0.14, 0.24],
-              "sky": {"procedural": true, "hdr_texture": null, "hdr_intensity": 1.0, "hdr_rotation_degrees": 0.0, "zenith": [0.08, 0.13, 0.30], "horizon": [0.68, 0.38, 0.20], "ground": [0.045, 0.032, 0.045], "sun_direction": [-0.40, 0.78, -0.38], "sun_color": [1.0, 0.76, 0.52], "sun_size": 0.022, "sun_intensity": 1.8, "cloud_amount": 0.06, "seed": 13},
+              "sky_color": [0.08, 0.04, 0.018],
+              "sky": {"procedural": true, "hdr_texture": null, "hdr_intensity": 1.0, "hdr_rotation_degrees": 0.0, "zenith": [0.055, 0.025, 0.012], "horizon": [0.62, 0.28, 0.085], "ground": [0.13, 0.052, 0.016], "sun_direction": [-0.48, 0.38, -0.24], "sun_color": [1.0, 0.52, 0.24], "sun_size": 0.075, "sun_intensity": 0.55, "cloud_amount": 0.06, "seed": 13},
               "shadows": {"enabled": true, "cascade_count": 4, "resolution": 1024, "distance": 96.0, "depth_bias": 0.0015, "normal_bias": 0.0025, "split_distribution": 0.62},
-              "toon": {"ambient_color": [0.32, 0.34, 0.42], "ambient_strength": 1.1, "shadow_tint": [0.22, 0.22, 0.30], "thresholds": [0.16, 0.42, 0.72], "softness": 0.045, "local_strength": 1.05},
-              "fog": {"enabled": true, "mode": "linear", "color": [0.30, 0.32, 0.46], "start": 22.0, "end": 150.0, "density": 0.012, "height": 0.0, "height_falloff": 0.0},
-              "post": {"bloom": true, "bloom_threshold": 1.1, "bloom_intensity": 0.24, "exposure": 0.08, "exposure_compensation": 0.0, "contrast": 1.06, "saturation": 1.04, "fxaa": true, "outline": {"enabled": true, "color": [0.07, 0.028, 0.09], "thickness": 1.25, "depth_sensitivity": 60.0, "normal_sensitivity": 1.25, "group_sensitivity": 0.85, "fade_start": 0.0, "fade_end": 115.0}}
+              "toon": {"ambient_color": [0.29, 0.25, 0.15], "ambient_strength": 0.84, "shadow_tint": [0.12, 0.075, 0.038], "thresholds": [0.20, 0.48, 0.76], "softness": 0.035, "local_strength": 0.90},
+              "fog": {"enabled": true, "mode": "linear", "color": [0.46, 0.18, 0.055], "start": 14.0, "end": 82.0, "density": 0.018, "height": 0.0, "height_falloff": 0.0},
+              "post": {"bloom": true, "bloom_threshold": 1.0, "bloom_intensity": 0.12, "exposure": -0.15, "exposure_compensation": 0.0, "contrast": 1.12, "saturation": 1.02, "fxaa": true, "outline": {"enabled": true, "color": [0.045, 0.018, 0.012], "thickness": 1.35, "depth_sensitivity": 65.0, "normal_sensitivity": 1.35, "group_sensitivity": 0.90, "fade_start": 0.0, "fade_end": 115.0}}
             }
           },
           "types": {
@@ -210,8 +210,8 @@
         "00000000000000000000000000000007": {
           "name": "R7 late afternoon sun",
           "target": null,
-          "optional": {"light": {"schema": 1, "type": "directional", "enabled": true, "cast_shadows": true, "color": [1.0, 0.82, 0.68], "intensity": 1.65}},
-          "types": {"1": {"version": 2, "fields": {"1": 0, "2": 0, "3": 6, "4": 0, "5": 2.45, "6": -0.55, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
+          "optional": {"light": {"schema": 1, "type": "directional", "enabled": true, "cast_shadows": true, "color": [1.0, 0.70, 0.44], "intensity": 1.30}},
+          "types": {"1": {"version": 2, "fields": {"1": 0, "2": 0, "3": 6, "4": 0, "5": 2.70, "6": -1.00, "7": 1}}, "2": {"version": 1, "fields": {"1": 100, "2": 100}}}
         },
         "00000000000000000000000000000008": {
           "name": "R7 warm fill",

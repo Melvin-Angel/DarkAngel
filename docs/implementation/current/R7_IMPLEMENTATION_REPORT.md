@@ -54,6 +54,36 @@ The guarded editor rebuild passed, and CTest
 `R5.materials|R7.rendering_core` passed 2/2. Vulkan validation layers were not
 available on this machine, but the Vulkan backend executed successfully.
 
+## 17 October Unity-look environment grade pass
+
+The RoyalCombat environment was tuned against the supplied Unity reference:
+dark brown upper sky, amber horizon haze, low warm sunlight, olive-green ground,
+and readable orange/cream toon architecture. The existing scene rendering
+component remains the source of truth; the values are editable through Tools >
+Lighting and the directional-light Inspector transform.
+
+One directly relevant renderer defect was found while tuning fog. The authored
+fog start/end values are world-space distances, but the pixel shader compared
+them to normalized clip-space depth. Linear fog therefore stayed disabled for
+ordinary scene distances. The shader now uses `length(ViewPosition)`, keeping
+the existing authored contract and making distance fog respond to the Lighting
+window values. The main light transform was also moved to a lower late-day
+angle, and RoyalCombat sky, fog, ambient, exposure, contrast, sun colour and
+terrain tint were adjusted without adding a scene-specific shader path.
+
+New actual-engine receipts:
+
+- `artifacts/r7/visual_polish/royalcombat_unity_grade_d3d12.png`
+- `artifacts/r7/visual_polish/royalcombat_unity_grade_vulkan.png`
+- `artifacts/r7/visual_polish/royalcombat_unity_grade_wide_d3d12.png`
+
+Both backends rendered 30 frames successfully with 76,789 foreground pixels;
+the inspected images match across backends. `EditorCli validate` reports the
+authored RoyalCombat document valid with 10 objects. Focused CTest
+`R5.materials|R7.rendering_core` remains 2/2 passed. The full save/reload/cook
+receipt and an interactive Lighting-window edit receipt remain separate
+qualification work.
+
 ## Architecture used
 
 The renderer keeps the existing Diligent device/context, scene viewport ownership, cooked model/material resources, GPU skinning path, Place/Inspector transaction path, and `ObjectData::optional_json` preservation. R7 scene-authored lighting and rendering settings are ordinary optional components, so they follow existing selection, undo/redo, save/load, prefab and cooking routes. No parallel scene or material format was introduced.

@@ -4,7 +4,7 @@
   "asset": "a0d0e5fb-8d53-4a35-8a1f-6d6644f7cb11",
   "name": "Royal Terrain Toon",
   "family": "toon-terrain-v1",
-  "color": [0.78, 0.80, 0.84, 1.0],
+  "color": [0.52, 0.86, 0.42, 1.0],
   "roughness": 0.90,
   "metallic": 0.0,
   "double_sided": true,
