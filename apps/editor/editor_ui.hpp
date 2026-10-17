@@ -72,7 +72,7 @@ public:
     // The Player and NPC tabs open it for a mask in a slot or in their browser; a later Items tab can do the same.
     void draw_mask_editor(Controller&);AssetId mask_editor,mask_editor_raised;
     std::function<void()> open_frontend;
-    AssetId graph_preview_asset,graph_character,graph_tag_registry;TagId graph_new_tag{};nlohmann::json graph_preview_tags=nlohmann::json::array();std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};float graph_zoom{1.f};ImVec2 graph_pan{18.f,18.f};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
+    AssetId graph_preview_asset,graph_character,graph_tag_registry;TagId graph_new_tag{};nlohmann::json graph_new_condition{{"kind","has_tag"},{"tag",0u}};nlohmann::json graph_preview_tags=nlohmann::json::array();std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};float graph_zoom{1.f};ImVec2 graph_pan{18.f,18.f};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{},graph_state{1},graph_transition_from{},graph_transition_to{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};char graph_state_name[65]{"Air Stance"};int graph_parameter_type{};char graph_parameter_name[65]{"Speed"};bool graph_condition_tag{};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
     void cancel_composer_drag(Controller&);
     ActionBlock composer_drag_block;AssetId composer_drag_asset;
@@ -89,6 +89,7 @@ public:
     std::function<void(AssetId)> prepare_action_pose;
     std::function<void(double)> scrub_composer;
     std::function<std::string()> composer_info;
+    std::function<void(double)> draw_composer_effects;
     ImTextureID composer_texture{};bool composer_visible{},composer_playing{},composer_loop{};
     double composer_frame_seconds{};float composer_rate{1},composer_yaw{},composer_pitch{.1f},composer_distance{2.7f};
     AssetId composer_clip;unsigned composer_duration{};std::string composer_error;

@@ -84,6 +84,15 @@ void bindings(){
     auto before=runtime.binding_state(id(12));check(runtime.reload(first,package(4)),runtime.diagnostic().c_str());check(runtime.binding_state(id(12))==before,"Other asset reload migrated unrelated attachment");
     runtime.enable_binding(id(12),false);runtime.detach_binding(id(10));runtime.attach(a,{id(10),first.asset,"{\"speed\":1}",true});rejects([&]{runtime.attach(a,{id(10),first.asset,"{}",true});});
     rejects([&]{runtime.configure_binding(id(11),"{\"speed\":\"bad\"}");});runtime.detach_binding(id(12));check(runtime.bindings().size()==2 && runtime.bindings()[0].metrics.calls>0,"Binding inspection/profile unavailable");
+    World parameter_world(WorldDomain::Server);auto parameter_owner=make(parameter_world,3);ScriptRuntime parameter_runtime(parameter_world);ScriptDescriptor parameter_descriptor{id(300),1,Authority::Server,1};const std::string parameter_source=R"(--!strict
+type State = {angle:number}
+type Config = {speed:number}
+return {update=function(ctx:Context,state:State,config:Config,dt:number)
+  ctx:set_anim_float('Speed',2.5)
+  ctx:set_anim_int('MovementMode',3)
+  ctx:set_anim_bool('IsGrounded',false)
+end}
+)";GraphParameterStore parameters;check(parameter_runtime.reload(parameter_descriptor,parameter_source),parameter_runtime.diagnostic().c_str());parameter_runtime.attach(parameter_owner);parameter_runtime.bind_animation_parameters(parameter_owner,parameters);step(parameter_world,parameter_runtime);check(std::abs(parameters.get_float("Speed")-2.5f)<1e-6&&parameters.get_int("MovementMode")==3&&!parameters.get_bool("IsGrounded"),"Lua typed animation parameters were not forwarded to the bound store");
 }
 void declared_state(){
     ScriptDescriptor d{id(100),1,Authority::Server,1};

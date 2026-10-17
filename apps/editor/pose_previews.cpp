@@ -7,6 +7,7 @@
 #include <darkangel/check.hpp>
 #include <darkangel/hash.hpp>
 #include <imgui.h>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <filesystem>
@@ -246,6 +247,37 @@ void PosePreviews::install() {
                 label += " | upper-body mask " + action->mask->generation.substr(0, 12);
         }
         return label;
+    };
+    shell.draw_composer_effects = [this](double tick) {
+        if (!composer_pose || !composer_pose->action())
+            return;
+        const auto& action = *composer_pose->action();
+        const auto clock = static_cast<unsigned>(std::llround(std::max(0.0, tick) * action_tick_units));
+        auto label = [](ActionBlockKind kind) {
+            switch (kind) {
+            case ActionBlockKind::Vfx: return "VFX";
+            case ActionBlockKind::Audio: return "Audio";
+            case ActionBlockKind::Gameplay: return "Gameplay";
+            case ActionBlockKind::Projectile: return "Projectile";
+            case ActionBlockKind::Aoe: return "AoE";
+            case ActionBlockKind::Hitbox: return "Hitbox";
+            default: return "Presentation";
+            }
+        };
+        unsigned active{};
+        ImGui::SeparatorText("Presentation effects");
+        for (const auto& block : action.blocks) {
+            const bool marker = block.begin == block.end;
+            const bool visible = marker ? (clock >= block.begin && clock <= block.begin + action_tick_units / 4) : (clock >= block.begin && clock < block.end);
+            if (!visible || block.kind == ActionBlockKind::Cue || block.kind == ActionBlockKind::Commit)
+                continue;
+            ++active;
+            ImGui::BulletText("%s  %s  | authored %.2f - %.2f ticks", label(block.kind), block.key.c_str(),
+                              double(block.begin) / action_tick_units, double(block.end) / action_tick_units);
+        }
+        if (!active)
+            ImGui::TextDisabled("No presentation block is active at this time.");
+        ImGui::TextDisabled("Scrubbing recomputes this isolated set; leaving a block deterministically cleans it up. No gameplay damage, authority, or persistent world state is executed.");
     };
 }
 } // namespace darkangel::editor_app

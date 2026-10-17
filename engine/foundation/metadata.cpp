@@ -26,7 +26,7 @@ std::string luau_types() {
             out+="    "+std::string(p.name)+": "+(p.kind==ValueKind::Number ? "number" : "string")+",\n";
         out+="}\n";
     }
-    out+="export type Context = { get_yaw: (Context) -> number, set_yaw: (Context, number) -> (), wait_event: (Context, string) -> (), wait_seconds: (Context, number) -> () }\n";
+    out+="export type Context = { get_yaw: (Context) -> number, set_yaw: (Context, number) -> (), set_anim_float: (Context, string, number) -> (), set_anim_int: (Context, string, number) -> (), set_anim_bool: (Context, string, boolean) -> (), get_anim_float: (Context, string) -> number, get_anim_int: (Context, string) -> number, get_anim_bool: (Context, string) -> boolean, wait_event: (Context, string) -> (), wait_seconds: (Context, number) -> () }\n";
     return out;
 }
 }

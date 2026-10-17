@@ -16,5 +16,8 @@ baseline until the next concrete Ashen Roots objective is selected.
 The 17 October 2026 animation-editor/camera objective is now the selected
 development task. Its implementation boundary, evidence and incomplete items
 are recorded in [current/ANIMATION_EDITOR_OVERHAUL_REPORT.md](current/ANIMATION_EDITOR_OVERHAUL_REPORT.md).
-Do not treat the remaining future state-machine, typed-parameter or full effect
-preview items as implemented until their runtime contracts and tests exist.
+The native state-machine/typed-parameter contracts and schema-2 graph tests are
+implemented. Remaining qualification is concentrated on any-state interruption
+matrices, graph breadcrumbs/multi-selection, and actual effect asset playback
+inside the isolated character preview; do not infer those from the taxonomy UI
+or a successful build alone.

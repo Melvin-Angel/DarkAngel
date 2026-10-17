@@ -1,6 +1,7 @@
 #pragma once
 #include <darkangel/world.hpp>
 #include <darkangel/script_package.hpp>
+#include <darkangel/animation_graph.hpp>
 #include <chrono>
 #include <memory>
 #include <string>
@@ -43,6 +44,7 @@ public:
     ScriptMetrics metrics() const;
     void attach(EntityHandle);
     void attach(EntityHandle,const ScriptBinding&);
+    void bind_animation_parameters(EntityHandle,GraphParameterStore&);
     void detach_binding(StableId);
     void enable_binding(StableId,bool);
     void configure_binding(StableId,std::string_view config_json);

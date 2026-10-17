@@ -49,6 +49,8 @@ struct ScriptRuntime::Impl {
     std::chrono::steady_clock::time_point deadline;
     struct Instance {EntityHandle owner;StableId asset;ScriptStateSchema::Json data,config;bool enabled{true};};
     std::map<StableId,Instance> instances;
+    struct AnimationBinding {EntityHandle owner;GraphParameterStore* values{};};
+    std::vector<AnimationBinding> animation_bindings;
     struct Context { Impl* host; EntityHandle entity;StableId binding; };
     struct Task {std::uint64_t token,generation;EntityHandle owner;StableId binding,asset;lua_State* coroutine;int thread_ref,state_ref;bool started{},event_ready{};std::string event;double wake{};};
     std::map<std::uint64_t,std::unique_ptr<Task>> task_queue;
@@ -83,6 +85,13 @@ struct ScriptRuntime::Impl {
         try { c->host->world.stage_yaw(c->entity,value,c->host->running->descriptor.authority); } catch(...) { ok=false; }
         if(!ok)luaL_error(s,"World write rejected: handle, phase, authority, range or capacity"); return 0;
     }
+    static GraphParameterStore* animation_values(Context* c){auto found=std::find_if(c->host->animation_bindings.begin(),c->host->animation_bindings.end(),[&](const auto& binding){return binding.owner==c->entity;});return found==c->host->animation_bindings.end()?nullptr:found->values;}
+    static int set_anim_float(lua_State* s){auto* c=context(s);auto* values=animation_values(c);if(!values)luaL_error(s,"No animation parameter store is bound");values->set_float(luaL_checkstring(s,2),static_cast<float>(luaL_checknumber(s,3)));return 0;}
+    static int set_anim_int(lua_State* s){auto* c=context(s);auto* values=animation_values(c);if(!values)luaL_error(s,"No animation parameter store is bound");auto value=luaL_checkinteger(s,3);if(value<INT32_MIN||value>INT32_MAX)luaL_error(s,"Animation integer parameter bounds");values->set_int(luaL_checkstring(s,2),static_cast<std::int32_t>(value));return 0;}
+    static int set_anim_bool(lua_State* s){auto* c=context(s);auto* values=animation_values(c);if(!values)luaL_error(s,"No animation parameter store is bound");values->set_bool(luaL_checkstring(s,2),lua_toboolean(s,3)!=0);return 0;}
+    static int get_anim_float(lua_State* s){auto* c=context(s);auto* values=animation_values(c);if(!values)luaL_error(s,"No animation parameter store is bound");lua_pushnumber(s,values->get_float(luaL_checkstring(s,2)));return 1;}
+    static int get_anim_int(lua_State* s){auto* c=context(s);auto* values=animation_values(c);if(!values)luaL_error(s,"No animation parameter store is bound");lua_pushinteger(s,values->get_int(luaL_checkstring(s,2)));return 1;}
+    static int get_anim_bool(lua_State* s){auto* c=context(s);auto* values=animation_values(c);if(!values)luaL_error(s,"No animation parameter store is bound");lua_pushboolean(s,values->get_bool(luaL_checkstring(s,2)));return 1;}
     static int wait_event(lua_State* s) {
         auto* c=context(s);const char* event=luaL_checkstring(s,2);auto* task=static_cast<Task*>(lua_getthreaddata(s));
         if(!task || task->binding!=c->binding || task->generation!=c->host->running->generation || !c->host->writes)luaL_error(s,"Wait is allowed only in a scheduled task");
@@ -116,7 +125,7 @@ struct ScriptRuntime::Impl {
         luaL_newmetatable(vm,"DarkAngel.Context");
         lua_newtable(vm);
         lua_pushcfunction(vm,get_yaw,"Context.get_yaw");lua_setfield(vm,-2,"get_yaw");
-        lua_pushcfunction(vm,set_yaw,"Context.set_yaw");lua_setfield(vm,-2,"set_yaw");
+        lua_pushcfunction(vm,set_yaw,"Context.set_yaw");lua_setfield(vm,-2,"set_yaw");lua_pushcfunction(vm,set_anim_float,"Context.set_anim_float");lua_setfield(vm,-2,"set_anim_float");lua_pushcfunction(vm,set_anim_int,"Context.set_anim_int");lua_setfield(vm,-2,"set_anim_int");lua_pushcfunction(vm,set_anim_bool,"Context.set_anim_bool");lua_setfield(vm,-2,"set_anim_bool");lua_pushcfunction(vm,get_anim_float,"Context.get_anim_float");lua_setfield(vm,-2,"get_anim_float");lua_pushcfunction(vm,get_anim_int,"Context.get_anim_int");lua_setfield(vm,-2,"get_anim_int");lua_pushcfunction(vm,get_anim_bool,"Context.get_anim_bool");lua_setfield(vm,-2,"get_anim_bool");
         lua_pushcfunction(vm,wait_event,"Context.wait_event");lua_setfield(vm,-2,"wait_event");
         lua_pushcfunction(vm,wait_seconds,"Context.wait_seconds");lua_setfield(vm,-2,"wait_seconds");
         lua_setreadonly(vm,-1,true);lua_setfield(vm,-2,"__index");
@@ -246,7 +255,8 @@ void ScriptRuntime::attach(EntityHandle h,const ScriptBinding& binding){auto& p=
         catch(...){p.running=nullptr;lua_settop(program.active,0);throw;}
     }else lua_settop(program.active,0);
     program.schema.validate(data);p.instances.emplace(binding.id,Impl::Instance{h,binding.asset,std::move(data),std::move(config),binding.enabled});}
-void ScriptRuntime::detach(EntityHandle h) {auto& p=*impl_;p.thread();require(p.world.phase()==Phase::Idle,"Detach requires idle");for(auto it=p.instances.begin();it!=p.instances.end();){auto entry=it++;if(entry->second.owner==h){p.cancel_binding(entry->first);p.instances.erase(entry);}}}
+void ScriptRuntime::bind_animation_parameters(EntityHandle h,GraphParameterStore& values){auto& p=*impl_;p.thread();require(p.world.valid(h),"Animation parameter binding owner is stale");auto found=std::find_if(p.animation_bindings.begin(),p.animation_bindings.end(),[&](const auto& binding){return binding.owner==h;});if(found==p.animation_bindings.end())p.animation_bindings.push_back({h,&values});else found->values=&values;}
+void ScriptRuntime::detach(EntityHandle h) {auto& p=*impl_;p.thread();require(p.world.phase()==Phase::Idle,"Detach requires idle");for(auto it=p.instances.begin();it!=p.instances.end();){auto entry=it++;if(entry->second.owner==h){p.cancel_binding(entry->first);p.instances.erase(entry);}}std::erase_if(p.animation_bindings,[&](const auto& binding){return binding.owner==h;});}
 void ScriptRuntime::detach_binding(StableId id){auto& p=*impl_;p.thread();require(p.world.phase()==Phase::Idle && p.instances.contains(id),"Invalid detach/safe point");p.cancel_binding(id);p.instances.erase(id);}
 void ScriptRuntime::enable_binding(StableId id,bool enabled){auto& p=*impl_;p.thread();require(p.world.phase()==Phase::Idle,"Enable requires safe point");auto& instance=p.instances.at(id);require(p.world.valid(instance.owner),"Stale binding owner");if(enabled)p.writer(instance.owner,id,instance.asset);else p.cancel_binding(id);instance.enabled=enabled;}
 void ScriptRuntime::configure_binding(StableId id,std::string_view json){auto& p=*impl_;p.thread();require(p.world.phase()==Phase::Idle,"Configure requires safe point");auto& instance=p.instances.at(id);auto config=parse_script_data(json);p.programs.at(instance.asset)->config.validate_references(config,p.world);p.cancel_binding(id);instance.config=std::move(config);}

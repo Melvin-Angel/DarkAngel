@@ -93,6 +93,9 @@ public:
     void assign_dodge(AssetService&,AssetId kit,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
     unsigned add_graph_blend(AssetService&,AssetId,bool two_dimensional,unsigned first,unsigned second,unsigned third=0);
+    void upgrade_graph_machine(AssetService&,AssetId);
+    unsigned add_graph_state(AssetService&,AssetId,std::string_view name,unsigned root);
+    unsigned add_graph_transition(AssetService&,AssetId,unsigned from,unsigned to,unsigned priority,unsigned crossfade_ticks,nlohmann::json condition);
     unsigned add_graph_tag_select(AssetService&,AssetId,AssetId registry,TagId,unsigned inactive,unsigned active);
     unsigned duplicate_graph_node(AssetService&,AssetId,unsigned node);
     void connect_graph_input(AssetService&,AssetId,unsigned node,unsigned point,unsigned input);

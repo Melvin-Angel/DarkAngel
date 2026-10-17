@@ -50,7 +50,7 @@ void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohman
         for(const auto* block:blocks){
             float begin=x(double(block->begin)/action_tick_units),end=x(double(block->end)/action_tick_units);
             const bool marker=block->begin==block->end;
-            ImU32 color=block->kind==ActionBlockKind::HitWindow?IM_COL32(185,85,65,255):block->kind==ActionBlockKind::Commit?IM_COL32(220,172,55,255):IM_COL32(55,105,165,255);
+            ImU32 color=block->kind==ActionBlockKind::HitWindow||block->kind==ActionBlockKind::Hitbox?IM_COL32(185,85,65,255):block->kind==ActionBlockKind::Commit?IM_COL32(220,172,55,255):block->kind==ActionBlockKind::Vfx?IM_COL32(155,74,190,255):block->kind==ActionBlockKind::Audio?IM_COL32(190,115,45,255):block->kind==ActionBlockKind::Projectile||block->kind==ActionBlockKind::Aoe?IM_COL32(45,155,125,255):block->kind==ActionBlockKind::Gameplay?IM_COL32(75,145,75,255):IM_COL32(55,105,165,255);
             if(marker){draw->AddTriangleFilled({begin,y+3},{begin-5,y+13},{begin+5,y+13},color);draw->AddLine({begin,y+3},{begin,y+row_height-3},color,2);}
             else draw->AddRectFilled({begin,y+4},{end,y+row_height-4},color,3);
             if(composer_block==block->id)draw->AddRect({begin-3,y+2},{std::max(end,begin+3)+3,y+row_height-2},IM_COL32(245,245,250,255),3,0,2);
@@ -77,8 +77,8 @@ void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohman
     }
     if(ImGui::BeginPopup("Composer timeline context")){
         const auto add=[&](ActionBlock block){try{composer_block=controller.authoring.add_action_block(*controller.assets,asset,block);}catch(const std::exception& error){author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}};
-        if(ImGui::BeginMenu("Add track")){const auto track=tracks.empty()?0u:std::min(tracks.rbegin()->first+1,31u);if(ImGui::MenuItem("Animation / Cue"))add({0,track,static_cast<unsigned>(composer_tick*action_tick_units),static_cast<unsigned>(composer_tick*action_tick_units),ActionBlockKind::Cue,"Cue.New"});if(ImGui::MenuItem("Gameplay / Hit window"))add({0,track,static_cast<unsigned>(composer_tick*action_tick_units),static_cast<unsigned>(composer_tick*action_tick_units+action_tick_units),ActionBlockKind::HitWindow,"Hit.New"});ImGui::EndMenu();}
-        if(ImGui::BeginMenu("Add block")){const auto track=tracks.empty()?0u:tracks.begin()->first;const auto begin=static_cast<unsigned>(std::clamp(composer_tick,0.,duration)*action_tick_units);if(ImGui::MenuItem("Cue"))add({0,track,begin,begin,ActionBlockKind::Cue,"Cue.New"});if(ImGui::MenuItem("Hit window"))add({0,track,begin,std::min(action.duration,begin+action_tick_units),ActionBlockKind::HitWindow,"Hit.New"});if(ImGui::MenuItem("Commit marker"))add({0,track,begin,begin,ActionBlockKind::Commit,"Ability.Commit"});ImGui::EndMenu();}
+        if(ImGui::BeginMenu("Add track")){const auto track=tracks.empty()?0u:std::min(tracks.rbegin()->first+1,31u);const auto begin=static_cast<unsigned>(composer_tick*action_tick_units);if(ImGui::MenuItem("Animation / Cue"))add({0,track,begin,begin,ActionBlockKind::Cue,"Animation.New"});if(ImGui::MenuItem("VFX track"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Vfx,"VFX.New"});if(ImGui::MenuItem("Audio track"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Audio,"Audio.New"});if(ImGui::MenuItem("Gameplay track"))add({0,track,begin,std::min(action.duration,begin+action_tick_units),ActionBlockKind::Gameplay,"Gameplay.New"});if(ImGui::MenuItem("Hitbox track"))add({0,track,begin,std::min(action.duration,begin+action_tick_units),ActionBlockKind::Hitbox,"Hitbox.New"});if(ImGui::MenuItem("Projectile track"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Projectile,"Projectile.New"});if(ImGui::MenuItem("AoE track"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Aoe,"AoE.New"});ImGui::EndMenu();}
+        if(ImGui::BeginMenu("Add block")){const auto track=tracks.empty()?0u:tracks.begin()->first;const auto begin=static_cast<unsigned>(std::clamp(composer_tick,0.,duration)*action_tick_units);if(ImGui::MenuItem("Cue"))add({0,track,begin,begin,ActionBlockKind::Cue,"Cue.New"});if(ImGui::MenuItem("VFX"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Vfx,"VFX.New"});if(ImGui::MenuItem("Audio"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Audio,"Audio.New"});if(ImGui::MenuItem("Gameplay"))add({0,track,begin,std::min(action.duration,begin+action_tick_units),ActionBlockKind::Gameplay,"Gameplay.New"});if(ImGui::MenuItem("Hitbox"))add({0,track,begin,std::min(action.duration,begin+action_tick_units),ActionBlockKind::Hitbox,"Hitbox.New"});if(ImGui::MenuItem("Projectile"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Projectile,"Projectile.New"});if(ImGui::MenuItem("AoE"))add({0,track,begin,std::min(action.duration,begin+action_tick_units*12),ActionBlockKind::Aoe,"AoE.New"});if(ImGui::MenuItem("Commit marker"))add({0,track,begin,begin,ActionBlockKind::Commit,"Ability.Commit"});ImGui::EndMenu();}
         if(ImGui::MenuItem("Paste block",nullptr,false,!composer_clipboard.has_value())){auto copy=*composer_clipboard;copy.id=0;copy.begin=std::min(copy.begin,action.duration);copy.end=std::min(std::max(copy.end,copy.begin),action.duration);add(copy);}
         ImGui::EndPopup();
     }
@@ -154,7 +154,7 @@ void Shell::draw_pose_preview(){
     try{
         auto image=[&]{
             const auto scale=ImGui::GetStyle().FontScaleDpi;
-            const float height=workspace==Workspace::Character||pose_preview_fill?std::max(80.f*scale,ImGui::GetContentRegionAvail().y-120.f*scale):170.f*scale;
+            const float height=workspace==Workspace::Character||pose_preview_fill?std::max(80.f*scale,ImGui::GetContentRegionAvail().y-210.f*scale):170.f*scale;
             auto size=ImVec2(std::max(1.f,ImGui::GetContentRegionAvail().x),height);
             const auto pos=ImGui::GetCursorScreenPos();area={pos.x,pos.y,size.x,size.y};
             ImGui::Image(composer_texture,size);
@@ -165,12 +165,14 @@ void Shell::draw_pose_preview(){
             if(composer_info)ImGui::TextWrapped("%s",composer_info().c_str());
         };
         const bool graph=graph_preview_asset!=AssetId{}&&graph_preview_asset==authored_selection;
-        if(graph){scrub_composer(composer_tick);composer_visible=true;image();}
-        if(ImGui::Button(composer_playing?"Pause preview":"Play preview")){if(composer_tick>=double(duration)/action_tick_units)composer_tick=0;composer_playing=!composer_playing;}
-        ImGui::SameLine();if(ImGui::Button("Reset preview")){composer_tick=0;composer_playing=false;}
-        ImGui::SameLine();ImGui::Checkbox("Loop preview",&composer_loop);ImGui::SliderFloat("Preview rate",&composer_rate,.1f,2.f,"%.2fx");
-        if(graph){if(draw_graph_info)draw_graph_info();}
-        else{scrub_composer(composer_tick);composer_visible=true;image();}
+        auto controls=[&]{
+            if(ImGui::Button(composer_playing?"Pause preview":"Play preview")){if(composer_tick>=double(duration)/action_tick_units)composer_tick=0;composer_playing=!composer_playing;}
+            ImGui::SameLine();if(ImGui::Button("Reset preview")){composer_tick=0;composer_playing=false;}
+            ImGui::SameLine();ImGui::Checkbox("Loop preview",&composer_loop);ImGui::SliderFloat("Preview rate",&composer_rate,.1f,2.f,"%.2fx");
+        };
+        if(graph){scrub_composer(composer_tick);composer_visible=true;image();controls();if(draw_graph_info)draw_graph_info();}
+        else if(pose_preview_fill||workspace==Workspace::Character){scrub_composer(composer_tick);composer_visible=true;image();if(draw_composer_effects)draw_composer_effects(composer_tick);controls();}
+        else{controls();scrub_composer(composer_tick);composer_visible=true;image();if(draw_composer_effects)draw_composer_effects(composer_tick);}
     }catch(const std::exception& error){composer_error=error.what();ImGui::TextWrapped("Preview needs attention: %s",error.what());}
 }
 

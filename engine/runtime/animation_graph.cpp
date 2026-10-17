@@ -9,6 +9,7 @@
 #include <sstream>
 #include <locale>
 #include <set>
+#include <variant>
 
 namespace darkangel {
 namespace {
@@ -25,6 +26,12 @@ bool overlap(const std::vector<GraphPoint>& points,const std::array<unsigned,3>&
     }
     return true;
 }
+bool compare_value(const GraphParameterValue& actual,GraphParameterType type,GraphCompareOperator op,const GraphParameterValue& expected){
+    auto result=[&](auto a,auto b){switch(op){case GraphCompareOperator::Equal:return a==b;case GraphCompareOperator::NotEqual:return a!=b;case GraphCompareOperator::Less:return a<b;case GraphCompareOperator::LessEqual:return a<=b;case GraphCompareOperator::Greater:return a>b;case GraphCompareOperator::GreaterEqual:return a>=b;}return false;};
+    if(type==GraphParameterType::Float)return result(std::get<float>(actual),std::get<float>(expected));
+    if(type==GraphParameterType::Integer)return result(std::get<std::int32_t>(actual),std::get<std::int32_t>(expected));
+    return op==GraphCompareOperator::Equal?std::get<bool>(actual)==std::get<bool>(expected):op==GraphCompareOperator::NotEqual?std::get<bool>(actual)!=std::get<bool>(expected):false;
+}
 }
 struct AnimationGraphPlan::Impl {
     using TagMask=std::array<std::uint64_t,2>;
@@ -34,8 +41,19 @@ struct AnimationGraphPlan::Impl {
     std::array<std::shared_ptr<const AnimationClip>,32> leaves;
     unsigned leaf_count{},root{};
     std::shared_ptr<const TagDictionary> tags;
+    GraphMachineDefinition machine;
+    std::map<std::uint32_t,unsigned> state_roots;
 
-    std::array<double,32> weights(GraphParameters parameters) const {
+    GraphParameterValue parameter(GraphParameters parameters,std::string_view name,GraphParameterType type) const {
+        if(parameters.values){if(type==GraphParameterType::Float)return parameters.values->get_float(name);if(type==GraphParameterType::Integer)return parameters.values->get_int(name);return parameters.values->get_bool(name);}
+        if(name=="Speed")return parameters.speed;if(name=="Forward")return parameters.forward;if(name=="Lateral")return parameters.lateral;return type==GraphParameterType::Float?GraphParameterValue{0.f}:type==GraphParameterType::Integer?GraphParameterValue{std::int32_t{0}}:GraphParameterValue{false};
+    }
+    bool condition(const GraphCondition& value,GraphParameters parameters,const TagMask& present) const {
+        auto has=[&](TagId tag){if(!tags)return false;auto definitions=tags->definitions();auto found=std::find_if(definitions.begin(),definitions.end(),[&](const auto& item){return item.id==tag;});if(found==definitions.end())return false;auto index=static_cast<unsigned>(found-definitions.begin());return (present[index/64]&(std::uint64_t{1}<<(index%64)))!=0;};
+        switch(value.kind){case GraphConditionKind::Always:return true;case GraphConditionKind::HasTag:return has(value.tag);case GraphConditionKind::Compare:return compare_value(parameter(parameters,value.parameter,value.parameter_type),value.parameter_type,value.comparison,value.value);case GraphConditionKind::Not:return value.children.size()==1&&!condition(value.children.front(),parameters,present);case GraphConditionKind::All:return !value.children.empty()&&std::all_of(value.children.begin(),value.children.end(),[&](const auto& child){return condition(child,parameters,present);});case GraphConditionKind::Any:return !value.children.empty()&&std::any_of(value.children.begin(),value.children.end(),[&](const auto& child){return condition(child,parameters,present);});case GraphConditionKind::None:return !value.children.empty()&&std::none_of(value.children.begin(),value.children.end(),[&](const auto& child){return condition(child,parameters,present);});case GraphConditionKind::Xor:return std::count_if(value.children.begin(),value.children.end(),[&](const auto& child){return condition(child,parameters,present);})==1;}return false;
+    }
+
+    std::array<double,32> weights(GraphParameters parameters,unsigned selected_root) const {
         require(bounded(parameters.speed)&&parameters.speed>=0&&bounded(parameters.forward)&&bounded(parameters.lateral)&&std::isfinite(parameters.playback_rate)&&parameters.playback_rate>=0&&parameters.playback_rate<=4,"Graph parameter bounds");
         TagMask present{};
         if(tags){
@@ -86,19 +104,25 @@ struct AnimationGraphPlan::Impl {
             }
             for(unsigned point=0;point<source.points.size();++point)for(unsigned leaf=0;leaf<leaf_count;++leaf)result[leaf]+=selected[point]*outputs[node.children[point]][leaf];
         }
-        return outputs[root];
+        return outputs[selected_root];
     }
-    GraphPoseInputs pose(GraphParameters parameters,double phase)const {
-        auto selected=weights(parameters);GraphPoseInputs result;
+    GraphPoseInputs pose(GraphParameters parameters,double phase,unsigned selected_root)const {
+        auto selected=weights(parameters,selected_root);GraphPoseInputs result;
         for(unsigned leaf=0;leaf<leaf_count;++leaf)if(selected[leaf]>0){
             require(result.count<result.layers.size(),"Graph active pose budget");result.layers[result.count++]={leaves[leaf].get(),phase*leaves[leaf]->definition().ticks,float(std::clamp(selected[leaf],0.0,1.0)),{}};
         }
         return result;
     }
 };
-AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root,std::vector<GraphNode> source,std::shared_ptr<const TagDictionary> tags):impl_(std::make_unique<Impl>()){
+AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root,std::vector<GraphNode> source,std::shared_ptr<const TagDictionary> tags)
+    : AnimationGraphPlan(std::move(generation),GraphMachineDefinition{{},{GraphStateDefinition{1,"Default",root}},{},1},std::move(source),std::move(tags)) {}
+AnimationGraphPlan::AnimationGraphPlan(std::string generation,GraphMachineDefinition machine,std::vector<GraphNode> source,std::shared_ptr<const TagDictionary> tags):impl_(std::make_unique<Impl>()){
     auto& plan=*impl_;require(generation.size()==64&&generation.find_first_not_of("0123456789abcdef")==generation.npos,"Graph generation digest");
-    require(!source.empty()&&source.size()<=32,"Graph node budget");plan.generation=std::move(generation);if(tags)plan.tags=std::make_shared<const TagDictionary>(*tags);bool tagged=false;
+    require(!source.empty()&&source.size()<=32,"Graph node budget");plan.generation=std::move(generation);plan.machine=std::move(machine);require(!plan.machine.states.empty()&&plan.machine.states.size()<=32&&plan.machine.entry,"Graph state machine needs an entry state");if(tags)plan.tags=std::make_shared<const TagDictionary>(*tags);bool tagged=false;
+    auto state_lookup=[&](std::uint32_t id){auto found=std::find_if(plan.machine.states.begin(),plan.machine.states.end(),[&](const auto& state){return state.id==id;});require(found!=plan.machine.states.end(),"Graph state reference is missing");return found;};
+    std::set<std::uint32_t> state_ids;for(const auto& state:plan.machine.states){require(state.id&&state.root&&state_ids.insert(state.id).second,"Graph state identity/root or duplicate ID");}
+    state_lookup(plan.machine.entry);
+    for(const auto& transition:plan.machine.transitions){require(transition.id&&transition.from!=transition.to,"Graph transition identity");state_lookup(transition.to);if(transition.from)state_lookup(transition.from);require(transition.crossfade_ticks<=600&&(!transition.has_exit_time||transition.exit_time>=0&&transition.exit_time<=1),"Graph transition timing");}
     for(unsigned index=0;index<source.size();++index){
         const auto& node=source[index];require(node.id,"Graph stable node ID");
         for(unsigned prior=0;prior<index;++prior)require(source[prior].id!=node.id,"Duplicate graph node ID");
@@ -133,6 +157,18 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
         }
     }
     require(tagged==bool(plan.tags),"Graph tag dictionary must match its selectors");
+    auto parameter_lookup=[&](std::string_view name){return std::find_if(plan.machine.parameters.begin(),plan.machine.parameters.end(),[&](const auto& parameter){return parameter.name==name;});};
+    for(const auto& parameter:plan.machine.parameters){require(!parameter.name.empty()&&parameter.name.size()<=64&&parameter.name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")==std::string::npos,"Graph parameter name");if(parameter.type==GraphParameterType::Float)require(std::holds_alternative<float>(parameter.default_value)&&std::isfinite(std::get<float>(parameter.default_value)),"Graph float parameter default");if(parameter.type==GraphParameterType::Integer)require(std::holds_alternative<std::int32_t>(parameter.default_value),"Graph integer parameter default");if(parameter.type==GraphParameterType::Boolean)require(std::holds_alternative<bool>(parameter.default_value),"Graph boolean parameter default");}
+    std::function<void(const GraphCondition&)> validate_condition=[&](const GraphCondition& condition){
+        const auto count=condition.children.size();
+        if(condition.kind==GraphConditionKind::Always)require(count==0,"Always condition cannot have children");
+        else if(condition.kind==GraphConditionKind::HasTag){require(count==0&&plan.tags&&plan.tags->contains(condition.tag),"HasTag condition requires a registered tag");for(const auto& definition:plan.tags->definitions())if(definition.id==condition.tag)require(definition.visibility!=AttributeVisibility::Server,"Presentation graph cannot read server tags");}
+        else if(condition.kind==GraphConditionKind::Compare){auto parameter=parameter_lookup(condition.parameter);require(parameter!=plan.machine.parameters.end()&&parameter->type==condition.parameter_type&&((condition.parameter_type==GraphParameterType::Float&&std::holds_alternative<float>(condition.value))||(condition.parameter_type==GraphParameterType::Integer&&std::holds_alternative<std::int32_t>(condition.value))||(condition.parameter_type==GraphParameterType::Boolean&&std::holds_alternative<bool>(condition.value))),"Typed graph comparison parameter mismatch");if(condition.parameter_type==GraphParameterType::Boolean)require(condition.comparison==GraphCompareOperator::Equal||condition.comparison==GraphCompareOperator::NotEqual,"Boolean graph comparison operator");}
+        else if(condition.kind==GraphConditionKind::Not)require(count==1,"Not condition arity");
+        else require(count>0&&count<=16,"Logical graph condition group");
+        for(const auto& child:condition.children)validate_condition(child);
+    };
+    for(const auto& transition:plan.machine.transitions)validate_condition(transition.condition);
     auto lookup=[&](std::uint32_t id){auto found=std::find_if(source.begin(),source.end(),[&](const auto& node){return node.id==id;});require(found!=source.end(),"Missing graph input node");return unsigned(found-source.begin());};
     std::array<unsigned,32> colors{},compiled{};
     std::function<unsigned(unsigned,unsigned)> visit=[&](unsigned index,unsigned depth){
@@ -161,12 +197,13 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
             require(node.active_bound<=4,"Graph simultaneous pose layer budget");}
         compiled[index]=unsigned(plan.nodes.size());plan.nodes.push_back(std::move(node));colors[index]=2;return compiled[index];
     };
-    plan.root=visit(lookup(root),0);for(unsigned index=0;index<source.size();++index)require(colors[index]==2,"Unreachable graph node");
+    for(const auto& state:plan.machine.states){auto compiled_root=visit(lookup(state.root),0);plan.state_roots.emplace(state.id,compiled_root);}
+    plan.root=plan.state_roots.at(plan.machine.entry);for(unsigned index=0;index<source.size();++index)require(colors[index]==2,"Unreachable graph node");
     // Caller source generation is only a seed. Include the compiled topology,
     // parameter layout and frozen dependency content to fence corrections even
     // when two plans accidentally receive the same source revision.
     std::ostringstream identity;identity.imbue(std::locale::classic());identity<<std::hexfloat;
-    identity<<plan.generation<<':'<<root<<'\n';
+    identity<<plan.generation<<':'<<plan.machine.entry<<'\n';for(const auto& parameter:plan.machine.parameters)identity<<"param:"<<parameter.name<<':'<<int(parameter.type)<<':'<<parameter.default_value.index()<<'\n';for(const auto& state:plan.machine.states)identity<<"state:"<<state.id<<':'<<state.name<<':'<<state.root<<'\n';for(const auto& transition:plan.machine.transitions)identity<<"transition:"<<transition.id<<':'<<transition.from<<':'<<transition.to<<':'<<transition.priority<<':'<<transition.crossfade_ticks<<':'<<transition.has_exit_time<<':'<<transition.exit_time<<'\n';
     if(plan.tags)identity<<plan.tags->registry().text()<<':'<<plan.tags->generation()<<'\n';
     for(const auto& node:source){
         identity<<node.id<<':'<<int(node.kind)<<':'<<int(node.parameter)<<'\n';
@@ -180,21 +217,35 @@ AnimationGraphPlan::AnimationGraphPlan(std::string generation,std::uint32_t root
 AnimationGraphPlan::~AnimationGraphPlan()=default;
 unsigned AnimationGraphPlan::active_layer_bound()const{return impl_->nodes[impl_->root].active_bound;}
 const TagDictionary* AnimationGraphPlan::tag_dictionary()const{return impl_->tags.get();}
+const std::vector<GraphParameterDefinition>& AnimationGraphPlan::parameters()const{return impl_->machine.parameters;}
+const GraphMachineDefinition* AnimationGraphPlan::machine()const{return impl_->machine.states.size()>1||!impl_->machine.transitions.empty()?&impl_->machine:nullptr;}
 AnimationGraphInstance::AnimationGraphInstance(std::shared_ptr<const AnimationGraphPlan> plan):plan_(std::move(plan)){
-    require(bool(plan_),"Graph plan is required");state_.generation=plan_->impl_->generation;
+    require(bool(plan_),"Graph plan is required");state_.generation=plan_->impl_->generation;state_.active_state=plan_->impl_->machine.entry;for(const auto& parameter:plan_->parameters())parameters_.values[parameter.name]=parameter.default_value;
 }
-GraphPoseInputs AnimationGraphInstance::evaluate(GraphParameters parameters)const{return plan_->impl_->pose(parameters,state_.phase);}
+GraphPoseInputs AnimationGraphInstance::evaluate(GraphParameters parameters)const{auto& impl=*plan_->impl_;return impl.pose(parameters,state_.phase,impl.state_roots.at(state_.active_state));}
 GraphPoseInputs AnimationGraphInstance::advance(std::uint64_t tick,GraphParameters parameters){
     require(state_.tick!=std::numeric_limits<std::uint64_t>::max()&&tick==state_.tick+1,"Graph requires consecutive fixed ticks");
-    auto weights=plan_->impl_->weights(parameters);double delta{};
+    auto& impl=*plan_->impl_;(void)impl.weights(parameters,impl.state_roots.at(state_.active_state));if(!impl.machine.transitions.empty()){
+        std::array<std::uint64_t,2> present{};if(impl.tags&&parameters.tags)for(auto id:parameters.tags->values){auto definitions=impl.tags->definitions();auto found=std::find_if(definitions.begin(),definitions.end(),[&](const auto& item){return item.id==id;});if(found!=definitions.end()){auto index=static_cast<unsigned>(found-definitions.begin());present[index/64]|=std::uint64_t{1}<<(index%64);}}
+        const GraphTransitionDefinition* selected=nullptr;for(const auto& transition:impl.machine.transitions)if((transition.from==0||transition.from==state_.active_state)&&(!transition.has_exit_time||state_.phase>=transition.exit_time)&&impl.condition(transition.condition,parameters,present)){if(!selected||std::tie(transition.priority,transition.id)>std::tie(selected->priority,selected->id))selected=&transition;}
+        if(selected){state_.previous_state=state_.active_state;state_.active_state=selected->to;state_.phase=0;state_.transition_ticks=selected->crossfade_ticks;state_.transition_total=selected->crossfade_ticks;}
+    }
+    auto weights=impl.weights(parameters,impl.state_roots.at(state_.active_state));double delta{};
     for(unsigned leaf=0;leaf<plan_->impl_->leaf_count;++leaf)delta+=weights[leaf]/plan_->impl_->leaves[leaf]->definition().ticks;
     const auto accumulated=state_.phase+delta*parameters.playback_rate;
     // Snap only roundoff at an exact cycle boundary. Otherwise repeated 1/N
     // increments can leave the Nth tick just below one instead of at zero.
     const auto phase=std::max(0.0,accumulated-std::floor(accumulated+1e-12));
-    auto result=plan_->impl_->pose(parameters,phase);state_.tick=tick;state_.phase=phase;return result;
+    auto result=impl.pose(parameters,phase,impl.state_roots.at(state_.active_state));
+    if(state_.transition_ticks){const auto alpha=1.f-float(state_.transition_ticks)/std::max(1u,state_.transition_total);auto previous=impl.pose(parameters,phase,impl.state_roots.at(state_.previous_state));for(const auto& layer:previous.span()){if(result.count>=result.layers.size())break;auto copy=layer;copy.weight*=1-alpha;result.layers[result.count++]=copy;}for(unsigned i=0;i<result.count;++i)result.layers[i].weight*=alpha;--state_.transition_ticks;}
+    state_.tick=tick;state_.phase=phase;return result;
 }
+GraphPoseInputs AnimationGraphInstance::evaluate()const{return evaluate(GraphParameters{.values=&parameters_});}
+GraphPoseInputs AnimationGraphInstance::advance(std::uint64_t tick){return advance(tick,GraphParameters{.values=&parameters_});}
+void AnimationGraphInstance::set_float(std::string_view name,float value){auto it=std::find_if(plan_->parameters().begin(),plan_->parameters().end(),[&](const auto& parameter){return parameter.name==name;});require(it!=plan_->parameters().end()&&it->type==GraphParameterType::Float,"Unknown float animation parameter");parameters_.set_float(name,value);}
+void AnimationGraphInstance::set_int(std::string_view name,std::int32_t value){auto it=std::find_if(plan_->parameters().begin(),plan_->parameters().end(),[&](const auto& parameter){return parameter.name==name;});require(it!=plan_->parameters().end()&&it->type==GraphParameterType::Integer,"Unknown integer animation parameter");parameters_.set_int(name,value);}
+void AnimationGraphInstance::set_bool(std::string_view name,bool value){auto it=std::find_if(plan_->parameters().begin(),plan_->parameters().end(),[&](const auto& parameter){return parameter.name==name;});require(it!=plan_->parameters().end()&&it->type==GraphParameterType::Boolean,"Unknown boolean animation parameter");parameters_.set_bool(name,value);}
 void AnimationGraphInstance::restore(const GraphState& state){
-    require(state.generation==plan_->impl_->generation&&std::isfinite(state.phase)&&state.phase>=0&&state.phase<1,"Graph correction generation/phase mismatch");state_.tick=state.tick;state_.phase=state.phase;
+    require(state.generation==plan_->impl_->generation&&std::isfinite(state.phase)&&state.phase>=0&&state.phase<1&&plan_->impl_->state_roots.contains(state.active_state),"Graph correction generation/phase mismatch");state_=state;
 }
 }
