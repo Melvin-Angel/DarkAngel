@@ -1,9 +1,58 @@
 # R7 rendering implementation report
 
-Date: 16 October 2026
+Date: 17 October 2026
 
 Status: In progress with the runtime/editor increment verified. This is not a
 claim that every expanded R7 acceptance criterion is complete.
+
+## 17 October stabilization and RoyalCombat visual receipt
+
+This increment stabilizes the existing RoyalCombat scene without introducing a
+parallel scene, material, lightmap, or play-session format.
+
+Root causes fixed:
+
+- The cascaded-shadow crash was an incompatible Diligent root-table commit:
+  depth-only shadow PSOs were used with a forward-material SRB, while the
+  opaque path also bound a zero-render-target PSO with a dummy colour target.
+  D3D12 symbolization resolved the access violation to
+  `PipelineResourceSignatureD3D12Impl::CommitRootTables`. Shadow PSOs now own
+  compatible static/skinned/alpha SRBs and the pass binds matching D32 plus
+  dummy-RGBA8 targets. The static diagnostic now runs on D3D12 and Vulkan.
+- GPU cluster lookup treated `SV_POSITION` as NDC and compute assignment did
+  not reject depth-slice misses. Lookup now uses the actual render-target
+  dimensions, depth overlap is explicit, and CPU/GPU light bounds use nearest
+  sphere depth. GPU local shading applies authored strength, normals, toon
+  response and transformed spot direction, removing the vertical spotlight
+  cluster seam.
+- Vulkan shadow receivers used the opposite comparison convention for this
+  Diligent depth path. The shader selects the backend convention through frame
+  constants; Vulkan also uses an explicit comparison/clamp sampler. Cascade
+  selection now uses linear view-space depth.
+
+RoyalCombat is authored with four enabled 1024-resolution cascades, 96-unit
+distance, explicit bias/split controls, and a shadow-casting main light. Warm
+and cool point lights plus the overhead spot remain ordinary authored lights;
+their world positions, colours, ranges, cones and falloff reach the GPU path.
+Real-time lighting uses positions and normals, not baked lightmap UVs. Toon
+ambient/shadow values were lifted for readable shaded surfaces, and the
+existing Lighting-window outline controls were tuned to a visible plum edge.
+The play-session binding behavior from `d8c39be` remains preserved.
+
+Inspected actual-engine receipts are in `artifacts/r7/visual_polish/`:
+
+- `royalcombat_wide_final_d3d12.png`
+- `royalcombat_close_tuned_sampler_d3d12.png`
+- `royalcombat_close_final_vulkan.png`
+- `royalcombat_close_tuned_local_lights_off_d3d12.png`
+- `royalcombat_close_outlines_off_d3d12.png`
+- `shadow_regression_d3d12.png` and `shadow_regression_vulkan.png`
+
+`python scripts/verify_r7_shadow_regression.py --model <terrain-id>` passed on
+both backends with exit 0 and foreground receipts of 412389 and 419596 pixels.
+The guarded editor rebuild passed, and CTest
+`R5.materials|R7.rendering_core` passed 2/2. Vulkan validation layers were not
+available on this machine, but the Vulkan backend executed successfully.
 
 ## Architecture used
 

@@ -1,6 +1,6 @@
 # R7 renderer implementation outline
 
-Status: implementation increment complete and cross-backend exercised, 16
+Status: implementation increment complete and cross-backend exercised, 17
 October 2026. R7 is not marked fully accepted: dedicated cutout-shadow/HDR
 visual receipts, cooked save/reload/run parity, and GPU timing qualification
 remain open.
@@ -71,6 +71,29 @@ as 2D or cube Diligent resources, and sampled by the post sky stage with
 rotation and intensity controls. A synthetic equirectangular import/cook test
 and both backend shader/resource creation are covered; the project does not
 currently contain an artist-authored HDR sky asset for a final visual receipt.
+
+## RoyalCombat stabilization increment (17 October 2026)
+
+The shadow pass now owns SRBs compatible with its depth/dummy-colour PSOs,
+including static, skinned and alpha-tested variants. This fixes the original
+D3D12/Vulkan access violation at root-table commit time; cascades are enabled
+again in RoyalCombat and covered by
+`scripts/verify_r7_shadow_regression.py` on both backends. Cascade selection
+uses linear view depth, and the receiver comparison selects the Diligent
+backend convention without changing authored bias or cascade controls.
+
+The GPU cluster path uses the render target's dimensions for screen lookup,
+matches CPU/GPU depth overlap and conservative light-sphere bounds, and applies
+normal/toon response plus authored material local-light strength. Point and
+spot data remains world-authored and view-packed; texture UVs are not used for
+real-time light positioning. RoyalCombat ambient/shadow values and outline
+controls were tuned through the existing Material Inspector and Lighting
+window contracts.
+
+Actual D3D12 and Vulkan RoyalCombat captures are recorded under
+`artifacts/r7/visual_polish/`, including wide/close, local-lights on/off and
+outline on/off receipts. Dedicated cutout-shadow, project HDR asset,
+save/reload/cook/run, and GPU timing receipts remain follow-up work.
 
 ## Explicit boundaries
 
