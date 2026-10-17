@@ -48,6 +48,7 @@ struct Constants {
     DirectX::XMFLOAT4 outline{};
     DirectX::XMFLOAT4 cluster_dimensions{};
     DirectX::XMFLOAT4 cluster_camera{};
+    DirectX::XMFLOAT4 cluster_viewport{};
 };
 struct PostConstants {
     DirectX::XMFLOAT4 exposure{0,0,1,1};
@@ -76,7 +77,7 @@ struct GpuMesh {
 };
 struct Material {
     CookedMaterial value;
-    RefCntAutoPtr<IShaderResourceBinding> binding;
+    RefCntAutoPtr<IShaderResourceBinding> binding, shadow_binding;
 };
 // A native instance's bindings/textures, independent of model geometry. The same textures serve static and skin pipelines.
 struct UploadedMaterial {
@@ -85,7 +86,8 @@ struct UploadedMaterial {
     std::map<AssetId,RefCntAutoPtr<ITexture>> textures;
     RefCntAutoPtr<ITexture> fallback;
 };
-UploadedMaterial upload_material(IRenderDevice*,const RuntimeMaterial&,IPipelineState*,IPipelineState*,IPipelineState* skin=nullptr,IPipelineState* skin_cull=nullptr);
+UploadedMaterial upload_material(IRenderDevice*,const RuntimeMaterial&,IPipelineState*,IPipelineState*,IPipelineState* skin=nullptr,IPipelineState* skin_cull=nullptr,
+                                 IPipelineState* shadow=nullptr,IPipelineState* shadow_cull=nullptr,IPipelineState* skin_shadow=nullptr,IPipelineState* skin_shadow_cull=nullptr);
 struct UploadedModel {
     std::vector<GpuMesh> meshes;
     std::map<AssetId, RefCntAutoPtr<ITexture>> textures;
@@ -118,7 +120,7 @@ void dispatch_gpu_clusters(IDeviceContext*, GpuClusterResources&, std::span<cons
 bool read_gpu_cluster_stats(IDeviceContext*, GpuClusterResources&, rendering::ClusterGpuStats&);
 void bind_gpu_clusters(IShaderResourceBinding*, const GpuClusterResources&);
 constexpr const char* shader_source = R"(
-    cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;row_major float4x4 View;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 LocalDirections[4];float4 LocalCones[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;float4 ClusterDimensions;float4 ClusterCamera;};
+cbuffer Frame {row_major float4x4 Mvp;row_major float4x4 Rotation;row_major float4x4 World;row_major float4x4 View;float4 Tint;float4 Surface;float4 Emission;float4 Features;float4 MainLight;float4 MainColor;float4 Ambient;float4 ToonBands;float4 ShadowTint;float4 LocalPositions[4];float4 LocalColors[4];float4 LocalDirections[4];float4 LocalCones[4];float4 CharacterHit;float4 CharacterStatus;float4 CharacterParams;float4 TerrainParams;float4 FogColor;float4 FogParams;float4 ShadowSplits;float4 ShadowParams;row_major float4x4 ShadowMatrices[4];float4 Outline;float4 ClusterDimensions;float4 ClusterCamera;float4 ClusterViewport;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
     struct VertexOutput {float4 Position:SV_POSITION;float3 Normal:TEXCOORD0;float2 UV:TEXCOORD1;float3 Local:TEXCOORD2;float3 WorldPosition:TEXCOORD3;float3 ViewPosition:TEXCOORD4;float3 ViewNormal:TEXCOORD5;};
     VertexOutput VSMain(VertexInput vertex){VertexOutput result;float4 local=float4(vertex.Position,1);result.Position=mul(local,Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);result.WorldPosition=mul(local,World).xyz;result.ViewPosition=mul(float4(result.WorldPosition,1),View).xyz;result.ViewNormal=normalize(mul(result.Normal,(float3x3)View));result.UV=vertex.UV;return result;}
@@ -155,12 +157,12 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     float specular=pow(saturate(dot(normal,normalize(light+float3(0,0,1)))),lerp(40,4,roughness));
     float3 emissive=Emission.rgb;if(features&4u)emissive*=EmissiveMap.Sample(EmissiveMap_sampler,vertex.UV).rgb;
     float3 color=base.rgb*(Ambient.rgb*occlusion+MainColor.rgb*MainColor.a*bands);
-    if(ClusterDimensions.w>0){uint tiles_x=max(1,(uint)ClusterDimensions.x),tiles_y=max(1,(uint)ClusterDimensions.y),slices=max(1,(uint)ClusterDimensions.z);float2 ndc=vertex.Position.xy/max(vertex.Position.w,.0001);uint cx=min(tiles_x-1,(uint)saturate(ndc.x*.5+.5)*tiles_x),cy=min(tiles_y-1,(uint)saturate(.5-ndc.y*.5)*tiles_y);float depth=-vertex.ViewPosition.z;uint cz=min(slices-1,(uint)max(0,log(max(depth,ClusterCamera.x)/ClusterCamera.x)/max(log(ClusterCamera.y/ClusterCamera.x),.001)*slices));uint offset=((cz*tiles_y+cy)*tiles_x+cx)*4;[unroll]for(uint i=0;i<4;++i){uint index=ClusterSelected[offset+i];if(index==0xffffffff)continue;ClusterLight light_data=ClusterLights[index];float3 delta=light_data.PositionRange.xyz-vertex.ViewPosition;float distance=length(delta);float attenuation=saturate(1-distance/max(light_data.PositionRange.w,.001));float spot=1;if(light_data.DirectionType.w>0){float cone=dot(-normalize(delta),normalize(light_data.DirectionType.xyz));spot=pow(smoothstep(light_data.ConeFalloff.x,light_data.ConeFalloff.y,cone),max(light_data.ConeFalloff.z,.1));}color+=base.rgb*light_data.ColorIntensity.rgb*light_data.ColorIntensity.a*attenuation*attenuation*spot;}}
-    else [unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));float spot=1;if(LocalDirections[i].w>0){float cone=dot(-normalize(delta),normalize(LocalDirections[i].xyz));spot=smoothstep(LocalCones[i].x,LocalCones[i].y,cone);spot=pow(spot,max(LocalCones[i].z,.1));}color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*attenuation*attenuation*spot;}
+    if(ClusterDimensions.w>0){uint tiles_x=max(1,(uint)ClusterDimensions.x),tiles_y=max(1,(uint)ClusterDimensions.y),slices=max(1,(uint)ClusterDimensions.z);float2 viewport=max(ClusterViewport.xy,float2(1,1));float2 uv=vertex.Position.xy/viewport;uint cx=min(tiles_x-1,(uint)(saturate(uv.x)*tiles_x)),cy=min(tiles_y-1,(uint)(saturate(uv.y)*tiles_y));float depth=-vertex.ViewPosition.z;uint cz=min(slices-1,(uint)max(0,log(max(depth,ClusterCamera.x)/ClusterCamera.x)/max(log(ClusterCamera.y/ClusterCamera.x),.001)*slices));uint offset=((cz*tiles_y+cy)*tiles_x+cx)*4;[unroll]for(uint i=0;i<4;++i){uint index=ClusterSelected[offset+i];if(index==0xffffffff)continue;ClusterLight light_data=ClusterLights[index];float3 delta=light_data.PositionRange.xyz-vertex.ViewPosition;float distance=length(delta);float attenuation=saturate(1-distance/max(light_data.PositionRange.w,.001));float spot=1;if(light_data.DirectionType.w>0){float cone=dot(normalize(delta),normalize(light_data.DirectionType.xyz));spot=pow(smoothstep(light_data.ConeFalloff.x,light_data.ConeFalloff.y,cone),max(light_data.ConeFalloff.z,.1));}float local_diffuse=saturate(dot(normal,normalize(delta)));float local_bands=(smoothstep(ToonBands.x-ToonBands.w,ToonBands.x+ToonBands.w,local_diffuse)+smoothstep(ToonBands.y-ToonBands.w,ToonBands.y+ToonBands.w,local_diffuse)+smoothstep(ToonBands.z-ToonBands.w,ToonBands.z+ToonBands.w,local_diffuse))/3;float local_response=Features.z>0?(.25+.75*local_bands):local_diffuse;color+=base.rgb*light_data.ColorIntensity.rgb*light_data.ColorIntensity.a*ClusterViewport.z*attenuation*attenuation*spot*local_response;}}
+    else [unroll]for(uint i=0;i<4;++i){float3 delta=LocalPositions[i].xyz-vertex.Local;float d=length(delta);float attenuation=saturate(1-d/max(LocalPositions[i].w,.001));float spot=1;if(LocalDirections[i].w>0){float cone=dot(normalize(delta),normalize(LocalDirections[i].xyz));spot=smoothstep(LocalCones[i].x,LocalCones[i].y,cone);spot=pow(spot,max(LocalCones[i].z,.1));}float local_diffuse=saturate(dot(normal,normalize(delta)));float local_bands=(smoothstep(ToonBands.x-ToonBands.w,ToonBands.x+ToonBands.w,local_diffuse)+smoothstep(ToonBands.y-ToonBands.w,ToonBands.y+ToonBands.w,local_diffuse)+smoothstep(ToonBands.z-ToonBands.w,ToonBands.z+ToonBands.w,local_diffuse))/3;float local_response=Features.z>0?(.25+.75*local_bands):local_diffuse;color+=base.rgb*LocalColors[i].rgb*LocalColors[i].a*local_response*attenuation*attenuation*spot;}
     if(Features.z==3){float3 coordinates=vertex.Local*Features.w;float3 l1=TerrainLayer1.Sample(TerrainLayer1_sampler,coordinates.xz).rgb,l2=TerrainLayer2.Sample(TerrainLayer2_sampler,coordinates.yz).rgb;float slope=saturate((abs(normal.y)-TerrainParams.y)/max(TerrainParams.z-TerrainParams.y,.001));if(features&32u)color=lerp(color,base.rgb*l1,slope);if(features&64u)color=lerp(color,base.rgb*l2,saturate(TerrainParams.w+(1-slope)*.5));}
     if(Features.z==2){float hit=saturate(CharacterParams.x*CharacterHit.a),status=saturate(CharacterParams.y*CharacterStatus.a);color=lerp(color,CharacterHit.rgb,hit);color=lerp(color,CharacterStatus.rgb,status);if(features&16u){float noise=DissolveMask.Sample(DissolveMask_sampler,vertex.UV).r;float edge=saturate((noise-CharacterParams.z)/max(CharacterParams.w,.001));if(noise<CharacterParams.z)discard;color=lerp(CharacterHit.rgb,color,edge);}}
     if(Outline.x>0) return float4(normalize(normal)*.5+.5,Outline.y);
-    if(ShadowParams.z>0){float depth=saturate(vertex.Position.z/max(vertex.Position.w,.0001));uint cascade_count=max(1,(uint)ShadowParams.z);uint cascade=min(cascade_count-1,depth<ShadowSplits.x?0:depth<ShadowSplits.y?1:depth<ShadowSplits.z?2:3);float4 shadow_position=mul(float4(vertex.WorldPosition,1),ShadowMatrices[cascade]);shadow_position.xyz/=max(shadow_position.w,.0001);float2 uv=shadow_position.xy*.5+.5;float shadow=0;[unroll]for(int y=-1;y<=1;++y)[unroll]for(int x=-1;x<=1;++x)shadow+=ShadowMap.SampleCmpLevelZero(ShadowMap_sampler,float3(uv+float2(x,y)*ShadowParams.ww,cascade),shadow_position.z-ShadowParams.x-ShadowParams.y);shadow/=9;color*=lerp(ShadowTint.rgb,1,shadow);}
+    if(ShadowParams.z>0){float depth=max(-vertex.ViewPosition.z,0);uint cascade_count=max(1,(uint)ShadowParams.z);uint cascade=min(cascade_count-1,depth<ShadowSplits.x?0:depth<ShadowSplits.y?1:depth<ShadowSplits.z?2:3);float4 shadow_position=mul(float4(vertex.WorldPosition,1),ShadowMatrices[cascade]);shadow_position.xyz/=max(shadow_position.w,.0001);float2 uv=shadow_position.xy*.5+.5;float compare_depth=ClusterViewport.w>0?shadow_position.z*.5+.5:shadow_position.z;float shadow=0;[unroll]for(int y=-1;y<=1;++y)[unroll]for(int x=-1;x<=1;++x){float2 sample_uv=uv+float2(x,y)*ShadowParams.ww;float in_bounds=step(0,sample_uv.x)*step(sample_uv.x,1)*step(0,sample_uv.y)*step(sample_uv.y,1);shadow+=lerp(1,ShadowMap.SampleCmpLevelZero(ShadowMap_sampler,float3(saturate(sample_uv),cascade),compare_depth-ShadowParams.x-ShadowParams.y),in_bounds);}shadow/=9;color*=lerp(ShadowTint.rgb,1,shadow);}
     if(FogColor.a>0){float distance=max(vertex.Position.z/max(vertex.Position.w,.0001),0);float fog=FogParams.w>0?1-exp(-distance*FogParams.z):saturate((distance-FogParams.x)/max(FogParams.y-FogParams.x,.001));color=lerp(color,FogColor.rgb,saturate(fog));}
     return float4(color+specular*.08*lerp(float3(1,1,1),color,metallic)+emissive,Features.y==2?base.a:1);
 }
@@ -175,7 +177,8 @@ RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice*, IBuffer*, TE
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked);
 // Reads the viewport back, requires foreground geometry inside the viewport area and writes a PNG.
 void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, const std::filesystem::path& path, const ViewArea& viewport);
-UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull);
+UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull,
+                     IPipelineState* shadow=nullptr, IPipelineState* shadow_cull=nullptr);
 // The game's prop shader source when present, otherwise the built-in one.
 std::string shader_text();
 #ifdef DAE_ANIMATION
@@ -186,7 +189,8 @@ struct UploadedSkin {
     std::unique_ptr<RigPose> pose;
 };
 UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipelineState* pso, IPipelineState* cull,
-                         const AnimationClip* clip = nullptr, double tick = 0, bool reference = false);
+                         const AnimationClip* clip = nullptr, double tick = 0, bool reference = false,
+                         IPipelineState* shadow = nullptr, IPipelineState* shadow_cull = nullptr);
 void upload_palette(IDeviceContext* context, IBuffer* buffer, UploadedSkin& skin, const AnimationClip* clip, double tick,
                     const std::vector<JointMatrix>* gameplay = nullptr);
 #endif

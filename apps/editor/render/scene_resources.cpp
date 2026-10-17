@@ -37,9 +37,9 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
         mesh.maximum = {girth, girth, half};
         mesh.parts.push_back({shape.id, 0, static_cast<std::uint32_t>(mesh.indices.size())});
         shape.meshes.push_back(std::move(mesh));
-        projectile_gpu = upload(device, shape, pso, pso_cull);
+        projectile_gpu = upload(device, shape, pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
     }
-    gpu = upload(device, *lease.model, pso, pso_cull);
+    gpu = upload(device, *lease.model, pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
 #ifdef DAE_ANIMATION
     BufferDesc cb = render_.constants_desc;
     cb.Name = "Canonical human skin palette";
@@ -60,6 +60,12 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
     skin_shadow_cull = shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, true, skin_source.c_str(), bone_buffer);
     skin_shadow_alpha_pso = alpha_shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, false, skin_source.c_str(), bone_buffer);
     skin_shadow_alpha_cull = alpha_shadow_pipeline(device, constant_buffer, TEX_FORMAT_D32_FLOAT, true, skin_source.c_str(), bone_buffer);
+    skin_shadow_pso->CreateShaderResourceBinding(&skin_shadow_binding, true);
+    skin_shadow_cull->CreateShaderResourceBinding(&skin_shadow_cull_binding, true);
+    skin_shadow_alpha_pso->CreateShaderResourceBinding(&skin_shadow_alpha_binding, true);
+    skin_shadow_alpha_cull->CreateShaderResourceBinding(&skin_shadow_alpha_cull_binding, true);
+    require(skin_shadow_binding && skin_shadow_cull_binding && skin_shadow_alpha_binding && skin_shadow_alpha_cull_binding,
+            "Skinned shadow resource binding creation failed");
     if (!args.pose_clip.empty()) {
         auto cooked = load_cooked_clip(args.registry, args.cas, AssetId::parse(args.pose_clip));
         diagnostic_clip = std::make_unique<AnimationClip>(std::move(cooked.definition), cooked.archive);
@@ -85,7 +91,7 @@ void SceneResources::prepare_model(AssetId requested, const std::filesystem::pat
     auto& pso_cull = render_.pso_cull;
     if(refresh&&!is_skin(requested,source)){
         require(requested==id||scene_models.contains(requested)||scene_models.size()<4096,"Editor model resource limit (4096 distinct models)");
-        auto cooked=std::make_shared<RuntimeModel>(load_cooked_model(source,store,requested));auto uploaded=upload(device,*cooked,pso,pso_cull);
+        auto cooked=std::make_shared<RuntimeModel>(load_cooked_model(source,store,requested));auto uploaded=upload(device,*cooked,pso,pso_cull,render_.shadow_alpha_pso,render_.shadow_alpha_pso_cull);
         render_.context->Flush();render_.context->WaitForIdle();
         if(requested==id){gpu=std::move(uploaded);refreshed_main=std::move(cooked);}else{scene_models[requested]=std::move(uploaded);refreshed_models[requested]=std::move(cooked);}return;
     }
@@ -101,12 +107,12 @@ void SceneResources::prepare_model(AssetId requested, const std::filesystem::pat
         scene_skins.emplace(requested, upload_skin(device, load_cooked_skinned_model(source, store, requested),
                                                    args.skin_reference ? pso.RawPtr() : skin_pso.RawPtr(),
                                                    args.skin_reference ? pso_cull.RawPtr() : skin_cull.RawPtr(), diagnostic_clip.get(),
-                                                   args.pose_tick, args.skin_reference));
+                                                   args.pose_tick, args.skin_reference, skin_shadow_alpha_pso.RawPtr(), skin_shadow_alpha_cull.RawPtr()));
         return;
     }
 #endif
     auto cooked = load_cooked_model(source, store, requested);
-    auto resources = upload(device, cooked, pso, pso_cull);
+    auto resources = upload(device, cooked, pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
     scene_models.emplace(requested, std::move(resources));
 }
 void SceneResources::prepare_material(AssetId model,AssetId slot,const RuntimeMaterial& material) {
@@ -126,6 +132,10 @@ void SceneResources::prepare_material(AssetId model,AssetId slot,const RuntimeMa
 #ifdef DAE_ANIMATION
         ,skin_pso,skin_cull
 #endif
+        ,render_.shadow_alpha_pso,render_.shadow_alpha_pso_cull
+#ifdef DAE_ANIMATION
+        ,skin_shadow_alpha_pso,skin_shadow_alpha_cull
+#endif
     );
     // Keep the old binding alive until every submitted draw using it has completed.
     if(found!=native_materials.end()){render_.context->Flush();render_.context->WaitForIdle();}
@@ -143,14 +153,18 @@ void SceneResources::reload_shader(const std::string& text, const ModelGeneratio
     auto next_cull = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, text.c_str());
     auto next_blend = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, text.c_str(), nullptr, true);
     auto next_blend_cull = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, text.c_str(), nullptr, true);
-    auto resources = upload(device, refreshed_main?*refreshed_main:*lease.model, next, next_cull);
+    auto resources = upload(device, refreshed_main?*refreshed_main:*lease.model, next, next_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
     std::map<AssetId, UploadedModel> other;
     for (const auto& [asset, unused] : scene_models)
-        if(const auto refreshed=refreshed_models.find(asset);refreshed!=refreshed_models.end())other.emplace(asset,upload(device,*refreshed->second,next,next_cull));
-        else other.emplace(asset, upload(device, load_cooked_model(args.registry, args.cas, asset), next, next_cull));
+        if(const auto refreshed=refreshed_models.find(asset);refreshed!=refreshed_models.end())other.emplace(asset,upload(device,*refreshed->second,next,next_cull,render_.shadow_alpha_pso,render_.shadow_alpha_pso_cull));
+        else other.emplace(asset, upload(device, load_cooked_model(args.registry, args.cas, asset), next, next_cull,render_.shadow_alpha_pso,render_.shadow_alpha_pso_cull));
     std::map<AssetId,UploadedMaterial> next_materials;for(const auto& [asset,material]:native_materials)next_materials.emplace(asset,upload_material(device,material.source,next,next_cull
 #ifdef DAE_ANIMATION
         ,skin_pso,skin_cull
+#endif
+        ,render_.shadow_alpha_pso,render_.shadow_alpha_pso_cull
+#ifdef DAE_ANIMATION
+        ,skin_shadow_alpha_pso,skin_shadow_alpha_cull
 #endif
     ));
     context->Flush();
@@ -172,20 +186,24 @@ SceneResources::Reload SceneResources::prepare_reload(const ModelStore& store) {
     auto& resources = reload.resources;
     auto& other = reload.other;
     candidate = store.prepare(args.registry, args.cas, id);
-    resources = upload(device, *candidate.model, pso, pso_cull);
+    resources = upload(device, *candidate.model, pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
     for (const auto& [asset, unused] : scene_models)
-        other.emplace(asset, upload(device, load_cooked_model(args.registry, args.cas, asset), pso, pso_cull));
+        other.emplace(asset, upload(device, load_cooked_model(args.registry, args.cas, asset), pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull));
 #ifdef DAE_ANIMATION
     auto& skins = reload.skins;
     for (const auto& [asset, unused] : scene_skins)
         skins.emplace(asset, upload_skin(device, load_cooked_skinned_model(args.registry, args.cas, asset),
                                          args.skin_reference ? pso.RawPtr() : skin_pso.RawPtr(),
                                          args.skin_reference ? pso_cull.RawPtr() : skin_cull.RawPtr(), diagnostic_clip.get(),
-                                         args.pose_tick, args.skin_reference));
+                                         args.pose_tick, args.skin_reference, skin_shadow_alpha_pso.RawPtr(), skin_shadow_alpha_cull.RawPtr()));
 #endif
     for(const auto& [asset,material]:native_materials)reload.materials.emplace(asset,upload_material(device,material.source,pso,pso_cull
 #ifdef DAE_ANIMATION
         ,skin_pso,skin_cull
+#endif
+        ,render_.shadow_alpha_pso,render_.shadow_alpha_pso_cull
+#ifdef DAE_ANIMATION
+        ,skin_shadow_alpha_pso,skin_shadow_alpha_cull
 #endif
     ));
     return reload;

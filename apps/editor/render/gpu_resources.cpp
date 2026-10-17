@@ -48,12 +48,13 @@ void CSMain(uint3 dispatch_id:SV_DispatchThreadID){
         float3 position=light.PositionRange.xyz;
         float radius=max(light.PositionRange.w,.001);
         float depth=-position.z;
-        if(depth+radius<Camera.x||depth-radius>Camera.y||depth<=.001)continue;
+        if(depth+radius<Camera.x||depth-radius>Camera.y||depth<=.001||depth+radius<depth_min||depth-radius>depth_max)continue;
+        float screen_depth=max(Camera.x,depth-radius);
         float tx=max(.01,Camera.w*Camera.z);
-        float min_x=.5+.5*(position.x-radius)/(depth+radius)/tx;
-        float max_x=.5+.5*(position.x+radius)/(depth+radius)/tx;
-        float min_y=.5+.5*(position.y-radius)/(depth+radius)/Camera.z;
-        float max_y=.5+.5*(position.y+radius)/(depth+radius)/Camera.z;
+        float min_x=.5+.5*(position.x-radius)/screen_depth/tx;
+        float max_x=.5+.5*(position.x+radius)/screen_depth/tx;
+        float min_y=.5+.5*(position.y-radius)/screen_depth/Camera.z;
+        float max_y=.5+.5*(position.y+radius)/screen_depth/Camera.z;
         if(!overlaps(min_x,max_x,tile_min_x,tile_max_x)||!overlaps(.5-max_y*.5,.5-min_y*.5,tile_min_y,tile_max_y))continue;
         if(candidate_count<Limits.x)ClusterCandidates[base+candidate_count]=light_index;
         ++candidate_count;
@@ -319,7 +320,7 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                                        {SHADER_TYPE_PIXEL, "DissolveMask", sampler},
                                        {SHADER_TYPE_PIXEL, "TerrainLayer1", sampler},
                                        {SHADER_TYPE_PIXEL, "TerrainLayer2", sampler},
-                                       {SHADER_TYPE_PIXEL, "ShadowMap", [&]{SamplerDesc comparison=sampler;comparison.ComparisonFunc=COMPARISON_FUNC_LESS_EQUAL;return comparison;}()}};
+                                       {SHADER_TYPE_PIXEL, "ShadowMap", [&]{SamplerDesc comparison=sampler;const bool vulkan=device->GetDeviceInfo().Type==RENDER_DEVICE_TYPE_VULKAN;if(vulkan){comparison.MinFilter=FILTER_TYPE_COMPARISON_LINEAR;comparison.MagFilter=FILTER_TYPE_COMPARISON_LINEAR;comparison.MipFilter=FILTER_TYPE_COMPARISON_LINEAR;comparison.AddressU=TEXTURE_ADDRESS_CLAMP;comparison.AddressV=TEXTURE_ADDRESS_CLAMP;comparison.ComparisonFunc=COMPARISON_FUNC_GREATER_EQUAL;}else comparison.ComparisonFunc=COMPARISON_FUNC_LESS_EQUAL;return comparison;}()}};
     ci.PSODesc.ResourceLayout.ImmutableSamplers = samplers;
     ci.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(samplers);
     RefCntAutoPtr<IPipelineState> result;
@@ -366,8 +367,8 @@ struct VertexOutput {float4 Position:SV_POSITION;};
 VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);return result;}
 float4 PSMain(VertexOutput vertex):SV_TARGET{return 1;}
 )";
-    const char* shader_source_text=source?source:depth_source;ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=shader_source_text;RefCntAutoPtr<IShader> vs;shader.Desc.Name="DarkAngel shadow VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);require(vs,"Shadow shader compilation failed");
-    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel cascaded shadow caster";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=0;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthWriteEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};graphics.InputLayout.LayoutElements=layout;graphics.InputLayout.NumElements=bones?5:3;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Shadow pipeline creation failed");auto* frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");require(frame,"Shadow Frame contract changed");frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Shadow skeleton contract missing");skeleton->Set(bones);}return result;
+    const char* shader_source_text=source?source:depth_source;ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=shader_source_text;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel shadow VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);require(vs,"Shadow shader compilation failed");if(!source){shader.Desc.Name="DarkAngel shadow PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(ps,"Shadow pixel shader compilation failed");}
+    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel cascaded shadow caster";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=TEX_FORMAT_RGBA8_UNORM;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthWriteEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};graphics.InputLayout.LayoutElements=layout;graphics.InputLayout.NumElements=bones?5:3;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Shadow pipeline creation failed");auto* frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");require(frame,"Shadow Frame contract changed");frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Shadow skeleton contract missing");skeleton->Set(bones);}return result;
 }
 RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones) {
     const auto normalized = normalized_shader_source();
@@ -474,6 +475,7 @@ void apply_material(Constants& constants, const CookedMaterial& material) {
     constants.features = {static_cast<float>(bits), static_cast<float>(material.alpha_mode), family, material.triplanar_scale};
     constants.alpha = {material.alpha_cutoff, 0, 0, 0};
     constants.toon_bands={material.toon_thresholds[0],material.toon_thresholds[1],material.toon_thresholds[2],material.toon_softness};constants.shadow_tint={material.shadow_tint[0],material.shadow_tint[1],material.shadow_tint[2],1};constants.ambient={material.ambient_color[0]*material.ambient_strength,material.ambient_color[1]*material.ambient_strength,material.ambient_color[2]*material.ambient_strength,1};
+    constants.cluster_viewport.z=material.local_light_strength;
     constants.character_hit={material.hit_flash_color[0],material.hit_flash_color[1],material.hit_flash_color[2],material.hit_flash_color[3]};constants.character_status={material.status_color[0],material.status_color[1],material.status_color[2],material.status_color[3]};constants.character_params={material.hit_flash_strength,material.status_strength,material.dissolve,material.dissolve_edge_width};constants.terrain_params={material.terrain_blend_sharpness,material.terrain_slope_start,material.terrain_slope_end,material.terrain_height_blend};
 }
 void bind_surface(IShaderResourceBinding* binding, const CookedMaterial& material, const std::map<AssetId, RefCntAutoPtr<ITexture>>& textures,
@@ -509,14 +511,15 @@ void bind_surface(IShaderResourceBinding* binding, const CookedMaterial& materia
     else
         require(!material.has_terrain_layer2, "The prop shader does not declare TerrainLayer2, which this material needs");
 }
-UploadedMaterial upload_material(IRenderDevice* device,const RuntimeMaterial& material,IPipelineState* pso,IPipelineState* cull,IPipelineState* skin,IPipelineState* skin_cull) {
+UploadedMaterial upload_material(IRenderDevice* device,const RuntimeMaterial& material,IPipelineState* pso,IPipelineState* cull,IPipelineState* skin,IPipelineState* skin_cull,
+                                 IPipelineState* shadow,IPipelineState* shadow_cull,IPipelineState* skin_shadow,IPipelineState* skin_shadow_cull) {
     UploadedMaterial out;out.source=material;CookedTexture white;white.mips.push_back({1,1,{255,255,255,255}});out.fallback=texture(device,white);
     for(const auto& [id,cooked]:material.textures)out.textures.emplace(id,texture(device,cooked));
-    auto bind=[&](Material& destination,IPipelineState* double_sided,IPipelineState* single_sided){destination.value=material.value;auto* chosen=material.value.double_sided?double_sided:single_sided;require(chosen,"Missing material pipeline");chosen->CreateShaderResourceBinding(&destination.binding,true);require(destination.binding,"Native material binding failed");
-        bind_surface(destination.binding,material.value,out.textures,out.fallback);};
-    bind(out.surface,pso,cull);if(skin)bind(out.skinned,skin,skin_cull);return out;
+    auto bind=[&](Material& destination,IPipelineState* double_sided,IPipelineState* single_sided,IPipelineState* shadow_double_sided,IPipelineState* shadow_single_sided){destination.value=material.value;auto* chosen=material.value.double_sided?double_sided:single_sided;require(chosen,"Missing material pipeline");chosen->CreateShaderResourceBinding(&destination.binding,true);require(destination.binding,"Native material binding failed");
+        bind_surface(destination.binding,material.value,out.textures,out.fallback);if(shadow_double_sided||shadow_single_sided){auto* shadow_chosen=material.value.double_sided?shadow_double_sided:shadow_single_sided;require(shadow_chosen,"Missing alpha shadow material pipeline");shadow_chosen->CreateShaderResourceBinding(&destination.shadow_binding,true);require(destination.shadow_binding,"Alpha shadow material binding failed");bind_surface(destination.shadow_binding,material.value,out.textures,out.fallback);}};
+    bind(out.surface,pso,cull,shadow,shadow_cull);if(skin)bind(out.skinned,skin,skin_cull,skin_shadow,skin_shadow_cull);return out;
 }
-UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull) {
+UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipelineState* pso, IPipelineState* pso_cull,IPipelineState* shadow,IPipelineState* shadow_cull) {
     require(!model.meshes.empty(), "Empty cooked model");
     UploadedModel out;
     auto minimum = model.meshes[0].minimum, maximum = model.meshes[0].maximum;
@@ -554,6 +557,13 @@ UploadedModel upload(IRenderDevice* device, const RuntimeModel& model, IPipeline
         chosen->CreateShaderResourceBinding(&gpu.binding, true);
         require(gpu.binding, "Material binding creation failed");
         bind_surface(gpu.binding, material, out.textures, out.fallback);
+        if (shadow || shadow_cull) {
+            auto* shadow_chosen = material.double_sided ? shadow : shadow_cull;
+            require(shadow_chosen, "Alpha shadow material pipeline missing");
+            shadow_chosen->CreateShaderResourceBinding(&gpu.shadow_binding, true);
+            require(gpu.shadow_binding, "Alpha shadow material binding creation failed");
+            bind_surface(gpu.shadow_binding, material, out.textures, out.fallback);
+        }
         out.materials.emplace(material.id, std::move(gpu));
     }
     for (unsigned c = 0; c < 3; ++c) {
@@ -596,7 +606,7 @@ std::string skin_shader() {
     return source;
 }
 UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipelineState* pso, IPipelineState* cull,
-                         const AnimationClip* clip, double tick, bool reference) {
+                         const AnimationClip* clip, double tick, bool reference, IPipelineState* shadow, IPipelineState* shadow_cull) {
     RigPose reference_pose(model.rig.definition, model.rig.archive);
     const auto& sampled = clip ? reference_pose.sample(*clip, tick) : reference_pose.rest_pose();
     std::vector<std::array<float, 16>> matrices(sampled.size());
@@ -665,7 +675,7 @@ UploadedSkin upload_skin(IRenderDevice* device, RuntimeSkinnedModel model, IPipe
         visible.meshes.push_back(std::move(mesh));
     }
     UploadedSkin result;
-    result.gpu = upload(device, visible, pso, cull);
+    result.gpu = upload(device, visible, pso, cull, shadow, shadow_cull);
     for (unsigned index = 0; index < model.meshes.size(); ++index)
         result.gpu.meshes[index].color = model.meshes[index].material ? std::array<float, 4>{1, 1, 1, 1} : model.meshes[index].color;
     if (!reference)

@@ -50,6 +50,7 @@ void SceneViewport::ensure_shadow_targets(unsigned resolution) {
     device->CreateTexture(shadow, nullptr, &shadow_map);
     require(shadow_map, "Shadow map creation failed");
     shadow_srv = shadow_map->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+    require(shadow_srv, "Shadow shader-resource view creation failed");
     for (unsigned cascade = 0; cascade < 4; ++cascade) {
         TextureViewDesc view;
         view.ViewType = TEXTURE_VIEW_DEPTH_STENCIL;
@@ -356,10 +357,13 @@ void SceneViewport::render(double elapsed_seconds) {
         auto light = prepared.light;
         XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(light.position_view.data()),
                       XMVector3TransformCoord(XMVectorSet(prepared.world_position[0], prepared.world_position[1], prepared.world_position[2], 1), frame_view));
+        XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(light.direction_view.data()),
+                      XMVector3Normalize(XMVector3TransformNormal(XMLoadFloat3(reinterpret_cast<const XMFLOAT3*>(prepared.light.direction_view.data())), frame_view)));
         cluster_lights.push_back(light);
     }
-    const rendering::ClusterView cluster_view{scene_width, scene_height, gpu.radius * .01f, gpu.radius * 40.f,
-                                               std::tan(camera_fov * .5f), float(scene_width) / std::max(1u, scene_height)};
+    const unsigned render_width = scene_color->GetDesc().Width, render_height = scene_color->GetDesc().Height;
+    const rendering::ClusterView cluster_view{render_width, render_height, gpu.radius * .01f, gpu.radius * 40.f,
+                                               std::tan(camera_fov * .5f), float(render_width) / std::max(1u, render_height)};
     const rendering::ClusterConfig cluster_config = frame_settings.clusters;
     const auto cluster_assignment = rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
     cluster_stats = cluster_assignment.stats;
@@ -417,7 +421,7 @@ void SceneViewport::render(double elapsed_seconds) {
     };
     const float sky[4]={frame_settings.sky_enabled?frame_settings.sky_color.r:background[0],frame_settings.sky_enabled?frame_settings.sky_color.g:background[1],frame_settings.sky_enabled?frame_settings.sky_color.b:background[2],1};context->ClearRenderTarget(rtv,sky,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     ensure_shadow_targets(frame_settings.shadows.resolution);
-    std::array<XMFLOAT4X4,4> shadow_matrices{};std::array<float,4> shadow_splits{1,1,1,1};const unsigned shadow_cascades=std::clamp(frame_settings.shadows.cascade_count,1u,4u);for(unsigned split=0;split<shadow_cascades;++split){const float p=float(split+1)/shadow_cascades;const float logarithmic=std::pow(p,.65f);shadow_splits[split]=std::clamp(p*(1-frame_settings.shadows.split_distribution)+logarithmic*frame_settings.shadows.split_distribution,0.f,1.f);}bool shadow_enabled=false;
+    std::array<XMFLOAT4X4,4> shadow_matrices{};std::array<float,4> shadow_splits{1,1,1,1};const unsigned shadow_cascades=std::clamp(frame_settings.shadows.cascade_count,1u,4u);const float shadow_near=std::max(.05f,gpu.radius*.01f),shadow_far=std::max(shadow_near+1.f,frame_settings.shadows.distance);for(unsigned split=0;split<shadow_cascades;++split){const float p=float(split+1)/shadow_cascades;const float logarithmic=std::pow(p,.65f);const float fraction=std::clamp(p*(1-frame_settings.shadows.split_distribution)+logarithmic*frame_settings.shadows.split_distribution,0.f,1.f);shadow_splits[split]=shadow_near+(shadow_far-shadow_near)*fraction;}bool shadow_enabled=false;
     // One pass over the scene's objects for a view. viewer: the client whose world and poses are shown; null for the editor's own.
     auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer, bool shadow_pass = false, bool outline_pass = false) {
         const darkangel::World* shown_world = &editor.displayed();
@@ -584,8 +588,24 @@ void SceneViewport::render(double elapsed_seconds) {
                         IPipelineState* shadow_pipeline=material.value.alpha_mode==1?(material.value.double_sided?context_.render.shadow_alpha_pso.RawPtr():context_.render.shadow_alpha_pso_cull.RawPtr()):(material.value.double_sided?context_.render.shadow_pso.RawPtr():context_.render.shadow_pso_cull.RawPtr());
 #endif
                         void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow constants mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
-                        if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;}
-                        if(material.value.alpha_mode==1){apply_material(constants,material.value);auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.binding,gpu_clusters);context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);}
+                        const bool alpha_shadow = material.value.alpha_mode == 1;
+                        IShaderResourceBinding* empty_shadow_binding = nullptr;
+#ifdef DAE_ANIMATION
+                        if (!alpha_shadow)
+                            empty_shadow_binding = drawn_ptr && !args.skin_reference
+                                                       ? (material.value.double_sided ? scene.skin_shadow_binding.RawPtr() : scene.skin_shadow_cull_binding.RawPtr())
+                                                       : (material.value.double_sided ? context_.render.shadow_binding.RawPtr() : context_.render.shadow_cull_binding.RawPtr());
+#else
+                        if (!alpha_shadow)
+                            empty_shadow_binding = material.value.double_sided ? context_.render.shadow_binding.RawPtr() : context_.render.shadow_cull_binding.RawPtr();
+#endif
+                        if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;if(!alpha_shadow){require(empty_shadow_binding,"Missing opaque shadow resource binding");context->CommitShaderResources(empty_shadow_binding,RESOURCE_STATE_TRANSITION_MODE_NONE);}}
+                        if(material.value.alpha_mode==1){
+                            apply_material(constants,material.value);
+                            context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Alpha shadow constants remapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
+                            require(material.shadow_binding,"Missing alpha shadow material binding");
+                            auto* shadow=material.shadow_binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.shadow_binding,gpu_clusters);context->CommitShaderResources(material.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                        }
                         DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);continue;}
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
@@ -594,6 +614,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     XMStoreFloat4x4(&constants.view, view);
                     constants.cluster_dimensions = {float(gpu_layout.tiles_x), float(gpu_layout.tiles_y), float(gpu_layout.slices), frame_settings.gpu_clustered ? 1.f : 0.f};
                     constants.cluster_camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
+                    constants.cluster_viewport = {float(render_width), float(render_height), frame_settings.toon.local_light_strength, args.backend == "vulkan" ? 1.f : 0.f};
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
                     apply_material(constants, material.value);
@@ -703,7 +724,8 @@ void SceneViewport::render(double elapsed_seconds) {
                 if (!worn_models.contains(worn.model) && !worn_failed.contains(worn.model)) {
                     try {
                         worn_models.emplace(worn.model,
-                                            upload(device, load_cooked_model(args.registry, args.cas, worn.model), pso, pso_cull));
+                                            upload(device, load_cooked_model(args.registry, args.cas, worn.model), pso, pso_cull,
+                                                   context_.render.shadow_alpha_pso, context_.render.shadow_alpha_pso_cull));
                     } catch (const std::exception& error) {
                         worn_failed.insert(worn.model);
                         editor.log(std::string("Mask visual unavailable: ") + error.what(), darkangel::editor_app::ConsoleSeverity::Error);
@@ -741,6 +763,7 @@ void SceneViewport::render(double elapsed_seconds) {
                              XMStoreFloat4x4(&constants.view, view);
                              constants.cluster_dimensions = {float(gpu_layout.tiles_x), float(gpu_layout.tiles_y), float(gpu_layout.slices), frame_settings.gpu_clustered ? 1.f : 0.f};
                              constants.cluster_camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
+                             constants.cluster_viewport = {float(render_width), float(render_height), frame_settings.toon.local_light_strength, args.backend == "vulkan" ? 1.f : 0.f};
                             constants.color = {material.value.color[0] * mesh.color[0] * worn.tint[0],
                                                material.value.color[1] * mesh.color[1] * worn.tint[1],
                                                material.value.color[2] * mesh.color[2] * worn.tint[2],
