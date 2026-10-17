@@ -34,31 +34,33 @@ do not keep R7 open.
 
 ## Roadmap review: proposed priorities, not approved milestones
 
-The source audit found that the highest value after R7 is gameplay/editor
-integration rather than another rendering program. The following shortlist is
-recommendation only; it is not an approved replacement roadmap:
+The source audit, corrected by the user's current RoyalCombat playtest, found
+that the core playable loop already exists. The following shortlist therefore
+targets hardening, content breadth and production scale rather than creating a
+first combat slice. It is recommendation only; it is not an approved
+replacement roadmap:
 
-1. Finish R2 editor UX qualification and workflow reliability: qualify the
-   already-built editor surface with real task sessions, restart/DPI,
-   cross-window routing, save/cook/Play recovery and unsaved-preview latency.
-2. Complete M8 inventory/equipment integration: connect the verified
-   persistent-profile inventory and mask-slot contracts to fresh Play,
-   starting loadouts, atomic live equipment, pickups, ledger/grant flow and
-   the existing UiService inventory surface.
-3. Deliver a playable combat vertical slice: close the gaps between the
-   existing native action/ability/effect foundations and an authored Ashen
-   Roots encounter, including graph/socket authoring, hit presentation,
-   status/motor integration, prediction/correction and usable runtime UI.
-4. Make encounters and NPC workflows production-usable: finish authoring and
-   runtime integration for behavior, sensing, spawn/encounter state, triggers,
-   interaction and navigation with a small playable level receipt.
-5. Close multiplayer development qualification: cross-machine transport,
-   controlled latency/loss cases, lifecycle/streaming behavior and EOS
-   qualification only when the required external identities and deployment
-   are available.
-6. Add measured scene-scale performance only where needed: GPU instancing,
-   batching, frustum/occlusion culling, mesh LOD and texture streaming should
-   follow captured Ashen Roots workloads rather than a new SR program.
+1. Capture and automate the existing playable-loop regression: two enemies,
+   death/respawn, dash, status effects, mask equip/unequip, interactables,
+   keys, NPC sensing and pathfinding. This is a Small/Medium reliability task,
+   not a missing gameplay-system task.
+2. Finish the remaining M8 progression scope only where the game needs it:
+   durable inventory/world-ledger behavior, pickups, scene transitions,
+   profile ownership and co-op persistence. Basic mask equip/unequip is
+   user-verified and should not be treated as unimplemented.
+3. Expand encounter/NPC authoring and content breadth: more enemy types,
+   authored behaviors, sensing edge cases, encounter reset/completion and
+   navigation failure handling. The current two-enemy scene is a working
+   vertical slice; this work makes it repeatable for production.
+4. Close multiplayer qualification when it becomes the next product gate:
+   cross-machine transport, controlled latency/loss cases, lifecycle and EOS
+   qualification only when identities and deployment are available.
+5. Finish R2 editor UX qualification only for genuine workflow friction:
+   save/cook/Play recovery, restart/DPI, cross-window routing and authoring
+   task timing. The new runtime UI is not blocked by this editor qualification.
+6. Add measured packaging and scene-scale performance work: clean-machine
+   packaged runs, GPU instancing, batching, frustum/occlusion culling, mesh
+   LOD and texture streaming should follow captured Ashen Roots workloads.
 7. Keep selected rendering polish as small game-driven increments: advanced
    outlines, hit/status/dissolve, practical transparency, SSAO and LUT colour
    grading are candidates when a concrete scene or profiling result justifies
@@ -66,13 +68,25 @@ recommendation only; it is not an approved replacement roadmap:
    temporal reconstruction and indirect rendering remain conditional, not
    commitments.
 
+### User-verified gameplay receipt
+
+The current RoyalCombat scene has been manually tested by the user with two
+enemies that can kill the player; death, respawn and dash behavior work. The
+user also confirms status effects, mask equip/unequip, interactables, keys,
+NPC sensing and NPC pathfinding toward the player. This is valid functional
+playtest evidence and changes the planning classification: the core combat,
+interaction and NPC slice is not missing. Automated receipts remain valuable
+for regression and clean-cook/reload confidence, but they should not be used
+to describe these features as unimplemented.
+
 The former SR0–SR7 initiative is therefore retired as a standalone schedule.
 Its useful research remains historical reference; existing R7 functionality
 must not be reimplemented under SR names.
 
 ## Current engine capability assessment
 
-The repository audit separates capability from roadmap intent:
+The repository audit, combined with the user playtest above, separates
+capability from roadmap intent:
 
 - **Implemented and locally verified foundations:** AssetService import/cook/CAS
   and registry paths; MaterialDefinition/MaterialInstance editing and
@@ -80,16 +94,17 @@ The repository audit separates capability from roadmap intent:
   CharacterSceneSession foundations; movement profiles; native ability/effect,
   tag and combat-kit contracts; cooked-document `UiService`; audio and VFX
   services; and the R7 renderer/material stack. These are the systems to reuse.
-- **Implemented but incomplete or qualification-limited:** R2 still needs
-  end-to-end UX qualification; M8 inventory/equipment and mask-slot runtime
-  integration is incomplete; M4/M5 combat and multiplayer gates remain
-  partial; M6 NPC/encounter integration is not production-usable; navigation
-  authoring exists but tiled streaming is not complete; and networking has
-  same-machine evidence but not cross-machine/EOS qualification.
-- **Present but not yet a dependable production workflow:** encounter/NPC
-  authoring, inventory/equipment setup, packaged standalone game delivery,
-  cross-machine network testing, and performance diagnostics. These are larger
-  production bottlenecks than additional renderer features.
+- **Implemented but qualification-limited:** R2 still needs end-to-end UX
+  qualification; M8's broader persistence/progression scope remains larger
+  than basic mask equip/unequip; and networking has same-machine evidence but
+  not cross-machine/EOS qualification. The user-verified combat, status,
+  interaction and NPC slice is functional, with broader content and edge-case
+  coverage still to be built out.
+- **Present but not yet a dependable production workflow:** repeatable
+  encounter/NPC authoring at content scale, complete progression/pickup
+  workflows, packaged standalone delivery, cross-machine network testing and
+  performance diagnostics. These are larger bottlenecks than additional
+  renderer features.
 - **Planned but not approved as the next schedule:** World Puzzle UI and
   volumetric terrain/world authoring remain candidates in the broader roadmap;
   GPU instancing phase 6, navigation/world streaming and EOS work require
