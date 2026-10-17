@@ -72,7 +72,7 @@ public:
     // The Player and NPC tabs open it for a mask in a slot or in their browser; a later Items tab can do the same.
     void draw_mask_editor(Controller&);AssetId mask_editor,mask_editor_raised;
     std::function<void()> open_frontend;
-    AssetId graph_preview_asset,graph_character,graph_tag_registry;TagId graph_new_tag{};nlohmann::json graph_preview_tags=nlohmann::json::array();std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
+    AssetId graph_preview_asset,graph_character,graph_tag_registry;TagId graph_new_tag{};nlohmann::json graph_preview_tags=nlohmann::json::array();std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};float graph_zoom{1.f};ImVec2 graph_pan{18.f,18.f};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
     void cancel_composer_drag(Controller&);
     ActionBlock composer_drag_block;AssetId composer_drag_asset;
@@ -114,7 +114,7 @@ public:
     char attribute_name[97]{"NewStatistic"};int attribute_kind{};char reaction_name[65]{};char mask_name[65]{};
     // Player camera authoring preview: the scene is rendered from one drafted virtual camera.
     int camera_preview{0};float camera_preview_yaw{},camera_preview_pitch{12};bool camera_preview_visible{};bool camera_pane{};std::optional<CameraRigDefinition> camera_preview_rig;std::string camera_live;
-    int composer_new_kind{};
+    int composer_new_kind{};float composer_zoom{1.f};std::optional<ActionBlock> composer_clipboard;
     AssetId composer_return_ability;
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
     AssetId character_selection,player_selection,npc_selection,create_skin,create_character;

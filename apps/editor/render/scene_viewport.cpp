@@ -4,6 +4,7 @@
 #include "render_system.hpp"
 #include "scene_resources.hpp"
 #include "render_settings.hpp"
+#include "preview_routing.hpp"
 #include "../editor_controller.hpp"
 #include "../editor_options.hpp"
 #include "../editor_ui.hpp"
@@ -196,6 +197,37 @@ void SceneViewport::render(double elapsed_seconds) {
     const auto& composer_pose = previews.composer_pose;
     const auto& composer_matrices = previews.composer_matrices;
 #endif
+    const bool character_render =
+#ifdef DAE_CHARACTER_SCENE
+        shell.workspace == darkangel::editor_app::Workspace::Character && authoring_skin && shell.character_preview_asset == shell.character_selection;
+#else
+        false;
+#endif
+    const bool graph_render =
+#ifdef DAE_CHARACTER_SCENE
+        shell.workspace == darkangel::editor_app::Workspace::Animation && authoring_skin && graph_pose && shell.graph_preview_asset == shell.authored_selection;
+#else
+        false;
+#endif
+    const bool composer_render =
+#ifdef DAE_CHARACTER_SCENE
+        shell.composer_visible && (composer_pose || graph_pose) && !editor.preview.active() &&
+        (shell.workspace == darkangel::editor_app::Workspace::Ability || shell.workspace == darkangel::editor_app::Workspace::Animation || character_render);
+#else
+        false;
+#endif
+    const bool isolated_preview = PreviewRouting::isolated_content(composer_render, character_render, graph_render, editor.preview.active() != nullptr);
+#ifdef DAE_CHARACTER_SCENE
+    const UploadedSkin* preview_skin = authoring_skin ? &*authoring_skin : nullptr;
+    if (!preview_skin && character_resources && scene_skins.contains(character_resources->skin))
+        preview_skin = &scene_skins.at(character_resources->skin);
+    const auto preview_center = preview_skin ? preview_skin->gpu.center : gpu.center;
+    const auto preview_target = args.scene.empty() ? std::array<float, 3>{0.f, 0.f, 0.f} : preview_center;
+    const float preview_radius = std::max(.25f, preview_skin ? preview_skin->gpu.radius : gpu.radius);
+#else
+    const auto preview_center = gpu.center;
+    const float preview_radius = std::max(.25f, gpu.radius);
+#endif
     auto* rtv = scene_color->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
     auto* dsv = scene_depth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
     context->SetRenderTargets(1, &rtv, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -241,19 +273,16 @@ void SceneViewport::render(double elapsed_seconds) {
     }
 #endif
 #ifdef DAE_CHARACTER_SCENE
-    const bool character_render = shell.workspace == darkangel::editor_app::Workspace::Character && authoring_skin &&
-                                  shell.character_preview_asset == shell.character_selection;
-    const bool graph_render = shell.workspace == darkangel::editor_app::Workspace::Animation && authoring_skin && graph_pose &&
-                              shell.graph_preview_asset == shell.authored_selection;
-    const bool composer_render = shell.composer_visible && (composer_pose || graph_pose) && !editor.preview.active() &&
-                                 (shell.workspace == darkangel::editor_app::Workspace::Ability ||
-                                  shell.workspace == darkangel::editor_app::Workspace::Animation || character_render);
-    if (composer_render) {
-        float horizontal = shell.composer_distance * std::cos(shell.composer_pitch);
+    if (isolated_preview) {
+        // All authoring previews orbit their uploaded skin, never the active scene
+        // player or the scene camera.  The radius keeps newly selected characters
+        // framed without a per-asset camera hack.
+        const float distance = std::max(shell.composer_distance, preview_radius * 2.8f);
+        float horizontal = distance * std::cos(shell.composer_pitch);
         view = XMMatrixLookAtRH(XMVectorSet(horizontal * std::sin(shell.composer_yaw),
-                                            1 + shell.composer_distance * std::sin(shell.composer_pitch),
+                                            preview_target[1] + distance * std::sin(shell.composer_pitch),
                                             horizontal * std::cos(shell.composer_yaw), 1),
-                                XMVectorSet(0, 1.0f, 0, 1), XMVectorSet(0, 1, 0, 0));
+                                XMVectorSet(preview_target[0], preview_target[1], preview_target[2], 1), XMVectorSet(0, 1, 0, 0));
     }
 #endif
     if (shell.workspace == darkangel::editor_app::Workspace::Vfx) {
@@ -273,7 +302,8 @@ void SceneViewport::render(double elapsed_seconds) {
                                 XMVectorSet(cx, cy, cz, 1), XMVectorSet(0, 1, 0, 0));
         camera_fov = XM_PIDIV4;
     }
-    auto projection = XMMatrixPerspectiveFovRH(camera_fov, viewport.Width / viewport.Height, gpu.radius * .01f, gpu.radius * 40);
+    const float camera_radius = isolated_preview ? preview_radius : gpu.radius;
+    auto projection = XMMatrixPerspectiveFovRH(camera_fov, viewport.Width / viewport.Height, camera_radius * .01f, camera_radius * 40);
     if (shell.workspace==darkangel::editor_app::Workspace::Scene&&!editor.preview.active()&&(!args.hidden||args.exercise_scene_camera)) {
         // Use the exact matrices used by this frame's UI picking/drop rays, also during viewport resize.
         view=XMLoadFloat4x4(&shell.scene_view);
@@ -332,6 +362,20 @@ void SceneViewport::render(double elapsed_seconds) {
                     drawn_objects.emplace_back(member, character_resources->skin);
     }
 #endif
+    if (isolated_preview) {
+        // A preview actor is synthetic and lives only in this frame.  Keeping the
+        // display target shared is fine; sharing scene-owned content is not.
+        drawn_objects.clear();
+        scatter_poses.clear();
+#ifdef DAE_CHARACTER_SCENE
+        if (character_resources && character_resources->player && scene_skins.contains(character_resources->skin)) {
+            drawn_objects.emplace_back(character_resources->player, character_resources->skin);
+            darkangel::Transform pose;
+            pose.scale = 1;
+            scatter_poses.emplace(character_resources->player, pose);
+        }
+#endif
+    }
     // The Prefabs preview draws its own models (and context models) at their resolved poses instead of the scene's objects.
     if (prefab_render) {
         drawn_objects.clear();
@@ -349,7 +393,8 @@ void SceneViewport::render(double elapsed_seconds) {
     struct FrameLight { darkangel::rendering::SceneLight light; std::array<float,3> world_position{}; };
     render::SceneRenderingSettings frame_settings;
     std::vector<FrameLight> frame_lights;
-    for(const auto& origin:editor.document->plan().origins){auto handle=editor.displayed().find(origin.object);if(!editor.displayed().valid(handle))continue;auto object=editor.displayed().read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering"))frame_settings=render::decode_rendering_settings(source.at("rendering"));if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
+    if (!isolated_preview)
+        for(const auto& origin:editor.document->plan().origins){auto handle=editor.displayed().find(origin.object);if(!editor.displayed().valid(handle))continue;auto object=editor.displayed().read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering"))frame_settings=render::decode_rendering_settings(source.at("rendering"));if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
     std::vector<darkangel::rendering::SceneLight> cluster_lights;
     cluster_lights.reserve(frame_lights.size());
     const auto frame_view = XMLoadFloat4x4(&view_matrix);
@@ -362,7 +407,7 @@ void SceneViewport::render(double elapsed_seconds) {
         cluster_lights.push_back(light);
     }
     const unsigned render_width = scene_color->GetDesc().Width, render_height = scene_color->GetDesc().Height;
-    const rendering::ClusterView cluster_view{render_width, render_height, gpu.radius * .01f, gpu.radius * 40.f,
+    const rendering::ClusterView cluster_view{render_width, render_height, camera_radius * .01f, camera_radius * 40.f,
                                                std::tan(camera_fov * .5f), float(render_width) / std::max(1u, render_height)};
     const rendering::ClusterConfig cluster_config = frame_settings.clusters;
     const auto cluster_assignment = rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
@@ -489,7 +534,7 @@ void SceneViewport::render(double elapsed_seconds) {
             if (!object_world->valid(entity) && scattered == scatter_poses.end())
                 continue;
 #ifdef DAE_CHARACTER_SCENE
-            if (composer_render &&
+            if (isolated_preview &&
                 (model_id != character_resources->skin || (character_resources->player && object_id != character_resources->player)))
                 continue;
 #endif
@@ -507,7 +552,7 @@ void SceneViewport::render(double elapsed_seconds) {
                                 pose.z += center.z - placed.start.z;
                             }
 #ifdef DAE_CHARACTER_SCENE
-            if (composer_render) {
+            if (isolated_preview) {
                 pose = {};
                 pose.scale = 1;
             }
@@ -519,14 +564,14 @@ void SceneViewport::render(double elapsed_seconds) {
             auto skin = scene_skins.find(model_id);
             auto* selected_skin = skin == scene_skins.end() ? nullptr : &skin->second;
 #ifdef DAE_CHARACTER_SCENE
-            if (character_render || graph_render)
+            if (isolated_preview && authoring_skin)
                 selected_skin = &*authoring_skin;
 #endif
             auto* drawn_ptr = selected_skin ? &selected_skin->gpu : nullptr;
             if (drawn_ptr && !args.skin_reference) {
                 const std::vector<JointMatrix>* gameplay_pose = nullptr;
 #ifdef DAE_CHARACTER_SCENE
-                if (composer_render)
+                if (composer_render || graph_render)
                     gameplay_pose = &composer_matrices;
                 else if (character && selected_skin->model.rig.definition.id == character_resources->rig.definition.id &&
                          selected_skin->model.rig.definition.signature == character_resources->rig.definition.signature)

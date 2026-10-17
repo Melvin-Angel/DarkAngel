@@ -192,7 +192,7 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
  if(ImGui::BeginTable("Graph editing and preview",2,ImGuiTableFlags_Resizable|ImGuiTableFlags_SizingStretchProp)){ImGui::TableSetupColumn("Native graph",ImGuiTableColumnFlags_WidthStretch,1.2f);ImGui::TableSetupColumn("Character preview",ImGuiTableColumnFlags_WidthStretch,1.f);ImGui::TableNextColumn();ImGui::BeginChild("Graph source",{0,graph_height});
  if(!graph_node)graph_node=v.at("root").get<unsigned>();
  ImGui::Checkbox("Show node connections",&show_graph_connections);
- if(show_graph_connections)if(auto connection=draw_graph_canvas(selection,v,graph_node)){auto edit=*connection;topology=[&,edit]{c.authoring.connect_graph_input(*c.assets,selection,edit.node,edit.point,edit.input);};}
+ if(show_graph_connections)if(auto connection=draw_graph_canvas(selection,v,graph_node,graph_zoom,graph_pan)){auto edit=*connection;topology=[&,edit]{switch(edit.command){case GraphCanvasCommand::Connect:c.authoring.connect_graph_input(*c.assets,selection,edit.node,edit.point,edit.input);break;case GraphCanvasCommand::AddBlend1D:graph_node=c.authoring.add_graph_blend(*c.assets,selection,false,edit.input,edit.input,edit.input);break;case GraphCanvasCommand::AddBlend2D:graph_node=c.authoring.add_graph_blend(*c.assets,selection,true,edit.input,edit.input,edit.input);break;case GraphCanvasCommand::DuplicateNode:graph_node=c.authoring.duplicate_graph_node(*c.assets,selection,edit.node);break;case GraphCanvasCommand::RemoveNode:c.authoring.remove_graph_node(*c.assets,selection,edit.node);graph_node=0;break;}};}
  if(graph_point_node!=graph_node){graph_point_node=graph_node;graph_point=0;}
  ImGui::Checkbox("Show blend geometry",&show_blend_geometry);
  if(show_blend_geometry)for(const auto& node:v.at("nodes"))if(node.at("id")==graph_node&&(node["kind"]=="blend1d"||node["kind"]=="blend2d"))draw_blend_space(node,graph_point,graph_speed,graph_forward,graph_lateral);
@@ -386,8 +386,12 @@ void Shell::draw_authoring(Controller& c,unsigned width,unsigned height,float to
   if(ImGui::Button("Add attribute definition"))c.authoring.add_attribute(*c.assets,selection,attribute_name,attribute_kind?AttributeKind::Resource:AttributeKind::Statistic);
   ImGui::TextWrapped("Save validates affected abilities, effects and kits. Existing IDs remain stable; deleting a referenced attribute requires updating its consumers first.");
  }
- if(kind=="ability"){auto attrs=schema(c,v,"attributes");AssetId action=AssetId::parse(v["action"].get<std::string>());if(pick_reference("Action",action,c,reference_filters,".daaction")){v["action"]=action.text();for(const auto& a:c.asset_inventory)if(a.id==action)v["sources"]["action"]=a.path;}if(ImGui::Button("Edit action timeline")){composer_return_ability=selection;open_native_asset(c,action);return;}
+ if(kind=="ability"){auto attrs=schema(c,v,"attributes");AssetId action=AssetId::parse(v["action"].get<std::string>());if(pick_reference("Action",action,c,reference_filters,".daaction")){v["action"]=action.text();for(const auto& a:c.asset_inventory)if(a.id==action)v["sources"]["action"]=a.path;}
  auto& action_source=c.authoring.open(*c.assets,action).value;
+ if(ImGui::Button("Open in Animation Composer")){composer_return_ability=selection;open_native_asset(c,action);return;}
+ ImGui::SeparatorText("Ability preview");
+ ImGui::TextDisabled("Shared Composer preview only; timing and blocks are edited in Animation.");
+ if(action!=AssetId{}&&prepare_action_pose){composer_asset=action;ImGui::BeginChild("Ability shared preview",{0,340},ImGuiChildFlags_Borders);pose_preview_fill=true;draw_action_preview(action_source);pose_preview_fill=false;ImGui::EndChild();}
  ImGui::SeparatorText("Action-window tags");
  auto tags=schema(c,v,"tags");
  auto compatible_block=[](const Json& block){return block["kind"]=="invulnerability"||block["kind"]=="movement-lock";};

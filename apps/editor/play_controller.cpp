@@ -1507,7 +1507,7 @@ void PlayController::frame(unsigned frame, double elapsed_seconds) {
 const CameraPose* PlayController::game_camera(double elapsed_seconds) {
     if (!character)
         director.reset();
-    if (character && shell.workspace == darkangel::editor_app::Workspace::Game) {
+    if (character && editor.preview.active()) {
         const auto& state = character->motor();
         if (!director)
             director = std::make_unique<CameraDirector>(character_resources->cameras, state.yaw);

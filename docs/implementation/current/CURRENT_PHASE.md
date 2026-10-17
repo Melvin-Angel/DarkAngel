@@ -63,3 +63,11 @@ No new implementation milestone is automatically active from this reset. The
 next development task must be selected from a concrete Ashen Roots need and
 given its own focused acceptance criteria. Until then, preserve the accepted
 baseline and the two networking/EOS exceptions above.
+
+## Selected task: animation editor and camera routing
+
+The current user-selected task is recorded in
+[ANIMATION_EDITOR_OVERHAUL_REPORT.md](ANIMATION_EDITOR_OVERHAUL_REPORT.md).
+That report supersedes this baseline only for the files and behavior it names;
+it does not convert the still-open state-machine, typed-parameter or full
+effect-preview design into accepted runtime functionality.

@@ -22,24 +22,28 @@ void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohman
         if(composer_tick>=duration){if(composer_loop)composer_tick=std::fmod(composer_tick,duration);else{composer_tick=duration;composer_playing=false;}}
     }
     composer_tick=std::clamp(std::isfinite(composer_tick)?composer_tick:0.,0.,duration);
-    ImGui::TextDisabled("Drag a block to move; drag its edges to resize. Escape cancels.");
+    ImGui::TextDisabled("Timeline-first authoring | drag blocks or edges | right-click the surface or a block for commands | Escape cancels.");
+    ImGui::SetNextItemWidth(140);ImGui::SliderFloat("Timeline zoom",&composer_zoom,.75f,2.f,"%.0f%%",ImGuiSliderFlags_NoInput);
     if(ImGui::SliderScalar("Scrub tick",ImGuiDataType_Double,&composer_tick,&composer_zero,&duration,"%.2f"))composer_playing=false;
     std::map<unsigned,std::vector<const ActionBlock*>> tracks;
     for(const auto& block:action.blocks)tracks[block.track].push_back(&block);
-    const float label_width=70.f,row_height=24.f,ruler_height=24.f;
+    const float label_width=110.f,row_height=32.f,ruler_height=28.f;
     const float width=std::max(180.f,ImGui::GetContentRegionAvail().x);
-    const float span=width-label_width-8.f,height=ruler_height+row_height*float(tracks.size());
+    const float span=width-label_width-8.f;
+    const float height=std::max(300.f,std::min(520.f,ImGui::GetContentRegionAvail().y*.62f));
     const auto origin=ImGui::GetCursorScreenPos();
     ImGui::InvisibleButton("Action lanes",{width,height});
+    const bool timeline_hovered=ImGui::IsItemHovered();
     auto* draw=ImGui::GetWindowDrawList();
-    const auto x=[&](double tick){return origin.x+label_width+float(tick/duration)*span;};
+    const double visible_duration=std::max(1.,duration/double(composer_zoom));
+    const auto x=[&](double tick){return origin.x+label_width+float(tick/visible_duration)*span;};
     draw->AddRectFilled(origin,{origin.x+width,origin.y+height},ImGui::GetColorU32(theme::background),4.f);
-    const unsigned step=std::max(1u,unsigned(std::ceil(duration/8.)));
-    for(unsigned tick=0;tick<=unsigned(duration);tick+=step){
+    const unsigned step=std::max(1u,unsigned(std::ceil(visible_duration/8.)));
+    for(unsigned tick=0;tick<=unsigned(visible_duration);tick+=step){
         float px=x(tick);draw->AddLine({px,origin.y+20},{px,origin.y+height},ImGui::GetColorU32(theme::border));
         auto label=std::to_string(tick);draw->AddText({px+2,origin.y+3},ImGui::GetColorU32(theme::secondary),label.c_str());
     }
-    bool hit=false;unsigned row{};
+    bool hit=false,surface_context=false;unsigned row{},context_block{};ActionBlock context_copy{};
     for(const auto& [track,blocks]:tracks){
         float y=origin.y+ruler_height+row_height*float(row++);
         auto label="Track "+std::to_string(track);draw->AddText({origin.x+5,y+3},ImGui::GetColorU32(theme::secondary),label.c_str());
@@ -54,6 +58,7 @@ void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohman
             auto mouse=ImGui::GetMousePos();
             if(ImGui::IsItemHovered()&&mouse.x>=begin-5&&mouse.x<=std::max(end,begin+5)&&mouse.y>=y&&mouse.y<y+row_height){
                 ImGui::SetTooltip("%s | block %u\n%.2f - %.2f ticks",block->key.c_str(),block->id,double(block->begin)/action_tick_units,double(block->end)/action_tick_units);
+                if(ImGui::IsMouseClicked(ImGuiMouseButton_Right)){context_block=block->id;context_copy=*block;}
                 if(ImGui::IsMouseClicked(ImGuiMouseButton_Left)){composer_playing=false;composer_block=block->id;composer_tick=double(block->begin)/action_tick_units;hit=true;
                     composer_dragging=true;composer_drag_changed=false;composer_drag_block=*block;composer_drag_asset=asset;composer_drag_x=mouse.x;
                     composer_drag_edge=marker?0:std::abs(mouse.x-begin)<6?1:std::abs(mouse.x-end)<6?2:0;
@@ -61,12 +66,28 @@ void Shell::draw_action_lanes(Controller& controller,AssetId asset,const nlohman
             }
         }
     }
+    surface_context=timeline_hovered&&ImGui::IsMouseClicked(ImGuiMouseButton_Right)&&context_block==0;
+    if(context_block)ImGui::OpenPopup("Composer block context");else if(surface_context)ImGui::OpenPopup("Composer timeline context");
+    if(ImGui::BeginPopup("Composer block context")){
+        composer_block=context_block;
+        if(ImGui::MenuItem("Copy block"))composer_clipboard=context_copy;
+        if(ImGui::MenuItem("Duplicate block"))try{auto copy=context_copy;copy.id=0;copy.track=std::min(copy.track+1,31u);controller.authoring.add_action_block(*controller.assets,asset,copy);}catch(const std::exception& error){author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}
+        if(ImGui::MenuItem("Delete block"))try{controller.authoring.remove_action_block(*controller.assets,asset,context_block);composer_block=0;}catch(const std::exception& error){author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}
+        ImGui::EndPopup();
+    }
+    if(ImGui::BeginPopup("Composer timeline context")){
+        const auto add=[&](ActionBlock block){try{composer_block=controller.authoring.add_action_block(*controller.assets,asset,block);}catch(const std::exception& error){author_diagnostic=error.what();controller.log(error.what(),ConsoleSeverity::Error);}};
+        if(ImGui::BeginMenu("Add track")){const auto track=tracks.empty()?0u:std::min(tracks.rbegin()->first+1,31u);if(ImGui::MenuItem("Animation / Cue"))add({0,track,static_cast<unsigned>(composer_tick*action_tick_units),static_cast<unsigned>(composer_tick*action_tick_units),ActionBlockKind::Cue,"Cue.New"});if(ImGui::MenuItem("Gameplay / Hit window"))add({0,track,static_cast<unsigned>(composer_tick*action_tick_units),static_cast<unsigned>(composer_tick*action_tick_units+action_tick_units),ActionBlockKind::HitWindow,"Hit.New"});ImGui::EndMenu();}
+        if(ImGui::BeginMenu("Add block")){const auto track=tracks.empty()?0u:tracks.begin()->first;const auto begin=static_cast<unsigned>(std::clamp(composer_tick,0.,duration)*action_tick_units);if(ImGui::MenuItem("Cue"))add({0,track,begin,begin,ActionBlockKind::Cue,"Cue.New"});if(ImGui::MenuItem("Hit window"))add({0,track,begin,std::min(action.duration,begin+action_tick_units),ActionBlockKind::HitWindow,"Hit.New"});if(ImGui::MenuItem("Commit marker"))add({0,track,begin,begin,ActionBlockKind::Commit,"Ability.Commit"});ImGui::EndMenu();}
+        if(ImGui::MenuItem("Paste block",nullptr,false,!composer_clipboard.has_value())){auto copy=*composer_clipboard;copy.id=0;copy.begin=std::min(copy.begin,action.duration);copy.end=std::min(std::max(copy.end,copy.begin),action.duration);add(copy);}
+        ImGui::EndPopup();
+    }
     if(composer_dragging){
         if(!ImGui::IsMouseDown(ImGuiMouseButton_Left)){
             controller.authoring.record_changes(*controller.assets,"Finish action gesture");composer_dragging=false;
         }else if(ImGui::IsMouseDragging(ImGuiMouseButton_Left,3.f)){
             const auto& original=composer_drag_block;
-            const auto delta=std::llround(double(ImGui::GetMousePos().x-composer_drag_x)/span*action.duration);
+            const auto delta=std::llround(double(ImGui::GetMousePos().x-composer_drag_x)/span*visible_duration);
             unsigned begin=original.begin,end=original.end;
             if(composer_drag_edge==1)begin=static_cast<unsigned>(std::clamp<long long>(static_cast<long long>(original.begin)+delta,0,original.end-1));
             else if(composer_drag_edge==2)end=static_cast<unsigned>(std::clamp<long long>(static_cast<long long>(original.end)+delta,original.begin+1,action.duration));
