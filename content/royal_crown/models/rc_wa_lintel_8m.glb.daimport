@@ -3,9 +3,9 @@
   "importer": "static-gltf-v1",
   "schema": 1,
   "subassets": {
-    "material/0": "4dcecae0-ce2a-431e-8d9e-1ba3bc75cdfa",
+    "material/0": "00dce61c-7c03-4b4c-a70d-0ce8f7027961",
     "mesh/0": "ef562343-16a0-4a6a-96c4-1ec931e8dce3",
-    "texture/base-color/material/0": "2b9ede2c-aa28-4d22-bbf2-a51404fc7c90"
+    "texture/base-color/material/0": "06fab099-678f-4015-a061-ceef5925f3a0"
   },
   "tags": []
 }

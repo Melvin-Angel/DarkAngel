@@ -92,7 +92,7 @@
     },
     "schema": 1,
     "shadows": {
-      "cascade_count": 4,
+      "cascade_count": 3,
       "depth_bias": 0.0010000000474974513,
       "distance": 320.0,
       "enabled": true,

@@ -3,7 +3,7 @@
   "importer": "static-gltf-v1",
   "schema": 1,
   "subassets": {
-    "material/0": "e733ae12-9cea-4b76-a4bd-ce3296053499",
+    "material/0": "04b4dacc-0984-44dc-b484-621988dbe6ac",
     "mesh/0": "a192d88c-8f64-46c2-a2a1-bebaf435d7b2",
     "texture/base-color/material/0": "03042084-39a1-4b13-915d-99126229c507",
     "texture/emissive/material/0": "002305ee-fd10-4f20-b99a-6cfff3ecbe68"

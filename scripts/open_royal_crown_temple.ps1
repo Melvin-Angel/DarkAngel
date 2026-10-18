@@ -18,5 +18,7 @@ $taskArguments = @(
     '--sources','content',
     '--asset-cache','.cache/editor-assets'
 )
+$taskKit = (Get-Content -LiteralPath 'content/royal_district/combat/player.dakit' -Raw | ConvertFrom-Json).asset
+$taskArguments += @('--character-kit',$taskKit,'--character-player','00000000000000000000000000000500')
 & $taskEditor @taskArguments
 exit $LASTEXITCODE

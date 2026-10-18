@@ -132,3 +132,11 @@ surface radiance, including specular/emission, approaches the fog colour.
 D3D12 and Vulkan GPU pixel regressions pass for disabled/1 px/8 px black ink,
 metre-based fading and exponential-fog colour convergence. Exact receipts and capture
 paths are in [current/TOON_OUTLINES_REPORT.md](current/TOON_OUTLINES_REPORT.md).
+
+The 18 October Royal Crown material cleanup shares identical imported material
+and texture subasset products while preserving per-model slot keys. The 88
+material products reduce to five; 94 Crown texture products reduce to six.
+Cross-model reuse is allowed only for matching material/texture product roles,
+and package assembly rejects mismatching shared content. The importer rebuilt
+the combined registry and `MaterialTests` passed. See
+[current/ROYAL_CROWN_MATERIAL_DEDUP_REPORT.md](current/ROYAL_CROWN_MATERIAL_DEDUP_REPORT.md).

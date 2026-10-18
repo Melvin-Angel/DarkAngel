@@ -50,7 +50,8 @@ def add_new_texture_keys(path: Path) -> None:
     sidecar_path = Path(str(path) + ".daimport")
     if not sidecar_path.is_file():
         return
-    sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    original = sidecar_path.read_text(encoding="utf-8")
+    sidecar = json.loads(original)
     glb = path.read_bytes()
     json_size = struct.unpack_from("<I", glb, 12)[0]
     document = json.loads(glb[20:20 + json_size])
@@ -59,8 +60,11 @@ def add_new_texture_keys(path: Path) -> None:
             slot = material.get("extras", {}).get("darkangel_key")
             if slot:
                 sidecar.setdefault("subassets", {}).setdefault(
-                    f"texture/emissive/{slot}", str(uuid.uuid4()))
-    write_json(sidecar_path, sidecar)
+                    f"texture/emissive/{slot}",
+                    str(uuid.uuid5(uuid.NAMESPACE_URL, f"darkangel:{path.stem}:{slot}")))
+    payload = json.dumps(sidecar, indent=2, ensure_ascii=False) + "\n"
+    if payload != original:
+        sidecar_path.write_text(payload, encoding="utf-8", newline="\n")
 
 
 def add_stable_subasset_keys(path: Path) -> None:
@@ -248,7 +252,8 @@ def add_stable_subasset_keys(path: Path) -> None:
     binary.extend(b"\0" * (-len(binary) % 4))
     binary_chunk = struct.pack("<II", len(binary), 0x004E4942) + binary
     result = b"glTF" + struct.pack("<IIII", 2, 20 + len(encoded) + len(binary_chunk), len(encoded), 0x4E4F534A) + encoded + binary_chunk
-    path.write_bytes(result)
+    if result != data:
+        path.write_bytes(result)
 
 
 def place(index: int, name: str, model: str | None, x: float, y: float, z: float,
@@ -351,6 +356,19 @@ def main() -> None:
             directional_object = entity_id
         index += 1
 
+    # The scene's player is both the visible canonical-human model and the
+    # possessed actor selected by the Royal Crown launcher.
+    player_model_path = SOURCE / "royal_district/character/canonical-human.glb"
+    if not Path(str(player_model_path) + ".daimport").exists():
+        run("adopt-human-renderable", SOURCE, CACHE,
+            player_model_path.relative_to(SOURCE).as_posix(),
+            "animation/canonical_human.daskeleton")
+    player_model = asset_id(player_model_path)
+    player_object_id = 0x500
+    entities[f"{player_object_id:032x}"] = place(
+        player_object_id, "Royal Crown Player Spawn", player_model,
+        0.0, -8.0, -176.0)
+
     first_ground_id = "00000000000000000000000000000001"
     if first_ground_id not in entities:
         raise SystemExit("Scene has no root terrain entity.")
@@ -399,10 +417,17 @@ def main() -> None:
                 previous_graph = existing["sources"][root]
                 expected_graph = scene["sources"][root]
                 for entity_id, expected_entity in expected_graph["entities"].items():
-                    if expected_entity.get("model") is None and entity_id in previous_graph.get("entities", {}):
+                    if entity_id in previous_graph.get("entities", {}):
                         old_entity = previous_graph["entities"][entity_id]
-                        if old_entity.get("name") == expected_entity.get("name") and old_entity.get("optional") == expected_entity.get("optional"):
+                        if old_entity.get("name") != expected_entity.get("name"):
+                            continue
+                        if expected_entity.get("model") is None and old_entity.get("optional") == expected_entity.get("optional"):
                             old_entity["model"] = None
+                        old_optional = old_entity.get("optional", {})
+                        if old_optional.get("rendering") is not None:
+                            expected_entity.setdefault("optional", {})["rendering"] = old_optional["rendering"]
+                        if old_optional.get("light") is not None:
+                            expected_entity.setdefault("optional", {})["light"] = old_optional["light"]
         if existing != scene:
             raise SystemExit(f"Refusing to replace existing scene source: {SCENE}")
     write_json(SCENE, scene)
@@ -410,7 +435,11 @@ def main() -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     for relative in relative_files:
         run("cook", SOURCE, CACHE, relative)
-    asset_ids = [models[name] for name in model_names]
+    player_kit_path = SOURCE / "royal_district/combat/player.dakit"
+    run("cook", SOURCE, CACHE, player_model_path.relative_to(SOURCE).as_posix())
+    run("cook", SOURCE, CACHE, player_kit_path.relative_to(SOURCE).as_posix())
+    player_kit = json.loads(player_kit_path.read_text(encoding="utf-8"))["asset"]
+    asset_ids = [*([models[name] for name in model_names]), player_model, player_kit]
     partials: list[Path] = []
     for i in range(0, len(asset_ids), 64):
         group = asset_ids[i:i + 64]
@@ -418,7 +447,7 @@ def main() -> None:
         run("package-many", SOURCE, CACHE, group[0], registry, *group[1:])
         partials.append(registry)
     combined = json.loads(partials[0].read_text(encoding="utf-8"))
-    seen = {asset["id"] for asset in combined["assets"]}
+    products = {asset["id"]: asset for asset in combined["assets"]}
     roots = list(combined.get("roots", [combined["root"]]))
     for partial in partials[1:]:
         partial_data = json.loads(partial.read_text(encoding="utf-8"))
@@ -426,12 +455,16 @@ def main() -> None:
             if root_id not in roots:
                 roots.append(root_id)
         for asset in partial_data["assets"]:
-            if asset["id"] not in seen:
+            previous = products.get(asset["id"])
+            if previous is not None:
+                if previous != asset:
+                    raise SystemExit(f"Conflicting shared cooked product: {asset['id']}")
+            else:
                 combined["assets"].append(asset)
-                seen.add(asset["id"])
+                products[asset["id"]] = asset
     combined["roots"] = roots
     write_json(CACHE / "registry.json", combined)
-    print(f"Imported {len(model_names)} models; wrote {len(entities)} scene entities to {SCENE}")
+    print(f"Imported {len(model_names)} scene modules plus the player model; wrote {len(entities)} scene entities to {SCENE}")
     print(f"Cooked registry: {CACHE / 'registry.json'}")
 
 

@@ -3,10 +3,10 @@
   "importer": "static-gltf-v1",
   "schema": 1,
   "subassets": {
-    "material/0": "26fe1666-bb65-49cb-82fb-05789835fc31",
+    "material/0": "04b4dacc-0984-44dc-b484-621988dbe6ac",
     "mesh/0": "e292f1bf-c2d3-4edd-88b6-7abdad27f866",
-    "texture/base-color/material/0": "a106b801-a17b-4e7f-922b-5000358612fd",
-    "texture/emissive/material/0": "97e2a91d-2610-41eb-8f33-aef0ba616dc3"
+    "texture/base-color/material/0": "03042084-39a1-4b13-915d-99126229c507",
+    "texture/emissive/material/0": "002305ee-fd10-4f20-b99a-6cfff3ecbe68"
   },
   "tags": []
 }

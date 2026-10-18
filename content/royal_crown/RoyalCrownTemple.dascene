@@ -94,7 +94,7 @@
               },
               "shadows": {
                 "enabled": true,
-                "cascade_count": 4,
+                "cascade_count": 3,
                 "resolution": 2048,
                 "distance": 320.0,
                 "depth_bias": 0.001,

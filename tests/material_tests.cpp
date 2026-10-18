@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <array>
 #include <set>
 using namespace darkangel;using Json=nlohmann::json;
 namespace {
@@ -30,6 +31,14 @@ int main(){try{
     const auto first_id=AssetId::parse(metadata(first).at("id").get<std::string>()),second_id=AssetId::parse(metadata(second).at("id").get<std::string>());
     const auto first_slot=AssetId::parse(metadata(first)["subassets"]["material/trim"].get<std::string>()),second_slot=AssetId::parse(metadata(second)["subassets"]["material/trim"].get<std::string>());
     assets.cook(first);assets.cook(second);
+    // Different model roots may intentionally share an identical imported material/texture product.
+    {const std::string clone="models/SharedMaterialClone.gltf";std::filesystem::copy_file(source/first,source/clone);
+     auto shared_metadata=metadata(first);const auto clone_id=AssetId::random(),clone_mesh=AssetId::random();shared_metadata["id"]=clone_id.text();shared_metadata["subassets"]["mesh/0"]=clone_mesh.text();write(source/(clone+".daimport"),shared_metadata.dump(2)+"\n");
+     assets.scan();assets.cook(clone);const std::array<AssetId,1> roots{clone_id};assets.package(first_id,folder/"shared-products.json",roots);auto manifest=Json::parse(read(folder/"shared-products.json"));
+     check(std::count_if(manifest["assets"].begin(),manifest["assets"].end(),[&](const Json& item){return item.at("id")==first_slot.text()&&item.at("kind")=="material";})==1,"Identical imported materials were not shared in the package");
+     const auto original=read(source/clone);auto altered=Json::parse(original);altered["materials"][0]["pbrMetallicRoughness"]["roughnessFactor"]=.13;write(source/clone,altered.dump());assets.cook(clone);
+     rejects([&]{assets.package(first_id,folder/"conflicting-shared-products.json",roots);},"Shared material identity with different settings must fail package assembly");
+     write(source/clone,original);assets.cook(clone);}
     // Imported values are readable, and an unassigned slot cooks them unchanged.
     const auto imported=Json::parse(assets.material_values(first,"material/trim"));const auto before=slot(assets,folder,first_id,first_slot);
     check(imported.at("roughness").get<float>()==before.roughness&&imported.at("family").get<std::string>()==material_family_toon_standard&&before.family==material_family_toon_standard&&before.has_texture,"Imported slot values use the default toon family");
