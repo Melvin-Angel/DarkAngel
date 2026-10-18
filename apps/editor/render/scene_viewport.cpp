@@ -168,6 +168,7 @@ void SceneViewport::render(double elapsed_seconds) {
     auto& pso = context_.render.pso;
     auto& pso_cull = context_.render.pso_cull;
     auto& scene = context_.scene;
+    if(!shadow_instance_buffer){BufferDesc desc;desc.Name="Static shadow instance transforms";desc.Size=4096*sizeof(DirectX::XMFLOAT4X4);desc.Usage=USAGE_DYNAMIC;desc.BindFlags=BIND_VERTEX_BUFFER;desc.CPUAccessFlags=CPU_ACCESS_WRITE;device->CreateBuffer(desc,nullptr,&shadow_instance_buffer);require(shadow_instance_buffer,"Shadow instance buffer creation failed");}
     const auto id = scene.model();
     auto& gpu = scene.gpu;
     auto& scene_models = scene.scene_models;
@@ -586,6 +587,8 @@ void SceneViewport::render(double elapsed_seconds) {
             std::uint32_t first, count;
         };
         std::vector<TransparentDraw> transparent;
+        std::map<AssetId,std::vector<XMFLOAT4X4>> shadow_instances;
+        std::map<AssetId,std::vector<XMFLOAT4X4>> color_instances;
         // Pipeline, material binding and buffers carry over between consecutive draws that share them.
         IPipelineState* bound_pipeline = nullptr;
         IShaderResourceBinding* bound_material = nullptr;
@@ -672,7 +675,19 @@ void SceneViewport::render(double elapsed_seconds) {
                 }
             }
             ++shell.scene_visible;
+            const auto& batch_material_plan=editor.preview.active()?editor.preview.active()->plan:editor.document->plan();
+            const bool assigned_material=batch_material_plan.materials.contains(object_id);
+            bool has_transparency=false;
+            if(!drawn_ptr)for(const auto& mesh:drawn.meshes)for(const auto& part:mesh.parts)if(drawn.materials.at(part.material).value.alpha_mode==2)has_transparency=true;
             const auto* cluster_cell = shadow_pass ? nullptr : cluster_for_center(XMVector3TransformCoord(XMVectorSet(drawn.center[0], drawn.center[1], drawn.center[2], 1), world));
+            if(shadow_pass&&!drawn_ptr&&!assigned_material&&!has_transparency){XMFLOAT4X4 instance;XMStoreFloat4x4(&instance,world);shadow_instances[model_id].push_back(instance);continue;}
+            const bool has_object_local_lights = cluster_cell && std::any_of(frame_lights.begin(), frame_lights.end(), [&](const auto& prepared) {
+                return prepared.light.id != frame_settings.main_light && prepared.light.type != darkangel::rendering::LightType::Directional &&
+                       prepared.light.enabled && std::find(cluster_cell->selected.begin(), cluster_cell->selected.end(), prepared.light.id) != cluster_cell->selected.end();
+            });
+            if (!shadow_pass && !outline_pass && !drawn_ptr && !assigned_material && !has_transparency && !has_object_local_lights) {
+                XMFLOAT4X4 instance; XMStoreFloat4x4(&instance, world); color_instances[model_id].push_back(instance); continue;
+            }
             for (const auto& mesh : drawn.meshes) {
                 IBuffer* vb = mesh.vertices;
                 if (vb != bound_vertices) {
@@ -923,6 +938,75 @@ void SceneViewport::render(double elapsed_seconds) {
                 worn_failed.clear();
             }
 #endif
+        }
+        if(!color_instances.empty()) {
+            std::vector<XMFLOAT4X4> packed_instances; std::map<AssetId,Uint32> instance_starts;
+            for(const auto& [model_id, instances] : color_instances) { instance_starts.emplace(model_id, static_cast<Uint32>(packed_instances.size())); packed_instances.insert(packed_instances.end(), instances.begin(), instances.end()); }
+            require(packed_instances.size() <= 4096, "Static scene color instance count exceeds the viewport buffer");
+            void* mapped{}; context->MapBuffer(shadow_instance_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped); require(mapped, "Scene color instance mapping failed");
+            std::memcpy(mapped, packed_instances.data(), packed_instances.size() * sizeof(XMFLOAT4X4)); context->UnmapBuffer(shadow_instance_buffer, MAP_WRITE);
+            for(const auto& [model_id, instances] : color_instances) {
+                auto* uploaded = model_id == id ? &gpu : scene_models.contains(model_id) ? &scene_models.at(model_id) : nullptr;
+                if(!uploaded) continue;
+                const Uint64 offsets[]{0, Uint64(instance_starts.at(model_id)) * sizeof(XMFLOAT4X4)}; IBuffer* buffers[]{nullptr, shadow_instance_buffer};
+                for(const auto& mesh : uploaded->meshes) {
+                    buffers[0] = mesh.vertices; context->SetVertexBuffers(0, 2, buffers, offsets, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
+                    context->SetIndexBuffer(mesh.indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    for(const auto& part : mesh.parts) {
+                        const auto& material = uploaded->materials.at(part.material);
+                        if(material.value.alpha_mode == 2) continue;
+                        CookedMaterial shading = material.value;
+                        const bool toon = shading.family == material_family_toon_standard || shading.family == material_family_toon_character || shading.family == material_family_toon_terrain;
+                        if(toon) {
+                            if(project_rendering.material_properties_override) { for(unsigned channel=0;channel<4;++channel) shading.color[channel] *= project_rendering.material_color[channel]; shading.roughness=project_rendering.material_roughness; shading.metallic=project_rendering.material_metallic; }
+                            shading.toon_thresholds=material_toon_defaults.band_thresholds; shading.toon_softness=material_toon_defaults.transition_softness;
+                            shading.shadow_tint={material_toon_defaults.shadow_tint.r,material_toon_defaults.shadow_tint.g,material_toon_defaults.shadow_tint.b};
+                            shading.ambient_color={material_toon_defaults.ambient_color.r,material_toon_defaults.ambient_color.g,material_toon_defaults.ambient_color.b};
+                            shading.ambient_strength=material_toon_defaults.ambient_strength; shading.local_light_strength=material_toon_defaults.local_light_strength;
+                        }
+                        Constants constants; XMStoreFloat4x4(&constants.mvp, view * projection); XMStoreFloat4x4(&constants.view, view);
+                        constants.cluster_dimensions={float(gpu_layout.tiles_x),float(gpu_layout.tiles_y),float(gpu_layout.slices),frame_settings.gpu_clustered?1.f:0.f};
+                        constants.cluster_camera={cluster_view.near_plane,cluster_view.far_plane,cluster_view.tan_half_fov_y,cluster_view.aspect};
+                        constants.cluster_viewport={float(render_width),float(render_height),toon?shading.local_light_strength:frame_settings.toon.local_light_strength,context_.render.device->GetDeviceInfo().NDC.YtoVScale};
+                        constants.color={material.value.color[0]*mesh.color[0],material.value.color[1]*mesh.color[1],material.value.color[2]*mesh.color[2],material.value.color[3]*mesh.color[3]};
+                        apply_material(constants,shading);
+                        if(main_light) { constants.main_light={main_light->light.direction_view[0],main_light->light.direction_view[1],main_light->light.direction_view[2],1}; constants.main_color={main_light->light.color.r,main_light->light.color.g,main_light->light.color.b,main_light->light.intensity}; }
+                        if(!toon) { constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1}; constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness}; constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1}; }
+                        constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f}; constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
+                        constants.shadow_splits={shadow_splits[0],shadow_splits[1],shadow_splits[2],shadow_splits[3]}; constants.shadow_params={frame_settings.shadows.depth_bias,frame_settings.shadows.normal_bias,shadow_enabled?float(shadow_cascades):0.f,1.f/std::max(1u,shadow_resolution)}; for(unsigned cascade=0;cascade<4;++cascade) constants.shadow_matrices[cascade]=shadow_matrices[cascade];
+                        if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap")) shadow->Set(shadow_srv);
+                        void* constant_mapped{}; context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,constant_mapped); require(constant_mapped,"Instanced color constants mapping failed"); std::memcpy(constant_mapped,&constants,sizeof(constants)); context->UnmapBuffer(constant_buffer,MAP_WRITE);
+                        context->SetPipelineState(material.value.double_sided?scene.instanced_color_pso.RawPtr():scene.instanced_color_cull.RawPtr());
+                        bind_gpu_clusters(material.binding,gpu_clusters); context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                        DrawIndexedAttribs draw; draw.NumIndices=part.count; draw.NumInstances=static_cast<Uint32>(instances.size()); draw.IndexType=VT_UINT32; draw.FirstIndexLocation=part.first; context->DrawIndexed(draw); ++shell.scene_draws;
+                    }
+                }
+            }
+        }
+        if(shadow_pass&&!shadow_instances.empty()){
+            std::vector<XMFLOAT4X4> packed_instances;std::map<AssetId,Uint32> instance_starts;
+            for(const auto&[model_id,instances]:shadow_instances){instance_starts.emplace(model_id,static_cast<Uint32>(packed_instances.size()));packed_instances.insert(packed_instances.end(),instances.begin(),instances.end());}
+            require(packed_instances.size()<=4096,"Static shadow instance count exceeds the viewport buffer");
+            void*mapped{};context->MapBuffer(shadow_instance_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow instance mapping failed");std::memcpy(mapped,packed_instances.data(),packed_instances.size()*sizeof(XMFLOAT4X4));context->UnmapBuffer(shadow_instance_buffer,MAP_WRITE);
+            for(const auto&[model_id,instances]:shadow_instances){
+            require(instances.size()<=4096,"Static shadow instance count exceeds the viewport buffer");
+            auto uploaded=model_id==id?&gpu:scene_models.contains(model_id)?&scene_models.at(model_id):nullptr;
+            if(!uploaded)continue;
+            const Uint64 offsets[]{0,Uint64(instance_starts.at(model_id))*sizeof(XMFLOAT4X4)};IBuffer* buffers[]{nullptr,shadow_instance_buffer};
+            for(const auto&mesh:uploaded->meshes){buffers[0]=mesh.vertices;context->SetVertexBuffers(0,2,buffers,offsets,RESOURCE_STATE_TRANSITION_MODE_TRANSITION,SET_VERTEX_BUFFERS_FLAG_RESET);context->SetIndexBuffer(mesh.indices,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                for(const auto&part:mesh.parts){
+                    const auto&material=uploaded->materials.at(part.material);
+                    if(material.value.alpha_mode==2)continue;
+                    const bool alpha=material.value.alpha_mode==1;
+                    auto*pipeline=alpha?(material.value.double_sided?scene.instanced_shadow_alpha_pso.RawPtr():scene.instanced_shadow_alpha_cull.RawPtr()):(material.value.double_sided?scene.instanced_shadow_pso.RawPtr():scene.instanced_shadow_cull.RawPtr());
+                    Constants constants;XMStoreFloat4x4(&constants.mvp,view*projection);if(alpha)apply_material(constants,material.value);
+                    void*constant_mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,constant_mapped);require(constant_mapped,"Instanced shadow constants mapping failed");std::memcpy(constant_mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
+                    context->SetPipelineState(pipeline);
+                    if(alpha){auto*shadow=material.shadow_binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.shadow_binding,gpu_clusters);context->CommitShaderResources(material.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);}else context->CommitShaderResources(context_.render.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_NONE);
+                    DrawIndexedAttribs draw;draw.NumIndices=part.count;draw.NumInstances=static_cast<Uint32>(instances.size());draw.IndexType=VT_UINT32;draw.FirstIndexLocation=part.first;context->DrawIndexed(draw);++shell.scene_draws;
+                }
+            }
+        }
         }
         std::sort(transparent.begin(), transparent.end(), [](const TransparentDraw& a, const TransparentDraw& b) { return a.depth < b.depth; });
         for (const auto& item : transparent) {

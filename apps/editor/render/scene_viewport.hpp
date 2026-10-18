@@ -67,6 +67,7 @@ class SceneViewport {
     SceneViewportContext context_;
     Diligent::RefCntAutoPtr<Diligent::ITexture> scene_color, scene_display, scene_depth, scene_color_second, scene_display_second, scene_depth_second;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> post_buffer;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> shadow_instance_buffer;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> post_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> post_binding, post_binding_second;
     GpuClusterResources gpu_clusters;

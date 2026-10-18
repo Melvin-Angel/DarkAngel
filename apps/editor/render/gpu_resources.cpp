@@ -83,6 +83,18 @@ std::string normalize_shader_source(std::string source) {
     return source;
 }
 std::string normalized_shader_source() { return normalize_shader_source(shader_source); }
+std::string instanced_surface_source(std::string source) {
+    const auto replace_once = [&](std::string_view from, std::string_view to) {
+        const auto at = source.find(from);
+        require(at != source.npos, "Instanced surface shader contract changed");
+        source.replace(at, from.size(), to);
+    };
+    replace_once("struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};",
+                 "struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;float4 World0:ATTRIB5;float4 World1:ATTRIB6;float4 World2:ATTRIB7;float4 World3:ATTRIB8;};");
+    replace_once("float4 local=float4(vertex.Position,1);result.Position=mul(local,Mvp);result.Normal=mul(vertex.Normal,(float3x3)Rotation);result.Local=mul(vertex.Position,(float3x3)Rotation);result.WorldPosition=mul(local,World).xyz;",
+                 "float4 local=float4(vertex.Position,1);row_major float4x4 instance_world=float4x4(vertex.World0,vertex.World1,vertex.World2,vertex.World3);float4 world_position=mul(local,instance_world);result.Position=mul(world_position,Mvp);result.Normal=mul(vertex.Normal,(float3x3)instance_world);result.Local=mul(vertex.Position,(float3x3)instance_world);result.WorldPosition=world_position.xyz;");
+    return source;
+}
 
 void ensure_gpu_clusters(IRenderDevice* device, IDeviceContext* context, GpuClusterResources& resources, unsigned tiles_x,
                          unsigned tiles_y, unsigned slices, unsigned max_candidates, unsigned shading_budget, unsigned light_capacity) {
@@ -248,13 +260,14 @@ void bind_gpu_clusters(IShaderResourceBinding* binding, const GpuClusterResource
 }
 
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
-                                       const char* source, IBuffer* bones, bool blend) {
+                                       const char* source, IBuffer* bones, bool blend, bool instanced) {
     ShaderCreateInfo shader;
     shader.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
     shader.ShaderCompiler = SHADER_COMPILER_DXC;
     shader.HLSLVersion = {6, 0};
     shader.Desc.UseCombinedTextureSamplers = true;
-    shader.Source = source;
+    const auto transformed = instanced ? instanced_surface_source(source ? source : normalized_shader_source()) : std::string{};
+    shader.Source = instanced ? transformed.c_str() : source;
     RefCntAutoPtr<IShader> vs, ps;
     shader.Desc.Name = "DarkAngel stylized prop VS";
     shader.Desc.ShaderType = SHADER_TYPE_VERTEX;
@@ -297,7 +310,14 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                               {3, 0, 4, VT_UINT32, false},
                               {4, 0, 4, VT_FLOAT32, false}};
     graphics.InputLayout.LayoutElements = layout;
-    graphics.InputLayout.NumElements = bones ? 5 : 3;
+    LayoutElement instance_layout[] = {{5, 1, 4, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1},
+                                       {6, 1, 4, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1},
+                                       {7, 1, 4, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1},
+                                       {8, 1, 4, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1}};
+    LayoutElement full_layout[] = {{0, 0, 3, VT_FLOAT32, false}, {1, 0, 3, VT_FLOAT32, false}, {2, 0, 2, VT_FLOAT32, false},
+                                   instance_layout[0], instance_layout[1], instance_layout[2], instance_layout[3]};
+    if (instanced) { graphics.InputLayout.LayoutElements = full_layout; graphics.InputLayout.NumElements = 7; }
+    else graphics.InputLayout.NumElements = bones ? 5 : 3;
     ShaderResourceVariableDesc variables[] = {{SHADER_TYPE_PIXEL, "Albedo", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "NormalMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "SurfaceMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
@@ -405,7 +425,7 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {float depth=SceneDepth.Load(int3(u
     // texture and leave the displayed image frozen while cameras keep moving.
     GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variables[]={{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"OutlineInfo",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SceneDepth",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SkyTexture",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SkyCube",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};ci.PSODesc.ResourceLayout.Variables=variables;ci.PSODesc.ResourceLayout.NumVariables=_countof(variables);SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutables[]={{SHADER_TYPE_PIXEL,"SceneColor",sampler},{SHADER_TYPE_PIXEL,"OutlineInfo",sampler},{SHADER_TYPE_PIXEL,"SceneDepth",sampler},{SHADER_TYPE_PIXEL,"SkyTexture",sampler},{SHADER_TYPE_PIXEL,"SkyCube",sampler}};ci.PSODesc.ResourceLayout.ImmutableSamplers=immutables;ci.PSODesc.ResourceLayout.NumImmutableSamplers=_countof(immutables);RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
 }
-RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones) {
+RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones, bool instanced) {
     static constexpr const char* depth_source = R"(
 cbuffer Frame {row_major float4x4 Mvp;};
 struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;};
@@ -413,12 +433,14 @@ struct VertexOutput {float4 Position:SV_POSITION;};
 VertexOutput VSMain(VertexInput vertex){VertexOutput result;result.Position=mul(float4(vertex.Position,1),Mvp);return result;}
 float4 PSMain(VertexOutput vertex):SV_TARGET{return 1;}
 )";
-    const char* shader_source_text=source?source:depth_source;ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=shader_source_text;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel shadow VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);require(vs,"Shadow shader compilation failed");if(!source){shader.Desc.Name="DarkAngel shadow PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(ps,"Shadow pixel shader compilation failed");}
-    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel cascaded shadow caster";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=TEX_FORMAT_RGBA8_UNORM;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthWriteEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};graphics.InputLayout.LayoutElements=layout;graphics.InputLayout.NumElements=bones?5:3;RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Shadow pipeline creation failed");auto* frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");require(frame,"Shadow Frame contract changed");frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Shadow skeleton contract missing");skeleton->Set(bones);}return result;
+    const std::string instanced_depth=R"(cbuffer Frame {row_major float4x4 Mvp;}; struct VertexInput {float3 Position:ATTRIB0;float3 Normal:ATTRIB1;float2 UV:ATTRIB2;float4 World0:ATTRIB5;float4 World1:ATTRIB6;float4 World2:ATTRIB7;float4 World3:ATTRIB8;}; struct VertexOutput {float4 Position:SV_POSITION;}; VertexOutput VSMain(VertexInput vertex){VertexOutput result;row_major float4x4 world=float4x4(vertex.World0,vertex.World1,vertex.World2,vertex.World3);result.Position=mul(mul(float4(vertex.Position,1),world),Mvp);return result;} float4 PSMain(VertexOutput vertex):SV_TARGET{return 1;})";
+    const auto transformed=instanced&&source?instanced_surface_source(source):std::string{};
+    const char* shader_source_text=instanced?(source?transformed.c_str():instanced_depth.c_str()):(source?source:depth_source);ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=shader_source_text;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel shadow VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);require(vs,"Shadow shader compilation failed");if(!source){shader.Desc.Name="DarkAngel shadow PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(ps,"Shadow pixel shader compilation failed");}
+    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel cascaded shadow caster";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=TEX_FORMAT_RGBA8_UNORM;graphics.DSVFormat=depth;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=cull?CULL_MODE_BACK:CULL_MODE_NONE;graphics.RasterizerDesc.FrontCounterClockwise=true;graphics.DepthStencilDesc.DepthEnable=true;graphics.DepthStencilDesc.DepthWriteEnable=true;graphics.DepthStencilDesc.DepthFunc=COMPARISON_FUNC_LESS;LayoutElement layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},{3,0,4,VT_UINT32,false},{4,0,4,VT_FLOAT32,false}};LayoutElement instance_layout[]={{5,1,4,VT_FLOAT32,false,INPUT_ELEMENT_FREQUENCY_PER_INSTANCE,1},{6,1,4,VT_FLOAT32,false,INPUT_ELEMENT_FREQUENCY_PER_INSTANCE,1},{7,1,4,VT_FLOAT32,false,INPUT_ELEMENT_FREQUENCY_PER_INSTANCE,1},{8,1,4,VT_FLOAT32,false,INPUT_ELEMENT_FREQUENCY_PER_INSTANCE,1}};LayoutElement instanced_layout[]={{0,0,3,VT_FLOAT32,false},{1,0,3,VT_FLOAT32,false},{2,0,2,VT_FLOAT32,false},instance_layout[0],instance_layout[1],instance_layout[2],instance_layout[3]};graphics.InputLayout.LayoutElements=instanced?instanced_layout:layout;graphics.InputLayout.NumElements=instanced?7:(bones?5:3);RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Shadow pipeline creation failed");auto* frame=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Frame");require(frame,"Shadow Frame contract changed");frame->Set(constants);if(bones){auto* skeleton=result->GetStaticVariableByName(SHADER_TYPE_VERTEX,"Skeleton");require(skeleton,"Shadow skeleton contract missing");skeleton->Set(bones);}return result;
 }
-RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones) {
+RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones, bool instanced) {
     const auto normalized = normalized_shader_source();
-    return pipeline(device, constants, TEX_FORMAT_RGBA8_UNORM, depth, cull, source ? source : normalized.c_str(), bones);
+    return pipeline(device, constants, TEX_FORMAT_RGBA8_UNORM, depth, cull, source ? source : normalized.c_str(), bones, false, instanced);
 }
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked) {
     require(!cooked.mips.empty(), "Missing texture mips");

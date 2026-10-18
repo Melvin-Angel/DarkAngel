@@ -252,10 +252,10 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
 // blend: the transparent variant (alpha blending, depth test without depth writes) of the same layout, so a material's binding
 // serves both.
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
-                                       const char* source = shader_source, IBuffer* bones = nullptr, bool blend = false);
+                                       const char* source = shader_source, IBuffer* bones = nullptr, bool blend = false, bool instanced = false);
 RefCntAutoPtr<IPipelineState> post_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT color);
-RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr);
-RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr);
+RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr, bool instanced = false);
+RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr, bool instanced = false);
 RefCntAutoPtr<ITexture> texture(IRenderDevice* device, const CookedTexture& cooked);
 // Reads the viewport back, requires foreground geometry inside the viewport area and writes a PNG.
 void capture(IRenderDevice* device, IDeviceContext* context, ITexture* source, const std::filesystem::path& path, const ViewArea& viewport);

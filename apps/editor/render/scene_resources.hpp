@@ -53,6 +53,8 @@ class SceneResources {
     // Models worn by the active Play actor (mask visuals); released when Play stops.
     std::map<AssetId, UploadedModel> worn_models;
     std::set<AssetId> worn_failed;
+    RefCntAutoPtr<IPipelineState> instanced_shadow_pso, instanced_shadow_cull, instanced_shadow_alpha_pso, instanced_shadow_alpha_cull;
+    RefCntAutoPtr<IPipelineState> instanced_color_pso, instanced_color_cull;
 #ifdef DAE_ANIMATION
     RefCntAutoPtr<IBuffer> bone_buffer;
     RefCntAutoPtr<IPipelineState> skin_pso, skin_cull, skin_blend, skin_blend_cull, skin_shadow_pso, skin_shadow_cull, skin_shadow_alpha_pso, skin_shadow_alpha_cull;

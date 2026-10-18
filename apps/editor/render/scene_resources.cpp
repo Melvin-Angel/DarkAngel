@@ -40,6 +40,16 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
         projectile_gpu = upload(device, shape, pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
     }
     gpu = upload(device, *lease.model, pso, pso_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
+    instanced_shadow_pso=shadow_pipeline(device,constant_buffer,TEX_FORMAT_D32_FLOAT,false,nullptr,nullptr,true);
+    instanced_shadow_cull=shadow_pipeline(device,constant_buffer,TEX_FORMAT_D32_FLOAT,true,nullptr,nullptr,true);
+    instanced_shadow_alpha_pso=alpha_shadow_pipeline(device,constant_buffer,TEX_FORMAT_D32_FLOAT,false,nullptr,nullptr,true);
+    instanced_shadow_alpha_cull=alpha_shadow_pipeline(device,constant_buffer,TEX_FORMAT_D32_FLOAT,true,nullptr,nullptr,true);
+    auto instanced_source = shader_text();
+    constexpr auto scene_color_format = TEX_FORMAT_RGBA16_FLOAT;
+    instanced_color_pso = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false,
+                                  instanced_source.c_str(), nullptr, false, true);
+    instanced_color_cull = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true,
+                                    instanced_source.c_str(), nullptr, false, true);
 #ifdef DAE_ANIMATION
     BufferDesc cb = render_.constants_desc;
     cb.Name = "Canonical human skin palette";
@@ -47,7 +57,6 @@ SceneResources::SceneResources(RenderSystem& render, const EditorOptions& option
     device->CreateBuffer(cb, nullptr, &bone_buffer);
     require(bone_buffer, "Skin palette buffer creation failed");
     auto skin_source = skin_shader();
-    constexpr auto scene_color_format = TEX_FORMAT_RGBA16_FLOAT;
     skin_pso = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, skin_source.c_str(),
                         bone_buffer);
     skin_cull =
@@ -153,6 +162,8 @@ void SceneResources::reload_shader(const std::string& text, const ModelGeneratio
     auto next_cull = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, text.c_str());
     auto next_blend = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, text.c_str(), nullptr, true);
     auto next_blend_cull = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, text.c_str(), nullptr, true);
+    auto next_instanced = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, false, text.c_str(), nullptr, false, true);
+    auto next_instanced_cull = pipeline(device, constant_buffer, scene_color_format, swap_desc.DepthBufferFormat, true, text.c_str(), nullptr, false, true);
     auto resources = upload(device, refreshed_main?*refreshed_main:*lease.model, next, next_cull, render_.shadow_alpha_pso, render_.shadow_alpha_pso_cull);
     std::map<AssetId, UploadedModel> other;
     for (const auto& [asset, unused] : scene_models)
@@ -176,6 +187,8 @@ void SceneResources::reload_shader(const std::string& text, const ModelGeneratio
     pso_cull = std::move(next_cull);
     render_.pso_blend = std::move(next_blend);
     render_.pso_blend_cull = std::move(next_blend_cull);
+    instanced_color_pso = std::move(next_instanced);
+    instanced_color_cull = std::move(next_instanced_cull);
 }
 SceneResources::Reload SceneResources::prepare_reload(const ModelStore& store) {
     auto& device = render_.device;
