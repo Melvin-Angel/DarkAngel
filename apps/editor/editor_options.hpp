@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <array>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -41,6 +42,8 @@ struct EditorOptions {
         exercise_player_input{}, exercise_game_debug{}, exercise_player_defaults{}, exercise_character_preview{}, exercise_effect_preview{},
         exercise_composer{}, composer_playback{};
     std::string model, backend{"d3d12"};
+    std::array<double,3> camera_from{}, camera_target{};
+    bool camera_from_set{}, camera_target_set{};
     unsigned frames{}, width{1280}, height{800};
     bool character_workspace{}, player_workspace{}, npc_workspace{}, exercise_actor_workflow{}, animation_workspace{},
         exercise_animation_workflow{}, ability_workspace{}, exercise_authoring{}, authoring_replay{}, hidden{}, exercise{}, camera_close{},

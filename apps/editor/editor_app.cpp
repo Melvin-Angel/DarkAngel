@@ -116,6 +116,8 @@ EditorApp::EditorApp(EditorOptions options)
         shell.scene_navigation.camera.look_from({0,scene_->gpu.radius*.2,scene_->gpu.radius*4.14},{0,0,0});
     if (args.camera_close)
         shell.scene_navigation.camera.look_from({4,2.5,8},{0,1.3,3});
+    if (args.camera_from_set)
+        shell.scene_navigation.camera.look_from(args.camera_from,args.camera_target);
     import_baseline = editor.document->world().serialize();
 #ifdef DAE_CHARACTER_SCENE
     // What Play's cue player tells each side, for the Cues tab. Made before the media workspaces, whose sinks forward to it.

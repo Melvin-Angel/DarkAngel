@@ -1,0 +1,1 @@
+{"name":"R7 overhead spot","optional":{"light":{"cast_shadows":false,"color":[1.0,0.62,0.26],"enabled":true,"falloff":2.0,"inner_cone":18.0,"intensity":7.0,"outer_cone":35.0,"range":28.0,"schema":1,"type":"spot"}},"target":null,"types":{"1":{"fields":{"1":0,"2":0,"3":8,"4":2,"5":0,"6":0,"7":1},"version":2},"2":{"fields":{"1":100,"2":100},"version":1}}}

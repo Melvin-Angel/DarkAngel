@@ -1,5 +1,6 @@
 #include "assets_internal.hpp"
 #include <darkangel/animation_assets.hpp>
+#include <darkangel/smooth_normals.hpp>
 #include <darkangel/hash.hpp>
 #include <cgltf.h>
 #include <ozz/animation/offline/raw_skeleton.h>
@@ -411,6 +412,17 @@ namespace darkangel::assets_detail {
                         auto material_bytes=read(path,16384);out.inputs[path.lexically_relative(root).generic_string()]=sha256(material_bytes);auto material=decode_material_instance(material_bytes);require(material.id==AssetId::parse(entry.at("asset").get<std::string>()),"Material assignment source identity");for(const auto& [ref,semantic]:material.textures()){const auto texture=material_texture(root,ref,semantic,true);for(const auto& [input,hash]:texture.inputs)out.inputs[input]=hash;}assigned.emplace(slot,std::move(material));}}}}
         if(inspect)return out;
         if(renderable){
+            // Recompute lighting normals only; never weld the animation/UV streams.
+            struct SmoothVertex { std::array<float,3> position, normal; };
+            for (auto& mesh : meshes) {
+                std::vector<SmoothVertex> smooth;
+                for (const auto& vertex : mesh.at("vertices"))
+                    smooth.push_back({vertex.at("position").get<std::array<float,3>>(), vertex.at("normal").get<std::array<float,3>>()});
+                const auto triangles = mesh.at("indices").get<std::vector<std::uint32_t>>();
+                smooth_normals(smooth, triangles, -1.);
+                for (std::size_t i = 0; i < smooth.size(); ++i)
+                    mesh["vertices"][i]["normal"] = smooth[i].normal;
+            }
             require(ids.size()==out.keys.size()+1,"Renderable human source product mappings");auto id=ids.at("$source"),skin_id=ids.at("skin");Json inverse_bind=Json::array();for(auto world:canonical_world){auto inverse=ozz::math::Invert(world);std::array<float,16> matrix;for(int column=0;column<4;++column)ozz::math::StorePtrU(inverse.cols[column],matrix.data()+column*4);inverse_bind.push_back(matrix);}
             Json parts=Json::array();std::vector<AssetId> dependencies;std::set<AssetId> texture_products;
             for(unsigned part=0;part<meshes.size();++part){auto mesh_id=ids.at(mesh_keys[part]);const auto& mesh=meshes[part];std::string binary="DASKIN02";auto u32=[&](unsigned value){for(unsigned byte=0;byte<4;++byte)binary+=char(value>>(byte*8));};auto f32=[&](float value){require(std::isfinite(value),"Skinned binary finite value");u32(std::bit_cast<unsigned>(value));};u32(unsigned(mesh.at("vertices").size()));u32(unsigned(mesh.at("indices").size()));for(const auto& vertex:mesh.at("vertices")){for(auto name:{"position","normal","uv"})for(const auto& value:vertex.at(name))f32(value.get<float>());for(const auto& value:vertex.at("joints"))u32(value.get<unsigned>());for(const auto& value:vertex.at("weights"))f32(value.get<float>());}for(const auto& value:mesh.at("indices"))u32(value.get<unsigned>());out.products.push_back({mesh_id,"skin-mesh","skinmesh",std::move(binary),{}});dependencies.push_back(mesh_id);parts.push_back({{"mesh",mesh_id.text()},{"color",mesh.at("color")}});

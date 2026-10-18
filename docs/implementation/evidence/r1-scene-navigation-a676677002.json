@@ -1,0 +1,17 @@
+{
+  "run": "a676677002",
+  "gate": "place",
+  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-a676677002",
+  "gates": [
+    {
+      "name": "place",
+      "exit": 1,
+      "seconds": 3.5,
+      "log": "docs\\implementation\\evidence\\r1-a676677002-place.log",
+      "markers": false
+    }
+  ],
+  "binary_sha256": "5c6df7053f7c6cb68803f1a212746a6701a7b88ef12a9d1b12c90835dd723592",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "protected_unchanged": true
+}

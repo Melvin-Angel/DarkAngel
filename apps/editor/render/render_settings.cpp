@@ -1,6 +1,7 @@
 #include "render_settings.hpp"
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 #include <stdexcept>
 
 namespace darkangel::editor_app::render {
@@ -35,4 +36,54 @@ SceneRenderingSettings decode_rendering_settings(const nlohmann::json& value) {
     return result;
 }
 nlohmann::json encode_rendering_settings(const SceneRenderingSettings& value) { return {{"schema", 1}, {"main_light", value.main_light ? nlohmann::json(value.main_light.text()) : nlohmann::json(nullptr)}, {"gpu_clustered", value.gpu_clustered}, {"clusters", {{"tile_size", value.clusters.tile_size}, {"depth_slices", value.clusters.depth_slices}, {"max_candidates", value.clusters.max_candidates}, {"shading_budget", value.clusters.shading_budget}}}, {"sky_enabled", value.sky_enabled}, {"sky_color", {value.sky_color.r, value.sky_color.g, value.sky_color.b}}, {"sky", {{"procedural", value.sky.procedural}, {"hdr_texture", value.sky.hdr_texture != AssetId{} ? nlohmann::json(value.sky.hdr_texture.text()) : nlohmann::json(nullptr)}, {"hdr_intensity", value.sky.hdr_intensity}, {"hdr_rotation_degrees", value.sky.hdr_rotation_degrees}, {"zenith", {value.sky.zenith.r, value.sky.zenith.g, value.sky.zenith.b}}, {"horizon", {value.sky.horizon.r, value.sky.horizon.g, value.sky.horizon.b}}, {"ground", {value.sky.ground.r, value.sky.ground.g, value.sky.ground.b}}, {"sun_direction", value.sky.sun_direction}, {"sun_color", {value.sky.sun_color.r, value.sky.sun_color.g, value.sky.sun_color.b}}, {"sun_size", value.sky.sun_size}, {"sun_intensity", value.sky.sun_intensity}, {"cloud_amount", value.sky.cloud_amount}, {"seed", value.sky.seed}}}, {"shadows", {{"enabled", value.shadows.cascades_enabled}, {"cascade_count", value.shadows.cascade_count}, {"resolution", value.shadows.resolution}, {"distance", value.shadows.distance}, {"depth_bias", value.shadows.depth_bias}, {"normal_bias", value.shadows.normal_bias}, {"split_distribution", value.shadows.split_distribution}}}, {"toon", {{"ambient_color", {value.toon.ambient_color.r, value.toon.ambient_color.g, value.toon.ambient_color.b}}, {"ambient_strength", value.toon.ambient_strength}, {"shadow_tint", {value.toon.shadow_tint.r, value.toon.shadow_tint.g, value.toon.shadow_tint.b}}, {"thresholds", value.toon.band_thresholds}, {"softness", value.toon.transition_softness}, {"local_strength", value.toon.local_light_strength}}}, {"fog", {{"enabled", value.fog.enabled}, {"mode", value.fog.exponential ? "exponential" : "linear"}, {"color", {value.fog.color.r, value.fog.color.g, value.fog.color.b}}, {"start", value.fog.start}, {"end", value.fog.end}, {"density", value.fog.density}, {"height", value.fog.height}, {"height_falloff", value.fog.height_falloff}}}, {"post", {{"bloom", value.post.bloom}, {"bloom_threshold", value.post.bloom_threshold}, {"bloom_soft_threshold", value.post.bloom_soft_threshold}, {"bloom_intensity", value.post.bloom_intensity}, {"bloom_radius", value.post.bloom_radius}, {"exposure", value.post.exposure}, {"exposure_compensation", value.post.exposure_compensation}, {"contrast", value.post.contrast}, {"saturation", value.post.saturation}, {"tint", {value.post.tint.r, value.post.tint.g, value.post.tint.b}}, {"grade_lift", {value.post.grade_lift.r, value.post.grade_lift.g, value.post.grade_lift.b}}, {"grade_gamma", {value.post.grade_gamma.r, value.post.grade_gamma.g, value.post.grade_gamma.b}}, {"grade_gain", {value.post.grade_gain.r, value.post.grade_gain.g, value.post.grade_gain.b}}, {"grade_temperature", value.post.grade_temperature}, {"fxaa", value.post.fxaa}, {"outline", {{"enabled", value.post.outline.enabled}, {"color", {value.post.outline.color.r, value.post.outline.color.g, value.post.outline.color.b}}, {"thickness", value.post.outline.thickness}, {"depth_sensitivity", value.post.outline.depth_sensitivity}, {"normal_sensitivity", value.post.outline.normal_sensitivity}, {"group_sensitivity", value.post.outline.group_sensitivity}, {"fade_start", value.post.outline.fade_start}, {"fade_end", value.post.outline.fade_end}}}}}}; }
+
+nlohmann::json encode_project_rendering_settings(const ProjectRenderingSettings& value) {
+    auto result = nlohmann::json{{"schema", 1}, {"kind", "project_rendering"}, {"scene", encode_rendering_settings(value.scene)}};
+    SceneRenderingSettings material_defaults;
+    material_defaults.toon = value.material_toon;
+    result["material_toon"] = encode_rendering_settings(material_defaults)["toon"];
+    if (value.material_properties_override) result["material"] = {{"color", value.material_color}, {"roughness", value.material_roughness}, {"metallic", value.material_metallic}};
+    return result;
+}
+ProjectRenderingSettings decode_project_rendering_settings(const nlohmann::json& value) {
+    if (!value.is_object() || value.value("kind", std::string{}) != "project_rendering") throw std::runtime_error("Project rendering settings must be project_rendering");
+    schema(value, "project rendering settings");
+    ProjectRenderingSettings result;
+    if (value.contains("scene")) result.scene = decode_rendering_settings(value.at("scene"));
+    result.material_toon = result.scene.toon;
+    if (value.contains("material_toon")) result.material_toon = decode_rendering_settings(nlohmann::json{{"schema", 1}, {"toon", value.at("material_toon")}}).toon;
+    if (value.contains("material")) {
+        const auto& material = value.at("material");
+        if (!material.is_object()) throw std::runtime_error("Project material defaults must be an object");
+        result.material_properties_override = true;
+        result.material_roughness = number(material, "roughness", result.material_roughness, 0, 1);
+        result.material_metallic = number(material, "metallic", result.material_metallic, 0, 1);
+        if (material.contains("color")) {
+            const auto& color = material.at("color");
+            if (!color.is_array() || color.size() != 4) throw std::runtime_error("Project material colour must have four values");
+            for (unsigned i = 0; i < 4; ++i) result.material_color[i] = number(color[i], "", result.material_color[i], 0, 1);
+        }
+    }
+    return result;
+}
+ProjectRenderingSettings load_project_rendering_settings(const std::filesystem::path& root) {
+    ProjectRenderingSettings result;
+    if (root.empty()) return result;
+    const auto path = root / "rendering" / "project.darendering";
+    if (!std::filesystem::exists(path)) return result;
+    std::ifstream file(path, std::ios::binary);
+    if (!file) throw std::runtime_error("Cannot read project rendering defaults");
+    std::string text{std::istreambuf_iterator<char>(file), {}};
+    if (text.size() > 1024 * 1024) throw std::runtime_error("Project rendering defaults are too large");
+    return decode_project_rendering_settings(nlohmann::json::parse(text));
+}
+void save_project_rendering_settings(const std::filesystem::path& root, const ProjectRenderingSettings& value) {
+    if (root.empty()) throw std::runtime_error("Project source root is unavailable");
+    const auto directory = root / "rendering";
+    std::filesystem::create_directories(directory);
+    std::ofstream file(directory / "project.darendering", std::ios::binary | std::ios::trunc);
+    if (!file) throw std::runtime_error("Cannot write project rendering defaults");
+    file << encode_project_rendering_settings(value).dump(2);
+    if (!file) throw std::runtime_error("Cannot write project rendering defaults");
+}
 }

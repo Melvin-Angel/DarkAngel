@@ -30,6 +30,12 @@ EditorOptions parse_editor_options(int argc, char** argv) {
             out.play = true;
             continue;
         }
+        if ((arg == "--camera-from" || arg == "--camera-target") && i + 3 < argc) {
+            auto& destination = arg == "--camera-from" ? out.camera_from : out.camera_target;
+            for (auto& coordinate : destination) coordinate = std::stod(argv[++i]);
+            (arg == "--camera-from" ? out.camera_from_set : out.camera_target_set) = true;
+            continue;
+        }
         if (arg == "--items-workspace") {
             out.items_workspace = true;
             continue;
@@ -245,6 +251,14 @@ EditorOptions parse_editor_options(int argc, char** argv) {
     require(!out.registry.empty() && !out.cas.empty() && !out.model.empty(),
             "DarkAngelEditor requires --registry file --cas directory --model UUID");
     require(out.backend == "d3d12" || out.backend == "vulkan", "Unsupported backend");
+    require(out.camera_from_set == out.camera_target_set, "Camera pose requires both --camera-from and --camera-target");
+    require(!(out.camera_from_set && out.camera_close), "Choose either an explicit camera pose or --camera-close");
+    for (double coordinate : out.camera_from) require(std::isfinite(coordinate) && std::abs(coordinate) <= 100000, "Camera position bounds");
+    for (double coordinate : out.camera_target) require(std::isfinite(coordinate) && std::abs(coordinate) <= 100000, "Camera target bounds");
+    if (out.camera_from_set) {
+        const auto dx=out.camera_from[0]-out.camera_target[0], dy=out.camera_from[1]-out.camera_target[1], dz=out.camera_from[2]-out.camera_target[2];
+        require(dx*dx+dy*dy+dz*dz>.01, "Camera position and target must differ");
+    }
     require(out.width >= 640 && out.width <= 3840 && out.height >= 480 && out.height <= 2160, "Editor window size bounds");
     require(out.frames <= 10000, "Frame budget limit");
     require(std::isfinite(out.pose_tick) && out.pose_tick >= 0 && out.pose_tick <= 600, "Pose diagnostic tick limit");

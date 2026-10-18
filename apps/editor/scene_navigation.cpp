@@ -62,6 +62,10 @@ void Shell::scene_camera_matrices(float width,float height) {
     scene_camera=true;
 }
 void Shell::update_scene_navigation(Controller& editor,double seconds) {
+    // The scene matrices are valid only for the Scene authoring route. Do not
+    // leave a stopped Scene camera marked as active while Play or an isolated
+    // preview owns the display target.
+    scene_camera=false;
     const auto& io=ImGui::GetIO();
     SceneNavigationInput sample;
     sample.enabled=workspace==Workspace::Scene&&!editor.preview.active();

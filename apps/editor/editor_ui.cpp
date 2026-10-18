@@ -10,6 +10,7 @@
 #include "reference_picker.hpp"
 #include "editor_world_objects.hpp"
 #include "render/render_settings.hpp"
+#include "render/scene_rendering_authoring.hpp"
 #include <imgui_internal.h>
 #include <ImGuizmo.h>
 #include <nlohmann/json.hpp>
@@ -39,6 +40,7 @@ StableId add_object(Controller& editor,nlohmann::json entity,const Transform& at
         auto collect=[&](const nlohmann::json& map){if(map.is_object())for(const auto& [key,path]:map.items())if(path.is_string()&&path.get<std::string>().starts_with(prefix))retained.insert(path.get<std::string>().substr(prefix.size()));};
         if(graph.contains("retain")&&graph["retain"].is_object()){collect(graph["retain"]);for(const auto& [key,path]:graph["retain"].items())retained.insert(key);}if(graph.contains("mounts")&&graph["mounts"].is_object())for(const auto& [key,mount]:graph["mounts"].items())if(mount.contains("retain"))collect(mount["retain"]);}}
     for(std::size_t index=1;index<=scene_object_limit;++index){local=StableId{0,index}.text();if(!editor.document->entity(local)&&!retained.contains(local))break;if(index==scene_object_limit)throw std::runtime_error("Scene object limit");}
+    for(const char* key:{"rendering","light"})if(entity.contains(key))render::set_render_component(entity,key,entity.at(key));
     entity["target"]=nullptr;entity["types"]={{"1",{{"version",2},{"fields",{{"1",at.yaw},{"2",at.x},{"3",at.y},{"4",at.z},{"5",0},{"6",0},{"7",1}}}}},{"2",{{"version",1},{"fields",{{"1",100},{"2",100}}}}}};
     commit_entity(editor,local,entity,message);for(const auto& origin:editor.document->plan().origins)if(origin.local_path.ends_with("/"+local))return origin.object;throw std::runtime_error("Placed object did not resolve");
 }
@@ -48,7 +50,7 @@ void set_spawn_npc(Controller& editor,StableId object,AssetId npc){const auto lo
 std::string npc_label(const Controller& editor,AssetId npc){for(const auto& asset:editor.asset_inventory)if(asset.id==npc)return std::filesystem::path(asset.path).stem().string();return npc.text();}
 // Components of scene objects in the scene's own source: encounters, their volumes, trigger volumes, a spawn point's encounter.
 nlohmann::json entity_source(const Controller& editor,StableId object){return own_entity(editor,object_local(editor,object));}
-void set_component(Controller& editor,StableId object,const char* key,nlohmann::json value,const char* message){const auto local=object_local(editor,object);auto entity=own_entity(editor,local);if(value.is_null())entity.erase(key);else entity[key]=std::move(value);commit_entity(editor,local,entity,message);}
+void set_component(Controller& editor,StableId object,const char* key,nlohmann::json value,const char* message){const auto local=object_local(editor,object);auto entity=own_entity(editor,local);if(std::string_view(key)=="rendering"||std::string_view(key)=="light")render::set_render_component(entity,key,std::move(value));else if(value.is_null())entity.erase(key);else entity[key]=std::move(value);commit_entity(editor,local,entity,message);}
 // Every scene file of the project with its asset identity and its entry points. A scene that does not open is left out.
 std::vector<Shell::TravelScene> list_travel_scenes(const Controller& editor){
     std::vector<Shell::TravelScene> found;if(!editor.assets)return found;const auto root=editor.assets->source_root();std::error_code failed;

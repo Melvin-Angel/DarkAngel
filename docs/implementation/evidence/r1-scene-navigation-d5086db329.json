@@ -1,0 +1,18 @@
+{
+  "run": "d5086db329",
+  "gate": "game-camera",
+  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-d5086db329",
+  "gates": [
+    {
+      "name": "game-camera",
+      "exit": 0,
+      "seconds": 43.579,
+      "log": "docs\\implementation\\evidence\\r1-d5086db329-game-camera.log",
+      "markers": true
+    }
+  ],
+  "binary_sha256": "ab03873a3ee188d98b18e7ee702da27fdcbf7cc490754487e83cd069450795c6",
+  "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
+  "passed": true,
+  "protected_unchanged": true
+}

@@ -1,0 +1,1 @@
+{"name":"R7 cool fill","optional":{"light":{"cast_shadows":false,"color":[0.28,0.46,1.0],"enabled":true,"falloff":2.0,"intensity":5.0,"range":24.0,"schema":1,"type":"point"}},"target":null,"types":{"1":{"fields":{"1":0,"2":10,"3":4,"4":-2,"5":0,"6":0,"7":1},"version":2},"2":{"fields":{"1":100,"2":100},"version":1}}}

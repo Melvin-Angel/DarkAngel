@@ -241,7 +241,7 @@ std::string AssetService::material_values(std::string_view relative,std::string_
     // A renderable skin's primitive: its colour over the shared atlas, or its assigned material (R5 A3).
     for(const auto& product:imported.products)if(product.kind=="skin-binding"){const auto binding=json(product.bytes,64*1024*1024);for(const auto& part:binding.at("meshes"))if(part.at("mesh")==id.text()){
         if(part.contains("material")){auto values=part.at("material");values["schema"]=1;values["id"]=id.text();return values.dump();}
-        return Json{{"schema",1},{"id",id.text()},{"color",part.at("color")},{"roughness",.85},{"metallic",0.0},{"double_sided",true},{"texture",nullptr}}.dump();}}
+        return Json{{"schema",1},{"id",id.text()},{"color",part.at("color")},{"roughness",.85},{"metallic",0.0},{"double_sided",true},{"texture",nullptr},{"family",std::string(material_family_toon_character)}}.dump();}}
     throw std::runtime_error("Material slot product missing");
 }
 CookResult AssetService::edit_native(std::string_view relative,std::string_view expected,std::string_view draft){

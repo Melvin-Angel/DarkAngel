@@ -1,52 +1,52 @@
 {
-  "run": "ce46f90e14",
+  "run": "e3ae88407f",
   "gate": "all",
-  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-ce46f90e14",
+  "fixture": "C:\\DarkAngel\\.cache\\r1-navigation-e3ae88407f",
   "gates": [
     {
       "name": "SceneCameraTests",
       "exit": 0,
-      "seconds": 0.032,
-      "log": "docs\\implementation\\evidence\\r1-ce46f90e14-SceneCameraTests.log",
+      "seconds": 0.391,
+      "log": "docs\\implementation\\evidence\\r1-e3ae88407f-SceneCameraTests.log",
       "markers": true
     },
     {
       "name": "NativeInputTests",
       "exit": 0,
-      "seconds": 0.062,
-      "log": "docs\\implementation\\evidence\\r1-ce46f90e14-NativeInputTests.log",
+      "seconds": 0.687,
+      "log": "docs\\implementation\\evidence\\r1-e3ae88407f-NativeInputTests.log",
       "markers": true
     },
     {
       "name": "CameraTests",
       "exit": 0,
-      "seconds": 0.031,
-      "log": "docs\\implementation\\evidence\\r1-ce46f90e14-CameraTests.log",
+      "seconds": 0.312,
+      "log": "docs\\implementation\\evidence\\r1-e3ae88407f-CameraTests.log",
       "markers": true
     },
     {
       "name": "navigation",
       "exit": 0,
-      "seconds": 10.281,
-      "log": "docs\\implementation\\evidence\\r1-ce46f90e14-navigation.log",
+      "seconds": 88.219,
+      "log": "docs\\implementation\\evidence\\r1-e3ae88407f-navigation.log",
       "markers": true
     },
     {
       "name": "place",
       "exit": 0,
-      "seconds": 1.391,
-      "log": "docs\\implementation\\evidence\\r1-ce46f90e14-place.log",
+      "seconds": 21.016,
+      "log": "docs\\implementation\\evidence\\r1-e3ae88407f-place.log",
       "markers": true
     },
     {
       "name": "game-camera",
       "exit": 0,
-      "seconds": 7.015,
-      "log": "docs\\implementation\\evidence\\r1-ce46f90e14-game-camera.log",
+      "seconds": 47.36,
+      "log": "docs\\implementation\\evidence\\r1-e3ae88407f-game-camera.log",
       "markers": true
     }
   ],
-  "binary_sha256": "1bbbb932e9bafd865159326c043e933abb9721b32d0271510374d5a694fca24e",
+  "binary_sha256": "34d0ce467a3d1e7f2fb69537908dff1645d37362912472da048d5cc841788fc8",
   "qualification": "Synthetic ImGui input in the D3D12 editor on this machine; no physical-device or remote/EOS qualification.",
   "passed": true,
   "protected_unchanged": true

@@ -5,6 +5,7 @@
 #include "scene_resources.hpp"
 #include "render_settings.hpp"
 #include "preview_routing.hpp"
+#include "shadow_camera.hpp"
 #include "../editor_controller.hpp"
 #include "../editor_options.hpp"
 #include "../editor_ui.hpp"
@@ -216,7 +217,16 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
         false;
 #endif
-    const bool isolated_preview = PreviewRouting::isolated_content(composer_render, character_render, graph_render, editor.preview.active() != nullptr);
+    const bool gameplay_active = editor.preview.active() != nullptr;
+    const bool isolated_preview = PreviewRouting::isolated_content(composer_render, character_render, graph_render, gameplay_active);
+    const bool scene_camera_render = PreviewRouting::scene_camera_is_primary(
+        shell.workspace == darkangel::editor_app::Workspace::Scene, gameplay_active);
+#ifdef DAE_CHARACTER_SCENE
+    const bool gameplay_camera_render = PreviewRouting::gameplay_camera_is_primary(
+        gameplay_active, character != nullptr);
+#else
+    const bool gameplay_camera_render = false;
+#endif
 #ifdef DAE_CHARACTER_SCENE
     const UploadedSkin* preview_skin = authoring_skin ? &*authoring_skin : nullptr;
     if (!preview_skin && character_resources && scene_skins.contains(character_resources->skin))
@@ -247,13 +257,16 @@ void SceneViewport::render(double elapsed_seconds) {
         view = XMMatrixLookAtRH(XMVectorSet(4, 2.5f, 8, 1), XMVectorSet(0, 1.3f, 3, 1), XMVectorSet(0, 1, 0, 0));
 #ifdef DAE_CHARACTER_SCENE
     camera_fov = XM_PIDIV4;
-    if (const auto* play_camera = play.game_camera(elapsed_seconds)) {
-        view = XMMatrixLookAtRH(
-            XMVectorSet(float(play_camera->position[0]), float(play_camera->position[1]), float(play_camera->position[2]), 1),
-            XMVectorSet(float(play_camera->target[0]), float(play_camera->target[1]), float(play_camera->target[2]), 1),
-            XMVectorSet(0, 1, 0, 0));
-        camera_fov = float(play_camera->fov_degrees) * XM_PI / 180.f;
-    } else if (shell.workspace == darkangel::editor_app::Workspace::Player && shell.camera_preview_visible && shell.camera_preview_rig &&
+    if (gameplay_camera_render) {
+        const auto* play_camera = play.game_camera(elapsed_seconds);
+        if (play_camera) {
+            view = XMMatrixLookAtRH(
+                XMVectorSet(float(play_camera->position[0]), float(play_camera->position[1]), float(play_camera->position[2]), 1),
+                XMVectorSet(float(play_camera->target[0]), float(play_camera->target[1]), float(play_camera->target[2]), 1),
+                XMVectorSet(0, 1, 0, 0));
+            camera_fov = float(play_camera->fov_degrees) * XM_PI / 180.f;
+        }
+    } else if (!scene_camera_render && shell.workspace == darkangel::editor_app::Workspace::Player && shell.camera_preview_visible && shell.camera_preview_rig &&
                shell.camera_preview >= 0 && shell.camera_preview < static_cast<int>(shell.camera_preview_rig->cameras.size())) {
         // Authoring preview: one drafted virtual camera around the scene's player placement.
         CameraTargets targets;
@@ -304,16 +317,17 @@ void SceneViewport::render(double elapsed_seconds) {
     }
     const float camera_radius = isolated_preview ? preview_radius : gpu.radius;
     auto projection = XMMatrixPerspectiveFovRH(camera_fov, viewport.Width / viewport.Height, camera_radius * .01f, camera_radius * 40);
-    if (shell.workspace==darkangel::editor_app::Workspace::Scene&&!editor.preview.active()&&(!args.hidden||args.exercise_scene_camera)) {
+    if (scene_camera_render) {
         // Use the exact matrices used by this frame's UI picking/drop rays, also during viewport resize.
         view=XMLoadFloat4x4(&shell.scene_view);
         projection=XMLoadFloat4x4(&shell.scene_projection);
     }
     XMStoreFloat4x4(&view_matrix, view);
     XMStoreFloat4x4(&projection_matrix, projection);
-    shell.scene_view = view_matrix;
-    shell.scene_projection = projection_matrix;
-    shell.scene_camera = true;
+    if (gameplay_camera_render) {
+        shell.game_view = view_matrix;
+        shell.game_projection = projection_matrix;
+    }
     if (!args.hidden||args.exercise_scene_camera)
         shell.gizmo(editor, view_matrix, projection_matrix);
     // Placed models, then the characters of spawn points: at the spawn point while authoring, as the spawned actor in Play.
@@ -391,10 +405,19 @@ void SceneViewport::render(double elapsed_seconds) {
     struct SceneViewer;
 #endif
     struct FrameLight { darkangel::rendering::SceneLight light; std::array<float,3> world_position{}; };
-    render::SceneRenderingSettings frame_settings;
+    render::ProjectRenderingSettings project_rendering;
+    if (editor.assets) {
+        try { project_rendering = render::load_project_rendering_settings(editor.assets->source_root()); }
+        catch (const std::exception&) { /* The Lighting tab reports malformed project defaults; keep the safe built-in defaults here. */ }
+    }
+    render::SceneRenderingSettings frame_settings = project_rendering.scene;
+    rendering::ToonLighting material_toon_defaults = project_rendering.material_toon;
+    bool scene_toon_override = false;
     std::vector<FrameLight> frame_lights;
     if (!isolated_preview)
-        for(const auto& origin:editor.document->plan().origins){auto handle=editor.displayed().find(origin.object);if(!editor.displayed().valid(handle))continue;auto object=editor.displayed().read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering"))frame_settings=render::decode_rendering_settings(source.at("rendering"));if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
+        // Play's presentation world omits static scene entities. Their rendering
+        // profile and lights still belong to this scene, just like its scenery.
+        for(const auto& origin:editor.document->plan().origins){const auto* settings_world=&editor.displayed();auto handle=settings_world->find(origin.object);if(!settings_world->valid(handle)){settings_world=&editor.document->world();handle=settings_world->find(origin.object);}if(!settings_world->valid(handle))continue;auto object=settings_world->read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering")){frame_settings=render::decode_rendering_settings(source.at("rendering"));scene_toon_override=source.at("rendering").value("toon",nlohmann::json{}).is_object();if(scene_toon_override)material_toon_defaults=frame_settings.toon;}if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
     std::vector<darkangel::rendering::SceneLight> cluster_lights;
     cluster_lights.reserve(frame_lights.size());
     const auto frame_view = XMLoadFloat4x4(&view_matrix);
@@ -611,17 +634,30 @@ void SceneViewport::render(double elapsed_seconds) {
                 }
                 for (const auto& part : mesh.parts) {
                     const Material* effective=&drawn.materials.at(part.material);
+                    bool material_override=false;
                     const auto& material_plan=editor.preview.active()?editor.preview.active()->plan:editor.document->plan();
                     if(!prefab_render)if(const auto object=material_plan.materials.find(object_id);object!=material_plan.materials.end())if(const auto assignment=object->second.find(part.material);assignment!=object->second.end()){
                         const auto& native=scene.native_materials.at(assignment->second);
 #ifdef DAE_ANIMATION
                         effective=drawn_ptr&&!args.skin_reference?&native.skinned:&native.surface;
+                        material_override=true;
 #else
                         effective=&native.surface;
 #endif
                     }
-                    if(prefab_render)for(const auto& shown:shell.prefab_preview.models)if(shown.object==object_id)if(const auto assignment=shown.materials.find(part.material);assignment!=shown.materials.end())effective=&scene.native_materials.at(assignment->second).surface;
+                    if(prefab_render)for(const auto& shown:shell.prefab_preview.models)if(shown.object==object_id)if(const auto assignment=shown.materials.find(part.material);assignment!=shown.materials.end()){effective=&scene.native_materials.at(assignment->second).surface;material_override=true;}
                     const auto& material=*effective;
+                    CookedMaterial shading_value=material.value;
+                    const bool material_toon=material.value.family==material_family_toon_standard||material.value.family==material_family_toon_character||material.value.family==material_family_toon_terrain;
+                    if(material_toon&&!material_override){
+                        if(project_rendering.material_properties_override){for(unsigned channel=0;channel<4;++channel) shading_value.color[channel]*=project_rendering.material_color[channel];shading_value.roughness=project_rendering.material_roughness;shading_value.metallic=project_rendering.material_metallic;}
+                        shading_value.toon_thresholds=material_toon_defaults.band_thresholds;
+                        shading_value.toon_softness=material_toon_defaults.transition_softness;
+                        shading_value.shadow_tint={material_toon_defaults.shadow_tint.r,material_toon_defaults.shadow_tint.g,material_toon_defaults.shadow_tint.b};
+                        shading_value.ambient_color={material_toon_defaults.ambient_color.r,material_toon_defaults.ambient_color.g,material_toon_defaults.ambient_color.b};
+                        shading_value.ambient_strength=material_toon_defaults.ambient_strength;
+                        shading_value.local_light_strength=material_toon_defaults.local_light_strength;
+                    }
                     // Transparent surfaces do not cast into the opaque shadow map. Cutouts use the same authored Albedo and
                     // alpha cutoff as the forward material through a dedicated depth-only pixel shader.
                     if (shadow_pass && material.value.alpha_mode == 2)
@@ -646,7 +682,7 @@ void SceneViewport::render(double elapsed_seconds) {
 #endif
                         if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;if(!alpha_shadow){require(empty_shadow_binding,"Missing opaque shadow resource binding");context->CommitShaderResources(empty_shadow_binding,RESOURCE_STATE_TRANSITION_MODE_NONE);}}
                         if(material.value.alpha_mode==1){
-                            apply_material(constants,material.value);
+                            apply_material(constants,shading_value);
                             context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Alpha shadow constants remapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
                             require(material.shadow_binding,"Missing alpha shadow material binding");
                             auto* shadow=material.shadow_binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.shadow_binding,gpu_clusters);context->CommitShaderResources(material.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -659,10 +695,10 @@ void SceneViewport::render(double elapsed_seconds) {
                     XMStoreFloat4x4(&constants.view, view);
                     constants.cluster_dimensions = {float(gpu_layout.tiles_x), float(gpu_layout.tiles_y), float(gpu_layout.slices), frame_settings.gpu_clustered ? 1.f : 0.f};
                     constants.cluster_camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
-                    constants.cluster_viewport = {float(render_width), float(render_height), frame_settings.toon.local_light_strength, args.backend == "vulkan" ? 1.f : 0.f};
+                    constants.cluster_viewport = {float(render_width), float(render_height), material_toon ? shading_value.local_light_strength : frame_settings.toon.local_light_strength, context_.render.device->GetDeviceInfo().NDC.YtoVScale};
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
-                    apply_material(constants, material.value);
+                    apply_material(constants, shading_value);
                     if (outline_pass) {
                         if (!frame_settings.post.outline.enabled || material.value.alpha_mode == 2)
                             continue;
@@ -689,11 +725,10 @@ void SceneViewport::render(double elapsed_seconds) {
                         continue;
                     }
                     if(frame_settings.main_light){for(const auto&prepared:frame_lights)if(prepared.light.id==frame_settings.main_light&&prepared.light.type==darkangel::rendering::LightType::Directional){constants.main_light={prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],1};constants.main_color={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity};break;}}
-                    const bool material_toon=material.value.family==material_family_toon_standard||material.value.family==material_family_toon_character||material.value.family==material_family_toon_terrain;
                     if(!material_toon){constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1};constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness};constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1};}
                     constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f};constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
                     constants.shadow_splits={shadow_splits[0],shadow_splits[1],shadow_splits[2],shadow_splits[3]};constants.shadow_params={frame_settings.shadows.depth_bias,frame_settings.shadows.normal_bias,shadow_enabled?float(shadow_cascades):0.f,1.f/std::max(1u,shadow_resolution)};for(unsigned cascade=0;cascade<4;++cascade)constants.shadow_matrices[cascade]=shadow_matrices[cascade];if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);
-                    const float local_strength=material_toon?material.value.local_light_strength:frame_settings.toon.local_light_strength;unsigned local_index=0;const auto inverse_rotation=XMMatrixInverse(nullptr,rotation);for(const auto&prepared:frame_lights)if(prepared.light.id!=frame_settings.main_light&&prepared.light.type!=darkangel::rendering::LightType::Directional&&prepared.light.enabled&&local_index<4&&cluster_cell&&std::find(cluster_cell->selected.begin(),cluster_cell->selected.end(),prepared.light.id)!=cluster_cell->selected.end()){const auto p=XMVector3TransformCoord(XMVectorSet(prepared.world_position[0]-float(pose.x),prepared.world_position[1]-float(pose.y),prepared.world_position[2]-float(pose.z),1),inverse_rotation);const auto direction=XMVector3TransformNormal(XMVectorSet(prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],0),inverse_rotation);XMFLOAT3 local,local_direction;XMStoreFloat3(&local,p);XMStoreFloat3(&local_direction,XMVector3Normalize(direction));constants.local_positions[local_index]={local.x,local.y,local.z,prepared.light.range};constants.local_colors[local_index]={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity*local_strength};constants.local_directions[local_index]={local_direction.x,local_direction.y,local_direction.z,prepared.light.type==darkangel::rendering::LightType::Spot?1.f:0.f};constants.local_cones[local_index]={std::cos(prepared.light.outer_cone_degrees*XM_PI/360.f*2.f),std::cos(prepared.light.inner_cone_degrees*XM_PI/360.f*2.f),prepared.light.falloff,0};++local_index;}
+                    const float local_strength=material_toon?shading_value.local_light_strength:frame_settings.toon.local_light_strength;unsigned local_index=0;const auto inverse_rotation=XMMatrixInverse(nullptr,rotation);for(const auto&prepared:frame_lights)if(prepared.light.id!=frame_settings.main_light&&prepared.light.type!=darkangel::rendering::LightType::Directional&&prepared.light.enabled&&local_index<4&&cluster_cell&&std::find(cluster_cell->selected.begin(),cluster_cell->selected.end(),prepared.light.id)!=cluster_cell->selected.end()){const auto p=XMVector3TransformCoord(XMVectorSet(prepared.world_position[0]-float(pose.x),prepared.world_position[1]-float(pose.y),prepared.world_position[2]-float(pose.z),1),inverse_rotation);const auto direction=XMVector3TransformNormal(XMVectorSet(prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],0),inverse_rotation);XMFLOAT3 local,local_direction;XMStoreFloat3(&local,p);XMStoreFloat3(&local_direction,XMVector3Normalize(direction));constants.local_positions[local_index]={local.x,local.y,local.z,prepared.light.range};constants.local_colors[local_index]={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity*local_strength};constants.local_directions[local_index]={local_direction.x,local_direction.y,local_direction.z,prepared.light.type==darkangel::rendering::LightType::Spot?1.f:0.f};constants.local_cones[local_index]={std::cos(prepared.light.outer_cone_degrees*XM_PI/360.f*2.f),std::cos(prepared.light.inner_cone_degrees*XM_PI/360.f*2.f),prepared.light.falloff,0};++local_index;}
                     void* mapped{};
                     context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                     require(mapped, "Uniform buffer mapping failed");
@@ -868,20 +903,16 @@ void SceneViewport::render(double elapsed_seconds) {
         for (const auto& prepared : frame_lights)
             if (prepared.light.id == frame_settings.main_light && prepared.light.type == darkangel::rendering::LightType::Directional &&
                 prepared.light.enabled && prepared.light.cast_shadows) {
-                const auto direction = XMVector3Normalize(XMVectorSet(prepared.light.direction_view[0], prepared.light.direction_view[1],
-                                                                       prepared.light.direction_view[2], 0));
-                const auto target = XMVectorZero();
-                const auto light_position = XMVectorSubtract(target, XMVectorScale(direction, 200));
-                const auto light_view = XMMatrixLookAtRH(light_position, target, XMVectorSet(0, 1, 0, 0));
+                // Surface lighting uses a vector TO the sun; the shadow camera
+                // looks FROM the sun along the opposite ray direction.
+                const auto direction = XMVectorNegate(XMVector3Normalize(XMVectorSet(prepared.light.direction_view[0], prepared.light.direction_view[1],
+                                                                       prepared.light.direction_view[2], 0)));
                 for (unsigned cascade = 0; cascade < shadow_cascades; ++cascade) {
-                    const float extent = std::max(8.f, frame_settings.shadows.distance * (.08f + float(cascade + 1) / shadow_cascades));
-                    const float texel = 2.f * extent / std::max(1u, shadow_resolution);
-                    const auto light_target = XMVector3TransformCoord(target, light_view);
-                    const float snapped_x = std::floor(XMVectorGetX(light_target) / texel + .5f) * texel;
-                    const float snapped_y = std::floor(XMVectorGetY(light_target) / texel + .5f) * texel;
-                    const auto light_projection = XMMatrixOrthographicOffCenterRH(
-                        -extent + snapped_x, extent + snapped_x, -extent + snapped_y, extent + snapped_y, .1f,
-                        std::max(extent * 4, frame_settings.shadows.distance));
+                    const auto camera = shadow_camera(view, projection, direction,
+                        cascade ? shadow_splits[cascade - 1] : shadow_near, shadow_splits[cascade],
+                        frame_settings.shadows.distance, shadow_resolution);
+                    const auto& light_view = camera.view;
+                    const auto& light_projection = camera.projection;
                     XMStoreFloat4x4(&shadow_matrices[cascade], light_view * light_projection);
                     auto* dsv_shadow = shadow_dsv[cascade].RawPtr();
                     auto* dummy_rtv = shadow_dummy_rtv[cascade].RawPtr();

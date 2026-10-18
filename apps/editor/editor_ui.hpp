@@ -29,7 +29,12 @@ public:
     struct PlaceItem {AssetId id;std::string name,category;bool npc{};int gameplay{};};
     std::vector<PlaceItem> place_items;std::size_t place_signature{};std::string place_category;char place_filter[64]{};
     // Height of the ground plane a drop lands on, and the scene camera of the latest frame for turning a drop position into a point on it.
-    double place_height{.5};DirectX::XMFLOAT4X4 scene_view{},scene_projection{},game_view_second{},game_projection_second{};bool scene_camera{};
+    double place_height{.5};
+    // Scene navigation owns scene_view/scene_projection. Gameplay publishes its
+    // primary camera separately so Game and authoring previews cannot overwrite
+    // the editor camera contract.
+    DirectX::XMFLOAT4X4 scene_view{},scene_projection{},game_view{},game_projection{},game_view_second{},game_projection_second{};
+    bool scene_camera{};
     SceneNavigation scene_navigation;
     AssetId navigation_scene;
     std::map<AssetId,SceneCamera> scene_cameras;
@@ -123,7 +128,7 @@ public:
     AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
     char history_source_filter[128]{};bool history_pending_only{};std::optional<NativeSourceComparison> last_source_comparison;std::optional<NativeValidationSummary> last_validation;
     char author_name[65]{"new_ability"};std::string author_diagnostic;
-    Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{},inventory_open{};
+    Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{},inventory_open{};bool lighting_project_defaults{};
     void select_workspace(Workspace);
     void open_native_asset(Controller&,AssetId);
     // Reveal shows the asset in Assets even when the current search or kind filter would hide it, and scrolls to it.

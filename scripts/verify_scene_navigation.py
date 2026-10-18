@@ -21,6 +21,8 @@ EVIDENCE = ROOT / "docs/implementation/evidence"
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--gate", choices=("all", "navigation", "place", "game-camera"), default="all")
+    parser.add_argument("--width", type=int, default=1280)
+    parser.add_argument("--height", type=int, default=800)
     args = parser.parse_args()
     seed = json.loads((BUILD / "authoring-fixture.json").read_text(encoding="utf-8"))
     run_id = uuid.uuid4().hex[:10]
@@ -63,7 +65,8 @@ def main():
                 "--model", model, "--scene", source / "royal_district/RoyalTraining.dascene",
                 "--character-kit", seed["kit"], "--character-collision", collision,
                 "--character-player", "00000000000000000000000000000004", "--sources", source,
-                "--asset-cache", cache, "--backend", "d3d12", "--hidden", "--no-audio", "--capture-workspace"]
+                "--asset-cache", cache, "--backend", "d3d12", "--hidden", "--no-audio", "--capture-workspace",
+                "--width", str(args.width), "--height", str(args.height)]
         cases = {
             "navigation": (["--exercise-scene-camera", "--frames", "108"], ["Editor scene_camera orbit=1", "play_isolation=1 per_scene=1"]),
             "place": (["--exercise-place-mouse", "--frames", "44"], ["Editor mouse viewport_select=1"]),

@@ -32,7 +32,7 @@ int main(){try{
     assets.cook(first);assets.cook(second);
     // Imported values are readable, and an unassigned slot cooks them unchanged.
     const auto imported=Json::parse(assets.material_values(first,"material/trim"));const auto before=slot(assets,folder,first_id,first_slot);
-    check(imported.at("roughness").get<float>()==before.roughness&&before.has_texture,"Imported slot values");
+    check(imported.at("roughness").get<float>()==before.roughness&&imported.at("family").get<std::string>()==material_family_toon_standard&&before.family==material_family_toon_standard&&before.has_texture,"Imported slot values use the default toon family");
     // A shared material assigned to both models' slots reaches both.
     const auto shared=AssetId::random();assets.create_native("materials/Shared.damaterial",material(shared,"Shared",{1,0,0,1}).dump());
     assets.assign_model_material(first,"material/trim",shared,"materials/Shared.damaterial");assets.assign_model_material(second,"material/trim",shared,"materials/Shared.damaterial");
@@ -157,7 +157,7 @@ int main(){try{
      write(tri/"tri.gltf",gltf.dump());const auto tri_id=assets.adopt("models/tri/tri.gltf");assets.scan();assets.cook("models/tri/tri.gltf");
      const auto tri_meta=metadata("models/tri/tri.gltf");check(tri_meta["subassets"].contains("texture/normal/material/surface")&&tri_meta["subassets"].contains("texture/surface/material/surface")&&tri_meta["subassets"].contains("texture/emissive/material/surface"),"Surface textures get stable subasset keys");
      auto a=slot(assets,folder,tri_id,AssetId::parse(tri_meta["subassets"]["material/surface"].get<std::string>()));
-     check(a.has_normal&&a.has_surface&&a.has_emissive_texture&&a.alpha_mode==1&&std::abs(a.alpha_cutoff-.3f)<1e-6&&std::abs(a.occlusion_strength-.5f)<1e-6&&std::abs(a.normal_scale-.8f)<1e-6&&a.emissive[0]==1,"glTF surface features reach the cooked material");
+      check(a.family==material_family_toon_standard&&a.has_normal&&a.has_surface&&a.has_emissive_texture&&a.alpha_mode==1&&std::abs(a.alpha_cutoff-.3f)<1e-6&&std::abs(a.occlusion_strength-.5f)<1e-6&&std::abs(a.normal_scale-.8f)<1e-6&&a.emissive[0]==1,"glTF surface features reach the default toon material");
      // Occlusion in a separate image (not packed with metallic-roughness) is refused.
      gltf["images"].push_back({{"uri","glow.png"}});gltf["textures"].push_back({{"source",4}});gltf["materials"][0]["occlusionTexture"]["index"]=4;write(tri/"tri.gltf",gltf.dump());rejects([&]{assets.cook("models/tri/tri.gltf");},"A separate occlusion image is refused");}
     {std::error_code ignored;std::filesystem::remove_all(folder,ignored);} // the catalog may still be open; a temp folder is left behind then

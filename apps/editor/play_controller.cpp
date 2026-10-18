@@ -310,7 +310,7 @@ void PlayController::draw_hud(ImDrawList* draw,const ViewArea& area){
         hud->update(model);
         runtime_inventory.frame(*hud,client,*character_resources,area.x,area.y,area.width,area.height,ImGui::IsWindowFocused(),model.loading);
         runtime_altar.frame(*hud,client,character->hosting(),ImGui::IsWindowFocused(),model.loading);
-        if(client)ui.frame(*client,model,world_ui_camera(shell.scene_view,shell.scene_projection,area.width,area.height),ImGui::IsWindowFocused(),model.loading,area.x,area.y,character->players(),ui_actors(*character));
+        if(client)ui.frame(*client,model,world_ui_camera(shell.game_view,shell.game_projection,area.width,area.height),ImGui::IsWindowFocused(),model.loading,area.x,area.y,character->players(),ui_actors(*character));
         runtime_inventory.flush(*hud,client,*character_resources,model.loading);runtime_altar.flush(*hud,client,character->hosting(),model.loading);ui.service.update();
         shell.inventory_open=(shell.controls_player==0)&&(runtime_inventory.open()||runtime_altar.open()||ui.modal());
         ui.render(draw,area.x,area.y,area.width,area.height);

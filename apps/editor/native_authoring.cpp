@@ -3,6 +3,7 @@
 #include <darkangel/motor_parameters.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/tag_assets.hpp>
+#include <darkangel/material_assets.hpp>
 #include <fstream>
 #include <functional>
 #include <map>
@@ -253,7 +254,12 @@ AssetId NativeAuthoring::create_material(AssetService& assets,std::string_view n
  require(!name.empty()&&name.size()<=64&&std::all_of(name.begin(),name.end(),[](unsigned char c){return std::isalnum(c)||c=='_'||c=='-';}),"Use a name with letters, numbers, underscores or hyphens");
  // Values start from a cooked material slot (color, roughness, metallic, double-sided); an imported embedded texture is not
  // an asset of its own, so the new instance starts untextured until a project texture is chosen.
- nlohmann::json value={{"schema",1},{"kind","material"},{"asset",AssetId::random().text()},{"name",std::string(name)},{"family","lit-color-v1"},{"color",values.value("color",nlohmann::json::array({1.0,1.0,1.0,1.0}))},{"roughness",values.value("roughness",1.0)},{"metallic",values.value("metallic",0.0)},{"double_sided",values.value("double_sided",false)},{"texture",nullptr}};
+ const auto family=values.value("family",std::string(material_family_toon_standard));
+ nlohmann::json value={{"schema",1},{"kind","material"},{"asset",AssetId::random().text()},{"name",std::string(name)},{"family",family},{"color",values.value("color",nlohmann::json::array({1.0,1.0,1.0,1.0}))},{"roughness",values.value("roughness",1.0)},{"metallic",values.value("metallic",0.0)},{"double_sided",values.value("double_sided",false)},{"texture",nullptr}};
+ if(family==material_family_toon_standard||family==material_family_toon_character||family==material_family_toon_terrain){
+     for(const auto* key:{"toon_thresholds","toon_softness","shadow_tint","ambient_color","ambient_strength","local_light_strength","triplanar","triplanar_scale","emissive","alpha_mode","alpha_cutoff"})if(values.contains(key))value[key]=values.at(key);
+     if(family==material_family_toon_character)for(const auto* key:{"hit_flash_color","hit_flash_strength","status_color","status_strength","dissolve","dissolve_edge","dissolve_edge_width"})if(values.contains(key))value[key]=values.at(key);
+ }
  return stage_creation(assets,"materials/"+std::string(name)+".damaterial",std::move(value));
 }
 AssetId NativeAuthoring::create_prefab_source(AssetService& assets,std::string_view name,nlohmann::json value){

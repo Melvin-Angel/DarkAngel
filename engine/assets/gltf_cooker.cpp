@@ -6,6 +6,7 @@
 #include "assets_internal.hpp"
 #include <darkangel/material_assets.hpp>
 #include <darkangel/model_collision.hpp>
+#include <darkangel/smooth_normals.hpp>
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -78,7 +79,7 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
         for(float color:pbr.base_color_factor)require(std::isfinite(color) && color>=0 && color<=1,"Invalid material color factor");
         require(std::isfinite(pbr.roughness_factor) && pbr.roughness_factor>=0 && pbr.roughness_factor<=1 && std::isfinite(pbr.metallic_factor) && pbr.metallic_factor>=0 && pbr.metallic_factor<=1,"Invalid material surface factor");
         for(float color:m.emissive_factor)require(std::isfinite(color)&&color>=0&&color<=1,"Invalid material emissive factor");
-        Json material={{"schema",1},{"id",id.text()},{"color",pbr.base_color_factor},{"roughness",pbr.roughness_factor},{"metallic",pbr.metallic_factor},{"double_sided",m.double_sided!=0},{"texture",nullptr}};
+        Json material={{"schema",1},{"id",id.text()},{"color",pbr.base_color_factor},{"roughness",pbr.roughness_factor},{"metallic",pbr.metallic_factor},{"double_sided",m.double_sided!=0},{"texture",nullptr},{"family",std::string(material_family_toon_standard)}};
         std::vector<AssetId> dependencies;
         // One texture reference of this material as a texture product of the model, cooked for its semantic. Base colour keeps
         // its existing key; the others are new keys that only models using them declare.
@@ -131,7 +132,7 @@ Import import_gltf(const std::filesystem::path& root,const std::filesystem::path
             for(std::size_t n=first;n<result.indices.size();n+=3){const auto& a=result.vertices[result.indices[n]].position;const auto& b=result.vertices[result.indices[n+1]].position;const auto& c=result.vertices[result.indices[n+2]].position;float e[3],f[3];for(unsigned r=0;r<3;++r){e[r]=b[r]-a[r];f[r]=c[r]-a[r];}float cross[3]={e[1]*f[2]-e[2]*f[1],e[2]*f[0]-e[0]*f[2],e[0]*f[1]-e[1]*f[0]};require(cross[0]*cross[0]+cross[1]*cross[1]+cross[2]*cross[2]>1e-20f,"Degenerate triangle");}
             if(!inspect)meshopt_optimizeVertexCache(result.indices.data()+first,result.indices.data()+first,primitive.indices->count,result.vertices.size());result.parts.push_back({material,first,static_cast<std::uint32_t>(primitive.indices->count)});
         }
-        static_assert(sizeof(Vertex)==32);if(!inspect){std::vector<Vertex> optimized(result.vertices.size());auto count=meshopt_optimizeVertexFetch(optimized.data(),result.indices.data(),result.indices.size(),result.vertices.data(),result.vertices.size(),sizeof(Vertex));optimized.resize(count);result.vertices=std::move(optimized);}
+        static_assert(sizeof(Vertex)==32);if(!inspect){smooth_normals(result.vertices, result.indices);std::vector<Vertex> optimized(result.vertices.size());auto count=meshopt_optimizeVertexFetch(optimized.data(),result.indices.data(),result.indices.size(),result.vertices.data(),result.vertices.size(),sizeof(Vertex));optimized.resize(count);result.vertices=std::move(optimized);}
         if(!inspect)out.products.push_back({id,"mesh","mesh",mesh_bytes(result),dependencies});if(!inspect&&collision)cooked.push_back(std::move(result));
     }
     if(!inspect){auto root_id=ids.at("$source");Json model={{"schema",1},{"id",root_id.text()},{"axes","right-handed-y-up"},{"units","metres"},{"meshes",Json::array()},{"collision",nullptr}};for(auto id:meshes)model["meshes"].push_back(id.text());auto required=meshes;

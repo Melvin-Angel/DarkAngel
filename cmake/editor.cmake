@@ -114,6 +114,15 @@ if(DAE_RENDERER_SPIKE)
     # Preserve the pinned vendor TU's existing command line; no runtime UI source reads this retired definition.
     target_compile_options(DarkAngelEditor PRIVATE /W4 /utf-8 /EHsc)
     if(BUILD_TESTING)
+      dae_test(LightingAuthoringTests NAME R7.lighting_authoring
+        SOURCES tests/lighting_authoring_tests.cpp apps/editor/render/render_settings.cpp
+        LIBS DarkAngelEditorService DarkAngelRuntime nlohmann_json::nlohmann_json)
+      target_include_directories(LightingAuthoringTests PRIVATE apps/editor)
+      target_compile_features(LightingAuthoringTests PRIVATE cxx_std_20)
+      dae_test(ShadowCameraTests NAME R7.shadow_camera
+        SOURCES tests/shadow_camera_tests.cpp LIBS Microsoft::DirectXTex)
+      target_include_directories(ShadowCameraTests PRIVATE apps/editor)
+      target_compile_features(ShadowCameraTests PRIVATE cxx_std_20)
       dae_test(PreviewRoutingTests NAME R7.preview_routing
         SOURCES tests/preview_routing_tests.cpp)
       target_compile_features(PreviewRoutingTests PRIVATE cxx_std_20)
