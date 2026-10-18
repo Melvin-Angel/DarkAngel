@@ -46,6 +46,12 @@ int main(){try{
     auto expected=edited;expected["main_light"]=nullptr;
     check(encode_rendering_settings(promoted.scene)==expected,"Promotion lost current scene render values");
     check(promoted.material_toon.band_thresholds==scene.toon.band_thresholds,"Promotion lost material toon defaults");
+    SceneRenderingSettings inherited;
+    inherited.post.bloom=true;inherited.post.bloom_intensity=.12f;inherited.post.contrast=1.12f;
+    inherited.sky.sun_intensity=1.8f;inherited.shadows.cascades_enabled=true;
+    const auto partial=merge_rendering_settings(inherited,Json{{"schema",1},{"post",{{"contrast",1.4}}},{"shadows",{{"distance",64.0}}}});
+    check(partial.post.bloom&&partial.post.bloom_intensity==.12f&&partial.post.contrast==1.4f,"Scene post override did not inherit unspecified project defaults");
+    check(partial.sky.sun_intensity==1.8f&&partial.shadows.cascades_enabled&&partial.shadows.distance==64.f,"Partial scene profile discarded the default sun or inherited shadow settings");
     save_project_rendering_settings(folder,promoted);
     check(encode_project_rendering_settings(load_project_rendering_settings(folder))==encode_project_rendering_settings(promoted),"Promoted defaults failed disk round trip");
     auto source=Json::parse(*document.entity(local));set_render_component(source,"light",nullptr);

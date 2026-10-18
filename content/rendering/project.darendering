@@ -2,16 +2,16 @@
   "kind": "project_rendering",
   "material_toon": {
     "ambient_color": [
-      0.1599999964237213,
-      0.18000000715255737,
-      0.23999999463558197
+      0.21199999749660492,
+      0.22699999809265137,
+      0.2590000033378601
     ],
-    "ambient_strength": 0.3499999940395355,
+    "ambient_strength": 0.6,
     "local_strength": 1.0,
     "shadow_tint": [
-      0.2199999988079071,
-      0.25,
-      0.3799999952316284
+      0.18,
+      0.12,
+      0.2
     ],
     "softness": 0.03500000014901161,
     "thresholds": [
@@ -29,27 +29,27 @@
     },
     "fog": {
       "color": [
-        0.3499999940395355,
-        0.41999998688697815,
-        0.5199999809265137
+        0.38,
+        0.22,
+        0.075
       ],
       "density": 0.014999999664723873,
-      "enabled": false,
-      "end": 180.0,
+      "enabled": true,
+      "end": 340.0,
       "height": 0.0,
       "height_falloff": 0.0,
       "mode": "linear",
-      "start": 20.0
+      "start": 170.0
     },
     "gpu_clustered": true,
     "main_light": null,
     "post": {
-      "bloom": false,
-      "bloom_intensity": 0.3499999940395355,
+      "bloom": true,
+      "bloom_intensity": 0.3,
       "bloom_radius": 4.0,
       "bloom_soft_threshold": 0.5,
       "bloom_threshold": 1.0,
-      "contrast": 1.0,
+      "contrast": 1.08,
       "exposure": 0.0,
       "exposure_compensation": 0.0,
       "fxaa": true,
@@ -71,19 +71,19 @@
       "grade_temperature": 0.0,
       "outline": {
         "color": [
-          0.02500000037252903,
-          0.014999999664723873,
-          0.03999999910593033
+          0.012,
+          0.009,
+          0.014
         ],
-        "depth_sensitivity": 80.0,
+        "depth_sensitivity": 120.0,
         "enabled": true,
-        "fade_end": 180.0,
-        "fade_start": 20.0,
-        "group_sensitivity": 1.0,
-        "normal_sensitivity": 1.5,
-        "thickness": 3.0
+        "fade_end": 240.0,
+        "fade_start": 0.0,
+        "group_sensitivity": 1.6,
+        "normal_sensitivity": 2.0,
+        "thickness": 3.5
       },
-      "saturation": 1.0,
+      "saturation": 1.12,
       "tint": [
         1.0,
         1.0,
@@ -94,7 +94,7 @@
     "shadows": {
       "cascade_count": 4,
       "depth_bias": 0.0010000000474974513,
-      "distance": 180.0,
+      "distance": 320.0,
       "enabled": true,
       "normal_bias": 0.0020000000949949026,
       "resolution": 2048,
@@ -103,62 +103,62 @@
     "sky": {
       "cloud_amount": 0.0,
       "ground": [
-        0.02500000037252903,
-        0.019999999552965164,
-        0.029999999329447746
+        0.11,
+        0.075,
+        0.018
       ],
       "hdr_intensity": 1.0,
       "hdr_rotation_degrees": 0.0,
       "hdr_texture": null,
       "horizon": [
-        0.41999998688697815,
-        0.30000001192092896,
-        0.23999999463558197
+        0.76,
+        0.27,
+        0.035
       ],
-      "procedural": false,
+      "procedural": true,
       "seed": 0,
       "sun_color": [
         1.0,
-        0.75,
-        0.44999998807907104
+        0.55,
+        0.25
       ],
       "sun_direction": [
-        -0.3499999940395355,
-        0.699999988079071,
-        -0.550000011920929
+        -0.35,
+        0.7,
+        -0.55
       ],
-      "sun_intensity": 2.0,
-      "sun_size": 0.02500000037252903,
+      "sun_intensity": 1.8,
+      "sun_size": 0.08,
       "zenith": [
-        0.05999999865889549,
-        0.10000000149011612,
-        0.2199999988079071
+        0.054999999701976776,
+        0.02500000037252903,
+        0.012000000104308128
       ]
     },
     "sky_color": [
-      0.11075963079929352,
-      0.3440263569355011,
-      0.8105590343475342
+      0.29,
+      0.12,
+      0.035
     ],
     "sky_enabled": true,
     "toon": {
       "ambient_color": [
-        0.1599999964237213,
-        0.18000000715255737,
-        0.23999999463558197
+        0.212,
+        0.227,
+        0.259
       ],
-      "ambient_strength": 0.3499999940395355,
+      "ambient_strength": 0.6,
       "local_strength": 1.0,
       "shadow_tint": [
-        0.2199999988079071,
-        0.25,
-        0.3799999952316284
+        0.18,
+        0.12,
+        0.2
       ],
       "softness": 0.03500000014901161,
       "thresholds": [
-        0.18000000715255737,
-        0.5199999809265137,
-        0.8199999928474426
+        0.20000000298023224,
+        0.47999998927116394,
+        0.7599999904632568
       ]
     }
   },

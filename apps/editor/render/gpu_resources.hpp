@@ -59,8 +59,8 @@ struct PostConstants {
     DirectX::XMFLOAT4 grade_gain{1,1,1,0};
     DirectX::XMFLOAT4 grade_params{};
     DirectX::XMFLOAT4 texel{};
-    DirectX::XMFLOAT4 outline{.025f,.015f,.04f,1};
-    DirectX::XMFLOAT4 outline_params{1,80,1.5f,1};
+    DirectX::XMFLOAT4 outline{.012f,.009f,.014f,1};
+    DirectX::XMFLOAT4 outline_params{3.5f,120,2,1.6f};
     DirectX::XMFLOAT4 outline_fade{20,180,0,0};
     DirectX::XMFLOAT4 sky_zenith{.06f,.10f,.22f,0};
     DirectX::XMFLOAT4 sky_horizon{.42f,.30f,.24f,0};

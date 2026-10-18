@@ -414,10 +414,59 @@ void SceneViewport::render(double elapsed_seconds) {
     rendering::ToonLighting material_toon_defaults = project_rendering.material_toon;
     bool scene_toon_override = false;
     std::vector<FrameLight> frame_lights;
-    if (!isolated_preview)
+    if (!isolated_preview) {
         // Play's presentation world omits static scene entities. Their rendering
         // profile and lights still belong to this scene, just like its scenery.
-        for(const auto& origin:editor.document->plan().origins){const auto* settings_world=&editor.displayed();auto handle=settings_world->find(origin.object);if(!settings_world->valid(handle)){settings_world=&editor.document->world();handle=settings_world->find(origin.object);}if(!settings_world->valid(handle))continue;auto object=settings_world->read(handle);if(object.optional_json.empty())continue;try{auto source=nlohmann::json::parse(object.optional_json);if(source.contains("rendering")){frame_settings=render::decode_rendering_settings(source.at("rendering"));scene_toon_override=source.at("rendering").value("toon",nlohmann::json{}).is_object();if(scene_toon_override)material_toon_defaults=frame_settings.toon;}if(source.contains("light")){auto authored=render::decode_light(source.at("light"));FrameLight made;made.light.id=object.id;made.light.type=authored.type;made.light.enabled=authored.enabled;made.light.cast_shadows=authored.cast_shadows;made.light.color=authored.color;made.light.intensity=authored.intensity;made.light.range=authored.range;made.light.inner_cone_degrees=authored.inner_cone_degrees;made.light.outer_cone_degrees=authored.outer_cone_degrees;made.light.falloff=authored.falloff;made.world_position={float(object.transform.x),float(object.transform.y),float(object.transform.z)};const auto rotation=XMMatrixRotationRollPitchYaw(float(object.transform.pitch),float(object.transform.yaw),float(object.transform.roll));const auto direction=XMVector3TransformNormal(XMVectorSet(0,-1,0,0),rotation);XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()),XMVector3Normalize(direction));frame_lights.push_back(made);}}catch(const std::exception&) {}}
+        for (const auto& origin : editor.document->plan().origins) {
+            const auto* settings_world = &editor.displayed();
+            auto handle = settings_world->find(origin.object);
+            if (!settings_world->valid(handle)) { settings_world = &editor.document->world(); handle = settings_world->find(origin.object); }
+            if (!settings_world->valid(handle)) continue;
+            const auto object = settings_world->read(handle);
+            if (object.optional_json.empty()) continue;
+            try {
+                const auto source = nlohmann::json::parse(object.optional_json);
+                if (source.contains("rendering")) {
+                    frame_settings = render::merge_rendering_settings(project_rendering.scene, source.at("rendering"));
+                    scene_toon_override = source.at("rendering").value("toon", nlohmann::json{}).is_object();
+                    if (scene_toon_override) material_toon_defaults = frame_settings.toon;
+                }
+                if (source.contains("light")) {
+                    const auto authored = render::decode_light(source.at("light"));
+                    FrameLight made;
+                    made.light.id = object.id; made.light.type = authored.type; made.light.enabled = authored.enabled;
+                    made.light.cast_shadows = authored.cast_shadows; made.light.color = authored.color; made.light.intensity = authored.intensity;
+                    made.light.range = authored.range; made.light.inner_cone_degrees = authored.inner_cone_degrees;
+                    made.light.outer_cone_degrees = authored.outer_cone_degrees; made.light.falloff = authored.falloff;
+                    made.world_position = {float(object.transform.x), float(object.transform.y), float(object.transform.z)};
+                    const auto rotation = XMMatrixRotationRollPitchYaw(float(object.transform.pitch), float(object.transform.yaw), float(object.transform.roll));
+                    // Authored directional transforms point along the rays the light emits.
+                    // Shading and the cascade camera both consume a vector toward the sun.
+                    auto direction = XMVector3TransformNormal(XMVectorSet(0, -1, 0, 0), rotation);
+                    if (authored.type == rendering::LightType::Directional) direction = XMVectorNegate(direction);
+                    XMStoreFloat3(reinterpret_cast<XMFLOAT3*>(made.light.direction_view.data()), XMVector3Normalize(direction));
+                    frame_lights.push_back(made);
+                }
+            } catch (const std::exception&) {}
+        }
+    }
+    const FrameLight* main_light = nullptr;
+    for (const auto& prepared : frame_lights)
+        if (prepared.light.id == frame_settings.main_light && prepared.light.type == rendering::LightType::Directional && prepared.light.enabled) { main_light = &prepared; break; }
+    if (!main_light)
+        for (const auto& prepared : frame_lights)
+            if (prepared.light.type == rendering::LightType::Directional && prepared.light.enabled) { main_light = &prepared; break; }
+    if (!main_light) {
+        FrameLight sun;
+        sun.light.type = rendering::LightType::Directional;
+        sun.light.enabled = true;
+        sun.light.cast_shadows = true;
+        sun.light.color = frame_settings.sky.sun_color;
+        sun.light.intensity = frame_settings.sky.sun_intensity;
+        sun.light.direction_view = frame_settings.sky.sun_direction;
+        frame_lights.push_back(sun);
+        main_light = &frame_lights.back();
+    }
     std::vector<darkangel::rendering::SceneLight> cluster_lights;
     cluster_lights.reserve(frame_lights.size());
     const auto frame_view = XMLoadFloat4x4(&view_matrix);
@@ -724,7 +773,10 @@ void SceneViewport::render(double elapsed_seconds) {
                         context->DrawIndexed(outline_draw);
                         continue;
                     }
-                    if(frame_settings.main_light){for(const auto&prepared:frame_lights)if(prepared.light.id==frame_settings.main_light&&prepared.light.type==darkangel::rendering::LightType::Directional){constants.main_light={prepared.light.direction_view[0],prepared.light.direction_view[1],prepared.light.direction_view[2],1};constants.main_color={prepared.light.color.r,prepared.light.color.g,prepared.light.color.b,prepared.light.intensity};break;}}
+                    if (main_light) {
+                        constants.main_light = {main_light->light.direction_view[0], main_light->light.direction_view[1], main_light->light.direction_view[2], 1};
+                        constants.main_color = {main_light->light.color.r, main_light->light.color.g, main_light->light.color.b, main_light->light.intensity};
+                    }
                     if(!material_toon){constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1};constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness};constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1};}
                     constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f};constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
                     constants.shadow_splits={shadow_splits[0],shadow_splits[1],shadow_splits[2],shadow_splits[3]};constants.shadow_params={frame_settings.shadows.depth_bias,frame_settings.shadows.normal_bias,shadow_enabled?float(shadow_cascades):0.f,1.f/std::max(1u,shadow_resolution)};for(unsigned cascade=0;cascade<4;++cascade)constants.shadow_matrices[cascade]=shadow_matrices[cascade];if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);
@@ -899,14 +951,12 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
     const bool travelling = false;
 #endif
-    if (frame_settings.main_light && frame_settings.shadows.cascades_enabled) {
-        for (const auto& prepared : frame_lights)
-            if (prepared.light.id == frame_settings.main_light && prepared.light.type == darkangel::rendering::LightType::Directional &&
-                prepared.light.enabled && prepared.light.cast_shadows) {
+    if (main_light && frame_settings.shadows.cascades_enabled) {
+        if (main_light->light.enabled && main_light->light.cast_shadows) {
                 // Surface lighting uses a vector TO the sun; the shadow camera
                 // looks FROM the sun along the opposite ray direction.
-                const auto direction = XMVectorNegate(XMVector3Normalize(XMVectorSet(prepared.light.direction_view[0], prepared.light.direction_view[1],
-                                                                       prepared.light.direction_view[2], 0)));
+                const auto direction = XMVectorNegate(XMVector3Normalize(XMVectorSet(main_light->light.direction_view[0], main_light->light.direction_view[1],
+                                                                       main_light->light.direction_view[2], 0)));
                 for (unsigned cascade = 0; cascade < shadow_cascades; ++cascade) {
                     const auto camera = shadow_camera(view, projection, direction,
                         cascade ? shadow_splits[cascade - 1] : shadow_near, shadow_splits[cascade],
@@ -926,7 +976,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     draw_objects(light_view, light_projection, nullptr, true);
                 }
                 shadow_enabled = true;
-            }
+        }
     }
     context->SetRenderTargets(1,&rtv,dsv,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);context->SetViewports(1,&viewport,scene_color->GetDesc().Width,scene_color->GetDesc().Height);
     if (!travelling)

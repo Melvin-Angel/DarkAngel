@@ -36,6 +36,7 @@ struct ProjectRenderingSettings {
 AuthoredLight decode_light(const nlohmann::json&);
 nlohmann::json encode_light(const AuthoredLight&);
 SceneRenderingSettings decode_rendering_settings(const nlohmann::json&);
+SceneRenderingSettings merge_rendering_settings(const SceneRenderingSettings& defaults, const nlohmann::json& overrides);
 nlohmann::json encode_rendering_settings(const SceneRenderingSettings&);
 ProjectRenderingSettings decode_project_rendering_settings(const nlohmann::json&);
 nlohmann::json encode_project_rendering_settings(const ProjectRenderingSettings&);
