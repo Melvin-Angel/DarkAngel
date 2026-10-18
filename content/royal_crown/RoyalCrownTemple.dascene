@@ -123,7 +123,7 @@
                 "fxaa": true,
                 "outline": {
                   "enabled": true,
-                    "thickness": 4.0
+                  "thickness": 8.0
                 }
               }
             }
@@ -27480,6 +27480,32 @@
               "falloff": 2.0,
               "inner_cone": 10.5,
               "outer_cone": 30.0
+            }
+          }
+        },
+        "00000000000000000000000000000500": {
+          "name": "Royal Crown Player Spawn",
+          "model": "e87a6c8d-5708-4699-9a67-58249a4a7877",
+          "target": null,
+          "types": {
+            "1": {
+              "version": 2,
+              "fields": {
+                "1": 0.0,
+                "2": 0.0,
+                "3": -8.0,
+                "4": -176.0,
+                "5": 0.0,
+                "6": 0.0,
+                "7": 1.0
+              }
+            },
+            "2": {
+              "version": 1,
+              "fields": {
+                "1": 100,
+                "2": 100
+              }
             }
           }
         }
