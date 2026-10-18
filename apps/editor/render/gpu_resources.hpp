@@ -245,7 +245,7 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     // Fog the complete surface radiance, including highlights and emission,
     // so every toon family converges to the same distant atmosphere colour.
     color+=specular*.08*lerp(float3(1,1,1),color,metallic)+emissive;
-    if(FogColor.a>0){float distance=length(vertex.ViewPosition);float fog=FogParams.w>0?1-exp(-distance*FogParams.z):saturate((distance-FogParams.x)/max(FogParams.y-FogParams.x,.001));color=lerp(color,FogColor.rgb,saturate(fog));}
+    if(FogColor.a>0){float distance=length(vertex.ViewPosition);float fog=FogParams.w>0?1-exp(-max(distance-FogParams.x,0)*FogParams.z):saturate((distance-FogParams.x)/max(FogParams.y-FogParams.x,.001));color=lerp(color,FogColor.rgb,saturate(fog));}
     return float4(color,Features.y==2?base.a:1);
 }
 )";

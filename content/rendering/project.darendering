@@ -39,7 +39,7 @@
       "height": 0.0,
       "height_falloff": 0.0,
       "mode": "exponential",
-      "start": 0.0
+      "start": 80.0
     },
     "gpu_clustered": true,
     "main_light": null,
@@ -78,10 +78,10 @@
         "depth_sensitivity": 220.0,
         "enabled": true,
         "fade_end": 150.0,
-        "fade_start": 25.0,
+        "fade_start": 80.0,
         "group_sensitivity": 1.0,
         "normal_sensitivity": 1.0,
-        "thickness": 1.5
+        "thickness": 1.0
       },
       "saturation": 1.12,
       "tint": [
