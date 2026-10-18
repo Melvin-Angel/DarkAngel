@@ -103,15 +103,15 @@
               },
               "fog": {
                 "enabled": true,
-                "mode": "linear",
+                "mode": "exponential",
                 "color": [
                   0.38,
                   0.22,
                   0.075
                 ],
-                "start": 170.0,
+                "start": 0.0,
                 "end": 340.0,
-                "density": 0.015
+                "density": 0.008
               },
               "post": {
                 "bloom": true,
@@ -123,7 +123,7 @@
                 "fxaa": true,
                 "outline": {
                   "enabled": true,
-                  "thickness": 8.0
+                  "thickness": 1.5
                 }
               }
             }

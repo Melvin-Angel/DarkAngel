@@ -120,3 +120,15 @@ max-resolution D3D12 scene captures were rendered and visually checked:
 `royal-crown-02-west-courtyard.png`, `royal-crown-03-east-courtyard.png`, and
 `royal-crown-04-aerial.png`. A fresh interactive editor is relaunched from the
 same cooked registry after the captures.
+
+The 18 October outline follow-up fixes the actual visibility bug: dark ink was
+added to the scene, so black could not darken any pixel. The shared compositor
+now blends ink using independent edge coverage after FXAA; point geometry/ID
+reads and plane-slope rejection also suppress coplanar floor-piece seams.
+After the exaggerated 8 px test, project/Crown outlines return to 1.5 px and
+fade over 25-150 m using distance reconstructed from each viewport's actual
+projection. Project/Crown exponential fog uses density .008; complete toon
+surface radiance, including specular/emission, approaches the fog colour.
+D3D12 and Vulkan GPU pixel regressions pass for disabled/1 px/8 px black ink,
+metre-based fading and exponential-fog colour convergence. Exact receipts and capture
+paths are in [current/TOON_OUTLINES_REPORT.md](current/TOON_OUTLINES_REPORT.md).

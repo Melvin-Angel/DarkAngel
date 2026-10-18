@@ -60,14 +60,15 @@ struct PostConstants {
     DirectX::XMFLOAT4 grade_params{};
     DirectX::XMFLOAT4 texel{};
     DirectX::XMFLOAT4 outline{.006f,.004f,.008f,1};
-    DirectX::XMFLOAT4 outline_params{7.5f,220,5,1};
-    DirectX::XMFLOAT4 outline_fade{20,180,0,0};
+    DirectX::XMFLOAT4 outline_params{1.5f,220,1,1};
+    DirectX::XMFLOAT4 outline_fade{25,150,-.5f,0};
     DirectX::XMFLOAT4 sky_zenith{.06f,.10f,.22f,0};
     DirectX::XMFLOAT4 sky_horizon{.42f,.30f,.24f,0};
     DirectX::XMFLOAT4 sky_ground{.025f,.02f,.03f,0};
     DirectX::XMFLOAT4 sky_sun{-.35f,.7f,-.55f,0};
     DirectX::XMFLOAT4 sky_sun_color{1,.75f,.45f,0};
     DirectX::XMFLOAT4 sky_mode{};
+    DirectX::XMFLOAT4X4 inverse_projection{};
 };
 // Sets a draw's surface, emission and feature constants from its material (colour is set by the caller, which may tint it).
 void apply_material(Constants&, const CookedMaterial&);
@@ -241,8 +242,11 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     color+=base.rgb*(Features.z>0?min(local_lighting,float3(.65,.65,.65)):local_lighting);
     if(Features.z==3){float3 coordinates=vertex.Local*Features.w;float3 l1=TerrainLayer1.Sample(TerrainLayer1_sampler,coordinates.xz).rgb,l2=TerrainLayer2.Sample(TerrainLayer2_sampler,coordinates.yz).rgb;float slope=saturate((abs(normal.y)-TerrainParams.y)/max(TerrainParams.z-TerrainParams.y,.001));if(features&32u)color=lerp(color,base.rgb*l1,slope);if(features&64u)color=lerp(color,base.rgb*l2,saturate(TerrainParams.w+(1-slope)*.5));}
     if(Features.z==2){float hit=saturate(CharacterParams.x*CharacterHit.a),status=saturate(CharacterParams.y*CharacterStatus.a);color=lerp(color,CharacterHit.rgb,hit);color=lerp(color,CharacterStatus.rgb,status);if(features&16u){float noise=DissolveMask.Sample(DissolveMask_sampler,vertex.UV).r;float edge=saturate((noise-CharacterParams.z)/max(CharacterParams.w,.001));if(noise<CharacterParams.z)discard;color=lerp(CharacterHit.rgb,color,edge);}}
+    // Fog the complete surface radiance, including highlights and emission,
+    // so every toon family converges to the same distant atmosphere colour.
+    color+=specular*.08*lerp(float3(1,1,1),color,metallic)+emissive;
     if(FogColor.a>0){float distance=length(vertex.ViewPosition);float fog=FogParams.w>0?1-exp(-distance*FogParams.z):saturate((distance-FogParams.x)/max(FogParams.y-FogParams.x,.001));color=lerp(color,FogColor.rgb,saturate(fog));}
-    return float4(color+specular*.08*lerp(float3(1,1,1),color,metallic)+emissive,Features.y==2?base.a:1);
+    return float4(color,Features.y==2?base.a:1);
 }
 )";
 // blend: the transparent variant (alpha blending, depth test without depth writes) of the same layout, so a material's binding

@@ -1088,7 +1088,7 @@ void SceneViewport::render(double elapsed_seconds) {
             context_.editor.log(std::string("HDR sky load failed: ") + error.what(), ConsoleSeverity::Error);
         } else if (requested_sky == AssetId{}) sky_asset = {};
     }
-    auto present_post = [&](ITexture* source, ITexture* destination, ITexture* info, ITexture* depth, IShaderResourceBinding* binding) {
+    auto present_post = [&](ITexture* source, ITexture* destination, ITexture* info, ITexture* depth, IShaderResourceBinding* binding, FXMMATRIX camera_projection) {
         PostConstants constants;
         constants.exposure = {frame_settings.post.exposure, frame_settings.post.exposure_compensation, frame_settings.post.contrast, frame_settings.post.saturation};
         constants.bloom = {frame_settings.post.bloom_threshold, frame_settings.post.bloom_soft_threshold, frame_settings.post.bloom ? frame_settings.post.bloom_intensity : 0.f, frame_settings.post.bloom_radius};
@@ -1100,7 +1100,8 @@ void SceneViewport::render(double elapsed_seconds) {
         constants.texel = {1.f / std::max(1u, destination->GetDesc().Width), 1.f / std::max(1u, destination->GetDesc().Height), 0, 0};
         constants.outline = {frame_settings.post.outline.color.r, frame_settings.post.outline.color.g, frame_settings.post.outline.color.b, frame_settings.post.outline.enabled ? 1.f : 0.f};
         constants.outline_params = {frame_settings.post.outline.thickness, frame_settings.post.outline.depth_sensitivity, frame_settings.post.outline.normal_sensitivity, frame_settings.post.outline.group_sensitivity};
-        constants.outline_fade = {frame_settings.post.outline.fade_start, frame_settings.post.outline.fade_end, 0, 0};
+        constants.outline_fade = {frame_settings.post.outline.fade_start, frame_settings.post.outline.fade_end, device->GetDeviceInfo().NDC.YtoVScale, 0};
+        XMStoreFloat4x4(&constants.inverse_projection, XMMatrixInverse(nullptr, camera_projection));
         constants.sky_zenith = {frame_settings.sky.zenith.r, frame_settings.sky.zenith.g, frame_settings.sky.zenith.b, 0};
         constants.sky_horizon = {frame_settings.sky.horizon.r, frame_settings.sky.horizon.g, frame_settings.sky.horizon.b, 0};
         constants.sky_ground = {frame_settings.sky.ground.r, frame_settings.sky.ground.g, frame_settings.sky.ground.b, 0};
@@ -1138,9 +1139,9 @@ void SceneViewport::render(double elapsed_seconds) {
         draw.Flags = DRAW_FLAG_VERIFY_ALL;
         context->Draw(draw);
     };
-    present_post(scene_color, scene_display, outline_info, scene_depth, post_binding);
+    present_post(scene_color, scene_display, outline_info, scene_depth, post_binding, projection);
     if (shell.second_view && scene_color_second && scene_display_second)
-        present_post(scene_color_second, scene_display_second, outline_info_second, scene_depth_second, post_binding_second);
+        present_post(scene_color_second, scene_display_second, outline_info_second, scene_depth_second, post_binding_second, XMLoadFloat4x4(&shell.game_projection_second));
 }
 VfxView SceneViewport::vfx_view() const {
     using namespace DirectX;
