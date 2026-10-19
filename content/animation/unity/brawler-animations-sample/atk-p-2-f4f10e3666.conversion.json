@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Atk_P_2.fbx",
+  "source_guid": "cac4c62d88caec6468453ff6cb391714",
+  "source_local_id": -3119484255079415707,
+  "source_clip": "Atk_P_2",
+  "ticks": 58,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "cf2f37723cd6894cd28a2bc7076df91f2ee448e91611df1e4b36718895bfac0d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Atk_P_2.fbx",
+  "source_sha256": "c6e488d89b855e61a5b48829ab5dd6a7b52b2868856bd7f9cf07f894aa5247d4",
+  "action": "Atk_P_2"
+}

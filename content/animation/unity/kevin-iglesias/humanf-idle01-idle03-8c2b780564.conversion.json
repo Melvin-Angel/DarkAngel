@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Idles\\HumanF@Idle01-Idle03.fbx",
+  "source_guid": "a9a94d827f7df1244b309db5dae9cebb",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@Idle01-Idle03",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "fad6e59fd36e17ac0dbb597b1b0841da935e766483a4d6fd5ae8fa9581b14383",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Idles/HumanF@Idle01-Idle03.fbx",
+  "source_sha256": "1806fc662560f816927b75f2b78247f7e24862ca09e09b1b09c3e1efa9bf5631",
+  "action": "HumanF@Idle01-Idle03"
+}

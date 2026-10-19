@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Spellcasting\\MagicAttacks\\Omnidirectional\\HumanF@MagicAttackOmni01 - Cast.fbx",
+  "source_guid": "f933ebfa1a6efc94fada1443b124ad3b",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@MagicAttackOmni01 - Cast",
+  "ticks": 79,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e418e95a183916f50b40afc7b4a96e3732ae702d2bad45012958637111c23574",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Spellcasting/MagicAttacks/Omnidirectional/HumanF@MagicAttackOmni01 - Cast.fbx",
+  "source_sha256": "4622f0850d9dcdf35fa10445bf389e452c5a16b45d29d6b6e0aae020205a3080",
+  "action": "HumanF@MagicAttackOmni01 - Cast"
+}

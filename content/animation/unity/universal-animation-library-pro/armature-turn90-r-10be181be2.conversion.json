@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Turn90_R.anim",
+  "source_guid": "5ec0c5a45ba43d2489a119025405372b",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Turn90_R",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "bb49427ebef943846364930b1ca741220ed28308ff88e1b3a29ea2a77a70e9d9",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Turn90_R.anim",
+  "source_sha256": "b1e8d32f94ac4654359e3b318a1c344317f664df1055c273f0f2acac7806e13a",
+  "action": "Armature_Turn90_R"
+}

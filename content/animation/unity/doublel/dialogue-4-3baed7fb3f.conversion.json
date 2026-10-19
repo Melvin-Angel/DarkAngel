@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\NPC\\Dialogue\\Dialogue_4.fbx",
+  "source_guid": "6b0e4688c7afd324fab95d5194e0ab57",
+  "source_local_id": -8523214319182235554,
+  "source_clip": "Dialogue_4",
+  "ticks": 440,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "2f8f51b48af251582bd30b126ff96da6bbe2a62cb841926d01d8a708468cbc8d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/NPC/Dialogue/Dialogue_4.fbx",
+  "source_sha256": "977af664ddab11c7f104c6712fa63e6971f81205afeacf21b15b14694c2b77ea",
+  "action": "Dialogue_4"
+}

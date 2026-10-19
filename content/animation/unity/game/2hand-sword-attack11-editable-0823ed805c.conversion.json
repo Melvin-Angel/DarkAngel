@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\2Hand-Sword-Attack11_Editable.anim",
+  "source_guid": "861158869768f0c40a5e8f6fe85dde15",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Attack11_Editable",
+  "ticks": 72,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "3c5566ca4bfe0dd58f5c1ccdb53c60e77be534cd140f5f5ad77d662250aff9fd",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/2Hand-Sword-Attack11_Editable.anim",
+  "source_sha256": "fd61394501324c0c7d4553400fc9071fdbb6d77edfdad6c386ee869c48c2f18d",
+  "action": "2Hand-Sword-Attack11_Editable"
+}

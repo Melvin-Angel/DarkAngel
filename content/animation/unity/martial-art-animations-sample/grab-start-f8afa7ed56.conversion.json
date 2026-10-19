@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Martial Art Animations Sample\\Animations\\Grab_Start.fbx",
+  "source_guid": "8fa4ce5c51d783f498abee6f91cf3903",
+  "source_local_id": -1072464929596767778,
+  "source_clip": "Grab_Start",
+  "ticks": 47,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0034e3aa09992bcea8898c804f9401ad63cd55e815baea8220794a60f2010cdb",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Martial Art Animations Sample/Animations/Grab_Start.fbx",
+  "source_sha256": "6b6e3e4866721a3d934f59d7dccf3189a7094161fb07840ffe40e7e551ba67a0",
+  "action": "Grab_Start"
+}

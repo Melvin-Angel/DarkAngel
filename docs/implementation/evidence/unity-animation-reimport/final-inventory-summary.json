@@ -1,0 +1,14 @@
+{
+  "clips": 1068,
+  "reimported": 28,
+  "new": 1040,
+  "existing_metadata_and_durations_preserved": 28,
+  "new_glb_bytes": 252721100,
+  "failed": [],
+  "skipped_counts": {
+    "outside native clip duration bound (1/60 to 10 seconds)": 8,
+    "not Humanoid (prop/UI/generic rig); no safe Avatar mapping": 134,
+    "bind/reference pose": 38,
+    "same named/duration take already selected from this pack": 73
+  }
+}

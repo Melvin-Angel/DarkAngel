@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Combat\\Spellcasting\\MagicAttacks\\Omnidirectional\\HumanM@MagicAttackOmni01 - Load.fbx",
+  "source_guid": "48740288977d86d4b8adad7dd6194798",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@MagicAttackOmni01 - Load",
+  "ticks": 99,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "9a9287d8d22ef253981f1cd34ef17cb7cf0639bfec214061008bd82a461e9aa9",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Combat/Spellcasting/MagicAttacks/Omnidirectional/HumanM@MagicAttackOmni01 - Load.fbx",
+  "source_sha256": "0abb1973732b372af94f252445b822a961bdaec0730cc07bcf1648710e2fe4cf",
+  "action": "HumanM@MagicAttackOmni01 - Load"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Spellcasting\\MagicAttacks\\Directional\\HumanF@MagicAttackDirect2H01 - Cast.fbx",
+  "source_guid": "72b86c822a91b5c4da93cfdd8382c30e",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@MagicAttackDirect2H01 - Cast",
+  "ticks": 58,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "878c42dc39f2335210cd759b5a54f9a73114a6bf156880b7b53b1ba476267684",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Spellcasting/MagicAttacks/Directional/HumanF@MagicAttackDirect2H01 - Cast.fbx",
+  "source_sha256": "36bab20d74cfa5fdc7c2d4064a2043f838d173f06993608ea1649b66e17a36d1",
+  "action": "HumanF@MagicAttackDirect2H01 - Cast"
+}

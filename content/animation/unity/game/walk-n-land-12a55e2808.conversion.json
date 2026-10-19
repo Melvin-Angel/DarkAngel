@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Systems\\Core\\Art\\Animations\\Default\\Locomotion--Walk_N_Land.anim.fbx",
+  "source_guid": "325a26d62b61fa94cb3c97c435efebc5",
+  "source_local_id": 3062299877480904481,
+  "source_clip": "Walk_N_Land",
+  "ticks": 32,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "ffac446f52c69dbf5ecc2a219d02c5e7b6ad589d908240cdd2efe4460a7ba88e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Systems/Core/Art/Animations/Default/Locomotion--Walk_N_Land.anim.fbx",
+  "source_sha256": "5bf601e30e89e7601e1735a3c2ca165f370d90457e3b22ebfa366dc84ecffda5",
+  "action": "Walk_N_Land"
+}

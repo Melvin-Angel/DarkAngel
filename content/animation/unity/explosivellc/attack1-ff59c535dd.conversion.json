@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Hammer Warrior Mecanim Animation Pack\\Animations\\Hammer@Attack1.FBX",
+  "source_guid": "c52633ad3251d4841878d77a31df9981",
+  "source_local_id": 7400000,
+  "source_clip": "Attack1",
+  "ticks": 105,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "6a49a33109a9d234da0116d0348b395630ef567412b8ba8b44c2b607620ac2bf",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Hammer Warrior Mecanim Animation Pack/Animations/Hammer@Attack1.FBX",
+  "source_sha256": "5d8523b87c64aff771d5cb4c16a9040da07ebfde7d25f95729d1cea244962ec1",
+  "action": "Attack1"
+}

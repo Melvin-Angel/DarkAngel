@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Spearman Warrior Mecanim Animation Pack\\Animations\\Spearman@Jump.FBX",
+  "source_guid": "d0022f72a49229f46a890169cebea42d",
+  "source_local_id": 7400000,
+  "source_clip": "Jump",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "c25c952dea1fec072dd5597c28254cabd7a08c816135dd3aea343ece3ad088af",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Spearman Warrior Mecanim Animation Pack/Animations/Spearman@Jump.FBX",
+  "source_sha256": "4b00d521cef7c85747a9b3c20f5002a831c9ec973dea1edded7320f5b8d35d42",
+  "action": "Jump"
+}

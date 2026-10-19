@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Interact.anim",
+  "source_guid": "6e4965ea048c1234b967aa5e8ac74c25",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Interact",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "229584b62ad52623689f45b3b3ce2615ddfc08a7a25786c6c9259b4d4152fe9b",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Interact.anim",
+  "source_sha256": "9d289ccbec4b98c1f140d315ba948979aaaf3f3c890d274d87080a288bb38010",
+  "action": "Armature_Interact"
+}

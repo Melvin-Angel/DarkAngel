@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Movement\\Strafe\\StrafeRun\\HumanF@StrafeRun01_Left.fbx",
+  "source_guid": "170eb8694c2f28e4080b789b627f6ce6",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@StrafeRun01_Left",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0a49c6022f8ef6d54a8d4cffcf02a8f81319ea4463b816be5d2dd076b0297498",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Movement/Strafe/StrafeRun/HumanF@StrafeRun01_Left.fbx",
+  "source_sha256": "ac1eb15c5dbc5f625e7b7c86e7c686efcae517921d32f68dd296f97b6f45bd19",
+  "action": "HumanF@StrafeRun01_Left"
+}

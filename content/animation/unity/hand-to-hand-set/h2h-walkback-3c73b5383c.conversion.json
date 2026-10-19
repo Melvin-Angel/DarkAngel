@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_WalkBack.FBX",
+  "source_guid": "ec50f9dd9aae08243a0ec6da67d3be03",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_WalkBack",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "431b9b4af983fa401c632545128d138e075a7c7db4e972c4e568cc4106eba081",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_WalkBack.FBX",
+  "source_sha256": "1dc91c438229ca416a36e50b4d3385c66eacc03993a344b449a88c2737667ce1",
+  "action": "H2H_WalkBack"
+}

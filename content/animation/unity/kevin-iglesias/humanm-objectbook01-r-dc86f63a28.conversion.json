@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Masked Poses\\HumanM@ObjectBook01_R.fbx",
+  "source_guid": "20c71457a71d14148addf5037223cce8",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@ObjectBook01_R",
+  "ticks": 18,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "9af654441fd3f7f3fe2db6eb92e2ff312d7da5779bb947085e451f4d8e6d53c2",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Masked Poses/HumanM@ObjectBook01_R.fbx",
+  "source_sha256": "3b9d52e232c1f1ca0aa3b71f2708f9e1239edf061a5e803e1aec2634ee20efc3",
+  "action": "HumanM@ObjectBook01_R"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Game\\Animations\\AIValidation\\AI_Test_RightPunch.anim",
+  "source_guid": "fba39547650ceef49bac224daff20205",
+  "source_local_id": 7400000,
+  "source_clip": "AI_Test_RightPunch",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "2edd3d640c73abaa572e5a002ebe53572c9b3c0415c468cc7875255ff7d43047",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Game/Animations/AIValidation/AI_Test_RightPunch.anim",
+  "source_sha256": "e76d23faf869905c4fac7eb5996c56ac09bf3fce80dfa15fb01999fb9ae4dacf",
+  "action": "AI_Test_RightPunch"
+}

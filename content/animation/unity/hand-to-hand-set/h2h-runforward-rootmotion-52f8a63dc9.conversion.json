@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_RunForward_RootMotion.fbx",
+  "source_guid": "81194747ede789d4f9056afdcf31300c",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_RunForward_RootMotion",
+  "ticks": 30,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "30ff10fa5c4fcbf628b745b9c50dc33d117c401fe48b5b61a8e91d6ea7326256",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_RunForward_RootMotion.fbx",
+  "source_sha256": "886b94aca57a9c81280a64c86af9927808e6dbf4574648c266b249eafaf2b67e",
+  "action": "H2H_RunForward_RootMotion"
+}

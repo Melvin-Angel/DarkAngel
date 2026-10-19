@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Jog_Right_Loop.anim",
+  "source_guid": "d74bef4ecdf7ed24b86d8395d00feae1",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Jog_Right_Loop",
+  "ticks": 57,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "c0596a045db3f382cfeca22c749855cd990d45bdb0df16e690f45c8f09fe82b9",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Jog_Right_Loop.anim",
+  "source_sha256": "7112306fd21d253e95c780cd0a77a47af34a386ede96bb94811a1b9f50e91687",
+  "action": "Armature_Jog_Right_Loop"
+}

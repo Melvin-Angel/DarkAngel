@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\Original\\StartSprintRight.fbx",
+  "source_guid": "2623a100d47ec8c4b923f902fec4fe67",
+  "source_local_id": 8595384011037038970,
+  "source_clip": "StartSprintRight",
+  "ticks": 80,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "7c9738518be63cc85b4a2d8c1a9d2fc786b83dbd5b9cec4d396a7b1b29a39dc4",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/Original/StartSprintRight.fbx",
+  "source_sha256": "67de5c975fa75c6532f2a6f197aa08deb34d1768819b76d3571adb7b7ffb19ad",
+  "action": "StartSprintRight"
+}

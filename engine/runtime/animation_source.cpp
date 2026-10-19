@@ -35,7 +35,7 @@ namespace darkangel {
             if(event==Json::parse_event_t::key)require(keys.back().insert(value.get<std::string>()).second,"Duplicate clip field");
             if(event==Json::parse_event_t::object_end)keys.pop_back();return true;
         });
-        require(j.is_object()&&j.size()==12&&j.at("schema")==1&&j.at("kind")=="clip"&&j.at("ozz")=="744eb9d99f606eda849acb0b1204f7a3dc20bca1"&&j.at("root_policy")=="stripped-translation-yaw-60hz","Clip manifest schema/profile");
+        require(j.is_object()&&j.size()==12&&j.at("schema")==1&&j.at("kind")=="clip"&&j.at("ozz")=="744eb9d99f606eda849acb0b1204f7a3dc20bca1"&&(j.at("root_policy")=="stripped-translation-yaw-60hz"||j.at("root_policy")=="explicit-motion-root-60hz"),"Clip manifest schema/profile");
         ClipDefinition clip;clip.id=AssetId::parse(j.at("id").get<std::string>());clip.runtime=AssetId::parse(j.at("runtime").get<std::string>());clip.skeleton=AssetId::parse(j.at("skeleton").get<std::string>());
         require(clip.id!=clip.runtime&&clip.id!=clip.skeleton&&clip.runtime!=clip.skeleton,"Clip identity collision");
         clip.signature=j.at("signature").get<std::string>();require(clip.signature.size()==64&&clip.signature.find_first_not_of("0123456789abcdef")==clip.signature.npos,"Clip signature");

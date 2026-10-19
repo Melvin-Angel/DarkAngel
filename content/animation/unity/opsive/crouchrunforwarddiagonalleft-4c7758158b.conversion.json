@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\CrouchRunForwardDiagonalLeft.fbx",
+  "source_guid": "fd03d5eeb53979f49a224eb5bd7dd3a3",
+  "source_local_id": -5909738330657139247,
+  "source_clip": "CrouchRunForwardDiagonalLeft",
+  "ticks": 38,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "283ce41a47610606461074c35ab6a293e2b958b05f431e0f7f90d6b72a0176b2",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/CrouchRunForwardDiagonalLeft.fbx",
+  "source_sha256": "01a35c3da5de3e9e049ad57b7c0bf8248c6496127f59a95f7930cb8a916d5ee2",
+  "action": "CrouchRunForwardDiagonalLeft"
+}

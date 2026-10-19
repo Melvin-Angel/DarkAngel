@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_TurnLeft90.FBX",
+  "source_guid": "3ef37ce8ff02dc84987312b1197d58d4",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_TurnLeft90",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "49cc337bc7496cd2124b186d85427cabf15249029bdff57a67d5eda8a4fc4797",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_TurnLeft90.FBX",
+  "source_sha256": "1c349d775ffb4e57add940df0eb42bc73f110212e0e58e1c200e92beadad1c93",
+  "action": "H2H_TurnLeft90"
+}

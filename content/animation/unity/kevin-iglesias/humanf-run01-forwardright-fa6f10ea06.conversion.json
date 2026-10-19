@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Movement\\Run\\HumanF@Run01_ForwardRight.fbx",
+  "source_guid": "5088dccb2ba6bc8478f1dc0919d3e8cd",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@Run01_ForwardRight",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "da6bc124797a1cf7a9c5ca646fb4cdaebc96e4fbe3fc8bc58564e6dd352feb97",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Movement/Run/HumanF@Run01_ForwardRight.fbx",
+  "source_sha256": "35b390210f9a5ae8284773c7553d1d667c0f58ba4c5a1af26c8244552c60025e",
+  "action": "HumanF@Run01_ForwardRight"
+}

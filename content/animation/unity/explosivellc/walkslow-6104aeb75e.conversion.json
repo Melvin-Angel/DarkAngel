@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Hammer Warrior Mecanim Animation Pack\\Animations\\Hammer@WalkSlow.FBX",
+  "source_guid": "ffcc998be29f5a748895b0f56284e3ff",
+  "source_local_id": 7400000,
+  "source_clip": "WalkSlow",
+  "ticks": 128,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "ef73eeb5a2ced2643462e3fefc0f8349d783fe5cea4a4d22d90187e84f719667",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Hammer Warrior Mecanim Animation Pack/Animations/Hammer@WalkSlow.FBX",
+  "source_sha256": "d902df4aa4f79d9d5e65ecf3b75d2312fe5e76b448b80646b6d48e16516aecd4",
+  "action": "WalkSlow"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RunBackwardRight.fbx",
+  "source_guid": "4d66907684f47e542ab56147b39501fa",
+  "source_local_id": -7389477731753489851,
+  "source_clip": "RunBackwardRight",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "aac0bc770bacdc5a6d2bfbee2641f74460470a60b48a1898f7f16c9f79a26cd0",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/3D/Blink/Art/Animations/Animations_Starter_Pack/Movement/RunBackwardRight.fbx",
+  "source_sha256": "179c80e7dce6c39b0a9b6cb62fdffbf13bcb279b0326cb00ce0ec39b353adb0d",
+  "action": "RunBackwardRight"
+}

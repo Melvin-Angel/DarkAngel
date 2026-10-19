@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Crossbow Warrior Mecanim Animation Pack\\Animations\\Crossbow@Attack1.FBX",
+  "source_guid": "714c40c75ea542248aea545b08b8bc50",
+  "source_local_id": 7400000,
+  "source_clip": "Attack1",
+  "ticks": 69,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "60c897d8da74b75a04b15e2b8b295e1f84e484f8b6243c587ee1a213f7d4d320",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Crossbow Warrior Mecanim Animation Pack/Animations/Crossbow@Attack1.FBX",
+  "source_sha256": "fee3d181a52d7a7f303e7bb4781b202c354bada68be82c6721903ff401b4c48e",
+  "action": "Attack1"
+}

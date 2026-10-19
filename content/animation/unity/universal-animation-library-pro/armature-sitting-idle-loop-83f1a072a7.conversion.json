@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Sitting_Idle_Loop.anim",
+  "source_guid": "164925cbfecc63f4e89decdcfc816264",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Sitting_Idle_Loop",
+  "ticks": 101,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "41aa4e563ec4c463fd234a31d8eb023016989fc0f3ebeaa3a5909f44c88c6f92",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Sitting_Idle_Loop.anim",
+  "source_sha256": "2410b128e7c3f880d1d5cb9493be39e07c8d82345b3444da33fa961ac9ee370a",
+  "action": "Armature_Sitting_Idle_Loop"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Idle_LookAround_Loop.anim",
+  "source_guid": "1e541b411a5a9b04fa714eacc47c7278",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Idle_LookAround_Loop",
+  "ticks": 277,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "89155f88cac68c34e5c08caf2882a19d68c4804108b1a5a300043b0a9c0eb98d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Idle_LookAround_Loop.anim",
+  "source_sha256": "53b6620a6a50b01da55eab81247cda612a84e4e0d8f5410b095c1d30360bddf0",
+  "action": "Armature_Idle_LookAround_Loop"
+}

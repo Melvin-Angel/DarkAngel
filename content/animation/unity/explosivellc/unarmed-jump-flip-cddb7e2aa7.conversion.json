@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\Unarmed\\RPG-Character@Unarmed-Jump-Flip.FBX",
+  "source_guid": "79e31c86fd172bc439fb920de8bae7c5",
+  "source_local_id": 7400000,
+  "source_clip": "Unarmed-Jump-Flip",
+  "ticks": 29,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "763223bf8148190d925ec3028573c7bac807dd117e584c515a5e0eb3bb2ac73c",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Jump-Flip.FBX",
+  "source_sha256": "6c2f3b420307e6d1d4645662badfdb170baad1213f34f9729a8c1605d5b6418a",
+  "action": "Unarmed-Jump-Flip"
+}

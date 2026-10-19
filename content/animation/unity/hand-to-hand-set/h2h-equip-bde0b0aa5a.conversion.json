@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_Equip.FBX",
+  "source_guid": "63980d26c3412b245b15cdb4ceace01b",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_Equip",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "8b6630c2048437b925ef465ffe50ba49c6c73991b71b9912860b6253f4a8f5f5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_Equip.FBX",
+  "source_sha256": "1ef9db43d0afe36b9e084ca59bbe5caf9ffb04167fe926c6bf99b291c8b5401c",
+  "action": "H2H_Equip"
+}

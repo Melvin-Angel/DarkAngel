@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Movement\\Run\\HumanM@Run01_ForwardLeft.fbx",
+  "source_guid": "2d491dc6ab8cc5045919954fe2601203",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@Run01_ForwardLeft",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "55006707da33c85e394c28e8a6f476631343fbd9a496b7ec2ee4b02a1b46da2d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Movement/Run/HumanM@Run01_ForwardLeft.fbx",
+  "source_sha256": "227257ea237f2161615ff482cafd45fb779787e95c0293d9403b61c972e714de",
+  "action": "HumanM@Run01_ForwardLeft"
+}

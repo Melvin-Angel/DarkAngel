@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Crying.anim",
+  "source_guid": "d2d05b9956e68414d9a85007c95072a3",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Crying",
+  "ticks": 290,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "5583d2c4c369f8d5f5cab8da9e0111d2cc1c1d7a6fe95e44224c0f96bd6df1aa",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Crying.anim",
+  "source_sha256": "01be0b6eb5357e97ea43f762d73293d3bead1ec2108af409a149bb8334328ebd",
+  "action": "Armature_Crying"
+}

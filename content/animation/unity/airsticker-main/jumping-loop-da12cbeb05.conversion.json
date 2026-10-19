@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Tools\\AirSticker-main\\AirSticker-main\\Assets\\OtherAssets\\SD_unitychan\\Animations\\SD_unitychan_motion_humanoid.fbx",
+  "source_guid": "f320efa63ce12874a9ad50add869c0b5",
+  "source_local_id": 7400006,
+  "source_clip": "Jumping@loop",
+  "ticks": 137,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0496da3c83aab7e814c64cc1898cc6aebe8370092a060b4d9bf48dce0b1b7e3e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Tools/AirSticker-main/AirSticker-main/Assets/OtherAssets/SD_unitychan/Animations/SD_unitychan_motion_humanoid.fbx",
+  "source_sha256": "cde724a3eb518bf0312bc76dc9f2563a4c7f7223d6e5cf8f80cdbce392d51950",
+  "action": "Jumping@loop"
+}

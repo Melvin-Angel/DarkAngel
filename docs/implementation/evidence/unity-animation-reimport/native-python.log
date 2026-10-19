@@ -1,0 +1,12 @@
+Removed 1 duplicate copies; kept 1 native clips
+test_duplicate_copy_removed_and_authored_identity_preserved (test_unity_animation_import.ImportCatalogueTests.test_duplicate_copy_removed_and_authored_identity_preserved) ... ok
+test_edited_duplicate_is_preserved_and_catalogue_unchanged (test_unity_animation_import.ImportCatalogueTests.test_edited_duplicate_is_preserved_and_catalogue_unchanged) ... ok
+test_actor_trajectory_is_separate_from_rigid_skeletal_pose (test_unity_humanoid_conversion.RetargetTests.test_actor_trajectory_is_separate_from_rigid_skeletal_pose) ... ok
+test_equivalent_quaternion_signs_do_not_create_interpolation_flips (test_unity_humanoid_conversion.RetargetTests.test_equivalent_quaternion_signs_do_not_create_interpolation_flips) ... ok
+test_root_motion_survives_but_every_descendant_keeps_bind_length (test_unity_humanoid_conversion.RetargetTests.test_root_motion_survives_but_every_descendant_keeps_bind_length) ... ok
+test_shared_world_rotation_changes_only_root_local_rotation (test_unity_humanoid_conversion.RetargetTests.test_shared_world_rotation_changes_only_root_local_rotation) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.844s
+
+OK

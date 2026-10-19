@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\CrouchIdleTurnRight45.fbx",
+  "source_guid": "f410895eafc7b314891239a5409a4f2c",
+  "source_local_id": -5630952598313044983,
+  "source_clip": "CrouchIdleTurnRight45",
+  "ticks": 85,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "4dd527feac85d404be48ab869cf4f3b33eb8e68495b789b3e68e927ad4a4bfc1",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/CrouchIdleTurnRight45.fbx",
+  "source_sha256": "9c976307a5a8598cf9ba97e7db254595d41b054ac46c4bbe13087dbc9f987b40",
+  "action": "CrouchIdleTurnRight45"
+}

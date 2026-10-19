@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\3D\\Blink\\Art\\Animations\\Animations_Starter_Pack\\Movement\\RunForward.fbx",
+  "source_guid": "081930da5e255e348940373200bbeaca",
+  "source_local_id": 5987713911036300057,
+  "source_clip": "RunForward",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "67680f2cf125a37366283b5051a086676666861f26d0179275dbb0616a6394dd",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/3D/Blink/Art/Animations/Animations_Starter_Pack/Movement/RunForward.fbx",
+  "source_sha256": "76309e8c7bc688b987574c41a404270ba105795ee5b7e16c70d10150584f198e",
+  "action": "RunForward"
+}

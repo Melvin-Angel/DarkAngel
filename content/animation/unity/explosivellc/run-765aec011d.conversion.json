@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Hammer Warrior Mecanim Animation Pack\\Animations\\Hammer@Run.FBX",
+  "source_guid": "797b4b83a521be345bf4f0ed61bd19a2",
+  "source_local_id": 7400000,
+  "source_clip": "Run",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0f5add4d1ab643a240c76b6a35ce122a27b71c8deed90264790e0bfbb28c22f7",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Hammer Warrior Mecanim Animation Pack/Animations/Hammer@Run.FBX",
+  "source_sha256": "44cf04fda8ab4f20e795508d3ed6b268c9ee00983bfd6d0c13fbb25bc0c6e42d",
+  "action": "Run"
+}

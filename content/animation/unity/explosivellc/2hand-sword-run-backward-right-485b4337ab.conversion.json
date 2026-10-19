@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Run-Backward-Right.FBX",
+  "source_guid": "d65ec2c9f53fdc64b96afdffc672db1b",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Run-Backward-Right",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "482ccb8d753e06404666394977510f2229b7f8c8938ea5785b58727b82674a5e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Run-Backward-Right.FBX",
+  "source_sha256": "3a1966f9fbcba7821338e5176d8c93efa208db80649be7311779478ac49e042b",
+  "action": "2Hand-Sword-Run-Backward-Right"
+}

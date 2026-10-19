@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Climb_Enter.anim",
+  "source_guid": "3bd72065d9e4a13419b7978bfc18265d",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Climb_Enter",
+  "ticks": 88,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "9d48e512baa352007fbbb2424b04326b8ab73e8c64da79c0e4c2feba87b991fa",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Climb_Enter.anim",
+  "source_sha256": "18d9d314dc3601a651128877119c71cea1edccd86b5a372928c9ecdd973f4364",
+  "action": "Armature_Climb_Enter"
+}

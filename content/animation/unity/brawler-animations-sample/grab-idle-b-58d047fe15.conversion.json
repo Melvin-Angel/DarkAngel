@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Grab_Idle_B.fbx",
+  "source_guid": "36aa06a6d500a964499920069816d748",
+  "source_local_id": 5024436281422990708,
+  "source_clip": "Grab_Idle_B",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "1195fa6f8a27cd8735ebbf833a5ea1d5a06e547d5b831b2ba724f9b5e9a4d297",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Grab_Idle_B.fbx",
+  "source_sha256": "829c40bd7c69e61957d85c27bfa57299ed8243289f6f3cd9552fb37bbdecd74b",
+  "action": "Grab_Idle_B"
+}

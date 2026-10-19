@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Combat\\Thrown\\Boomerang\\HumanM@ThrowBoomerang01_R - Wait.fbx",
+  "source_guid": "cdd4e7ae527bdd442ab17aaa123f529d",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@ThrowBoomerang01_R - Wait",
+  "ticks": 123,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "6841879d4f45cbb71cb22bcdefb467c0a3a5e855f40229e401c86a3cbb74538a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Combat/Thrown/Boomerang/HumanM@ThrowBoomerang01_R - Wait.fbx",
+  "source_sha256": "113442f311d79d1c5af97bae9613c47df4f5f6096aa4ad29ecb9217019c33e09",
+  "action": "HumanM@ThrowBoomerang01_R - Wait"
+}

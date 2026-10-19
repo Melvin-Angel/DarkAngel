@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Guard_Hit.fbx",
+  "source_guid": "78d68915d8bb34047b5702bdd98c0dc3",
+  "source_local_id": -8263657116796353058,
+  "source_clip": "Guard_Hit",
+  "ticks": 30,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "874be85a1be5cf1d875c83c9d407c39ded6d0fe1bbd4ba3728ef07e59ebc5cb5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Guard_Hit.fbx",
+  "source_sha256": "5988230d7d0c3e33985126e892f8271906cc5329a1620a3c87804c359c19fa27",
+  "action": "Guard_Hit"
+}

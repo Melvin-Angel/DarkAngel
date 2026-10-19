@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeFighterAnimations\\Animations\\low kick.anim",
+  "source_guid": "026b2e9b45206004ebf8b32338975214",
+  "source_local_id": 7400000,
+  "source_clip": "low kick",
+  "ticks": 100,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "d0a56d6bd761d2a1ded6a4d37bc36b60f5c1ecbf29cb1dafb9d631df2a835508",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/low kick.anim",
+  "source_sha256": "285b3b1e2a05891cea2fb29bffac8324497a5e4af926acaa5d68f2cf38cbb3e7",
+  "action": "low kick"
+}

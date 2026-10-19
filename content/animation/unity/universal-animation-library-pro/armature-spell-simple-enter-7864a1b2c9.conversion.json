@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Spell_Simple_Enter.anim",
+  "source_guid": "4ff09030e06fab443b99233465ec0c28",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Spell_Simple_Enter",
+  "ticks": 32,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "7c42200e6569d44157a6327a6d909f2afdbc53f0db1bc46ccd47afe91dc54224",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Spell_Simple_Enter.anim",
+  "source_sha256": "224d977f58c51634961a8072d1e8bc2349a8b79badfecb939f235f27385d6cd8",
+  "action": "Armature_Spell_Simple_Enter"
+}

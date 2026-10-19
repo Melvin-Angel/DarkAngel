@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Hit_Head.anim",
+  "source_guid": "b60563451e4db1a47b8c9a2559d8d40f",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Hit_Head",
+  "ticks": 27,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "8c82400163d8c32e29317ef55c17bdcb10546fbaf5c7ba353b55d1cc66097f21",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Hit_Head.anim",
+  "source_sha256": "992a2dd2dddf7e72dcc5732450cf1bfe6b43d1a2374a5e28bf57f531c33f1641",
+  "action": "Armature_Hit_Head"
+}

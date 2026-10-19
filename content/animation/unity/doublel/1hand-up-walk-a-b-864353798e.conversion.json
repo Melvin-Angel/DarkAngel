@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\One Hand Up\\Movement\\Walk\\Base\\1Hand_Up_Walk_A_B.fbx",
+  "source_guid": "dfa3b56526789ed44af72c72ca6e3cc0",
+  "source_local_id": -9201577800259338664,
+  "source_clip": "1Hand_Up_Walk_A_B",
+  "ticks": 64,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "5d71df1e84ac6bef5780ca9db11d39943efc2eeeb0121a0d79cb33fcdcd5a4e2",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/One Hand Up/Movement/Walk/Base/1Hand_Up_Walk_A_B.fbx",
+  "source_sha256": "06d92943d4e3c84eb018eb1ff1d8a66eb0d03ddbfefd8fe2c59f84f3a70d4b64",
+  "action": "1Hand_Up_Walk_A_B"
+}

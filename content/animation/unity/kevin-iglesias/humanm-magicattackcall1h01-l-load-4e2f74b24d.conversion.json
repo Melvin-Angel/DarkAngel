@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Combat\\Spellcasting\\MagicAttacks\\Call\\HumanM@MagicAttackCall1H01_L - Load.fbx",
+  "source_guid": "19a82902d584cfc48b743bdde1f4fe59",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@MagicAttackCall1H01_L - Load",
+  "ticks": 101,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "2597c730c88d5808b408afde15858e427f2726b0e389b530e7db51214d84ef9a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Combat/Spellcasting/MagicAttacks/Call/HumanM@MagicAttackCall1H01_L - Load.fbx",
+  "source_sha256": "785138d7f7edf911db996ccf1c31d5f49dfee978a92360e0e3de0c624b244371",
+  "action": "HumanM@MagicAttackCall1H01_L - Load"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Pistol_Aim_Down.anim",
+  "source_guid": "e18beeeb20a4a1e42b8aa058d2510153",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Pistol_Aim_Down",
+  "ticks": 10,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "ee1bd4172b41d86102c7e5d6a40ab6ef76e38820c8f6cae197338e87ce741581",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Pistol_Aim_Down.anim",
+  "source_sha256": "bb253f98f82416b603633a21b756aa4ac7a422fbfa32ad50b32b4911225bfd95",
+  "action": "Armature_Pistol_Aim_Down"
+}

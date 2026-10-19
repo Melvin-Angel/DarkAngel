@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Getup1.FBX",
+  "source_guid": "d63c8b6f3173d5e4f94e4df99263a5bf",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Getup1",
+  "ticks": 240,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "1c6069d13a50f69ca5a5f6c18fc8f5895d08233cb5a39eb6e175da35fada3bc4",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Getup1.FBX",
+  "source_sha256": "3ba8edd67dd34943cb3bcc53592ac27ed776343daa7696fb2b27c11d9e79e38a",
+  "action": "2Hand-Sword-Getup1"
+}

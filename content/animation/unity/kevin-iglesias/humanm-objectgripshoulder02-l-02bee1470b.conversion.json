@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Masked Poses\\HumanM@ObjectGripShoulder02_L.fbx",
+  "source_guid": "c8320a17fc9a23d4799e01e61b428394",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@ObjectGripShoulder02_L",
+  "ticks": 20,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0b6cfc3cae880434a8166ebf583aebeedf93537d224951d1354a6b3dd27a5183",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Masked Poses/HumanM@ObjectGripShoulder02_L.fbx",
+  "source_sha256": "42f792b9edb5f7c59880563779e881144ca1a15814c5e21e7b128d23a599cfa2",
+  "action": "HumanM@ObjectGripShoulder02_L"
+}

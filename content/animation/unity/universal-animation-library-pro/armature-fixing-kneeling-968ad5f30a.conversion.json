@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Fixing_Kneeling.anim",
+  "source_guid": "72b083cf967f349489d4b7fa0fb38fc4",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Fixing_Kneeling",
+  "ticks": 313,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "ab18553258a5a41a63b0c4eaf6fa5644082cfc55911a5799d5c7c000505b9f27",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Fixing_Kneeling.anim",
+  "source_sha256": "793cf880fddbcc71ecb804f5a32681eaeee5ca09352c796b6acbaf7fd0d02a79",
+  "action": "Armature_Fixing_Kneeling"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\IdleTurnRight90.fbx",
+  "source_guid": "3cd8e853b678952479c32d6ad51f9b78",
+  "source_local_id": 6987642121273020381,
+  "source_clip": "IdleTurnRight90",
+  "ticks": 91,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "a7173a6107078f4b4ccbcbcd83c039f03e2cee72f1500f5bf64c4ed541628a54",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/IdleTurnRight90.fbx",
+  "source_sha256": "06570180ff8ddbe439f96f6b3c1cfc1b0e7441ae7e71727a88952170a4f4044c",
+  "action": "IdleTurnRight90"
+}

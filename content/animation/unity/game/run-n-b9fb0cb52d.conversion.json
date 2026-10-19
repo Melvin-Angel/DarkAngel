@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Systems\\Core\\Art\\Animations\\Default\\Locomotion--Run_N.anim.fbx",
+  "source_guid": "16114d403eabb53438de032c6f0d1deb",
+  "source_local_id": 6564411413370888346,
+  "source_clip": "Run_N",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "fe5839f84a76b2eac00cd6a3e8f7533b7f045d46f0315eeb7abbcc678f3b2174",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Systems/Core/Art/Animations/Default/Locomotion--Run_N.anim.fbx",
+  "source_sha256": "ab015b180e89496180a3e81a75160c9fe2b27095e6590d1f0125fcfa85bd787c",
+  "action": "Run_N"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Grab_Walk_F_A.fbx",
+  "source_guid": "ef5e4766a900c6b4db00c7cc2ef47751",
+  "source_local_id": -1114125292390415714,
+  "source_clip": "Grab_Walk_F_A",
+  "ticks": 64,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "4e095694d10fc23970739221b568592f20c832b27d010f588afa7d1afcf224e5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Grab_Walk_F_A.fbx",
+  "source_sha256": "54d9f19526a81f8fafc004a36c662021cf6ccf4ec700b6f8de6cc5f7e2da5166",
+  "action": "Grab_Walk_F_A"
+}

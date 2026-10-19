@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Game\\Combat\\Animations\\AuthoringTests\\FieryFists\\FieryFists_03_SupermanPunch.anim",
+  "source_guid": "961e1275b95d8a045ba211c647489799",
+  "source_local_id": 7400000,
+  "source_clip": "FieryFists_03_SupermanPunch",
+  "ticks": 52,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "905a3247491741bd6c4cb736c5a69f825462d2462e9f8d85870fd36cba4a438b",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Game/Combat/Animations/AuthoringTests/FieryFists/FieryFists_03_SupermanPunch.anim",
+  "source_sha256": "0b71bebb89d02ad67f249c04b07f2d6b208e09a03ef6d71addd6a312efcce2cb",
+  "action": "FieryFists_03_SupermanPunch"
+}

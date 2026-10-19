@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeFighterAnimations\\Animations\\jumping uppercut.anim",
+  "source_guid": "f815bf5f17129f44496a622430c06cc1",
+  "source_local_id": 7400000,
+  "source_clip": "jumping uppercut",
+  "ticks": 90,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "62791f4db3a2397a1f5e5a0aab238a73f21f6d75a84c7337c0dfaed8cf126a50",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/jumping uppercut.anim",
+  "source_sha256": "6f9b4f5ef6c987df9aa6e893b354d3b2835e7e52e043909902ceef18124cd93b",
+  "action": "jumping uppercut"
+}

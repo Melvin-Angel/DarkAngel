@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\CrouchWalkStrafeRight.fbx",
+  "source_guid": "69b1e9a292744ed4086d278cdf503e0e",
+  "source_local_id": 4141656193784282564,
+  "source_clip": "CrouchWalkStrafeRight",
+  "ticks": 61,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "b0327a13160b4bb5b7e555abc16899a098d5ec006d31798c39e687d242d3464e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/CrouchWalkStrafeRight.fbx",
+  "source_sha256": "26a1098f1f9ff917b19bb55259c668e7da059a9dca6e63217af87bad2639a09b",
+  "action": "CrouchWalkStrafeRight"
+}

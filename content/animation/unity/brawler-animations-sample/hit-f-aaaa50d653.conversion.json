@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Hit_F.fbx",
+  "source_guid": "f98160ecdb704034aaaa385899dbe695",
+  "source_local_id": 4167775359571186104,
+  "source_clip": "Hit_F",
+  "ticks": 20,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0e8c42f0bb4cf9caeab58aa85db3487776f859903723a23a118491f7197ec0e1",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Hit_F.fbx",
+  "source_sha256": "78d135463c42543079bc1aefcdaa6b17ccbeac309e98309d7ef4a79fbd2de1a8",
+  "action": "Hit_F"
+}

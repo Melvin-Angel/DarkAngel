@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Combat\\1H\\HumanM@Attack1H01_R.fbx",
+  "source_guid": "ef751e951ed91ed4fbc94d82726c9eed",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanM@Attack1H01_R",
+  "ticks": 66,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "958add436ab026e04bf3221af02c9946d6c5d2b9dcb9187196db628d62e69f81",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Combat/1H/HumanM@Attack1H01_R.fbx",
+  "source_sha256": "b7591602072e19f23a18853b1ba37ce675b870223ff3b22420551cf3c3585bc2",
+  "action": "HumanM@Attack1H01_R"
+}

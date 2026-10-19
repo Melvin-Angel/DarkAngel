@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_RoundhouseKick_InPlace.FBX",
+  "source_guid": "fc4ed1caf88aed84ead0618599d9d937",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_RoundhouseKick_InPlace",
+  "ticks": 43,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "1945eb3458b47ac3a26c9fde7352972fea46fb5fe4eef0cbc90dfe9e17f11bf9",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_RoundhouseKick_InPlace.FBX",
+  "source_sha256": "8e21c7aeb319d426eef1837dbf54cd601e10f1058f84d42ba4e4eaa7b83affc5",
+  "action": "H2H_RoundhouseKick_InPlace"
+}

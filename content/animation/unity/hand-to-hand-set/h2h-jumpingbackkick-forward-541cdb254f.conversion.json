@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_JumpingBackKick_Forward.FBX",
+  "source_guid": "5619d2b90084a8f498cdd003d0cf4598",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_JumpingBackKick_Forward",
+  "ticks": 55,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "06578e0babfbf6945d38c1162a0f728f221b903f2177ab319a663a626ca2d95e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_JumpingBackKick_Forward.FBX",
+  "source_sha256": "af6cdcdc51b90ebab560e8034ddd4a4aebebeb0c201de212c0c6cf51aeffcf36",
+  "action": "H2H_JumpingBackKick_Forward"
+}

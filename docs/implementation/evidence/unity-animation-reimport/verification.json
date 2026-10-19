@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "base_head": "729d2cef7faca4b4b3a4dc38c087b74d7d880c08",
+  "gates": [
+    {
+      "name": "build",
+      "exit": 0,
+      "seconds": 12.617
+    },
+    {
+      "name": "scan",
+      "exit": 0,
+      "seconds": 2.483
+    },
+    {
+      "name": "python",
+      "exit": 0,
+      "seconds": 1.771
+    },
+    {
+      "name": "legacy",
+      "exit": 0,
+      "seconds": 6.099
+    },
+    {
+      "name": "royal",
+      "exit": 0,
+      "seconds": 10.079
+    },
+    {
+      "name": "earth",
+      "exit": 0,
+      "seconds": 3.842
+    },
+    {
+      "name": "combat",
+      "exit": 0,
+      "seconds": 33.597
+    }
+  ],
+  "inventory": {
+    "clips": 1068,
+    "reimported": 28,
+    "new": 1040,
+    "existing_metadata_and_durations_preserved": 28,
+    "new_glb_bytes": 252721100,
+    "failed": [],
+    "skipped_counts": {
+      "outside native clip duration bound (1/60 to 10 seconds)": 8,
+      "not Humanoid (prop/UI/generic rig); no safe Avatar mapping": 134,
+      "bind/reference pose": 38,
+      "same named/duration take already selected from this pack": 73
+    }
+  },
+  "package": {
+    "groups": 17,
+    "clips": 1068,
+    "frames": 86445,
+    "max_bone_length_error_metres": 5.97168e-05,
+    "all_passed": true
+  },
+  "source_sha256": {
+    "engine/assets/animation_cooker.cpp": "86c1c81b718fefba5920e96cf4ca0b5e00f89b1d55b6cdb49db7cf02e297a4b8",
+    "engine/runtime/animation_source.cpp": "48c42fdfd7e72db6372f4297dc0c3727c982b654dc5c9c02ef303021c8c3f11c",
+    "scripts/convert_unity_humanoid_clip.py": "16101db30c9c1ca48d37bef6ec5884107d7d9bdc373c646bd757484b7533610f",
+    "scripts/import_unity_animations.py": "7e4955f09d202dc9afc9c07bfa81f2cb922ad1a32a2831d015695d7c16cfff9a",
+    "scripts/audit_unity_animation_conversion.py": "69c24aa3b1ba2fcfee1e06b07a063ff3f768aa51085d6b5ba3c3d1be140c06c4",
+    "scripts/unity/DarkAngelAnimationExport.cs": "d2f237ee9b554e247f98284b855ff0b37d28b53b3d83ece96aa8259998c743a4",
+    "scripts/verify_unity_animation_packages.py": "2f8f9a78dbcfc2e75829ca7c481d46a0836a9a2271c41a33b47d120f8adb01e2",
+    "scripts/verify_unity_animation_visuals.py": "8b1b58cc14b79187b5050b2b4e12fbe504a4a8d3719e062ac65c4588ea1b3d6f",
+    "tests/animation_clip_tests.cpp": "e4d776138e8344e7c4b4af5ce4c18347d6a346af82daa0bcf53eb4fea722ae65",
+    "tests/python/test_unity_humanoid_conversion.py": "b38a027eb062b60dd1172d7c6a864df87e74433018f1a159e082baab0edab9e0",
+    "tests/python/test_unity_animation_import.py": "007d345195f9cba302a2a5509de027f14410300ae02ac7126b1dc3b1793cdc89"
+  },
+  "captures": {
+    "d3d12-earth_overhand_punch-30.png": "f6989233dfd423cd644ecb7f765ec589bc452145d12ae80ac258ae94e6c8b22d",
+    "d3d12-earth_overhand_punch-55.png": "e1963b7b95c675fbdb933eb9027205ed85a1c5be21b34598b03616f1a5668635",
+    "d3d12-earth_spear_throw-20.png": "7676cbee3d5e622e5b083d427a705ce0c9ffbf430e00b59f1a6623c226b99fc2",
+    "d3d12-earth_spear_throw-62.png": "a722117615d88937112f17bdb6a84f984edf979672bcabd2729596b0765ae7dd",
+    "d3d12-earth_spinning_kick-18.png": "0ac9414045ac45599cc0faa8844a8a54dbdbd905636a80fd2e95e7371b0319e4",
+    "d3d12-earth_spinning_kick-31.png": "be585fe370e82857a7ce85ba05d77ccb637fc2d9783ac2b7e1c93c457c9f91b1",
+    "d3d12-kick.png": "be2eb493cc169172f3125f974b29819075d9105069020bb5ccd23f0b20c3a86c",
+    "d3d12-punch.png": "668228be1368e3449d10c156cdf82b0d34db5381fea51dfceceea56a6e553e70",
+    "d3d12-spear-ground.png": "57578ac0fa5323aaec4d77b02d4b361a1780b8cc1dfc230ee5849f6a8d2778e5",
+    "d3d12-spear-hand.png": "daf632229c3242fc14e1513c6e47d3814e30ffc96648232c6f143f08010e8743",
+    "d3d12-spear-release.png": "388a0c372546cb01203cc42a32d1a31c63857897837a0535bc9798f1f05fff4a",
+    "vulkan-kick.png": "fb8210664dd3d6346cfef0a7002d7c881a467127e0fc17b847e5f0e4d4ec3891",
+    "vulkan-punch.png": "50b8fc14ec28fc791eae4aec8106dd718ba284e21134a8fa37fde0fe4ef9621f",
+    "vulkan-spear-ground.png": "7b10e0ba2be07695ea55cccd4c3b9c00cba6e93f7a4d20627b0475c181339cdd",
+    "vulkan-spear-hand.png": "5b8bc73ec0f583bfc453f785d3dc0f1a4f2aab561dc98cab8295a7d84de88e8f",
+    "vulkan-spear-release.png": "26818910fa5a6f54487ae6236c66c144a6d3d12862f92a0a122b16a4cabf3688"
+  },
+  "unity_exported": 1076,
+  "unity_export_failed": 0,
+  "temporary_unity_exporter_present": false,
+  "limitations": [
+    "Earth visual captures on canonical character; other imported clips receive numeric/native validation, not individual artistic review.",
+    "Khronos Vulkan validation layer unavailable; Vulkan rendering/captures succeeded.",
+    "No renderer performance benchmark or full-project test suite run."
+  ]
+}

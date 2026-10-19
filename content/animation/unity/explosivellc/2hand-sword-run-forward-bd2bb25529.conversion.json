@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Run-Forward.FBX",
+  "source_guid": "0000872662c8fb241bf2ab6cc00dd461",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Run-Forward",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "0422b0c30cebec42b340ee75f486aba1357eee92c4d36161dfbfab73c6d9c5f6",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Run-Forward.FBX",
+  "source_sha256": "db02baa385cda02f5c3cfdfbfad081d8d9c4eb30b2e8b80d46474fc460dad694",
+  "action": "2Hand-Sword-Run-Forward"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\Unarmed\\RPG-Character@Unarmed-Knockback-Back2.FBX",
+  "source_guid": "00da53bccc2999e4f82c7868a620854c",
+  "source_local_id": 7400000,
+  "source_clip": "Unarmed-Knockback-Back2",
+  "ticks": 53,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "78b4d5d9d248931a3be98aa6f4d1b66aab2bf0be43aa4319fa14864ebd07e5c4",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Knockback-Back2.FBX",
+  "source_sha256": "91a7a97e3ce8164c51c18725f0c0b2cedb626f23b7003821e5139754e747d1a0",
+  "action": "Unarmed-Knockback-Back2"
+}

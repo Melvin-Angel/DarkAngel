@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Crawl_Enter.anim",
+  "source_guid": "24bee3f2a5de1ed41865b55303c8f9c8",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Crawl_Enter",
+  "ticks": 128,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e7b76f5b05b09eaa8081c0e2ff0cb1fc1918cc41abf6df5efc6f0dc91f392b25",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Crawl_Enter.anim",
+  "source_sha256": "03fabd017161db3dde5f24ff2c555d6cdcee4fbcb21bbbed78a74abc0465f275",
+  "action": "Armature_Crawl_Enter"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeFighterAnimations\\Animations\\spinning axe kick.anim",
+  "source_guid": "1c9518ae38a6fa845a074d554d3d715c",
+  "source_local_id": 7400000,
+  "source_clip": "spinning axe kick",
+  "ticks": 70,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "09a694ac1e8412c708a9b0b4f5dc9c1adff78744bbaad5c8a520b873b34af4b5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/spinning axe kick.anim",
+  "source_sha256": "1a5fe476a7ca617ba319fa8c81baed8eccf0022c82c02e973b96d2ac3d71fdb5",
+  "action": "spinning axe kick"
+}

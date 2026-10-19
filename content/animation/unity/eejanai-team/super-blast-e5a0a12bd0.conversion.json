@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeFighterAnimations\\Animations\\super blast.anim",
+  "source_guid": "4b82cae42eafccb4d99420f92395a67a",
+  "source_local_id": 7400000,
+  "source_clip": "super blast",
+  "ticks": 190,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "6f7d2b9b16bf6c4f0b844887f2f713fe0fb2a18646e62aee0ab17a35c1793914",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/super blast.anim",
+  "source_sha256": "5a521f98be641e50ecbdaee2016f9245795aff4561faf3764ffa69f3f707612d",
+  "action": "super blast"
+}

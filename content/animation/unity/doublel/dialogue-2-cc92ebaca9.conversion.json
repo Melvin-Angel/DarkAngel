@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\NPC\\Dialogue\\Dialogue_2.fbx",
+  "source_guid": "248a8473996db5a4e9b55accb67f4b48",
+  "source_local_id": 1004136064394597514,
+  "source_clip": "Dialogue_2",
+  "ticks": 160,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "275492dda07651eda5bfc701c281de9e796e9866516ecbcfed0a35baf38628ce",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/NPC/Dialogue/Dialogue_2.fbx",
+  "source_sha256": "78f21fce64bcf797f1ba5e7aca147c0b7ed68dd5bd4674ea99b508f1cdaa217f",
+  "action": "Dialogue_2"
+}

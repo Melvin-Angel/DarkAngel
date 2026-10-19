@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Counter_Show.anim",
+  "source_guid": "7f8191f6b3c0de045b67f329e1686d12",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Counter_Show",
+  "ticks": 281,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "959a445e7a5b8d3c5c3211bb9abd90fb290367a70abd76a188fdcab1eda4d555",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Counter_Show.anim",
+  "source_sha256": "9ab9d0c7e0594000cfce89b573c3accfbb6522f0a5c0531029d4d9fae9cbdf14",
+  "action": "Armature_Counter_Show"
+}

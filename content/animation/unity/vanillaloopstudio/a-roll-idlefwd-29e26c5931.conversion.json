@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\VanillaLoopStudio\\FreeSampleAnimationSet\\Art\\Animations\\RollDodgeDashSet\\Mannequin\\RootMotion\\Roll\\A_Roll_IdleFwd.fbx",
+  "source_guid": "a95a36096dafd684986a8a1d073b74b6",
+  "source_local_id": 658572295128323382,
+  "source_clip": "A_Roll_IdleFwd",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "f3ce3735e69f9ad123ece5628d8b6c04d0ea8199def3a4e9f6ae8fd9b881ce24",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/VanillaLoopStudio/FreeSampleAnimationSet/Art/Animations/RollDodgeDashSet/Mannequin/RootMotion/Roll/A_Roll_IdleFwd.fbx",
+  "source_sha256": "8d4ad3dabe72db0a08eef7acd0a4b1eb3a51de83d4cc914a7c79d56c5f002d24",
+  "action": "A_Roll_IdleFwd"
+}

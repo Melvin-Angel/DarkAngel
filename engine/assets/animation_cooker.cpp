@@ -160,7 +160,15 @@ namespace darkangel::assets_detail {
         auto& root_track=raw.tracks[0];const auto& rest=rig.joints[0];
         ozz::math::Quaternion rest_rotation(rest.rotation[0],rest.rotation[1],rest.rotation[2],rest.rotation[3]);
         const auto origin=root_track.translations.front().value;double previous{},first_yaw{};Json roots=Json::array();
-        for(unsigned k=0;k<=ticks;++k){
+        const bool explicit_motion=document.at("extras").contains("darkangel_motion_root");
+        if(explicit_motion){
+            // Humanoid hips carry body bob, crouch and twist. Unity's actual
+            // Animator trajectory is a separate transform, not the hips pose.
+            roots=document.at("extras").at("darkangel_motion_root");
+            require(roots.is_array()&&roots.size()==ticks+1,"Explicit motion root key count");
+            for(const auto& key:roots){require(key.is_array()&&key.size()==4,"Explicit motion root dimensions");for(const auto& value:key)require(value.is_number()&&std::isfinite(value.get<double>())&&std::abs(value.get<double>())<=100,"Explicit motion root finite bounds");}
+        }
+        for(unsigned k=0;!explicit_motion&&k<=ticks;++k){
             auto q=root_track.rotations[k].value;auto delta=q*ozz::math::Conjugate(rest_rotation);
             require(delta.y*delta.y+delta.w*delta.w>.00001f,"Clip root yaw singularity");
             double yaw=2*std::atan2(delta.y,delta.w);if(k)yaw=previous+std::remainder(yaw-previous,2*3.141592653589793);else first_yaw=yaw;previous=yaw;
@@ -172,7 +180,7 @@ namespace darkangel::assets_detail {
         require(raw.Validate(),"Ozz raw clip validation");
         if(inspect)return out;
         require(ids.size()==2,"Clip owned UUID count");const auto id=ids.at("$source"),runtime=ids.at("runtime");
-        Json manifest={{"schema",1},{"kind","clip"},{"id",id.text()},{"runtime",runtime.text()},{"skeleton",rig.id.text()},{"signature",rig.signature},{"ticks",ticks},{"joints",static_cast<unsigned>(rig.joints.size())},{"loop",loop},{"root",roots},{"root_policy","stripped-translation-yaw-60hz"},{"ozz",ozz_pin}};
+        Json manifest={{"schema",1},{"kind","clip"},{"id",id.text()},{"runtime",runtime.text()},{"skeleton",rig.id.text()},{"signature",rig.signature},{"ticks",ticks},{"joints",static_cast<unsigned>(rig.joints.size())},{"loop",loop},{"root",roots},{"root_policy",explicit_motion?"explicit-motion-root-60hz":"stripped-translation-yaw-60hz"},{"ozz",ozz_pin}};
         auto manifest_bytes=manifest.dump();decode_clip_manifest(manifest_bytes);
         // Hierarchical decimation reserves 0.001 mm of the 0.5 mm tested probe
         // budget for optimization; compressed archive error is checked separately.

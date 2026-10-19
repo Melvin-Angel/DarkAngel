@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Jump-Flip.FBX",
+  "source_guid": "806ec0312335dcd4aa59baadbf13ff9d",
+  "source_local_id": 7400002,
+  "source_clip": "2Hand-Sword-Jump-Flip",
+  "ticks": 29,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "dd7a19fc12aa18e0916c53bcd5f59ad5e7dd7890dcd35a8dc5641e8727742568",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Jump-Flip.FBX",
+  "source_sha256": "f882815941d224adbcd5d235e7b256082de7e7ac00c2e233ad11a594a5060a6f",
+  "action": "2Hand-Sword-Jump-Flip"
+}

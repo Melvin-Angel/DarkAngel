@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_PickUp_Kneeling.anim",
+  "source_guid": "e01df1d2cf78d644bacce05c2ddfaa55",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_PickUp_Kneeling",
+  "ticks": 116,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "6416be72d24844b646a45e384d3e755eadc91ecb4ec68cac6c6f1c0c307aadb3",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_PickUp_Kneeling.anim",
+  "source_sha256": "66fe113084e9eff1f3a782818d162dae451f38799eafcc9a873a58678ae25906",
+  "action": "Armature_PickUp_Kneeling"
+}

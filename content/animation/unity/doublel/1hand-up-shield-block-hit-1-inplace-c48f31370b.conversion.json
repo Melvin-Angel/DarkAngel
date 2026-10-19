@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\One Hand Up\\Sheild\\Hit\\InPlace\\1Hand_Up_Shield_Block_Hit_1_InPlace.fbx",
+  "source_guid": "7a45336a159ffea4c8dbca04fd4eb6e6",
+  "source_local_id": -5427088462775623936,
+  "source_clip": "1Hand_Up_Shield_Block_Hit_1_InPlace",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "60b61708462eed571a9dd47883a31a4a428f5af8f240537f1218fa6e37e5f2f9",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/One Hand Up/Sheild/Hit/InPlace/1Hand_Up_Shield_Block_Hit_1_InPlace.fbx",
+  "source_sha256": "1aec9364b1331e591bbc57790b93e5e17fee5e0c0c3bf621653cc3170d95ae81",
+  "action": "1Hand_Up_Shield_Block_Hit_1_InPlace"
+}

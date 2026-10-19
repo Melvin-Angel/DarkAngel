@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Martial Art Animations Sample\\Animations\\Quickstep_F.fbx",
+  "source_guid": "fdd8e1ce77001904c8cd99cd2d18b299",
+  "source_local_id": -6339999858669016031,
+  "source_clip": "Quickstep_F",
+  "ticks": 25,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "1786c078595b6a0e49188408e87dad6bd30fe2adc8f3e44d699ac769a0f499e5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Martial Art Animations Sample/Animations/Quickstep_F.fbx",
+  "source_sha256": "4d63257115c85b38952f2fd607462236195819a8cbf82411c8edc9011676e6b3",
+  "action": "Quickstep_F"
+}

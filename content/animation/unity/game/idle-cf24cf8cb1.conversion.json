@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Systems\\Core\\Art\\Animations\\Default\\Stand--Idle.anim.fbx",
+  "source_guid": "12e52e465ed793a4d801955e9f964a82",
+  "source_local_id": -3100369314251171874,
+  "source_clip": "Idle",
+  "ticks": 296,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "24562eeb0841731425a5e57f8f77ee9210da3f29f4d9641dc65bbc721cfc8010",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Systems/Core/Art/Animations/Default/Stand--Idle.anim.fbx",
+  "source_sha256": "22338f453bfd818ee35b6b4cf463c16f2257a7b61d4911ef9fffdbe342e36c6d",
+  "action": "Idle"
+}

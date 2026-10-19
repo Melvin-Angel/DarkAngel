@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Guard_Idle.fbx",
+  "source_guid": "1e43a383ea886d746913b8b5e8ac27a7",
+  "source_local_id": 3812546017969097313,
+  "source_clip": "Guard_Idle",
+  "ticks": 69,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "25c88d6ee1781daf4a8431f4f4208b7fbbc7ce4bfbd958546b2d5780451b0659",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Guard_Idle.fbx",
+  "source_sha256": "215a81bff1e2b8edbbc4057f9f7bb3acc9ae3fa755c21c42528f692065bc954c",
+  "action": "Guard_Idle"
+}

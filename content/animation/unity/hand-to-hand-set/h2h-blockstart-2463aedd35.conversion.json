@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_BlockStart.FBX",
+  "source_guid": "9fd2b453bec115e4eba4beb1f2ef467a",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_BlockStart",
+  "ticks": 20,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "9a925e9bb1b1bc5f43f4702b8e61b71d36495c425759ef8d63fed48413cd2154",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_BlockStart.FBX",
+  "source_sha256": "b3ce9d4998e86ea98e16499da665bf2e9909e7ee303de5d3a104061a2f03db9a",
+  "action": "H2H_BlockStart"
+}

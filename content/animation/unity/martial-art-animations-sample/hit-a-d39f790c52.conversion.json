@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Martial Art Animations Sample\\Animations\\Hit_A.fbx",
+  "source_guid": "c63d203a916d37241b5cbe53b5d1416b",
+  "source_local_id": 2825485217256495706,
+  "source_clip": "Hit_A",
+  "ticks": 20,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "fd7388cd2c561df649703933487e3d2775ce77dac5e3c00cd43121eebcec480e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Martial Art Animations Sample/Animations/Hit_A.fbx",
+  "source_sha256": "70a919a191fd4332c4e7d0d94930f800ce9952fed4d8f875ee23813ee213230b",
+  "action": "Hit_A"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\Hit\\InPlace\\Hit_B_4_InPlace.fbx",
+  "source_guid": "fea69a6598fcfea439ea384cbf04c7f1",
+  "source_local_id": -7081366064800193788,
+  "source_clip": "Hit_B_4_InPlace",
+  "ticks": 110,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "3e87d33eba9774d3f93fb8dfe224414aca8a771931b4ae16c23e8fca81569eae",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/Hit/InPlace/Hit_B_4_InPlace.fbx",
+  "source_sha256": "2b4062065908e0fdb2c4b15e7b6365bdf6f1247a666380dce745af9fa7d0bd6a",
+  "action": "Hit_B_4_InPlace"
+}

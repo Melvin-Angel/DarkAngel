@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Roll.anim",
+  "source_guid": "4f4be894fae51c24eb57c631f63771fd",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Roll",
+  "ticks": 88,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e777878b71696edf685e1860f69a1e72975c5470cb9e35ad5643e851878e825d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Roll.anim",
+  "source_sha256": "418f58613d55268b61351aedc18f0b023bf9720ac6207dc576fde7d8099df6db",
+  "action": "Armature_Roll"
+}

@@ -1,0 +1,154 @@
+{
+  "clips": 1068,
+  "sampled_frames": 86445,
+  "max_descendant_translation_error_metres": 0.0,
+  "max_bone_length_relative_error": 0.0,
+  "max_quaternion_squared_norm_error": 9.722773364195803e-08,
+  "max_unity_socket_position_error_metres": 3.966140872427223e-06,
+  "worst_socket_clips": [
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\universal-animation-library-pro\\armature-swim-fwd-loop-4a935b82e8.glb",
+      "frames": 81,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.152696084895439e-08,
+      "max_unity_socket_position_error_metres": 3.966140872427223e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 40
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\universal-animation-library-pro\\armature-swim-fwd-loop-49628d3e20.glb",
+      "frames": 81,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.152696084895439e-08,
+      "max_unity_socket_position_error_metres": 3.966140872427223e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 40
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\blink\\roll-right.glb",
+      "frames": 89,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 7.823287229147269e-08,
+      "max_unity_socket_position_error_metres": 3.900171431085997e-06,
+      "worst_probe": {
+        "bone": "Wrist_L",
+        "frame": 28
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\eejanai-team\\kungfu-samba-f47f55e850.glb",
+      "frames": 136,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.27661967850446e-08,
+      "max_unity_socket_position_error_metres": 3.8992043743012336e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 116
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\blink\\roll-forward.glb",
+      "frames": 93,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.300428699925533e-08,
+      "max_unity_socket_position_error_metres": 3.873073631867264e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 28
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\game\\boost-jump-f96012ac2f.glb",
+      "frames": 81,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 7.900989507092504e-08,
+      "max_unity_socket_position_error_metres": 3.802007034088086e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 24
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\mixamo\\vault-88e580a08c.glb",
+      "frames": 72,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.510899462965682e-08,
+      "max_unity_socket_position_error_metres": 3.787162860136664e-06,
+      "worst_probe": {
+        "bone": "Wrist_L",
+        "frame": 44
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\eejanai-team\\slash3-baked-863e89befa.glb",
+      "frames": 65,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.284592212248754e-08,
+      "max_unity_socket_position_error_metres": 3.7630956147205146e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 32
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\game\\rig-push-loop-c649919609.glb",
+      "frames": 161,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.391894013026757e-08,
+      "max_unity_socket_position_error_metres": 3.7593978555326295e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 100
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\game\\2hand-sword-attack11-editable-0823ed805c.glb",
+      "frames": 73,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 7.963709980352007e-08,
+      "max_unity_socket_position_error_metres": 3.755881717386949e-06,
+      "worst_probe": {
+        "bone": "Wrist_L",
+        "frame": 36
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\explosivellc\\2hand-sword-attack11-5543873642.glb",
+      "frames": 73,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 7.963709980352007e-08,
+      "max_unity_socket_position_error_metres": 3.755881717386949e-06,
+      "worst_probe": {
+        "bone": "Wrist_L",
+        "frame": 36
+      }
+    },
+    {
+      "path": "C:\\DarkAngel\\content\\animation\\unity\\kevin-iglesias\\humanf-magicattackdirect2h01-6961a89287.glb",
+      "frames": 98,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.178568045025258e-08,
+      "max_unity_socket_position_error_metres": 3.719554864254698e-06,
+      "worst_probe": {
+        "bone": "Wrist_L",
+        "frame": 44
+      }
+    }
+  ]
+}

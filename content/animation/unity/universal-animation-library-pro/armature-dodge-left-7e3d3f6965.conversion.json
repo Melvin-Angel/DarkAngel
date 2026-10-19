@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Dodge_Left.anim",
+  "source_guid": "4f015a3073df60f4ba023960f6941a85",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Dodge_Left",
+  "ticks": 79,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "295f7568934784acbf0455f1d0d81454ccdd24962614ddc53db7648b9749cd4b",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Dodge_Left.anim",
+  "source_sha256": "53b9565ae938a0dc65a6372d576c503f98cdd590687bb3b92f36fbc15a4d5835",
+  "action": "Armature_Dodge_Left"
+}

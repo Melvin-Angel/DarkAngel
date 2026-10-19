@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Pistol_Shoot.anim",
+  "source_guid": "c06f1c5fa91dd4c4eb7d7ebfc63bab18",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Pistol_Shoot",
+  "ticks": 39,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "26ea104ee2b346fd636e6db2bca41519a1cb1c4a499277027cf59f8131bad109",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Pistol_Shoot.anim",
+  "source_sha256": "af1fad95b7f00ec4ca210c46580c8ab74656290ebac1b3bad5e8ad9ce3d0eb94",
+  "action": "Armature_Pistol_Shoot"
+}

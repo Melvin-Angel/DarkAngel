@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeSwordAnimations\\FBX\\slash2.fbx",
+  "source_guid": "4a1e9354583cb0845b113e2cfd293ebb",
+  "source_local_id": -7722619981991602695,
+  "source_clip": "slash2_Baked",
+  "ticks": 57,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "8be8901a22b4962315c182628942f6ff397ac9a7aa4d38baa4926290053e3f2d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash2.fbx",
+  "source_sha256": "0d65d321af9bb296a115cf1c767108c7cad878aa515f73e7e89fe67fa01469cd",
+  "action": "slash2_Baked"
+}

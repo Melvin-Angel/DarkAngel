@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Knockdown1.FBX",
+  "source_guid": "35512810a6874a749a590d405f34fa4a",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Knockdown1",
+  "ticks": 93,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "ef170329256737d5d86e17dec47055ac7582976f6e26d21055fdd8936ce5a5c5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Knockdown1.FBX",
+  "source_sha256": "3a6b6ee06d63e854036937d5168a97c2187728a1eadbb6016a77bca0d2b8d566",
+  "action": "2Hand-Sword-Knockdown1"
+}

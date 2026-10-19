@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Unity\\UAL1.fbx",
+  "source_guid": "dc73a405a75c70d4a95bf3b1b2fd6b27",
+  "source_local_id": 3532616527226485280,
+  "source_clip": "Armature|Death01",
+  "ticks": 144,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "4528bec686384dd398ec1e6dd8605255aced024b54d4651823f7eb7cb4ef4548",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Unity/UAL1.fbx",
+  "source_sha256": "176c91dddd8bef428e483098b91942c28e31f7079a4db58a175eaefc02e1e19c",
+  "action": "Armature|Death01"
+}

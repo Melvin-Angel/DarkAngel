@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\CrouchRunBackward.fbx",
+  "source_guid": "55f127ede3c180b478f5e36bfff8336c",
+  "source_local_id": -7977043994996041069,
+  "source_clip": "CrouchRunBackward",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "5d52aef18e29a2c6289eec9f032582d2a7a759c2db57aaf8fa51218f5029e3d3",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/CrouchRunBackward.fbx",
+  "source_sha256": "2e477299469efcffc8bd3e92b11f8b394fc3059f7fba13882355b5db6c9b2f3b",
+  "action": "CrouchRunBackward"
+}

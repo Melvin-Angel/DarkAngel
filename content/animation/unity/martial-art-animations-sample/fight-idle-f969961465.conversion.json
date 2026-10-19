@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Martial Art Animations Sample\\Animations\\Fight_Idle.fbx",
+  "source_guid": "5b0a61149a9375142886eec35f032857",
+  "source_local_id": -3100369314251171874,
+  "source_clip": "Fight_Idle",
+  "ticks": 91,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "b5a25b1b45a6a9ca352df0e9fa25ad0abb8ab7a19caca5262bb2e01dc150245e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Martial Art Animations Sample/Animations/Fight_Idle.fbx",
+  "source_sha256": "86c54c224e948472d0ba20d132eb8ea4683b9a64cd6dc57233a1980b0c215d0e",
+  "action": "Fight_Idle"
+}

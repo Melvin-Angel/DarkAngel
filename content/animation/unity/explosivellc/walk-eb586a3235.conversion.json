@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Crossbow Warrior Mecanim Animation Pack\\Animations\\Crossbow@Walk.FBX",
+  "source_guid": "ae10145412a875948a47944d8cd0d4f8",
+  "source_local_id": 7400000,
+  "source_clip": "Walk",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "059010cfb1d048a64d9f04dde64c5fca55ac0f3680a40cef414ec008cc1700b7",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Crossbow Warrior Mecanim Animation Pack/Animations/Crossbow@Walk.FBX",
+  "source_sha256": "abf82b63225adb6f5f59d03301b0745544c4ebead376051250e4017d1882837e",
+  "action": "Walk"
+}

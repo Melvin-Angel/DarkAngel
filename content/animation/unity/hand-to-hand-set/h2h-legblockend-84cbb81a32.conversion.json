@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_LegBlockEnd.FBX",
+  "source_guid": "245169583ea618a44906cac0bf88cd8f",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_LegBlockEnd",
+  "ticks": 21,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "a300d555b315803f70812e6e3a9654b014dd2119cb6755ee9c22d5d5abc92e9a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_LegBlockEnd.FBX",
+  "source_sha256": "7d6089cd7695df3a72c3b9f1b3f3401f4fe196da2e2558355403eb9bed6fcb98",
+  "action": "H2H_LegBlockEnd"
+}

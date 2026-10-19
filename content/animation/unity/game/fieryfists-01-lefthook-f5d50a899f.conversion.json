@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Game\\Combat\\Animations\\AuthoringTests\\FieryFists\\FieryFists_01_LeftHook.anim",
+  "source_guid": "59b4064cdc9f2de40b0cca8cf64f5d8d",
+  "source_local_id": 7400000,
+  "source_clip": "FieryFists_01_LeftHook",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "ab45f7323a2b5d8a735d2f0a8779a252d5376a75f2c937fb72d39ffd54bf9542",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Game/Combat/Animations/AuthoringTests/FieryFists/FieryFists_01_LeftHook.anim",
+  "source_sha256": "24ecf667aafb4de7fbec6d8236149e50bb2b535b43de74eab3ee563e465c118b",
+  "action": "FieryFists_01_LeftHook"
+}

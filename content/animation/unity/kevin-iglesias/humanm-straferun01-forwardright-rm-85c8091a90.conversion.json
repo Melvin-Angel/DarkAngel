@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Movement\\Strafe\\StrafeRun\\RootMotion\\HumanM@StrafeRun01_ForwardRight [RM].fbx",
+  "source_guid": "0e6f263346d74c94d864a5de9d9cb9f0",
+  "source_local_id": 1325547605264807418,
+  "source_clip": "HumanM@StrafeRun01_ForwardRight [RM]",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "3b25e9624267cbfce0f6650062f32b8abe4823a31cb72d2f13996bb2a0dec68a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Movement/Strafe/StrafeRun/RootMotion/HumanM@StrafeRun01_ForwardRight [RM].fbx",
+  "source_sha256": "cbaa5ce692ef518dfe843249085b7d35633d6b2c81f39a004155dd61352f3d3d",
+  "action": "HumanM@StrafeRun01_ForwardRight [RM]"
+}

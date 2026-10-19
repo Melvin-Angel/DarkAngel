@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Strafe-Backward-Right.FBX",
+  "source_guid": "0b57817742a7a134a8e4ff2c3594632d",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Strafe-Backward-Right",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "9955bde1da86567a0e4104c552bdf661ec9d86a3069f0ebe7b5459b4d14fce2a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Strafe-Backward-Right.FBX",
+  "source_sha256": "4e56dc835d299615abe14fdb63f5f2cff8f76b0a5729777ab2f96c068f83ae68",
+  "action": "2Hand-Sword-Strafe-Backward-Right"
+}

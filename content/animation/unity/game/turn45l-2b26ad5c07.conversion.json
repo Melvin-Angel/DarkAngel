@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Systems\\Core\\Art\\Animations\\Custom\\Armature_Idle_Turn45L.fbx",
+  "source_guid": "4aa513bd36d514d84ac510eb23d0ec23",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "Turn45L",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "512a350115c9254ec7511819ed020fe377a6f775ce89ecbbe88e62ed6f7704f0",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Systems/Core/Art/Animations/Custom/Armature_Idle_Turn45L.fbx",
+  "source_sha256": "cbc83a51de89b5c556f6824d158a89fcd4baa6ca537e2440e43d5c340cf11060",
+  "action": "Turn45L"
+}

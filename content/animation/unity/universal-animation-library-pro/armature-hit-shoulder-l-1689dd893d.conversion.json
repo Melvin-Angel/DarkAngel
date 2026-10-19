@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Hit_Shoulder_L.anim",
+  "source_guid": "d641578d6e2e01243bd92418108d0a1a",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Hit_Shoulder_L",
+  "ticks": 32,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "305d36483aac221168e80c7814b6e638a693b8550f8e4e07e0350d4e67712f12",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Hit_Shoulder_L.anim",
+  "source_sha256": "992f1296dcf4b8b61498eca0a34231f3240e8b240a3cf2cd2ac729127ba68480",
+  "action": "Armature_Hit_Shoulder_L"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Thrown\\Weapon\\HumanF@ThrowWeapon01_R.fbx",
+  "source_guid": "3ce2eea8604fffc4ebcb1b0f247f8eb1",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@ThrowWeapon01_R",
+  "ticks": 94,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e96051cfab7f9309f2dc32d6869c617675c3d8cd7f7f484d4ba8e83702d8882d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Thrown/Weapon/HumanF@ThrowWeapon01_R.fbx",
+  "source_sha256": "74bd973de15bd3bc293ce1217615eec5100b0797ffb20bb908271809d7f82738",
+  "action": "HumanF@ThrowWeapon01_R"
+}

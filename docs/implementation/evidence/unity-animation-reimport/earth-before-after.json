@@ -1,0 +1,83 @@
+[
+  {
+    "clip": "animation/earth/earth_overhand_punch.glb",
+    "before": {
+      "path": "C:\\DarkAngel\\.cache\\animation-reimport\\originals\\animation\\earth\\earth_overhand_punch.glb",
+      "frames": 87,
+      "max_descendant_translation_error_metres": 0.5305516775103097,
+      "max_bone_length_relative_error": 0.9746045786892616,
+      "max_quaternion_squared_norm_error": 8.330290524050099e-08,
+      "max_unity_socket_position_error_metres": 4.631993803177018,
+      "worst_probe": {
+        "bone": "Ankle_L",
+        "frame": 72
+      }
+    },
+    "after": {
+      "path": "C:\\DarkAngel\\content\\animation\\earth\\earth_overhand_punch.glb",
+      "frames": 87,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.323325761949718e-08,
+      "max_unity_socket_position_error_metres": 2.770560135525146e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 56
+      }
+    }
+  },
+  {
+    "clip": "animation/earth/earth_spear_throw.glb",
+    "before": {
+      "path": "C:\\DarkAngel\\.cache\\animation-reimport\\originals\\animation\\earth\\earth_spear_throw.glb",
+      "frames": 92,
+      "max_descendant_translation_error_metres": 0.5578078026904277,
+      "max_bone_length_relative_error": 1.1408683036509473,
+      "max_quaternion_squared_norm_error": 8.520124783473193e-08,
+      "max_unity_socket_position_error_metres": 0.6066816106617879,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 48
+      }
+    },
+    "after": {
+      "path": "C:\\DarkAngel\\content\\animation\\earth\\earth_spear_throw.glb",
+      "frames": 92,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.181108113181068e-08,
+      "max_unity_socket_position_error_metres": 2.9206531773790656e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 44
+      }
+    }
+  },
+  {
+    "clip": "animation/earth/earth_spinning_kick.glb",
+    "before": {
+      "path": "C:\\DarkAngel\\.cache\\animation-reimport\\originals\\animation\\earth\\earth_spinning_kick.glb",
+      "frames": 54,
+      "max_descendant_translation_error_metres": 0.5991099477913127,
+      "max_bone_length_relative_error": 1.099384654344929,
+      "max_quaternion_squared_norm_error": 8.115700977917584e-08,
+      "max_unity_socket_position_error_metres": 1.9077384357582248,
+      "worst_probe": {
+        "bone": "Ankle_R",
+        "frame": 53
+      }
+    },
+    "after": {
+      "path": "C:\\DarkAngel\\content\\animation\\earth\\earth_spinning_kick.glb",
+      "frames": 54,
+      "max_descendant_translation_error_metres": 0.0,
+      "max_bone_length_relative_error": 0.0,
+      "max_quaternion_squared_norm_error": 8.389135941477832e-08,
+      "max_unity_socket_position_error_metres": 2.37875832205136e-06,
+      "worst_probe": {
+        "bone": "Wrist_R",
+        "frame": 16
+      }
+    }
+  }
+]

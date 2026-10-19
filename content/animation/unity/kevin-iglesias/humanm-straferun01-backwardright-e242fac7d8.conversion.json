@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Movement\\Strafe\\StrafeRun\\HumanM@StrafeRun01_BackwardRight.fbx",
+  "source_guid": "f6a76e1e7adcd69428a86bd1d8e9b7ac",
+  "source_local_id": -2904948948297995288,
+  "source_clip": "HumanM@StrafeRun01_BackwardRight",
+  "ticks": 36,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "25e064e99233e28a256a6402982f9de3ddc62c067cc5d2e9d09dbfd61b1faf2d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Movement/Strafe/StrafeRun/HumanM@StrafeRun01_BackwardRight.fbx",
+  "source_sha256": "36c03abd0a7578891a1be29b6429afad52700dd127bae3fda1c13ce788839ae6",
+  "action": "HumanM@StrafeRun01_BackwardRight"
+}

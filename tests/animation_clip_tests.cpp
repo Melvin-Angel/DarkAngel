@@ -29,7 +29,8 @@ std::array<float,4> quat_multiply(std::array<float,4> a,std::array<float,4> b){r
 void clip_test(const std::filesystem::path& project,const std::filesystem::path& output,const std::string& name,bool owned=false){
     auto source=output/name;std::filesystem::create_directories(source);
     std::filesystem::copy_file(project/"content/animation/canonical_human.daskeleton",source/"human.daskeleton");
-    std::filesystem::copy_file(project/(owned?"content/royal_district/clips":".cache/fixtures")/(name+".glb"),source/"clip.glb");
+    const auto folder=name.starts_with("earth_")?"content/animation/earth":owned?"content/royal_district/clips":".cache/fixtures";
+    std::filesystem::copy_file(project/folder/(name+".glb"),source/"clip.glb");
     AssetService assets(source,source/"cache");auto id=assets.adopt_clip("clip.glb","human.daskeleton",name=="idle"||name=="run"||name.starts_with("omni-"));
     auto result=assets.cook("clip.glb");require(result.changed&&!assets.cook("clip.glb").changed,"Clip cold/warm cook");
     assets.package(id,source/"registry.json");auto registry=read(source/"registry.json");
@@ -47,18 +48,22 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
     std::fill(mask.begin(),mask.end(),0.f);auto wrist=std::find_if(rig.definition.joints.begin(),rig.definition.joints.end(),[](const auto& joint){return joint.key=="Wrist_R";})-rig.definition.joints.begin();mask[wrist]=1;layered[0].weight=1;auto masked=first.blend(layered);for(unsigned value=0;value<16;++value)require(std::abs(masked[0].values[value]-base[0].values[value])<.00002,"Masked hand layer cannot change root pose");
     const auto saved=first.blend(layered);mask[0]=NAN;bool invalid_mask=false;try{first.blend(layered);}catch(...){invalid_mask=true;}require(invalid_mask,"Invalid mask rejects before pose mutation");mask[0]=0;close_pose(first.blend(layered),saved);close_pose(second.sample(clip,3),base);std::array<PoseLayer,5> excessive;for(auto& value:excessive)value=one;bool over_budget=false;try{first.blend(excessive);}catch(...){over_budget=true;}require(over_budget,"Pose layer work budget rejects");one.weight=2;bool invalid_weight=false;try{first.blend(std::span(&one,1));}catch(...){invalid_weight=true;}require(invalid_weight,"Pose layer weight rejects");one.weight=1;
 
-    auto bytes=read(source/"clip.glb");cgltf_options options{};cgltf_data* pointer{};
+    auto bytes=read(source/"clip.glb");std::uint32_t json_size{};std::memcpy(&json_size,bytes.data()+12,4);const bool explicit_motion=Json::parse(bytes.substr(20,json_size)).at("extras").contains("darkangel_motion_root");cgltf_options options{};cgltf_data* pointer{};
     require(cgltf_parse(&options,bytes.data(),bytes.size(),&pointer)==cgltf_result_success,"Reference GLB parse");
     std::unique_ptr<cgltf_data,decltype(&cgltf_free)> data(pointer,cgltf_free);data->buffers[0].data=const_cast<void*>(data->bin);
     const auto count=rig.definition.joints.size();double max_tip_error{};double max_root{};
     // Independent uncompressed glTF local-space blend reference, not a second
     // call to the Ozz blender. Root is held by the base; all children blend 50/50.
     std::array<std::vector<std::array<float,3>>,2> blend_t;std::array<std::vector<std::array<float,4>>,2> blend_q;
-    for(unsigned layer=0;layer<2;++layer){blend_t[layer].resize(count);blend_q[layer].resize(count);for(const auto& channel:std::span(data->animations[0].channels,data->animations[0].channels_count)){auto node=channel.target_node-data->nodes;auto joint=std::find_if(rig.definition.joints.begin(),rig.definition.joints.end(),[&](const auto& value){return value.key==data->nodes[node].name;})-rig.definition.joints.begin();auto tick=layer?17:3;if(channel.target_path==cgltf_animation_path_type_translation)require(cgltf_accessor_read_float(channel.sampler->output,tick,blend_t[layer][joint].data(),3),"Blend reference translation");else require(cgltf_accessor_read_float(channel.sampler->output,tick,blend_q[layer][joint].data(),4),"Blend reference rotation");}auto rest=rig.definition.joints[0].rotation;rest[0]*=-1;rest[1]*=-1;rest[2]*=-1;auto delta=quat_multiply(blend_q[layer][0],rest);auto yaw=2*std::atan2(delta[1],delta[3]);blend_q[layer][0]=quat_multiply({0,float(std::sin(-yaw/2)),0,float(std::cos(-yaw/2))},blend_q[layer][0]);blend_t[layer][0]=rig.definition.joints[0].translation;}
+    for(unsigned layer=0;layer<2;++layer){blend_t[layer].resize(count);blend_q[layer].resize(count);for(const auto& channel:std::span(data->animations[0].channels,data->animations[0].channels_count)){auto node=channel.target_node-data->nodes;auto joint=std::find_if(rig.definition.joints.begin(),rig.definition.joints.end(),[&](const auto& value){return value.key==data->nodes[node].name;})-rig.definition.joints.begin();auto tick=layer?17:3;if(channel.target_path==cgltf_animation_path_type_translation)require(cgltf_accessor_read_float(channel.sampler->output,tick,blend_t[layer][joint].data(),3),"Blend reference translation");else require(cgltf_accessor_read_float(channel.sampler->output,tick,blend_q[layer][joint].data(),4),"Blend reference rotation");}if(!explicit_motion){auto rest=rig.definition.joints[0].rotation;rest[0]*=-1;rest[1]*=-1;rest[2]*=-1;auto delta=quat_multiply(blend_q[layer][0],rest);auto yaw=2*std::atan2(delta[1],delta[3]);blend_q[layer][0]=quat_multiply({0,float(std::sin(-yaw/2)),0,float(std::cos(-yaw/2))},blend_q[layer][0]);blend_t[layer][0]=rig.definition.joints[0].translation;}}
     std::fill(mask.begin(),mask.end(),1.f);mask[0]=0;auto mixed=first.blend(layered);std::vector<Matrix> reference(count);double blend_error{};
     for(unsigned joint=0;joint<count;++joint){std::array<float,3> translation;std::array<float,4> quaternion;double alpha=joint?.5:0,dot{},norm{};for(unsigned axis=0;axis<4;++axis)dot+=blend_q[0][joint][axis]*blend_q[1][joint][axis];for(unsigned axis=0;axis<3;++axis)translation[axis]=float(blend_t[0][joint][axis]*(1-alpha)+blend_t[1][joint][axis]*alpha);for(unsigned axis=0;axis<4;++axis){quaternion[axis]=float(blend_q[0][joint][axis]*(1-alpha)+blend_q[1][joint][axis]*alpha*(dot<0?-1:1));norm+=quaternion[axis]*quaternion[axis];}for(auto& value:quaternion)value=float(value/std::sqrt(norm));auto local=trs(translation,quaternion);reference[joint]=rig.definition.joints[joint].parent<0?local:multiply(reference[rig.definition.joints[joint].parent],local);}
     for(const auto& [socket,key]:rig.definition.sockets){auto joint=std::find_if(rig.definition.joints.begin(),rig.definition.joints.end(),[&](const auto& value){return value.key==key;})-rig.definition.joints.begin();for(double length:{0.0,.5}){double squared{};for(unsigned axis=0;axis<3;++axis){auto expected=reference[joint][12+axis]+length*reference[joint][8+axis];auto actual=mixed[joint].values[12+axis]+length*mixed[joint].values[8+axis];squared+=(expected-actual)*(expected-actual);}blend_error=std::max(blend_error,std::sqrt(squared));}}
-    require(blend_error<.0005,"Masked local-space blend exceeds independent 0.5 mm socket/tip reference");std::cout<<name<<" masked_blend_tip_error_m="<<blend_error<<std::endl;
+    // Explicit Avatar poses retain animated hips translation. The pinned Ozz
+    // half-float translation codec adds up to about 0.5 mm per root component,
+    // in addition to hierarchical quaternion quantization. Legacy stripped
+    // poses retain their stricter established profile.
+    require(blend_error<(explicit_motion?.001:.0005),"Masked local-space blend exceeds independent socket/tip reference");std::cout<<name<<" masked_blend_tip_error_m="<<blend_error<<std::endl;
     std::vector<Matrix> expected(count);
     auto definition=cooked.definition;definition.loop=false;AnimationClip terminal(definition,cooked.archive);
     for(unsigned tick=0;tick<=cooked.definition.ticks;++tick){
@@ -69,9 +74,9 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
             if(channel.target_path==cgltf_animation_path_type_translation)require(cgltf_accessor_read_float(channel.sampler->output,tick,translations[index].data(),3),"Reference translation");
             else require(cgltf_accessor_read_float(channel.sampler->output,tick,rotations[index].data(),4),"Reference rotation");
         }
-        auto rest=rig.definition.joints[0].rotation;rest[0]*=-1;rest[1]*=-1;rest[2]*=-1;
+        if(!explicit_motion){auto rest=rig.definition.joints[0].rotation;rest[0]*=-1;rest[1]*=-1;rest[2]*=-1;
         auto delta=quat_multiply(rotations[0],rest);const auto yaw=2*std::atan2(delta[1],delta[3]);
-        rotations[0]=quat_multiply({0,float(std::sin(-yaw/2)),0,float(std::cos(-yaw/2))},rotations[0]);translations[0]=rig.definition.joints[0].translation;
+        rotations[0]=quat_multiply({0,float(std::sin(-yaw/2)),0,float(std::cos(-yaw/2))},rotations[0]);translations[0]=rig.definition.joints[0].translation;}
         for(unsigned i=0;i<count;++i){auto local=trs(translations[i],rotations[i]);expected[i]=rig.definition.joints[i].parent<0?local:multiply(expected[rig.definition.joints[i].parent],local);}
         // Loop sampling intentionally wraps the final tick; compare end keys in a
         // separate non-loop instance, independent of the sampler implementation.
@@ -89,7 +94,7 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
     // The four Blink clips retain their existing 0.5 mm profile. Offline Omni
     // clips use a separately measured 0.75 mm profile: retained rotation keys
     // still incur the pinned codec's quaternion quantization along the hierarchy.
-    const double tip_budget=name.starts_with("omni-")?.00075:.0005;
+    const double tip_budget=explicit_motion?.001:name.starts_with("omni-")?.00075:.0005;
     require(max_tip_error<tip_budget,"Ozz socket/half-metre tip error exceeds the documented content profile");
     if(name.starts_with("omni-")){
         const auto& last=cooked.definition.root.back();
@@ -124,6 +129,21 @@ void clip_test(const std::filesystem::path& project,const std::filesystem::path&
     assets.package(id,source/"retained-registry.json");require(read(source/"retained-registry.json")==prior,"Failed clip cook preserves frozen rig/archive closure");
     std::cout<<name<<" ticks="<<cooked.definition.ticks<<" archive_bytes="<<cooked.archive.size()<<" max_tip_error_m="<<max_tip_error<<" root_extent_m="<<max_root<<'\n';
 }
+void explicit_motion_clip(const std::filesystem::path& project,const std::filesystem::path& output){
+    auto source=output/"explicit-motion";std::filesystem::create_directories(source);
+    std::filesystem::copy_file(project/"content/animation/canonical_human.daskeleton",source/"human.daskeleton");
+    auto bytes=read(project/".cache/fixtures/attack.glb");unsigned ticks{};
+    auto authored=edit_glb(bytes,[&](Json& document){auto input=document["animations"][0]["samplers"][0]["input"].get<unsigned>();ticks=document["accessors"][input]["count"].get<unsigned>()-1;auto keys=Json::array();for(unsigned tick=0;tick<=ticks;++tick)keys.push_back({tick*.01,0,0,tick*.002});document["extras"]["darkangel_motion_root"]=keys;});
+    write(source/"clip.glb",authored);AssetService assets(source,source/"cache");auto id=assets.adopt_clip("clip.glb","human.daskeleton",false);assets.cook("clip.glb");assets.package(id,source/"registry.json");
+    auto cooked=load_cooked_clip(source/"registry.json",assets.cas_path(),id);auto rig=load_cooked_rig(source/"registry.json",assets.cas_path(),cooked.definition.skeleton);AnimationClip clip(cooked.definition,cooked.archive);RigPose pose(rig.definition,rig.archive);
+    require(std::abs(cooked.definition.root.back()[0]-ticks*.01)<.00001&&std::abs(cooked.definition.root.back()[3]-ticks*.002)<.00001,"Explicit actor trajectory must survive cook/package/reload separately from the hips");
+    cgltf_options options{};cgltf_data* pointer{};require(cgltf_parse(&options,authored.data(),authored.size(),&pointer)==cgltf_result_success,"Explicit root reference parse");std::unique_ptr<cgltf_data,decltype(&cgltf_free)> data(pointer,cgltf_free);data->buffers[0].data=const_cast<void*>(data->bin);
+    const unsigned tick=std::min(17u,ticks);std::array<float,3> translation{};std::array<float,4> rotation{};
+    for(const auto& channel:std::span(data->animations[0].channels,data->animations[0].channels_count))if(channel.target_node==data->nodes){if(channel.target_path==cgltf_animation_path_type_translation)require(cgltf_accessor_read_float(channel.sampler->output,tick,translation.data(),3),"Explicit hips reference translation");else require(cgltf_accessor_read_float(channel.sampler->output,tick,rotation.data(),4),"Explicit hips reference rotation");}
+    auto expected=trs(translation,rotation);const auto actual=pose.sample(clip,tick)[0];for(unsigned value=0;value<16;++value)require(std::abs(actual.values[value]-expected[value])<.001,"Explicit root profile must preserve hips crouch/bob/twist in the skeletal pose");
+    const auto frozen=read(source/"registry.json");write(source/"clip.glb",edit_glb(authored,[](Json& document){document["extras"]["darkangel_motion_root"].erase(0);}));bool rejected=false;try{assets.cook("clip.glb");}catch(...){rejected=true;}require(rejected,"Malformed explicit motion root keys must reject");assets.package(id,source/"retained.json");require(read(source/"retained.json")==frozen,"Rejected explicit motion root must retain the previous complete cooked generation");
+    std::cout<<"Explicit Unity actor trajectory and independent hips pose survive native cook, frozen reload and Ozz sampling\n";
+}
 void mixed_clips(const std::filesystem::path& project,const std::filesystem::path& output){
     auto source=output/"mixed";std::filesystem::create_directories(source);std::filesystem::copy_file(project/"content/animation/canonical_human.daskeleton",source/"human.daskeleton");for(auto name:{"idle","run"})std::filesystem::copy_file(project/".cache/fixtures"/(std::string(name)+".glb"),source/(std::string(name)+".glb"));AssetService assets(source,source/"cache");auto idle_id=assets.adopt_clip("idle.glb","human.daskeleton",true),run_id=assets.adopt_clip("run.glb","human.daskeleton",true);assets.cook("idle.glb");assets.cook("run.glb");assets.package(idle_id,source/"idle.json");assets.package(run_id,source/"run.json");auto a=load_cooked_clip(source/"idle.json",assets.cas_path(),idle_id),b=load_cooked_clip(source/"run.json",assets.cas_path(),run_id);auto rig=load_cooked_rig(source/"idle.json",assets.cas_path(),a.definition.skeleton);AnimationClip idle(a.definition,a.archive),run(b.definition,b.archive);RigPose pose(rig.definition,rig.archive),oracle(rig.definition,rig.archive);auto expected_idle=oracle.sample(idle,7),expected_run=oracle.sample(run,18);
     auto close=[&](const auto& expected,const auto& actual){for(unsigned joint=0;joint<expected.size();++joint)for(unsigned value=0;value<16;++value)require(std::abs(expected[joint].values[value]-actual[joint].values[value])<.00002,"Different-clip blend endpoint/cache equivalence");};PoseLayer layers[]={{&idle,7,1,{}},{&run,18,0,{}}};close(expected_idle,pose.blend(layers));layers[0].weight=0;layers[1].weight=1;close(expected_run,pose.blend(layers));layers[0].weight=layers[1].weight=.5;auto mixed=pose.blend(layers);bool differs_idle=false,differs_run=false;for(unsigned joint=0;joint<mixed.size();++joint)for(unsigned value=0;value<16;++value){auto actual=mixed[joint].values[value];require(std::isfinite(actual),"Mixed real-clip finite palette");differs_idle|=std::abs(actual-expected_idle[joint].values[value])>.001;differs_run|=std::abs(actual-expected_run[joint].values[value])>.001;}require(differs_idle&&differs_run,"Idle/run blend produces a composed pose");std::swap(layers[0],layers[1]);close(mixed,pose.blend(layers));close(expected_idle,oracle.sample(idle,7));std::cout<<"Real idle/run composition, archive/context switching and independent instances passed\n";
@@ -131,6 +151,31 @@ void mixed_clips(const std::filesystem::path& project,const std::filesystem::pat
 
 }
 int main(int argc,char** argv){try{
+    if(argc==4&&std::string_view(argv[1])=="--registry"){
+        const auto registry=std::filesystem::path(argv[2]),cas=std::filesystem::path(argv[3]);
+        auto document=Json::parse(read(registry));unsigned clips{},frames{};double worst_length{};
+        for(const auto& entry:document.at("assets"))if(entry.at("kind")=="clip"){
+            auto cooked=load_cooked_clip(registry,cas,AssetId::parse(entry.at("id").get<std::string>()));
+            auto rig=load_cooked_rig(registry,cas,cooked.definition.skeleton);cooked.definition.loop=false;
+            AnimationClip clip(cooked.definition,cooked.archive);RigPose pose(rig.definition,rig.archive);
+            for(unsigned tick=0;tick<=cooked.definition.ticks;++tick){
+                const auto& matrices=pose.sample(clip,tick);++frames;
+                for(unsigned joint=0;joint<matrices.size();++joint){
+                    for(auto value:matrices[joint].values)require(std::isfinite(value),"Bulk cooked pose must be finite");
+                    const auto& bind=rig.definition.joints[joint];if(bind.parent<0)continue;
+                    double squared{},rest_squared{};for(unsigned axis=0;axis<3;++axis){const double delta=matrices[joint].values[12+axis]-matrices[bind.parent].values[12+axis];squared+=delta*delta;rest_squared+=bind.translation[axis]*bind.translation[axis];}
+                    worst_length=std::max(worst_length,std::abs(std::sqrt(squared)-std::sqrt(rest_squared)));
+                }
+            }++clips;
+        }
+        require(clips>0&&worst_length<.0001,"Bulk cooked clip bone lengths exceed 0.1 mm codec bound");
+        std::cout<<"Bulk frozen reload clips="<<clips<<" frames="<<frames<<" max_bone_length_error_m="<<worst_length<<'\n';return 0;
+    }
+    if(argc==2&&std::string_view(argv[1])=="--earth"){
+        auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("earth-clip-fixture-"+AssetId::random().text());
+        for(auto name:{"earth_overhand_punch","earth_spinning_kick","earth_spear_throw"})clip_test(project,output,name,true);
+        std::cout<<"Earth Unity poses survive native compression, masked blending and frozen reload\n";return 0;
+    }
     if(argc==2&&std::string_view(argv[1])=="--royal"){
         auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("royal-clip-fixture-"+AssetId::random().text());
         for(auto name:{"idle","omni-walk","omni-run","omni-left","omni-right","omni-back","omni-run-back","omni-run-left","omni-run-right"})clip_test(project,output,name,true);
@@ -148,6 +193,6 @@ int main(int argc,char** argv){try{
     require(std::abs(both.translation[0]-1)<.00001&&std::abs(both.translation[2]+1)<.00001&&std::abs(both.yaw-3.141592653589793)<.00001,"Loop yaw rotates accumulated translation");
     auto crossing=clip_root_delta(looping,1.5,2.5);require(std::isfinite(crossing.translation[0])&&crossing.yaw>.7&&crossing.yaw<.9,"Fractional root sampling splits a loop boundary");
     bool bounded=false;try{clip_root_delta(looping,0,9);}catch(...){bounded=true;}require(bounded,"Root traversal work remains bounded");
-    auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("clip-fixture-"+AssetId::random().text());for(auto name:{"idle","run","attack","dodge"})clip_test(project,output,name);mixed_clips(project,output);
+    auto project=std::filesystem::path(DAE_SOURCE_DIR),output=std::filesystem::path(DAE_BINARY_DIR)/("clip-fixture-"+AssetId::random().text());explicit_motion_clip(project,output);for(auto name:{"idle","run","attack","dodge"})clip_test(project,output,name);mixed_clips(project,output);
     std::cout<<"Real canonical FBX clip cook, compression, stripped poses, independent contexts, loop root and generation preservation passed\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeFighterAnimations\\Animations\\front sweep.anim",
+  "source_guid": "a64cf563573b72740bd3fcac19db7ed6",
+  "source_local_id": 7400000,
+  "source_clip": "front sweep",
+  "ticks": 65,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e39cb779476c221bf574266b57d85ed62632af55f08c539d42d32ad43ffa161f",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/front sweep.anim",
+  "source_sha256": "01f2a4931f0bc10bed75b6b9945270f439fdc3bd1ff908f5cac3854d3670baa4",
+  "action": "front sweep"
+}

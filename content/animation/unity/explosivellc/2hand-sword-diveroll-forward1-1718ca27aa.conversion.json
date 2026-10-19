@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-DiveRoll-Forward1.max.FBX",
+  "source_guid": "6c53184d9a4fe38429cf4aac4a3979d2",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-DiveRoll-Forward1",
+  "ticks": 72,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "970e0f3ffcf5f8fef7f13deb91171dc4d821177e2318ad1910a8cdc126ab46fb",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-DiveRoll-Forward1.max.FBX",
+  "source_sha256": "6540b5a6a855870d382af73a9bd1ce31cc5856ae21a1e2eac4835513f4fb4d29",
+  "action": "2Hand-Sword-DiveRoll-Forward1"
+}

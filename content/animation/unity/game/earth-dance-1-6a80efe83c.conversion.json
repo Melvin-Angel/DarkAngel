@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Earth Dance 1.anim",
+  "source_guid": "55553fb6f15f7ae41a5f3c0cdf2f1b83",
+  "source_local_id": 7400000,
+  "source_clip": "Earth Dance 1",
+  "ticks": 168,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e74a41b02fdc97580e220edb786abf9cb08921b1eb752911c43c68817cf1fb03",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Earth Dance 1.anim",
+  "source_sha256": "8818a44c2740373e89746e2bd59dd5aec57e01c8da949417d1465715d5ac5367",
+  "action": "Earth Dance 1"
+}

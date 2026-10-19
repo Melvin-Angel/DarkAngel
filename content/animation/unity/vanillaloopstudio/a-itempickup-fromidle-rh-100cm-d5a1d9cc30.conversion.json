@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\VanillaLoopStudio\\FreeSampleAnimationSet\\Art\\Animations\\ItemPickupSet\\Mannequin\\A_ItemPickup_fromIdle_RH_100cm.fbx",
+  "source_guid": "f6448d8e06c5fb14facf7f5500929531",
+  "source_local_id": 1547503917226116670,
+  "source_clip": "A_ItemPickup_fromIdle_RH_100cm",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "4de4eb6b05e94a2bce929bd58d7d9e237f95fd358b3e33eff12c370ddcbc1ced",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/VanillaLoopStudio/FreeSampleAnimationSet/Art/Animations/ItemPickupSet/Mannequin/A_ItemPickup_fromIdle_RH_100cm.fbx",
+  "source_sha256": "8afc4b821f39b3871a36c738b3ee9fe50f8c4e7e43c7094380665274fbedcf3f",
+  "action": "A_ItemPickup_fromIdle_RH_100cm"
+}

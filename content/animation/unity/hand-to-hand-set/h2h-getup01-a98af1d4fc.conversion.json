@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_GetUp01.FBX",
+  "source_guid": "31bda30b8eb2db744b9a2ea8ae004602",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_GetUp01",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "98f37273d20db17c52027f09dc5df33482868b0d92be3c937f238e25cb457ec3",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_GetUp01.FBX",
+  "source_sha256": "2ec8d34539288c86613d82f1a63d39273ab7fd614139994051e96acd89dfcd14",
+  "action": "H2H_GetUp01"
+}

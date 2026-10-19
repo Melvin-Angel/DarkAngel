@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\VanillaLoopStudio\\FreeSampleAnimationSet\\Art\\Animations\\PushSet\\RootMotion\\Heavy\\01\\A_Push_Heavy_01_Loop.fbx",
+  "source_guid": "bddfd109dffe3cd48b63e032865b1593",
+  "source_local_id": -2452051606655651669,
+  "source_clip": "A_Push_Heavy_01_Loop",
+  "ticks": 132,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "049277eb8e91be832c5869b22458d0c11ec0c8d57f8819f364152f0ada48355e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/VanillaLoopStudio/FreeSampleAnimationSet/Art/Animations/PushSet/RootMotion/Heavy/01/A_Push_Heavy_01_Loop.fbx",
+  "source_sha256": "09134f388e951caf2bcbe402ca0896abf1b49ad8836f7ad1914658d799d5e366",
+  "action": "A_Push_Heavy_01_Loop"
+}

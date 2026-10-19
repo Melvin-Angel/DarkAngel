@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Spellcasting\\MagicAttacks\\Call\\HumanF@MagicAttackCall1H01_L - Cast.fbx",
+  "source_guid": "8e77bc614e777934eb1106b82e6a0bc5",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@MagicAttackCall1H01_L - Cast",
+  "ticks": 55,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "4beb69a8e239bab3275a0b72d68b4c2cc89cf9998b67590ecabe488ead3cee7f",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Spellcasting/MagicAttacks/Call/HumanF@MagicAttackCall1H01_L - Cast.fbx",
+  "source_sha256": "5561b08df5e084691a782b7a269c73404ea27d2845edefa9acab635e9a1dab04",
+  "action": "HumanF@MagicAttackCall1H01_L - Cast"
+}

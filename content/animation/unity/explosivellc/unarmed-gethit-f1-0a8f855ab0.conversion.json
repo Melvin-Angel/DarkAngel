@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\Unarmed\\RPG-Character@Unarmed-GetHit-F1.FBX",
+  "source_guid": "77214854f62866c4db0d2b1999fcdf96",
+  "source_local_id": 7400000,
+  "source_clip": "Unarmed-GetHit-F1",
+  "ticks": 30,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "795dce2cdfcce7ad36667d440f3f6b529c3b8ac8002c1874ace7712e49ad33d8",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-GetHit-F1.FBX",
+  "source_sha256": "0fcb3b147a6f1412aed5df3cb9c9c71422dead6866f824727b51b6215ecc012e",
+  "action": "Unarmed-GetHit-F1"
+}

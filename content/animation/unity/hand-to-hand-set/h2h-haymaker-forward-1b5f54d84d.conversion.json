@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_Haymaker_Forward.FBX",
+  "source_guid": "4de2d1ab6f25e204ea829263704f91b8",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_Haymaker_Forward",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "c01ce5adeb9f533f65c4d12dac20cd96892cfc9b5da703a8a943638712b22ba3",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_Haymaker_Forward.FBX",
+  "source_sha256": "ff308eef8db121dd15e521ab16c6b1afc6924462936ebeaca1a018d604317e71",
+  "action": "H2H_Haymaker_Forward"
+}

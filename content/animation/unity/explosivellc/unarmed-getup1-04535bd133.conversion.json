@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\Unarmed\\RPG-Character@Unarmed-Getup1.FBX",
+  "source_guid": "aee3a8eae90af134a88f3b6209e7cbdc",
+  "source_local_id": 7400000,
+  "source_clip": "Unarmed-Getup1",
+  "ticks": 240,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "d4a63585b722a1ee642e35b731fdb8569cb5f1f110fe34df9022312ac2405947",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Getup1.FBX",
+  "source_sha256": "58bb495329e2664b408417e71b8cbf1776a01d38cb8cfd313a5a52df3c432e15",
+  "action": "Unarmed-Getup1"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Driving_Loop.anim",
+  "source_guid": "ef0ffc95fba160744a7a00a6ad98ef94",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Driving_Loop",
+  "ticks": 101,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "66c3dd72675d4a19da5a1f81b2f59f72c408d2be198ff1ad66662b58bd9604df",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Driving_Loop.anim",
+  "source_sha256": "49a3a85fc957c7c83ef638f70bcc5eb09c39ac014fa22f2dce02102d122d1147",
+  "action": "Armature_Driving_Loop"
+}

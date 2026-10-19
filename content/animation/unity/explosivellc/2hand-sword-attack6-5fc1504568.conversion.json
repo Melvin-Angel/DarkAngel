@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-Attack6.FBX",
+  "source_guid": "c9cdccfb9d6cfef4d9992105a94b5d86",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-Attack6",
+  "ticks": 72,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "3d3c9964e0e6a9959725493dc27d6cd44b3f4d599e9c9e34ed9a2ca542df94a2",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-Attack6.FBX",
+  "source_sha256": "12ac82a9348968b86ce59eb0990c6d44a1d723d010c66da461d891dd7e437dbd",
+  "action": "2Hand-Sword-Attack6"
+}

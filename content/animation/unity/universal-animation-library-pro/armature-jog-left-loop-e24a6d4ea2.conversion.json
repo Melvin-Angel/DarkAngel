@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Jog_Left_Loop.anim",
+  "source_guid": "a80c7b9142952d04b81a1d5351cf01c5",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Jog_Left_Loop",
+  "ticks": 57,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "a1d274b9628cad00e8f8a5cc22a6a8592edc7acf6a4659c43ea4f313bdbc8035",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Jog_Left_Loop.anim",
+  "source_sha256": "b8d0bcbb5728287cb7f96ddbfe8b81ea570dbbefbfe0e9ede9e49b645084bd71",
+  "action": "Armature_Jog_Left_Loop"
+}

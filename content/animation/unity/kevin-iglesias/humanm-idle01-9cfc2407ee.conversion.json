@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Male\\Idles\\HumanM@Idle01.fbx",
+  "source_guid": "56fd86b76fc74d24d83522069f5deb9b",
+  "source_local_id": -2576967968662016515,
+  "source_clip": "HumanM@Idle01",
+  "ticks": 162,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "7f07eb8517176012a1285526060fba33f1562a54fb72e6b047deb7d88dba2c84",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Male/Idles/HumanM@Idle01.fbx",
+  "source_sha256": "3702df28d81122f2c7465466cbcb5cc3c1be4a9e82ad27a82bf24b56cb8e29d2",
+  "action": "HumanM@Idle01"
+}

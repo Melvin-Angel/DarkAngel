@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\2Hand-Sword\\RPG-Character@2Hand-Sword-GetHit-F2.FBX",
+  "source_guid": "f8cbd01bd5b649048bf365e4ece13d69",
+  "source_local_id": 7400000,
+  "source_clip": "2Hand-Sword-GetHit-F2",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "479efb2447fdfb361b1a5ba6bb6e8f9a99377ee35bde03d5f8a92007de48626e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/2Hand-Sword/RPG-Character@2Hand-Sword-GetHit-F2.FBX",
+  "source_sha256": "19f30608c42147005b242cdf80f091568c94b8394f516d4ac6e192dbe632579a",
+  "action": "2Hand-Sword-GetHit-F2"
+}

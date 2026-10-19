@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Rapa Motion\\MageBundleSamples\\Animations\\Feminine\\Dude_AS_Feminine_Mage_PowerUp_01.fbx",
+  "source_guid": "8e65741e4851d624987fef4a544fd7c4",
+  "source_local_id": -8437155149391834634,
+  "source_clip": "AS_Feminine_Mage_PowerUp_01",
+  "ticks": 508,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "74b5db5a6383c763997d82eaddfd0f78cf0c44b159722d1afae9808207d99716",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Rapa Motion/MageBundleSamples/Animations/Feminine/Dude_AS_Feminine_Mage_PowerUp_01.fbx",
+  "source_sha256": "c21388723c9be967dc288062e5d625172b86c9b8a555089affc3af12f605e2df",
+  "action": "AS_Feminine_Mage_PowerUp_01"
+}

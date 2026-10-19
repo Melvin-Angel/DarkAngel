@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\custom\\X Bot@Falling.fbx",
+  "source_guid": "ad733ed6c49ddb74a8eff5a7fad1689d",
+  "source_local_id": -203655887218126122,
+  "source_clip": "Falling",
+  "ticks": 137,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e9aaacad07e413c24e64e85275df5a0e8089ce80f30db3ae2f166871d1dbdbfe",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/custom/X Bot@Falling.fbx",
+  "source_sha256": "0ce69aaf55dc00e341f5315550db69e9bc5d775570919afd05be2e57b33be766",
+  "action": "Falling"
+}

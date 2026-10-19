@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Jog_Fwd_L_Loop.anim",
+  "source_guid": "43a79f334d6e5f44eac4898c0a7ab2ca",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Jog_Fwd_L_Loop",
+  "ticks": 57,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "a935ed23a1a261d1081478c76b6a08f26760455a470a15b7ac8437c1f43f7ea5",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Jog_Fwd_L_Loop.anim",
+  "source_sha256": "284ad8d6337891da070e673b5547dc564adef4ca463b3bd610b0952c7b276496",
+  "action": "Armature_Jog_Fwd_L_Loop"
+}

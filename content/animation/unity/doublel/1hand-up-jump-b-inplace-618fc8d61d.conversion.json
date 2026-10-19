@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\One Hand Up\\Jump\\InPlace\\1Hand_Up_Jump_B_InPlace.fbx",
+  "source_guid": "b178c30ab0c61314da2951d30369e27e",
+  "source_local_id": 7361425867615798983,
+  "source_clip": "1Hand_Up_Jump_B_InPlace",
+  "ticks": 80,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "76123e98e95f06865fa3ebcf7788ef3e89fbd576a2cef05a8b0effef6137456c",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/One Hand Up/Jump/InPlace/1Hand_Up_Jump_B_InPlace.fbx",
+  "source_sha256": "268035e824f85eac1148feed76df0d8ddc6fe28cedbc73eeb805835d59d2d191",
+  "action": "1Hand_Up_Jump_B_InPlace"
+}

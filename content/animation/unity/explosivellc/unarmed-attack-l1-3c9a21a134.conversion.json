@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\Unarmed\\RPG-Character@Unarmed-Attack-L1.FBX",
+  "source_guid": "95dc4fbaa01379f4f908847fb44054d4",
+  "source_local_id": 7400000,
+  "source_clip": "Unarmed-Attack-L1",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "8d319c445364c73d288db47d076ef286ab383b6fb09a6a71f5ee1d77b65e2ddc",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Attack-L1.FBX",
+  "source_sha256": "e81f040798c873ba59bad6172242a9d3056d7d2481c220d46dfe84ed0f9d6a7a",
+  "action": "Unarmed-Attack-L1"
+}

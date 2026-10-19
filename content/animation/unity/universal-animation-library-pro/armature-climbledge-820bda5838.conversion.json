@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_ClimbLedge.anim",
+  "source_guid": "dc99b62223235b541bc5d5502778d2cb",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_ClimbLedge",
+  "ticks": 39,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "1aae1c5415b72868f7b0c58c22e03f37a4a2c7e42e995081e9347e50b584d1d0",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_ClimbLedge.anim",
+  "source_sha256": "3a81fe6ce5593b2471bd6acec96ddc800c6b1339707b70489401bb1a8a3fda8a",
+  "action": "Armature_ClimbLedge"
+}

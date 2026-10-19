@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Systems\\Core\\Art\\Animations\\Default\\Locomotion--Run_N_Land.anim.fbx",
+  "source_guid": "3c033631149b9c541bcf155cd94cccba",
+  "source_local_id": -2817517482862745934,
+  "source_clip": "Run_N_Land",
+  "ticks": 40,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "a51a9179cfdfe2860e46f801f729dee961549b21fba79929aa40ede85f6a6016",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Systems/Core/Art/Animations/Default/Locomotion--Run_N_Land.anim.fbx",
+  "source_sha256": "c6eb01346c8898a0256cfc27df52bba82c3b49703d19b23c2859e3e2285dcd60",
+  "action": "Run_N_Land"
+}

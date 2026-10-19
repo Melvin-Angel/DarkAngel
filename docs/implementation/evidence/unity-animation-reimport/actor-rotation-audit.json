@@ -1,0 +1,56 @@
+{
+  "clips": 1076,
+  "max_xz_quaternion_component_norm": 0.0,
+  "worst": [
+    [
+      0.0,
+      "webster side kick",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/webster side kick.anim"
+    ],
+    [
+      0.0,
+      "super blast",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/super blast.anim"
+    ],
+    [
+      0.0,
+      "spinning elbow",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/spinning elbow.anim"
+    ],
+    [
+      0.0,
+      "spinning axe kick",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/spinning axe kick.anim"
+    ],
+    [
+      0.0,
+      "slash9_Baked",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash9.fbx"
+    ],
+    [
+      0.0,
+      "slash8_Baked",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash8.fbx"
+    ],
+    [
+      0.0,
+      "slash7_Baked",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash7.fbx"
+    ],
+    [
+      0.0,
+      "slash6_Baked",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash6.fbx"
+    ],
+    [
+      0.0,
+      "slash5_Baked",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash5.fbx"
+    ],
+    [
+      0.0,
+      "slash4_Baked",
+      "Assets/thirdparty/Animations/EEJANAI_Team/FreeSwordAnimations/FBX/slash4.fbx"
+    ]
+  ]
+}

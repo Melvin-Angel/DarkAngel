@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\WalkJumpLeft.fbx",
+  "source_guid": "27325fc378f119b4fb905fec31b55cde",
+  "source_local_id": -2798140832324411853,
+  "source_clip": "WalkJumpLeft",
+  "ticks": 56,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "1c801c25ea807d1c8fd3498bb12bf759f6fcc638d2f32cfe01cb2d9e9a3865ad",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/WalkJumpLeft.fbx",
+  "source_sha256": "642dbf3117a705ec861432f39b4393d104e5e7930915012e0efbc01893eb42db",
+  "action": "WalkJumpLeft"
+}

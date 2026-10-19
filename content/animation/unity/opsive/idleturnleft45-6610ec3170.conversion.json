@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\IdleTurnLeft45.fbx",
+  "source_guid": "804da1832a8d01141916aae806556886",
+  "source_local_id": -784391762676993961,
+  "source_clip": "IdleTurnLeft45",
+  "ticks": 85,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e28d690bb6a4297c1965f4dd1bd8f57e1c576a897fd0fd31289cabe1a24ef4b8",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/IdleTurnLeft45.fbx",
+  "source_sha256": "4d1cde7053f0c8dfbf915db426d140ee7941b20a9716fc655847e1f923f1afe2",
+  "action": "IdleTurnLeft45"
+}

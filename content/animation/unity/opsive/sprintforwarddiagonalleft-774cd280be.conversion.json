@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\SprintForwardDiagonalLeft.fbx",
+  "source_guid": "5092fbadb62eaf541a86d6df9d80ab89",
+  "source_local_id": -7429510209937975808,
+  "source_clip": "SprintForwardDiagonalLeft",
+  "ticks": 28,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "42cc366846cc2cb23efb65377785260eda593cf3f3a27a008ca4f36f47139002",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/SprintForwardDiagonalLeft.fbx",
+  "source_sha256": "61b11a74bc4c856942489ee1cbd6f9cc765a818ae62296ae39407455ff18dc6c",
+  "action": "SprintForwardDiagonalLeft"
+}

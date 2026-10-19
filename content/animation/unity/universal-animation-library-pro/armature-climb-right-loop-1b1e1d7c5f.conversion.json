@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Climb_Right_Loop.anim",
+  "source_guid": "f8b16556d33099a4a852cb530c34dd94",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Climb_Right_Loop",
+  "ticks": 53,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "5fe9dd24b44b69b4dd4011f70c5a5f177b80a703759a25cebc297098d3db5fda",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Climb_Right_Loop.anim",
+  "source_sha256": "825b41ce92929a5987b7bf5db4d75c6002f87e3d57a7174258b6d3aac4e0260c",
+  "action": "Armature_Climb_Right_Loop"
+}

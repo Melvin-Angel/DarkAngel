@@ -1,0 +1,12 @@
+{
+  "removed": [
+    "animation/unity/opsive/runbackward-a3e41e0966.glb",
+    "animation/unity/opsive/runforward-d1b2fcb7e7.glb",
+    "animation/unity/opsive/runstrafeleft-45b85da616.glb",
+    "animation/unity/opsive/runstraferight-ca9512ebe4.glb",
+    "animation/unity/opsive/walkbackward-6e08a7afec.glb",
+    "animation/unity/opsive/walkforward-5c867b1522.glb",
+    "animation/unity/opsive/walkstrafeleft-2f0b8eeafa.glb",
+    "animation/unity/opsive/walkstraferight-e63b4071fa.glb"
+  ]
+}

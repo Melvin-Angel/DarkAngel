@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Celebration.anim",
+  "source_guid": "17f4c9676cba70c46bc8e961a413ea71",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Celebration",
+  "ticks": 240,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "88c07d7bb0c96e53352d4aa440910220a68477067b62fda123239fb1dda8fcf3",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Celebration.anim",
+  "source_sha256": "dd71d8ff67381dddfec579793abb8c748d47fe30bcb7c087d2579d06d258d5b9",
+  "action": "Armature_Celebration"
+}

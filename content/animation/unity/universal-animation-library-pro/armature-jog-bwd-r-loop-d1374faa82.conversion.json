@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Jog_Bwd_R_Loop.anim",
+  "source_guid": "cfc51da0aa98df74a9cbe5fa938ad885",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Jog_Bwd_R_Loop",
+  "ticks": 57,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "34dab838afbb7b75d410b65c5a5286d6b5654ce4c6cb39c70c07d4eadb8b94f0",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Jog_Bwd_R_Loop.anim",
+  "source_sha256": "69c7464244e26d652d5de292057e844f6e1bd37d6748f495809c1397558be2ee",
+  "action": "Armature_Jog_Bwd_R_Loop"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_PickUp_Table.anim",
+  "source_guid": "ac5dba546ef0c0d42a2c584cc466a52b",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_PickUp_Table",
+  "ticks": 51,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "45400e67b2039f54f0de652f2f8bef42b1c12327af7efbe60b793b863560a362",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_PickUp_Table.anim",
+  "source_sha256": "f8a93c358c3fd20fd6c2225d9161d007e7336f12d819fd71ec87bbf1ff93f774",
+  "action": "Armature_PickUp_Table"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\Systems\\Core\\Art\\Animations\\Custom\\Armature_Idle_Turn180R.fbx",
+  "source_guid": "1970c90fb0b3a460aa92de1ebfc8d728",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "Turn180R",
+  "ticks": 51,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "f3da819bd8d7e0f2eef3f2593aaa5f22ec40abbb6a2869c9ae796def66f864c1",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/Systems/Core/Art/Animations/Custom/Armature_Idle_Turn180R.fbx",
+  "source_sha256": "fa2057c2040c4d96f2c937d5f047d5e569d2f243bd14bae669984a469076970b",
+  "action": "Turn180R"
+}

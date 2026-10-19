@@ -1,0 +1,104 @@
+[
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\000.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=4359 max_bone_length_error_m=5.96768e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\001.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=4713 max_bone_length_error_m=5.96815e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\002.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=5124 max_bone_length_error_m=5.96693e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\003.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=6018 max_bone_length_error_m=5.96699e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\004.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=5576 max_bone_length_error_m=5.97079e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\005.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=3851 max_bone_length_error_m=5.96862e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\006.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=3883 max_bone_length_error_m=5.97168e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\007.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=3595 max_bone_length_error_m=5.97017e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\008.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=5300 max_bone_length_error_m=5.96751e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\009.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=4447 max_bone_length_error_m=5.96836e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\010.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=4643 max_bone_length_error_m=5.96665e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\011.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=3122 max_bone_length_error_m=5.96573e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\012.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=9314 max_bone_length_error_m=5.96888e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\013.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=5448 max_bone_length_error_m=5.96663e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\014.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=6021 max_bone_length_error_m=5.96663e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\015.json",
+    "clips": 64,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=64 frames=6819 max_bone_length_error_m=5.96888e-05\n"
+  },
+  {
+    "registry": "C:\\DarkAngel\\.cache\\animation-reimport\\packages\\016.json",
+    "clips": 44,
+    "exit": 0,
+    "output": "Bulk frozen reload clips=44 frames=4212 max_bone_length_error_m=5.96681e-05\n"
+  }
+]

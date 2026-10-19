@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Crouch_Bwd_R_Loop.anim",
+  "source_guid": "d3e7c66fd6abbe14eb2b2ac9e5d85c73",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Crouch_Bwd_R_Loop",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "a47a89b8a58b804d15fd4a5e2bfac6ea9f60ee6a79802a51e6b225170734d0b6",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Crouch_Bwd_R_Loop.anim",
+  "source_sha256": "92298ed14deaefecb291153284b73d134679e5416c5c816e08097034cd10e501",
+  "action": "Armature_Crouch_Bwd_R_Loop"
+}

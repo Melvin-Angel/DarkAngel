@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Thrown\\Boomerang\\HumanF@ThrowBoomerang01_R - Wait.fbx",
+  "source_guid": "dea18355fc28a054891605c654695897",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@ThrowBoomerang01_R - Wait",
+  "ticks": 123,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "3c3b0d717178565c2d0fa6b0a6c965b1fc70bb3873cafe6f1932b6d527a725da",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Thrown/Boomerang/HumanF@ThrowBoomerang01_R - Wait.fbx",
+  "source_sha256": "9fc8e90f00317e8c57bba6ec78524a5276d7dbb572ab44942ba33cb3490635f5",
+  "action": "HumanF@ThrowBoomerang01_R - Wait"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_GroundSit_Exit.anim",
+  "source_guid": "916f4e17785da5944aa8b69e2534eaa1",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_GroundSit_Exit",
+  "ticks": 130,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "604be0e0daeb5ee139de7187a1b0fe431f0d82921d7d4fa576b42cd81b5b1e69",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_GroundSit_Exit.anim",
+  "source_sha256": "5d8f916d1c32f1f77e2447ab596cc05966fb8bea42cff3c74792f1877f4c169e",
+  "action": "Armature_GroundSit_Exit"
+}

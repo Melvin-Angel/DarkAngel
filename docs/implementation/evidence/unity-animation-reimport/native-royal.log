@@ -1,0 +1,45 @@
+idle archive_bytes=80832
+idle masked_blend_tip_error_m=0.000483972
+idle optimized_bytes=80832 max_tip_error_m=0.000805913
+idle ticks=104 archive_bytes=80832 max_tip_error_m=0.000805913 root_extent_m=0
+omni-walk archive_bytes=55836
+omni-walk masked_blend_tip_error_m=0.00044577
+omni-walk optimized_bytes=55836 max_tip_error_m=0.000731166
+omni-walk root_end=0.0010697,0,1.31985,0
+omni-walk ticks=70 archive_bytes=55836 max_tip_error_m=0.000731166 root_extent_m=1.31985
+omni-run archive_bytes=30607
+omni-run masked_blend_tip_error_m=0.00015698
+omni-run optimized_bytes=30607 max_tip_error_m=0.000621173
+omni-run root_end=0.00228089,0,2.50615,0
+omni-run ticks=36 archive_bytes=30607 max_tip_error_m=0.000621173 root_extent_m=2.50615
+omni-left archive_bytes=55839
+omni-left masked_blend_tip_error_m=0.000276292
+omni-left optimized_bytes=55839 max_tip_error_m=0.000710646
+omni-left root_end=1.32441,0,0.000687136,0
+omni-left ticks=70 archive_bytes=55839 max_tip_error_m=0.000710646 root_extent_m=1.32441
+omni-right archive_bytes=55840
+omni-right masked_blend_tip_error_m=0.000241506
+omni-right optimized_bytes=55840 max_tip_error_m=0.000670188
+omni-right root_end=-1.32222,0,0.000374431,0
+omni-right ticks=70 archive_bytes=55840 max_tip_error_m=0.000670188 root_extent_m=1.32222
+omni-back archive_bytes=55837
+omni-back masked_blend_tip_error_m=0.000281875
+omni-back optimized_bytes=55837 max_tip_error_m=0.000703827
+omni-back root_end=0.00217344,0,-1.33919,0
+omni-back ticks=70 archive_bytes=55837 max_tip_error_m=0.000703827 root_extent_m=1.33919
+omni-run-back archive_bytes=29124
+omni-run-back masked_blend_tip_error_m=0.000411366
+omni-run-back optimized_bytes=29124 max_tip_error_m=0.000743092
+omni-run-back root_end=0.00695382,0,-1.57217,0
+omni-run-back ticks=34 archive_bytes=29124 max_tip_error_m=0.000743092 root_extent_m=1.57219
+omni-run-left archive_bytes=33578
+omni-run-left masked_blend_tip_error_m=0.000301364
+omni-run-left optimized_bytes=33578 max_tip_error_m=0.000442303
+omni-run-left root_end=1.36078,0,-0.000189214,0
+omni-run-left ticks=40 archive_bytes=33578 max_tip_error_m=0.000442303 root_extent_m=1.36078
+omni-run-right archive_bytes=33579
+omni-run-right masked_blend_tip_error_m=0.000334673
+omni-run-right optimized_bytes=33579 max_tip_error_m=0.00059962
+omni-run-right root_end=-1.37804,0,-0.000122151,0
+omni-run-right ticks=40 archive_bytes=33579 max_tip_error_m=0.00059962 root_extent_m=1.37804
+Royal canonical locomotion content and compression reference passed

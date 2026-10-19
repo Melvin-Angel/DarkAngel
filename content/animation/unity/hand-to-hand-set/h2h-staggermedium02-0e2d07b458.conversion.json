@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_StaggerMedium02.FBX",
+  "source_guid": "b01b977042b27a04d851bce521f9b97c",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_StaggerMedium02",
+  "ticks": 105,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "2f18272b3b541e979f16cf3be8edd5e93f7d1ff4f52182165dba3771748327c2",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_StaggerMedium02.FBX",
+  "source_sha256": "56e5812f3aba789ef7431bd898e3cd2a508d0ea31abcdbc298f3518b1bd7b886",
+  "action": "H2H_StaggerMedium02"
+}

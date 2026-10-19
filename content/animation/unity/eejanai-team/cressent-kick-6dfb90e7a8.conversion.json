@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\EEJANAI_Team\\FreeFighterAnimations\\Animations\\cressent kick.anim",
+  "source_guid": "a2d1d589fa698734693c660ef9f322d7",
+  "source_local_id": 7400000,
+  "source_clip": "cressent kick",
+  "ticks": 150,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "850f47418cc1e7bea3d196824234697a36b3a611c90006bb4dc24f13aba53f57",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/EEJANAI_Team/FreeFighterAnimations/Animations/cressent kick.anim",
+  "source_sha256": "b2560b638448e0c31744bceb3b64e4224b574cd9d40078fc2b0da7e71c549116",
+  "action": "cressent kick"
+}

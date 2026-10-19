@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Spell_Double_Shoot_Loop.anim",
+  "source_guid": "bf7787a348c5f4249b69507e6c6d4922",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Spell_Double_Shoot_Loop",
+  "ticks": 16,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "122e406867ac1dfa552fadaba4b59d972ab011317fdaa98c64cdb67de8ebae86",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Spell_Double_Shoot_Loop.anim",
+  "source_sha256": "4706c37b15e87f4f5cf83733135566bf35999c30b4fa1b7e2e615319ba0901dc",
+  "action": "Armature_Spell_Double_Shoot_Loop"
+}

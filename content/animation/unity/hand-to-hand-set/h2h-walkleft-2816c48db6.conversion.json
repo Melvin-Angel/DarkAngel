@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_WalkLeft.FBX",
+  "source_guid": "4c261b072b7d5114992cdc089cbfcb93",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_WalkLeft",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "bf9e610cc0b535f7f20333f733e1313ece65a3438aad79b20ec06bf689ac548a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_WalkLeft.FBX",
+  "source_sha256": "fb938abb1056ceba551042ee84674be268197bb0c58097ec91d1dd0368c6a8f0",
+  "action": "H2H_WalkLeft"
+}

@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\TPose\\StartCrouchWalkLeft.fbx",
+  "source_guid": "987eb42033f0e5747bf0585d95adeb01",
+  "source_local_id": 1748993420159480202,
+  "source_clip": "StartCrouchWalkLeft",
+  "ticks": 93,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "3a31a413df192eeb8392e0247046d6a09de0dba7f4b0c6565898e30d9b0be540",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/TPose/StartCrouchWalkLeft.fbx",
+  "source_sha256": "e1b642b2f19123f787a241b1b5cb84dcb31d3b00d29fb2e029499be31e2f13a8",
+  "action": "StartCrouchWalkLeft"
+}

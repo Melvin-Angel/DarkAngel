@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\RPG Character Mecanim Animation Pack FREE\\Animations\\Unarmed\\RPG-Character@Unarmed-Strafe-Forward-Left.FBX",
+  "source_guid": "443693849a2f4e741afac059a470e10e",
+  "source_local_id": 7400000,
+  "source_clip": "Unarmed-Strafe-Forward-Left",
+  "ticks": 49,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e5a86f6619a0b4aaf3cd801094324673ae9b522f6afa64e5467ee9984da368d3",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/RPG Character Mecanim Animation Pack FREE/Animations/Unarmed/RPG-Character@Unarmed-Strafe-Forward-Left.FBX",
+  "source_sha256": "97b98a28b7b51721ce805a73c00afa6bfc6c5e74072d7684c49de88835e92fef",
+  "action": "Unarmed-Strafe-Forward-Left"
+}

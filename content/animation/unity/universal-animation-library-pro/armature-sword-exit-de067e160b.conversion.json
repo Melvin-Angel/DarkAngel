@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Sword_Exit.anim",
+  "source_guid": "e6ed5f94e87c794459d16130f9d014e6",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Sword_Exit",
+  "ticks": 79,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "4921928430a22a7caa0c905c816a1c51524c8f41d0c90f59dba2ab7203120d05",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Sword_Exit.anim",
+  "source_sha256": "d6f553499f73cb571b2d4a64d381fa847d80a20eaf24601d0f07efaab0967d75",
+  "action": "Armature_Sword_Exit"
+}

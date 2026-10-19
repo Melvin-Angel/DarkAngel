@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_BlockLoop.FBX",
+  "source_guid": "52efbea87930e2e4396e4a268da19711",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_BlockLoop",
+  "ticks": 100,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "f3498394c2b994828046c4e4c33180a7fe5a86367d34b7e7942222a414f91426",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_BlockLoop.FBX",
+  "source_sha256": "68361cff9cec6c7ad07aff3749f0acff56c4916233f4a08e6df9dc4536747dbf",
+  "action": "H2H_BlockLoop"
+}

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "id": "77ee111c-d94b-416f-980c-c79eb489ad23",
+  "importer": "clip-gltf-v1",
+  "canonical_source": "animation/canonical_human.daskeleton",
+  "loop": true,
+  "tags": [],
+  "subassets": {
+    "runtime": "e1178d9a-c603-41f3-82cd-ba5d2ee7937d"
+  }
+}

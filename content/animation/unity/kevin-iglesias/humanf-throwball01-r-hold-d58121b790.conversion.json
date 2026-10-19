@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Thrown\\Ball\\HumanF@ThrowBall01_R - Hold.fbx",
+  "source_guid": "a7111349331742a4caeb2513fb456f1a",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@ThrowBall01_R - Hold",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "9efb2d6510dcbf65320fc8de2ec25af7a07e0ddbc9762bd843067acc03cb399d",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Thrown/Ball/HumanF@ThrowBall01_R - Hold.fbx",
+  "source_sha256": "2c10bb92371f7d0126e1a2e305cc57106f60d4b289795048e356a167155ae8b8",
+  "action": "HumanF@ThrowBall01_R - Hold"
+}

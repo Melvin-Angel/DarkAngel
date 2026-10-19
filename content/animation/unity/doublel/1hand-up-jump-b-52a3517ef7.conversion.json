@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\One Hand Up\\Jump\\1Hand_Up_Jump_B.fbx",
+  "source_guid": "3635bc2bc8a61d74fb7be137a53e2de9",
+  "source_local_id": -7347839028363886482,
+  "source_clip": "1Hand_Up_Jump_B",
+  "ticks": 80,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "78fa1e23c5387e7faf3fdfafb24e170644b8174a4daf3b71338b9aec3651a7d9",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/One Hand Up/Jump/1Hand_Up_Jump_B.fbx",
+  "source_sha256": "740a022c9abd4f4245dfbb0a81a48d0bdac113aa51ae0bf0e2872ffb8a24878d",
+  "action": "1Hand_Up_Jump_B"
+}

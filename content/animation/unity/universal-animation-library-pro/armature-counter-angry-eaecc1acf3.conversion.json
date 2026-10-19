@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Counter_Angry.anim",
+  "source_guid": "66f6f4f83335a3e4b9c4ba285548b298",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Counter_Angry",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "349a532ae0a860dc1946f65812901bd4e92464f6743dc653cc0ff5d9da93f982",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Counter_Angry.anim",
+  "source_sha256": "0d78add49cfb9ad7bccad80675b1fd2e36efe9066d3208a6eceb115b7ed1bd09",
+  "action": "Armature_Counter_Angry"
+}

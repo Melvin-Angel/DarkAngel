@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Universal Animation Library[Pro]\\Animations\\Armature_Spell_Simple_Exit.anim",
+  "source_guid": "b0f3aa64696bf934396e989ecbe4fe18",
+  "source_local_id": 7400000,
+  "source_clip": "Armature_Spell_Simple_Exit",
+  "ticks": 27,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "187a6152cb828c06c8df4dc1bbad370bee083a65da2ca50fa942cfd1ee0c8f74",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Universal Animation Library[Pro]/Animations/Armature_Spell_Simple_Exit.anim",
+  "source_sha256": "4627e2ab35f620f781f9cf178fb53db7039bf674fe3b387e726de6f48f7c0dbf",
+  "action": "Armature_Spell_Simple_Exit"
+}

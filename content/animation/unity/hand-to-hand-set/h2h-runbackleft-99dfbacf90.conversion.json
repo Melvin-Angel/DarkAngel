@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_RunBackLeft.FBX",
+  "source_guid": "a592aa17de8b7c04f9ac3de43e7d3de4",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_RunBackLeft",
+  "ticks": 30,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "aa4f609f45b082a1849cb07abfff76b43686c6a96a7b0c62ab75dc2a7c3106e6",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_RunBackLeft.FBX",
+  "source_sha256": "cc74f4cef04ca72596ca579d3155a8e8246c1ff85ca40cb2fe56f22666cf5116",
+  "action": "H2H_RunBackLeft"
+}

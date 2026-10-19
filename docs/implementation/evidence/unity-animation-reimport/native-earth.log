@@ -1,0 +1,13 @@
+earth_overhand_punch archive_bytes=67721
+earth_overhand_punch masked_blend_tip_error_m=0.000177737
+earth_overhand_punch optimized_bytes=67721 max_tip_error_m=0.00050094
+earth_overhand_punch ticks=86 archive_bytes=67721 max_tip_error_m=0.00050094 root_extent_m=4.81573
+earth_spinning_kick archive_bytes=43233
+earth_spinning_kick masked_blend_tip_error_m=0.000259068
+earth_spinning_kick optimized_bytes=43233 max_tip_error_m=0.000591562
+earth_spinning_kick ticks=53 archive_bytes=43233 max_tip_error_m=0.000591562 root_extent_m=1.96455
+earth_spear_throw archive_bytes=71427
+earth_spear_throw masked_blend_tip_error_m=0.00030944
+earth_spear_throw optimized_bytes=71427 max_tip_error_m=0.000489074
+earth_spear_throw ticks=91 archive_bytes=71427 max_tip_error_m=0.000489074 root_extent_m=0
+Earth Unity poses survive native compression, masked blending and frozen reload

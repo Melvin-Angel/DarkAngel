@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\ExplosiveLLC\\Warrior Pack Bundle 3 FREE\\Crossbow Warrior Mecanim Animation Pack\\Animations\\Crossbow@Fall.FBX",
+  "source_guid": "80ef99c010ef0214ab5c4bdfbcf3e700",
+  "source_local_id": 7400000,
+  "source_clip": "Fall",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "61eb1183d1e1f5abb808e8222d1b6ddd53d8d3074e9a5786255be0755aca1e6e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/ExplosiveLLC/Warrior Pack Bundle 3 FREE/Crossbow Warrior Mecanim Animation Pack/Animations/Crossbow@Fall.FBX",
+  "source_sha256": "4eb90ac66f694e63fe49eea106ecee30d908ee013f7e21840da8071d465d2d14",
+  "action": "Fall"
+}

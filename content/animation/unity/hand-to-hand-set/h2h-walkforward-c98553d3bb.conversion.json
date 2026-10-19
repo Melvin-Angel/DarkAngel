@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Hand_to_Hand_Set\\Art\\Animations\\H2H_WalkForward.FBX",
+  "source_guid": "207f252c094377b408006c5ae2352af0",
+  "source_local_id": 1827226128182048838,
+  "source_clip": "H2H_WalkForward",
+  "ticks": 60,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "adc6ebd47ccf4c68f55fe7acb94e108809aed2651c808bb53117ec887a1fe067",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Hand_to_Hand_Set/Art/Animations/H2H_WalkForward.FBX",
+  "source_sha256": "bbfd59fb3970e6244dd1a811d1fc50925ed94a008794fd1948010396cb4aa279",
+  "action": "H2H_WalkForward"
+}

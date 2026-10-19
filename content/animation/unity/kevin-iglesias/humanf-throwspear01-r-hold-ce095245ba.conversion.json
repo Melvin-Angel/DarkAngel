@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Kevin Iglesias\\Human Animations\\Animations\\Female\\Combat\\Thrown\\Weapon\\Spear\\HumanF@ThrowSpear01_R - Hold.fbx",
+  "source_guid": "b2e30e8ba6877a048af5201b7bf46316",
+  "source_local_id": 3094330708855449807,
+  "source_clip": "HumanF@ThrowSpear01_R - Hold",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "f0970f518497c94255e8dd26a55746b2c40024cb45ac25a1f2d3a3b8136f1769",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Kevin Iglesias/Human Animations/Animations/Female/Combat/Thrown/Weapon/Spear/HumanF@ThrowSpear01_R - Hold.fbx",
+  "source_sha256": "9f69937e4a88dc0165cfdeb6a9d7769d814717a68838da59398464c1fb18d95f",
+  "action": "HumanF@ThrowSpear01_R - Hold"
+}

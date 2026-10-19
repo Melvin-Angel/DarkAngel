@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\One Hand Up\\Movement\\Idle\\Idle\\1Hand_Up_Stand_Idle_A_2.fbx",
+  "source_guid": "99ba2dab2137f0445992b3992d994bfe",
+  "source_local_id": 7804281696320516629,
+  "source_clip": "1Hand_Up_Stand_Idle_A_2",
+  "ticks": 120,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "03724a34a65138482a679c64e129a960cb7e2c6e085aded65162a43029f9a17e",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/One Hand Up/Movement/Idle/Idle/1Hand_Up_Stand_Idle_A_2.fbx",
+  "source_sha256": "68a9b638adfad007155bdc6d83cc4636473bdd8e79162b2590d6c5953aaceaaf",
+  "action": "1Hand_Up_Stand_Idle_A_2"
+}

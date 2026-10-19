@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Brawler Animations Sample\\Animations\\Hit_B.fbx",
+  "source_guid": "34bca8af4450bc4448045f98d2cf3c70",
+  "source_local_id": 5929533664354034034,
+  "source_clip": "Hit_B",
+  "ticks": 20,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "140123c78efb464492e67b0710fd2d314752f874f7021c3d05823c6968707c4a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Brawler Animations Sample/Animations/Hit_B.fbx",
+  "source_sha256": "6f9a54e5447f0cd54ba4e917351bc58481103671e428e5cf23505ae8a3793b77",
+  "action": "Hit_B"
+}

@@ -1,0 +1,36 @@
+Diligent Engine: Info: D3D12-capable adapter found: Intel(R) Iris(R) Xe Graphics (128 MB)
+Diligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80200080000
+Diligent Engine: Info: Can not disable SeparablePrograms
+Diligent Engine: Info: Max device shader model: 6_7
+Diligent Engine: Info: Loaded DX Shader Compiler 1.9. Max supported shader model: 6.9
+Diligent Engine: Warning: Diligent Engine was built without PIX support. Use DILIGENT_LOAD_PIX_EVENT_RUNTIME CMake option to enable it.
+Diligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205ec0000
+Diligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80208290000
+Diligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205bf0000
+Diligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205cf0000
+Diligent Engine: Info: Created dynamic memory page. Size: 1.00 MB; GPU virtual address 0xffffb80205fc0000
+Viewport render_target=1896,656 game_camera_aspect=2.89024
+Viewport foreground pixels=1300705 capture=C:\DarkAngel\.cache\animation-reimport\visual\d3d12\punch.png viewport_rect=0,0,1920,1055
+Native character editor tick=160 foot=0,0.499999,12.2917 graph_phase=0.209601 pending=0
+DarkAngel editor rendered 160 frames with d3d12
+Diligent Engine: Info: SAMPLER     dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 0/0
+Diligent Engine: Info: CBV_SRV_UAV dynamic descriptor allocator of immediate context usage stats: peak descriptor count: 53/256
+Diligent Engine: Info: Dynamic heap of immediate context usage stats:
+                       Peak used/aligned/allocated size: 2.29 MB / 2.29 MB / 3.00 MB (3 pages). Peak efficiency (used/aligned): 100.0%. Peak utilization (used/allocated): 76.4%
+Diligent Engine: Info: Dynamic memory manager usage stats:
+                       Total allocated memory: 6.00 MB
+Diligent Engine: Info: D3D12 query manager peak usage:
+QUERY_TYPE_OCCLUSION          :    0/ 128
+QUERY_TYPE_BINARY_OCCLUSION   :    0/ 128
+QUERY_TYPE_TIMESTAMP          :    0/ 512
+QUERY_TYPE_PIPELINE_STATISTICS:    0/ 128
+QUERY_TYPE_DURATION           :    0/ 512
+Diligent Engine: Info: Command list manager: created 0 allocators
+Diligent Engine: Info: Command list manager: created 0 allocators
+Diligent Engine: Info: Command list manager: created 126 allocators
+Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/1024 (0.00%) | 0/1024 (0.00%).
+Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 560/16384 (3.42%) | 768/8192 (9.38%).
+Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_DSV         CPU heap allocated pool count: 1. Max descriptors: 8/1024 (0.78%).
+Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_RTV         CPU heap allocated pool count: 1. Max descriptors: 17/1024 (1.66%).
+Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     CPU heap allocated pool count: 1. Max descriptors: 0/2048 (0.00%).
+Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV CPU heap allocated pool count: 1. Max descriptors: 115/8192 (1.40%).

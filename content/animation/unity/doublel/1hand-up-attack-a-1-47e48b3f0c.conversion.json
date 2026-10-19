@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\DoubleL\\FBX Unity\\One Hand Up\\Attack_A\\1Hand_Up_Attack_A_1.fbx",
+  "source_guid": "981e926b82dcefb4bbe6507cef4ca850",
+  "source_local_id": 2746797882735882954,
+  "source_clip": "1Hand_Up_Attack_A_1",
+  "ticks": 144,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "38f5e6a1d19b7751dd1dc8c20095fa208d4f6400b3531d659528ac0970ef8961",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/DoubleL/FBX Unity/One Hand Up/Attack_A/1Hand_Up_Attack_A_1.fbx",
+  "source_sha256": "e9aa046edc98f5ddf9c9b465c7a910a6389995132af22b7310065c8a58a03427",
+  "action": "1Hand_Up_Attack_A_1"
+}

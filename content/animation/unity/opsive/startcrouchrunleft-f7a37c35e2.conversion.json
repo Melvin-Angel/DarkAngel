@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Opsive\\OmniAnimation\\Packs\\CoreLocomotion\\Animations\\Original\\StartCrouchRunLeft.fbx",
+  "source_guid": "11d52913c5a16ed42a7d0fe1234fa475",
+  "source_local_id": -7925052395211774943,
+  "source_clip": "StartCrouchRunLeft",
+  "ticks": 64,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "e056c4d8ba93e5fc4a91e9a2626244ef07cd7b019408d93550919ca9ee3c594f",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Opsive/OmniAnimation/Packs/CoreLocomotion/Animations/Original/StartCrouchRunLeft.fbx",
+  "source_sha256": "d3e263d98459dcd21785d2d4d21ef6a13cb5cb2e0a133c2fc09d7bd761946745",
+  "action": "StartCrouchRunLeft"
+}

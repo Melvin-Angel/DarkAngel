@@ -1,0 +1,18 @@
+{
+  "schema": 2,
+  "source": "C:\\Unity Projects\\AshenRootsMP\\Assets\\thirdparty\\Animations\\Mixamo\\X Bot@Standing Dodge Backward.fbx",
+  "source_guid": "9fe87df5d7fa0254196f9256c16b4b8e",
+  "source_local_id": -203655887218126122,
+  "source_clip": "Standing Dodge Backward",
+  "ticks": 99,
+  "joints": 81,
+  "canonical_sha256": "52c457e3acfaf67e843a15daab3d614f313492266f4da7d1862208e479994083",
+  "glb_sha256": "8c907c49fe27ca814b196af67a2613bd54b687aed275bc5e7dd2772c62e2327a",
+  "translation_policy": "root-only; canonical local bind translation for every descendant",
+  "max_descendant_translation_error_metres": 0,
+  "animated_scale": false,
+  "motion_root": "explicit Unity Animator trajectory; hips remain in skeletal pose",
+  "source_asset_path": "Assets/thirdparty/Animations/Mixamo/X Bot@Standing Dodge Backward.fbx",
+  "source_sha256": "27963d32008bcce63021dfdee183a4f0c2a174ea0382d1585d3e2cfd4faa6f43",
+  "action": "Standing Dodge Backward"
+}
