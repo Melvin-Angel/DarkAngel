@@ -1,0 +1,64 @@
+{
+  "schema": 2,
+  "kind": "action",
+  "asset": "fb865c37-01ef-416c-910c-d7bf64c88ec9",
+  "duration": 88064,
+  "loops": 1,
+  "priority": 10,
+  "slot": "full-body",
+  "blocks": [
+    {
+      "id": 1,
+      "track": 0,
+      "begin": 0,
+      "end": 0,
+      "kind": "cue",
+      "key": "Earth.Attack.Start"
+    },
+    {
+      "id": 2,
+      "track": 1,
+      "begin": 0,
+      "end": 55979,
+      "kind": "vfx",
+      "key": "Earth.Gather.Hand"
+    },
+    {
+      "id": 3,
+      "track": 2,
+      "begin": 54613,
+      "end": 71111,
+      "kind": "hit",
+      "key": "Weapon.Right"
+    },
+    {
+      "id": 4,
+      "track": 3,
+      "begin": 57344,
+      "end": 86016,
+      "kind": "combo",
+      "key": "Combo.Next"
+    },
+    {
+      "id": 5,
+      "track": 4,
+      "begin": 0,
+      "end": 44032,
+      "kind": "movement-lock",
+      "key": "Motor.Root"
+    },
+    {
+      "id": 6,
+      "track": 5,
+      "begin": 57344,
+      "end": 57344,
+      "kind": "cue",
+      "key": "Earth.Burst"
+    }
+  ],
+  "motion": {
+    "clip": "05c1301c-c4cf-454e-991a-4976db635f3d",
+    "source": "animation/earth/earth_overhand_punch.glb",
+    "policy": "none"
+  }
+}

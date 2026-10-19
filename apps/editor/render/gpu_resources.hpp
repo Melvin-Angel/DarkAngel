@@ -68,7 +68,9 @@ struct PostConstants {
     DirectX::XMFLOAT4 sky_sun{-.35f,.7f,-.55f,0};
     DirectX::XMFLOAT4 sky_sun_color{1,.75f,.45f,0};
     DirectX::XMFLOAT4 sky_mode{};
+    DirectX::XMFLOAT4 sky_cloud{};
     DirectX::XMFLOAT4X4 inverse_projection{};
+    DirectX::XMFLOAT4X4 inverse_view{};
 };
 // Sets a draw's surface, emission and feature constants from its material (colour is set by the caller, which may tint it).
 void apply_material(Constants&, const CookedMaterial&);
@@ -203,7 +205,8 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
     if(Features.y==1&&base.a<Features.z)discard;
     float3 normal=normalize(vertex.Normal);
     if(features&1u){float3 mapped=NormalMap.Sample(NormalMap_sampler,vertex.UV).xyz*2-1;mapped.xy*=Surface.w;normal=MappedNormal(normal,vertex.Local,vertex.UV,normalize(mapped));}
-    if(Outline.x>0) return float4(normal*.5+.5,Outline.y);
+    if(Outline.x>1) return float4(Outline.y,0,0,1);
+    if(Outline.x>0) return float4(normal*.5+.5,1);
     float roughness=Surface.x,metallic=Surface.y,occlusion=1;
     if(features&2u){float3 packed=SurfaceMap.Sample(SurfaceMap_sampler,vertex.UV).rgb;occlusion=lerp(1,packed.r,Surface.z);roughness*=packed.g;metallic*=packed.b;}
     float3 light=normalize(MainLight.xyz);float diffuse=saturate(dot(normal,light));
@@ -252,7 +255,7 @@ float4 PSMain(VertexOutput vertex):SV_TARGET {
 // blend: the transparent variant (alpha blending, depth test without depth writes) of the same layout, so a material's binding
 // serves both.
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
-                                       const char* source = shader_source, IBuffer* bones = nullptr, bool blend = false, bool instanced = false);
+                                       const char* source = shader_source, IBuffer* bones = nullptr, bool blend = false, bool instanced = false, bool outline_targets = false);
 RefCntAutoPtr<IPipelineState> post_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT color);
 RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr, bool instanced = false);
 RefCntAutoPtr<IPipelineState> alpha_shadow_pipeline(IRenderDevice*, IBuffer*, TEXTURE_FORMAT depth, bool cull, const char* source = nullptr, IBuffer* bones = nullptr, bool instanced = false);

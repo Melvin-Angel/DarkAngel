@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "kind": "ability",
+  "asset": "54542da0-75aa-458b-9f47-e8b60b5c391a",
+  "action": "d29074b9-28ab-4a96-a26b-509c24ab6cf3",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "sources": {
+    "action": "royal_district/combat/earth/earth_spear.daaction",
+    "attributes": "royal_district/combat/base.daattributes",
+    "projectile_model": "royal_district/combat/earth/earth_spear_rock.glb"
+  },
+  "costs": [
+    {
+      "attribute": 4,
+      "amount": 5
+    }
+  ],
+  "cooldown_group": 9,
+  "cooldown_ticks": 90,
+  "activate_on": "pressed",
+  "minimum_held_us": 0,
+  "cancel_on_release": false,
+  "interruptible": true,
+  "melee": [
+    {
+      "block": 4,
+      "offset": [
+        0,
+        0,
+        0.12
+      ],
+      "radius": 0.28,
+      "power": 35,
+      "evaluator": 1,
+      "damage_type": 2,
+      "socket": "weapon_right"
+    }
+  ],
+  "targeting": {
+    "mode": "aim",
+    "range": 30.0,
+    "projectile": {
+      "speed": 20.0,
+      "gravity": 0.0,
+      "lifetime": 300,
+      "visual_model": "943abfb0-299a-4419-8b89-2cb73bc6f2ca",
+      "preparation": {
+        "emergence_block": 2,
+        "move_block": 3,
+        "release_block": 4,
+        "offset": [
+          0.7,
+          0.0,
+          0.35
+        ],
+        "rise": 0.62,
+        "socket": "weapon_right",
+        "ready_pitch_degrees": -45
+      }
+    }
+  }
+}

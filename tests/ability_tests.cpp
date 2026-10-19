@@ -1,4 +1,5 @@
 #include <darkangel/world_session.hpp>
+#include <darkangel/ability_presentation.hpp>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -15,6 +16,17 @@ std::vector<AttributeDefinition> schema(double health=100){return {
     {3,"Stamina",AttributeKind::Resource,60,0,60,0},
     {4,"Essence",AttributeKind::Resource,40,0,40,0}};}
 double value(const AbilityOwnerSnapshot& snapshot,AttributeId id){for(const auto& attribute:snapshot.attributes)if(attribute.id==id)return attribute.value;throw std::runtime_error("Missing attribute snapshot");}
+void prepared_projectile_timeline(){
+    AbilityProjectilePreparation prep;prep.emergence_block=1;prep.move_block=2;prep.release_block=3;prep.rise=1;
+    ActionDefinition action;action.blocks={{1,0,0,10,ActionBlockKind::Vfx,"Earth.Emerge"},{2,1,10,30,ActionBlockKind::Vfx,"Earth.Prefire"},{3,2,40,41,ActionBlockKind::HitWindow,"Projectile.Release"}};
+    const std::array<double,3> ground{1,0,2},hand{5,3,2};
+    auto pose=prepared_projectile_pose(prep,action,0,ground,hand);check(pose&&pose->position==ground&&pose->travel==0,"Prepared projectile begins at ground placement");
+    pose=prepared_projectile_pose(prep,action,5,ground,hand);check(pose&&std::abs(pose->position[1]-.5)<1e-9&&pose->travel==0,"Authored emergence block raises the visual rock");
+    pose=prepared_projectile_pose(prep,action,20,ground,hand);check(pose&&std::abs(pose->position[0]-3)<1e-9&&std::abs(pose->position[1]-2)<1e-9&&std::abs(pose->travel-.5)<1e-9,"Authored hand movement uses eased travel");
+    pose=prepared_projectile_pose(prep,action,35,ground,hand);check(pose&&pose->position==hand&&pose->travel==1,"Prepared projectile holds at the animated hand until release");
+    check(!prepared_projectile_pose(prep,action,40,ground,hand),"Release transfers presentation to the active projectile");
+    check(!prepared_projectile_pose(prep,action,5,{NAN,0,0},hand),"Invalid transforms cannot publish prepared projectile presentation");
+}
 struct Fixture {
     WorldSession server{SessionRole::Server,handshake()};AbilityOwnerHandle owner;
     std::shared_ptr<ActionDefinition> action=std::make_shared<ActionDefinition>();
@@ -121,6 +133,19 @@ void bounds_and_completion(){
     auto before=queue.server.ability_snapshot(queue.owner);rejects([&]{queue.server.request_ability(queue.request(66));});auto after=queue.server.ability_snapshot(queue.owner);
     check(after.revision==before.revision&&after.retained_operations==before.retained_operations&&!after.active,"Queue overflow does not partially commit");queue.server.drain_ability_actions();check(queue.server.request_ability(queue.request(66)).committed,"Draining permits retry of uncommitted operation");
 }
+void combo_continuation(){
+    Fixture f;auto opening=std::make_shared<ActionDefinition>();opening->id=AssetId::random();opening->generation=std::string(64,'a');opening->duration=4*action_tick_units;opening->loops=1;opening->blocks={{1,0,0,0,ActionBlockKind::Cue,"swing"},{2,1,action_tick_units,3*action_tick_units,ActionBlockKind::ComboWindow,"Combo.Next"}};
+    auto followup=std::make_shared<ActionDefinition>();followup->id=AssetId::random();followup->generation=std::string(64,'b');followup->duration=3*action_tick_units;followup->loops=1;followup->blocks={{3,0,0,0,ActionBlockKind::Cue,"swing"},{4,1,2*action_tick_units,3*action_tick_units,ActionBlockKind::ComboWindow,"Combo.Loop"}};
+    auto combo=std::make_shared<AbilityDefinition>(*f.light);combo->action=opening;combo->combo_steps={{followup,{}}};combo->combo_loop=true;std::array<std::shared_ptr<const AbilityDefinition>,2> catalogue{combo,f.heavy};f.server.equip_combat_kit(f.owner,f.kit,f.input,catalogue);f.server.drain_ability_actions();
+    const auto first=f.server.request_ability(f.request(1));check(first.committed,"Combo starter commits once");auto start=f.server.drain_ability_actions();check(start.size()==1&&start.front().batch.events.front().key=="swing","Combo starter timeline enters");
+    f.server.advance_abilities(1,action_tick_units);f.server.drain_ability_actions();const auto before=f.server.ability_snapshot(f.owner);const auto next=f.server.request_ability(f.request(2));const auto after=f.server.ability_snapshot(f.owner);auto transition=f.server.drain_ability_actions();
+    check(next.failure==AbilityFailure::None&&!next.committed&&next.handle==first.handle&&after.active==first.handle&&after.action_definition==followup->id&&after.action->clock==0,"Combo window advances the active timeline without a second commitment");
+    check(value(after,3)==value(before,3)&&value(after,4)==value(before,4)&&after.cooldowns==before.cooldowns&&transition.size()==1&&transition.front().reason==AbilityActionReason::Advanced&&transition.front().batch.events.front().key=="swing","Combo continuation preserves resources/cooldown and enters its authored action");
+    f.server.advance_abilities(2,action_tick_units);f.server.drain_ability_actions();check(f.server.ability_snapshot(f.owner).action->clock==action_tick_units,"Combo follow-up advances on its own action clock");
+    auto outside=f.server.request_ability(f.request(3,CombatSlot::Light,InputEdge::Pressed,true));check(outside.failure==AbilityFailure::Cooldown,"A press outside the combo window is still governed by cooldown");
+    f.server.advance_abilities(3,action_tick_units);f.server.drain_ability_actions();const auto looped=f.server.request_ability(f.request(4));check(looped.failure==AbilityFailure::None&&!looped.committed&&f.server.ability_snapshot(f.owner).action_definition==opening->id,"The final authored combo window loops back to the starter action");f.server.drain_ability_actions();
+    check(f.server.cancel_ability(first.handle)==AbilityFailure::None&&!f.server.ability_snapshot(f.owner).active&&f.server.drain_ability_actions().size()==1,"Combo interruption releases the active continuation");
+}
 void death_and_interruption(){
     Fixture f;auto uninterruptible=std::make_shared<AbilityDefinition>(*f.light);uninterruptible->interruptible=false;
     std::array<std::shared_ptr<const AbilityDefinition>,2> catalogue{uninterruptible,f.heavy};f.server.equip_combat_kit(f.owner,f.kit,f.input,catalogue);
@@ -155,4 +180,4 @@ std::vector<std::pair<std::uint64_t,ActionEvent>> render_trace(unsigned frames){
     return result;
 }
 }
-int main(){try{commitment();swap_and_input();authority_and_health();bounds_and_completion();death_and_interruption();check(render_trace(30)==render_trace(60)&&render_trace(60)==render_trace(144),"Identical action/cost traces at 30/60/144 render schedules");std::cout<<"Ability grants, atomic action/cost/cooldown commits, duplicate receipts, cleanup, bounds and WorldSession Health checks passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(){try{prepared_projectile_timeline();commitment();swap_and_input();authority_and_health();bounds_and_completion();combo_continuation();death_and_interruption();check(render_trace(30)==render_trace(60)&&render_trace(60)==render_trace(144),"Identical action/cost traces at 30/60/144 render schedules");std::cout<<"Ability grants, prepared projectile timing, atomic action/cost/cooldown commits, data-authored combo continuations, cleanup, bounds and WorldSession Health checks passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

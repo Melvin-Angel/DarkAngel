@@ -1,0 +1,17 @@
+{
+  "id": "943abfb0-299a-4419-8b89-2cb73bc6f2ca",
+  "importer": "static-gltf-v1",
+  "schema": 1,
+  "subassets": {
+    "material/earth-spear-stone": "3f3cd449-2b41-420a-8660-46159c31ef48",
+    "mesh/earth-spear-rock": "8139908a-6406-4035-bf59-64028cb815db"
+  },
+  "tags": [],
+  "materials": {
+    "material/earth-spear-stone": {
+      "asset": "c529933a-886b-4bfc-abfa-a9741304dfd5",
+      "source": "royal_district/materials/earth-spear-stone.damaterial"
+    }
+  },
+  "collision": "none"
+}

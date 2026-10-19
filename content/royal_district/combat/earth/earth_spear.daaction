@@ -1,0 +1,64 @@
+{
+  "schema": 2,
+  "kind": "action",
+  "asset": "d29074b9-28ab-4a96-a26b-509c24ab6cf3",
+  "duration": 93184,
+  "loops": 1,
+  "priority": 10,
+  "slot": "full-body",
+  "blocks": [
+    {
+      "id": 1,
+      "track": 0,
+      "begin": 0,
+      "end": 0,
+      "kind": "cue",
+      "key": "Earth.Attack.Start"
+    },
+    {
+      "id": 2,
+      "track": 1,
+      "begin": 0,
+      "end": 27648,
+      "kind": "vfx",
+      "key": "Earth.Emerge"
+    },
+    {
+      "id": 3,
+      "track": 2,
+      "begin": 27648,
+      "end": 69632,
+      "kind": "vfx",
+      "key": "Earth.Prefire"
+    },
+    {
+      "id": 4,
+      "track": 3,
+      "begin": 69632,
+      "end": 73728,
+      "kind": "hit",
+      "key": "Projectile.EarthSpear"
+    },
+    {
+      "id": 5,
+      "track": 4,
+      "begin": 0,
+      "end": 93184,
+      "kind": "movement-lock",
+      "key": "Motor.Root"
+    },
+    {
+      "id": 6,
+      "track": 5,
+      "begin": 69632,
+      "end": 69632,
+      "kind": "cue",
+      "key": "Earth.Release"
+    }
+  ],
+  "motion": {
+    "clip": "3871b52c-62ea-491a-97a9-5aa7368b6f2f",
+    "source": "animation/earth/earth_spear_throw.glb",
+    "policy": "none"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "kind": "material",
+  "asset": "c529933a-886b-4bfc-abfa-a9741304dfd5",
+  "name": "Earth Spear Stone",
+  "family": "toon-standard-v1",
+  "color": [
+    0.62,
+    0.56,
+    0.46,
+    1.0
+  ],
+  "roughness": 0.92,
+  "metallic": 0.0,
+  "double_sided": true,
+  "toon_thresholds": [
+    0.16,
+    0.42,
+    0.72
+  ],
+  "toon_softness": 0.05,
+  "shadow_tint": [
+    0.48,
+    0.44,
+    0.36
+  ],
+  "ambient_color": [
+    0.82,
+    0.76,
+    0.66
+  ],
+  "ambient_strength": 1.15,
+  "local_light_strength": 1.0,
+  "triplanar": false,
+  "triplanar_scale": 1.0,
+  "emissive": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "texture": null
+}

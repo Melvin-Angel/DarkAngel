@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "ea0f8667-2396-44f7-ba5d-5e718ead8f77",
+  "name": "Earth spear prefire fragments",
+  "key": "Earth.Prefire",
+  "visual": "vfx/earth/earth_gather.efkproj",
+  "audio": "",
+  "tail_ticks": 12,
+  "predictable": true,
+  "socket": "weapon_right",
+  "scale": 0.85
+}

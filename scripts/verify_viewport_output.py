@@ -21,6 +21,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("d3d12", "vulkan"), default="d3d12")
     parser.add_argument("--case", choices=("all", "animation", "character", "game"), default="all")
+    parser.add_argument("--resolution", type=int, choices=range(5), default=0,
+                        help="Game preset: 0 viewport, 1 720p, 2 768p, 3 900p, 4 1080p")
     args = parser.parse_args()
     editor = ROOT / "build/m5-editor-relwithdebinfo/DarkAngelEditor.exe"
     source = ROOT / "content"
@@ -28,6 +30,7 @@ def main():
     output.mkdir(parents=True)
     preferences = output / "preferences.json"
     clean_preferences = dict(version=1, layout="", layout_dpi=1, ui_scale=.75,
+                             game_resolution=args.resolution,
                              console_info=True, console_warning=True, console_error=True)
     env = os.environ.copy()
     env["DAE_EDITOR_PREFERENCES"] = str(preferences)
@@ -46,7 +49,7 @@ def main():
             "--character-kit", asset("royal_district/combat/player.dakit"),
             "--character-player", "00000000000000000000000000000004",
             "--backend", args.backend, "--hidden", "--no-audio", "--width", "2560", "--height", "1600"]
-    receipt = dict(backend=args.backend, case=args.case, binary_sha256=hashlib.sha256(editor.read_bytes()).hexdigest(),
+    receipt = dict(backend=args.backend, case=args.case, game_resolution=args.resolution, binary_sha256=hashlib.sha256(editor.read_bytes()).hexdigest(),
                    captures={}, comparisons=[], qualification="Final GPU viewport pixels; synthetic camera input.")
 
     def run(name, options, marker):
@@ -64,8 +67,16 @@ def main():
         if not match:
             raise RuntimeError("Rebuild the editor with viewport capture rectangle reporting")
         rect = tuple(map(int, match.groups()))
+        target_match = re.search(r"render_target=(\d+),(\d+) game_camera_aspect=([\d.eE+-]+)", log)
+        if name.startswith('game-') and args.resolution:
+            expected = [(0,0),(1280,720),(1366,768),(1600,900),(1920,1080)][args.resolution]
+            if not target_match or tuple(map(int,target_match.groups()[:2])) != expected:
+                raise RuntimeError('Saved Game resolution was not used by the GPU target')
+            if abs(float(target_match[3]) - expected[0]/expected[1]) > .0001:
+                raise RuntimeError('Gameplay camera projection does not match render target')
         image = Image.open(capture).convert("RGB").crop(rect)
-        receipt["captures"][name] = dict(path=str(capture), viewport_rect=rect)
+        receipt["captures"][name] = dict(path=str(capture), viewport_rect=rect,
+                                       render_target=list(map(int,target_match.groups()[:2])) if target_match else None)
         print(name + " rendered", flush=True)
         return image
 

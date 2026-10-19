@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "5d11e589-9d84-4fd5-9557-da30021295e2",
+  "name": "Earth fist earth gathering",
+  "key": "Earth.Gather.Hand",
+  "visual": "vfx/earth/earth_gather.efkproj",
+  "audio": "",
+  "tail_ticks": 12,
+  "predictable": true,
+  "socket": "weapon_right",
+  "scale": 1.0
+}

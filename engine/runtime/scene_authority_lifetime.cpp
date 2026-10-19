@@ -186,9 +186,13 @@ SceneAuthority::Impl::Impl(SessionHandshake hello, std::span<const ObjectData> o
         require(combat->kit && combat->evaluator && (bool(combat->damage) || bool(combat->combat_damage)),
                 "Combat scene requires frozen kit/game evaluator");
         validate_combat_kit(*combat->kit, combat->input);
-        for (const auto& ability : combat->abilities)
+        for (const auto& ability : combat->abilities) {
             require(ability && ability->action->motion, "Scene action requires a frozen clip");
-        server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));
+            for (const auto& step : ability->combo_steps)
+                require(step.action && step.action->motion, "Scene combo action requires a frozen clip");
+        }
+        if(!combat->combat_rig_archive.empty())server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative,combat->combat_rig,combat->combat_rig_archive,combat->clips));
+        else server.bind_melee_query(std::make_shared<PhysicsMeleeQuery>(authoritative));
         if (combat->combat_damage)
             server.register_combat_evaluator(combat->evaluator, combat->combat_damage);
         else

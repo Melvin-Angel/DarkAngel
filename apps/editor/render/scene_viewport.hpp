@@ -69,9 +69,19 @@ class SceneViewport {
     Diligent::RefCntAutoPtr<Diligent::IBuffer> post_buffer;
     Diligent::RefCntAutoPtr<Diligent::IBuffer> shadow_instance_buffer;
     Diligent::RefCntAutoPtr<Diligent::IPipelineState> post_pso;
+    struct SkyCache {
+        Diligent::RefCntAutoPtr<Diligent::ITexture> texture;
+        std::array<DirectX::XMFLOAT4, 7> settings{};
+        bool valid{};
+    };
+    std::array<SkyCache, 2> sky_cache;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> sky_cache_pso;
     Diligent::RefCntAutoPtr<Diligent::IShaderResourceBinding> post_binding, post_binding_second;
     GpuClusterResources gpu_clusters;
-    Diligent::RefCntAutoPtr<Diligent::ITexture> shadow_map, shadow_dummy, outline_info, outline_info_second;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> outline_pso, outline_cull, outline_skin_pso, outline_skin_cull;
+    Diligent::RefCntAutoPtr<Diligent::IPipelineState> outline_instanced_pso, outline_instanced_cull;
+    Diligent::RefCntAutoPtr<Diligent::IBuffer> outline_instance_buffer;
+    Diligent::RefCntAutoPtr<Diligent::ITexture> shadow_map, shadow_dummy, outline_info, outline_info_second, outline_object_id, outline_object_id_second;
     Diligent::RefCntAutoPtr<Diligent::ITexture> sky_texture, sky_fallback, sky_fallback_cube;
     AssetId sky_asset{};
     bool sky_texture_cube{};

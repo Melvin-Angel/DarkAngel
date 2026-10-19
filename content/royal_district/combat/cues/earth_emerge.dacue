@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "bd4d560f-6ee3-4225-998f-a01840284cb4",
+  "name": "Earth spear ground emergence",
+  "key": "Earth.Emerge",
+  "visual": "vfx/earth/earth_burst.efkproj",
+  "audio": "",
+  "tail_ticks": 12,
+  "predictable": true,
+  "socket": "",
+  "offset": [
+    0.45,
+    -1.25,
+    0.7
+  ]
+}

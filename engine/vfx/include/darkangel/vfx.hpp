@@ -29,8 +29,8 @@ public:
     // from the earlier generation finish with it.
     void load(const CookedVfx&);
     bool loaded(AssetId)const;
-    // Starts an effect at a world position; zero when the asset is not loaded.
-    std::uint64_t play(AssetId,std::array<float,3> position);
+    // Starts an effect at a world position with uniform instance scale; zero when the asset is not loaded.
+    std::uint64_t play(AssetId,std::array<float,3> position,float scale=1.f);
     void move(std::uint64_t handle,std::array<float,3> position);
     // Stops spawning and lets what is alive finish; kill removes it at once.
     void stop(std::uint64_t handle);

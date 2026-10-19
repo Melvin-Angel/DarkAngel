@@ -20,12 +20,21 @@ inline const AbilityDefinition& definition(const CharacterSceneCombat* combat, c
     require(combat && snapshot.active && snapshot.action, "Active combat correction required");
     for (const auto& ability : combat->abilities)
         if (ability->id == snapshot.ability) {
-            require(ability->generation == snapshot.ability_generation && ability->action->id == snapshot.action_definition &&
-                        ability->action->generation == snapshot.action->generation,
-                    "Combat correction frozen generation mismatch");
+            require(ability->generation == snapshot.ability_generation, "Combat correction frozen generation mismatch");
+            const ActionDefinition* current = ability->action.get();
+            if (current->id != snapshot.action_definition)
+                for (const auto& step : ability->combo_steps)
+                    if (step.action->id == snapshot.action_definition) { current = step.action.get(); break; }
+            require(current->id == snapshot.action_definition && current->generation == snapshot.action->generation,
+                    "Combat correction frozen action generation mismatch");
             return *ability;
         }
     throw std::runtime_error("Combat correction missing local ability");
+}
+inline const ActionDefinition& action(const AbilityDefinition& ability, const AbilityOwnerSnapshot& snapshot) {
+    if (ability.action->id == snapshot.action_definition) return *ability.action;
+    for (const auto& step : ability.combo_steps) if (step.action->id == snapshot.action_definition) return *step.action;
+    throw std::runtime_error("Combat correction missing combo action");
 }
 // Facing rule for abilities authored with face_movement: on the activation tick the
 // actor turns to its world-space movement input (or keeps its yaw without input); afterwards

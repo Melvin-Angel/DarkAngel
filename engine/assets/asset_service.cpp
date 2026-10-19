@@ -18,6 +18,7 @@
 namespace darkangel {
 using namespace assets_detail;
 namespace {
+constexpr std::size_t native_save_edit_limit = runtime_package_root_limit;
 std::atomic_flag active_coordinator=ATOMIC_FLAG_INIT; // DirectXTex WIC factory is process-global
 struct Statement {
     sqlite3_stmt* p{};
@@ -267,12 +268,13 @@ struct PreparedNativeEdit::State {
     AssetId owner;std::filesystem::path directory,registry;
     std::map<std::string,std::string> inputs,originals,drafts;std::map<std::string,AssetId> created;
     std::set<std::string> created_members; // new UI member files (R6 U0): created like sources, but not catalog assets
-    std::vector<Root> roots;bool consumed{},recovery_required{},preview{};
+    std::vector<Root> roots;bool consumed{},recovery_required{},preview{},no_op{};
     ~State(){if(!directory.empty()&&!recovery_required){std::error_code ignored;std::filesystem::remove_all(directory,ignored);}}
 };
-std::filesystem::path PreparedNativeEdit::registry() const{require(bool(state_),"Missing native Save candidate");return state_->registry;}
+std::filesystem::path PreparedNativeEdit::registry() const{require(bool(state_)&&!state_->no_op,"Missing native Save registry candidate");return state_->registry;}
 PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit> edits,std::span<const AssetId> scene_roots){
-    auto& p=*impl_;p.thread();require(!edits.empty()&&edits.size()<=64&&scene_roots.size()<=64,"Coordinated native Save bounds");
+    auto& p=*impl_;p.thread();require(edits.size()<=native_save_edit_limit&&scene_roots.size()<=runtime_package_root_limit,"Coordinated native Save bounds");
+    if(edits.empty()&&scene_roots.empty()){auto state=std::make_shared<PreparedNativeEdit::State>();state->owner=p.import_owner;state->no_op=true;PreparedNativeEdit result;result.state_=std::move(state);return result;}
     auto cache_relative=p.cache.lexically_relative(p.sources);require(cache_relative.empty()||*cache_relative.begin()=="..","Native Save cache must be outside the source mount");
     auto state=std::make_shared<PreparedNativeEdit::State>();state->owner=p.import_owner;
     auto directory=p.cache/("ns-"+AssetId::random().text().substr(0,16));require(std::filesystem::create_directory(directory),"Native Save staging name collision; retry");state->directory=directory;auto snapshot=state->directory/"s";
@@ -340,7 +342,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
         }return changed;
     };
     for(const auto& [id,relative]:inventory){auto ext=std::filesystem::path(relative).extension();if(ext==".gltf"||ext==".glb"||ext==".dagraph"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".daability"||ext==".daeffect"){std::set<std::string> visited;if(affected(relative,visited))selected.insert(id);}}
-    require(selected.size()<=64,"Coordinated Save root limit");
+    require(selected.size()<=runtime_package_root_limit,"Coordinated Save root limit");
     for(auto id:selected){
         if(!inventory.contains(id))throw std::runtime_error("Native candidate root is missing: "+id.text());const auto& relative=inventory.at(id);try{auto source=within(snapshot,relative);auto metadata=read(metadata_path(source),1024*1024);auto sidecar=source_metadata(source);auto ids=metadata_ids(sidecar);
         auto inspected=import_source(snapshot,source,ids,true);
@@ -362,7 +364,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     PreparedNativeEdit result;result.state_=std::move(state);return result;
 }
 PreparedNativeEdit AssetService::preview_native(std::span<const NativeSourceEdit> edits,std::span<const AssetId> roots){
-    auto& p=*impl_;p.thread();require(edits.size()<=64&&!roots.empty()&&roots.size()<=64,"Native preview bounds");
+    auto& p=*impl_;p.thread();require(edits.size()<=native_save_edit_limit&&!roots.empty()&&roots.size()<=runtime_package_root_limit,"Native preview bounds");
     auto cache_relative=p.cache.lexically_relative(p.sources);require(cache_relative.empty()||*cache_relative.begin()=="..","Native preview cache must be outside the source mount");
     auto state=std::make_shared<PreparedNativeEdit::State>();state->owner=p.import_owner;state->preview=true;
     auto directory=p.cache/("np-"+AssetId::random().text().substr(0,16));require(std::filesystem::create_directory(directory),"Native preview staging name collision; retry");state->directory=directory;auto snapshot=state->directory/"s";
@@ -425,6 +427,7 @@ PreparedNativeEdit AssetService::preview_native(std::span<const NativeSourceEdit
 }
 std::vector<CookResult> AssetService::commit_native(const PreparedNativeEdit& prepared){
     auto& p=*impl_;p.thread();require(bool(prepared.state_),"Prepare coordinated Save first");auto& state=*prepared.state_;require(!state.preview,"A native preview candidate cannot be committed");require(state.owner==p.import_owner&&!state.consumed,"Stale or foreign native Save candidate");
+    if(state.no_op){state.consumed=true;return {};}
     // Windows sharing exclusion closes the hash-check/write race, including
     // replace-by-rename writers. Sources are inaccessible while being changed.
     struct Locked {HANDLE handle{INVALID_HANDLE_VALUE};bool created{},published{},deleted{};~Locked(){if(handle!=INVALID_HANDLE_VALUE){if(created&&!published&&!deleted){FILE_DISPOSITION_INFO disposition{TRUE};SetFileInformationByHandle(handle,FileDispositionInfo,&disposition,sizeof(disposition));}CloseHandle(handle);}}Locked()=default;Locked(const Locked&)=delete;};
@@ -498,7 +501,7 @@ std::filesystem::path AssetService::source_root() const{impl_->thread();return i
 AssetId AssetService::import_identity() const{impl_->thread();return impl_->import_owner;}
 std::uint64_t AssetService::conversion_count() const{impl_->thread();return impl_->conversions;}
 std::string load_cooked_collision(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId id){auto manifest=json(read(registry,1024*1024));require(manifest.at("schema")==1&&manifest.at("root")==id.text()&&manifest.at("assets").size()==1,"Collision registry mismatch");auto record=manifest.at("assets").at(0);require(record.at("id")==id.text()&&record.at("kind")=="collision"&&record.at("extension")=="collision.json","Collision product type mismatch");auto digest=record.at("sha256").get<std::string>();digest_check(digest);auto bytes=read(cas/(digest+".collision.json"),1024*1024);require(sha256(bytes)==digest,"Collision product hash mismatch");return bytes;}
-RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId root){const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;bool selected=manifest.at("root")==root.text();if(manifest.contains("roots")){const auto& roots=manifest.at("roots");require(roots.is_array()&&!roots.empty()&&roots.size()<=runtime_package_root_limit,"Runtime registry root limit");std::set<AssetId> unique;selected=false;for(const auto& entry:roots){auto id=AssetId::parse(entry.get<std::string>());require(unique.insert(id).second,"Duplicate runtime registry root");selected|=id==root;}require(unique.contains(AssetId::parse(manifest.at("root").get<std::string>())),"Runtime registry primary root missing");}require(manifest.at("schema")==1 && selected && manifest.at("assets").size()<=runtime_package_product_limit,"Runtime registry mismatch/limit");std::map<AssetId,Json> records;
+RuntimeModel load_cooked_model(const std::filesystem::path& registry,const std::filesystem::path& cas,AssetId root){const auto manifest_held=registry_json(registry);const auto& manifest=*manifest_held;if(manifest.contains("roots")){const auto& roots=manifest.at("roots");require(roots.is_array()&&!roots.empty()&&roots.size()<=runtime_package_root_limit,"Runtime registry root limit");std::set<AssetId> unique;for(const auto& entry:roots){auto id=AssetId::parse(entry.get<std::string>());require(unique.insert(id).second,"Duplicate runtime registry root");}require(unique.contains(AssetId::parse(manifest.at("root").get<std::string>())),"Runtime registry primary root missing");}require(manifest.at("schema")==1&&manifest.at("assets").size()<=runtime_package_product_limit,"Runtime registry mismatch/limit");std::map<AssetId,Json> records;
     for(const auto& record:manifest.at("assets")){auto id=AssetId::parse(record.at("id").get<std::string>());require(records.emplace(id,record).second,"Duplicate cooked registry UUID");}
     auto load=[&](AssetId id,const char* kind){require(records.contains(id),"Missing required cooked AssetID");const auto& record=records.at(id);require(record.at("kind")==kind,"Cooked AssetRef type mismatch");auto hash=record.at("sha256").get<std::string>();digest_check(hash);auto ext=record.at("extension").get<std::string>();require(ext=="model.json" || ext=="material.json" || ext=="mesh" || ext=="dds","Invalid cooked extension");auto bytes=read(cas/(hash+"."+ext));require(sha256(bytes)==hash,"Cooked artifact digest mismatch");return bytes;};
     auto model=json(load(root,"model"));require(model.at("schema")==1 && model.at("id")==root.text() && model.at("axes")=="right-handed-y-up" && model.at("units")=="metres","Cooked model contract mismatch");RuntimeModel result;result.id=root;if(model.contains("collision")&&!model.at("collision").is_null())result.collision=AssetId::parse(model.at("collision").get<std::string>());std::set<AssetId> materials,textures;

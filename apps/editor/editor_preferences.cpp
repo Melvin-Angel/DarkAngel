@@ -29,8 +29,11 @@ void Shell::initialize_preferences(const std::filesystem::path& project,bool ena
         const auto saved_dpi=value.value("layout_dpi",1.f);if(!std::isfinite(saved_dpi)||saved_dpi<.5f||saved_dpi>8)throw std::runtime_error("Invalid layout DPI");
         const auto scale=value.value("ui_scale",1.f);if(!std::isfinite(scale)||scale<.75f||scale>2.f)throw std::runtime_error("Invalid interface scale");
         auto kit_panels=value.value("kit_panels",std::array<bool,13>{});
+        const auto resolution=value.value("game_resolution",0);
+        if(resolution<0||resolution>=static_cast<int>(game_resolutions.size()))throw std::runtime_error("Invalid Game resolution");
         auto info=value.at("console_info").get<bool>(),warning=value.at("console_warning").get<bool>(),error=value.at("console_error").get<bool>();
         if(!layout.empty()&&(!layout.starts_with("[Window][")||layout.find("[Docking][Data]")==std::string::npos))throw std::runtime_error("Invalid workspace layout");
+        game_resolution=static_cast<unsigned>(resolution);
         kit_composition_visible=kit_panels;restored_layout_dpi=layout_dpi=saved_dpi;ui_scale=scale;restored_layout=std::move(layout);console_info=info;console_warning=warning;console_error=error;
         if(!restored_layout.empty())ImGui::LoadIniSettingsFromMemory(restored_layout.c_str(),restored_layout.size());
         docked=ImGui::DockBuilderGetNode(ImHashStr("DarkAngelSceneDock"))!=nullptr;
@@ -55,7 +58,7 @@ void Shell::save_preferences(){
     try{
         // Fullscreen is temporary. Preserve the last docked layout while maximized.
         if(!scene_maximized&&!game_maximized){std::size_t size{};const auto* ini=ImGui::SaveIniSettingsToMemory(&size);restored_layout.assign(ini,size);restored_layout_dpi=layout_dpi;}
-        nlohmann::json value{{"version",1},{"kit_panels",kit_composition_visible},{"ui_scale",ui_scale},{"layout_dpi",restored_layout_dpi},{"layout",restored_layout},{"console_info",console_info},{"console_warning",console_warning},{"console_error",console_error}};
+        nlohmann::json value{{"version",1},{"game_resolution",game_resolution},{"kit_panels",kit_composition_visible},{"ui_scale",ui_scale},{"layout_dpi",restored_layout_dpi},{"layout",restored_layout},{"console_info",console_info},{"console_warning",console_warning},{"console_error",console_error}};
         std::filesystem::create_directories(preferences_file.parent_path());auto temporary=preferences_file;temporary+="."+std::to_string(GetCurrentProcessId())+".tmp";
         {std::ofstream file(temporary,std::ios::binary|std::ios::trunc);file<<value.dump(2)<<'\n';file.flush();if(!file)throw std::runtime_error("Cannot write preferences");}
         if(!MoveFileExW(temporary.c_str(),preferences_file.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH))throw std::runtime_error("Cannot replace preferences");

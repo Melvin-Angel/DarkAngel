@@ -5,6 +5,7 @@
 #include <darkangel/character_motor.hpp>
 #include <cmath>
 #include <functional>
+#include <map>
 #include <optional>
 namespace darkangel {
 struct MeleeTarget {std::uint64_t network{},epoch{};auto operator<=>(const MeleeTarget&)const=default;};
@@ -21,6 +22,8 @@ public:
     virtual ProjectileTrace trace(MotorVec,MotorVec,double,std::uint64_t)const{return {};}
     virtual bool matches(std::uint64_t,const MotorState&)const=0;
     virtual MeleeCandidates query(std::uint64_t,const MotorState&,const AbilityMelee&)const=0;
+    virtual MeleeCandidates query(std::uint64_t source,const MotorState& state,const AbilityMelee& profile,AssetId,std::uint64_t)const{return query(source,state,profile);}
+    virtual MotorVec origin(std::uint64_t,const MotorState& state,const AbilityMelee& profile,AssetId,std::uint64_t)const{return melee_origin(state,profile);}
 };
 struct DamageContext {
     AbilityActivationHandle source;AbilityOwnerHandle target;
@@ -43,9 +46,12 @@ struct DamageResult {
 class PhysicsMeleeQuery final:public MeleeQuery {
 public:
     explicit PhysicsMeleeQuery(const PhysicsWorld&);
+    PhysicsMeleeQuery(const PhysicsWorld&,RigDefinition,std::string_view,std::map<AssetId,std::shared_ptr<const AnimationClip>>);
     bool matches(std::uint64_t,const MotorState&)const override;
     MeleeCandidates query(std::uint64_t,const MotorState&,const AbilityMelee&)const override;
+    MeleeCandidates query(std::uint64_t,const MotorState&,const AbilityMelee&,AssetId,std::uint64_t)const override;
+    MotorVec origin(std::uint64_t,const MotorState&,const AbilityMelee&,AssetId,std::uint64_t)const override;
     ProjectileTrace trace(MotorVec from,MotorVec delta,double radius,std::uint64_t source)const override;
-private:const PhysicsWorld& world_;
+private:const PhysicsWorld& world_;std::map<AssetId,std::shared_ptr<const AnimationClip>> clips_;mutable std::unique_ptr<RigPose> rig_;std::optional<unsigned> socket_joint(const AbilityMelee&)const;MotorVec attached_origin(const MotorState&,const AbilityMelee&,AssetId,std::uint64_t)const;
 };
 }

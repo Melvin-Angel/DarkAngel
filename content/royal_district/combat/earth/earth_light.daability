@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "kind": "ability",
+  "asset": "6896d0b1-eeb2-4f1b-aeca-1e557148be1f",
+  "action": "fb865c37-01ef-416c-910c-d7bf64c88ec9",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "sources": {
+    "action": "royal_district/combat/earth/earth_light_punch.daaction",
+    "attributes": "royal_district/combat/base.daattributes"
+  },
+  "costs": [
+    {
+      "attribute": 3,
+      "amount": 10
+    }
+  ],
+  "cooldown_group": 8,
+  "cooldown_ticks": 60,
+  "activate_on": "pressed",
+  "minimum_held_us": 0,
+  "cancel_on_release": false,
+  "interruptible": true,
+  "melee": [
+    {
+      "block": 3,
+      "offset": [
+        0,
+        0,
+        0.8
+      ],
+      "radius": 0.65,
+      "power": 25,
+      "evaluator": 1,
+      "damage_type": 2,
+      "socket": "weapon_right"
+    }
+  ],
+  "combo_steps": [
+    {
+      "action": "8cf18b0a-9c51-4c73-961d-859bc51f457a",
+      "source": "royal_district/combat/earth/earth_light_kick.daaction",
+      "melee": [
+        {
+          "block": 3,
+          "offset": [
+            0,
+            0.8,
+            0.8
+          ],
+          "radius": 0.7,
+          "power": 34,
+          "evaluator": 1,
+          "damage_type": 2,
+          "socket": "foot_left"
+        }
+      ]
+    }
+  ],
+  "targeting": {
+    "mode": "soft_lock",
+    "range": 4.5,
+    "cone_degrees": 75.0,
+    "stop": 1.2,
+    "distance": 1.6,
+    "begin": 0,
+    "end": 18432
+  },
+  "combo_loop": true
+}

@@ -1,11 +1,13 @@
 #include "scene_viewport.hpp"
 #include <darkangel/scene_client.hpp>
 #include <darkangel/character_scene.hpp>
+#include <darkangel/ability_presentation.hpp>
 #include "render_system.hpp"
 #include "scene_resources.hpp"
 #include "render_settings.hpp"
 #include "preview_routing.hpp"
 #include "shadow_camera.hpp"
+#include "static_index_batches.hpp"
 #include "../editor_controller.hpp"
 #include "../editor_options.hpp"
 #include "../editor_ui.hpp"
@@ -21,6 +23,7 @@
 #include <ImGuizmo.h>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
 #include <cstring>
 #include <numeric>
 #include <sstream>
@@ -87,6 +90,7 @@ void SceneViewport::prepare_targets() {
     auto& context = context_.render.context;
     auto& swap_desc = context_.render.swap_desc;
     auto& shell = context_.shell;
+    resize(shell.viewport_area());
     if (!scene_color || scene_color->GetDesc().Width != scene_width || scene_color->GetDesc().Height != scene_height) {
         context->Flush();
         context->WaitForIdle();
@@ -102,6 +106,9 @@ void SceneViewport::prepare_targets() {
         color.Format = TEX_FORMAT_RGBA16_FLOAT;
         color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
         device->CreateTexture(color, nullptr, &outline_info);
+        color.Name = "Editor scene per-object outline IDs";
+        color.Format = TEX_FORMAT_R32_FLOAT;
+        device->CreateTexture(color, nullptr, &outline_object_id);
         color.Name = "Editor scene display";
         color.Format = swap_desc.ColorBufferFormat;
         device->CreateTexture(color, nullptr, &scene_display);
@@ -109,12 +116,13 @@ void SceneViewport::prepare_targets() {
         color.Format = swap_desc.DepthBufferFormat;
         color.BindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
         device->CreateTexture(color, nullptr, &scene_depth);
-        require(scene_color && outline_info && scene_display && scene_depth, "Viewport resource creation failed");
+        require(scene_color && outline_info && outline_object_id && scene_display && scene_depth, "Viewport resource creation failed");
     }
     // The second local player's view has its own target, sized to its viewport of the previous frame.
     if (shell.second_view) {
-        const unsigned wide = std::max(1u, static_cast<unsigned>(shell.area_second.width)),
-                       high = std::max(1u, static_cast<unsigned>(shell.area_second.height));
+        const auto size = viewport_render_size(shell.workspace == Workspace::Game, shell.game_resolution,
+                                               shell.area_second.width, shell.area_second.height);
+        const unsigned wide = size.width, high = size.height;
         if (!scene_color_second || scene_color_second->GetDesc().Width != wide || scene_color_second->GetDesc().Height != high) {
             context->Flush();
             context->WaitForIdle();
@@ -130,6 +138,9 @@ void SceneViewport::prepare_targets() {
             color.Format = TEX_FORMAT_RGBA16_FLOAT;
             color.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
             device->CreateTexture(color, nullptr, &outline_info_second);
+            color.Name = "Editor second viewport per-object outline IDs";
+            color.Format = TEX_FORMAT_R32_FLOAT;
+            device->CreateTexture(color, nullptr, &outline_object_id_second);
             color.Name = "Editor second viewport display";
             color.Format = swap_desc.ColorBufferFormat;
             device->CreateTexture(color, nullptr, &scene_display_second);
@@ -137,7 +148,7 @@ void SceneViewport::prepare_targets() {
             color.Format = swap_desc.DepthBufferFormat;
             color.BindFlags = BIND_DEPTH_STENCIL | BIND_SHADER_RESOURCE;
             device->CreateTexture(color, nullptr, &scene_depth_second);
-            require(scene_color_second && outline_info_second && scene_display_second && scene_depth_second, "Second viewport resource creation failed");
+            require(scene_color_second && outline_info_second && outline_object_id_second && scene_display_second && scene_depth_second, "Second viewport resource creation failed");
         }
     }
     if (!shadow_map)
@@ -152,16 +163,30 @@ void SceneViewport::prepare_targets() {
     shell.game_image_second = shell.second_view && scene_display_second
                                   ? reinterpret_cast<ImTextureID>(scene_display_second->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE))
                                   : ImTextureID{};
+    shell.viewport_render_sizes[0] = {scene_color->GetDesc().Width, scene_color->GetDesc().Height};
+    shell.viewport_render_sizes[1] = shell.second_view && scene_color_second
+        ? RenderSize{scene_color_second->GetDesc().Width, scene_color_second->GetDesc().Height} : RenderSize{};
 }
 ImTextureID SceneViewport::scene_texture() const {
     return reinterpret_cast<ImTextureID>(scene_display->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
 }
 void SceneViewport::resize(const ViewArea& area) {
-    scene_width = std::max(1u, static_cast<unsigned>(area.width));
-    scene_height = std::max(1u, static_cast<unsigned>(area.height));
+    const auto& shell = context_.shell;
+    const auto size = viewport_render_size(shell.workspace == Workspace::Game, shell.game_resolution, area.width, area.height);
+    scene_width = size.width;
+    scene_height = size.height;
 }
 void SceneViewport::render(double elapsed_seconds) {
     context_.shell.scene_visible = context_.shell.scene_culled = context_.shell.scene_draws = 0;
+    context_.shell.render_sections = {};
+    context_.shell.render_draws = {};
+    context_.shell.render_optimizations = {};
+    auto section_start = std::chrono::steady_clock::now();
+    const auto section = [&](unsigned index) {
+        const auto now = std::chrono::steady_clock::now();
+        context_.shell.render_sections[index] = std::chrono::duration<double, std::milli>(now - section_start).count();
+        section_start = now;
+    };
     auto& device = context_.render.device;
     auto& context = context_.render.context;
     auto& constant_buffer = context_.render.constant_buffer;
@@ -186,6 +211,27 @@ void SceneViewport::render(double elapsed_seconds) {
     auto& editor = context_.editor;
     auto& shell = context_.shell;
     const auto& vfx_preview = context_.vfx.state;
+    if (!outline_pso) {
+        const auto source = shader_text();
+        outline_pso = pipeline(device, constant_buffer, TEX_FORMAT_RGBA16_FLOAT, context_.render.swap_desc.DepthBufferFormat, false, source.c_str(), nullptr, false, false, true);
+        outline_cull = pipeline(device, constant_buffer, TEX_FORMAT_RGBA16_FLOAT, context_.render.swap_desc.DepthBufferFormat, true, source.c_str(), nullptr, false, false, true);
+        outline_instanced_pso = pipeline(device, constant_buffer, TEX_FORMAT_RGBA16_FLOAT, context_.render.swap_desc.DepthBufferFormat, false, source.c_str(), nullptr, false, true, true);
+        outline_instanced_cull = pipeline(device, constant_buffer, TEX_FORMAT_RGBA16_FLOAT, context_.render.swap_desc.DepthBufferFormat, true, source.c_str(), nullptr, false, true, true);
+#ifdef DAE_ANIMATION
+        const auto skin_source = skin_shader();
+        outline_skin_pso = pipeline(device, constant_buffer, TEX_FORMAT_RGBA16_FLOAT, context_.render.swap_desc.DepthBufferFormat, false, skin_source.c_str(), bone_buffer, false, false, true);
+        outline_skin_cull = pipeline(device, constant_buffer, TEX_FORMAT_RGBA16_FLOAT, context_.render.swap_desc.DepthBufferFormat, true, skin_source.c_str(), bone_buffer, false, false, true);
+#endif
+    }
+    struct OutlineInstance { DirectX::XMFLOAT4X4 world; float object_id; };
+    static_assert(sizeof(OutlineInstance) == 68);
+    if (!outline_instance_buffer) {
+        BufferDesc desc; desc.Name = "Static outline transforms and object IDs";
+        desc.Size = 4096 * sizeof(OutlineInstance); desc.Usage = USAGE_DYNAMIC;
+        desc.BindFlags = BIND_VERTEX_BUFFER; desc.CPUAccessFlags = CPU_ACCESS_WRITE;
+        device->CreateBuffer(desc, nullptr, &outline_instance_buffer);
+        require(outline_instance_buffer, "Outline instance buffer creation failed");
+    }
 #ifdef DAE_CHARACTER_SCENE
     auto& play = *context_.play;
     auto* const character = play.character;
@@ -483,7 +529,10 @@ void SceneViewport::render(double elapsed_seconds) {
     const rendering::ClusterView cluster_view{render_width, render_height, camera_radius * .01f, camera_radius * 40.f,
                                                std::tan(camera_fov * .5f), float(render_width) / std::max(1u, render_height)};
     const rendering::ClusterConfig cluster_config = frame_settings.clusters;
-    const auto cluster_assignment = rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
+    // GPU shading consumes GPU-selected indices. Only the reference shading
+    // route needs the CPU's per-cell vectors and sorting.
+    const auto cluster_assignment = frame_settings.gpu_clustered ? rendering::ClusterAssignment{} :
+        rendering::assign_lights(cluster_config, cluster_view, cluster_lights);
     cluster_stats = cluster_assignment.stats;
     context_.shell.cluster_stats = cluster_stats;
     // Feed the GPU in the same deterministic influence/StableId order as the CPU reference. The graphics shader reads
@@ -514,15 +563,17 @@ void SceneViewport::render(double elapsed_seconds) {
     const auto gpu_layout = rendering::cluster_layout(cluster_config, cluster_view);
     ensure_gpu_clusters(device.RawPtr(), context.RawPtr(), gpu_clusters, gpu_layout.tiles_x, gpu_layout.tiles_y, gpu_layout.slices,
                         cluster_config.max_candidates, cluster_config.shading_budget, static_cast<unsigned>(gpu_cluster_lights.size()));
-    read_gpu_cluster_stats(context.RawPtr(), gpu_clusters, cluster_gpu_stats);
+    if (frame_settings.gpu_clustered) read_gpu_cluster_stats(context.RawPtr(), gpu_clusters, cluster_gpu_stats);
+    else cluster_gpu_stats = {};
     context_.shell.cluster_gpu_stats = cluster_gpu_stats;
     ClusterGpuFrame gpu_frame;
     gpu_frame.dimensions = {gpu_layout.tiles_x, gpu_layout.tiles_y, gpu_layout.slices, static_cast<unsigned>(gpu_cluster_lights.size())};
     gpu_frame.limits = {std::min(64u, std::max(1u, cluster_config.max_candidates)),
                         std::min(4u, std::max(1u, cluster_config.shading_budget)), static_cast<unsigned>(gpu_layout.clusters), 0};
     gpu_frame.camera = {cluster_view.near_plane, cluster_view.far_plane, cluster_view.tan_half_fov_y, cluster_view.aspect};
-    dispatch_gpu_clusters(context.RawPtr(), gpu_clusters, gpu_cluster_lights, gpu_frame);
+    if (frame_settings.gpu_clustered) dispatch_gpu_clusters(context.RawPtr(), gpu_clusters, gpu_cluster_lights, gpu_frame);
     const auto cluster_for_center = [&](FXMVECTOR center) -> const rendering::ClusterCell* {
+        if (frame_settings.gpu_clustered || cluster_assignment.cells.empty()) return nullptr;
         const auto view_position = XMVector3TransformCoord(center, frame_view);
         const float depth = -XMVectorGetZ(view_position);
         if (depth <= cluster_view.near_plane || depth > cluster_view.far_plane)
@@ -540,8 +591,31 @@ void SceneViewport::render(double elapsed_seconds) {
     const float sky[4]={frame_settings.sky_enabled?frame_settings.sky_color.r:background[0],frame_settings.sky_enabled?frame_settings.sky_color.g:background[1],frame_settings.sky_enabled?frame_settings.sky_color.b:background[2],1};context->ClearRenderTarget(rtv,sky,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     ensure_shadow_targets(frame_settings.shadows.resolution);
     std::array<XMFLOAT4X4,4> shadow_matrices{};std::array<float,4> shadow_splits{1,1,1,1};const unsigned shadow_cascades=std::clamp(frame_settings.shadows.cascade_count,1u,4u);const float shadow_near=std::max(.05f,gpu.radius*.01f),shadow_far=std::max(shadow_near+1.f,frame_settings.shadows.distance);for(unsigned split=0;split<shadow_cascades;++split){const float p=float(split+1)/shadow_cascades;const float logarithmic=std::pow(p,.65f);const float fraction=std::clamp(p*(1-frame_settings.shadows.split_distribution)+logarithmic*frame_settings.shadows.split_distribution,0.f,1.f);shadow_splits[split]=shadow_near+(shadow_far-shadow_near)*fraction;}bool shadow_enabled=false;
+    // Resolve each placement once per presentation world, shared by all this
+    // frame's cascades/color/outline passes. No state survives into the next frame.
+    std::map<std::pair<const World*, StableId>, std::optional<Transform>> frame_poses;
     // One pass over the scene's objects for a view. viewer: the client whose world and poses are shown; null for the editor's own.
-    auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer, bool shadow_pass = false, bool outline_pass = false) {
+    auto draw_objects = [&](const XMMATRIX& view, const XMMATRIX& projection, const SceneViewer* viewer, bool shadow_pass = false, bool outline_pass = false, bool object_mask_pass = false, const ShadowCamera* caster_volume = nullptr) {
+        struct PassTimer {
+            Shell& shell; unsigned index, draws;
+            std::chrono::steady_clock::time_point start{std::chrono::steady_clock::now()};
+            ~PassTimer() {
+                shell.render_sections[index + 1] += std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
+                shell.render_draws[index] += shell.scene_draws - draws;
+            }
+        } timer{shell, shadow_pass ? 0u : (outline_pass || object_mask_pass ? 2u : 1u), shell.scene_draws};
+        std::map<StableId, float> outline_object_ids;
+        if (outline_pass || object_mask_pass) {
+            for (const auto& [object_key, model] : drawn_objects) {
+                (void)model;
+                outline_object_ids.try_emplace(object_key, 0.f);
+            }
+            float next_object_id = 1;
+            for (auto& [object_key, object_value] : outline_object_ids) {
+                (void)object_key;
+                object_value = next_object_id++;
+            }
+        }
         const darkangel::World* shown_world = &editor.displayed();
         (void)viewer;
 #ifdef DAE_CHARACTER_SCENE
@@ -571,12 +645,6 @@ void SceneViewport::render(double elapsed_seconds) {
                                        XMVectorSet(c._14 - c._13, c._24 - c._23, c._34 - c._33, c._44 - c._43)};
         for (auto& plane : planes)
             plane = XMPlaneNormalize(plane);
-        const auto visible = [&](FXMVECTOR center, float radius) {
-            for (const auto& plane : planes)
-                if (XMVectorGetX(XMPlaneDotCoord(plane, center)) < -radius)
-                    return false;
-            return true;
-        };
         // Transparent static surfaces collected while drawing, drawn last and sorted back to front (R5 A3).
         struct TransparentDraw {
             float depth;
@@ -587,13 +655,22 @@ void SceneViewport::render(double elapsed_seconds) {
             std::uint32_t first, count;
         };
         std::vector<TransparentDraw> transparent;
-        std::map<AssetId,std::vector<XMFLOAT4X4>> shadow_instances;
-        std::map<AssetId,std::vector<XMFLOAT4X4>> color_instances;
+        struct BatchKey {
+            AssetId model;
+            std::map<AssetId, AssetId> overrides;
+            auto operator<=>(const BatchKey&) const = default;
+        };
+        std::map<BatchKey,std::vector<XMFLOAT4X4>> shadow_instances;
+        std::map<BatchKey,std::vector<XMFLOAT4X4>> color_instances;
+        std::map<BatchKey,std::vector<float>> instance_object_ids;
         // Pipeline, material binding and buffers carry over between consecutive draws that share them.
         IPipelineState* bound_pipeline = nullptr;
         IShaderResourceBinding* bound_material = nullptr;
         IBuffer* bound_vertices = nullptr;
         for (const auto& [object_id, model_id] : drawn_objects) {
+            const auto key = std::pair{shown_world, object_id};
+            auto cached = frame_poses.find(key);
+            if (cached == frame_poses.end()) {
             const darkangel::World* object_world = shown_world;
             auto entity = shown_world->find(object_id);
             const auto scattered = scatter_poses.find(object_id);
@@ -606,14 +683,18 @@ void SceneViewport::render(double elapsed_seconds) {
                 entity = object_world->find(object_id);
             }
 #endif
-            if (!object_world->valid(entity) && scattered == scatter_poses.end())
-                continue;
+            std::optional<Transform> resolved;
+            if (scattered != scatter_poses.end()) resolved = scattered->second;
+            else if (object_world->valid(entity)) resolved = object_world->read(entity).transform;
+            cached = frame_poses.emplace(key, resolved).first;
+            }
+            if (!cached->second) continue;
 #ifdef DAE_CHARACTER_SCENE
             if (isolated_preview &&
                 (model_id != character_resources->skin || (character_resources->player && object_id != character_resources->player)))
                 continue;
 #endif
-            auto pose = scattered != scatter_poses.end() ? scattered->second : object_world->read(entity).transform;
+            auto pose = *cached->second;
             if (world_view &&
                 std::find(world_view->collected.begin(), world_view->collected.end(), object_id) != world_view->collected.end())
                 continue;
@@ -668,25 +749,49 @@ void SceneViewport::render(double elapsed_seconds) {
             // Static models outside the view are not submitted. Skinned models animate past their rest bounds, so they always draw.
             if (!drawn_ptr) {
                 const auto& half = drawn.half;
-                const float radius = std::sqrt(half[0] * half[0] + half[1] * half[1] + half[2] * half[2]) * float(pose.scale);
-                if (!visible(XMVector3TransformCoord(XMVectorSet(drawn.center[0], drawn.center[1], drawn.center[2], 1), world), radius)) {
+                const auto center = XMVector3TransformCoord(XMVectorSet(drawn.center[0], drawn.center[1], drawn.center[2], 1), world);
+                // Project the transformed box onto each plane. Long walls and
+                // terrain tiles have much tighter bounds than their spheres.
+                const auto axis_x = XMVectorScale(world.r[0], half[0]);
+                const auto axis_y = XMVectorScale(world.r[1], half[1]);
+                const auto axis_z = XMVectorScale(world.r[2], half[2]);
+                const bool in_frustum = std::all_of(planes.begin(), planes.end(), [&](FXMVECTOR plane) {
+                    const float extent = std::abs(XMVectorGetX(XMVector3Dot(plane, axis_x))) +
+                        std::abs(XMVectorGetX(XMVector3Dot(plane, axis_y))) + std::abs(XMVectorGetX(XMVector3Dot(plane, axis_z)));
+                    return XMVectorGetX(XMPlaneDotCoord(plane, center)) >= -extent;
+                });
+                if (!in_frustum) {
                     ++shell.scene_culled;
+                    continue;
+                }
+                if (caster_volume && !args.render_reference && !shadow_caster_visible(*caster_volume, world, drawn.center, drawn.half)) {
+                    ++shell.scene_culled;
+                    ++shell.render_optimizations[2];
                     continue;
                 }
             }
             ++shell.scene_visible;
             const auto& batch_material_plan=editor.preview.active()?editor.preview.active()->plan:editor.document->plan();
             const bool assigned_material=batch_material_plan.materials.contains(object_id);
+            BatchKey batch_key{model_id};
+            if (assigned_material) batch_key.overrides = batch_material_plan.materials.at(object_id);
+            const auto batch_material = [&](AssetId slot) -> const Material& {
+                const auto assignment = batch_key.overrides.find(slot);
+                return assignment == batch_key.overrides.end() ? drawn.materials.at(slot) : scene.native_materials.at(assignment->second).surface;
+            };
             bool has_transparency=false;
-            if(!drawn_ptr)for(const auto& mesh:drawn.meshes)for(const auto& part:mesh.parts)if(drawn.materials.at(part.material).value.alpha_mode==2)has_transparency=true;
+            if(!drawn_ptr)for(const auto& mesh:drawn.meshes)for(const auto& part:mesh.parts)if(batch_material(part.material).value.alpha_mode==2)has_transparency=true;
             const auto* cluster_cell = shadow_pass ? nullptr : cluster_for_center(XMVector3TransformCoord(XMVectorSet(drawn.center[0], drawn.center[1], drawn.center[2], 1), world));
-            if(shadow_pass&&!drawn_ptr&&!assigned_material&&!has_transparency){XMFLOAT4X4 instance;XMStoreFloat4x4(&instance,world);shadow_instances[model_id].push_back(instance);continue;}
+            const bool can_batch = !drawn_ptr && !prefab_render && (!assigned_material || !args.render_reference);
+            if(shadow_pass&&can_batch&&!has_transparency){XMFLOAT4X4 instance;XMStoreFloat4x4(&instance,world);shadow_instances[batch_key].push_back(instance);continue;}
             const bool has_object_local_lights = cluster_cell && std::any_of(frame_lights.begin(), frame_lights.end(), [&](const auto& prepared) {
                 return prepared.light.id != frame_settings.main_light && prepared.light.type != darkangel::rendering::LightType::Directional &&
                        prepared.light.enabled && std::find(cluster_cell->selected.begin(), cluster_cell->selected.end(), prepared.light.id) != cluster_cell->selected.end();
             });
-            if (!shadow_pass && !outline_pass && !drawn_ptr && !assigned_material && !has_transparency && !has_object_local_lights) {
-                XMFLOAT4X4 instance; XMStoreFloat4x4(&instance, world); color_instances[model_id].push_back(instance); continue;
+            if (!shadow_pass && !object_mask_pass && can_batch && !has_transparency && (outline_pass || !has_object_local_lights)) {
+                XMFLOAT4X4 instance; XMStoreFloat4x4(&instance, world); color_instances[batch_key].push_back(instance);
+                if (outline_pass) instance_object_ids[batch_key].push_back(outline_object_ids.at(object_id));
+                continue;
             }
             for (const auto& mesh : drawn.meshes) {
                 IBuffer* vb = mesh.vertices;
@@ -747,11 +852,14 @@ void SceneViewport::render(double elapsed_seconds) {
                         if(shadow_pipeline!=bound_pipeline){context->SetPipelineState(shadow_pipeline);bound_pipeline=shadow_pipeline;if(!alpha_shadow){require(empty_shadow_binding,"Missing opaque shadow resource binding");context->CommitShaderResources(empty_shadow_binding,RESOURCE_STATE_TRANSITION_MODE_NONE);}}
                         if(material.value.alpha_mode==1){
                             apply_material(constants,shading_value);
+                            constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
+                                material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
+                            constants.outline = {1, 1, 0, 0}; // alpha test and normal only; dummy color is not shaded
                             context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Alpha shadow constants remapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
                             require(material.shadow_binding,"Missing alpha shadow material binding");
                             auto* shadow=material.shadow_binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.shadow_binding,gpu_clusters);context->CommitShaderResources(material.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                         }
-                        DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);continue;}
+                        DrawIndexedAttribs shadow_draw;shadow_draw.NumIndices=part.count;shadow_draw.IndexType=VT_UINT32;shadow_draw.FirstIndexLocation=part.first;shadow_draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(shadow_draw);++shell.scene_draws;continue;}
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
@@ -763,11 +871,12 @@ void SceneViewport::render(double elapsed_seconds) {
                     constants.color = {material.value.color[0] * mesh.color[0], material.value.color[1] * mesh.color[1],
                                        material.value.color[2] * mesh.color[2], material.value.color[3] * mesh.color[3]};
                     apply_material(constants, shading_value);
-                    if (outline_pass) {
+                    if (outline_pass || object_mask_pass) {
                         if (!frame_settings.post.outline.enabled || material.value.alpha_mode == 2)
                             continue;
-                        const auto group = float(((object_id.high ^ object_id.low) % 1000) + 1) / 1001.f;
-                        constants.outline = {1, group, 0, 0};
+                        auto [outline_id, inserted] = outline_object_ids.try_emplace(object_id, static_cast<float>(outline_object_ids.size() + 1));
+                        (void)inserted;
+                        constants.outline = {1.f, outline_id->second, 0, 0};
                         void* mapped{};
                         context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
                         require(mapped, "Outline constants mapping failed");
@@ -775,10 +884,10 @@ void SceneViewport::render(double elapsed_seconds) {
                         context->UnmapBuffer(constant_buffer, MAP_WRITE);
 #ifdef DAE_ANIMATION
                         IPipelineState* outline_pipeline = (drawn_ptr && !args.skin_reference)
-                                                               ? (material.value.double_sided ? skin_pso.RawPtr() : skin_cull.RawPtr())
-                                                               : (material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr());
+                                                               ? (material.value.double_sided ? outline_skin_pso.RawPtr() : outline_skin_cull.RawPtr())
+                                                               : (material.value.double_sided ? outline_pso.RawPtr() : outline_cull.RawPtr());
 #else
-                        IPipelineState* outline_pipeline = material.value.double_sided ? pso.RawPtr() : pso_cull.RawPtr();
+                        IPipelineState* outline_pipeline = material.value.double_sided ? outline_pso.RawPtr() : outline_cull.RawPtr();
 #endif
                         if (outline_pipeline != bound_pipeline) { context->SetPipelineState(outline_pipeline); bound_pipeline = outline_pipeline; }
                         if (auto* shadow = material.binding->GetVariableByName(SHADER_TYPE_PIXEL, "ShadowMap")) shadow->Set(shadow_srv);
@@ -786,6 +895,7 @@ void SceneViewport::render(double elapsed_seconds) {
                         context->CommitShaderResources(material.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                         DrawIndexedAttribs outline_draw; outline_draw.NumIndices = part.count; outline_draw.IndexType = VT_UINT32; outline_draw.FirstIndexLocation = part.first; outline_draw.Flags = DRAW_FLAG_VERIFY_ALL;
                         context->DrawIndexed(outline_draw);
+                        ++shell.scene_draws;
                         continue;
                     }
                     if (main_light) {
@@ -940,24 +1050,36 @@ void SceneViewport::render(double elapsed_seconds) {
 #endif
         }
         if(!color_instances.empty()) {
-            std::vector<XMFLOAT4X4> packed_instances; std::map<AssetId,Uint32> instance_starts;
-            for(const auto& [model_id, instances] : color_instances) { instance_starts.emplace(model_id, static_cast<Uint32>(packed_instances.size())); packed_instances.insert(packed_instances.end(), instances.begin(), instances.end()); }
+            std::vector<XMFLOAT4X4> packed_instances; std::map<BatchKey,Uint32> instance_starts;
+            for(const auto& [batch, instances] : color_instances) { instance_starts.emplace(batch, static_cast<Uint32>(packed_instances.size())); packed_instances.insert(packed_instances.end(), instances.begin(), instances.end()); }
             require(packed_instances.size() <= 4096, "Static scene color instance count exceeds the viewport buffer");
-            void* mapped{}; context->MapBuffer(shadow_instance_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped); require(mapped, "Scene color instance mapping failed");
-            std::memcpy(mapped, packed_instances.data(), packed_instances.size() * sizeof(XMFLOAT4X4)); context->UnmapBuffer(shadow_instance_buffer, MAP_WRITE);
-            for(const auto& [model_id, instances] : color_instances) {
+            auto* instance_buffer = outline_pass ? outline_instance_buffer.RawPtr() : shadow_instance_buffer.RawPtr();
+            const auto instance_stride = outline_pass ? sizeof(OutlineInstance) : sizeof(XMFLOAT4X4);
+            void* mapped{}; context->MapBuffer(instance_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped); require(mapped, "Scene color instance mapping failed");
+            if (outline_pass) {
+                auto* destination = static_cast<OutlineInstance*>(mapped);
+                for (const auto& [batch, instances] : color_instances)
+                    for (std::size_t i = 0; i < instances.size(); ++i)
+                        *destination++ = {instances[i], instance_object_ids.at(batch)[i]};
+            } else std::memcpy(mapped, packed_instances.data(), packed_instances.size() * sizeof(XMFLOAT4X4));
+            context->UnmapBuffer(instance_buffer, MAP_WRITE);
+            for(const auto& [batch, instances] : color_instances) {
+                const auto model_id = batch.model;
                 auto* uploaded = model_id == id ? &gpu : scene_models.contains(model_id) ? &scene_models.at(model_id) : nullptr;
                 if(!uploaded) continue;
-                const Uint64 offsets[]{0, Uint64(instance_starts.at(model_id)) * sizeof(XMFLOAT4X4)}; IBuffer* buffers[]{nullptr, shadow_instance_buffer};
+                const Uint64 offsets[]{0, Uint64(instance_starts.at(batch)) * instance_stride}; IBuffer* buffers[]{nullptr, instance_buffer};
                 for(const auto& mesh : uploaded->meshes) {
                     buffers[0] = mesh.vertices; context->SetVertexBuffers(0, 2, buffers, offsets, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
                     context->SetIndexBuffer(mesh.indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     for(const auto& part : mesh.parts) {
-                        const auto& material = uploaded->materials.at(part.material);
+                        const auto assignment = batch.overrides.find(part.material);
+                        const bool material_override = assignment != batch.overrides.end();
+                        const auto& material = material_override ? scene.native_materials.at(assignment->second).surface : uploaded->materials.at(part.material);
+                        if (outline_pass && material.value.alpha_mode == 2) continue;
                         if(material.value.alpha_mode == 2) continue;
                         CookedMaterial shading = material.value;
                         const bool toon = shading.family == material_family_toon_standard || shading.family == material_family_toon_character || shading.family == material_family_toon_terrain;
-                        if(toon) {
+                        if(toon && !material_override) {
                             if(project_rendering.material_properties_override) { for(unsigned channel=0;channel<4;++channel) shading.color[channel] *= project_rendering.material_color[channel]; shading.roughness=project_rendering.material_roughness; shading.metallic=project_rendering.material_metallic; }
                             shading.toon_thresholds=material_toon_defaults.band_thresholds; shading.toon_softness=material_toon_defaults.transition_softness;
                             shading.shadow_tint={material_toon_defaults.shadow_tint.r,material_toon_defaults.shadow_tint.g,material_toon_defaults.shadow_tint.b};
@@ -970,43 +1092,105 @@ void SceneViewport::render(double elapsed_seconds) {
                         constants.cluster_viewport={float(render_width),float(render_height),toon?shading.local_light_strength:frame_settings.toon.local_light_strength,context_.render.device->GetDeviceInfo().NDC.YtoVScale};
                         constants.color={material.value.color[0]*mesh.color[0],material.value.color[1]*mesh.color[1],material.value.color[2]*mesh.color[2],material.value.color[3]*mesh.color[3]};
                         apply_material(constants,shading);
+                        if (outline_pass) constants.outline = {1, 0, 0, 0};
                         if(main_light) { constants.main_light={main_light->light.direction_view[0],main_light->light.direction_view[1],main_light->light.direction_view[2],1}; constants.main_color={main_light->light.color.r,main_light->light.color.g,main_light->light.color.b,main_light->light.intensity}; }
                         if(!toon) { constants.ambient={frame_settings.toon.ambient_color.r*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.g*frame_settings.toon.ambient_strength,frame_settings.toon.ambient_color.b*frame_settings.toon.ambient_strength,1}; constants.toon_bands={frame_settings.toon.band_thresholds[0],frame_settings.toon.band_thresholds[1],frame_settings.toon.band_thresholds[2],frame_settings.toon.transition_softness}; constants.shadow_tint={frame_settings.toon.shadow_tint.r,frame_settings.toon.shadow_tint.g,frame_settings.toon.shadow_tint.b,1}; }
                         constants.fog_color={frame_settings.fog.color.r,frame_settings.fog.color.g,frame_settings.fog.color.b,frame_settings.fog.enabled?1.f:0.f}; constants.fog_params={frame_settings.fog.start,frame_settings.fog.end,frame_settings.fog.density,frame_settings.fog.exponential?1.f:0.f};
                         constants.shadow_splits={shadow_splits[0],shadow_splits[1],shadow_splits[2],shadow_splits[3]}; constants.shadow_params={frame_settings.shadows.depth_bias,frame_settings.shadows.normal_bias,shadow_enabled?float(shadow_cascades):0.f,1.f/std::max(1u,shadow_resolution)}; for(unsigned cascade=0;cascade<4;++cascade) constants.shadow_matrices[cascade]=shadow_matrices[cascade];
                         if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap")) shadow->Set(shadow_srv);
                         void* constant_mapped{}; context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,constant_mapped); require(constant_mapped,"Instanced color constants mapping failed"); std::memcpy(constant_mapped,&constants,sizeof(constants)); context->UnmapBuffer(constant_buffer,MAP_WRITE);
-                        context->SetPipelineState(material.value.double_sided?scene.instanced_color_pso.RawPtr():scene.instanced_color_cull.RawPtr());
+                        context->SetPipelineState(outline_pass ? (material.value.double_sided ? outline_instanced_pso.RawPtr() : outline_instanced_cull.RawPtr()) : (material.value.double_sided?scene.instanced_color_pso.RawPtr():scene.instanced_color_cull.RawPtr()));
                         bind_gpu_clusters(material.binding,gpu_clusters); context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                         DrawIndexedAttribs draw; draw.NumIndices=part.count; draw.NumInstances=static_cast<Uint32>(instances.size()); draw.IndexType=VT_UINT32; draw.FirstIndexLocation=part.first; context->DrawIndexed(draw); ++shell.scene_draws;
                     }
                 }
             }
         }
-        if(shadow_pass&&!shadow_instances.empty()){
-            std::vector<XMFLOAT4X4> packed_instances;std::map<AssetId,Uint32> instance_starts;
-            for(const auto&[model_id,instances]:shadow_instances){instance_starts.emplace(model_id,static_cast<Uint32>(packed_instances.size()));packed_instances.insert(packed_instances.end(),instances.begin(),instances.end());}
-            require(packed_instances.size()<=4096,"Static shadow instance count exceeds the viewport buffer");
-            void*mapped{};context->MapBuffer(shadow_instance_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Shadow instance mapping failed");std::memcpy(mapped,packed_instances.data(),packed_instances.size()*sizeof(XMFLOAT4X4));context->UnmapBuffer(shadow_instance_buffer,MAP_WRITE);
-            for(const auto&[model_id,instances]:shadow_instances){
-            require(instances.size()<=4096,"Static shadow instance count exceeds the viewport buffer");
-            auto uploaded=model_id==id?&gpu:scene_models.contains(model_id)?&scene_models.at(model_id):nullptr;
-            if(!uploaded)continue;
-            const Uint64 offsets[]{0,Uint64(instance_starts.at(model_id))*sizeof(XMFLOAT4X4)};IBuffer* buffers[]{nullptr,shadow_instance_buffer};
-            for(const auto&mesh:uploaded->meshes){buffers[0]=mesh.vertices;context->SetVertexBuffers(0,2,buffers,offsets,RESOURCE_STATE_TRANSITION_MODE_TRANSITION,SET_VERTEX_BUFFERS_FLAG_RESET);context->SetIndexBuffer(mesh.indices,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-                for(const auto&part:mesh.parts){
-                    const auto&material=uploaded->materials.at(part.material);
-                    if(material.value.alpha_mode==2)continue;
-                    const bool alpha=material.value.alpha_mode==1;
-                    auto*pipeline=alpha?(material.value.double_sided?scene.instanced_shadow_alpha_pso.RawPtr():scene.instanced_shadow_alpha_cull.RawPtr()):(material.value.double_sided?scene.instanced_shadow_pso.RawPtr():scene.instanced_shadow_cull.RawPtr());
-                    Constants constants;XMStoreFloat4x4(&constants.mvp,view*projection);if(alpha)apply_material(constants,material.value);
-                    void*constant_mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,constant_mapped);require(constant_mapped,"Instanced shadow constants mapping failed");std::memcpy(constant_mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);
-                    context->SetPipelineState(pipeline);
-                    if(alpha){auto*shadow=material.shadow_binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap");if(shadow)shadow->Set(shadow_srv);bind_gpu_clusters(material.shadow_binding,gpu_clusters);context->CommitShaderResources(material.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);}else context->CommitShaderResources(context_.render.shadow_binding,RESOURCE_STATE_TRANSITION_MODE_NONE);
-                    DrawIndexedAttribs draw;draw.NumIndices=part.count;draw.NumInstances=static_cast<Uint32>(instances.size());draw.IndexType=VT_UINT32;draw.FirstIndexLocation=part.first;context->DrawIndexed(draw);++shell.scene_draws;
+        if (shadow_pass && !shadow_instances.empty()) {
+            std::vector<XMFLOAT4X4> packed_instances;
+            std::map<BatchKey, Uint32> instance_starts;
+            for (const auto& [batch, instances] : shadow_instances) {
+                instance_starts.emplace(batch, static_cast<Uint32>(packed_instances.size()));
+                packed_instances.insert(packed_instances.end(), instances.begin(), instances.end());
+            }
+            require(packed_instances.size() <= 4096, "Static shadow instance count exceeds the viewport buffer");
+            void* mapped{};
+            context->MapBuffer(shadow_instance_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+            require(mapped, "Shadow instance mapping failed");
+            std::memcpy(mapped, packed_instances.data(), packed_instances.size() * sizeof(XMFLOAT4X4));
+            context->UnmapBuffer(shadow_instance_buffer, MAP_WRITE);
+            struct Submission {
+                const GpuMesh* mesh;
+                const Material* material;
+                StaticIndexRange range;
+                Uint32 start, instances;
+            };
+            std::vector<Submission> submissions;
+            for (const auto& [batch, instances] : shadow_instances) {
+                const auto model_id = batch.model;
+                const auto* uploaded = model_id == id ? &gpu : scene_models.contains(model_id) ? &scene_models.at(model_id) : nullptr;
+                if (!uploaded) continue;
+                for (const auto& mesh : uploaded->meshes) {
+                    std::vector<StaticIndexRange> ranges;
+                    const auto material_for = [&](AssetId slot) -> const Material& {
+                        const auto assignment = batch.overrides.find(slot);
+                        return assignment == batch.overrides.end() ? uploaded->materials.at(slot) : scene.native_materials.at(assignment->second).surface;
+                    };
+                    for (std::size_t part = 0; part < mesh.parts.size(); ++part) {
+                        const auto& value = mesh.parts[part];
+                        const auto& material = material_for(value.material).value;
+                        if (material.alpha_mode == 2) continue;
+                        ranges.push_back({value.first, value.count, part, material.alpha_mode == 1, material.double_sided});
+                    }
+                    const auto joined = args.render_reference ? ranges : shadow_index_batches(ranges);
+                    shell.render_optimizations[3] += static_cast<unsigned>(ranges.size() - joined.size());
+                    for (const auto& range : joined)
+                        submissions.push_back({&mesh, &material_for(mesh.parts[range.part].material), range,
+                            instance_starts.at(batch), static_cast<Uint32>(instances.size())});
                 }
             }
-        }
+            // Depth-only opaque draws share constants and bindings across models.
+            // Alpha-tested ranges keep their own material and never merge across it.
+            std::stable_sort(submissions.begin(), submissions.end(), [](const Submission& a, const Submission& b) {
+                return std::pair{a.range.cutout, a.range.double_sided} < std::pair{b.range.cutout, b.range.double_sided};
+            });
+            IPipelineState* last_pipeline = nullptr;
+            bool opaque_constants_uploaded = false;
+            for (const auto& submission : submissions) {
+                const auto& material = *submission.material;
+                const auto& range = submission.range;
+                auto* pipeline = range.cutout ? (range.double_sided ? scene.instanced_shadow_alpha_pso.RawPtr() : scene.instanced_shadow_alpha_cull.RawPtr())
+                    : (range.double_sided ? scene.instanced_shadow_pso.RawPtr() : scene.instanced_shadow_cull.RawPtr());
+                if (range.cutout || !opaque_constants_uploaded || args.render_reference) {
+                    Constants constants{};
+                    XMStoreFloat4x4(&constants.mvp, view * projection);
+                    if (range.cutout) {
+                        apply_material(constants, material.value);
+                        constants.color = {material.value.color[0] * submission.mesh->color[0], material.value.color[1] * submission.mesh->color[1],
+                            material.value.color[2] * submission.mesh->color[2], material.value.color[3] * submission.mesh->color[3]};
+                        constants.outline = {1, 1, 0, 0};
+                    } else opaque_constants_uploaded = true;
+                    context->MapBuffer(constant_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+                    require(mapped, "Instanced shadow constants mapping failed");
+                    std::memcpy(mapped, &constants, sizeof(constants)); context->UnmapBuffer(constant_buffer, MAP_WRITE);
+                }
+                const bool pipeline_changed = pipeline != last_pipeline;
+                if (pipeline_changed) { context->SetPipelineState(pipeline); last_pipeline = pipeline; }
+                if (range.cutout) {
+                    if (auto* shadow = material.shadow_binding->GetVariableByName(SHADER_TYPE_PIXEL, "ShadowMap")) shadow->Set(shadow_srv);
+                    bind_gpu_clusters(material.shadow_binding, gpu_clusters);
+                    context->CommitShaderResources(material.shadow_binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                } else if (pipeline_changed || args.render_reference)
+                    context->CommitShaderResources(context_.render.shadow_binding, RESOURCE_STATE_TRANSITION_MODE_NONE);
+                const Uint64 offsets[]{0, Uint64(submission.start) * sizeof(XMFLOAT4X4)};
+                IBuffer* buffers[]{submission.mesh->vertices, shadow_instance_buffer};
+                context->SetVertexBuffers(0, 2, buffers, offsets, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
+                context->SetIndexBuffer(submission.mesh->indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                DrawIndexedAttribs draw;
+                draw.NumIndices = range.count; draw.NumInstances = submission.instances;
+                draw.IndexType = VT_UINT32; draw.FirstIndexLocation = range.first;
+                context->DrawIndexed(draw); ++shell.scene_draws;
+            }
         }
         std::sort(transparent.begin(), transparent.end(), [](const TransparentDraw& a, const TransparentDraw& b) { return a.depth < b.depth; });
         for (const auto& item : transparent) {
@@ -1035,6 +1219,7 @@ void SceneViewport::render(double elapsed_seconds) {
 #else
     const bool travelling = false;
 #endif
+    section(0);
     if (main_light && frame_settings.shadows.cascades_enabled) {
         if (main_light->light.enabled && main_light->light.cast_shadows) {
                 // Surface lighting uses a vector TO the sun; the shadow camera
@@ -1044,7 +1229,7 @@ void SceneViewport::render(double elapsed_seconds) {
                 for (unsigned cascade = 0; cascade < shadow_cascades; ++cascade) {
                     const auto camera = shadow_camera(view, projection, direction,
                         cascade ? shadow_splits[cascade - 1] : shadow_near, shadow_splits[cascade],
-                        frame_settings.shadows.distance, shadow_resolution);
+                        frame_settings.shadows.distance, shadow_resolution, !args.render_reference);
                     const auto& light_view = camera.view;
                     const auto& light_projection = camera.projection;
                     XMStoreFloat4x4(&shadow_matrices[cascade], light_view * light_projection);
@@ -1057,7 +1242,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     Viewport shadow_viewport;
                     shadow_viewport.Width = shadow_viewport.Height = float(shadow_resolution);
                     context->SetViewports(1, &shadow_viewport, shadow_resolution, shadow_resolution);
-                    draw_objects(light_view, light_projection, nullptr, true);
+                    draw_objects(light_view, light_projection, nullptr, true, false, false, &camera);
                 }
                 shadow_enabled = true;
         }
@@ -1067,9 +1252,12 @@ void SceneViewport::render(double elapsed_seconds) {
         draw_objects(view, projection, nullptr);
     if (!travelling && outline_info && frame_settings.post.outline.enabled) {
         auto* outline_rtv = outline_info->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
-        context->SetRenderTargets(1, &outline_rtv, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        auto* object_id_rtv = outline_object_id->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+        ITextureView* targets[]{outline_rtv, object_id_rtv};
+        context->SetRenderTargets(2, targets, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         const float clear_outline[4]{0, 0, 0, 0};
         context->ClearRenderTarget(outline_rtv, clear_outline, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        context->ClearRenderTarget(object_id_rtv, clear_outline, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         context->SetViewports(1, &viewport, outline_info->GetDesc().Width, outline_info->GetDesc().Height);
         draw_objects(view, projection, nullptr, false, true);
         context->SetRenderTargets(1, &rtv, dsv, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
@@ -1102,9 +1290,12 @@ void SceneViewport::render(double elapsed_seconds) {
             draw_objects(view_second, projection_second, second);
         if (!travelling && outline_info_second && frame_settings.post.outline.enabled) {
             auto* outline_rtv_second = outline_info_second->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
-            context->SetRenderTargets(1, &outline_rtv_second, dsv_second, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            auto* object_id_rtv_second = outline_object_id_second->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+            ITextureView* targets[]{outline_rtv_second, object_id_rtv_second};
+            context->SetRenderTargets(2, targets, dsv_second, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
             const float clear_outline[4]{0, 0, 0, 0};
             context->ClearRenderTarget(outline_rtv_second, clear_outline, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            context->ClearRenderTarget(object_id_rtv_second, clear_outline, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
             context->SetViewports(1, &viewport_second, outline_info_second->GetDesc().Width, outline_info_second->GetDesc().Height);
             draw_objects(view_second, projection_second, second, false, true);
         }
@@ -1124,13 +1315,15 @@ void SceneViewport::render(double elapsed_seconds) {
             auto rotation = XMMatrixRotationRollPitchYaw(float(-std::asin(std::clamp(shot.velocity.y / speed, -1., 1.))),
                                                          float(std::atan2(shot.velocity.x, shot.velocity.z)), 0);
             auto world = rotation * XMMatrixTranslation(float(shot.position.x), float(shot.position.y), float(shot.position.z));
-            for (const auto& mesh : projectile_gpu.meshes) {
+            const UploadedModel* projectile_model=&projectile_gpu;
+            if(shot.visual_model!=AssetId{})if(auto found=scene_models.find(shot.visual_model);found!=scene_models.end())projectile_model=&found->second;
+            for (const auto& mesh : projectile_model->meshes) {
                 IBuffer* vb = mesh.vertices;
                 Uint64 offset{};
                 context->SetVertexBuffers(0, 1, &vb, &offset, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, SET_VERTEX_BUFFERS_FLAG_RESET);
                 context->SetIndexBuffer(mesh.indices, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 for (const auto& part : mesh.parts) {
-                    const auto& material = projectile_gpu.materials.at(part.material);
+                    const auto& material = projectile_model->materials.at(part.material);
                     Constants constants;
                     XMStoreFloat4x4(&constants.mvp, world * view * projection);
                     XMStoreFloat4x4(&constants.rotation, rotation);
@@ -1155,6 +1348,52 @@ void SceneViewport::render(double elapsed_seconds) {
                 }
             }
         }
+        // A prepared projectile is a presentation-only object evaluated from the owner's authored action clock.
+        // Its VFX blocks define the ground-emergence and socket-travel phases; release hands ownership to the
+        // authoritative replicated projectile above. Interrupting the action removes this derived object immediately.
+        if (const auto* owner = character->ability(); owner && owner->active && owner->action && character_player) {
+            const auto* client = character->client(character_player);
+            const auto* combat = client ? client->combat() : nullptr;
+            const auto definition = combat ? std::find_if(combat->abilities.begin(), combat->abilities.end(), [&](const auto& value) { return value->id == owner->ability; }) : std::vector<std::shared_ptr<const AbilityDefinition>>::const_iterator{};
+            if (combat && definition != combat->abilities.end() && (*definition)->aim && (*definition)->aim->projectile && (*definition)->aim->projectile->preparation) {
+                const auto& projectile = *(*definition)->aim->projectile;
+                const auto& preparation = *projectile.preparation;
+                const ActionDefinition* action = nullptr;
+                if ((*definition)->action->id == owner->action_definition) action = (*definition)->action.get();
+                for (const auto& step : (*definition)->combo_steps) if (step.action->id == owner->action_definition) action = step.action.get();
+                const auto find_block = [&](unsigned id) -> const ActionBlock* { if (!action) return nullptr; const auto found = std::find_if(action->blocks.begin(), action->blocks.end(), [&](const auto& block) { return block.id == id; }); return found == action->blocks.end() ? nullptr : &*found; };
+                const auto* emergence = find_block(preparation.emergence_block);
+                const auto* movement = find_block(preparation.move_block);
+                const auto* release = find_block(preparation.release_block);
+                const auto model = scene_models.find(projectile.visual_model);
+                const auto root_handle = character->presentation().find(character_player);
+                if (emergence && movement && release && model != scene_models.end() && character->presentation().valid(root_handle) &&
+                    owner->action->clock >= emergence->begin && owner->action->clock < release->begin) {
+                    const auto& root = character->presentation().read(root_handle).transform;
+                    const auto yaw = root.yaw, cosine = std::cos(yaw), sine = std::sin(yaw);
+                    const std::array<double,3> offset{preparation.offset[0],preparation.offset[1],preparation.offset[2]};
+                    const XMFLOAT3 ground{float(root.x + cosine*offset[0] + sine*offset[2]),float(root.y + offset[1]),float(root.z - sine*offset[0] + cosine*offset[2])};
+                    XMFLOAT3 hand{ground.x,ground.y+float(preparation.rise),ground.z};
+                    const auto& rig = character_resources->rig.definition;
+                    auto socket_name = preparation.socket;
+                    if (const auto socket = rig.sockets.find(socket_name); socket != rig.sockets.end()) socket_name = socket->second;
+                    const auto joint = std::find_if(rig.joints.begin(),rig.joints.end(),[&](const auto& candidate){return candidate.key==socket_name;});
+                    const auto* pose = character->pose(character_player);
+                    if (joint != rig.joints.end() && pose && std::size_t(joint-rig.joints.begin()) < pose->size()) {
+                        XMFLOAT4X4 joint_matrix{};std::memcpy(&joint_matrix,(*pose)[std::size_t(joint-rig.joints.begin())].values.data(),sizeof(joint_matrix));
+                        const auto joint_world=XMLoadFloat4x4(&joint_matrix)*XMMatrixScaling(float(root.scale),float(root.scale),float(root.scale))*XMMatrixRotationRollPitchYaw(float(root.pitch),float(root.yaw),float(root.roll))*XMMatrixTranslation(float(root.x),float(root.y),float(root.z));
+                        XMStoreFloat3(&hand,XMVector3TransformCoord(XMVectorSet(0,0,0,1),joint_world));
+                    }
+                    const auto prepared_pose=prepared_projectile_pose(preparation,*action,double(owner->action->clock),
+                        {ground.x,ground.y,ground.z},{hand.x,hand.y,hand.z});
+                    if(prepared_pose){
+                    const XMFLOAT3 position{float(prepared_pose->position[0]),float(prepared_pose->position[1]),float(prepared_pose->position[2])};
+                    const auto pitch=-XM_PIDIV2+XMConvertToRadians(float(preparation.ready_pitch_degrees+90.)*float(prepared_pose->travel));const auto rotation=XMMatrixRotationRollPitchYaw(pitch,float(yaw),0);const auto world=rotation*XMMatrixTranslation(position.x,position.y,position.z);const auto& prepared=model->second;
+                    for(const auto& mesh:prepared.meshes){IBuffer* vb=mesh.vertices;Uint64 vertex_offset{};context->SetVertexBuffers(0,1,&vb,&vertex_offset,RESOURCE_STATE_TRANSITION_MODE_TRANSITION,SET_VERTEX_BUFFERS_FLAG_RESET);context->SetIndexBuffer(mesh.indices,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);for(const auto& part:mesh.parts){const auto& material=prepared.materials.at(part.material);Constants constants;XMStoreFloat4x4(&constants.mvp,world*view*projection);XMStoreFloat4x4(&constants.rotation,rotation);XMStoreFloat4x4(&constants.world,world);constants.color={material.value.color[0],material.value.color[1],material.value.color[2],material.value.color[3]};apply_material(constants,material.value);void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Uniform buffer mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);context->SetPipelineState(pso.RawPtr());if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);bind_gpu_clusters(material.binding,gpu_clusters);context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);DrawIndexedAttribs draw;draw.NumIndices=part.count;draw.IndexType=VT_UINT32;draw.FirstIndexLocation=part.first;draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(draw);}}
+                    }
+                }
+            }
+        }
     }
 #endif
     if (frame_settings.sky.hdr_texture != sky_asset) {
@@ -1172,7 +1411,8 @@ void SceneViewport::render(double elapsed_seconds) {
             context_.editor.log(std::string("HDR sky load failed: ") + error.what(), ConsoleSeverity::Error);
         } else if (requested_sky == AssetId{}) sky_asset = {};
     }
-    auto present_post = [&](ITexture* source, ITexture* destination, ITexture* info, ITexture* depth, IShaderResourceBinding* binding, FXMMATRIX camera_projection) {
+    section_start = std::chrono::steady_clock::now();
+    auto present_post = [&](ITexture* source, ITexture* destination, ITexture* info, ITexture* object_id, ITexture* depth, IShaderResourceBinding* binding, FXMMATRIX camera_view, FXMMATRIX camera_projection, unsigned cache_index) {
         PostConstants constants;
         constants.exposure = {frame_settings.post.exposure, frame_settings.post.exposure_compensation, frame_settings.post.contrast, frame_settings.post.saturation};
         constants.bloom = {frame_settings.post.bloom_threshold, frame_settings.post.bloom_soft_threshold, frame_settings.post.bloom ? frame_settings.post.bloom_intensity : 0.f, frame_settings.post.bloom_radius};
@@ -1186,12 +1426,15 @@ void SceneViewport::render(double elapsed_seconds) {
         constants.outline_params = {frame_settings.post.outline.thickness, frame_settings.post.outline.depth_sensitivity, frame_settings.post.outline.normal_sensitivity, frame_settings.post.outline.group_sensitivity};
         constants.outline_fade = {frame_settings.post.outline.fade_start, frame_settings.post.outline.fade_end, device->GetDeviceInfo().NDC.YtoVScale, 0};
         XMStoreFloat4x4(&constants.inverse_projection, XMMatrixInverse(nullptr, camera_projection));
+        XMStoreFloat4x4(&constants.inverse_view, XMMatrixInverse(nullptr, camera_view));
         constants.sky_zenith = {frame_settings.sky.zenith.r, frame_settings.sky.zenith.g, frame_settings.sky.zenith.b, 0};
         constants.sky_horizon = {frame_settings.sky.horizon.r, frame_settings.sky.horizon.g, frame_settings.sky.horizon.b, 0};
         constants.sky_ground = {frame_settings.sky.ground.r, frame_settings.sky.ground.g, frame_settings.sky.ground.b, 0};
         constants.sky_sun = {frame_settings.sky.sun_direction[0], frame_settings.sky.sun_direction[1], frame_settings.sky.sun_direction[2], frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.sun_size : 0.f};
         constants.sky_sun_color = {frame_settings.sky.sun_color.r, frame_settings.sky.sun_color.g, frame_settings.sky.sun_color.b, frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.sun_intensity : 0.f};
         constants.sky_mode = {frame_settings.sky_enabled && sky_texture ? 1.f : 0.f, sky_texture_cube ? 1.f : 0.f, frame_settings.sky.hdr_intensity, frame_settings.sky.hdr_rotation_degrees * DirectX::XM_PI / 180.f};
+        constants.sky_cloud = {frame_settings.sky.procedural && frame_settings.sky_enabled ? frame_settings.sky.cloud_amount : 0.f,
+                               static_cast<float>(frame_settings.sky.seed), 0.f, 0.f};
         void* mapped{};
         context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
         require(mapped, "Post-process constants mapping failed");
@@ -1201,15 +1444,63 @@ void SceneViewport::render(double elapsed_seconds) {
         require(source_variable, "Post-process source contract changed");
         source_variable->Set(source->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         auto* info_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "OutlineInfo");
+        auto* object_id_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "OutlineObjectId");
         auto* depth_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SceneDepth");
-        require(info_variable && depth_variable, "Post-process outline contract changed");
+        require(info_variable && object_id_variable && depth_variable, "Post-process outline contract changed");
         info_variable->Set(info->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        object_id_variable->Set(object_id->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         depth_variable->Set(depth->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         auto* sky_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SkyTexture");
         auto* sky_cube_variable = binding->GetVariableByName(SHADER_TYPE_PIXEL, "SkyCube");
         require(sky_variable && sky_cube_variable, "Post-process sky texture contract changed");
         sky_variable->Set(sky_texture && !sky_texture_cube ? sky_texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE) : sky_fallback->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
         sky_cube_variable->Set(sky_texture && sky_texture_cube ? sky_texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE) : sky_fallback_cube->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+        if (!args.render_reference && frame_settings.sky_enabled && frame_settings.sky.procedural && !sky_texture) {
+            auto& cached = sky_cache[cache_index];
+            const auto& desc = destination->GetDesc();
+            if (!cached.texture || cached.texture->GetDesc().Width != 1024 || cached.texture->GetDesc().Height != 512) {
+                // Size changes follow the viewport's existing resize discipline;
+                // a cache hit or settings change never waits for GPU idle.
+                if (cached.texture) { context->Flush(); context->WaitForIdle(); }
+                TextureDesc target_desc;
+                target_desc.Name = "Cached HDR procedural sky and clouds";
+                // Cache a camera-independent equirectangular environment, not
+                // a screen-space image. Every view samples it by world ray.
+                target_desc.Type = RESOURCE_DIM_TEX_2D; target_desc.Width = 1024; target_desc.Height = 512;
+                target_desc.Format = TEX_FORMAT_RGBA16_FLOAT;
+                target_desc.BindFlags = BIND_RENDER_TARGET | BIND_SHADER_RESOURCE;
+                cached.texture.Release();
+                device->CreateTexture(target_desc, nullptr, &cached.texture);
+                require(cached.texture, "Procedural sky cache allocation failed");
+                cached.valid = false;
+            }
+            const std::array<XMFLOAT4, 7> key{constants.sky_zenith, constants.sky_horizon, constants.sky_ground,
+                constants.sky_sun, constants.sky_sun_color, constants.sky_mode, constants.sky_cloud};
+            if (!cached.valid || std::memcmp(key.data(), cached.settings.data(), sizeof(key)) != 0) {
+                if (!sky_cache_pso) sky_cache_pso = post_pipeline(device, post_buffer, TEX_FORMAT_RGBA16_FLOAT);
+                auto sky_constants = constants;
+                sky_constants.sky_mode.x = -1; // HDR sky-only evaluation, before exposure, bloom and grading
+                context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+                require(mapped, "Sky cache constants mapping failed");
+                std::memcpy(mapped, &sky_constants, sizeof(sky_constants)); context->UnmapBuffer(post_buffer, MAP_WRITE);
+                auto* sky_target = cached.texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
+                context->SetRenderTargets(1, &sky_target, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                Viewport sky_view; sky_view.Width = float(desc.Width); sky_view.Height = float(desc.Height);
+                context->SetViewports(1, &sky_view, desc.Width, desc.Height);
+                context->SetPipelineState(sky_cache_pso);
+                context->CommitShaderResources(binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                DrawAttribs sky_draw; sky_draw.NumVertices = 3; sky_draw.Flags = DRAW_FLAG_VERIFY_ALL;
+                context->Draw(sky_draw);
+                cached.settings = key; cached.valid = true;
+                ++shell.render_optimizations[0];
+            } else ++shell.render_optimizations[1];
+            sky_variable->Set(cached.texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE));
+            // Cached sky is an equirectangular world-space environment.
+            constants.sky_mode = {2, 0, 1, 0};
+            context->MapBuffer(post_buffer, MAP_WRITE, MAP_FLAG_DISCARD, mapped);
+            require(mapped, "Cached-sky post constants mapping failed");
+            std::memcpy(mapped, &constants, sizeof(constants)); context->UnmapBuffer(post_buffer, MAP_WRITE);
+        }
         auto* target = destination->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
         context->SetRenderTargets(1, &target, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         Viewport post_view;
@@ -1223,9 +1514,11 @@ void SceneViewport::render(double elapsed_seconds) {
         draw.Flags = DRAW_FLAG_VERIFY_ALL;
         context->Draw(draw);
     };
-    present_post(scene_color, scene_display, outline_info, scene_depth, post_binding, projection);
+    present_post(scene_color, scene_display, outline_info, outline_object_id, scene_depth, post_binding, view, projection, 0);
     if (shell.second_view && scene_color_second && scene_display_second)
-        present_post(scene_color_second, scene_display_second, outline_info_second, scene_depth_second, post_binding_second, XMLoadFloat4x4(&shell.game_projection_second));
+        present_post(scene_color_second, scene_display_second, outline_info_second, outline_object_id_second, scene_depth_second, post_binding_second,
+                     XMLoadFloat4x4(&shell.game_view_second), XMLoadFloat4x4(&shell.game_projection_second), 1);
+    section(4);
 }
 VfxView SceneViewport::vfx_view() const {
     using namespace DirectX;

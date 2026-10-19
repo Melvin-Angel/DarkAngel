@@ -49,6 +49,9 @@ class Scale final : public Exercise {
     std::vector<double> authoring_, play_;
     std::array<double, 4> authoring_draws_{}, play_draws_{}; // visible, culled, draw calls, frames
     std::array<double, 6> authoring_sections_{}, play_sections_{}; // summed ms per frame section
+    std::array<double, 5> authoring_render_{}, play_render_{};
+    std::array<double, 3> authoring_pass_draws_{}, play_pass_draws_{};
+    std::array<double, 4> optimization_counts_{};
     StableId moved_;
     bool prepared_{}, playing_{}, done_{};
     unsigned play_start_{};
@@ -95,6 +98,20 @@ class Scale final : public Exercise {
         };
         report_["authoring_sections_ms"] = sections(authoring_sections_, authoring_draws_[3]);
         report_["play_sections_ms"] = sections(play_sections_, play_draws_[3]);
+        const auto render = [](const auto& sums, double frames, const auto& names) {
+            nlohmann::json out = nlohmann::json::object();
+            if (frames) for (std::size_t i = 0; i < sums.size(); ++i) out[names[i]] = sums[i] / frames;
+            return out;
+        };
+        const std::array<const char*, 5> render_names{"prepare", "shadows", "color", "outlines", "post"};
+        const std::array<const char*, 3> draw_names{"shadows", "color", "outlines"};
+        report_["timing_contract"] = "CPU wall milliseconds including driver backpressure; not GPU timestamps";
+        report_["authoring_render_cpu_ms"] = render(authoring_render_, authoring_draws_[3], render_names);
+        report_["play_render_cpu_ms"] = render(play_render_, play_draws_[3], render_names);
+        report_["authoring_pass_draws"] = render(authoring_pass_draws_, authoring_draws_[3], draw_names);
+        report_["play_pass_draws"] = render(play_pass_draws_, play_draws_[3], draw_names);
+        const std::array<const char*, 4> optimization_names{"sky_builds", "sky_hits", "shadow_rejected", "shadow_ranges_merged"};
+        report_["optimizations_per_frame"] = render(optimization_counts_, authoring_draws_[3] + play_draws_[3], optimization_names);
         report_["memory_end"] = memory();
         std::ofstream output(config_.at("report").get<std::string>());
         output << report_.dump(2) << "\n";
@@ -124,6 +141,48 @@ class Scale final : public Exercise {
             return;
         auto& editor = context_.editor;
         auto& shell = context_.shell;
+        if (config_.value("resolution_probe", false)) {
+            require(context_.options.hidden, "Resolution probe requires an isolated hidden run");
+            if(frame==1)shell.switch_tab(Workspace::Game);
+            if(frame==10)shell.game_resolution=1;
+            if(frame==20)shell.game_resolution=2;
+            if(frame==30)shell.game_resolution=3;
+            if(frame==40)shell.game_resolution=4;
+            if(frame==50)shell.game_resolution=0;
+            if(frame==60){shell.game_resolution=1;shell.ui_scale=1.f;}
+            if(frame==70)shell.switch_tab(Workspace::Scene);
+            if(frame==80)shell.switch_tab(Workspace::Game);
+            if(frame==90)shell.save_preferences();
+            if(frame>=5&&frame%10==5){
+                const auto actual=shell.viewport_render_sizes[0];
+                const auto& panel=shell.viewport_area();
+                report_["resolution_probe"].push_back({{"frame",frame},{"game",shell.workspace==Workspace::Game},
+                    {"preset",shell.game_resolution},{"target",{actual.width,actual.height}},
+                    {"panel",{panel.x,panel.y,panel.width,panel.height}}});
+            }
+        }
+        if (config_.value("render_probe", false)) {
+            require(context_.options.hidden, "Render cache probe requires an isolated hidden run");
+            const std::map<unsigned, const char*> observations{{15,"steady"},{21,"seed"},{31,"post"},{42,"resize"},
+                {51,"cloud"},{61,"disabled"},{71,"reenabled"},{81,"seed_again"}};
+            if (const auto observation = observations.find(frame); observation != observations.end())
+                report_["render_probe"][observation->second] = shell.render_optimizations;
+            // Changing UI scale changes the actual scene target dimensions on
+            // the following frame, including when the viewport is floating.
+            if (frame == 40) shell.ui_scale = shell.ui_scale < 1 ? 1.f : .75f;
+            if (frame == 20 || frame == 30 || frame == 50 || frame == 60 || frame == 70 || frame == 80) {
+                const auto local = config_.value("render_local", std::string("00000000000000000000000000000001"));
+                const auto entity = editor.document->entity(local);
+                require(bool(entity), "Render cache probe settings entity missing");
+                auto source = nlohmann::json::parse(*entity);
+                auto& settings = source["optional"]["rendering"];
+                if (frame == 20 || frame == 80) settings["sky"]["seed"] = settings["sky"].value("seed", 0u) + 1;
+                if (frame == 30) settings["post"]["exposure"] = .25;
+                if (frame == 50) settings["sky"]["cloud_amount"] = .25;
+                if (frame == 60 || frame == 70) settings["sky_enabled"] = frame == 70;
+                editor.document->commit(editor.document->prepare_entities(editor.document->revision(), {{local,source.dump()}}));
+            }
+        }
         const auto now = Clock::now();
         // The first frames after startup and after Play starts are warm-up, not steady state.
         if (timing_ && frame > warmup_ && (!playing_ || frame > play_start_ + warmup_)) {
@@ -137,11 +196,19 @@ class Scale final : public Exercise {
             auto& sections = playing_ ? play_sections_ : authoring_sections_;
             for (std::size_t i = 0; i < sections.size(); ++i)
                 sections[i] += shell.frame_sections[i];
+            auto& render = playing_ ? play_render_ : authoring_render_;
+            for (std::size_t i = 0; i < render.size(); ++i) render[i] += shell.render_sections[i];
+            auto& pass_draws = playing_ ? play_pass_draws_ : authoring_pass_draws_;
+            for (std::size_t i = 0; i < pass_draws.size(); ++i) pass_draws[i] += shell.render_draws[i];
+            for (std::size_t i = 0; i < optimization_counts_.size(); ++i) optimization_counts_[i] += shell.render_optimizations[i];
         }
         last_ = now;
         timing_ = true;
         const unsigned at = authoring_frames_ + warmup_;
         if (frame == 1) {
+            // Benchmark option only; hidden runs use isolated preferences and
+            // end before authoring operations. This exposes the actual full view cost.
+            if (config_.value("maximize_viewport", false)) shell.scene_maximized = true;
             const auto& plan = editor.document->plan();
             // Every model placement, the player's skin included; pickups, altars, doors and platforms are not static.
             std::size_t placements = 0;

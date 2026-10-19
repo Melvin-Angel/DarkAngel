@@ -28,7 +28,7 @@ public:
     AbilityOwnerSnapshot owner_snapshot()const;
     AbilityPublicSnapshot public_snapshot()const;
     std::vector<AbilityAttributeValue> attribute_values()const;
-    struct PendingHit {AbilityActivationHandle handle;std::shared_ptr<const AbilityDefinition> definition;AbilityMelee profile;ActionInterval interval;std::uint64_t tick{};};
+    struct PendingHit {AbilityActivationHandle handle;std::shared_ptr<const AbilityDefinition> definition;AssetId action,clip;AbilityMelee profile;ActionInterval interval;std::uint64_t tick{},action_clock{};};
     std::vector<PendingHit> pending_hits;
     bool remember_hit(const PendingHit&,std::uint64_t target,std::uint64_t epoch);
     std::vector<AbilityActionUpdate> damage(double);
@@ -49,13 +49,13 @@ private:
     struct Execution {
         CombatSlot slot;std::uint64_t grant_generation;
         std::shared_ptr<const AbilityDefinition> definition;ActionTimeline timeline;
-        std::uint64_t operation{};AbilityCommitPhase cost_phase{AbilityCommitPhase::Committed};
+        std::uint64_t operation{};AbilityCommitPhase cost_phase{AbilityCommitPhase::Committed};unsigned combo_step{};
     };
     struct Record {AbilityRequest request;AbilityReceipt receipt;std::optional<AbilityIntent> intent;};
     struct HeldInput {bool active{};std::uint64_t pressed{},released{},duration{};bool hold_sent{};};
     std::array<HeldInput,combat_slot_count> held_{};std::array<InputActionDefinition,combat_slot_count> input_{};std::uint64_t held_generation_{};
     AbilityOwnerHandle owner_;std::uint64_t tick_{},revision_{},next_activation_{1},highest_operation_{},retired_through_{};
-    std::set<std::tuple<std::uint64_t,unsigned,unsigned,std::uint64_t,std::uint64_t>> hits_;
+    std::set<std::tuple<std::uint64_t,AssetId,unsigned,unsigned,std::uint64_t,std::uint64_t>> hits_;
     AttributeSet attributes_;AttributeId health_,maximum_health_;
     OwnedEffects effects_;bool tags_configured_{};
     std::optional<CombatKitInstance> kit_;
@@ -70,6 +70,10 @@ private:
     std::array<AssetId,loadout_slot_count> equipped_masks_{};
     Loadout prepare_loadout(std::shared_ptr<const CombatKitDefinition>,const InputProfile&,std::span<const std::shared_ptr<const AbilityDefinition>>)const;
     std::vector<AbilityActionUpdate> install_loadout(const Loadout&);
+    const ActionDefinition& active_action()const;
+    std::span<const AbilityMelee> active_melee()const;
+    bool combo_open(const AbilityRequest&)const;
+    AbilityActionUpdate advance_combo();
     std::pair<AbilityReceipt,std::vector<AbilityActionUpdate>> select_loadout(const AbilityIntent&,std::optional<AbilityFailure>);
     AbilityFailure validate(const AbilityRequest&)const;
     std::vector<AbilityActionUpdate> stop(AbilityActionReason,bool release_tags=true);

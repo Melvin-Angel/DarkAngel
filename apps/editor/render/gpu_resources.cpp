@@ -26,7 +26,7 @@ RWStructuredBuffer<uint> ClusterCounts;
 RWStructuredBuffer<uint> ClusterStats;
 
 bool overlaps(float a_min,float a_max,float b_min,float b_max){return a_max>=b_min&&a_min<=b_max;}
-[numthreads(1,1,1)]
+[numthreads(64,1,1)]
 void CSMain(uint3 dispatch_id:SV_DispatchThreadID){
     uint cluster=dispatch_id.x;
     if(cluster>=Limits.z)return;
@@ -223,7 +223,7 @@ void dispatch_gpu_clusters(IDeviceContext* context, GpuClusterResources& resourc
     set_buffer("ClusterStats", resources.stats, BUFFER_VIEW_UNORDERED_ACCESS);
     context->SetPipelineState(resources.pipeline);
     context->CommitShaderResources(resources.binding, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    context->DispatchCompute(DispatchComputeAttribs{static_cast<Uint32>(resources.cluster_count), 1, 1});
+    context->DispatchCompute(DispatchComputeAttribs{static_cast<Uint32>((resources.cluster_count + 63) / 64), 1, 1});
     context->CopyBuffer(resources.stats, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION, resources.stats_readback, 0, 5 * sizeof(std::uint32_t),
                         RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     resources.readback_pending = true;
@@ -260,14 +260,41 @@ void bind_gpu_clusters(IShaderResourceBinding* binding, const GpuClusterResource
 }
 
 RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color, TEXTURE_FORMAT depth, bool cull,
-                                       const char* source, IBuffer* bones, bool blend, bool instanced) {
+                                       const char* source, IBuffer* bones, bool blend, bool instanced, bool outline_targets) {
     ShaderCreateInfo shader;
     shader.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
     shader.ShaderCompiler = SHADER_COMPILER_DXC;
     shader.HLSLVersion = {6, 0};
     shader.Desc.UseCombinedTextureSamplers = true;
-    const auto transformed = instanced ? instanced_surface_source(source ? source : normalized_shader_source()) : std::string{};
-    shader.Source = instanced ? transformed.c_str() : source;
+    std::string transformed = source ? source : normalized_shader_source();
+    if (instanced) transformed = instanced_surface_source(std::move(transformed));
+    if (outline_targets) {
+        if (instanced) {
+            const auto replace = [&](std::string_view from, std::string_view to) {
+                const auto at = transformed.find(from);
+                require(at != transformed.npos, "Instanced outline shader contract changed");
+                transformed.replace(at, from.size(), to);
+            };
+            replace("float4 World3:ATTRIB8;", "float4 World3:ATTRIB8;float ObjectId:ATTRIB9;");
+            replace("struct VertexOutput {", "struct VertexOutput {nointerpolation float ObjectId:TEXCOORD6;");
+            replace("result.UV=vertex.UV;return result;", "result.UV=vertex.UV;result.ObjectId=vertex.ObjectId;return result;");
+        }
+        const auto entry = transformed.find("PSMain(");
+        require(entry != transformed.npos, "Outline surface entry point missing");
+        transformed.replace(entry, 7, "SurfaceMain(");
+        transformed += R"(
+struct OutlineOutput {float4 Info:SV_TARGET0;float ObjectId:SV_TARGET1;};
+OutlineOutput PSMain(VertexOutput vertex) {
+    OutlineOutput result;
+    result.Info=SurfaceMain(vertex);
+    result.ObjectId=OUTLINE_OBJECT_ID;
+    return result;
+}
+)";
+        const auto id = transformed.find("OUTLINE_OBJECT_ID");
+        transformed.replace(id, 17, instanced ? "vertex.ObjectId" : "Outline.y");
+    }
+    shader.Source = transformed.c_str();
     RefCntAutoPtr<IShader> vs, ps;
     shader.Desc.Name = "DarkAngel stylized prop VS";
     shader.Desc.ShaderType = SHADER_TYPE_VERTEX;
@@ -286,6 +313,10 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
     auto& graphics = ci.GraphicsPipeline;
     graphics.NumRenderTargets = 1;
     graphics.RTVFormats[0] = color;
+    if (outline_targets) {
+        graphics.NumRenderTargets = 2;
+        graphics.RTVFormats[1] = TEX_FORMAT_R32_FLOAT;
+    }
     graphics.DSVFormat = depth;
     graphics.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     graphics.RasterizerDesc.CullMode = cull ? CULL_MODE_BACK : CULL_MODE_NONE;
@@ -315,8 +346,9 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
                                        {7, 1, 4, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1},
                                        {8, 1, 4, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1}};
     LayoutElement full_layout[] = {{0, 0, 3, VT_FLOAT32, false}, {1, 0, 3, VT_FLOAT32, false}, {2, 0, 2, VT_FLOAT32, false},
-                                   instance_layout[0], instance_layout[1], instance_layout[2], instance_layout[3]};
-    if (instanced) { graphics.InputLayout.LayoutElements = full_layout; graphics.InputLayout.NumElements = 7; }
+                                   instance_layout[0], instance_layout[1], instance_layout[2], instance_layout[3],
+                                   {9, 1, 1, VT_FLOAT32, false, INPUT_ELEMENT_FREQUENCY_PER_INSTANCE, 1}};
+    if (instanced) { graphics.InputLayout.LayoutElements = full_layout; graphics.InputLayout.NumElements = outline_targets ? 8 : 7; }
     else graphics.InputLayout.NumElements = bones ? 5 : 3;
     ShaderResourceVariableDesc variables[] = {{SHADER_TYPE_PIXEL, "Albedo", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
                                               {SHADER_TYPE_PIXEL, "NormalMap", SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE},
@@ -363,9 +395,10 @@ RefCntAutoPtr<IPipelineState> pipeline(IRenderDevice* device, IBuffer* constants
 }
 RefCntAutoPtr<IPipelineState> post_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT color) {
     static constexpr const char* source = R"(
-cbuffer PostFrame {float4 Exposure;float4 Bloom;float4 TintFxaa;float4 GradeLift;float4 GradeGamma;float4 GradeGain;float4 GradeParams;float4 Texel;float4 Outline;float4 OutlineParams;float4 OutlineFade;float4 SkyZenith;float4 SkyHorizon;float4 SkyGround;float4 SkySun;float4 SkySunColor;float4 SkyMode;row_major float4x4 InverseProjection;};
+cbuffer PostFrame {float4 Exposure;float4 Bloom;float4 TintFxaa;float4 GradeLift;float4 GradeGamma;float4 GradeGain;float4 GradeParams;float4 Texel;float4 Outline;float4 OutlineParams;float4 OutlineFade;float4 SkyZenith;float4 SkyHorizon;float4 SkyGround;float4 SkySun;float4 SkySunColor;float4 SkyMode;float4 SkyCloud;row_major float4x4 InverseProjection;row_major float4x4 InverseView;};
 Texture2D SceneColor;SamplerState SceneColor_sampler;
 Texture2D OutlineInfo;SamplerState OutlineInfo_sampler;
+Texture2D OutlineObjectId;SamplerState OutlineObjectId_sampler;
 Texture2D SceneDepth;SamplerState SceneDepth_sampler;
 Texture2D SkyTexture;SamplerState SkyTexture_sampler;
 TextureCube SkyCube;SamplerState SkyCube_sampler;
@@ -373,7 +406,7 @@ struct VertexOutput {float4 Position:SV_POSITION;float2 UV:TEXCOORD0;};
 VertexOutput VSMain(uint id:SV_VertexID){float2 positions[3]={float2(-1,-1),float2(-1,3),float2(3,-1)};float2 uv[3]={float2(0,1),float2(0,-1),float2(2,1)};VertexOutput result;result.Position=float4(positions[id],0,1);result.UV=uv[id];return result;}
 float luminance(float3 v){return dot(v,float3(.2126,.7152,.0722));}
 float3 hdr(float2 uv){return max(SceneColor.Sample(SceneColor_sampler,uv).rgb,0);}
-float3 tone(float3 value){float exposure=exp2(Exposure.x+Exposure.y);float3 color=1-exp(-value*exposure);float l=luminance(color);color=lerp(l.xxx,color,Exposure.w);color=(color-.5)*Exposure.z+.5;color=max(color+GradeLift.rgb,0);color=pow(color,1/max(GradeGamma.rgb,.001));color*=GradeGain.rgb;float temperature=clamp(GradeParams.x,-1,1);color*=float3(1+.08*temperature,1,1-.08*temperature);return saturate(color*TintFxaa.rgb);}
+float3 tone(float3 value){float exposure=exp2(Exposure.x+Exposure.y);float3 color=1-exp(-value*exposure);float l=luminance(color);color=lerp(l.xxx,color,Exposure.w);color=(color-.5)*Exposure.z+.5;color=max(color+GradeLift.rgb,0);if(any(GradeGamma.rgb!=1))color=pow(color,1/max(GradeGamma.rgb,.001));color*=GradeGain.rgb;float temperature=clamp(GradeParams.x,-1,1);color*=float3(1+.08*temperature,1,1-.08*temperature);return saturate(color*TintFxaa.rgb);}
 float outline_coverage(float2 uv){
     if(Outline.w<=0)return 0;
     int2 pixel=int2(uv/Texel.xy);
@@ -381,14 +414,34 @@ float outline_coverage(float2 uv){
     // IDs and geometry must not interpolate across object boundaries.
     float4 center=OutlineInfo.Load(int3(pixel,0));
     float depth=SceneDepth.Load(int3(pixel,0)).r;
+    float center_id=OutlineObjectId.Load(int3(pixel,0)).r;
     float2 depth_gradient=float2(ddx(depth),ddy(depth));
-    if(center.a<=0&&depth>=1)return 0;
-    int radius=(int)clamp(round(OutlineParams.x),1,8);
-    float edge=0;
-    [unroll]for(int y=-8;y<=8;++y)[unroll]for(int x=-8;x<=8;++x){
-        if((x==0&&y==0)||abs(x)>radius||abs(y)>radius)continue;
+    if(center_id<=0&&depth>=1)return 0;
+    // Reject fully faded pixels before gathering the neighbourhood.
+    float4 position=mul(float4(uv.x*2-1,(uv.y-.5)/OutlineFade.z,depth,1),InverseProjection);
+    float distance=length(position.xyz/max(abs(position.w),1e-7));
+    float fade=1-saturate((distance-OutlineFade.x)/max(OutlineFade.y-OutlineFade.x,.001));
+    if(fade<=0)return 0;
+    // Treat thickness as a continuous pixel radius. Quantizing this to an
+    // integer made small slider changes jump between visibly different widths.
+    float thickness=clamp(OutlineParams.x,.25,8);
+    int radius=(int)clamp(ceil(thickness+.5),1,8);
+    // Do not select the single strongest neighbor: at moving silhouettes that
+    // makes one sub-pixel depth/normal sample switch the whole pixel on/off.
+    // Accumulate soft evidence from the neighborhood instead, so contours
+    // change continuously as they cross pixel centers.
+    float object_transmittance=1,detail_transmittance=1;
+    [loop]for(int y=-radius;y<=radius;++y)[loop]for(int x=-radius;x<=radius;++x){
+        if(x==0&&y==0)continue;
+        float distance_squared=float(x*x+y*y);
+        float outer=thickness+1;
+        float distance_coverage=1-smoothstep(thickness*thickness,outer*outer,distance_squared);
+        // The square loop contains samples outside the circular filter. They
+        // have zero weight, so do not fetch three textures for them.
+        if(distance_coverage<=0)continue;
         int2 sample_pixel=clamp(pixel+int2(x,y),int2(0,0),last_pixel);
         float4 other=OutlineInfo.Load(int3(sample_pixel,0));
+        float other_id=OutlineObjectId.Load(int3(sample_pixel,0)).r;
         float other_depth=SceneDepth.Load(int3(sample_pixel,0)).r;
         float normal_delta=length(other.rgb-center.rgb);
         // Projected depth is affine on a plane. Remove that slope so adjacent
@@ -397,33 +450,72 @@ float outline_coverage(float2 uv){
         // At an occlusion boundary a derivative may belong to the other
         // surface. It must never invent a larger break than the raw depth.
         float depth_delta=min(abs(other_depth-depth),abs(other_depth-expected_depth))/max(depth,.001);
-        float group_delta=abs(other.a-center.a);
-        float surface_break=saturate(step(.02,normal_delta)+step(.002,depth_delta*OutlineParams.y));
-        float group_edge=step(.0005,group_delta)*OutlineParams.w*surface_break;
-        // Smooth normal variation is surface shading, not an ink contour.
-        float normal_edge=smoothstep(.1,.2,normal_delta)*OutlineParams.z;
-        edge=max(edge,max(max(depth_delta*OutlineParams.y,normal_edge),group_edge));
+        // Object identity is the authoritative silhouette/boundary signal.
+        // Adjacent coplanar pieces are one continuous surface. Their different
+        // IDs must not ink a tile grid after fixing the old ID-pass routing.
+        bool surface_break=other_id<=0||normal_delta>.08||depth_delta>2e-6;
+        float object_edge=(center_id>0&&abs(other_id-center_id)>.5&&surface_break)?1:0;
+        // Depth and normal only contribute restrained secondary detail. These
+        // are intentionally less sensitive than the dedicated object mask.
+        float normal_edge=smoothstep(.2,.42,normal_delta)*OutlineParams.z*.04;
+        float depth_edge=smoothstep(.002,.012,depth_delta*OutlineParams.y*.01);
+        float object_sample=saturate(object_edge*distance_coverage);
+        float detail_sample=saturate(max(depth_edge,normal_edge)*distance_coverage);
+        float spatial_weight=1/(1+distance_squared*.45);
+        object_transmittance*=1-object_sample*spatial_weight;
+        detail_transmittance*=1-detail_sample*spatial_weight;
     }
     // Fade controls are metres, not nonlinear depth-buffer values. Read the
     // exact projection for this viewport, including previews and split Play.
-    float4 position=mul(float4(uv.x*2-1,(uv.y-.5)/OutlineFade.z,depth,1),InverseProjection);
-    float distance=length(position.xyz/max(abs(position.w),1e-7));
-    float fade=1-saturate((distance-OutlineFade.x)/max(OutlineFade.y-OutlineFade.x,.001));
-    return saturate(edge)*fade*saturate(Outline.w);
+    float object_coverage=1-object_transmittance;
+    float detail_coverage=(1-detail_transmittance)*.2;
+    return saturate(max(object_coverage,detail_coverage))*fade*saturate(Outline.w);
 }
-float3 imported_sky(float2 uv){float phi=(uv.x-.5)*6.2831853+SkyMode.w;float theta=uv.y*3.14159265;float3 direction=float3(sin(theta)*cos(phi),cos(theta),sin(theta)*sin(phi));return SkyMode.y>.5?SkyCube.Sample(SkyCube_sampler,direction).rgb:SkyTexture.Sample(SkyTexture_sampler,float2(frac(phi/6.2831853+.5),uv.y)).rgb;}
-float3 sky(float2 uv){if(SkyMode.x>.5)return imported_sky(uv)*SkyMode.z;float height=saturate(1-uv.y);float3 lower=lerp(SkyGround.rgb,SkyHorizon.rgb,smoothstep(0,.45,height));float3 result=lerp(lower,SkyZenith.rgb,smoothstep(.35,1,height));float2 centered=float2(uv.x-.5,(height-.5)*.9);float sun=1-smoothstep(0,max(.001,SkySun.w),length(centered-float2(SkySun.x*.25,SkySun.y*.25)));return result+SkySunColor.rgb*sun*SkySunColor.a;}
+float hash12(float2 p){p=frac(p*float2(123.34,345.45));p+=dot(p,p+34.345);return frac(p.x*p.y);}
+float value_noise(float2 p){float2 cell=floor(p),local=frac(p);local=local*local*(3-2*local);float a=hash12(cell),b=hash12(cell+float2(1,0)),c=hash12(cell+float2(0,1)),d=hash12(cell+float2(1,1));return lerp(lerp(a,b,local.x),lerp(c,d,local.x),local.y);}
+float cloud_noise(float2 p){float result=0,weight=.5;[unroll]for(uint octave=0;octave<4;++octave){result+=value_noise(p)*weight;p=p*2.03+float2(17.1,9.2);weight*=.5;}return result;}
+float3 procedural_clouds(float2 uv,float height,float3 sky_color){
+    float seed=SkyCloud.y;
+    // Wide, low-frequency noise makes the clouds read as hand-painted streaks;
+    // a second, tighter field breaks the silhouettes into the small torn shapes
+    // used by the authored sunset reference.
+    float2 broad_uv=float2(uv.x*4.8+height*1.7+seed*.013,height*2.7+seed*.007);
+    float broad=cloud_noise(broad_uv);
+    float detail=cloud_noise(broad_uv*1.75+float2(4.7,11.3));
+    float wisps=saturate(broad*.72+detail*.28);
+    float coverage=smoothstep(.48,.61,wisps);
+    float breakup=smoothstep(.30,.58,cloud_noise(broad_uv*2.35+float2(5.4,13.7)));
+    float streaks=smoothstep(.36,.60,value_noise(float2(broad_uv.x*1.55,broad_uv.y*.62)+float2(9.2,3.1)));
+    float2 puffy_uv=float2(uv.x*10.5+height*3.1+seed*.021,height*7.2+seed*.011);
+    float puffy=smoothstep(.53,.66,cloud_noise(puffy_uv));
+    float puffy_breakup=smoothstep(.34,.62,cloud_noise(puffy_uv*2.15+float2(12.4,6.8)));
+    float horizon_fade=smoothstep(.06,.18,height);
+    float upper_fade=1-smoothstep(.94,1,height)*.42;
+    float broad_density=coverage*lerp(.52,1,breakup)*lerp(.70,1,streaks);
+    float puffy_density=puffy*lerp(.35,1,puffy_breakup);
+    float density=saturate((broad_density*.72+puffy_density*.72)*horizon_fade*upper_fade*saturate(SkyCloud.x*1.35));
+    float highlight=smoothstep(.43,.64,cloud_noise(broad_uv*.72+float2(8.1,2.6)));
+    float3 cloud_shadow=lerp(float3(.28,.16,.30),float3(.58,.28,.32),saturate(height*1.3));
+    float3 cloud_light=lerp(float3(1.00,.62,.49),float3(1.16,.94,.70),saturate(height));
+    float3 cloud=lerp(cloud_shadow,cloud_light,highlight*.90);
+    return lerp(sky_color,cloud,density);
+}
+float2 direction_to_uv(float3 direction){float phi=atan2(direction.z,direction.x);return float2(frac(phi/6.2831853+.5),acos(clamp(direction.y,-1,1))/3.14159265);}
+float3 uv_to_direction(float2 uv){float phi=(uv.x-.5)*6.2831853,theta=uv.y*3.14159265;return float3(sin(theta)*cos(phi),cos(theta),sin(theta)*sin(phi));}
+float3 world_view_ray(float2 uv){float4 view=mul(float4(uv.x*2-1,(uv.y*2-1)/OutlineFade.z,1,1),InverseProjection);float3 view_direction=normalize(view.xyz/max(abs(view.w),1e-7));return normalize(mul(float4(view_direction,0),InverseView).xyz);}
+float3 imported_sky(float3 world_direction){float c=cos(SkyMode.w),s=sin(SkyMode.w);float3 direction=float3(c*world_direction.x-s*world_direction.z,world_direction.y,s*world_direction.x+c*world_direction.z);if(SkyMode.y>.5)return SkyCube.Sample(SkyCube_sampler,direction).rgb;float2 uv=direction_to_uv(world_direction);uv.x=frac(uv.x+SkyMode.w/6.2831853);return SkyTexture.Sample(SkyTexture_sampler,uv).rgb;}
+float3 sky(float3 world_direction){world_direction=normalize(world_direction);if(SkyMode.x>1.5)return SkyTexture.Sample(SkyTexture_sampler,direction_to_uv(world_direction)).rgb;if(SkyMode.x>.5)return imported_sky(world_direction)*SkyMode.z;float2 uv=direction_to_uv(world_direction);float height=saturate(world_direction.y*.5+.5);float3 lower=lerp(SkyGround.rgb,SkyHorizon.rgb,smoothstep(0,.45,height));float3 result=lerp(lower,SkyZenith.rgb,smoothstep(.35,1,height));if(SkyCloud.x>.001)result=procedural_clouds(uv,height,result);float sun_dot=clamp(dot(world_direction,normalize(SkySun.xyz)),-1,1);float sun_distance=acos(sun_dot);float disc=1-smoothstep(SkySun.w*.62,SkySun.w*.76,sun_distance);float glow=(1-smoothstep(0,max(.001,SkySun.w*3.5),sun_distance))*.18;return result+SkySunColor.rgb*(disc+glow)*SkySunColor.a;}
 // Only untouched clear-depth pixels are sky. Perspective depth near 1 is also
 // valid distant geometry, particularly with the Scene camera's .05 m near plane.
 // The edge mask is opacity, independent of ink colour: adding black cannot
 // darken the scene. Composite after FXAA so it cannot average the ink away.
-float4 PSMain(VertexOutput vertex):SV_TARGET {float depth=SceneDepth.Load(int3(uint2(vertex.Position.xy),0)).r;float3 source=depth>=1.0&&(SkyMode.x>.5||SkySun.w>0)?sky(vertex.UV):hdr(vertex.UV);float3 bloom=0;if(Bloom.z>0){float2 radius=Texel.xy*max(Bloom.w,1);float3 samples[5]={source,hdr(vertex.UV+float2(radius.x,0)),hdr(vertex.UV-float2(radius.x,0)),hdr(vertex.UV+float2(0,radius.y)),hdr(vertex.UV-float2(0,radius.y))};[unroll]for(uint i=0;i<5;++i){float l=luminance(samples[i]);float threshold=max(Bloom.x,0);float soft=max(Bloom.y,.001);float weight=smoothstep(threshold,threshold+soft,l);bloom+=samples[i]*weight;}bloom=bloom*(Bloom.z/5);source+=bloom;}float3 color=tone(source);if(TintFxaa.a>0){float3 left=tone(hdr(vertex.UV-float2(Texel.x,0))),right=tone(hdr(vertex.UV+float2(Texel.x,0))),up=tone(hdr(vertex.UV-float2(0,Texel.y))),down=tone(hdr(vertex.UV+float2(0,Texel.y)));float range=max(max(luminance(left),luminance(right)),max(luminance(up),luminance(down)))-min(min(luminance(left),luminance(right)),min(luminance(up),luminance(down)));if(range>.08)color=(color+left+right+up+down)/5;}color=lerp(color,Outline.rgb,outline_coverage(vertex.UV));return float4(color,1);}
+float4 PSMain(VertexOutput vertex):SV_TARGET {if(SkyMode.x<-.5)return float4(sky(uv_to_direction(vertex.UV)),1);float depth=SceneDepth.Load(int3(uint2(vertex.Position.xy),0)).r;float3 source=depth>=1.0&&(SkyMode.x>.5||SkySun.w>0)?sky(world_view_ray(vertex.UV)):hdr(vertex.UV);float3 bloom=0;if(Bloom.z>0){float2 radius=Texel.xy*max(Bloom.w,1);float3 samples[5]={source,hdr(vertex.UV+float2(radius.x,0)),hdr(vertex.UV-float2(radius.x,0)),hdr(vertex.UV+float2(0,radius.y)),hdr(vertex.UV-float2(0,radius.y))};[unroll]for(uint i=0;i<5;++i){float l=luminance(samples[i]);float threshold=max(Bloom.x,0);float soft=max(Bloom.y,.001);float weight=smoothstep(threshold,threshold+soft,l);bloom+=samples[i]*weight;}bloom=bloom*(Bloom.z/5);source+=bloom;}float3 color=tone(source);if(TintFxaa.a>0){float3 left=tone(hdr(vertex.UV-float2(Texel.x,0))),right=tone(hdr(vertex.UV+float2(Texel.x,0))),up=tone(hdr(vertex.UV-float2(0,Texel.y))),down=tone(hdr(vertex.UV+float2(0,Texel.y)));float range=max(max(luminance(left),luminance(right)),max(luminance(up),luminance(down)))-min(min(luminance(left),luminance(right)),min(luminance(up),luminance(down)));if(range>.08)color=(color+left+right+up+down)/5;}color=lerp(color,Outline.rgb,outline_coverage(vertex.UV));return float4(color,1);}
 )";
     ShaderCreateInfo shader;shader.SourceLanguage=SHADER_SOURCE_LANGUAGE_HLSL;shader.ShaderCompiler=SHADER_COMPILER_DXC;shader.HLSLVersion={6,0};shader.Desc.UseCombinedTextureSamplers=true;shader.Source=source;RefCntAutoPtr<IShader> vs,ps;shader.Desc.Name="DarkAngel post VS";shader.Desc.ShaderType=SHADER_TYPE_VERTEX;shader.EntryPoint="VSMain";device->CreateShader(shader,&vs);shader.Desc.Name="DarkAngel post PS";shader.Desc.ShaderType=SHADER_TYPE_PIXEL;shader.EntryPoint="PSMain";device->CreateShader(shader,&ps);require(vs&&ps,"Post-process shader compilation failed");
     // Viewport resize and workspace changes replace these textures. Dynamic
     // bindings follow the current targets; mutable bindings retain the first
     // texture and leave the displayed image frozen while cameras keep moving.
-    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variables[]={{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"OutlineInfo",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SceneDepth",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SkyTexture",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SkyCube",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};ci.PSODesc.ResourceLayout.Variables=variables;ci.PSODesc.ResourceLayout.NumVariables=_countof(variables);SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutables[]={{SHADER_TYPE_PIXEL,"SceneColor",sampler},{SHADER_TYPE_PIXEL,"OutlineInfo",sampler},{SHADER_TYPE_PIXEL,"SceneDepth",sampler},{SHADER_TYPE_PIXEL,"SkyTexture",sampler},{SHADER_TYPE_PIXEL,"SkyCube",sampler}};ci.PSODesc.ResourceLayout.ImmutableSamplers=immutables;ci.PSODesc.ResourceLayout.NumImmutableSamplers=_countof(immutables);RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
+    GraphicsPipelineStateCreateInfo ci;ci.PSODesc.Name="DarkAngel HDR post-process";ci.PSODesc.PipelineType=PIPELINE_TYPE_GRAPHICS;ci.pVS=vs;ci.pPS=ps;auto& graphics=ci.GraphicsPipeline;graphics.NumRenderTargets=1;graphics.RTVFormats[0]=color;graphics.DSVFormat=TEX_FORMAT_UNKNOWN;graphics.PrimitiveTopology=PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;graphics.RasterizerDesc.CullMode=CULL_MODE_NONE;graphics.DepthStencilDesc.DepthEnable=false;graphics.InputLayout.NumElements=0;ShaderResourceVariableDesc variables[]={{SHADER_TYPE_PIXEL,"SceneColor",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"OutlineInfo",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"OutlineObjectId",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SceneDepth",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SkyTexture",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},{SHADER_TYPE_PIXEL,"SkyCube",SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}};ci.PSODesc.ResourceLayout.Variables=variables;ci.PSODesc.ResourceLayout.NumVariables=_countof(variables);SamplerDesc sampler;sampler.MinFilter=FILTER_TYPE_LINEAR;sampler.MagFilter=FILTER_TYPE_LINEAR;sampler.MipFilter=FILTER_TYPE_LINEAR;sampler.AddressU=TEXTURE_ADDRESS_CLAMP;sampler.AddressV=TEXTURE_ADDRESS_CLAMP;ImmutableSamplerDesc immutables[]={{SHADER_TYPE_PIXEL,"SceneColor",sampler},{SHADER_TYPE_PIXEL,"OutlineInfo",sampler},{SHADER_TYPE_PIXEL,"OutlineObjectId",sampler},{SHADER_TYPE_PIXEL,"SceneDepth",sampler},{SHADER_TYPE_PIXEL,"SkyTexture",sampler},{SHADER_TYPE_PIXEL,"SkyCube",sampler}};ci.PSODesc.ResourceLayout.ImmutableSamplers=immutables;ci.PSODesc.ResourceLayout.NumImmutableSamplers=_countof(immutables);RefCntAutoPtr<IPipelineState> result;device->CreateGraphicsPipelineState(ci,&result);require(result,"Post-process pipeline creation failed");auto* pixel_frame=result->GetStaticVariableByName(SHADER_TYPE_PIXEL,"PostFrame");require(pixel_frame,"Post-process constant contract changed");pixel_frame->Set(constants);return result;
 }
 RefCntAutoPtr<IPipelineState> shadow_pipeline(IRenderDevice* device, IBuffer* constants, TEXTURE_FORMAT depth, bool cull, const char* source, IBuffer* bones, bool instanced) {
     static constexpr const char* depth_source = R"(

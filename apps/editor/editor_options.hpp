@@ -7,6 +7,8 @@
 
 namespace darkangel::editor_app {
 struct EditorOptions {
+    // Diagnostic comparison route for sky caching, shadow visibility and batching.
+    bool render_reference{};
     std::filesystem::path party_report, world_place, exercise_scale;
     bool play_from_save{}, play{}, exercise_scene_camera{}, exercise_editor_ux{}, exercise_live_previews{}, exercise_prefabs{}, exercise_materials{}, exercise_ui{}, exercise_ui_play{};
     std::string join, listen;

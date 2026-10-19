@@ -165,8 +165,8 @@ void VfxService::load(const CookedVfx& cooked){
     require(effect!=nullptr,"Effekseer could not load the cooked effect");require(missing==0,"A cooked effect asks for a texture its bundle does not hold");p.effects[cooked.id]={std::move(effect),cooked.generation};
 }
 bool VfxService::loaded(AssetId id)const{return impl_->effects.contains(id);}
-std::uint64_t VfxService::play(AssetId id,std::array<float,3> position){
-    auto& p=*impl_;const auto found=p.effects.find(id);if(found==p.effects.end())return 0;const auto handle=p.manager->Play(found->second.effect,position[0],position[1],position[2]);if(handle<0)return 0;
+std::uint64_t VfxService::play(AssetId id,std::array<float,3> position,float scale){
+    require(std::isfinite(scale)&&scale>=.01f&&scale<=10.f,"Visual effect instance scale bounds");auto& p=*impl_;const auto found=p.effects.find(id);if(found==p.effects.end())return 0;const auto handle=p.manager->Play(found->second.effect,position[0],position[1],position[2]);if(handle<0)return 0;p.manager->SetScale(handle,scale,scale,scale);
     const auto own=p.next++;p.playing.emplace(own,handle);return own;
 }
 void VfxService::move(std::uint64_t handle,std::array<float,3> position){auto& p=*impl_;if(auto found=p.playing.find(handle);found!=p.playing.end())p.manager->SetLocation(found->second,position[0],position[1],position[2]);}
@@ -204,7 +204,7 @@ void VfxService::draw(const VfxView& view){
     for(const auto& draw:draws){FrameConstants constants{};for(int row=0;row<4;++row)for(int column=0;column<4;++column)constants.view_projection[row*4+column]=combined.Values[row][column];constants.scaling[0]=draw.scaling;
         void* mapped{};p.context->MapBuffer(p.constants,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped!=nullptr,"Visual effect constant mapping failed");std::memcpy(mapped,&constants,sizeof(constants));p.context->UnmapBuffer(p.constants,MAP_WRITE);
         p.context->SetPipelineState(draw.pipeline);p.context->CommitShaderResources(p.binding(draw.pipeline,draw.texture),RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        DrawIndexedAttribs attributes;attributes.NumIndices=draw.quads*6;attributes.IndexType=VT_UINT32;attributes.BaseVertex=draw.first;attributes.Flags=DRAW_FLAG_VERIFY_ALL;p.context->DrawIndexed(attributes);++p.latest.draws;p.latest.quads+=draw.quads;}
+        DrawIndexedAttribs attributes;attributes.NumIndices=draw.quads*6;attributes.IndexType=VT_UINT32;attributes.FirstIndexLocation=0;attributes.BaseVertex=draw.first;attributes.Flags=DRAW_FLAG_VERIFY_ALL;p.context->DrawIndexed(attributes);++p.latest.draws;p.latest.quads+=draw.quads;}
 }
 VfxStats VfxService::stats()const{const auto& p=*impl_;auto result=p.latest;result.effects=p.effects.size();result.playing=p.playing.size();result.instances=static_cast<std::size_t>(p.manager->GetTotalInstanceCount());return result;}
 }

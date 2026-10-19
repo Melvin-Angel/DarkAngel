@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "17c804eb-99d1-47bf-9dc1-7c39862f1805",
+  "name": "Earth attack start",
+  "key": "Earth.Attack.Start",
+  "visual": "",
+  "audio": "audio/placeholder/swing.wav",
+  "tail_ticks": 24,
+  "predictable": true,
+  "socket": ""
+}

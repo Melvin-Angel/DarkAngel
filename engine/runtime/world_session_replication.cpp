@@ -322,6 +322,7 @@ auto WorldSession::Impl::pump_projectiles(Peer& p) -> void {
         w.u64(view.id);
         write_vector(w, view.position);
         write_vector(w, view.velocity);
+        write_asset(w,view.visual_model);
     }
     require(w.bytes.size() <= packet_limit, "Projectile frame packet budget");
     if (send(p, std::move(w), Delivery::UnreliableState))

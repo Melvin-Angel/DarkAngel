@@ -94,6 +94,9 @@ struct CharacterSceneCombat {
     AttributeId health{}, maximum_health{};
     std::vector<std::shared_ptr<const AbilityDefinition>> abilities;
     std::map<AssetId, std::shared_ptr<const AnimationClip>> clips;
+    // Prepared canonical rig data is server-owned query input for animation-attached melee sockets.
+    RigDefinition combat_rig;
+    std::string combat_rig_archive;
     std::uint32_t evaluator{};
     DamageEvaluator damage;
     std::shared_ptr<const TagDictionary> tags;

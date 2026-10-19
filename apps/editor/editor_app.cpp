@@ -531,11 +531,15 @@ int EditorApp::run() {
         auto* back = render.draw_ui(render::SceneViewport::background);
         if (script_signals.capture)
             script_signals.captured = true;
-        if (!args.capture.empty() && (script_signals.capture || (args.frames && frame + 1 == args.frames && !script_signals.captured)))
+        if (!args.capture.empty() && (script_signals.capture || (args.frames && frame + 1 == args.frames && !script_signals.captured))) {
+            const auto target=shell.viewport_render_sizes[0];
+            std::cout << "Viewport render_target=" << target.width << ',' << target.height
+                      << " game_camera_aspect=" << shell.game_projection._22 / shell.game_projection._11 << '\n';
             render::capture(device, context, back->GetTexture(), args.capture,
                             args.capture_workspace
                                 ? darkangel::editor_app::ViewArea{0, 0, static_cast<float>(desc.Width), static_cast<float>(desc.Height)}
                                 : area);
+        }
         render.present(args.hidden);
         mark(5);
         ++frame;

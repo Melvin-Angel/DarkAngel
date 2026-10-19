@@ -3,6 +3,15 @@
   "id": "e87a6c8d-5708-4699-9a67-58249a4a7877",
   "importer": "human-gltf-v2",
   "schema": 1,
+  "materials": {
+    "mesh/human/Body_Arms/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"},
+    "mesh/human/Body_Chest/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"},
+    "mesh/human/Body_Feet/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"},
+    "mesh/human/Body_Hands/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"},
+    "mesh/human/Body_Head/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"},
+    "mesh/human/Body_Legs/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"},
+    "mesh/human/Body_Neck/primitive/0": {"asset": "c2e7a9d4-1b63-4f58-8e0d-95b6c3a7f214", "source": "royal_district/materials/RoyalCharacterToon.damaterial"}
+  },
   "subassets": {
     "mesh/human/Beard6/primitive/0": "f5c30f44-c345-4c26-912a-f09f9b704e72",
     "mesh/human/Body_Arms/primitive/0": "da83b86a-e362-4b6c-8cef-911ca706dccb",

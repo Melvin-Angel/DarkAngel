@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "97f735f6-ae9b-4640-9859-1b87a6099985",
+  "name": "Earth spear launch fragments",
+  "key": "Earth.Release",
+  "visual": "vfx/earth/earth_burst.efkproj",
+  "audio": "",
+  "tail_ticks": 12,
+  "predictable": true,
+  "socket": "weapon_right"
+}

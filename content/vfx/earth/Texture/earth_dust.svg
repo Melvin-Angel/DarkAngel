@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs><radialGradient id="dust"><stop offset="0" stop-color="#b58e56" stop-opacity=".84"/><stop offset=".58" stop-color="#88653c" stop-opacity=".58"/><stop offset="1" stop-color="#59442c" stop-opacity="0"/></radialGradient></defs>
+  <path fill="url(#dust)" d="M14 61c3-20 18-31 35-30 10-17 42-18 54-3 16 3 19 22 13 34 8 16-4 32-19 31-13 17-37 12-49 8-18 11-42-4-37-21-13-3-11-16 3-19Z"/>
+  <g fill="#ad8852" opacity=".45"><circle cx="28" cy="57" r="5"/><circle cx="44" cy="36" r="4"/><circle cx="91" cy="42" r="5"/><circle cx="105" cy="71" r="4"/><circle cx="65" cy="92" r="5"/><circle cx="42" cy="81" r="3"/></g>
+</svg>

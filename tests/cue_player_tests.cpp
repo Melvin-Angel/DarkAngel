@@ -14,6 +14,7 @@ struct Recorder final:CueSink {
 const AssetId burn_cue=AssetId::random();
 std::optional<CueDefinition> resolve(std::string_view key,AssetId cue){
     if(key=="burn.aura"&&cue==burn_cue)return CueDefinition{cue,"fx/burn","sfx/burn_loop",60,false};
+    if(key=="earth.gather"){CueDefinition effect;effect.visual="fx/earth_gather";effect.key=std::string(key);effect.socket="hand_right";return effect;}
     if(key=="swing")return CueDefinition{{},"fx/trail","sfx/swing",20,true};
     if(key=="hit.spark")return CueDefinition{{},"fx/spark","",10,false};
     if(key=="grunt")return CueDefinition{{},"","sfx/grunt",500,false};
@@ -91,6 +92,15 @@ int main(){try{
             tracker.retire(5);tracker.observe(5,1,CueTiming::Observed,{},std::nullopt);check(tracker.drain_cuts().empty(),"A retired actor's action was reported as cut");
             tracker.observe(6,1,CueTiming::Observed,swing->id,at(8,1));tracker.drain_cues();tracker.observe(6,2,CueTiming::Observed,{},std::nullopt);check(tracker.drain_cuts().empty(),"A new avatar's old action was reported as cut");
             tracker.observe(7,1,CueTiming::Observed,AssetId::random(),at(9,0));check(tracker.drain_cues().empty(),"An unprepared action produced cues");}
+        {// VFX intervals follow the pose clock and end when a combo advances within the same activation.
+            auto punch=std::make_shared<ActionDefinition>();punch->id=AssetId::random();punch->duration=8*action_tick_units;punch->loops=1;punch->blocks={{1,0,1*action_tick_units,5*action_tick_units,ActionBlockKind::Vfx,"earth.gather"}};
+            auto kick=std::make_shared<ActionDefinition>();kick->id=AssetId::random();kick->duration=6*action_tick_units;kick->loops=1;kick->blocks={{2,0,0,0,ActionBlockKind::Cue,"swing"}};
+            const std::vector<std::shared_ptr<const ActionDefinition>> combo{punch,kick};ActionCueTracker tracker(combo);Recorder visual;
+            tracker.observe(5,1,CueTiming::Observed,punch->id,at(11,0));check(tracker.drain_cues().empty(),"A future VFX interval started at action entry");
+            tracker.observe(5,1,CueTiming::Observed,punch->id,at(11,2));auto started=tracker.drain_cues();check(started.size()==1&&started[0].event.kind==ActionBlockKind::Vfx&&started[0].event.edge==ActionEdge::Begin,"The authored VFX interval did not begin on its timeline boundary");
+            CuePlayer player(resolve,&visual,nullptr);player.action(started[0].network,started[0].avatar_epoch,started[0].event,2,started[0].timing);check(player.live()==1,"A limb VFX interval did not start its cue");
+            tracker.observe(5,1,CueTiming::Observed,kick->id,at(11,0));auto ended=tracker.drain_cues();check(ended.size()==2&&ended[0].event.edge==ActionEdge::End&&ended[1].event.edge==ActionEdge::Marker&&tracker.drain_cuts().empty(),"Combo advancement failed to end the previous limb cue before the next action");
+            player.action(ended[0].network,ended[0].avatar_epoch,ended[0].event,3,ended[0].timing);player.action(ended[1].network,ended[1].avatar_epoch,ended[1].event,3,ended[1].timing);check(player.live()==2,"The new combo action cue or interval cleanup was lost");player.advance(100);check(player.live()==0&&visual.held.empty(),"Combo VFX cues failed to release after their tails");}
     }
     {
         // The owner's action is fed from prediction and from confirmation; each cue plays from exactly one of them.
@@ -112,10 +122,10 @@ int main(){try{
     }
     {
         // The cue source.
-        const std::string source=R"({"schema":1,"kind":"cue","asset":"0058d474-74c0-45b9-a4a6-b5d81963ab7e","name":"Swing","key":"Attack.Start","visual":"","audio":"royal_district/audio/swing","tail_ticks":12,"predictable":true})";
-        const auto cue=decode_cue(source);check(cue.id.text()=="0058d474-74c0-45b9-a4a6-b5d81963ab7e"&&cue.name=="Swing"&&cue.key=="Attack.Start"&&cue.visual.empty()&&cue.audio=="royal_district/audio/swing"&&cue.tail_ticks==12&&cue.predictable,"A cue source did not decode to its fields");
+        const std::string source=R"({"schema":1,"kind":"cue","asset":"0058d474-74c0-45b9-a4a6-b5d81963ab7e","name":"Swing","key":"Attack.Start","visual":"","audio":"royal_district/audio/swing","tail_ticks":12,"predictable":true,"socket":"weapon_right","scale":0.25,"offset":[0.5,-1.25,0.1]})";
+        const auto cue=decode_cue(source);check(cue.id.text()=="0058d474-74c0-45b9-a4a6-b5d81963ab7e"&&cue.name=="Swing"&&cue.key=="Attack.Start"&&cue.visual.empty()&&cue.audio=="royal_district/audio/swing"&&cue.tail_ticks==12&&cue.predictable&&cue.socket=="weapon_right"&&cue.scale==.25f&&cue.offset==std::array<float,3>{.5f,-1.25f,.1f},"A cue source did not decode to its fields");
         const auto refused=[&](std::string_view from,std::string_view to){auto changed=source;const auto found=changed.find(from);check(found!=changed.npos,"Cue test edit missing");changed.replace(found,from.size(),to);try{decode_cue(changed);}catch(const std::exception&){return true;}return false;};
-        check(refused("\"royal_district/audio/swing\"","\"\""),"A cue with neither a visual nor a sound was accepted");check(refused("Attack.Start","Attack Start"),"A cue key with a space was accepted");check(refused(":12,",":601,"),"A cue tail beyond the bound was accepted");
+        check(refused("\"royal_district/audio/swing\"","\"\""),"A cue with neither a visual nor a sound was accepted");check(refused("Attack.Start","Attack Start"),"A cue key with a space was accepted");check(refused(":12,",":601,"),"A cue tail beyond the bound was accepted");check(refused("weapon_right","weapon right"),"A cue socket with a space was accepted");check(refused("0.25","10.1"),"A cue scale beyond the bound was accepted");check(refused("0.25","0.001"),"A cue scale below the bound was accepted");check(refused("\"offset\":[0.5,-1.25,0.1]","\"offset\":[10.1,-1.25,0.1]"),"An unbounded cue offset was accepted");
         check(refused("\"schema\":1","\"schema\":2"),"An unknown cue schema was accepted");check(refused(",\"predictable\":true",""),"A cue source without a field was accepted");check(refused("\"predictable\":true","\"predictable\":true,\"extra\":1"),"A cue source with an unknown field was accepted");check(refused("\"kind\":\"cue\"","\"kind\":\"effect\""),"A source of another kind was accepted as a cue");
     }
     std::cout<<"Cue player: effect cues (once, tail, release, per instance and actor, restart during tail), action cue blocks (length, marker, other kinds ignored, per-sink routing, tail limit), rejected activations, actor retirement, bounds, cues without presentation, headless operation and release on destruction; action cues derived from a clock (once each, last tick, cut, replay, late first sight, retirement), owner predicted and confirmed streams, footsteps and moments, the cue source passed\n";return 0;

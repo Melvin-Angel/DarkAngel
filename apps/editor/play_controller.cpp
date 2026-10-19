@@ -350,6 +350,10 @@ void PlayController::start(std::size_t skins, const RuntimeSkinnedModel* skin) {
     }
     require(skins == 1, "Character preset requires one loaded skin");
     character_resources = load_resources(*skin);
+    if(editor.prepare_model&&character_resources->combat)
+        for(const auto& ability:character_resources->combat->abilities)
+            if(ability&&ability->aim&&ability->aim->projectile&&ability->aim->projectile->visual_model!=AssetId{})
+                editor.prepare_model(ability->aim->projectile->visual_model);
     shell.native_controls = true;
     if (args.character_clips.starts_with("kit:"))
         editor.authoring_kit = AssetId::parse(args.character_clips.substr(4));
@@ -766,7 +770,8 @@ void PlayController::attach_session(const SpawnPlan& plan) {
             const auto& at = character->presentation().read(handle).transform;
             return std::array<float, 3>{float(at.x), float(at.y), float(at.z)};
         });
-        cue_effects.bind(vfx.get(), &play_effects, [this](std::uint64_t network) -> std::optional<std::array<float, 3>> {
+        auto cue_socket_joints = std::make_shared<std::map<std::string, std::optional<std::size_t>, std::less<>>>();
+        cue_effects.bind(vfx.get(), &play_effects, [this, cue_socket_joints](std::uint64_t network, std::string_view socket) -> std::optional<VfxCueSink::Anchor> {
             if (!character)
                 return std::nullopt;
             const auto identity = character->identity(network);
@@ -776,7 +781,36 @@ void PlayController::attach_session(const SpawnPlan& plan) {
             if (!character->presentation().valid(handle))
                 return std::nullopt;
             const auto& at = character->presentation().read(handle).transform;
-            return std::array<float, 3>{float(at.x), float(at.y) + 1.f, float(at.z)};
+            if (socket.empty())
+                return VfxCueSink::Anchor{{float(at.x), float(at.y) + 1.f, float(at.z)},float(at.yaw)};
+            const auto& rig = character_resources->rig.definition;
+            auto resolved = cue_socket_joints->find(socket);
+            if (resolved == cue_socket_joints->end()) {
+                std::string_view joint_key = socket;
+                if (const auto found = std::find_if(rig.sockets.begin(), rig.sockets.end(), [&](const auto& entry) { return entry.first == socket; }); found != rig.sockets.end())
+                    joint_key = found->second;
+                const auto joint = std::find_if(rig.joints.begin(), rig.joints.end(), [&](const auto& candidate) { return candidate.key == joint_key; });
+                const auto index = joint == rig.joints.end() ? std::optional<std::size_t>{} : std::optional<std::size_t>{std::size_t(joint - rig.joints.begin())};
+                resolved = cue_socket_joints->emplace(std::string(socket), index).first;
+            }
+            if (!resolved->second)
+                return std::nullopt;
+            const auto* pose = character->pose(*identity);
+            if (!pose)
+                return std::nullopt;
+            const auto index = *resolved->second;
+            if (index >= pose->size())
+                return std::nullopt;
+            using namespace DirectX;
+            XMFLOAT4X4 stored_joint;
+            std::memcpy(&stored_joint, (*pose)[index].values.data(), sizeof(stored_joint));
+            const auto joint_world = XMLoadFloat4x4(&stored_joint) *
+                                     XMMatrixScaling(float(at.scale), float(at.scale), float(at.scale)) *
+                                     XMMatrixRotationRollPitchYaw(float(at.pitch), float(at.yaw), float(at.roll)) *
+                                     XMMatrixTranslation(float(at.x), float(at.y), float(at.z));
+            XMFLOAT3 point;
+            XMStoreFloat3(&point, XMVector3TransformCoord(XMVectorSet(0, 0, 0, 1), joint_world));
+            return VfxCueSink::Anchor{{point.x, point.y, point.z},float(at.yaw)};
         });
         vfx_tick = 0;
 #ifdef DAE_AUDIO
@@ -963,6 +997,10 @@ void PlayController::install_preparation() {
             if (editor.authoring_player != AssetId{})
                 for (auto visual : editor.authoring.worn_visuals(*editor.assets, editor.authoring_player))
                     unique.insert(visual);
+            if (character_resources->combat)
+                for (const auto& ability : character_resources->combat->abilities)
+                    if (ability && ability->aim && ability->aim->projectile && ability->aim->projectile->visual_model != AssetId{})
+                        unique.insert(ability->aim->projectile->visual_model);
             for (const auto& [object, asset] : editor.document->plan().models)
                 unique.insert(asset);
             for(const auto& [object,slots]:editor.document->plan().materials)for(const auto& [slot,material]:slots)unique.insert(material);

@@ -39,7 +39,7 @@ def main():
     receipt = dict(backend=args.backend, binary_sha256=hashlib.sha256(editor.read_bytes()).hexdigest(),
                    scene_sha256=hashlib.sha256(scene_bytes).hexdigest(), captures={})
     images = {}
-    cases = (("off", False, 1), ("thin", True, 1), ("thick", True, 8),
+    cases = (("off", False, 1), ("thin", True, 1), ("medium", True, 1.5), ("thick", True, 8),
              ("faded", True, 8), ("fog_mid", False, 1), ("fog_full", False, 1))
     for name, enabled, thickness in cases:
         variant = copy.deepcopy(scene)
@@ -81,7 +81,7 @@ def main():
         raise RuntimeError("Outline comparison viewports differ")
     base = list(pixels(images["off"]))
     comparisons = {}
-    for name in ("thin", "thick"):
+    for name in ("thin", "medium", "thick"):
         darkened = brightened = black_ink = 0
         for before, after in zip(base, pixels(images[name])):
             delta = sum(before) - sum(after)
@@ -94,6 +94,8 @@ def main():
             raise RuntimeError(f"Black outline must visibly darken geometry: {name} {comparisons[name]}")
     if comparisons["thick"]["black_ink_pixels"] < comparisons["thin"]["black_ink_pixels"] * 1.5:
         raise RuntimeError("Increasing thickness did not widen the black ink")
+    if not comparisons["thin"]["darkened_pixels"] < comparisons["medium"]["darkened_pixels"] < comparisons["thick"]["darkened_pixels"]:
+        raise RuntimeError("Fractional outline thickness did not produce an intermediate coverage")
     faded_changes = sum(max(abs(a-b) for a, b in zip(before, after)) > 2
                         for before, after in zip(base, pixels(images["faded"])))
     if faded_changes > 20:

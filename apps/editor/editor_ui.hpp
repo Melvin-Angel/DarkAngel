@@ -7,6 +7,7 @@
 #include "prefab_commands.hpp"
 #include "effect_preview.hpp"
 #include "scene_camera.hpp"
+#include "game_resolution.hpp"
 #include <DirectXMath.h>
 #include <imgui.h>
 #include <optional>
@@ -50,6 +51,11 @@ public:
     rendering::ClusterGpuStats cluster_gpu_stats{};
     // The last frame's time by section (EditorApp::run): exercises and update, UI, Play, scene render, effects, present.
     std::array<double, 6> frame_sections{};
+    // CPU wall time, including any driver backpressure, never GPU timestamps.
+    std::array<double, 5> render_sections{}; // prepare, shadows, color, outlines, post
+    std::array<unsigned, 3> render_draws{}; // shadow, color, outline submissions
+    // Per frame: sky builds, cache hits, rejected shadow casters, merged shadow ranges.
+    std::array<unsigned, 4> render_optimizations{};
     void refresh_place_items(Controller&);
     // Places one item as a new scene object at a ground position and selects it; one document edit, so Undo removes it.
     // Without a height the object lands on the scene collision below (x, z), or at place_height where there is none.
@@ -160,6 +166,9 @@ public:
     void draw_editor_preferences();
     void toggle_viewport_maximize();
     bool scene_maximized{},game_maximized{};
+    unsigned game_resolution{};
+    std::array<RenderSize,2> viewport_render_sizes{};
+    const ViewArea& viewport_area() const { return area; }
     float ui_scale{1};
     std::array<bool,13> kit_composition_visible{};
     InputManager* input{};std::vector<InputEvent> input_events;

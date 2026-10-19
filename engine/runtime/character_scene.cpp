@@ -20,7 +20,7 @@ struct CharacterSceneSession::Impl {
     SimulationClock clock;SceneTiming timing{SceneTiming::Lockstep};bool started{},pending_jump{},failed{};std::optional<StableId> pending_interact;CharacterSceneProfile profile;double pumping{};
     Impl(SessionHandshake hello,std::span<const ObjectData> objects,StableId identity,const CollisionDefinition& collision,
          std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition definition,std::string_view archive,std::optional<CharacterSceneCombat> configured,std::span<const ScenePlayer> companions,const SceneStart& start,std::span<const SceneSeat> remote,SceneTiming mode):timing(mode){
-        if(configured)combat=std::make_shared<const CharacterSceneCombat>(std::move(*configured));
+        if(configured){configured->combat_rig=definition;configured->combat_rig_archive=std::string(archive);combat=std::make_shared<const CharacterSceneCombat>(std::move(*configured));}
         require(companions.size()+remote.size()<scene_party_limit&&((companions.empty()&&remote.empty())||combat)&& (remote.empty()||mode==SceneTiming::Independent),"Further players need a combat scene and fit the party limit");
         std::vector<SceneSeat> seats;std::vector<ConnectionHandle> peers;
         auto seat=[&](StableId id,MotorVec position,double yaw){links.push_back(create_loopback(hello));const auto host=links.back().host->open(hello);peers.push_back(links.back().client->open(hello));seats.push_back({id,links.back().host.get(),host,position,yaw});party.push_back(id);};
@@ -36,7 +36,7 @@ struct CharacterSceneSession::Impl {
     }
     Impl(SessionHandshake hello,Transport& transport,ConnectionHandle peer,StableId player,std::span<const StableId> members,const CollisionDefinition& collision,
          std::shared_ptr<const AnimationGraphPlan> plan,RigDefinition rig,std::string_view archive,std::optional<CharacterSceneCombat> configured,StableId profile):party(members.begin(),members.end()),candidates(members.begin(),members.end()),timing(SceneTiming::Independent){
-        if(configured)combat=std::make_shared<const CharacterSceneCombat>(std::move(*configured));
+        if(configured){configured->combat_rig=rig;configured->combat_rig_archive=std::string(archive);combat=std::make_shared<const CharacterSceneCombat>(std::move(*configured));}
         clients.push_back(std::make_unique<SceneClient>(hello,transport,peer,player,party,collision,std::move(plan),std::move(rig),archive,combat,SceneTiming::Independent,profile));held.resize(1);
     }
     bool bootstrapped()const{for(const auto& client:clients)if(!client->bootstrapped())return false;return !clients.empty();}

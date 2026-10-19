@@ -171,6 +171,16 @@ void VfxWorkspace::draw_cues() {
             };
             optional("Weapon trail##cue", "trail", trail_assets);
             optional("Decal##cue", "decal", decal_assets);
+            field("Socket or joint##cue", "socket");
+            float offset[3]{};
+            if (value.contains("offset") && value["offset"].is_array() && value["offset"].size() == 3)
+                for (unsigned axis = 0; axis < 3; ++axis)
+                    if (value["offset"][axis].is_number()) offset[axis] = value["offset"][axis].get<float>();
+            if (ImGui::InputFloat3("Local offset##cue", offset, "%.2f"))
+                value["offset"] = {offset[0], offset[1], offset[2]};
+            float scale = float(value.value("scale", 1.0));
+            if (ImGui::SliderFloat("Visual scale##cue", &scale, 0.01f, 10.0f, "%.2f"))
+                value["scale"] = scale;
             int tail = int(value.value("tail_ticks", 30u));
             if (ImGui::InputInt("Tail (ticks)##cue", &tail))
                 value["tail_ticks"] = unsigned(std::clamp(tail, 0, 600));

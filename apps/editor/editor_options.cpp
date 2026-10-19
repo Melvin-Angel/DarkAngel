@@ -156,6 +156,7 @@ EditorOptions parse_editor_options(int argc, char** argv) {
             out.capture_workspace = true;
             continue;
         }
+        if (arg == "--render-reference") { out.render_reference = true; continue; }
         if (arg == "--skin-reference") {
             out.skin_reference = true;
             continue;

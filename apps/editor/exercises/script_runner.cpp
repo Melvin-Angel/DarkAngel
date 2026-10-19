@@ -23,6 +23,9 @@ ScriptRunner::ScriptRunner(std::string_view text) {
             require(comma != std::string::npos, "--input-script walk-to needs x,z");
             step.x = std::stod(value.substr(0, comma));
             step.z = std::stod(value.substr(comma + 1));
+        } else if (step.verb == "attack") {
+            step.input_action = value.empty() ? 8u : unsigned(std::stoul(value));
+            require(step.input_action >= 1 && step.input_action <= 32, "--player-script attack input action must be in [1, 32]");
         } else if (step.verb == "wait" || step.verb == "await-scene" || step.verb == "await-tick" || step.verb == "await-players" ||
                    step.verb == "inventory-open" || step.verb == "inventory-close" || step.verb == "inventory-select" ||
                    step.verb == "inventory-equip" || step.verb == "inventory-unequip" || step.verb == "inventory-use" ||
@@ -31,8 +34,8 @@ ScriptRunner::ScriptRunner(std::string_view text) {
                    step.verb == "approach" || step.verb == "log-party")
             step.frames = value.empty() ? 0u : unsigned(std::stoul(value));
         else
-            require(step.verb == "interact" || step.verb == "use" || step.verb == "attack" || step.verb == "capture" || step.verb == "quit",
-                    "Script steps are walk-to:x,z, interact, use, attack, wait:frames, await-scene:arrivals, await-tick:tick, "
+            require(step.verb == "interact" || step.verb == "use" || step.verb == "capture" || step.verb == "quit",
+                    "Script steps are walk-to:x,z, interact, use, attack[:input-action], wait:frames, await-scene:arrivals, await-tick:tick, "
                     "await-players:count, capture and quit");
         steps_.push_back(step);
     }
@@ -63,10 +66,11 @@ void ScriptRunner::frame(const ScriptContext& context, unsigned frame, Character
     } else if (step.verb == "attack") {
         const auto time = std::uint64_t(frame + 1) * 16667;
         if (!step.frames) {
-            out.combat_events = {{8, InputEdge::Pressed, time, 0, 1, false}};
+            out.combat_events = {{step.input_action, InputEdge::Pressed, time, 0, 1, false}};
             step.frames = 1;
         } else {
-            out.combat_events = {{8, InputEdge::Released, time, 0, 0, false}, {8, InputEdge::Tapped, time, 0, 1, false}};
+            out.combat_events = {{step.input_action, InputEdge::Released, time, 0, 0, false},
+                                 {step.input_action, InputEdge::Tapped, time, 0, 1, false}};
             ++at_step;
         }
     } else if (step.verb == "interact") {

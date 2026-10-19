@@ -1,4 +1,5 @@
 #include "scene_camera.hpp"
+#include "game_resolution.hpp"
 #include <darkangel/check.hpp>
 #include <cmath>
 #include <iostream>
@@ -18,6 +19,15 @@ SceneNavigationInput ready() {
 }
 int main() {
     try {
+        for(unsigned preset=0;preset<game_resolutions.size();++preset){
+            const auto scene=viewport_render_size(false,preset,777,431);
+            require(scene.width==777&&scene.height==431,"Game preset changed Scene render size");
+            const auto game=viewport_render_size(true,preset,777,431);
+            require(game.width==(preset?game_resolutions[preset].size.width:777)&&
+                    game.height==(preset?game_resolutions[preset].size.height:431),"Incorrect Game render size");
+        }
+        const auto invalid=viewport_render_size(true,999,0,-10);
+        require(invalid.width==1&&invalid.height==1,"Invalid viewport size fallback");
         SceneCamera c;
         const auto initial=c;
         const SceneBounds selected{{13,2,-8},3};

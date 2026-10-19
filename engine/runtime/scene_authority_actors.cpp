@@ -15,7 +15,9 @@ auto SceneAuthority::Impl::definition(const AbilityOwnerSnapshot& snapshot) cons
 
 auto SceneAuthority::Impl::motion(const AbilityOwnerSnapshot& snapshot, std::uint64_t from, std::uint64_t to, MotorInput& command) const
     -> MotionRequest {
-    auto local = ability_motion_between(definition(snapshot), from, to);
+    const auto& ability = definition(snapshot);
+    const auto& action = scene_detail::action(ability, snapshot);
+    auto local = ability_motion_between(ability, action, from, to);
     const auto& v = local.root.translation;
     auto yaw = command.yaw;
     command.yaw = std::remainder(command.yaw + local.root.yaw, 6.283185307179586);
@@ -34,7 +36,8 @@ auto SceneAuthority::Impl::action_motion(const AbilityOwnerSnapshot& before, con
         const bool continuing = before.active && before.active == after.active;
         if (definition(after).face_movement)
             scene_detail::face(command, motor_yaw, !continuing || requested);
-        auto from = continuing ? before.action->clock : 0;
+        const bool same_action = continuing && before.action_definition == after.action_definition;
+        auto from = same_action ? before.action->clock : 0;
         return motion(after, from, after.action->clock, command);
     }
     if (before.active)
@@ -42,7 +45,9 @@ auto SceneAuthority::Impl::action_motion(const AbilityOwnerSnapshot& before, con
             if (update.handle == *before.active && update.phase == ActionPhase::Completed) {
                 if (definition(before).face_movement)
                     scene_detail::face(command, motor_yaw, false);
-                auto total = std::uint64_t(definition(before).action->duration) * definition(before).action->loops;
+                const auto& ability = definition(before);
+                const auto& action = scene_detail::action(ability, before);
+                auto total = std::uint64_t(action.duration) * action.loops;
                 return motion(before, before.action->clock, total, command);
             }
     return {};

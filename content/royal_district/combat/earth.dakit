@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "kind": "combat_kit",
+  "asset": "0e179255-9255-45e5-9c59-53f6b0e78514",
+  "input": "efdd846a-9480-448a-85e6-35fca1da43ee",
+  "attributes": "ce60854d-3e65-4cb4-8ad1-55b4760c515a",
+  "locomotion_stance": "3177471d-c721-425f-958b-6b03b78c8bcd",
+  "slots": [
+    {
+      "slot": "light",
+      "input_action": 8,
+      "ability": "6896d0b1-eeb2-4f1b-aeca-1e557148be1f"
+    },
+    {
+      "slot": "heavy",
+      "input_action": 9,
+      "ability": "284f1dc7-6510-4a6b-83c3-bd2cf206aba9"
+    },
+    {
+      "slot": "ranged_light",
+      "input_action": 14,
+      "ability": "54542da0-75aa-458b-9f47-e8b60b5c391a"
+    },
+    {
+      "slot": "ranged_heavy",
+      "input_action": 15,
+      "ability": null
+    },
+    {
+      "slot": "spell1",
+      "input_action": 12,
+      "ability": null
+    },
+    {
+      "slot": "spell2",
+      "input_action": 13,
+      "ability": null
+    },
+    {
+      "slot": "block",
+      "input_action": 10,
+      "ability": null
+    },
+    {
+      "slot": "parry",
+      "input_action": 11,
+      "ability": null
+    }
+  ],
+  "sources": {
+    "input": "input/royal_player.dainput",
+    "attributes": "royal_district/combat/base.daattributes",
+    "locomotion_stance": "royal_district/locomotion.dagraph",
+    "abilities": {
+      "284f1dc7-6510-4a6b-83c3-bd2cf206aba9": "royal_district/combat/heavy.daability",
+      "0a875832-a776-44ba-9bd6-3edbcc79fe1e": "royal_district/combat/dodge.daability",
+      "6896d0b1-eeb2-4f1b-aeca-1e557148be1f": "royal_district/combat/earth/earth_light.daability",
+      "54542da0-75aa-458b-9f47-e8b60b5c391a": "royal_district/combat/earth/earth_spear.daability"
+    },
+    "effects": {
+      "8a14c506-2141-41e5-9be8-e9e0ee509b59": "royal_district/combat/burn.daeffect",
+      "16811faf-bbad-4a86-8e91-417fe670fbdf": "royal_district/combat/flinch.daeffect"
+    }
+  },
+  "effects": [
+    "8a14c506-2141-41e5-9be8-e9e0ee509b59",
+    "16811faf-bbad-4a86-8e91-417fe670fbdf"
+  ],
+  "effect_bindings": [
+    {
+      "ability": "284f1dc7-6510-4a6b-83c3-bd2cf206aba9",
+      "hit_block": 2,
+      "effect": "8a14c506-2141-41e5-9be8-e9e0ee509b59",
+      "power": 5
+    },
+    {
+      "ability": "6896d0b1-eeb2-4f1b-aeca-1e557148be1f",
+      "hit_block": 3,
+      "effect": "16811faf-bbad-4a86-8e91-417fe670fbdf",
+      "power": 1
+    },
+    {
+      "ability": "54542da0-75aa-458b-9f47-e8b60b5c391a",
+      "hit_block": 4,
+      "effect": "16811faf-bbad-4a86-8e91-417fe670fbdf",
+      "power": 1
+    }
+  ],
+  "dodge": {
+    "input_action": 6,
+    "ability": "0a875832-a776-44ba-9bd6-3edbcc79fe1e"
+  }
+}

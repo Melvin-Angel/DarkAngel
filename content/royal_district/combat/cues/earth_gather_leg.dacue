@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "kind": "cue",
+  "asset": "a615f19d-b0a9-414c-98d1-3484b830c70f",
+  "name": "Earth leg earth gathering",
+  "key": "Earth.Gather.Leg",
+  "visual": "vfx/earth/earth_gather.efkproj",
+  "audio": "",
+  "tail_ticks": 12,
+  "predictable": true,
+  "socket": "foot_left",
+  "scale": 1.15,
+  "offset": [
+    0,
+    0.25,
+    0
+  ]
+}

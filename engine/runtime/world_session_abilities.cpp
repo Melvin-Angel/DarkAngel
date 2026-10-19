@@ -520,7 +520,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                     flying.push_back({s.next_projectile++,
                                       hit,
                                       id,
-                                      melee_origin(motor, hit.profile),
+                                      query.origin(id,motor,hit.profile,hit.clip,hit.action_clock),
                                       {std::sin(motor.yaw) * level, std::sin(motor.pitch) * shot.speed / 60, std::cos(motor.yaw) * level},
                                       shot.gravity / 3600,
                                       hit.profile.radius,
@@ -529,7 +529,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                 }
                 continue;
             }
-            auto candidates = query.query(id, s.motor_states.at(id), hit.profile);
+            auto candidates = query.query(id, s.motor_states.at(id), hit.profile,hit.clip,hit.action_clock);
             require(!candidates.overflow && candidates.targets.size() <= 16, "Melee query overflow");
             std::sort(candidates.targets.begin(), candidates.targets.end());
             candidates.targets.erase(std::unique(candidates.targets.begin(), candidates.targets.end()), candidates.targets.end());
@@ -597,7 +597,8 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
         s.projectiles = std::move(flying);
         s.projectile_views.clear();
         for (const auto& shot : s.projectiles)
-            s.projectile_views.push_back({shot.id, shot.position, {shot.velocity.x * 60, shot.velocity.y * 60, shot.velocity.z * 60}});
+            s.projectile_views.push_back({shot.id, shot.position, {shot.velocity.x * 60, shot.velocity.y * 60, shot.velocity.z * 60},
+                                          shot.hit.definition->aim&&shot.hit.definition->aim->projectile?shot.hit.definition->aim->projectile->visual_model:AssetId{}});
         ++s.projectile_revision;
         s.projectile_tick = tick;
     }

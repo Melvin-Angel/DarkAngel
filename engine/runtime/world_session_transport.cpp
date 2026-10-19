@@ -658,6 +658,7 @@ auto WorldSession::Impl::receive(Peer& p, const TransportMessage& m) -> void {
             view.id = r.u64();
             view.position = read_vector(r);
             view.velocity = read_vector(r);
+            view.visual_model = read_asset(r);
             for (double n : {view.position.x, view.position.y, view.position.z, view.velocity.x, view.velocity.y, view.velocity.z})
                 require(std::isfinite(n) && std::abs(n) <= 100000, "Projectile frame value bounds");
             require(view.id != 0, "Projectile frame identity");

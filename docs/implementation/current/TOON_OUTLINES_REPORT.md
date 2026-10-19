@@ -65,3 +65,50 @@ contours remain visible, distant structures fade into warm haze, and Play
 shows the spawned character with the FreeLook gameplay camera. Split-screen
 and isolated authoring previews use the same projection-aware implementation
 but were not separately captured in this focused verification.
+
+## 18 October follow-up
+
+Outline thickness no longer rounds to whole-pixel radii. The compositor uses
+a continuous thickness radius with a feathered outer pixel and smooth depth,
+normal, and object-group thresholds. Royal Crown's scene thickness is 1.25 px
+to retain a crisp core with a small antialiased fringe. The scene shadow-map
+resolution is raised from 2048 to 4096; the project default is unchanged.
+
+The extended `scripts/verify_toon_outlines.py` now checks fractional thickness
+between 1 px and 8 px. D3D12 and Vulkan captures passed the solid-ink,
+fractional-coverage, distance-fade and fog checks. These are static camera
+captures; moving-camera temporal flicker was not directly measured. Runtime
+performance with 4096 shadow maps was not benchmarked.
+
+The motion-flicker follow-up replaces strongest-neighbor outline selection
+with a soft spatial union of nearby edge evidence, and broadens depth/normal
+transition bands to reduce sensitivity to subpixel changes. The D3D12 GPU
+outline regression passed after this update (thin/medium/thick solid black ink
+coverage: 1,372 / 6,344 / 94,812 pixels). This is still a static-capture
+regression; moving-camera and animated-character temporal stability need a
+dedicated motion test and visual confirmation.
+
+## Per-object outline mask
+
+The compositor now reads a dedicated `R32_FLOAT` object-ID mask. IDs are
+assigned from sorted stable object IDs for each view, avoiding the previous
+small modulo-hash namespace and keeping identity stable when draw ordering
+changes. Object boundaries drive the primary outline coverage independently
+of depth/normal thresholds. Depth and normal contours remain available as a
+much lower-sensitivity detail layer. The extra mask pass is also used by the
+second local-player view.
+
+`scripts/verify_toon_outlines.py` passed on D3D12 and Vulkan after the mask
+change. D3D12 solid black ink coverage at thin/medium/thick settings was
+6,247 / 13,826 / 45,653 pixels; Vulkan was 6,680 / 13,537 / 44,104 pixels.
+The GPU captures verify resource binding, compositing, thickness response,
+distance fade and fog; they do not constitute moving-camera temporal
+qualification. Editor compilation succeeded. The additional full geometry
+mask pass has not been performance-profiled.
+
+The subsequent performance audit merged normal and object-ID outputs into one
+instanced MRT geometry pass, retaining the full R32 object mask. The final Crown
+shadow settings are two 2048-pixel cascades over 180 m. These supersede the
+separate mask pass and earlier 4096-pixel setting described above. Final
+performance and verification are in
+[ROYAL_CROWN_SKY_SHADOW_OPTIMIZATION.md](ROYAL_CROWN_SKY_SHADOW_OPTIMIZATION.md).

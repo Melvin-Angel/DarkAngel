@@ -71,3 +71,20 @@ The current user-selected task is recorded in
 That report supersedes this baseline only for the files and behavior it names;
 it does not convert the still-open state-machine, typed-parameter or full
 effect-preview design into accepted runtime functionality.
+
+## Selected task: Royal Crown performance
+
+The 18 October performance audit and first renderer optimization pass are in
+[ROYAL_CROWN_PERFORMANCE_AUDIT.md](ROYAL_CROWN_PERFORMANCE_AUDIT.md). Average
+Iris Xe performance improved substantially, but a strict 60 FPS minimum and
+native-resolution performance remain unqualified. Use that report's actual
+viewport dimensions, quality settings and timing boundaries when continuing.
+
+The selected follow-up adds procedural sky/cloud caching, tighter conservative
+shadow visibility, static batching with shared native overrides and Game-view
+internal-resolution presets stretched across the existing panel. Exact target
+720p/768p measurements and validation receipts are in
+[ROYAL_CROWN_SKY_SHADOW_OPTIMIZATION.md](ROYAL_CROWN_SKY_SHADOW_OPTIMIZATION.md).
+Both graphics-backend feature checks pass. Its whole-suite attempt exposes an
+actor-cooking closure failure outside these edits (five failing tests, six
+dependent tests unrun); the report records this boundary explicitly.

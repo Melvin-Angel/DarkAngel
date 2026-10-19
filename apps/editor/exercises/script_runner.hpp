@@ -15,6 +15,7 @@ struct ScriptStep {
     std::string verb;
     double x{}, z{};
     unsigned frames{};
+    unsigned input_action{8};
     bool hold_started{};
     std::uint64_t hold_tick{};
 };

@@ -1,5 +1,26 @@
 # Fresh-phase continuation
 
+The follow-up sky/cloud cache, tighter shadow caster visibility, native-material
+static batching and independent Game render-resolution selector are recorded in
+[current/ROYAL_CROWN_SKY_SHADOW_OPTIMIZATION.md](current/ROYAL_CROWN_SKY_SHADOW_OPTIMIZATION.md).
+At exact 720p/768p targets, Iris Xe D3D12 measurements average 97-100 FPS with
+P95 below 14 ms; occasional frames exceed the 16.67 ms budget. Game presets
+stretch to the existing panel and persist in editor preferences.
+The fresh final-binary comparison is 43.0 to 81.7 FPS at the opening 1168x636
+target. Final D3D12 720p/768p runs average 94.0/90.6 FPS; the follow-up report's
+final pre-push section supersedes earlier timing samples for this summary.
+Renderer/viewport checks pass on both backends. The whole-suite attempt still
+has five actor-cooking closure failures and six dependent tests unrun; details
+and logs are in that follow-up report.
+
+The 18 October Royal Crown performance audit and first optimization pass are
+recorded in [current/ROYAL_CROWN_PERFORMANCE_AUDIT.md](current/ROYAL_CROWN_PERFORMANCE_AUDIT.md).
+The final docked view improved from 43 to 76 average FPS on Iris Xe; a maximized
+1080p window averages 70 FPS. A strict 60 FPS minimum remains unqualified, and
+the maximized 2560x1600 window averages 40 FPS. The report distinguishes code
+changes from the applied two-cascade/2048-pixel/180 m Crown shadow settings,
+and records the remaining GPU/pixel-work bottlenecks and profiling limits.
+
 Date: 17 October 2026
 
 Start with [current/CURRENT_PHASE.md](current/CURRENT_PHASE.md). The current

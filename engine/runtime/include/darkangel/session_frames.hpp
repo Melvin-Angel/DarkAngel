@@ -24,7 +24,7 @@ AbilityPublicSnapshot public_ability_at(const AbilityPublicSnapshot&,std::uint64
 struct PublicIndexEntry {std::uint64_t tick{},content{};};
 // A projectile in flight as presentation sees it (velocity in metres per second). Authority owns the flight
 // and its hit; this is public state and decides nothing.
-struct ProjectileView {std::uint64_t id{};MotorVec position{},velocity{};};
+struct ProjectileView {std::uint64_t id{};MotorVec position{},velocity{};AssetId visual_model;};
 // Projectiles one session flies at once; a launch beyond it is dropped.
 inline constexpr std::size_t projectile_capacity=16;
 // A client's request to use a placed interactable, as the server received it from the peer that owns that character,

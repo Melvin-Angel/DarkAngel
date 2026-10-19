@@ -17,7 +17,13 @@ struct AbilityMelee {
     std::uint32_t evaluator{},damage_type{};
     // Metres the sphere travels along the facing from its offset; zero is the classic
     // overlap. A swept profile is a ranged shot and stops at the first actor it meets.
-    double sweep{};
+    double sweep{};std::string socket;
+};
+// A combo continuation keeps the activation's ability/cost/cooldown identity while
+// replacing its authored action and hit profiles when the preceding combo window is open.
+struct AbilityComboStep {
+    std::shared_ptr<const ActionDefinition> action;
+    std::vector<AbilityMelee> melee;
 };
 // Authored forward travel in metres over an action-clock window, requested from the
 // motor as ordinary root movement along the actor's facing. Collision, achieved
@@ -34,7 +40,8 @@ struct AbilityDash {double distance{};unsigned begin{},end{};};
 // gravity in metres per second squared (downward) and a lifetime in ticks. It leaves from the hit profile's
 // offset along the actor's yaw and aim pitch, flies at most the aim range, and authority alone moves it and
 // resolves what it hits.
-struct AbilityProjectile {double speed{},gravity{};unsigned lifetime{};};
+struct AbilityProjectilePreparation {unsigned emergence_block{},move_block{},release_block{};std::array<double,3> offset{};double rise{};std::string socket;double ready_pitch_degrees{};};
+struct AbilityProjectile {double speed{},gravity{};unsigned lifetime{};AssetId visual_model;std::optional<AbilityProjectilePreparation> preparation;};
 struct AbilityAim {double range{};std::optional<AbilityProjectile> projectile;};
 struct AbilitySoftLock {double range{},cone{},stop{},distance{};unsigned begin{},end{};};
 struct AbilityDefinition {
@@ -43,6 +50,10 @@ struct AbilityDefinition {
     std::vector<AbilityCost> costs;
     // Initial explicit motor-relative sphere profile; animated socket sweeps follow.
     std::vector<AbilityMelee> melee;
+    // Each entry is one continuation after `action`; at most three steps may follow.
+    std::vector<AbilityComboStep> combo_steps;
+    // Reopen the last continuation's authored combo window by returning to `action`.
+    bool combo_loop{};
     std::uint32_t cooldown_group{};std::uint64_t cooldown_ticks{};
     InputEdge activate_on{InputEdge::Pressed};std::uint64_t minimum_held_us{};
     bool cancel_on_release{},interruptible{true};
@@ -62,6 +73,7 @@ struct AbilityDefinition {
 std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition&,const AttributeSet&,const TagDictionary* =nullptr);
 // The action's own root/lock request plus the ability's authored dash share.
 ActionMotion ability_motion_between(const AbilityDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
+ActionMotion ability_motion_between(const AbilityDefinition&,const ActionDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
 // The soft-lock share of one clock interval, still without a target point; inactive
 // outside the authored window.
 MotionWarp ability_warp_between(const AbilityDefinition&,std::uint64_t from_clock,std::uint64_t to_clock);
