@@ -6,6 +6,7 @@
 #include "reference_picker.hpp"
 #include <algorithm>
 #include <cctype>
+#include <fstream>
 
 namespace darkangel::editor_app {
 namespace {
@@ -62,7 +63,7 @@ void Shell::draw_assets(Controller& editor,bool expanded){
     ImGui::SetNextItemWidth(expanded?std::min(320.f*ImGui::GetStyle().FontScaleDpi,ImGui::GetContentRegionAvail().x):-1.f);ImGui::InputTextWithHint("##assetsearch","Search path or UUID...",asset_filter,sizeof(asset_filter));
     const char* kinds[]={"All assets","Models","Characters","Animations","Textures","Players","Abilities","Effects","Action timelines","Animation graphs","Combat kits","Attribute schemas","Input profiles","Items","NPCs","Behaviors","Masks","Prefabs","Materials"};ImGui::SetNextItemWidth(expanded?200.f:-1.f);ImGui::Combo("##assetkind",&asset_kind,kinds,static_cast<int>(std::size(kinds)));
     ImGui::TextDisabled("%u assets and drafts",static_cast<unsigned>(editor.asset_inventory.size()));
-    if(ImGui::BeginTable("Asset inventory",expanded?3:1,ImGuiTableFlags_RowBg|ImGuiTableFlags_ScrollY|ImGuiTableFlags_BordersInnerH,{0,expanded?ImGui::GetContentRegionAvail().y:180.f})){
+    if(ImGui::BeginTable("Asset inventory",expanded?3:1,ImGuiTableFlags_RowBg|ImGuiTableFlags_ScrollY|ImGuiTableFlags_BordersInnerH,{0,expanded||workspace==Workspace::Ability?ImGui::GetContentRegionAvail().y:180.f})){
         ImGui::TableSetupColumn("Asset");if(expanded){ImGui::TableSetupColumn("Project path");ImGui::TableSetupColumn("Cook generation",ImGuiTableColumnFlags_WidthFixed,130);}ImGui::TableHeadersRow();
         for(const auto& asset:editor.asset_inventory){auto path=lowercase(asset.path);if(asset_filter[0]&&!reference_search(asset.path,asset_filter)&&!reference_search(asset.id.text(),asset_filter))continue;
             if(asset_kind==1&&!(path.starts_with("models/")||path.find("/static/")!=path.npos))continue;
@@ -70,7 +71,11 @@ void Shell::draw_assets(Controller& editor,bool expanded){
             if(asset_kind==3&&!(path.starts_with("animation/")||path.find("/clips/")!=path.npos))continue;
             if(asset_kind==4&&!(path.starts_with("textures/")))continue;
             if(asset_kind>=5){constexpr const char* extensions[]={".daplayer",".daability",".daeffect",".daaction",".dagraph",".dakit",".daattributes",".dainput",".daitem",".danpc",".dabehavior",".dafacemask",".daprefab",".damaterial"};if(asset_kind>=5+static_cast<int>(std::size(extensions))||std::filesystem::path(path).extension()!=extensions[asset_kind-5])continue;}
-            ImGui::TableNextRow();ImGui::TableNextColumn();ImGui::PushID(asset.id.text().c_str());auto name=std::filesystem::path(asset.path).filename().string();if(ImGui::Selectable(name.c_str(),selected_asset==asset.id,ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowDoubleClick)){selected_asset=asset.id;if(ImGui::IsMouseDoubleClicked(0)&&asset_has_owner(std::filesystem::path(asset.path).extension().string())){try{open_asset(editor,asset.id);}catch(const std::exception& error){editor.log(error.what(),ConsoleSeverity::Error);}}}
+            ImGui::TableNextRow();ImGui::TableNextColumn();ImGui::PushID(asset.id.text().c_str());auto name=std::filesystem::path(asset.path).filename().string();if(ImGui::Selectable(name.c_str(),selected_asset==asset.id,ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowDoubleClick)){selected_asset=asset.id;
+                const auto extension=std::filesystem::path(asset.path).extension().string();
+                const bool ability_context=workspace==Workspace::Ability;
+                if(ability_context){if(extension==".daability"||extension==".daaction"||extension==".daeffect"||extension==".daattributes")authored_selection=asset.id;else if(extension==".glb"){auto profile=editor.assets->source_root()/asset.path;profile+=".daimport";if(std::filesystem::exists(profile)){std::ifstream profile_stream(profile);auto metadata=nlohmann::json::parse(profile_stream,nullptr,false);if(metadata.is_object()&&metadata.value("importer","")=="clip-gltf-v1")ability_create_clip=asset.id;}}}
+                if(!ability_context&&ImGui::IsMouseDoubleClicked(0)&&asset_has_owner(std::filesystem::path(asset.path).extension().string())){try{open_asset(editor,asset.id);}catch(const std::exception& error){editor.log(error.what(),ConsoleSeverity::Error);}}}
             if(expanded&&reveal_scroll&&selected_asset==asset.id){ImGui::SetScrollHereY(.35f);reveal_scroll=false;}
             if(ImGui::IsItemHovered()){ImGui::BeginTooltip();ImGui::TextWrapped("%s",asset.path.c_str());ImGui::TextUnformatted(asset.id.text().c_str());ImGui::EndTooltip();}if(expanded){ImGui::TableNextColumn();ImGui::TextUnformatted(asset.path.c_str());ImGui::TableNextColumn();if(asset.generation)ImGui::Text("%llu",static_cast<unsigned long long>(asset.generation));else{auto draft=editor.authoring.drafts.find(asset.id);ImGui::TextDisabled(draft!=editor.authoring.drafts.end()&&draft->second.pending?"Pending creation":"Not cooked here");}}ImGui::PopID();
         }ImGui::EndTable();

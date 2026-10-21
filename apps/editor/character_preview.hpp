@@ -35,6 +35,7 @@ public:
     const ClipDefinition& clip()const{return clip_->definition();}
     std::string_view generation()const{return clip_->archive_generation();}
     const ActionDefinition* action()const{return action_.get();}
+    const RigDefinition& rig()const{return pose_->definition();}
 private:
     std::unique_ptr<AnimationClip> clip_;std::unique_ptr<RigPose> pose_;
     std::shared_ptr<const ActionDefinition> action_;std::unique_ptr<AnimationGraphInstance> graph_;std::unique_ptr<ActionPoseMixer> mixer_;ActorTagSnapshot tags_;

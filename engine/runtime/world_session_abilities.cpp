@@ -115,6 +115,8 @@ void WorldSession::equip_combat_kit(AbilityOwnerHandle owner, std::shared_ptr<co
     auto& s = *impl_;
     s.authority();
     auto state = std::make_unique<AbilityState>(s.ability(owner));
+    auto check_action=[&](const ActionDefinition& action,AssetId ability){for(const auto& block:action.blocks){if(block.hit)require(bool(s.melee_query)&&s.damage_evaluators.contains(block.hit->evaluator),"Missing composer damage evaluator/query");for(const auto& effect:block.effects){require(effect.definition&&effect.definition->id==effect.asset&&(!effect.definition->evaluator||s.effect_evaluators.contains(effect.definition->evaluator)),"Missing resolved composer effect/evaluator");state->prepare_effect(*effect.definition);if(kit)require(std::none_of(kit->effect_bindings.begin(),kit->effect_bindings.end(),[&](const auto& binding){return binding.ability==ability&&binding.hit_block==block.id&&binding.effect==effect.asset;}),"Ambiguous composer and kit effect ownership");}}};
+    for(const auto& ability:catalogue)if(ability){if(ability->action)check_action(*ability->action,ability->id);for(const auto& step:ability->combo_steps)if(step.action)check_action(*step.action,ability->id);}
     for (const auto& ability : catalogue)
         if (ability)
             for (const auto& hit : ability->melee)
@@ -132,10 +134,12 @@ void WorldSession::configure_ability_loadouts(AbilityOwnerHandle owner, std::spa
     for (const auto& loadout : loadouts)
         if (loadout)
             for (const auto& ability : loadout->abilities)
-                if (ability)
+                if (ability){
+                    auto check=[&](const ActionDefinition& action){for(const auto& block:action.blocks){if(block.hit)require(bool(s.melee_query)&&s.damage_evaluators.contains(block.hit->evaluator),"Missing composer damage evaluator/query");for(const auto& effect:block.effects){require(effect.definition&&effect.definition->id==effect.asset&&(!effect.definition->evaluator||s.effect_evaluators.contains(effect.definition->evaluator)),"Missing resolved composer effect/evaluator");state->prepare_effect(*effect.definition);if(loadout->kit)require(std::none_of(loadout->kit->effect_bindings.begin(),loadout->kit->effect_bindings.end(),[&](const auto& binding){return binding.ability==ability->id&&binding.hit_block==block.id&&binding.effect==effect.asset;}),"Ambiguous composer and kit effect ownership");}}};if(ability->action)check(*ability->action);for(const auto& step:ability->combo_steps)if(step.action)check(*step.action);
                     for (const auto& hit : ability->melee)
                         require(bool(s.melee_query) && s.damage_evaluators.contains(hit.evaluator),
                                 "Missing authoritative query binding/game damage evaluator");
+                }
     auto updates = state->configure_loadouts(loadouts, active);
     s.commit_ability(owner.network, std::move(state), updates);
 }
@@ -425,10 +429,10 @@ void WorldSession::assign_team(std::uint64_t id, std::uint32_t team) {
 std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick) {
     auto& s = *impl_;
     s.authority();
-    require(tick && tick == s.ability_tick && bool(s.melee_query), "Ability hit resolution fixed tick/query binding");
+    require(tick && tick == s.ability_tick, "Ability hit resolution fixed tick");
     if (s.resolved_hit_tick == tick)
         return {};
-    const auto& query = *s.melee_query;
+    const auto* query = s.melee_query.get();
     std::map<std::uint64_t, std::unique_ptr<AbilityState>> prepared;
     for (const auto& [id, state] : s.abilities)
         prepared.emplace(id, std::make_unique<AbilityState>(*state));
@@ -439,6 +443,9 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
     // One hit of one source on one candidate: team and liveness checks, the game evaluator, damage and on-hit effects.
     // Melee targets and projectile impacts both land through here.
     auto flying = s.projectiles;
+    auto next_projectile=s.next_projectile;
+    std::set<AbilityActivationHandle> cancelled;
+    auto action_block=[](const AbilityState::PendingHit& hit)->const ActionBlock&{const ActionDefinition* action=hit.definition->action.get();if(action->id!=hit.action){auto step=std::find_if(hit.definition->combo_steps.begin(),hit.definition->combo_steps.end(),[&](const auto& step){return step.action->id==hit.action;});require(step!=hit.definition->combo_steps.end(),"Pending composer action missing");action=step->action.get();}auto block=std::find_if(action->blocks.begin(),action->blocks.end(),[&](const auto& block){return block.id==hit.interval.block;});require(block!=action->blocks.end(),"Pending composer block missing");return *block;};
     auto strike = [&](std::uint64_t id, AbilityState& source, const AbilityState::PendingHit& hit, const MeleeTarget& target) {
         if (target.network == id || !prepared.contains(target.network) || !s.motor_states.contains(target.network))
             return;
@@ -448,7 +455,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
             return;
         auto& victim = *prepared.at(target.network);
         auto& motor = s.motor_states.at(target.network);
-        if (motor.tick != tick || motor.epoch != target.epoch || !query.matches(target.network, motor) || victim.health().current <= 0)
+        if (!query || motor.tick != tick || motor.epoch != target.epoch || !query->matches(target.network, motor) || victim.health().current <= 0)
             return;
         if (!source.remember_hit(hit, target.network, target.epoch))
             return;
@@ -466,6 +473,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                               &victim.effects().tags(),
                               hit.definition->id};
         auto evaluation = s.damage_evaluators.at(hit.profile.evaluator)(context);
+        if(evaluation.damage>0)for(const auto& effect:action_block(hit).effects)evaluation.effects.push_back({effect.definition,effect.power});
         require(std::isfinite(evaluation.damage) && evaluation.damage >= 0 && evaluation.damage <= 1e9 && evaluation.effects.size() <= 8,
                 "Game combat evaluator output bounds");
         for (auto& request : evaluation.effects) {
@@ -506,30 +514,40 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                    std::tie(b.handle.activation, b.interval.block, b.interval.loop, b.interval.from);
         });
         for (const auto& hit : pending) {
+            if(cancelled.contains(hit.handle))continue;
             if (source->health().current <= 0)
                 break;
-            require(hit.tick == tick && s.motor_states.contains(id) && s.motor_states.at(id).tick == tick &&
-                        query.matches(id, s.motor_states.at(id)),
+            if(hit.interval.kind==ActionBlockKind::Gameplay){
+                require(hit.tick==tick,"Gameplay effect request tick mismatch");
+                if(!source->remember_hit(hit,0,0))continue;
+                const auto requests=action_block(hit).effects;const auto attributes=source->attribute_values();
+                for(const auto& effect:requests){require(++work<=256&&effect.definition&&(!effect.definition->evaluator||s.effect_evaluators.contains(effect.definition->evaluator)),"Gameplay effect request bound/reference");std::vector<AbilityActionUpdate> cleanup;auto applied=source->apply_effect(*effect.definition,{s.hello.session_epoch,id,hit.handle.activation,effect.power,attributes},effect.definition->evaluator?s.effect_evaluators.at(effect.definition->evaluator):EffectEvaluator{},cleanup);updates.insert(updates.end(),cleanup.begin(),cleanup.end());for(const auto& update:cleanup)if(update.phase==ActionPhase::Cancelled)cancelled.insert(update.handle);for(auto& outcome:applied.second){require(effects.size()<128,"Gameplay effect outcome bound");effects.push_back({source->owner(),std::move(outcome)});}if(source->health().current<=0)break;}
+                continue;
+            }
+            require(query && hit.tick == tick && s.motor_states.contains(id) && s.motor_states.at(id).tick == tick &&
+                        query->matches(id, s.motor_states.at(id)),
                     "Melee requires current achieved authoritative motor pose");
             // A projectile ability launches once per hit block and loop; the projectile resolves its own hit on a later tick.
-            if (hit.definition->aim && hit.definition->aim->projectile) {
-                if (source->remember_hit(hit, 0, 0) && flying.size() < projectile_capacity) {
-                    const auto& shot = *hit.definition->aim->projectile;
+            if (hit.profile.projectile || (hit.interval.kind==ActionBlockKind::HitWindow && hit.definition->aim && hit.definition->aim->projectile)) {
+                if (source->remember_hit(hit, 0, 0)) {
+                    require(flying.size()<projectile_capacity&&next_projectile&&next_projectile<UINT64_MAX,"Authoritative projectile capacity/identity exhausted");
+                    const auto shot = hit.profile.projectile ? AbilityProjectile{hit.profile.projectile->speed,hit.profile.projectile->gravity,hit.profile.projectile->lifetime,hit.profile.projectile->visual_model,hit.profile.projectile->preparation,true} : *hit.definition->aim->projectile;
                     const auto& motor = s.motor_states.at(id);
                     const double level = std::cos(motor.pitch) * shot.speed / 60;
-                    flying.push_back({s.next_projectile++,
+                    flying.push_back({next_projectile++,
                                       hit,
                                       id,
-                                      query.origin(id,motor,hit.profile,hit.clip,hit.action_clock),
+                                      query->origin(id,motor,hit.profile,hit.clip,hit.action_clock),
                                       {std::sin(motor.yaw) * level, std::sin(motor.pitch) * shot.speed / 60, std::cos(motor.yaw) * level},
                                       shot.gravity / 3600,
                                       hit.profile.radius,
-                                      hit.definition->aim->range,
+                                      hit.profile.projectile?hit.profile.projectile->range:hit.definition->aim->range,
                                       tick + shot.lifetime});
                 }
                 continue;
             }
-            auto candidates = query.query(id, s.motor_states.at(id), hit.profile,hit.clip,hit.action_clock);
+            if(hit.profile.area_period&&!source->remember_hit(hit,0,0))continue;
+            auto candidates = query->query(id, s.motor_states.at(id), hit.profile,hit.clip,hit.action_clock);
             require(!candidates.overflow && candidates.targets.size() <= 16, "Melee query overflow");
             std::sort(candidates.targets.begin(), candidates.targets.end());
             candidates.targets.erase(std::unique(candidates.targets.begin(), candidates.targets.end()), candidates.targets.end());
@@ -553,7 +571,8 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
                 delta = {delta.x * scale, delta.y * scale, delta.z * scale};
                 length = shot->remaining;
             }
-            const auto traced = query.trace(shot->position, delta, shot->radius, shot->source);
+            require(query,"Projectile flight requires an authoritative collision binding");
+            const auto traced = query->trace(shot->position, delta, shot->radius, shot->source);
             if (traced.target) {
                 require(++work <= 256, "Melee batch work bound");
                 strike(shot->source, *prepared.at(shot->source), shot->hit, *traced.target);
@@ -591,6 +610,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
     s.ability_commitments = std::move(commitments);
     s.effect_outcomes = std::move(effects);
     s.resolved_hit_tick = tick;
+    s.next_projectile=next_projectile;
     if (changed)
         ++s.revision;
     if (!flying.empty() || !s.projectiles.empty()) {
@@ -598,7 +618,7 @@ std::vector<DamageResult> WorldSession::resolve_ability_hits(std::uint64_t tick)
         s.projectile_views.clear();
         for (const auto& shot : s.projectiles)
             s.projectile_views.push_back({shot.id, shot.position, {shot.velocity.x * 60, shot.velocity.y * 60, shot.velocity.z * 60},
-                                          shot.hit.definition->aim&&shot.hit.definition->aim->projectile?shot.hit.definition->aim->projectile->visual_model:AssetId{}});
+                                          shot.hit.profile.projectile?shot.hit.profile.projectile->visual_model:shot.hit.definition->aim&&shot.hit.definition->aim->projectile?shot.hit.definition->aim->projectile->visual_model:AssetId{}});
         ++s.projectile_revision;
         s.projectile_tick = tick;
     }

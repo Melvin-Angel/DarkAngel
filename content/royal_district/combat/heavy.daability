@@ -21,20 +21,7 @@
   "minimum_held_us": 0,
   "cancel_on_release": true,
   "interruptible": true,
-  "melee": [
-    {
-      "block": 2,
-      "offset": [
-        0,
-        1,
-        0.9
-      ],
-      "radius": 0.7,
-      "power": 35,
-      "evaluator": 1,
-      "damage_type": 2
-    }
-  ],
+  "melee": [],
   "tags": "71455b4a-0142-4e01-ba8f-210057736def",
   "requirements": {
     "all": [],

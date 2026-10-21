@@ -29,7 +29,31 @@
       "begin": 54613,
       "end": 71111,
       "kind": "hit",
-      "key": "Weapon.Right"
+      "key": "Weapon.Right",
+      "hit": {
+        "schema": 1,
+        "shape": "sphere",
+        "offset": [
+          0,
+          0,
+          0.8
+        ],
+        "radius": 0.65,
+        "power": 25,
+        "evaluator": 1,
+        "damage_type": 2,
+        "socket": "weapon_right"
+      },
+      "effects": {
+        "schema": 1,
+        "entries": [
+          {
+            "asset": "16811faf-bbad-4a86-8e91-417fe670fbdf",
+            "power": 1,
+            "source": "royal_district/combat/flinch.daeffect"
+          }
+        ]
+      }
     },
     {
       "id": 4,

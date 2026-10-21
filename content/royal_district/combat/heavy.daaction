@@ -21,7 +21,31 @@
       "begin": 16384,
       "end": 27648,
       "kind": "hit",
-      "key": "Weapon.Right"
+      "key": "Weapon.Right",
+      "hit": {
+        "schema": 1,
+        "shape": "sphere",
+        "offset": [
+          0,
+          1,
+          0.9
+        ],
+        "radius": 0.7,
+        "power": 35,
+        "evaluator": 1,
+        "damage_type": 2,
+        "socket": ""
+      },
+      "effects": {
+        "schema": 1,
+        "entries": [
+          {
+            "asset": "8a14c506-2141-41e5-9be8-e9e0ee509b59",
+            "power": 5,
+            "source": "royal_district/combat/burn.daeffect"
+          }
+        ]
+      }
     },
     {
       "id": 3,

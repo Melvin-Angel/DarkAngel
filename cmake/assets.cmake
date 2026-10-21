@@ -129,6 +129,11 @@ target_link_libraries(DarkAngelAssets PUBLIC DarkAngelInventorySession)
           LIBS DarkAngelAssets DarkAngelEditorService nlohmann_json::nlohmann_json
           ARGS "${PROJECT_BINARY_DIR}/authoring-fixture.json")
         set_tests_properties(M5.composer_structure PROPERTIES FIXTURES_REQUIRED NativeAuthoringFixture TIMEOUT 60 LABELS "M5;editor;asset")
+        dae_test(ComposerGameplayAssetTests NAME M5.composer_gameplay_assets
+          SOURCES tests/composer_gameplay_asset_tests.cpp
+          LIBS DarkAngelAssets DarkAngelRuntime DarkAngelAnimation nlohmann_json::nlohmann_json
+          DEFINITIONS DAE_SOURCE_DIR="${PROJECT_SOURCE_DIR}" DAE_BINARY_DIR="${PROJECT_BINARY_DIR}")
+        set_tests_properties(M5.composer_gameplay_assets PROPERTIES TIMEOUT 600 LABELS "M5;asset;ability")
         dae_test(ComposerPreviewTests NAME M5.composer_preview
           SOURCES tests/composer_preview_tests.cpp apps/editor/character_preview.cpp apps/editor/inventory_resources.cpp apps/editor/native_authoring.cpp
           LIBS AshenRootsCombat DarkAngelAssets DarkAngelCharacterScene DarkAngelEditorService nlohmann_json::nlohmann_json
@@ -138,7 +143,7 @@ target_link_libraries(DarkAngelAssets PUBLIC DarkAngelInventorySession)
           LIBS NativeAuthoringCommandSupport AshenRootsCombat DarkAngelAssets DarkAngelCharacterScene DarkAngelEditorService nlohmann_json::nlohmann_json unofficial::sqlite3::sqlite3
           DEFINITIONS DAE_SOURCE_DIR="${PROJECT_SOURCE_DIR}" DAE_BINARY_DIR="${PROJECT_BINARY_DIR}"
           ARGS --fixture-only)
-        set_tests_properties(M5.native_authoring PROPERTIES FIXTURES_SETUP NativeAuthoringFixture)
+        set_tests_properties(M5.native_authoring PROPERTIES FIXTURES_SETUP NativeAuthoringFixture TIMEOUT 1800)
 
         add_library(NativeAuthoringCommandSupport STATIC apps/editor/native_authoring.cpp apps/editor/character_preview.cpp apps/editor/inventory_resources.cpp tests/native_authoring_fixture.cpp tests/native_authoring_commands_tests.cpp tests/native_authoring_graph_commands_tests.cpp tests/native_authoring_effect_preview_tests.cpp)
         target_link_libraries(NativeAuthoringCommandSupport PUBLIC AshenRootsCombat DarkAngelAssets DarkAngelCharacterScene DarkAngelEditorService nlohmann_json::nlohmann_json unofficial::sqlite3::sqlite3)

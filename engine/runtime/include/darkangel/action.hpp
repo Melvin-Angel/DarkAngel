@@ -14,7 +14,15 @@ inline constexpr unsigned action_tick_units=1024;
 enum class ActionBlockKind {Cue,HitWindow,Invulnerability,MovementLock,ComboWindow,Commit,Vfx,Audio,Gameplay,Projectile,Aoe,Hitbox};
 enum class ActionPhase {Active,Completed,Cancelled};
 enum class ActionEdge {End,Marker,Begin};
-struct ActionBlock {unsigned id{},track{},begin{},end{};ActionBlockKind kind{};std::string key;};
+// Version 1 payload uses the authoritative socket-relative swept-sphere query.
+struct ActionHit {std::array<double,3> offset{};double radius{.5},power{};std::uint32_t evaluator{1},damage_type{1};std::string socket;};
+struct ActionProjectilePreparation {unsigned emergence_block{},move_block{},release_block{};std::array<double,3> offset{};double rise{};std::string socket;double ready_pitch_degrees{};};
+struct ActionProjectile {double speed{20},gravity{},range{30};unsigned lifetime{120};AssetId visual_model{};std::optional<ActionProjectilePreparation> preparation{};};
+struct EffectDefinition;
+// Direct typed references. The asset loader resolves immutable definitions;
+// editor source locators never enter runtime state.
+struct ActionEffect {AssetId asset;double power{};std::shared_ptr<const EffectDefinition> definition;};
+struct ActionBlock {unsigned id{},track{},begin{},end{};ActionBlockKind kind{};std::string key;std::optional<ActionHit> hit{};std::optional<ActionProjectile> projectile{};unsigned area_period{};std::vector<ActionEffect> effects{};};
 struct ActionClipBinding {ClipDefinition clip;std::string archive_generation;bool motor_root{};};
 struct ActionDefinition {AssetId id;std::string generation;unsigned duration{},loops{},priority{};bool upper_body{};std::vector<ActionBlock> blocks;std::optional<ActionClipBinding> motion;std::optional<JointMaskDefinition> mask;};
 ActionDefinition decode_action_source(std::string_view);

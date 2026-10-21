@@ -351,9 +351,10 @@ void PlayController::start(std::size_t skins, const RuntimeSkinnedModel* skin) {
     require(skins == 1, "Character preset requires one loaded skin");
     character_resources = load_resources(*skin);
     if(editor.prepare_model&&character_resources->combat)
-        for(const auto& ability:character_resources->combat->abilities)
-            if(ability&&ability->aim&&ability->aim->projectile&&ability->aim->projectile->visual_model!=AssetId{})
-                editor.prepare_model(ability->aim->projectile->visual_model);
+        for(const auto& ability:character_resources->combat->abilities)if(ability){
+            if(ability->aim&&ability->aim->projectile&&ability->aim->projectile->visual_model!=AssetId{})editor.prepare_model(ability->aim->projectile->visual_model);
+            const auto prepare=[&](const ActionDefinition& action){for(const auto& block:action.blocks)if(block.projectile&&block.projectile->visual_model!=AssetId{})editor.prepare_model(block.projectile->visual_model);};prepare(*ability->action);for(const auto& step:ability->combo_steps)prepare(*step.action);
+        }
     shell.native_controls = true;
     if (args.character_clips.starts_with("kit:"))
         editor.authoring_kit = AssetId::parse(args.character_clips.substr(4));
@@ -998,9 +999,10 @@ void PlayController::install_preparation() {
                 for (auto visual : editor.authoring.worn_visuals(*editor.assets, editor.authoring_player))
                     unique.insert(visual);
             if (character_resources->combat)
-                for (const auto& ability : character_resources->combat->abilities)
-                    if (ability && ability->aim && ability->aim->projectile && ability->aim->projectile->visual_model != AssetId{})
-                        unique.insert(ability->aim->projectile->visual_model);
+                for (const auto& ability : character_resources->combat->abilities)if(ability){
+                    if(ability->aim&&ability->aim->projectile&&ability->aim->projectile->visual_model!=AssetId{})unique.insert(ability->aim->projectile->visual_model);
+                    const auto include=[&](const ActionDefinition& action){for(const auto& block:action.blocks)if(block.projectile&&block.projectile->visual_model!=AssetId{})unique.insert(block.projectile->visual_model);};include(*ability->action);for(const auto& step:ability->combo_steps)include(*step.action);
+                }
             for (const auto& [object, asset] : editor.document->plan().models)
                 unique.insert(asset);
             for(const auto& [object,slots]:editor.document->plan().materials)for(const auto& [slot,material]:slots)unique.insert(material);

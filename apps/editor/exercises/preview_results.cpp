@@ -31,6 +31,7 @@ void check_preview_results(const PreviewResultContext& context) {
         require(composer_pose && shell.composer_visible && !editor.preview.active() && !character && !editor.authoring.dirty() &&
                     editor.document->world().serialize() == import_baseline,
                 "Composer scrub changed gameplay or authoring state");
+        if(composer_pose->action()){unsigned hits=0,authored_hits=0;for(const auto& block:composer_pose->action()->blocks)hits+=block.hit.has_value();for(const auto& block:editor.authoring.open(*editor.assets,composer_pose->action()->id).value.at("blocks"))authored_hits+=block.contains("hit");require(hits==authored_hits,"Composer preview used stale gameplay payloads");std::cout<<"Composer typed hit payloads="<<hits<<" camera="<<shell.composer_view._44<<","<<shell.composer_projection._34<<"\n";}
         std::cout << "Composer isolated pose tick=" << shell.composer_tick << " joints=" << joint_count
                   << " gameplay=stopped source=unchanged\n";
     }

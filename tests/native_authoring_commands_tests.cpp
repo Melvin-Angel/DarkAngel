@@ -10,6 +10,18 @@ void run_native_authoring_commands() {
     auto id = [&](const char* file) { return fixture.id(file); };
 
     {
+        NativeAuthoring independent_combo;
+        const auto earth=id("royal_district/combat/earth/earth_light.daability");
+        auto original=independent_combo.open(assets,earth).value;
+        auto copied=independent_combo.duplicate_ability_with_action(assets,earth,"independent_earth",true);
+        const auto value=independent_combo.open(assets,copied).value;
+        check(value.at("action")!=original.at("action")&&value.at("combo_steps")[0].at("action")!=original.at("combo_steps")[0].at("action"),"Independent combo retained shared composers");
+        check(independent_combo.history().size()==1&&independent_combo.history().front().assets.size()==3,"Independent combo creation split history");
+        auto step=AssetId::parse(value.at("combo_steps")[0].at("action").get<std::string>());
+        for(const auto& block:independent_combo.open(assets,step).value.at("blocks"))if(block.contains("hit"))check(block.at("hit").at("power")==0,"Blank continuation retained inherited power");
+        independent_combo.undo(assets);check(!independent_combo.drafts.contains(copied)&&!independent_combo.drafts.contains(step),"Combo creation Undo retained a copied source");
+    }
+    {
         NativeAuthoring independent;
         auto template_value = independent.open(assets, heavy).value;
         auto old_action = AssetId::parse(template_value.at("action").get<std::string>());
@@ -20,6 +32,8 @@ void run_native_authoring_commands() {
         check(action != old_action && copied.at("sources").at("action") == independent.open(assets, action).asset.path &&
                   copied.at("costs").empty(),
               "Independent creation lost paired references or blank defaults");
+        check(copied.at("melee").empty() && independent.open(assets,action).value.at("blocks").at(1).at("hit").at("power")==0,
+              "Independent blank creation did not migrate/zero composer-owned gameplay");
         check(independent.history().size() == 1 && independent.history().front().assets.size() == 2,
               "Independent creation must be one paired command");
         independent.undo(assets);

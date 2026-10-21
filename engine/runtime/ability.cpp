@@ -34,8 +34,11 @@ std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,
     const auto validate_melee=[&](const ActionDefinition& action,std::span<const AbilityMelee> profiles){
         require(profiles.size()<=8,"Ability melee profile count");std::set<unsigned> blocks;
         for(const auto& hit:profiles){
-            auto block=std::find_if(action.blocks.begin(),action.blocks.end(),[&](const auto& b){return b.id==hit.block&&b.kind==ActionBlockKind::HitWindow;});
-            require(block!=action.blocks.end()&&blocks.insert(hit.block).second&&hit.evaluator&&hit.damage_type&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2&&std::isfinite(hit.sweep)&&hit.sweep==(source.aim?source.aim->range:0.),"Ability melee profile identity/bounds");
+            auto block=std::find_if(action.blocks.begin(),action.blocks.end(),[&](const auto& b){return b.id==hit.block&&(b.kind==ActionBlockKind::HitWindow||b.kind==ActionBlockKind::Hitbox||b.kind==ActionBlockKind::Projectile||b.kind==ActionBlockKind::Aoe);});
+            require(block!=action.blocks.end()&&blocks.insert(hit.block).second&&hit.evaluator&&hit.damage_type&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2&&std::isfinite(hit.sweep)&&hit.sweep==(hit.projectile?hit.projectile->range:block->kind==ActionBlockKind::HitWindow&&source.aim?source.aim->range:0.),"Ability melee profile identity/bounds");
+            require(!hit.projectile||(hit.composer_owned&&block->kind==ActionBlockKind::Projectile&&block->projectile),"Projectile motion must belong to its typed block");
+            require(!hit.area_period||(hit.composer_owned&&block->kind==ActionBlockKind::Aoe&&hit.area_period==block->area_period),"Area period must belong to its typed block");
+            if(hit.projectile&&source.aim){require(!source.aim->projectile||source.aim->projectile->composer_owned,"Ambiguous projectile ownership: remove the legacy ability projectile before assigning composer motion");require(hit.projectile->range<=source.aim->range,"Composer projectile exceeds the ability aiming range");}
             require(hit.socket.size()<=64&&std::all_of(hit.socket.begin(),hit.socket.end(),[](unsigned char c){return std::isalnum(c)||c=='_';}),"Ability melee socket key");
             require(action.id!=source.action->id||!commit_block||block->begin>=commit_block->begin,"Deferred ability cannot damage before commitment");
             for(auto value:hit.offset)require(std::isfinite(value)&&std::abs(value)<=3,"Ability melee offset bounds");
@@ -51,8 +54,10 @@ std::shared_ptr<const AbilityDefinition> freeze(const AbilityDefinition& source,
     }
     if(!source.combo_steps.empty())require(has_combo_window(*source.action),"A combo starter needs an authored combo window");
     auto frozen=std::make_shared<AbilityDefinition>(source);
-    frozen->action=std::make_shared<const ActionDefinition>(*source.action);
-    for(auto& step:frozen->combo_steps){ActionTimeline prepared(step.action,1,0);prepared.enter();step.action=std::make_shared<const ActionDefinition>(*step.action);}
+    const TagDictionary empty(std::vector<TagDefinition>{});
+    auto freeze_action=[&](const ActionDefinition& original){auto action=std::make_shared<ActionDefinition>(original);for(auto& block:action->blocks){if(original.id==source.action->id&&commit_block&&!block.effects.empty())require(block.begin>=commit_block->begin,"Deferred ability cannot execute effects before commitment");for(auto& effect:block.effects)if(effect.definition){require(effect.definition->id==effect.asset,"Composer effect identity mismatch");effect.definition=freeze_effect_definition(*effect.definition,attributes,tags?*tags:empty);}}return std::shared_ptr<const ActionDefinition>(std::move(action));};
+    frozen->action=freeze_action(*source.action);
+    for(auto& step:frozen->combo_steps){ActionTimeline prepared(step.action,1,0);prepared.enter();step.action=freeze_action(*step.action);}
     // Validate action preparation now; active executions pin this complete generation.
     ActionTimeline prepared(frozen->action,1,0);prepared.enter();
     std::vector<ResourceDelta> zero;
@@ -66,9 +71,24 @@ std::vector<ResourceDelta> costs(const AbilityDefinition& definition){
 }
 std::vector<AbilityCost> reserved_costs(const AbilityDefinition& definition){std::map<AttributeId,double> totals;for(const auto& cost:definition.costs)totals[cost.attribute]+=cost.amount;std::vector<AbilityCost> result;for(auto [id,amount]:totals)if(amount)result.push_back({id,amount});return result;}
 }
-std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& source,const AttributeSet& attributes,const TagDictionary* tags){
+std::shared_ptr<const AbilityDefinition> freeze_ability_definition(const AbilityDefinition& authored,const AttributeSet& attributes,const TagDictionary* tags){
+    auto source=authored;
+    if(source.aim&&source.aim->projectile&&source.aim->projectile->composer_owned)source.aim->projectile.reset();
+    // Compile composer-owned payloads into the existing immutable combat contract.
+    // Legacy profiles are accepted only where no composer payload claims the block.
+    auto resolve=[&](const ActionDefinition& action,std::vector<AbilityMelee>& profiles){
+        std::erase_if(profiles,[](const auto& profile){return profile.composer_owned;});
+        for(const auto& block:action.blocks)if(block.hit){
+            require(std::none_of(profiles.begin(),profiles.end(),[&](const auto& profile){return profile.block==block.id;}),"Ambiguous hit ownership: remove the legacy ability profile after migration");
+            const auto& hit=*block.hit;profiles.push_back({block.id,hit.offset,hit.radius,hit.power,hit.evaluator,hit.damage_type,block.projectile?block.projectile->range:block.kind==ActionBlockKind::HitWindow&&source.aim?source.aim->range:0.,hit.socket,true,block.projectile,block.area_period});
+        }
+    };
+    if(source.action)resolve(*source.action,source.melee);
+    for(auto& step:source.combo_steps)if(step.action)resolve(*step.action,step.melee);
+    if(source.action)for(const auto& block:source.action->blocks)if(block.projectile&&(source.aim||block.projectile->visual_model!=AssetId{}||block.projectile->preparation)){const auto& shot=*block.projectile;require(source.aim&&(!source.aim->projectile||source.aim->projectile->composer_owned),"A prepared projectile needs aim permission and one composer-owned visual projectile");if(!source.aim->projectile||shot.visual_model!=AssetId{}||shot.preparation)source.aim->projectile=AbilityProjectile{shot.speed,shot.gravity,shot.lifetime,shot.visual_model,shot.preparation,true};}
+
     if(source.dash){const auto& dash=*source.dash;require(source.action&&std::isfinite(dash.distance)&&dash.distance>0&&dash.distance<=30&&dash.begin<dash.end&&dash.end<=source.action->duration&&source.action->loops==1&&dash.distance*action_tick_units/(dash.end-dash.begin)<=.5,"Ability dash distance/window/speed bounds");}
-    if(source.aim&&source.aim->projectile){const auto& projectile=*source.aim->projectile;require(std::isfinite(projectile.speed)&&projectile.speed>=1&&projectile.speed<=200&&std::isfinite(projectile.gravity)&&projectile.gravity>=0&&projectile.gravity<=50&&projectile.lifetime>=1&&projectile.lifetime<=600,"Ability projectile needs a speed of 1 to 200 m/s, gravity of 0 to 50 m/s2 and a lifetime of 1 to 600 ticks");if(projectile.preparation){const auto& prep=*projectile.preparation;auto find_block=[&](unsigned id,ActionBlockKind kind){return std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& block){return block.id==id&&block.kind==kind&&block.begin<block.end;});};auto emergence=find_block(prep.emergence_block,ActionBlockKind::Vfx),move=find_block(prep.move_block,ActionBlockKind::Vfx),release=std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& block){return block.id==prep.release_block&&block.kind==ActionBlockKind::HitWindow;});require(projectile.visual_model!=AssetId{}&&prep.emergence_block!=prep.move_block&&prep.release_block&&emergence!=source.action->blocks.end()&&move!=source.action->blocks.end()&&release!=source.action->blocks.end()&&emergence->end<=move->begin&&move->end<=release->begin&&std::all_of(prep.offset.begin(),prep.offset.end(),[](double v){return std::isfinite(v)&&std::abs(v)<=10;})&&std::isfinite(prep.rise)&&prep.rise>=.2&&prep.rise<=3&&std::isfinite(prep.ready_pitch_degrees)&&prep.ready_pitch_degrees>=-90&&prep.ready_pitch_degrees<=90&&!prep.socket.empty()&&prep.socket.size()<=64,"Projectile preparation must reference ordered visual and release timeline blocks, a model, offset, pitch and socket");}}
+    if(source.aim&&source.aim->projectile){const auto& projectile=*source.aim->projectile;require(std::isfinite(projectile.speed)&&projectile.speed>=1&&projectile.speed<=200&&std::isfinite(projectile.gravity)&&projectile.gravity>=0&&projectile.gravity<=50&&projectile.lifetime>=1&&projectile.lifetime<=600,"Ability projectile needs a speed of 1 to 200 m/s, gravity of 0 to 50 m/s2 and a lifetime of 1 to 600 ticks");if(projectile.preparation){const auto& prep=*projectile.preparation;auto find_block=[&](unsigned id,ActionBlockKind kind){return std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& block){return block.id==id&&block.kind==kind&&block.begin<block.end;});};auto emergence=find_block(prep.emergence_block,ActionBlockKind::Vfx),move=find_block(prep.move_block,ActionBlockKind::Vfx),release=std::find_if(source.action->blocks.begin(),source.action->blocks.end(),[&](const auto& block){return block.id==prep.release_block&&(block.kind==ActionBlockKind::HitWindow||block.kind==ActionBlockKind::Projectile);});require(projectile.visual_model!=AssetId{}&&prep.emergence_block!=prep.move_block&&prep.release_block&&emergence!=source.action->blocks.end()&&move!=source.action->blocks.end()&&release!=source.action->blocks.end()&&emergence->end<=move->begin&&move->end<=release->begin&&std::all_of(prep.offset.begin(),prep.offset.end(),[](double v){return std::isfinite(v)&&std::abs(v)<=10;})&&std::isfinite(prep.rise)&&prep.rise>=.2&&prep.rise<=3&&std::isfinite(prep.ready_pitch_degrees)&&prep.ready_pitch_degrees>=-90&&prep.ready_pitch_degrees<=90&&!prep.socket.empty()&&prep.socket.size()<=64,"Projectile preparation must reference ordered visual and release timeline blocks, a model, offset, pitch and socket");}}
     if(source.aim)require(!source.soft_lock&&!source.melee.empty()&&std::isfinite(source.aim->range)&&source.aim->range>0&&source.aim->range<=60,"Ability aim needs a hit profile and a range up to 60 m, and excludes soft lock");
     if(source.soft_lock){const auto& lock=*source.soft_lock;require(source.action&&!source.dash&&!source.face_movement&&std::isfinite(lock.range)&&lock.range>0&&lock.range<=30&&std::isfinite(lock.cone)&&lock.cone>0&&lock.cone<=3.1415927&&std::isfinite(lock.stop)&&lock.stop>=0&&lock.stop<=lock.range&&std::isfinite(lock.distance)&&lock.distance>=0&&lock.distance<=30&&lock.begin<lock.end&&lock.end<=source.action->duration&&source.action->loops==1&&lock.distance*action_tick_units/(lock.end-lock.begin)<=.5,"Ability soft lock range/cone/stop/window/speed bounds");}
     return freeze(source,attributes,tags);
@@ -286,9 +306,23 @@ std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate,bool ga
             else if(health().current<=0){active_->timeline=std::move(previous);effects_.death(attributes_);auto death=stop(AbilityActionReason::Death);updates.insert(updates.end(),std::make_move_iterator(death.begin()),std::make_move_iterator(death.end()));}
         }
         if(active_){
-        for(const auto& interval:batch.traversed)if(gameplay_hits&&interval.kind==ActionBlockKind::HitWindow)
-            for(const auto& profile:active_melee())if(profile.block==interval.block)
-                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,active_action().id,active_action().motion?active_action().motion->clip.id:AssetId{},profile,interval,tick_,active_->timeline.state().clock});
+        if(gameplay_hits)for(const auto& interval:batch.traversed)if(interval.kind==ActionBlockKind::Gameplay){
+            auto block=std::find_if(active_action().blocks.begin(),active_action().blocks.end(),[&](const auto& block){return block.id==interval.block;});
+            if(block!=active_action().blocks.end()&&interval.from==block->begin&&!block->effects.empty())pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,active_action().id,{}, {},{block->id,interval.loop,block->begin,block->begin,ActionBlockKind::Gameplay},tick_,std::uint64_t(interval.loop)*active_action().duration+block->begin});
+        }
+        for(const auto& interval:batch.traversed)if(gameplay_hits&&(interval.kind==ActionBlockKind::HitWindow||interval.kind==ActionBlockKind::Hitbox||interval.kind==ActionBlockKind::Projectile||interval.kind==ActionBlockKind::Aoe))
+            for(const auto& profile:active_melee())if(profile.block==interval.block){
+                auto enqueue=[&](ActionInterval part,std::uint64_t clock){pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,active_action().id,active_action().motion?active_action().motion->clip.id:AssetId{},profile,part,tick_,clock});};
+                if(!profile.area_period)enqueue(interval,active_->timeline.state().clock);
+                else{
+                    const auto& blocks=active_action().blocks;auto block=std::find_if(blocks.begin(),blocks.end(),[&](const auto& value){return value.id==interval.block;});
+                    const auto period=profile.area_period*action_tick_units;
+                    auto pulse=interval.from==block->begin?block->begin:block->begin+((interval.from-block->begin)/period+1)*period;
+                    // Include the first pulse even when activation happened between phases.
+                    // Authority deduplicates pulse queries, including empty overlaps. End is exclusive.
+                    for(;pulse<=interval.to&&pulse<block->end;pulse+=period)enqueue({interval.block,interval.loop,pulse,pulse,interval.kind},std::uint64_t(interval.loop)*active_action().duration+pulse);
+                }
+            }
         require(pending_hits.size()<=64,"Ability pending hit interval work bound");
         updates.push_back({{owner_,active_->timeline.state().activation},phase,phase==ActionPhase::Completed?AbilityActionReason::Completed:AbilityActionReason::Advanced,tick_,std::move(batch)});
         if(phase==ActionPhase::Completed)active_.reset();
@@ -297,11 +331,12 @@ std::vector<AbilityActionUpdate> AbilityState::finish_tick(unsigned rate,bool ga
         }
     }
     if(gameplay_hits&&entered_now&&active_&&active_->timeline.state().clock==0){
+        for(const auto& block:active_action().blocks)if(block.kind==ActionBlockKind::Gameplay&&block.begin==0&&!block.effects.empty())pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,active_action().id,{}, {},{block.id,0,0,0,block.kind},tick_,0});
         // An action entered in this phase exposes its time-zero hit windows once.
         // Existing rate-zero actions enter the branch above and never repeat this.
-        for(const auto& block:active_action().blocks)if(block.kind==ActionBlockKind::HitWindow&&block.begin==0)
+        for(const auto& block:active_action().blocks)if((block.kind==ActionBlockKind::HitWindow||block.kind==ActionBlockKind::Hitbox||block.kind==ActionBlockKind::Projectile||block.kind==ActionBlockKind::Aoe)&&block.begin==0)
             for(const auto& profile:active_melee())if(profile.block==block.id)
-                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,active_action().id,active_action().motion?active_action().motion->clip.id:AssetId{},profile,{block.id,0,0,0,ActionBlockKind::HitWindow},tick_,active_->timeline.state().clock});
+                pending_hits.push_back({{owner_,active_->timeline.state().activation},active_->definition,active_action().id,active_action().motion?active_action().motion->clip.id:AssetId{},profile,{block.id,0,0,0,block.kind},tick_,active_->timeline.state().clock});
     }
     ++revision_;return updates;
 }
@@ -344,7 +379,9 @@ std::pair<AbilityFailure,std::vector<AbilityActionUpdate>> AbilityState::cancel(
     auto updates=stop(reason);++revision_;return {AbilityFailure::None,std::move(updates)};
 }
 bool AbilityState::remember_hit(const PendingHit& hit,std::uint64_t target,std::uint64_t epoch){
-    auto key=std::make_tuple(hit.handle.activation,hit.action,hit.interval.block,hit.interval.loop,target,epoch);
+    unsigned pulse=0;if(hit.profile.area_period){auto action=hit.definition->action;if(action->id!=hit.action)for(const auto& step:hit.definition->combo_steps)if(step.action->id==hit.action)action=step.action;auto block=std::find_if(action->blocks.begin(),action->blocks.end(),[&](const auto& value){return value.id==hit.interval.block;});require(block!=action->blocks.end(),"Area block identity");pulse=(hit.interval.to-block->begin)/(hit.profile.area_period*action_tick_units);}
+    auto key=std::make_tuple(hit.handle.activation,hit.action,hit.interval.block,hit.interval.loop,target,epoch,pulse);
+    if(hit.profile.area_period)std::erase_if(hits_,[&](const auto& previous){return std::get<0>(previous)==hit.handle.activation&&std::get<1>(previous)==hit.action&&std::get<2>(previous)==hit.interval.block&&std::get<3>(previous)==hit.interval.loop&&std::get<6>(previous)<pulse;});
     if(hits_.contains(key))return false;require(hits_.size()<256,"Ability hit history exhausted");hits_.insert(key);return true;
 }
 std::vector<AbilityActionUpdate> AbilityState::damage(double amount){

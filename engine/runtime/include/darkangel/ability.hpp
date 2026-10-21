@@ -18,6 +18,8 @@ struct AbilityMelee {
     // Metres the sphere travels along the facing from its offset; zero is the classic
     // overlap. A swept profile is a ranged shot and stops at the first actor it meets.
     double sweep{};std::string socket;
+    // Derived during freezing, never serialized as ability authoring data.
+    bool composer_owned{};std::optional<ActionProjectile> projectile{};unsigned area_period{};
 };
 // A combo continuation keeps the activation's ability/cost/cooldown identity while
 // replacing its authored action and hit profiles when the preceding combo window is open.
@@ -40,8 +42,8 @@ struct AbilityDash {double distance{};unsigned begin{},end{};};
 // gravity in metres per second squared (downward) and a lifetime in ticks. It leaves from the hit profile's
 // offset along the actor's yaw and aim pitch, flies at most the aim range, and authority alone moves it and
 // resolves what it hits.
-struct AbilityProjectilePreparation {unsigned emergence_block{},move_block{},release_block{};std::array<double,3> offset{};double rise{};std::string socket;double ready_pitch_degrees{};};
-struct AbilityProjectile {double speed{},gravity{};unsigned lifetime{};AssetId visual_model;std::optional<AbilityProjectilePreparation> preparation;};
+using AbilityProjectilePreparation=ActionProjectilePreparation;
+struct AbilityProjectile {double speed{},gravity{};unsigned lifetime{};AssetId visual_model;std::optional<AbilityProjectilePreparation> preparation;bool composer_owned{};};
 struct AbilityAim {double range{};std::optional<AbilityProjectile> projectile;};
 struct AbilitySoftLock {double range{},cone{},stop{},distance{};unsigned begin{},end{};};
 struct AbilityDefinition {

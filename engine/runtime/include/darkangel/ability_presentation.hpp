@@ -32,7 +32,7 @@ inline std::optional<PreparedProjectilePose> prepared_projectile_pose(
     const auto* emergence = block(preparation.emergence_block, ActionBlockKind::Vfx);
     const auto* movement = block(preparation.move_block, ActionBlockKind::Vfx);
     const auto release = std::find_if(action.blocks.begin(), action.blocks.end(), [&](const auto& candidate) {
-        return candidate.id == preparation.release_block && candidate.kind == ActionBlockKind::HitWindow;
+          return candidate.id == preparation.release_block && (candidate.kind == ActionBlockKind::HitWindow || candidate.kind == ActionBlockKind::Projectile);
     });
     if (!emergence || !movement || release == action.blocks.end() || emergence->end > movement->begin ||
         movement->end > release->begin || clock < emergence->begin || clock >= release->begin ||

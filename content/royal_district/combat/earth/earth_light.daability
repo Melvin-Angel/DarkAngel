@@ -20,40 +20,12 @@
   "minimum_held_us": 0,
   "cancel_on_release": false,
   "interruptible": true,
-  "melee": [
-    {
-      "block": 3,
-      "offset": [
-        0,
-        0,
-        0.8
-      ],
-      "radius": 0.65,
-      "power": 25,
-      "evaluator": 1,
-      "damage_type": 2,
-      "socket": "weapon_right"
-    }
-  ],
+  "melee": [],
   "combo_steps": [
     {
       "action": "8cf18b0a-9c51-4c73-961d-859bc51f457a",
       "source": "royal_district/combat/earth/earth_light_kick.daaction",
-      "melee": [
-        {
-          "block": 3,
-          "offset": [
-            0,
-            0.8,
-            0.8
-          ],
-          "radius": 0.7,
-          "power": 34,
-          "evaluator": 1,
-          "damage_type": 2,
-          "socket": "foot_left"
-        }
-      ]
+      "melee": []
     }
   ],
   "targeting": {

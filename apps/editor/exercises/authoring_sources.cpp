@@ -28,16 +28,20 @@ class AuthoringSources final : public Exercise {
         const auto& character = context_.session;
         const auto& import_baseline = context_.scene_baseline;
         if (args.exercise_composer && frame == 0) {
-            auto& value = editor.authoring.open(*editor.assets, shell.authored_selection).value;
+            const auto& selected = editor.authoring.open(*editor.assets, shell.authored_selection).value;
+            const bool ability=selected.at("kind")=="ability";
+            auto action=ability?AssetId::parse(selected.at("action").get<std::string>()):shell.authored_selection;
+            if(ability){shell.ability_combo_owner=shell.authored_selection;shell.ability_combo_step=0;shell.composer_distance=4.5f;for(const auto& asset:editor.asset_inventory)if(std::filesystem::path(asset.path).extension()==".dacharacter"){shell.prepare_ability_target(asset.id);shell.ability_target_character=asset.id;shell.show_composer_target=true;break;}}
+            auto& value=editor.authoring.open(*editor.assets,action).value;
             auto clip = AssetId::parse(value.at("motion").at("clip").get<std::string>());
-            auto duration = value.at("duration").get<unsigned>();
-            shell.prepare_action_pose(shell.authored_selection);
+            auto duration = value.at("duration").get<unsigned>();if(ability)shell.ability_create_clip=clip;
+            shell.prepare_action_pose(action);
             shell.composer_clip = clip;
             shell.composer_duration = duration;
-            shell.composer_asset = shell.authored_selection;
+            shell.composer_asset = action;
             shell.composer_tick = args.composer_tick;
             shell.composer_playing = args.composer_playback;
-            shell.composer_block = 2;
+            shell.composer_block = ability?3:2;
         }
         if (args.exercise_source_compare && frame == 0) {
             auto& draft = editor.authoring.open(*editor.assets, shell.authored_selection);

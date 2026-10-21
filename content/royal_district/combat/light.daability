@@ -20,20 +20,7 @@
   "minimum_held_us": 0,
   "cancel_on_release": false,
   "interruptible": true,
-  "melee": [
-    {
-      "block": 2,
-      "offset": [
-        0,
-        1,
-        0.9
-      ],
-      "radius": 0.7,
-      "power": 25,
-      "evaluator": 1,
-      "damage_type": 1
-    }
-  ],
+  "melee": [],
   "targeting": {
     "mode": "soft_lock",
     "range": 4.5,

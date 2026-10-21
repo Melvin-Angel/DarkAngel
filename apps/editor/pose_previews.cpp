@@ -64,6 +64,7 @@ void PosePreviews::reset() {
     cache.clear();
     current = {};
     authoring_skin.reset();
+    ability_target_skin.reset();shell.ability_target_character={};
     graph_pose.reset();
     shell.graph_preview_asset = {};
     composer_pose.reset();
@@ -73,6 +74,7 @@ void PosePreviews::reset() {
 void PosePreviews::install() {
     if (!(character_resources && editor.assets))
         return;
+    shell.prepare_ability_target=[this](AssetId id){require(!editor.preview.active(),"Stop Play before changing preview target");if(id==AssetId{}){ability_target_skin.reset();return;}const std::array roots{id};PreviewPackage package(*editor.assets,editor.authoring,{id},roots);auto cooked=load_cooked_character(package.registry(),editor.assets->cas_path(),id);auto uploaded=upload(std::move(cooked.skin));ability_target_skin=std::move(uploaded);};
     shell.forget_previews = [this] {
         cache.clear();
         if (!current.key.empty())
@@ -104,15 +106,22 @@ void PosePreviews::install() {
         editor.authoring.open(*editor.assets, action);
         editor.authoring.open(*editor.assets, graph);
         // A preview already made from the same cooked sources is shown again at once.
-        const auto key = cache_key("action", {action, graph});
+        const auto key = shell.ability_preview_character==AssetId{}?cache_key("action", {action, graph}):cache_key("action", {action, graph, shell.ability_preview_character});
         auto cached = take_cached(key);
-        if (!cached.composer)
-            cached.composer = darkangel::editor_app::prepare_authored_action_pose(*editor.assets, editor.authoring, *character_resources, action, graph);
+        if (!cached.composer){
+            auto selected=*character_resources;
+            if(shell.ability_preview_character!=AssetId{}){
+                auto id=shell.ability_preview_character;const std::array roots{id};PreviewPackage package(*editor.assets,editor.authoring,{id},roots);auto cooked=load_cooked_character(package.registry(),editor.assets->cas_path(),id);
+                selected.rig=cooked.skin.rig;selected.skin=cooked.definition.skin;cached.definition=cooked.definition;cached.skin=upload(std::move(cooked.skin));
+            }
+            cached.composer = darkangel::editor_app::prepare_authored_action_pose(*editor.assets, editor.authoring, selected, action, graph);
+        }
         auto matrices = cached.composer->sample(0);
         stash();
         current = std::move(cached);
         current.key = key;
         composer_pose = current.composer;
+        authoring_skin=current.skin;
         graph_pose.reset();
         shell.graph_preview_asset = {};
         shell.character_preview_asset = {};
@@ -248,6 +257,26 @@ void PosePreviews::install() {
         }
         return label;
     };
+    shell.composer_overlay=[this](ImDrawList* draw,ViewArea area){
+        if(!composer_pose||!composer_pose->action()||editor.preview.active())return;
+        using namespace DirectX;const auto matrix=XMLoadFloat4x4(&shell.composer_view)*XMLoadFloat4x4(&shell.composer_projection);
+        auto project=[&](std::array<double,3> point)->std::optional<ImVec2>{XMFLOAT4 value;XMStoreFloat4(&value,XMVector4Transform(XMVectorSet(float(point[0]),float(point[1]),float(point[2]),1),matrix));if(value.w<=.001f)return {};return ImVec2{area.x+(value.x/value.w+1)*area.width*.5f,area.y+(1-value.y/value.w)*area.height*.5f};};
+        auto line=[&](auto from,auto to,ImU32 color){auto a=project(from),b=project(to);if(a&&b)draw->AddLine(*a,*b,color,1.5f);};
+        auto sphere=[&](std::array<double,3> center,double radius,ImU32 color){for(unsigned plane=0;plane<3;++plane)for(unsigned segment=0;segment<32;++segment){auto a=center,b=center;const auto axis=(plane+1)%3;double angle=segment*6.283185307/32.,next=(segment+1)*6.283185307/32.;a[plane]+=radius*std::cos(angle);a[axis]+=radius*std::sin(angle);b[plane]+=radius*std::cos(next);b[axis]+=radius*std::sin(next);line(a,b,color);}};
+        draw->PushClipRect({area.x,area.y},{area.x+area.width,area.y+area.height},true);
+        for(int grid=-5;grid<=5;++grid){line(std::array<double,3>{double(grid),0.,-5.},std::array<double,3>{double(grid),0.,5.},IM_COL32(65,85,105,110));line(std::array<double,3>{-5.,0.,double(grid)},std::array<double,3>{5.,0.,double(grid)},IM_COL32(65,85,105,110));}
+        if(shell.show_composer_target)sphere({0.,1.,shell.ability_target_distance},.4,IM_COL32(100,180,250,255));
+        const auto clock=static_cast<unsigned>(shell.composer_tick*action_tick_units);
+        for(const auto& block:composer_pose->action()->blocks){if(!block.hit||clock<block.begin||clock>=block.end)continue;auto origin=block.hit->offset;
+            if(!block.hit->socket.empty()){
+                const auto& rig=composer_pose->rig();auto key=block.hit->socket;if(auto socket=rig.sockets.find(key);socket!=rig.sockets.end())key=socket->second;
+                auto joint=std::find_if(rig.joints.begin(),rig.joints.end(),[&](const auto& value){return value.key==key;});if(joint==rig.joints.end())continue;const auto index=static_cast<std::size_t>(joint-rig.joints.begin());if(index>=composer_matrices.size())continue;const auto& pose=composer_matrices[index].values;for(unsigned axis=0;axis<3;++axis)origin[axis]+=pose[12+axis];
+            }
+            if(shell.show_composer_volumes)sphere(origin,block.hit->radius,block.kind==ActionBlockKind::Aoe?IM_COL32(90,220,140,255):IM_COL32(250,100,70,255));
+            if(block.projectile&&shell.show_composer_paths){auto previous=origin;const auto& shot=*block.projectile;const auto seconds=std::min(double(shot.lifetime)/60.,shot.range/shot.speed);for(unsigned segment=1;segment<=32;++segment){auto next=origin;const auto time=seconds*segment/32.;next[1]-=.5*shot.gravity*time*time;next[2]+=shot.speed*time;line(previous,next,IM_COL32(255,205,80,255));previous=next;}}
+        }
+        draw->PopClipRect();
+    };
     shell.draw_composer_effects = [this](double tick) {
         if (!composer_pose || !composer_pose->action())
             return;
@@ -260,7 +289,7 @@ void PosePreviews::install() {
             case ActionBlockKind::Gameplay: return "Gameplay";
             case ActionBlockKind::Projectile: return "Projectile";
             case ActionBlockKind::Aoe: return "AoE";
-            case ActionBlockKind::Hitbox: return "Hitbox";
+            case ActionBlockKind::HitWindow: case ActionBlockKind::Hitbox: return "Hitbox";
             default: return "Presentation";
             }
         };

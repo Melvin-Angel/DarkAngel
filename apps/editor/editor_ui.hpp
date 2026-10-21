@@ -79,6 +79,8 @@ public:
     void draw_assets(Controller&,bool expanded=false);
     void draw_authoring_history(Controller&);
     void draw_authoring(Controller&,unsigned,unsigned,float);
+    void draw_action_block_details(Controller&,AssetId);
+    AssetId ability_combo_owner,ability_create_clip,ability_next_action,ability_preview_character;unsigned ability_combo_step{};char ability_composer_path[256]{"actions/NewAbility.daaction"};
     // The one place a mask definition is edited: a movable, dockable window that stays open across workspaces.
     // The Player and NPC tabs open it for a mask in a slot or in their browser; a later Items tab can do the same.
     void draw_mask_editor(Controller&);AssetId mask_editor,mask_editor_raised;
@@ -86,10 +88,13 @@ public:
     AssetId graph_preview_asset,graph_character,graph_tag_registry;TagId graph_new_tag{};nlohmann::json graph_new_condition{{"kind","has_tag"},{"tag",0u}};nlohmann::json graph_preview_tags=nlohmann::json::array();std::string graph_preview_hash;float graph_speed{},graph_forward{},graph_lateral{};std::function<void(AssetId,AssetId)> prepare_graph_pose;std::function<void()> draw_graph_info;bool show_blend_geometry{true};bool show_graph_connections{true};float graph_zoom{1.f};ImVec2 graph_pan{18.f,18.f};unsigned graph_node{},graph_new_input{},graph_point{},graph_point_node{},graph_state{1},graph_transition_from{},graph_transition_to{};double graph_new_x{},graph_new_y{};int graph_new_kind{},graph_triangle[3]{0,1,2};char graph_state_name[65]{"Air Stance"};int graph_parameter_type{};char graph_parameter_name[65]{"Speed"};bool graph_condition_tag{};void prepare_effect_preview(Controller&,AssetId);void draw_input_authoring(Controller&);AssetId input_authoring_asset;char input_copy_name[65]{"input_profile_copy"};char input_binding_filter[65]{};
     void draw_action_lanes(Controller&,AssetId,const nlohmann::json&);
     void cancel_composer_drag(Controller&);
-    ActionBlock composer_drag_block;AssetId composer_drag_asset;
+    ActionBlock composer_drag_block,composer_context_block;AssetId composer_drag_asset,composer_context_asset;
     bool composer_dragging{},composer_drag_changed{};int composer_drag_edge{};float composer_drag_x{};std::uint64_t composer_drag_revision{};
     void draw_action_preview(const nlohmann::json&);
     void draw_pose_preview();
+    std::function<void(ImDrawList*,ViewArea)> composer_overlay;
+    DirectX::XMFLOAT4X4 composer_view{},composer_projection{};
+    bool show_composer_volumes{true},show_composer_paths{true},show_composer_target{};
     std::function<void(AssetId,AssetId)> prepare_character_pose;
     AssetId character_preview_asset,character_clip;std::string character_preview_hash;
     std::function<void()> draw_character_info;
@@ -98,6 +103,8 @@ public:
     char character_name[65]{"new_character"},player_name[65]{"new_player"},npc_name[65]{"new_npc"},npc_faction[33]{"hostile"},behavior_name[65]{"new_behavior"};
     std::function<void(AssetId,unsigned)> prepare_composer;
     std::function<void(AssetId)> prepare_action_pose;
+    AssetId ability_target_character;float ability_target_distance{2.5f};
+    std::function<void(AssetId)> prepare_ability_target;
     std::function<void(double)> scrub_composer;
     std::function<std::string()> composer_info;
     std::function<void(double)> draw_composer_effects;
@@ -131,7 +138,7 @@ public:
     AssetId composer_asset;unsigned composer_block{};double composer_tick{},composer_zero{};
     AssetId character_selection,player_selection,npc_selection,create_skin,create_character;
     AssetId creation_ability_template,creation_effect_template;int creation_gameplay_kind{};bool creation_initialized{};bool creation_copy_action{true};char creation_ability_name[65]{"new_ability"},creation_effect_name[65]{"new_effect"};
-    AssetId authored_selection,binding_ability,binding_effect;int binding_block{2};double binding_power{5};
+    AssetId authored_selection,binding_ability,binding_effect;unsigned binding_block{2};double binding_power{5};
     char history_source_filter[128]{};bool history_pending_only{};std::optional<NativeSourceComparison> last_source_comparison;std::optional<NativeValidationSummary> last_validation;
     char author_name[65]{"new_ability"};std::string author_diagnostic;
     Workspace workspace{Workspace::Scene},previous_workspace{Workspace::Scene};ToolView tool{ToolView::Console};bool project_settings{},inventory_open{};bool lighting_project_defaults{};

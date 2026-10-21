@@ -1,0 +1,62 @@
+{
+  "applied": true,
+  "files": [
+    "content\\royal_district\\combat\\bow.daability",
+    "content\\royal_district\\combat\\bow.daaction",
+    "content\\royal_district\\combat\\dodge.daability",
+    "content\\royal_district\\combat\\earth.dakit",
+    "content\\royal_district\\combat\\earth\\earth_light.daability",
+    "content\\royal_district\\combat\\earth\\earth_spear.daability",
+    "content\\royal_district\\combat\\heavy.daability",
+    "content\\royal_district\\combat\\heavy.daaction",
+    "content\\royal_district\\combat\\light.daability",
+    "content\\royal_district\\combat\\light.daaction",
+    "content\\royal_district\\combat\\player.dakit"
+  ],
+  "warnings": [],
+  "typed_composers": [
+    {
+      "composer": "royal_district/combat/bow.daaction",
+      "hit_blocks": 1,
+      "effect_references": 0,
+      "projectiles": 1
+    },
+    {
+      "composer": "royal_district/combat/dodge.daaction",
+      "hit_blocks": 0,
+      "effect_references": 0,
+      "projectiles": 0
+    },
+    {
+      "composer": "royal_district/combat/earth/earth_light_punch.daaction",
+      "hit_blocks": 1,
+      "effect_references": 1,
+      "projectiles": 0
+    },
+    {
+      "composer": "royal_district/combat/earth/earth_light_kick.daaction",
+      "hit_blocks": 1,
+      "effect_references": 1,
+      "projectiles": 0
+    },
+    {
+      "composer": "royal_district/combat/earth/earth_spear.daaction",
+      "hit_blocks": 1,
+      "effect_references": 1,
+      "projectiles": 1
+    },
+    {
+      "composer": "royal_district/combat/heavy.daaction",
+      "hit_blocks": 1,
+      "effect_references": 1,
+      "projectiles": 0
+    },
+    {
+      "composer": "royal_district/combat/light.daaction",
+      "hit_blocks": 1,
+      "effect_references": 1,
+      "projectiles": 0
+    }
+  ],
+  "preserved": "Ability permissions, combo identity, preparation and effect behavior preserved. Unambiguous profiles, kit effects and projectile motion/model/preparation moved to typed blocks."
+}

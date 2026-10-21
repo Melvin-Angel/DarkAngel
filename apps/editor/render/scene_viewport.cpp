@@ -243,6 +243,7 @@ void SceneViewport::render(double elapsed_seconds) {
     auto& authoring_skin = previews.authoring_skin;
     const auto& graph_pose = previews.graph_pose;
     const auto& composer_pose = previews.composer_pose;
+    constexpr StableId ability_target_id{UINT64_MAX,UINT64_MAX};
     const auto& composer_matrices = previews.composer_matrices;
 #endif
     const bool character_render =
@@ -371,6 +372,7 @@ void SceneViewport::render(double elapsed_seconds) {
     }
     XMStoreFloat4x4(&view_matrix, view);
     XMStoreFloat4x4(&projection_matrix, projection);
+    if(composer_render){shell.composer_view=view_matrix;shell.composer_projection=projection_matrix;}
     if (gameplay_camera_render) {
         shell.game_view = view_matrix;
         shell.game_projection = projection_matrix;
@@ -434,6 +436,7 @@ void SceneViewport::render(double elapsed_seconds) {
             darkangel::Transform pose;
             pose.scale = 1;
             scatter_poses.emplace(character_resources->player, pose);
+            if(shell.workspace==Workspace::Ability&&previews.ability_target_skin){drawn_objects.emplace_back(ability_target_id,character_resources->skin);pose.z=shell.ability_target_distance;pose.yaw=DirectX::XM_PI;scatter_poses.emplace(ability_target_id,pose);}
         }
 #endif
     }
@@ -496,6 +499,15 @@ void SceneViewport::render(double elapsed_seconds) {
                 }
             } catch (const std::exception&) {}
         }
+    }
+    if(isolated_preview){
+        // A neutral authoring rig, independent of the scene's sky, exposure and
+        // light placements. This changes only this isolated render route.
+        frame_settings.sky_enabled=false;frame_settings.sky_color={.08f,.11f,.16f};frame_settings.fog.enabled=false;
+        frame_settings.shadows.cascades_enabled=false;frame_settings.post=rendering::PostProcessSettings{};
+        frame_settings.sky.sun_color={1,1,1};frame_settings.sky.sun_intensity=2.5f;frame_settings.sky.sun_direction={-.35f,.7f,.6f};
+        frame_settings.toon.ambient_color={.42f,.46f,.55f};frame_settings.toon.ambient_strength=.8f;
+        material_toon_defaults.ambient_color=frame_settings.toon.ambient_color;material_toon_defaults.ambient_strength=frame_settings.toon.ambient_strength;
     }
     const FrameLight* main_light = nullptr;
     for (const auto& prepared : frame_lights)
@@ -690,7 +702,7 @@ void SceneViewport::render(double elapsed_seconds) {
             }
             if (!cached->second) continue;
 #ifdef DAE_CHARACTER_SCENE
-            if (isolated_preview &&
+            if (isolated_preview && object_id!=ability_target_id &&
                 (model_id != character_resources->skin || (character_resources->player && object_id != character_resources->player)))
                 continue;
 #endif
@@ -708,7 +720,7 @@ void SceneViewport::render(double elapsed_seconds) {
                                 pose.z += center.z - placed.start.z;
                             }
 #ifdef DAE_CHARACTER_SCENE
-            if (isolated_preview) {
+            if (isolated_preview && object_id!=ability_target_id) {
                 pose = {};
                 pose.scale = 1;
             }
@@ -722,6 +734,7 @@ void SceneViewport::render(double elapsed_seconds) {
 #ifdef DAE_CHARACTER_SCENE
             if (isolated_preview && authoring_skin)
                 selected_skin = &*authoring_skin;
+            if(isolated_preview&&object_id==ability_target_id&&previews.ability_target_skin)selected_skin=&*previews.ability_target_skin;
 #endif
             auto* drawn_ptr = selected_skin ? &selected_skin->gpu : nullptr;
             if (drawn_ptr && !args.skin_reference) {
@@ -733,7 +746,8 @@ void SceneViewport::render(double elapsed_seconds) {
                          selected_skin->model.rig.definition.signature == character_resources->rig.definition.signature)
                     gameplay_pose = viewer ? viewer->pose(object_id) : character->pose(object_id);
 #endif
-                upload_palette(context, bone_buffer, *selected_skin, diagnostic_clip.get(), args.pose_tick, gameplay_pose);
+                if(isolated_preview&&object_id==ability_target_id)upload_palette(context,bone_buffer,*selected_skin,nullptr,0,nullptr);
+                else upload_palette(context, bone_buffer, *selected_skin, diagnostic_clip.get(), args.pose_tick, gameplay_pose);
             }
 #else
             UploadedModel* drawn_ptr = nullptr;
@@ -1355,12 +1369,15 @@ void SceneViewport::render(double elapsed_seconds) {
             const auto* client = character->client(character_player);
             const auto* combat = client ? client->combat() : nullptr;
             const auto definition = combat ? std::find_if(combat->abilities.begin(), combat->abilities.end(), [&](const auto& value) { return value->id == owner->ability; }) : std::vector<std::shared_ptr<const AbilityDefinition>>::const_iterator{};
-            if (combat && definition != combat->abilities.end() && (*definition)->aim && (*definition)->aim->projectile && (*definition)->aim->projectile->preparation) {
-                const auto& projectile = *(*definition)->aim->projectile;
-                const auto& preparation = *projectile.preparation;
+            if (combat && definition != combat->abilities.end()) {
                 const ActionDefinition* action = nullptr;
                 if ((*definition)->action->id == owner->action_definition) action = (*definition)->action.get();
                 for (const auto& step : (*definition)->combo_steps) if (step.action->id == owner->action_definition) action = step.action.get();
+                std::optional<AbilityProjectile> prepared_shot;
+                if(action)for(const auto& block:action->blocks)if(block.projectile&&block.projectile->preparation){const auto& shot=*block.projectile;prepared_shot=AbilityProjectile{shot.speed,shot.gravity,shot.lifetime,shot.visual_model,shot.preparation,true};break;}
+                if(!prepared_shot&&(*definition)->aim&&(*definition)->aim->projectile&&!(*definition)->aim->projectile->composer_owned)prepared_shot=(*definition)->aim->projectile;
+                if(prepared_shot&&prepared_shot->preparation){
+                const auto& projectile=*prepared_shot;const auto& preparation=*projectile.preparation;
                 const auto find_block = [&](unsigned id) -> const ActionBlock* { if (!action) return nullptr; const auto found = std::find_if(action->blocks.begin(), action->blocks.end(), [&](const auto& block) { return block.id == id; }); return found == action->blocks.end() ? nullptr : &*found; };
                 const auto* emergence = find_block(preparation.emergence_block);
                 const auto* movement = find_block(preparation.move_block);
@@ -1391,6 +1408,7 @@ void SceneViewport::render(double elapsed_seconds) {
                     const auto pitch=-XM_PIDIV2+XMConvertToRadians(float(preparation.ready_pitch_degrees+90.)*float(prepared_pose->travel));const auto rotation=XMMatrixRotationRollPitchYaw(pitch,float(yaw),0);const auto world=rotation*XMMatrixTranslation(position.x,position.y,position.z);const auto& prepared=model->second;
                     for(const auto& mesh:prepared.meshes){IBuffer* vb=mesh.vertices;Uint64 vertex_offset{};context->SetVertexBuffers(0,1,&vb,&vertex_offset,RESOURCE_STATE_TRANSITION_MODE_TRANSITION,SET_VERTEX_BUFFERS_FLAG_RESET);context->SetIndexBuffer(mesh.indices,0,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);for(const auto& part:mesh.parts){const auto& material=prepared.materials.at(part.material);Constants constants;XMStoreFloat4x4(&constants.mvp,world*view*projection);XMStoreFloat4x4(&constants.rotation,rotation);XMStoreFloat4x4(&constants.world,world);constants.color={material.value.color[0],material.value.color[1],material.value.color[2],material.value.color[3]};apply_material(constants,material.value);void* mapped{};context->MapBuffer(constant_buffer,MAP_WRITE,MAP_FLAG_DISCARD,mapped);require(mapped,"Uniform buffer mapping failed");std::memcpy(mapped,&constants,sizeof(constants));context->UnmapBuffer(constant_buffer,MAP_WRITE);context->SetPipelineState(pso.RawPtr());if(auto* shadow=material.binding->GetVariableByName(SHADER_TYPE_PIXEL,"ShadowMap"))shadow->Set(shadow_srv);bind_gpu_clusters(material.binding,gpu_clusters);context->CommitShaderResources(material.binding,RESOURCE_STATE_TRANSITION_MODE_TRANSITION);DrawIndexedAttribs draw;draw.NumIndices=part.count;draw.IndexType=VT_UINT32;draw.FirstIndexLocation=part.first;draw.Flags=DRAW_FLAG_VERIFY_ALL;context->DrawIndexed(draw);}}
                     }
+                }
                 }
             }
         }

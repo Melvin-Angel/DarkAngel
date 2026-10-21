@@ -55,7 +55,7 @@ private:
     struct HeldInput {bool active{};std::uint64_t pressed{},released{},duration{};bool hold_sent{};};
     std::array<HeldInput,combat_slot_count> held_{};std::array<InputActionDefinition,combat_slot_count> input_{};std::uint64_t held_generation_{};
     AbilityOwnerHandle owner_;std::uint64_t tick_{},revision_{},next_activation_{1},highest_operation_{},retired_through_{};
-    std::set<std::tuple<std::uint64_t,AssetId,unsigned,unsigned,std::uint64_t,std::uint64_t>> hits_;
+    std::set<std::tuple<std::uint64_t,AssetId,unsigned,unsigned,std::uint64_t,std::uint64_t,unsigned>> hits_;
     AttributeSet attributes_;AttributeId health_,maximum_health_;
     OwnedEffects effects_;bool tags_configured_{};
     std::optional<CombatKitInstance> kit_;

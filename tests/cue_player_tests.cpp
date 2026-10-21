@@ -1,5 +1,6 @@
 #include <darkangel/cue_player.hpp>
 #include <iostream>
+#include <array>
 #include <stdexcept>
 using namespace darkangel;
 namespace {
@@ -43,7 +44,7 @@ int main(){try{
         Recorder visual,audio;CuePlayer player(resolve,&visual,&audio);player.action(1,1,block(ActionEdge::Begin,5,3,"swing"),10);player.action(1,1,block(ActionEdge::Begin,5,4,"hit",ActionBlockKind::HitWindow),10);
         check(player.live()==1&&visual.log.size()==1&&audio.log.size()==1,"A cue block did not start, or a hit window was taken for a cue");
         player.action(1,1,block(ActionEdge::Marker,5,6,"hit.spark"),14);check(player.live()==2&&visual.log.back()=="stop hit.spark tail 10"&&audio.log.size()==1,"A marker cue did not play once on the sink it names only");
-        player.action(1,1,block(ActionEdge::Marker,5,7,"grunt"),14);check(audio.log.back()=="stop grunt tail 180"&&visual.log.back()=="stop hit.spark tail 10","A tail was not held to the player's limit, or an audio cue reached the visual sink");
+        player.action(1,1,block(ActionEdge::Marker,5,7,"grunt",ActionBlockKind::Audio),14);check(audio.log.back()=="stop grunt tail 180"&&visual.log.back()=="stop hit.spark tail 10","A tail was not held to the player's limit, or an audio cue reached the visual sink");
         player.action(1,1,block(ActionEdge::End,5,3,"swing"),30);check(visual.log.back()=="stop swing tail 20","A cue block did not stop with its tail at its end");
         player.advance(1000);check(player.live()==0&&visual.held.empty()&&audio.held.empty(),"Action cues were not all released after their tails");
         // A rejected activation: its cues are cut with the short tail, a fading one included; another activation's cues are untouched.
@@ -70,6 +71,14 @@ int main(){try{
         bool refused=false;try{CueLimits bad;bad.live=0;CuePlayer player(resolve,nullptr,nullptr,bad);}catch(const std::exception&){refused=true;}check(refused,"A player without room for any cue was built");
     }
     {
+        // An authored Audio interval must traverse the clock tracker and reach
+        // only the audio sink, once, with cleanup at its exclusive end.
+        {
+            auto sound=std::make_shared<ActionDefinition>();sound->id=AssetId::random();sound->duration=3*action_tick_units;sound->loops=1;sound->blocks={{1,0,0,2*action_tick_units,ActionBlockKind::Audio,"grunt"}};
+            const std::array<std::shared_ptr<const ActionDefinition>,1> pool{sound};ActionCueTracker tracker(pool);Recorder visual,audio;CuePlayer player(resolve,&visual,&audio);
+            auto emit=[&](unsigned tick){ActionState state;state.activation=17;state.clock=tick*action_tick_units;state.entered=true;tracker.observe(5,1,CueTiming::Observed,sound->id,state);for(const auto& cue:tracker.drain_cues())player.action(cue.network,cue.avatar_epoch,cue.event,tick,cue.timing);};
+            emit(0);emit(0);emit(1);check(audio.log.size()==1&&visual.log.empty(),"Audio interval repeated or reached the visual sink");emit(2);check(audio.log.size()==2&&audio.log.back()=="stop grunt tail 180","Audio interval did not stop at its end");player.advance(1000);check(audio.held.empty(),"Audio interval did not release its instance");
+        }
         // Action cues derived from an action clock: each cue block once as the clock passes it, the last tick's cues when the action runs out.
         auto swing=std::make_shared<ActionDefinition>();swing->id=AssetId::random();swing->duration=10*action_tick_units;swing->loops=1;
         swing->blocks={{1,0,0,0,ActionBlockKind::Cue,"swing"},{2,1,5*action_tick_units,5*action_tick_units,ActionBlockKind::Cue,"hit.spark"},{3,2,9*action_tick_units+512,9*action_tick_units+512,ActionBlockKind::Cue,"grunt"},{4,3,2*action_tick_units,6*action_tick_units,ActionBlockKind::HitWindow,"Weapon.Right"}};

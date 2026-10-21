@@ -1,4 +1,6 @@
 #include "../apps/editor/native_authoring.hpp"
+#include "legacy_combat_fixture.hpp"
+#include "authoring_fixture_sources.hpp"
 #include <darkangel/character_scene.hpp>
 #include "../apps/editor/reference_picker.hpp"
 #include "../apps/editor/character_preview.hpp"
@@ -64,7 +66,8 @@ int main(int argc, char** argv) {
              content = std::filesystem::path(DAE_SOURCE_DIR) / "content";
         check(!std::filesystem::exists(root), "Use a fresh authoring-fixture directory");
         std::filesystem::create_directories(source);
-        std::filesystem::copy(content, source, std::filesystem::copy_options::recursive);
+        copy_authoring_fixture_sources(content,source);
+        prepare_legacy_combat_fixture(source);
         AssetService assets(source, root / "c");
         assets.scan();
         NativeAuthoring author;
@@ -217,11 +220,15 @@ int main(int argc, char** argv) {
               "Malformed candidate reports disabled diagnostic without aborting picker");
         auto clips = reference_candidates(assets, author, inventory, ".glb", "canonical-human");
         check(clips.empty(), "Skinned models are excluded from normalized clip picker");
-        auto nonloop = reference_candidates(assets, author, inventory, ".glb", "attack", nullptr, "clip-gltf-v1", true);
+        // Pin the intended fixtures: the project also contains legitimately
+        // looping imported attack clips, which match the broad name search.
+        const auto attack_query=Json::parse(read(source/"royal_district/clips/attack.glb.daimport")).at("id").get<std::string>();
+        const auto idle_query=Json::parse(read(source/"royal_district/clips/idle.glb.daimport")).at("id").get<std::string>();
+        auto nonloop = reference_candidates(assets, author, inventory, ".glb", attack_query, nullptr, "clip-gltf-v1", true);
         check(nonloop.empty(), "Non-looping attack offered as locomotion graph clip");
-        auto looping = reference_candidates(assets, author, inventory, ".glb", "idle", nullptr, "clip-gltf-v1", true);
+        auto looping = reference_candidates(assets, author, inventory, ".glb", idle_query, nullptr, "clip-gltf-v1", true);
         check(!looping.empty() && looping.front().diagnostic.empty(), "Valid looping clip missing from graph picker");
-        auto any_clip = reference_candidates(assets, author, inventory, ".glb", "attack");
+        auto any_clip = reference_candidates(assets, author, inventory, ".glb", attack_query);
         check(!any_clip.empty(), "Action/Character preview lost non-looping clips");
         auto loop_path = source / (looping.front().asset.path + ".daimport");
         auto loop_bytes = read(loop_path);

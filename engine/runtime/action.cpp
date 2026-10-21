@@ -9,6 +9,18 @@
 namespace darkangel {
 namespace {
 void require(bool b,const char* s){if(!b)throw std::runtime_error(s);}
+void validate_gameplay(const ActionBlock& block){
+    require(block.effects.size()<=8,"Action effect request bound");std::set<AssetId> effects;
+    for(const auto& effect:block.effects)require((block.hit||block.kind==ActionBlockKind::Gameplay)&&effect.asset!=AssetId{}&&effects.insert(effect.asset).second&&std::isfinite(effect.power)&&effect.power>=0&&effect.power<=1e9,"Action effect identity/power/type");
+    if(block.hit){const auto& hit=*block.hit;require(block.kind==ActionBlockKind::HitWindow||block.kind==ActionBlockKind::Hitbox||block.kind==ActionBlockKind::Projectile||block.kind==ActionBlockKind::Aoe,"Hit payload on incompatible block");
+        require(std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&hit.evaluator&&hit.damage_type,"Action hit scalar bounds");
+        for(auto value:hit.offset)require(std::isfinite(value)&&std::abs(value)<=3,"Action hit offset bounds");
+        require(hit.socket.size()<=64&&hit.socket.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")==hit.socket.npos,"Action hit socket");
+        require(block.kind!=ActionBlockKind::Projectile||block.projectile.has_value(),"Projectile hit requires motion");require(block.kind!=ActionBlockKind::Aoe||block.area_period,"Area hit requires period");
+    }
+    if(block.projectile){const auto& shot=*block.projectile;require(block.kind==ActionBlockKind::Projectile&&block.hit&&std::isfinite(shot.speed)&&shot.speed>=1&&shot.speed<=200&&std::isfinite(shot.gravity)&&shot.gravity>=0&&shot.gravity<=50&&std::isfinite(shot.range)&&shot.range>0&&shot.range<=60&&shot.lifetime>=1&&shot.lifetime<=600,"Projectile payload motion/type bounds");}
+    if(block.area_period)require(block.kind==ActionBlockKind::Aoe&&block.hit&&block.area_period<=600,"Area payload period/type bounds");
+}
 void validate_motion(const ActionDefinition& definition){
     if(!definition.motion)return;
     const auto& motion=*definition.motion;const auto& clip=motion.clip;
@@ -18,6 +30,7 @@ void validate_motion(const ActionDefinition& definition){
     for(auto value:clip.root.front())require(std::abs(value)<1e-5,"Action clip initial root");
     for(const auto& key:clip.root)for(auto value:key)require(std::isfinite(value)&&std::abs(value)<=100,"Action clip root scalar bounds");
 }
+void validate_preparation(const ActionDefinition& action){for(const auto& block:action.blocks)if(block.projectile&&block.projectile->preparation){const auto& shot=*block.projectile;const auto& prep=*shot.preparation;auto find=[&](unsigned id){return std::find_if(action.blocks.begin(),action.blocks.end(),[&](const auto& b){return b.id==id;});};auto emerge=find(prep.emergence_block),move=find(prep.move_block);require(shot.visual_model!=AssetId{}&&prep.release_block==block.id&&prep.emergence_block!=prep.move_block&&emerge!=action.blocks.end()&&move!=action.blocks.end()&&emerge->kind==ActionBlockKind::Vfx&&move->kind==ActionBlockKind::Vfx&&emerge->end<=move->begin&&move->end<=block.begin&&std::isfinite(prep.rise)&&prep.rise>=.2&&prep.rise<=3&&std::isfinite(prep.ready_pitch_degrees)&&std::abs(prep.ready_pitch_degrees)<=90&&!prep.socket.empty()&&prep.socket.size()<=64,"Composer projectile preparation windows/model/transform");for(auto v:prep.offset)require(std::isfinite(v)&&std::abs(v)<=10,"Projectile preparation offset bounds");}}
 bool interval(ActionBlockKind kind){return kind!=ActionBlockKind::Cue&&kind!=ActionBlockKind::Commit;}
 ActionEvent event(const ActionState& state,const ActionBlock& block,unsigned loop,unsigned local,ActionEdge edge,unsigned duration){return {state.activation,std::uint64_t(loop)*duration+local,block.id,block.track,loop,edge,block.kind,block.key};}
 void order(ActionBatch& batch){require(batch.events.size()<=512&&batch.traversed.size()<=256,"Action boundary work limit");std::sort(batch.events.begin(),batch.events.end(),[](const auto& a,const auto& b){return std::tie(a.time,a.loop,a.track,a.block,a.edge)<std::tie(b.time,b.loop,b.track,b.block,b.edge);});}
@@ -34,9 +47,34 @@ ActionDefinition decode_action_source(std::string_view bytes){
     auto slot=source.at("slot").get<std::string>();require(slot=="full-body"||slot=="upper-body","Action pose slot");definition.upper_body=slot=="upper-body";
     require(source.at("blocks").is_array()&&source.at("blocks").size()<=32,"Action block bound");std::set<unsigned> ids;
     for(const auto& record:source.at("blocks")){
-        require(record.is_object()&&record.size()==6,"Action block schema");ActionBlock block;block.id=integer(record.at("id"),UINT32_MAX);require(block.id&&ids.insert(block.id).second,"Action block identity");block.track=integer(record.at("track"),31);block.begin=integer(record.at("begin"),definition.duration);block.end=integer(record.at("end"),definition.duration);block.key=record.at("key").get<std::string>();require(!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed key");
+        require(record.is_object()&&record.size()==6+unsigned(record.contains("hit"))+unsigned(record.contains("projectile"))+unsigned(record.contains("area"))+unsigned(record.contains("effects")),"Action block schema");ActionBlock block;block.id=integer(record.at("id"),UINT32_MAX);require(block.id&&ids.insert(block.id).second,"Action block identity");block.track=integer(record.at("track"),31);block.begin=integer(record.at("begin"),definition.duration);block.end=integer(record.at("end"),definition.duration);block.key=record.at("key").get<std::string>();require(!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed key");
         auto kind=record.at("kind").get<std::string>();if(kind=="cue")block.kind=ActionBlockKind::Cue;else if(kind=="hit")block.kind=ActionBlockKind::HitWindow;else if(kind=="invulnerability")block.kind=ActionBlockKind::Invulnerability;else if(kind=="movement-lock")block.kind=ActionBlockKind::MovementLock;else if(kind=="combo")block.kind=ActionBlockKind::ComboWindow;else if(kind=="commit")block.kind=ActionBlockKind::Commit;else if(kind=="vfx")block.kind=ActionBlockKind::Vfx;else if(kind=="audio")block.kind=ActionBlockKind::Audio;else if(kind=="gameplay")block.kind=ActionBlockKind::Gameplay;else if(kind=="projectile")block.kind=ActionBlockKind::Projectile;else if(kind=="aoe")block.kind=ActionBlockKind::Aoe;else if(kind=="hitbox")block.kind=ActionBlockKind::Hitbox;else throw std::runtime_error("Unsupported action block kind");
-        require(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition.duration,"Action marker/interval range");definition.blocks.push_back(std::move(block));
+        if(record.contains("hit")){
+            const auto& data=record.at("hit");
+            require((block.kind==ActionBlockKind::HitWindow||block.kind==ActionBlockKind::Hitbox||block.kind==ActionBlockKind::Projectile||block.kind==ActionBlockKind::Aoe)&&data.is_object()&&data.size()==8&&data.at("schema")==1&&data.at("shape")=="sphere","Action hit payload schema/type");
+            require(data.at("offset").is_array()&&data.at("offset").size()==3,"Action hit offset dimensions");
+            ActionHit hit;hit.offset=data.at("offset").get<std::array<double,3>>();hit.radius=data.at("radius").get<double>();hit.power=data.at("power").get<double>();hit.evaluator=integer(data.at("evaluator"),UINT32_MAX);hit.damage_type=integer(data.at("damage_type"),UINT32_MAX);hit.socket=data.at("socket").get<std::string>();
+            require(std::isfinite(hit.radius)&&hit.radius>0&&hit.radius<=2&&std::isfinite(hit.power)&&hit.power>=0&&hit.power<=1e9&&hit.evaluator&&hit.damage_type,"Action hit scalar bounds");
+            for(auto value:hit.offset)require(std::isfinite(value)&&std::abs(value)<=3,"Action hit offset bounds");
+            require(hit.socket.size()<=64&&hit.socket.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")==hit.socket.npos,"Action hit socket");block.hit=std::move(hit);
+        }
+        if(record.contains("projectile")){
+            const auto& shot=record.at("projectile");require(block.kind==ActionBlockKind::Projectile&&block.hit&&shot.is_object()&&shot.size()==5+unsigned(shot.contains("visual_model"))+unsigned(shot.contains("model_source"))+unsigned(shot.contains("model_generation"))+unsigned(shot.contains("preparation"))&&shot.at("schema")==1,"Action projectile payload schema/type");
+            ActionProjectile value{shot.at("speed").get<double>(),shot.at("gravity").get<double>(),shot.at("range").get<double>(),integer(shot.at("lifetime"),600)};
+            require(std::isfinite(value.speed)&&value.speed>=1&&value.speed<=200&&std::isfinite(value.gravity)&&value.gravity>=0&&value.gravity<=50&&std::isfinite(value.range)&&value.range>0&&value.range<=60&&value.lifetime>0,"Action projectile motion bounds");
+            if(shot.contains("visual_model"))value.visual_model=AssetId::parse(shot.at("visual_model").get<std::string>());
+            if(shot.contains("model_generation")){auto digest=shot.at("model_generation").get<std::string>();require(value.visual_model!=AssetId{}&&digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Projectile model generation");}
+            if(shot.contains("model_source"))require(value.visual_model!=AssetId{}&&shot.at("model_source").is_string(),"Projectile model locator/reference pair");
+            if(shot.contains("preparation")){const auto& prep=shot.at("preparation");require(prep.is_object()&&prep.size()==7&&prep.contains("offset")&&prep.at("offset").is_array()&&prep.at("offset").size()==3,"Projectile preparation schema");value.preparation=ActionProjectilePreparation{integer(prep.at("emergence_block"),UINT32_MAX),integer(prep.at("move_block"),UINT32_MAX),integer(prep.at("release_block"),UINT32_MAX),prep.at("offset").get<std::array<double,3>>(),prep.at("rise").get<double>(),prep.at("socket").get<std::string>(),prep.at("ready_pitch_degrees").get<double>()};}
+            block.projectile=value;
+        }
+        if(record.contains("area")){
+            const auto& area=record.at("area");require(block.kind==ActionBlockKind::Aoe&&block.hit&&area.is_object()&&area.size()==2&&area.at("schema")==1,"Action area payload schema/type");block.area_period=integer(area.at("period_ticks"),600);require(block.area_period>=1,"Action area period must be positive");
+        }
+        if(record.contains("effects")){const auto& payload=record.at("effects");require(payload.is_object()&&payload.size()==2&&payload.at("schema")==1&&payload.at("entries").is_array()&&payload.at("entries").size()<=8,"Action effect payload schema");for(const auto& effect:payload.at("entries")){require(effect.is_object()&&effect.size()==3&&effect.contains("asset")&&effect.contains("power")&&(effect.contains("source")!=effect.contains("generation")),"Action effect reference fields");if(effect.contains("generation")){const auto digest=effect.at("generation").get<std::string>();require(digest.size()==64&&digest.find_first_not_of("0123456789abcdef")==digest.npos,"Action effect frozen digest");}else require(effect.at("source").is_string(),"Action effect source locator");block.effects.push_back({AssetId::parse(effect.at("asset").get<std::string>()),effect.at("power").get<double>(),{}});}}
+        require(!block.hit||block.kind!=ActionBlockKind::Projectile||block.projectile.has_value(),"Projectile hit requires motion payload");
+        require(!block.hit||block.kind!=ActionBlockKind::Aoe||block.area_period,"Area hit requires period payload");
+        require(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition.duration,"Action marker/interval range");validate_gameplay(block);definition.blocks.push_back(std::move(block));
     }
     if(source.at("schema")==2){
         const auto& binding=source.at("motion");require(binding.is_object()&&binding.size()==3,"Action motion binding fields");ActionClipBinding motion;motion.clip=decode_clip_manifest(binding.at("clip").dump());motion.archive_generation=binding.at("archive_generation").get<std::string>();auto policy=binding.at("policy").get<std::string>();require(policy=="motor"||policy=="none","Action root policy");motion.motor_root=policy=="motor";definition.motion=std::move(motion);
@@ -49,7 +87,7 @@ ActionDefinition decode_action_source(std::string_view bytes){
             for(auto weight:value.weights)require(std::isfinite(weight)&&weight>=0&&weight<=1,"Action mask weight bounds");definition.mask=std::move(value);
         }
     }
-    std::sort(definition.blocks.begin(),definition.blocks.end(),[](const auto& a,const auto& b){return std::tie(a.track,a.id)<std::tie(b.track,b.id);});definition.generation=sha256(source.dump());return definition;
+    std::sort(definition.blocks.begin(),definition.blocks.end(),[](const auto& a,const auto& b){return std::tie(a.track,a.id)<std::tie(b.track,b.id);});validate_preparation(definition);definition.generation=sha256(source.dump());return definition;
 }
 ActionMotion action_motion_between(const ActionDefinition& definition,std::uint64_t from,std::uint64_t to){
     validate_motion(definition);require(from<=to&&to<=std::uint64_t(definition.duration)*definition.loops&&to-from<=8*action_tick_units,"Action root clock interval");ActionMotion result;
@@ -61,7 +99,8 @@ ActionTimeline::ActionTimeline(std::shared_ptr<const ActionDefinition> definitio
     require(definition&&activation&&definition->duration>=action_tick_units&&definition->duration<=600*action_tick_units&&definition->loops&&definition->loops<=8&&definition->blocks.size()<=32&&definition->generation.size()==64,"Action activation definition bounds");
     require(definition->priority<=255&&definition->generation.find_first_not_of("0123456789abcdef")==definition->generation.npos,"Action definition metadata");
     std::set<unsigned> ids;for(const auto& block:definition->blocks)require(block.id&&ids.insert(block.id).second&&block.track<=31&&block.end<=definition->duration&&block.begin<=definition->duration&&static_cast<unsigned>(block.kind)<=static_cast<unsigned>(ActionBlockKind::Hitbox)&&(interval(block.kind)?block.begin<block.end:block.begin==block.end&&block.begin<definition->duration)&&!block.key.empty()&&block.key.size()<=64&&block.key.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==block.key.npos,"Action typed definition block");
-    validate_motion(*definition);
+    for(const auto& block:definition->blocks)validate_gameplay(block);
+    validate_motion(*definition);validate_preparation(*definition);
     // Definitions are copied so mutable aliases cannot change an active generation.
     definition_=std::make_shared<const ActionDefinition>(*definition);state_.activation=activation;state_.tick=tick;state_.generation=definition_->generation;
 }

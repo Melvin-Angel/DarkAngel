@@ -31,6 +31,10 @@ public:
     std::vector<AssetInfo> inventory(AssetService&)const;
     CookResult save(AssetService&,AssetId);
     AssetId create_character(AssetService&,AssetId skin,std::string_view name);
+    AssetId create_action_from_animation(AssetService&,AssetId clip,std::string_view relative_path);
+    // Create and assign a base/continuation composer as one reversible command.
+    // step==current step count appends a continuation (at most four total).
+    AssetId create_ability_composer(AssetService&,AssetId ability,unsigned step,AssetId clip,std::string_view relative_path);
     AssetId create_player(AssetService&,AssetId character,AssetId kit,std::string_view name);
     // An NPC shares the Player's Character reference and Actor Loadout; it adds a display name and faction.
     AssetId create_npc(AssetService&,AssetId character,AssetId kit,std::string_view name,std::string_view faction="hostile");
@@ -92,6 +96,7 @@ public:
     // Optional utility dodge ability on the input profile's "dodge" action; empty clears it.
     void assign_dodge(AssetService&,AssetId kit,AssetId ability);
     void bind(AssetService&,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power);
+    std::vector<unsigned> ability_hit_blocks(AssetService&,AssetId ability);
     unsigned add_graph_blend(AssetService&,AssetId,bool two_dimensional,unsigned first,unsigned second,unsigned third=0);
     void upgrade_graph_machine(AssetService&,AssetId);
     unsigned add_graph_state(AssetService&,AssetId,std::string_view name,unsigned root);

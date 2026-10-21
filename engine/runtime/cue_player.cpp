@@ -36,7 +36,7 @@ void CuePlayer::effect(const EffectCueUpdate& update,std::uint64_t tick){
     else if(update.edge==EffectCueEdge::End){if(auto found=instances_.find(source);found!=instances_.end()){const auto definition=resolver_(found->second.key,id.cue);stop(found,definition?definition->tail_ticks:0,tick);}}
 }
 void CuePlayer::action(std::uint64_t network,std::uint64_t avatar_epoch,const ActionEvent& event,std::uint64_t tick,CueTiming timing){
-    if(event.kind!=ActionBlockKind::Cue&&event.kind!=ActionBlockKind::Vfx)return;require(network&&event.activation,"An action cue needs its actor and activation");
+    if(event.kind!=ActionBlockKind::Cue&&event.kind!=ActionBlockKind::Vfx&&event.kind!=ActionBlockKind::Audio)return;require(network&&event.activation,"An action cue needs its actor and activation");
     // The owner's action is fed twice; a cue belongs to exactly one of the two streams.
     if(timing!=CueTiming::Observed){const auto definition=resolver_(event.key,AssetId{});if((timing==CueTiming::OwnerPredicted)!=(definition&&definition->predictable))return;}
     Source source;source.network=network;source.avatar_epoch=avatar_epoch;source.activation=event.activation;source.block=event.block;source.loop=event.loop;source.action=true;
@@ -79,7 +79,7 @@ ActionCueTracker::ActionCueTracker(std::span<const std::shared_ptr<const ActionD
 void ActionCueTracker::markers(std::uint64_t network,CueTiming timing,const Held& held,std::uint64_t from,std::uint64_t to,bool inclusive){
     const auto& definition=*held.definition;const auto first=cues_.size();
     for(unsigned loop=0;loop<definition.loops;++loop){const auto origin=std::uint64_t(loop)*definition.duration;if(origin>to||origin+definition.duration<from)continue;
-        for(const auto& block:definition.blocks){if(block.kind!=ActionBlockKind::Cue&&block.kind!=ActionBlockKind::Vfx)continue;const auto begin=origin+block.begin,end=origin+block.end;
+        for(const auto& block:definition.blocks){if(block.kind!=ActionBlockKind::Cue&&block.kind!=ActionBlockKind::Vfx&&block.kind!=ActionBlockKind::Audio)continue;const auto begin=origin+block.begin,end=origin+block.end;
             if(block.kind==ActionBlockKind::Cue){if(begin>to||(inclusive?begin<from:begin<=from))continue;cues_.push_back({network,held.avatar_epoch,timing,ActionEvent{held.activation,begin,block.id,block.track,loop,ActionEdge::Marker,block.kind,block.key}});continue;}
             if((begin>from||(inclusive&&begin==from))&&begin<=to)cues_.push_back({network,held.avatar_epoch,timing,ActionEvent{held.activation,begin,block.id,block.track,loop,ActionEdge::Begin,block.kind,block.key}});
             if((end>from||(inclusive&&end==from))&&end<=to)cues_.push_back({network,held.avatar_epoch,timing,ActionEvent{held.activation,end,block.id,block.track,loop,ActionEdge::End,block.kind,block.key}});
@@ -97,7 +97,7 @@ void ActionCueTracker::observe(std::uint64_t network,std::uint64_t avatar_epoch,
     if(held!=held_.end()&&(!running||held->second.activation!=state->activation||held->second.avatar_epoch!=avatar_epoch||held->second.definition!=definition->second)){
         if(running&&held->second.activation==state->activation&&held->second.avatar_epoch==avatar_epoch&&held->second.definition!=definition->second){
             const auto& previous=*held->second.definition;const auto local=held->second.clock%previous.duration;const auto loop=static_cast<unsigned>(held->second.clock/previous.duration);
-            for(const auto& block:previous.blocks)if(block.kind==ActionBlockKind::Vfx&&block.begin<=local&&local<block.end)cues_.push_back({network,avatar_epoch,timing,ActionEvent{held->second.activation,held->second.clock,block.id,block.track,loop,ActionEdge::End,block.kind,block.key}});
+            for(const auto& block:previous.blocks)if((block.kind==ActionBlockKind::Vfx||block.kind==ActionBlockKind::Audio)&&block.begin<=local&&local<block.end)cues_.push_back({network,avatar_epoch,timing,ActionEvent{held->second.activation,held->second.clock,block.id,block.track,loop,ActionEdge::End,block.kind,block.key}});
         }
         // A new avatar is a new actor to presentation: the host retires its cues, nothing is reported here.
         if(held->second.avatar_epoch==avatar_epoch&&!(running&&held->second.activation==state->activation&&held->second.definition!=definition->second))finish(network,timing,held->second);held_.erase(held);held=held_.end();}

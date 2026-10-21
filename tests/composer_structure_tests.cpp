@@ -1,4 +1,5 @@
 #include "../apps/editor/native_authoring.hpp"
+#include "../apps/editor/composer_timing.hpp"
 #include <darkangel/ability_assets.hpp>
 #include <darkangel/hash.hpp>
 #include <fstream>
@@ -10,6 +11,7 @@ std::string read(const std::filesystem::path& path){std::ifstream f(path);return
 void check(bool b,const char* error){if(!b)throw std::runtime_error(error);}
 template<class F>void rejects(F f){bool rejected=false;try{f();}catch(const std::exception&){rejected=true;}check(rejected,"Expected rejected structural candidate");}
 int main(int argc,char** argv){try{
+ check(composer_drag_units(50,100,60)==30*action_tick_units&&composer_drag_units(-25,100,60)==-15ll*action_tick_units&&composer_drag_units(1,100,60)==614,"Timeline pixel conversion lost fixed action units");
  check(argc==2||argc==3,"Pass existing isolated authoring fixture");auto fixture=nlohmann::json::parse(read(argv[1]));
  auto root=std::filesystem::path(argv[1]).parent_path()/("cs-"+AssetId::random().text());auto source=root/"s";std::filesystem::create_directories(root);
  std::filesystem::copy(fixture.at("source").get<std::string>(),source,std::filesystem::copy_options::recursive);
@@ -27,9 +29,19 @@ int main(int argc,char** argv){try{
   author.set_action_block_times(assets,id,block_id,begin,end-1024,true);author.record_changes(assets,"Finish resize");author.save_all(assets);assets.package(id,root/"resize.json");auto cooked=load_cooked_action(root/"resize.json",assets.cas_path(),id);auto hit=std::find_if(cooked.blocks.begin(),cooked.blocks.end(),[&](const auto& b){return b.id==block_id;});check(hit!=cooked.blocks.end()&&hit->begin==begin&&hit->end==end-1024,"Resize missing from native cooked generation");
   std::cout<<"Composer gestures: grouped fractional move/resize, Undo/Redo, cancellation, stale/invalid rejection, independent marker edits and native Save/cook passed\n";return 0;
  }
+ if(original.contains("motion")){
+  auto clip=AssetId::parse(original["motion"]["clip"].get<std::string>());auto created=author.create_action_from_animation(assets,clip,"actions/FromAnimation.daaction");
+  const auto draft=author.drafts.at(created).value;check(draft["motion"]["clip"]==clip.text()&&draft["duration"]==original["duration"]&&draft["blocks"].empty(),"Animation-to-composer binding or duration incorrect");
+  rejects([&]{author.create_action_from_animation(assets,clip,"actions/FromAnimation.daaction");});check(author.drafts.at(created).value==draft,"Duplicate creation mutated existing composer");
+  author.undo(assets);check(!author.drafts.contains(created),"Composer creation Undo retained draft");author.redo(assets);check(author.drafts.at(created).value==draft,"Composer creation Redo changed identity/binding");author.undo(assets);
+  auto ability_source=nlohmann::json::parse(read(source/"royal_district/combat/heavy.daability"));auto ability_id=AssetId::parse(ability_source.at("asset").get<std::string>());auto& ability_draft=author.open(assets,ability_id).value;
+  auto continuation=author.create_ability_composer(assets,ability_id,1,clip,"actions/ContinuationFromAnimation.daaction");check(ability_draft["combo_steps"][0]["action"]==continuation.text(),"Created composer was not assigned to next combo step");
+  author.undo(assets);check(!author.drafts.contains(continuation)&&ability_draft==ability_source,"Creation and assignment did not Undo atomically");author.redo(assets);check(author.drafts.contains(continuation)&&ability_draft["combo_steps"][0]["action"]==continuation.text(),"Atomic composer assignment Redo lost identity");check(author.create_ability_composer(assets,ability_id,1,clip,"actions/UnusedDuplicate.daaction")==continuation,"Valid assigned composer was duplicated");author.undo(assets);
+ }
  unsigned added=author.add_action_block(assets,id,{0,7,1024,1024,ActionBlockKind::Cue,"Test.New"});
  for(const auto& block:original["blocks"])check(std::find(value["blocks"].begin(),value["blocks"].end(),block)!=value["blocks"].end(),"Existing block identity/data changed");
  author.undo(assets);check(value==original,"Create block Undo failed");author.redo(assets);check(authoring_action(value).blocks.size()==original["blocks"].size()+1,"Create block Redo failed");
+ {const auto spear_source=nlohmann::json::parse(read(source/"royal_district/combat/earth/earth_spear.daaction"));const auto spear_id=AssetId::parse(spear_source.at("asset").get<std::string>());auto parsed=authoring_action(spear_source);auto shot=std::find_if(parsed.blocks.begin(),parsed.blocks.end(),[](const auto& block){return block.projectile.has_value();});check(shot!=parsed.blocks.end(),"Migrated projectile fixture missing");auto copy=*shot;copy.id=0;copy.track=7;const auto duplicate=author.add_action_block(assets,spear_id,copy);const auto duplicated=authoring_action(author.drafts.at(spear_id).value);auto block=std::find_if(duplicated.blocks.begin(),duplicated.blocks.end(),[&](const auto& block){return block.id==duplicate;});check(block!=duplicated.blocks.end()&&block->effects.size()==shot->effects.size()&&block->effects[0].asset==shot->effects[0].asset&&block->projectile->visual_model==shot->projectile->visual_model&&block->projectile->preparation->release_block==duplicate,"Timeline duplication lost typed assets or retained old release identity");author.undo(assets);check(author.drafts.at(spear_id).value==spear_source,"Typed block duplication Undo changed original");}
  auto edited=value;auto revision=author.revision();rejects([&]{author.add_action_block(assets,id,{0,32,0,0,ActionBlockKind::Cue,"Bad.Track"});});check(value==edited&&author.revision()==revision,"Invalid block mutated history/draft");
  author.remove_action_block(assets,id,2);rejects([&]{author.save_all(assets);});check(read(source/path)==bytes,"Missing hit reference published source");assets.package(id,root/"failed.json");check(read(root/"before.json")==read(root/"failed.json"),"Failed consumer validation changed playable head");author.undo(assets);check(value==edited,"Failed candidate block removal Undo failed");
  author.save_all(assets);assets.package(id,root/"after.json");auto cooked=load_cooked_action(root/"after.json",assets.cas_path(),id);check(std::any_of(cooked.blocks.begin(),cooked.blocks.end(),[&](const auto& b){return b.id==added&&b.key=="Test.New";}),"Structural edit missing from cooked action");

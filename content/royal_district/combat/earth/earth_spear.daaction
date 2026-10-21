@@ -36,8 +36,54 @@
       "track": 3,
       "begin": 69632,
       "end": 73728,
-      "kind": "hit",
-      "key": "Projectile.EarthSpear"
+      "kind": "projectile",
+      "key": "Projectile.EarthSpear",
+      "hit": {
+        "schema": 1,
+        "shape": "sphere",
+        "offset": [
+          0,
+          0,
+          0.12
+        ],
+        "radius": 0.28,
+        "power": 35,
+        "evaluator": 1,
+        "damage_type": 2,
+        "socket": "weapon_right"
+      },
+      "effects": {
+        "schema": 1,
+        "entries": [
+          {
+            "asset": "16811faf-bbad-4a86-8e91-417fe670fbdf",
+            "power": 1,
+            "source": "royal_district/combat/flinch.daeffect"
+          }
+        ]
+      },
+      "projectile": {
+        "schema": 1,
+        "range": 30.0,
+        "speed": 20.0,
+        "gravity": 0.0,
+        "lifetime": 300,
+        "visual_model": "943abfb0-299a-4419-8b89-2cb73bc6f2ca",
+        "preparation": {
+          "emergence_block": 2,
+          "move_block": 3,
+          "release_block": 4,
+          "offset": [
+            0.7,
+            0.0,
+            0.35
+          ],
+          "rise": 0.62,
+          "socket": "weapon_right",
+          "ready_pitch_degrees": -45
+        },
+        "model_source": "royal_district/combat/earth/earth_spear_rock.glb"
+      }
     },
     {
       "id": 5,

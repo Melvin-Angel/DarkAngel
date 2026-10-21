@@ -1,4 +1,5 @@
 #include <darkangel/world_session.hpp>
+#include "../engine/runtime/ability_state.hpp"
 #include <darkangel/ability_presentation.hpp>
 #include <cmath>
 #include <iostream>
@@ -26,6 +27,7 @@ void prepared_projectile_timeline(){
     pose=prepared_projectile_pose(prep,action,35,ground,hand);check(pose&&pose->position==hand&&pose->travel==1,"Prepared projectile holds at the animated hand until release");
     check(!prepared_projectile_pose(prep,action,40,ground,hand),"Release transfers presentation to the active projectile");
     check(!prepared_projectile_pose(prep,action,5,{NAN,0,0},hand),"Invalid transforms cannot publish prepared projectile presentation");
+    action.blocks.back().kind=ActionBlockKind::Projectile;check(prepared_projectile_pose(prep,action,35,ground,hand).has_value()&&!prepared_projectile_pose(prep,action,40,ground,hand),"Typed projectile release lost preparation lifecycle");
 }
 struct Fixture {
     WorldSession server{SessionRole::Server,handshake()};AbilityOwnerHandle owner;
@@ -50,6 +52,27 @@ struct Fixture {
     }
     void step(unsigned count,unsigned rate=action_tick_units){for(unsigned i=0;i<count;++i){server.advance_abilities(server.ability_snapshot(owner).tick+1,rate);server.drain_ability_actions();}}
 };
+void composer_owned_combat(){
+ Fixture f;auto& block=f.action->blocks.back();block.kind=ActionBlockKind::Hitbox;block.hit=ActionHit{{0.,1.,.8},.6,25.,1,2,""};
+ auto frozen=freeze_ability_definition(*f.light,AttributeSet(schema()));check(frozen->melee.size()==1&&frozen->melee[0].composer_owned&&frozen->melee[0].power==25,"Composer hit did not compile into combat contract");
+ auto again=freeze_ability_definition(*frozen,AttributeSet(schema()));check(again->melee.size()==1,"Repeated freezing duplicated composer gameplay");
+ auto ambiguous=*f.light;ambiguous.melee={{block.id,{0,1,.8},.5,10,1,2}};rejects([&]{freeze_ability_definition(ambiguous,AttributeSet(schema()));});
+ block.kind=ActionBlockKind::Projectile;block.projectile=ActionProjectile{20.,5.,30.,120};
+ auto ambiguous_shot=*f.light;ambiguous_shot.aim=AbilityAim{30,AbilityProjectile{20,0,120,{},{}}};rejects([&]{freeze_ability_definition(ambiguous_shot,AttributeSet(schema()));});
+ auto restricted_shot=*f.light;restricted_shot.aim=AbilityAim{10,{}};rejects([&]{freeze_ability_definition(restricted_shot,AttributeSet(schema()));});
+ frozen=freeze_ability_definition(*f.light,AttributeSet(schema()));check(frozen->melee[0].projectile&&frozen->melee[0].sweep==30,"Composer projectile motion was lost");
+ block.kind=ActionBlockKind::Aoe;block.projectile.reset();block.area_period=1;block.begin=0;block.end=f.action->duration;
+ AbilityState state(f.owner,0,schema(),2,1);state.equip(f.kit,f.input,f.catalogue);auto request=f.request(1);request.grant_generation=state.owner_snapshot().grant_generation;
+ check(state.request(request).first.committed,"Composer aura failed activation");state.finish_tick(action_tick_units);check(state.pending_hits.size()==1,"Aura did not pulse at entry");
+ auto hit=state.pending_hits.front();check(state.remember_hit(hit,99,1)&&!state.remember_hit(hit,99,1),"Aura pulse did not deduplicate");state.pending_hits.clear();state.begin_tick(1);state.finish_tick(4*action_tick_units);
+ check(state.pending_hits.size()==4,"Fast traversal lost a pulse or included the exclusive end");check(!state.remember_hit(state.pending_hits.front(),99,1),"Entry pulse repeated damage");for(unsigned pulse=1;pulse<state.pending_hits.size();++pulse)check(state.remember_hit(state.pending_hits[pulse],99,1),"Distinct aura pulses were suppressed");
+ state.pending_hits.clear();state.begin_tick(2);check(state.finish_tick(action_tick_units).empty()&&state.pending_hits.empty(),"Completed aura leaked gameplay work");
+}
+void composer_self_effect_without_physics(){
+ Fixture f;auto effect=std::make_shared<EffectDefinition>();effect->id=AssetId::random();effect->generation=std::string(64,'e');effect->duration_ticks=2;effect->execute_on_apply=true;effect->evaluator=2;
+ f.server.register_effect_evaluator(2,[](const EffectContext& context){return std::vector<ResourceDelta>{{2,-context.credit.power}};});
+ f.action->blocks={{1,0,0,3*action_tick_units,ActionBlockKind::Gameplay,"Gameplay.Self"}};f.action->blocks[0].effects={{effect->id,7,effect}};f.server.equip_combat_kit(f.owner,f.kit,f.input,f.catalogue);check(f.server.request_ability(f.request(1)).committed,"Gameplay effect activation failed");f.step(1);check(f.server.resolve_ability_hits(1).empty()&&value(f.server.ability_snapshot(f.owner),2)==93,"Self effect required collision or failed at time zero");f.step(1,0);f.server.resolve_ability_hits(2);check(value(f.server.ability_snapshot(f.owner),2)==93,"Hitstop repeated self event");
+}
 void commitment(){
     Fixture f;auto request=f.request(1);auto before=f.server.ability_snapshot(f.owner);
     check(f.server.can_activate(request)==AbilityFailure::None&&f.server.ability_snapshot(f.owner).revision==before.revision,"CanActivate is read-only");
@@ -180,4 +203,4 @@ std::vector<std::pair<std::uint64_t,ActionEvent>> render_trace(unsigned frames){
     return result;
 }
 }
-int main(){try{prepared_projectile_timeline();commitment();swap_and_input();authority_and_health();bounds_and_completion();combo_continuation();death_and_interruption();check(render_trace(30)==render_trace(60)&&render_trace(60)==render_trace(144),"Identical action/cost traces at 30/60/144 render schedules");std::cout<<"Ability grants, prepared projectile timing, atomic action/cost/cooldown commits, data-authored combo continuations, cleanup, bounds and WorldSession Health checks passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
+int main(){try{prepared_projectile_timeline();composer_owned_combat();composer_self_effect_without_physics();commitment();swap_and_input();authority_and_health();bounds_and_completion();combo_continuation();death_and_interruption();check(render_trace(30)==render_trace(60)&&render_trace(60)==render_trace(144),"Identical action/cost traces at 30/60/144 render schedules");std::cout<<"Ability grants, prepared projectile timing, atomic action/cost/cooldown commits, data-authored combo continuations, cleanup, bounds and WorldSession Health checks passed\n";return 0;}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

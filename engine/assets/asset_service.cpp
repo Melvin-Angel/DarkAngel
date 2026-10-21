@@ -19,6 +19,8 @@ namespace darkangel {
 using namespace assets_detail;
 namespace {
 constexpr std::size_t native_save_edit_limit = runtime_package_root_limit;
+constexpr std::size_t native_snapshot_file_limit=16384;
+constexpr std::size_t native_snapshot_byte_limit=1024ull*1024*1024;
 std::atomic_flag active_coordinator=ATOMIC_FLAG_INIT; // DirectXTex WIC factory is process-global
 struct Statement {
     sqlite3_stmt* p{};
@@ -283,7 +285,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
     // importers unchanged. No candidate bytes are installed in the real mount.
     for(const auto& entry:std::filesystem::recursive_directory_iterator(p.sources))if(entry.is_regular_file()){
         auto relative=entry.path().lexically_relative(p.sources).generic_string();auto bytes=read(within(p.sources,relative));total+=bytes.size();
-        require(state->inputs.size()<4096&&total<=256*1024*1024,"Native Save snapshot exceeds 4096 files/256 MiB");
+        require(state->inputs.size()<native_snapshot_file_limit&&total<=native_snapshot_byte_limit,"Native Save snapshot exceeds 16384 files/1 GiB");
         state->inputs.emplace(relative,sha256(bytes));atomic_write(within(snapshot,relative),bytes,false);
     }
     std::set<AssetId> selected(scene_roots.begin(),scene_roots.end());std::vector<std::string> ui_members;
@@ -294,7 +296,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
         if(ui_member){require(edit.draft.size()<=24*1024,"UI member files are at most 24 KB");auto relative=source.lexically_relative(p.sources).generic_string();std::string original;
             if(edit.create)require(!std::filesystem::exists(source)&&!std::filesystem::exists(within(snapshot,relative)),"New UI member path already exists; existing work preserved");
             else{original=read(within(snapshot,relative),1024*1024);if(sha256(original)!=edit.expected_sha256)throw std::runtime_error("Coordinated Save is stale for "+relative+"; reload the changed source");}
-            total=total-original.size()+edit.draft.size();require(total<=256*1024*1024,"Native Save candidate byte limit");require(state->drafts.emplace(relative,edit.draft).second,"Duplicate native Save source");state->originals.emplace(relative,original);
+            total=total-original.size()+edit.draft.size();require(total<=native_snapshot_byte_limit,"Native Save candidate byte limit");require(state->drafts.emplace(relative,edit.draft).second,"Duplicate native Save source");state->originals.emplace(relative,original);
             if(edit.create)state->created_members.insert(relative);atomic_write(within(snapshot,relative),edit.draft);atomic_write(within(state->directory/"o",relative),original,false);ui_members.push_back(relative);continue;}
         require(ext==".daimport"||ext==".dagraph"||ext==".dainput"||ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".daattributes","Coordinated Save supports native gameplay sources");
         auto relative=source.lexically_relative(p.sources).generic_string();std::string original;auto after=json(edit.draft,1024*1024);const bool model_metadata=ext==".daimport";require(!model_metadata||!edit.create,"Model metadata edits require an existing imported model");
@@ -303,7 +305,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
             if(model_metadata){auto unchanged_before=before,unchanged_after=after;for(const char* field:{"materials","subassets"}){unchanged_before.erase(field);unchanged_after.erase(field);}require(unchanged_before==unchanged_after&&(before.at("importer")=="static-gltf-v1"||before.at("importer")=="human-gltf-v2"),"Material metadata Save preserves model identity, importer and settings");auto model=source;model.replace_extension();require(model.extension()==".gltf"||model.extension()==".glb","Metadata must belong to an imported model");}
             // An inline (schema 1) UI document may be migrated to member files (schema 2); otherwise the schema stays.
             else require(before.at("asset")==after.at("asset")&&before.at("kind")==after.at("kind")&&(before.at("schema")==after.at("schema")||(ext==".daui"&&before.at("schema")==1&&after.at("schema")==2)),"Native Save preserves UUID/type/schema");}
-        total=total-original.size()+edit.draft.size();require(total<=256*1024*1024,"Native Save candidate byte limit");require(state->drafts.emplace(relative,edit.draft).second,"Duplicate native Save source");state->originals.emplace(relative,original);
+        total=total-original.size()+edit.draft.size();require(total<=native_snapshot_byte_limit,"Native Save candidate byte limit");require(state->drafts.emplace(relative,edit.draft).second,"Duplicate native Save source");state->originals.emplace(relative,original);
         selected.insert(AssetId::parse(after.at(model_metadata?"id":"asset").get<std::string>()));atomic_write(within(snapshot,relative),edit.draft);
         atomic_write(within(state->directory/"o",relative),original,false);
     }
@@ -312,7 +314,7 @@ PreparedNativeEdit AssetService::prepare_native(std::span<const NativeSourceEdit
         for(const auto& entry:std::filesystem::directory_iterator(file.parent_path()))if(entry.is_regular_file()&&entry.path().extension()==".daui"){try{const auto descriptor=json(read(entry.path(),60000),60000);
             if(descriptor.value("schema",1)==2&&descriptor.contains("members")){const auto listed=descriptor.at("members");for(const auto& [key,value]:listed.items())if(value==name){owned=true;selected.insert(AssetId::parse(descriptor.at("asset").get<std::string>()));}}}catch(const std::exception&){}}
         require(owned,"A UI member file must belong to a UI document in its folder");}
-    std::map<AssetId,std::string> inventory;std::map<AssetId,std::string> identities;std::set<std::string> paths;std::set<std::string> candidate_paths;for(const auto& [path,digest]:state->inputs)candidate_paths.insert(path);for(const auto& [path,id]:state->created)candidate_paths.insert(path);for(const auto& path:state->created_members)candidate_paths.insert(path);require(candidate_paths.size()<=4096,"Native Save candidate file limit");
+    std::map<AssetId,std::string> inventory;std::map<AssetId,std::string> identities;std::set<std::string> paths;std::set<std::string> candidate_paths;for(const auto& [path,digest]:state->inputs)candidate_paths.insert(path);for(const auto& [path,id]:state->created)candidate_paths.insert(path);for(const auto& path:state->created_members)candidate_paths.insert(path);require(candidate_paths.size()<=native_snapshot_file_limit,"Native Save candidate file limit");
     for(const auto& relative:candidate_paths){
         require(paths.insert(lowercase(relative)).second,"Case-colliding source snapshot");auto source=within(snapshot,relative);auto ext=source.extension();
         bool native=ext==".daability"||ext==".daeffect"||ext==".daaction"||ext==".dacharacter"||ext==".daplayer"||ext==".dafacemask"||ext==".danpc"||ext==".dabehavior"||ext==".damovement"||ext==".daprefab"||ext==".damaterial"||ext==".daui"||ext==".dacue"||ext==".daitem"||ext==".datrail"||ext==".dadecal"||ext==".dasound"||ext==".damix"||ext==".daaudioprofile"||ext==".dakit"||ext==".datags"||ext==".daattributes"||ext==".dagraph"||ext==".dainput"||ext==".dacollision"||ext==".daskeleton"||ext==".damask";
@@ -395,7 +397,7 @@ PreparedNativeEdit AssetService::preview_native(std::span<const NativeSourceEdit
     std::size_t linked_files{};
     auto link=[&](const std::string& relative){
         if(state->drafts.contains(relative))return;auto target=snapshot/std::filesystem::path(relative);if(std::filesystem::exists(target))return;auto from=within(p.sources,relative);if(!std::filesystem::is_regular_file(from))return;
-        require(++linked_files<=4096,"Native preview mount exceeds 4096 files");std::filesystem::create_directories(target.parent_path());std::error_code failed;std::filesystem::create_hard_link(from,target,failed);if(failed)std::filesystem::copy_file(from,target);};
+        require(++linked_files<=native_snapshot_file_limit,"Native preview mount exceeds 16384 files");std::filesystem::create_directories(target.parent_path());std::error_code failed;std::filesystem::create_hard_link(from,target,failed);if(failed)std::filesystem::copy_file(from,target);};
     auto link_whole=[&]{for(const auto& entry:std::filesystem::recursive_directory_iterator(p.sources))if(entry.is_regular_file())link(entry.path().lexically_relative(p.sources).generic_string());};
     std::filesystem::create_directories(snapshot);if(whole)link_whole();else for(const auto& relative:closure)link(relative);
     for(const auto& [relative,draft]:state->drafts)atomic_write(within(snapshot,relative),draft);

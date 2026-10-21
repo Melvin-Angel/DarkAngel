@@ -1,4 +1,6 @@
 #include "native_authoring_test_support.hpp"
+#include "legacy_combat_fixture.hpp"
+#include "authoring_fixture_sources.hpp"
 AssetId NativeAuthoringCommandFixture::id(const char* file) const {
     return AssetId::parse(Json::parse(read(source / file))["asset"].get<std::string>());
 }
@@ -7,7 +9,8 @@ NativeAuthoringCommandFixture::NativeAuthoringCommandFixture() {
     source = root / "s";
     check(!std::filesystem::exists(root), "Use a fresh command-suite directory");
     std::filesystem::create_directories(source);
-    std::filesystem::copy(std::filesystem::path(DAE_SOURCE_DIR) / "content", source, std::filesystem::copy_options::recursive);
+    copy_authoring_fixture_sources(std::filesystem::path(DAE_SOURCE_DIR) / "content",source);
+    prepare_legacy_combat_fixture(source);
     service = std::make_unique<AssetService>(source, root / "c");
     service->scan();
     kit = id("royal_district/combat/player.dakit");

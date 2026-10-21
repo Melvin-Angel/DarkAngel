@@ -1,5 +1,6 @@
 #include "native_authoring.hpp"
 #include <darkangel/ui_assets.hpp>
+#include <darkangel/animation_assets.hpp>
 #include <darkangel/motor_parameters.hpp>
 #include <darkangel/hash.hpp>
 #include <darkangel/tag_assets.hpp>
@@ -78,6 +79,12 @@ unsigned NativeAuthoring::add_action_block(AssetService& assets,AssetId asset,co
  switch(block.kind){case ActionBlockKind::Cue:kind="cue";break;case ActionBlockKind::HitWindow:kind="hit";break;case ActionBlockKind::Invulnerability:kind="invulnerability";break;case ActionBlockKind::MovementLock:kind="movement-lock";break;case ActionBlockKind::ComboWindow:kind="combo";break;case ActionBlockKind::Commit:kind="commit";break;case ActionBlockKind::Vfx:kind="vfx";break;case ActionBlockKind::Audio:kind="audio";break;case ActionBlockKind::Gameplay:kind="gameplay";break;case ActionBlockKind::Projectile:kind="projectile";break;case ActionBlockKind::Aoe:kind="aoe";break;case ActionBlockKind::Hitbox:kind="hitbox";break;}
  require(kind!=nullptr,"Unsupported action block kind");
  value["blocks"].push_back({{"id",next},{"track",block.track},{"begin",block.begin},{"end",block.end},{"kind",kind},{"key",block.key}});
+ if(!block.hit&&(block.kind==ActionBlockKind::Hitbox||block.kind==ActionBlockKind::Projectile||block.kind==ActionBlockKind::Aoe))value["blocks"].back()["hit"]={{"schema",1},{"shape","sphere"},{"offset",{0.,1.,.8}},{"radius",.5},{"power",0.},{"evaluator",1u},{"damage_type",1u},{"socket",""}};
+ const auto catalogue=inventory(assets);auto locator=[&](AssetId id){auto entry=std::find_if(catalogue.begin(),catalogue.end(),[&](const auto& asset){return asset.id==id;});require(entry!=catalogue.end(),"Referenced block asset is missing from catalog/drafts");return entry->path;};
+ if(block.kind==ActionBlockKind::Projectile){auto shot=block.projectile.value_or(ActionProjectile{});auto& payload=value["blocks"].back()["projectile"];payload={{"schema",1},{"speed",shot.speed},{"gravity",shot.gravity},{"range",shot.range},{"lifetime",shot.lifetime}};if(shot.visual_model!=AssetId{}){payload["visual_model"]=shot.visual_model.text();payload["model_source"]=locator(shot.visual_model);}if(shot.preparation){const auto& prep=*shot.preparation;payload["preparation"]={{"emergence_block",prep.emergence_block},{"move_block",prep.move_block},{"release_block",next},{"offset",prep.offset},{"rise",prep.rise},{"socket",prep.socket},{"ready_pitch_degrees",prep.ready_pitch_degrees}};}}
+ if(block.kind==ActionBlockKind::Aoe)value["blocks"].back()["area"]={{"schema",1},{"period_ticks",block.area_period?block.area_period:30u}};
+ if(block.hit){const auto& hit=*block.hit;value["blocks"].back()["hit"]={{"schema",1},{"shape","sphere"},{"offset",hit.offset},{"radius",hit.radius},{"power",hit.power},{"evaluator",hit.evaluator},{"damage_type",hit.damage_type},{"socket",hit.socket}};}
+ if(!block.effects.empty()){auto& payload=value["blocks"].back()["effects"];payload={{"schema",1},{"entries",nlohmann::json::array()}};for(const auto& effect:block.effects)payload["entries"].push_back({{"asset",effect.asset.text()},{"source",locator(effect.asset)},{"power",effect.power}});}
  authoring_action(value);apply(assets,asset,revision_,std::move(value),"Create action block");action_ids_[asset]=next;return next;
 }
 void NativeAuthoring::remove_action_block(AssetService& assets,AssetId asset,unsigned block){
@@ -116,6 +123,29 @@ AssetId NativeAuthoring::stage_creation(AssetService& assets,std::string path,nl
  record_changes(assets,"Edit gameplay fields");require(drafts.size()<64,"Native draft limit");auto relative=std::filesystem::path(path);require(!relative.is_absolute()&&!relative.empty(),"Choose an owned relative source path");for(const auto& part:relative)require(part!=".."&&part!=".","Source path must stay in the owned project");require(!std::filesystem::exists(assets.source_root()/relative),"Source name already exists; existing file preserved");auto fold=[](std::string value){for(auto& c:value)c=static_cast<char>(std::tolower(static_cast<unsigned char>(c)));return value;};auto existing=inventory(assets);auto id=AssetId::parse(value.at("asset").get<std::string>());require(id!=AssetId{},"Creation requires a persistent UUID");for(const auto& asset:existing)require(asset.id!=id&&fold(asset.path)!=fold(path),"Source UUID/name already exists in catalog or drafts");
  NativeDraft draft{{id,std::move(path),0},value.dump(2)+"\n",std::move(value),true};Command command;command.label="Create "+draft.asset.path;command.after[id]=draft.value;command.creations[id]=draft;drafts.emplace(id,draft);observed_[id]=draft.value;undo_.push_back(std::move(command));redo_.clear();trim_history();continuous_=false;++revision_;return id;
 }
+AssetId NativeAuthoring::create_action_from_animation(AssetService& assets,AssetId clip,std::string_view path){
+ require(!path.empty()&&std::filesystem::path(path).extension()==".daaction","Choose a relative .daaction destination");
+ auto inventory=this->inventory(assets);auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==clip;});require(found!=inventory.end(),"Choose an imported animation clip");
+ const std::array roots{clip};PreviewPackage package(assets,*this,{clip},roots);auto cooked=load_cooked_clip(package.registry(),assets.cas_path(),clip);
+ const auto duration=cooked.definition.ticks*action_tick_units;require(duration>=action_tick_units&&duration<=600*action_tick_units,"Animation exceeds composer duration bounds");
+ return stage_creation(assets,std::string(path),{{"schema",2},{"kind","action"},{"asset",AssetId::random().text()},{"duration",duration},{"loops",1u},{"priority",10u},{"slot","full-body"},{"motion",{{"clip",clip.text()},{"source",found->path},{"policy","none"}}},{"blocks",nlohmann::json::array()}});
+}
+AssetId NativeAuthoring::create_ability_composer(AssetService& assets,AssetId ability,unsigned step,AssetId clip,std::string_view path){
+ record_changes(assets,"Edit gameplay fields");auto value=open(assets,ability).value;
+ require(value.at("kind")=="ability","Select an Ability");
+ const auto count=1u+static_cast<unsigned>(value.value("combo_steps",nlohmann::json::array()).size());
+ require(step<=count&&step<4,"Linear combo has at most four steps");
+ if(step<count){const auto& slot=step?value.at("combo_steps")[step-1]:value;auto assigned=AssetId::parse(slot.at("action").get<std::string>());const auto& action=open(assets,assigned).value;
+  if(action.contains("motion")&&action.at("motion").at("clip")==clip.text())return assigned;
+  require(slot.value("melee",nlohmann::json::array()).empty(),"Migrate legacy hit profiles before replacing this composer");
+ }
+ check_sources(assets,{{ability,value}});
+ const auto created=create_action_from_animation(assets,clip,path);auto command=std::move(undo_.back());undo_.pop_back();
+ command.label="Create and assign ability composer";command.before[ability]=value;
+ if(step==count){if(!value.contains("combo_steps"))value["combo_steps"]=nlohmann::json::array();value["combo_steps"].push_back({{"action",created.text()},{"source",drafts.at(created).asset.path},{"melee",nlohmann::json::array()}});}
+ else{auto& slot=step?value["combo_steps"][step-1]:value;slot["action"]=created.text();if(step)slot["source"]=drafts.at(created).asset.path;else slot["sources"]["action"]=drafts.at(created).asset.path;}
+ command.after[ability]=value;drafts.at(ability).value=value;observed_[ability]=std::move(value);undo_.push_back(std::move(command));trim_history();++revision_;return created;
+}
 AssetId NativeAuthoring::create_character(AssetService& assets,AssetId skin,std::string_view name){
  require(!name.empty()&&name.size()<=64&&std::all_of(name.begin(),name.end(),[](unsigned char c){return std::isalnum(c)||c=='_'||c=='-';}),"Use a name with letters, numbers, underscores or hyphens");auto inventory=this->inventory(assets);auto source=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==skin;});require(source!=inventory.end(),"Select a catalog skin");auto id=AssetId::random();nlohmann::json value={{"schema",1},{"kind","character"},{"asset",id.text()},{"skin",skin.text()},{"sources",{{"skin",source->path}}}};return stage_creation(assets,"characters/"+std::string(name)+".dacharacter",std::move(value));
 }
@@ -135,6 +165,12 @@ AssetId NativeAuthoring::duplicate_ability_with_action(AssetService& assets,Asse
  auto copied_action=candidate.duplicate(assets,action,name);auto action_command=std::move(candidate.undo_.back());candidate.undo_.pop_back();
  auto copied_ability=candidate.duplicate(assets,source,name,blank);auto ability_command=std::move(candidate.undo_.back());candidate.undo_.pop_back();
  auto& draft=candidate.drafts.at(copied_ability);draft.value["action"]=copied_action.text();draft.value["sources"]["action"]=candidate.drafts.at(copied_action).asset.path;
+ // Independent ownership covers every continuation, not just the starter.
+ auto own_profiles=[&](AssetId id,nlohmann::json& slot){auto& blocks=candidate.drafts.at(id).value["blocks"];for(const auto& profile:slot.value("melee",nlohmann::json::array())){auto found=std::find_if(blocks.begin(),blocks.end(),[&](const auto& block){return block.at("id")==profile.at("block")&&block.at("kind")=="hit";});require(found!=blocks.end()&&!found->contains("hit"),"Cannot migrate missing or multiply-owned hit profile while duplicating");auto payload=profile;payload.erase("block");payload["schema"]=1;payload["shape"]="sphere";if(!payload.contains("socket"))payload["socket"]="";(*found)["hit"]=std::move(payload);}slot["melee"]=nlohmann::json::array();};
+ own_profiles(copied_action,draft.value);candidate.observed_[copied_ability]=draft.value;
+ auto capture_action=[&](AssetId id){auto& action_draft=candidate.drafts.at(id);if(blank)for(auto& block:action_draft.value["blocks"])if(block.contains("hit"))block["hit"]["power"]=0.;action_draft.saved=action_draft.value.dump(2)+"\n";candidate.observed_[id]=action_draft.value;action_command.after[id]=action_draft.value;action_command.creations[id]=action_draft;};
+ capture_action(copied_action);
+ if(draft.value.contains("combo_steps"))for(unsigned index=0;index<draft.value["combo_steps"].size();++index){auto& step=draft.value["combo_steps"][index];auto original_step=AssetId::parse(step["action"].get<std::string>());auto step_name=std::string(name.substr(0,56))+"_step"+std::to_string(index+2);candidate.observed_[copied_ability]=draft.value;auto copied_step=candidate.duplicate(assets,original_step,step_name);candidate.undo_.pop_back();own_profiles(copied_step,step);capture_action(copied_step);step["action"]=copied_step.text();step["source"]=candidate.drafts.at(copied_step).asset.path;}
  draft.saved=draft.value.dump(2)+"\n";candidate.observed_[copied_ability]=draft.value;
  ability_command.after[copied_ability]=draft.value;ability_command.creations[copied_ability]=draft;
  action_command.label="Create Ability and independent Composer";action_command.after.insert(ability_command.after.begin(),ability_command.after.end());action_command.creations.insert(ability_command.creations.begin(),ability_command.creations.end());candidate.undo_.push_back(std::move(action_command));candidate.trim_history();
@@ -338,7 +374,12 @@ void NativeAuthoring::assign(AssetService& assets,AssetId kit,std::size_t slot,A
  bool retained=k.contains("dodge")&&k["dodge"]["ability"]==old;for(const auto& s:k["slots"])retained|=s["ability"]==old;if(!old.is_null()&&!retained){k["sources"]["abilities"].erase(old.get<std::string>());if(k.contains("effect_bindings")){auto& bindings=k["effect_bindings"];bindings.erase(std::remove_if(bindings.begin(),bindings.end(),[&](const auto& b){return b["ability"]==old;}),bindings.end());}}
  record_changes(assets,"Assign kit slot");
 }
-void NativeAuthoring::bind(AssetService& assets,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power){record_changes(assets,"Edit gameplay fields");auto& k=open(assets,kit).value;auto& a=open(assets,ability).value;auto& e=open(assets,effect);check_sources(assets,{{kit,k},{ability,a},{effect,e.value}});require(e.value["kind"]=="effect"&&k["attributes"]==e.value["attributes"],"Effect uses an incompatible attribute schema");bool granted=false,hit=false;for(const auto& s:k["slots"])granted|=s["ability"]==ability.text();for(const auto& h:a["melee"])hit|=h["block"]==block;require(granted&&hit,"Assign ability to the kit and select its hit window first");auto& effects=k["effects"];if(effects.is_null())effects=nlohmann::json::array();if(std::find(effects.begin(),effects.end(),effect.text())==effects.end())effects.push_back(effect.text());k["sources"]["effects"][effect.text()]=e.asset.path;auto& bindings=k["effect_bindings"];if(bindings.is_null())bindings=nlohmann::json::array();for(auto& b:bindings)if(b["ability"]==ability.text()&&b["hit_block"]==block&&b["effect"]==effect.text()){b["power"]=power;record_changes(assets,"Bind effect");return;}bindings.push_back({{"ability",ability.text()},{"hit_block",block},{"effect",effect.text()},{"power",power}});record_changes(assets,"Bind effect");}
+std::vector<unsigned> NativeAuthoring::ability_hit_blocks(AssetService& assets,AssetId ability){
+ const auto& value=open(assets,ability).value;std::set<unsigned> ids;
+ auto collect=[&](const nlohmann::json& slot){for(const auto& profile:slot.value("melee",nlohmann::json::array()))ids.insert(profile.at("block").get<unsigned>());const auto& action=open(assets,AssetId::parse(slot.at("action").get<std::string>())).value;for(const auto& block:action.at("blocks"))if(block.contains("hit"))ids.insert(block.at("id").get<unsigned>());};
+ collect(value);for(const auto& step:value.value("combo_steps",nlohmann::json::array()))collect(step);return {ids.begin(),ids.end()};
+}
+void NativeAuthoring::bind(AssetService& assets,AssetId kit,AssetId ability,unsigned block,AssetId effect,double power){record_changes(assets,"Edit gameplay fields");auto& k=open(assets,kit).value;auto& a=open(assets,ability).value;auto& e=open(assets,effect);check_sources(assets,{{kit,k},{ability,a},{effect,e.value}});require(e.value["kind"]=="effect"&&k["attributes"]==e.value["attributes"],"Effect uses an incompatible attribute schema");bool granted=false,hit=false;for(const auto& s:k["slots"])granted|=s["ability"]==ability.text();for(auto authored:ability_hit_blocks(assets,ability))hit|=authored==block;require(granted&&hit,"Assign ability to the kit and select its hit window first");auto& effects=k["effects"];if(effects.is_null())effects=nlohmann::json::array();if(std::find(effects.begin(),effects.end(),effect.text())==effects.end())effects.push_back(effect.text());k["sources"]["effects"][effect.text()]=e.asset.path;auto& bindings=k["effect_bindings"];if(bindings.is_null())bindings=nlohmann::json::array();for(auto& b:bindings)if(b["ability"]==ability.text()&&b["hit_block"]==block&&b["effect"]==effect.text()){b["power"]=power;record_changes(assets,"Bind effect");return;}bindings.push_back({{"ability",ability.text()},{"hit_block",block},{"effect",effect.text()},{"power",power}});record_changes(assets,"Bind effect");}
 bool NativeAuthoring::dirty()const{for(const auto& [id,d]:drafts)if(d.dirty())return true;return false;}
 NativeValidationSummary NativeAuthoring::validate(AssetService& assets,AssetId selected,std::span<const AssetId> roots){
  record_changes(assets,"Edit gameplay fields");if(selected==AssetId{}){auto found=std::find_if(drafts.begin(),drafts.end(),[](const auto& entry){return entry.second.dirty();});if(found==drafts.end())found=drafts.begin();require(found!=drafts.end(),"Open a native source before validation");selected=found->first;}open(assets,selected);std::vector<NativeSourceEdit> edits;for(const auto& [id,draft]:drafts)if(id==selected||draft.dirty())for(auto& edit:draft_source_edits(draft))edits.push_back(std::move(edit));auto candidate=assets.prepare_native(edits,roots);return {revision_,edits.size(),selected};
@@ -394,8 +435,10 @@ std::vector<NativeHistoryChange> NativeAuthoring::history_changes(bool forward,s
 void NativeAuthoring::travel(AssetService& assets,bool forward){
  record_changes(assets,"Edit gameplay fields");auto& from=forward?redo_:undo_;auto& to=forward?undo_:redo_;require(!from.empty(),"Authoring history is empty");auto command=from.back();const auto& expected=forward?command.before:command.after;const auto& target=forward?command.after:command.before;
  if(!command.creations.empty()){
+  check_sources(assets,expected);for(const auto& [id,value]:expected)require(drafts.at(id).value==value,"Stale compound history command; draft changed");
   if(forward){for(const auto& [id,draft]:command.creations){require(!drafts.contains(id)&&!std::filesystem::exists(assets.source_root()/draft.asset.path),"Creation Redo path/identity is no longer free");for(const auto& asset:inventory(assets))require(asset.id!=id&&asset.path!=draft.asset.path,"Creation Redo conflicts with another source");}for(const auto& [id,draft]:command.creations){drafts.emplace(id,draft);observed_[id]=draft.value;}}
   else{check_sources(assets,expected);for(const auto& [id,draft]:command.creations){require(drafts.at(id).pending&&drafts.at(id).value==command.after.at(id),"Published/changed creation cannot be removed by history");}for(const auto& [id,draft]:command.creations){drafts.erase(id);observed_.erase(id);}}
+  for(const auto& [id,value]:target){drafts.at(id).value=value;observed_[id]=value;}
   to.push_back(std::move(command));from.pop_back();++revision_;continuous_=false;return;
  }
  check_sources(assets,expected);for(const auto& [id,value]:expected)require(drafts.at(id).value==value,"Stale history command; draft changed");
@@ -424,22 +467,25 @@ bool clean_closure(AssetService& assets,const NativeAuthoring& author,std::initi
   nlohmann::json value;if(auto found=drafts.find(path);found!=drafts.end()){if(found->second->dirty())return false;value=found->second->value;}
   else{if(!native_with_sources(path))return true;std::ifstream file(assets.source_root()/path);if(!file)return true;value=nlohmann::json::parse(file,nullptr,false);if(value.is_discarded())return false;}
   std::function<bool(const nlohmann::json&)> walk=[&](const nlohmann::json& v)->bool{if(v.is_string())return clean(v.get<std::string>());if(v.is_object()||v.is_array())for(const auto& entry:v)if(!walk(entry))return false;return true;};
-  return !value.is_object()||!value.contains("sources")||walk(value.at("sources"));};
+  if(!value.is_object())return true;
+  if(value.contains("sources")&&!walk(value.at("sources")))return false;
+  if(value.contains("motion")&&value.at("motion").contains("source")&&!walk(value.at("motion").at("source")))return false;
+  if(value.contains("combo_steps"))for(const auto& step:value.at("combo_steps"))if(step.contains("source")&&!walk(step.at("source")))return false;
+  if(value.value("kind","")=="action")for(const auto& block:value.at("blocks")){if(block.contains("effects"))for(const auto& effect:block.at("effects").at("entries"))if(!walk(effect.at("source")))return false;if(block.contains("projectile")&&block.at("projectile").contains("model_source")&&!walk(block.at("projectile").at("model_source")))return false;}
+  return true;};
  const auto inventory=assets.assets();
  for(auto root:roots){std::string path;if(auto draft=author.drafts.find(root);draft!=author.drafts.end())path=draft->second.asset.path;else{auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});if(found==inventory.end())return false;path=found->path;}if(!clean(path))return false;}
  return true;
 }
-// A cooked root is packaged as the catalog holds it; an incremental cook rescans the mount and rehashes the root's
-// sources and products (hundreds of milliseconds) and runs only for uncooked roots. Save, Play and the background cook
-// publish new generations. A source file changed outside the editor shows after the preview's Refresh, which makes every
-// root verified once more by a cook (forget_preview_verification).
-std::map<AssetId,std::uint64_t> verified_generations;bool verify_sources{};
+// Verify source recipes once per source mount/root generation before reusing a
+// cooked preview. A new editor process must not display pre-migration gameplay.
+std::map<std::pair<std::filesystem::path,AssetId>,std::uint64_t> verified_generations;
 void package_clean(AssetService& assets,std::span<const AssetId> roots,const std::filesystem::path& output){
  const auto inventory=assets.assets();
- const bool known=std::all_of(roots.begin(),roots.end(),[&](AssetId root){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});auto verified=verified_generations.find(root);return found!=inventory.end()&&found->generation&&(!verify_sources||(verified!=verified_generations.end()&&verified->second==found->generation));});
+ const bool known=std::all_of(roots.begin(),roots.end(),[&](AssetId root){auto found=std::find_if(inventory.begin(),inventory.end(),[&](const auto& asset){return asset.id==root;});auto verified=verified_generations.find({assets.source_root(),root});return found!=inventory.end()&&found->generation&&(verified!=verified_generations.end()&&verified->second==found->generation);});
  if(known){assets.package(roots.front(),output,roots.subspan(1));return;}
  package_authoring(assets,roots,output);
- for(const auto& asset:assets.assets())if(std::find(roots.begin(),roots.end(),asset.id)!=roots.end()&&asset.generation)verified_generations[asset.id]=asset.generation;
+ for(const auto& asset:assets.assets())if(std::find(roots.begin(),roots.end(),asset.id)!=roots.end()&&asset.generation)verified_generations[{assets.source_root(),asset.id}]=asset.generation;
 }
 }
 PreviewPackage::PreviewPackage(AssetService& assets,NativeAuthoring& author,std::initializer_list<AssetId> include,std::span<const AssetId> package_roots){
@@ -449,7 +495,7 @@ PreviewPackage::PreviewPackage(AssetService& assets,NativeAuthoring& author,std:
 }
 PreviewPackage::~PreviewPackage(){if(!file_.empty()){std::error_code ignored;std::filesystem::remove(file_,ignored);}}
 std::filesystem::path PreviewPackage::registry()const{return candidate_?candidate_->registry():file_;}
-void forget_preview_verification(){verified_generations.clear();verify_sources=true;}
+void forget_preview_verification(){verified_generations.clear();}
 std::string preview_cache_key(AssetService& assets,const NativeAuthoring& author,std::initializer_list<AssetId> roots){
  if(!clean_closure(assets,author,roots))return {};
  const auto inventory=assets.assets();std::string key;

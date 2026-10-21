@@ -19,9 +19,11 @@ ProjectileTrace PhysicsMeleeQuery::trace(MotorVec from,MotorVec delta,double rad
     ProjectileTrace result;if(!world_.gameplay_queries_ready())throw std::runtime_error("Projectile trace outside the authoritative query phase");
     if(delta.x*delta.x+delta.y*delta.y+delta.z*delta.z<1e-12)return result;
     double nearest=2;const auto actors=world_.sweep(from,delta,radius,16,{CharacterCollision,source});
+    if(actors.overflow)throw std::runtime_error("Projectile actor sweep overflow");
     for(const auto& hit:actors.hits){if(!world_.valid_hit(hit)||!hit.character||hit.sensor)continue;if(hit.fraction<nearest||(hit.fraction==nearest&&result.target&&hit.identity<result.target->network)){nearest=hit.fraction;result.target=MeleeTarget{hit.identity,hit.epoch};result.point=hit.point;}}
-    const auto walls=world_.query_ray(from,delta,{StaticCollision|KinematicCollision|DynamicCollision,source});
-    for(const auto& hit:walls.hits)if(hit.fraction<nearest){nearest=hit.fraction;result.target.reset();result.blocked=true;result.point=hit.point;}
+    const auto walls=world_.sweep(from,delta,radius,16,{StaticCollision|KinematicCollision|DynamicCollision,source});
+    if(walls.overflow)throw std::runtime_error("Projectile geometry sweep overflow");
+    for(const auto& hit:walls.hits)if(world_.valid_hit(hit)&&!hit.sensor&&hit.fraction<=nearest){nearest=hit.fraction;result.target.reset();result.blocked=true;result.point=hit.point;}
     return result;
 }
 std::optional<unsigned> PhysicsMeleeQuery::socket_joint(const AbilityMelee& profile)const{
@@ -43,8 +45,12 @@ MotorVec PhysicsMeleeQuery::attached_origin(const MotorState& state,const Abilit
     const double c=std::cos(state.yaw),s=std::sin(state.yaw);
     return {state.position.x+c*x+s*z,state.position.y+y,state.position.z-s*x+c*z};
 }
-MotorVec PhysicsMeleeQuery::origin(std::uint64_t,const MotorState& state,const AbilityMelee& profile,AssetId action,std::uint64_t clock)const{
-    return attached_origin(state,profile,action,clock);
+MotorVec PhysicsMeleeQuery::origin(std::uint64_t source,const MotorState& state,const AbilityMelee& profile,AssetId action,std::uint64_t clock)const{
+    const auto desired=attached_origin(state,profile,action,clock);
+    MotorVec body{state.position.x,state.position.y+(state.crouched?.5:1.),state.position.z};
+    const auto blockers=world_.query_ray(body,{desired.x-body.x,desired.y-body.y,desired.z-body.z},{StaticCollision|KinematicCollision|DynamicCollision,source});
+    if(blockers.overflow)throw std::runtime_error("Projectile spawn obstruction overflow");
+    return blockers.hits.empty()?desired:body;
 }
 MeleeCandidates PhysicsMeleeQuery::query(std::uint64_t source,const MotorState& state,const AbilityMelee& profile)const{
     return query(source,state,profile,{},0);
@@ -53,6 +59,11 @@ MeleeCandidates PhysicsMeleeQuery::query(std::uint64_t source,const MotorState& 
     if(!matches(source,state))throw std::runtime_error("Melee source physics pose mismatch");
     const auto center=attached_origin(state,profile,action,clock);const auto c=std::cos(state.yaw),s=std::sin(state.yaw);
     // A swept profile travels from the attached socket or motor-relative origin along the validated aim direction.
+    // An authored offset/socket must not put the overlap beyond a wall that
+    // separates it from its owning actor (the target-side ray alone misses this).
+    MotorVec body{state.position.x,state.position.y+(state.crouched?.5:1.),state.position.z};
+    auto origin_blockers=world_.query_ray(body,{center.x-body.x,center.y-body.y,center.z-body.z},{StaticCollision|KinematicCollision|DynamicCollision,source});
+    if(origin_blockers.overflow)return {{},true};if(!origin_blockers.hits.empty())return {};
     const double level=std::cos(state.pitch)*profile.sweep;
     auto candidates=profile.sweep>0?world_.sweep(center,{s*level,std::sin(state.pitch)*profile.sweep,c*level},profile.radius,16,{CharacterCollision,source}):world_.overlap(center,profile.radius,16,{CharacterCollision,source});MeleeCandidates result;result.overflow=candidates.overflow;
     if(profile.sweep>0&&candidates.hits.size()>1){auto first=std::min_element(candidates.hits.begin(),candidates.hits.end(),[](const auto& a,const auto& b){return a.fraction<b.fraction||(a.fraction==b.fraction&&a.identity<b.identity);});candidates.hits={*first};}

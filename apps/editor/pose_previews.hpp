@@ -34,6 +34,7 @@ class PosePreviews {
     void reset();
 
     std::shared_ptr<render::UploadedSkin> authoring_skin;
+    std::shared_ptr<render::UploadedSkin> ability_target_skin;
     CharacterDefinition authoring_character_definition;
     std::shared_ptr<GraphPosePreview> graph_pose;
     std::shared_ptr<ComposerPosePreview> composer_pose;
